@@ -7677,27 +7677,44 @@ async function confirmDeleteAllJamaah(){
 function importJamaahFromExcel(input){ 
     const file=input.files[0]; 
     if(!file) return; 
-    if(confirm("Import Excel akan MENAMBAH database baru. Lanjutkan?")){ 
-        const reader=new FileReader(); 
-        reader.onload=function(e){ 
-            const data=new Uint8Array(e.target.result); 
-            const workbook=XLSX.read(data,{type:'array',cellDates:true}); 
-            const sheet=workbook.Sheets[workbook.SheetNames[0]]; 
-            const rows=XLSX.utils.sheet_to_json(sheet,{header:1,defval:"",raw:false}); 
-            if(!rows||rows.length<2){ 
-                showToast('File Excel kosong!'); 
-                input.value=''; 
-                return; 
-            } 
-            const headers=rows[0].map(h=>h?h.toString().trim():''); 
-            const namaIndex=headers.findIndex(h=>h&&(h.toLowerCase().includes('nama')||h.toLowerCase()==='name')); 
-            if(namaIndex===-1){ 
-                showToast('Header "Nama" tidak ditemukan!'); 
-                input.value=''; 
-                return; 
-            }
-            // Fungsi konversi angka serial Excel ke tanggal YYYY-MM-DD
-            function excelSerialToDate(val) {
+    const reader=new FileReader(); 
+    reader.onload=function(e){ 
+        const data=new Uint8Array(e.target.result); 
+        const workbook=XLSX.read(data,{type:'array',cellDates:true}); 
+        const sheet=workbook.Sheets[workbook.SheetNames[0]]; 
+        const rows=XLSX.utils.sheet_to_json(sheet,{header:1,defval:"",raw:false}); 
+        if(!rows||rows.length<2){ 
+            showToast('File Excel kosong!'); 
+            input.value=''; 
+            return; 
+        } 
+        const headers=rows[0].map(h=>h?h.toString().trim():''); 
+        const namaIndex=headers.findIndex(h=>h&&(h.toLowerCase().includes('nama')||h.toLowerCase()==='name')); 
+        if(namaIndex===-1){ 
+            showToast('Header "Nama" tidak ditemukan!'); 
+            input.value=''; 
+            return; 
+        }
+        // Hitung dulu berapa baris valid (ada nama) sebelum tanya konfirmasi
+        let validCount = 0;
+        for(let i=1;i<rows.length;i++){ 
+            const row=rows[i]; 
+            if(!row||row.length===0) continue; 
+            const nama=row[namaIndex]?row[namaIndex].toString().trim():''; 
+            if(nama) validCount++;
+        }
+        if(validCount === 0){ 
+            showToast('Tidak ada baris jamaah yang valid di file ini!'); 
+            input.value=''; 
+            return; 
+        }
+        const progNama = getCurrentProgram()?.nama || '-';
+        if(!confirm(`Import ${validCount} jamaah ke Program:\n📁 ${progNama}\n\nLanjutkan?`)){ 
+            input.value=''; 
+            return; 
+        }
+        // Fungsi konversi angka serial Excel ke tanggal YYYY-MM-DD
+        function excelSerialToDate(val) {
                 if (!val) return val;
                 const str = val.toString().trim();
                 // Jika sudah format tanggal valid, kembalikan apa adanya
@@ -7745,9 +7762,8 @@ function importJamaahFromExcel(input){
             renderJamaahList();
             showToast(`✅ Import selesai! ${added} jamaah ditambahkan`); 
             input.value=''; 
-        }; 
-        reader.readAsArrayBuffer(file); 
-    } 
+    }; 
+    reader.readAsArrayBuffer(file); 
 }
 
 // ==================== JAMAAH KITA ====================
@@ -9576,6 +9592,16 @@ async function refilterAllProgramData() {
     if(typeof renderPengeluaranList === 'function') renderPengeluaranList();
     if(typeof updateRingkasanKeuangan === 'function') updateRingkasanKeuangan();
     if(typeof updateHomeStats === 'function') updateHomeStats();
+    if(typeof updateHomeDashboardExtra === 'function') {
+        const jd = jamaahList.length;
+        let lc = 0, tp = 0;
+        jamaahList.forEach(j => {
+            const bayar = paymentTransaksiList.filter(t => t.id_jamaah == j.id).reduce((s,t) => s + t.nominal, 0);
+            const hp = getTotalHargaPaket(j) || 0;
+            if(hp > 0) { if(bayar >= hp) lc++; else tp += (hp - bayar); }
+        });
+        updateHomeDashboardExtra(jd, lc, tp);
+    }
     const dashLabel = document.getElementById('dashboardProgramLabel');
     if(dashLabel) dashLabel.textContent = '📁 Program: ' + (getCurrentProgram()?.nama || '-');
     if(typeof renderTipePaketList === 'function') renderTipePaketList();
@@ -12799,6 +12825,7 @@ function getKonfigurasiProData() {
     if(progCfg) {
         if(progCfg.harga_paket) data.harga_paket = progCfg.harga_paket;
         if(progCfg.tipe_paket) data.tipe_paket = progCfg.tipe_paket;
+        if(progCfg.keberangkatan) data.keberangkatan = progCfg.keberangkatan;
     }
     return data;
 }
@@ -13459,17 +13486,25 @@ async function loadKonfigurasiPro() {
     if (!saved) saved = JSON.parse(localStorage.getItem('navara_konfigurasi_pro') || 'null');
     if(saved) { try { konfigurasiPro = { ...konfigurasiPro, ...saved }; } catch(e) {} }
     if(!konfigurasiPro.per_program) konfigurasiPro.per_program = {};
-    // Migrasi sekali: kalau ada Harga Seragam/Tipe Paket lama (global, sebelum fitur Program), pindahkan ke Program pertama
+    // Migrasi: kalau ada Harga Seragam/Tipe Paket/Keberangkatan lama (global, sebelum fitur Program), pindahkan ke Program pertama
     const firstProgId = programList[0] ? programList[0].id : null;
-    if(firstProgId && !konfigurasiPro.per_program[firstProgId]) {
+    if(firstProgId) {
+        if(!konfigurasiPro.per_program[firstProgId]) konfigurasiPro.per_program[firstProgId] = {};
+        const slot0 = konfigurasiPro.per_program[firstProgId];
+        let migrated = false;
         const legacyHarga = konfigurasiPro.harga_paket;
         const legacyTipe = konfigurasiPro.tipe_paket;
-        if((legacyHarga && (legacyHarga.seragam || legacyHarga.nominal > 0)) || (legacyTipe && legacyTipe.length)) {
-            konfigurasiPro.per_program[firstProgId] = {};
-            if(legacyHarga) konfigurasiPro.per_program[firstProgId].harga_paket = { ...legacyHarga };
-            if(legacyTipe) konfigurasiPro.per_program[firstProgId].tipe_paket = [...legacyTipe];
-            await idbSet(STORE_KONFIGURASI, 'konfigurasi_pro', konfigurasiPro);
+        const legacyKeberangkatan = konfigurasiPro.keberangkatan;
+        if(!slot0.harga_paket && legacyHarga && (legacyHarga.seragam || legacyHarga.nominal > 0)) {
+            slot0.harga_paket = { ...legacyHarga }; migrated = true;
         }
+        if(!slot0.tipe_paket && legacyTipe && legacyTipe.length) {
+            slot0.tipe_paket = [...legacyTipe]; migrated = true;
+        }
+        if(!slot0.keberangkatan && legacyKeberangkatan && (legacyKeberangkatan.tanggal || legacyKeberangkatan.jenis)) {
+            slot0.keberangkatan = { ...legacyKeberangkatan }; migrated = true;
+        }
+        if(migrated) await idbSet(STORE_KONFIGURASI, 'konfigurasi_pro', konfigurasiPro);
     }
     document.getElementById('cfg_nama1').value = konfigurasiPro.instansi1.nama || '';
     document.getElementById('cfg_alamat1').value = konfigurasiPro.instansi1.alamat || '';
@@ -13517,8 +13552,9 @@ async function loadKonfigurasiPro() {
     // Load harga seragam (per-Program)
     reloadHargaSeragamUI();
     document.getElementById('cfg_wa_laporan').value = konfigurasiPro.wa_template.laporan || '';
-    // Load keberangkatan
-    const kb = konfigurasiPro.keberangkatan || {};
+    // Load keberangkatan (per-Program)
+    const progSlot = ensureProgramConfigSlot();
+    const kb = progSlot.keberangkatan || konfigurasiPro.keberangkatan || {};
     const elJenis = document.getElementById('cfg_jenis_perjalanan');
     const elTgl = document.getElementById('cfg_tgl_keberangkatan');
     if(elJenis) elJenis.value = kb.jenis || '';
@@ -13587,7 +13623,7 @@ async function saveKonfigurasiPro() {
         nominal: parseInt(nominalRaw) || 0
     };
     konfigurasiPro.wa_template = { laporan: document.getElementById('cfg_wa_laporan').value };
-    konfigurasiPro.keberangkatan = {
+    slot.keberangkatan = {
         jenis: document.getElementById('cfg_jenis_perjalanan')?.value || '',
         tanggal: document.getElementById('cfg_tgl_keberangkatan')?.value || ''
     };
