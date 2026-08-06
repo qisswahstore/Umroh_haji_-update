@@ -1912,7 +1912,7 @@
             <div class="greeting-actions">
                 <button id="darkModeToggle" class="dark-mode-toggle">🌙</button>
                 <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px;">
-                    <a href="#" id="adminModeToggleBtn" class="admin-toggle-link"><i class="fas fa-shield-alt"></i> Mode Admin</a>
+                    <a href="#" id="adminModeToggleBtn" class="admin-toggle-link" onclick="event.preventDefault(); toggleAdminMode();"><i class="fas fa-shield-alt"></i> Mode Admin</a>
                     <a href="#" id="perpanjangBtn" onclick="showPage('lisensi');return false;" style="display:none;font-size:11px;color:#f59e0b;font-weight:bold;text-decoration:none;">⏰ Perpanjang</a>
                 </div>
             </div>
@@ -3206,7 +3206,7 @@
         </select>
     </div>
     <div style="display:flex;gap:8px;">
-        <button class="btn btn-primary" style="flex:1;" onclick="saveNewProgram()">💾 Simpan & Aktifkan</button>
+        <button id="btnSaveNewProgram" class="btn btn-primary" style="flex:1;" onclick="saveNewProgram()">💾 Simpan & Aktifkan</button>
         <button class="btn" style="flex:1;background:#e2e8f0;color:#333;" onclick="closeCreateProgramModal()">Batal</button>
     </div>
 </div></div>
@@ -9562,14 +9562,57 @@ function renderProgramListInModal() {
     programList.forEach(p => {
         const active = p.id === currentProgramId;
         const color = PROGRAM_WARNA[p.jenis] || PROGRAM_WARNA.lainnya;
+        const jumlahJamaah = _allJamaahData.filter(j => j.program_id === p.id).length;
         html += `
-        <div onclick="selectProgram('${p.id}')" style="display:flex;align-items:center;gap:10px;padding:12px 10px;border-radius:10px;cursor:pointer;margin-bottom:6px;background:${active ? '#F0FBF6' : '#fff'};border:1px solid ${active ? '#0D5C4A' : '#eee'};">
-            <span style="width:10px;height:10px;border-radius:50%;background:${color};flex-shrink:0;"></span>
-            <span style="flex:1;font-size:14px;font-weight:${active ? '700' : '500'};">${PROGRAM_ICON[p.jenis]||'📁'} ${escapeHtml(p.nama)}</span>
-            ${active ? '<span style="color:#0D5C4A;font-weight:700;">✓</span>' : ''}
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
+            <div onclick="selectProgram('${p.id}')" style="flex:1;display:flex;align-items:center;gap:10px;padding:12px 10px;border-radius:10px;cursor:pointer;background:${active ? '#F0FBF6' : '#fff'};border:1px solid ${active ? '#0D5C4A' : '#eee'};">
+                <span style="width:10px;height:10px;border-radius:50%;background:${color};flex-shrink:0;"></span>
+                <div style="flex:1;overflow:hidden;">
+                    <div style="font-size:14px;font-weight:${active ? '700' : '500'};">${PROGRAM_ICON[p.jenis]||'📁'} ${escapeHtml(p.nama)}</div>
+                    <div style="font-size:10px;color:#999;">${jumlahJamaah} jamaah</div>
+                </div>
+                ${active ? '<span style="color:#0D5C4A;font-weight:700;">✓</span>' : ''}
+            </div>
+            <button onclick="event.stopPropagation();confirmDeleteProgram('${p.id}')" style="flex-shrink:0;width:38px;height:38px;border:none;background:#FEE2E2;color:#DC2626;border-radius:10px;font-size:14px;cursor:pointer;">🗑️</button>
         </div>`;
     });
     container.innerHTML = html;
+}
+
+function confirmDeleteProgram(id) {
+    if(programList.length <= 1) return showToast('Tidak bisa hapus — minimal harus ada 1 Program!');
+    const p = programList.find(x => x.id === id);
+    if(!p) return;
+    const jumlahJamaah = _allJamaahData.filter(j => j.program_id === id).length;
+    const jumlahKas = _allKasData.filter(k => k.program_id === id).length;
+    const jumlahPengeluaran = _allPengeluaranData.filter(x => x.program_id === id).length;
+    let pesan = `Hapus Program "${p.nama}"?\n\nSemua datanya akan ikut terhapus PERMANEN:\n- ${jumlahJamaah} jamaah\n- ${jumlahKas} transaksi Kas\n- ${jumlahPengeluaran} Pengeluaran\n\nTidak bisa dibatalkan! Yakin?`;
+    if(!confirm(pesan)) return;
+    deleteProgram(id);
+}
+
+async function deleteProgram(id) {
+    programList = programList.filter(p => p.id !== id);
+    _allJamaahData = _allJamaahData.filter(j => j.program_id !== id);
+    _allKasData = _allKasData.filter(k => k.program_id !== id);
+    _allPengeluaranData = _allPengeluaranData.filter(p => p.program_id !== id);
+    if(konfigurasiPro.per_program && konfigurasiPro.per_program[id]) delete konfigurasiPro.per_program[id];
+
+    await saveProgramData();
+    await idbSet(STORE_JAMAAH, 'jamaah_list', _allJamaahData);
+    await idbSet(STORE_KAS, 'kas_data', _allKasData);
+    await idbSet(STORE_PENGELUARAN, 'pengeluaran_data', _allPengeluaranData);
+    await idbSet(STORE_KONFIGURASI, 'konfigurasi_pro', konfigurasiPro);
+    localStorage.setItem('navara_konfigurasi_pro', JSON.stringify(konfigurasiPro));
+
+    if(currentProgramId === id) {
+        currentProgramId = programList[0].id;
+        localStorage.setItem('navara_current_program_id', currentProgramId);
+        renderProgramPickerBar();
+        refilterAllProgramData();
+    }
+    renderProgramListInModal();
+    showToast('🗑️ Program dihapus');
 }
 
 function selectProgram(id) {
@@ -9620,9 +9663,12 @@ function closeCreateProgramModal() {
 }
 
 async function saveNewProgram() {
+    const btn = document.getElementById('btnSaveNewProgram');
+    if(btn && btn.disabled) return; // cegah double-klik
     const nama = document.getElementById('newProgramNama').value.trim();
     const jenis = document.getElementById('newProgramJenis').value;
     if(!nama) return showToast('Isi nama program dulu!');
+    if(btn) { btn.disabled = true; btn.textContent = '⏳ Menyimpan...'; }
     const newProgram = { id: 'prog_' + Date.now(), nama, jenis, created_at: new Date().toLocaleDateString('id-ID') };
     programList.push(newProgram);
     await saveProgramData();
@@ -9631,6 +9677,7 @@ async function saveNewProgram() {
     renderProgramPickerBar();
     refilterAllProgramData();
     closeCreateProgramModal();
+    if(btn) { btn.disabled = false; btn.textContent = '💾 Simpan & Aktifkan'; }
     showToast('✅ Program "' + nama + '" dibuat & diaktifkan');
 }
 
@@ -13853,7 +13900,6 @@ async function initPremium() {
     // UPDATE STATS SETELAH SEMUA DATA LOAD!
     updateHomeStats();
     
-    document.getElementById('adminModeToggleBtn')?.addEventListener('click', (e) => { e.preventDefault(); toggleAdminMode(); });
     document.getElementById('paymentFabOpen')?.addEventListener('click', () => openPaymentModal());
     
     document.addEventListener('input', function(e) {
