@@ -5758,19 +5758,30 @@ function simpanTemplateSuratKustom() {
 let scannerStream = null;
 let scannerAnimFrame = null;
 let lastScannedResult = null;
-let absensiList = []; // semua sesi
+let absensiList = []; // sesi milik Program aktif (view terfilter)
+let _allAbsensiData = []; // semua sesi dari semua Program
 let sesiAktifId = null; // id sesi yang sedang aktif
 
 async function loadAbsensiData() {
     const saved = await idbGet(STORE_ABSENSI, 'absensi_sesi');
-    absensiList = saved || [];
-    const savedSesiId = await idbGet(STORE_ABSENSI, 'sesi_aktif_id');
+    _allAbsensiData = saved || [];
+    const defaultPid = programList[0] ? programList[0].id : null;
+    let needSave = false;
+    _allAbsensiData.forEach(s => { if(!s.program_id && defaultPid) { s.program_id = defaultPid; needSave = true; } });
+    if(needSave) await idbSet(STORE_ABSENSI, 'absensi_sesi', _allAbsensiData);
+    absensiList = _allAbsensiData.filter(s => s.program_id === currentProgramId);
+
+    const savedSesiId = await idbGet(STORE_ABSENSI, 'sesi_aktif_id_' + currentProgramId);
     sesiAktifId = savedSesiId || null;
+    if(sesiAktifId && !absensiList.find(s => s.id === sesiAktifId)) sesiAktifId = null;
 }
 
 async function saveAbsensiData() {
-    await idbSet(STORE_ABSENSI, 'absensi_sesi', absensiList);
-    await idbSet(STORE_ABSENSI, 'sesi_aktif_id', sesiAktifId);
+    const otherProgramData = _allAbsensiData.filter(s => s.program_id !== currentProgramId);
+    absensiList.forEach(s => { if(!s.program_id) s.program_id = currentProgramId; });
+    _allAbsensiData = [...otherProgramData, ...absensiList];
+    await idbSet(STORE_ABSENSI, 'absensi_sesi', _allAbsensiData);
+    await idbSet(STORE_ABSENSI, 'sesi_aktif_id_' + currentProgramId, sesiAktifId);
 }
 
 function getSesiAktif() {
@@ -5825,7 +5836,8 @@ async function buatSesiBaru() {
         id: Date.now().toString(),
         nama,
         tanggal: new Date().toLocaleDateString('id-ID'),
-        absensi: []
+        absensi: [],
+        program_id: currentProgramId
     };
     absensiList.push(sesi);
     sesiAktifId = sesi.id;
@@ -7646,28 +7658,36 @@ async function confirmDeleteAllJamaah(){
         showToast('Tidak ada data!'); 
         return; 
     } 
-    if(confirm(`⚠️ PERINGATAN!\n\nSemua ${jamaahList.length} data jamaah akan dihapus PERMANEN termasuk:\n- Data jamaah\n- Foto profil\n- Dokumen jamaah\n- On Proses\n- Folder Virtual\n\nField dinamis & konfigurasi TIDAK dihapus.\nLanjutkan?`)){ 
-        // Reset data jamaah saja, field tetap
+    const progNama = getCurrentProgram()?.nama || '-';
+    if(confirm(`⚠️ PERINGATAN!\n\nSemua ${jamaahList.length} data jamaah di Program "${progNama}" akan dihapus PERMANEN termasuk:\n- Data jamaah\n- Foto profil\n- Dokumen jamaah\n- Folder Virtual\n\n(Program lain TIDAK terpengaruh)\nField dinamis & konfigurasi TIDAK dihapus.\nLanjutkan?`)){ 
+        // Simpan dulu ID jamaah Program aktif, untuk hapus foto/dokumen yang terkait saja
+        const idJamaahDihapus = jamaahList.map(j => j.id);
+
+        // Hapus jamaah & folder & On Proses HANYA milik Program aktif, Program lain tetap aman
+        _allJamaahData = _allJamaahData.filter(j => j.program_id !== currentProgramId);
+        _allFolderData = _allFolderData.filter(f => f.program_id !== currentProgramId);
+        _allJamaahKitaData = _allJamaahKitaData.filter(k => k.program_id !== currentProgramId);
         jamaahList = [];
-        jamaahKitaList = [];
         folderList = [];
+        jamaahKitaList = [];
         dokumenData = {};
 
-        // Hapus dari IndexedDB - data saja
-        await idbSet(STORE_JAMAAH, 'jamaah_list', []);
-        await idbSet(STORE_JAMAAH_KITA, 'kita_list', []);
-        await idbSet(STORE_FOLDER, 'folder_list', []);
+        await idbSet(STORE_JAMAAH, 'jamaah_list', _allJamaahData);
+        await idbSet(STORE_FOLDER, 'folder_list', _allFolderData);
+        await idbSet(STORE_JAMAAH_KITA, 'kita_list', _allJamaahKitaData);
 
-        // Hapus semua foto profil dan dokumen dari IndexedDB
+        // Hapus foto profil & dokumen HANYA milik jamaah yang dihapus (bukan semua Program)
         const database = await openIndexedDB();
         const tx = database.transaction([STORE_FOTO, STORE_NAME], 'readwrite');
-        tx.objectStore(STORE_FOTO).clear();
-        tx.objectStore(STORE_NAME).clear();
+        idJamaahDihapus.forEach(id => {
+            tx.objectStore(STORE_FOTO).delete(id);
+            tx.objectStore(STORE_NAME).delete(id);
+        });
 
         // Hapus dari localStorage (fallback lama)
         ['navara_jamaah_list','navara_jamaah_kita_list','navara_folder_list'].forEach(k => localStorage.removeItem(k));
 
-        showToast('✅ Semua data jamaah telah dihapus');
+        showToast('✅ Data jamaah Program "' + progNama + '" telah dihapus');
         renderJamaahListWithPagination();
         renderJamaahKitaList();
         renderFolderList();
@@ -7793,12 +7813,19 @@ const defaultJamaahKitaFields = [
     { name: 'keterangan',    label: 'Keterangan',      type: 'textarea', icon: '📝', isRequired: false }
 ];
 
+let _allJamaahKitaData = [];
+
 async function loadJamaahKitaData() {
     let saved = await idbGet(STORE_JAMAAH_KITA, 'kita_list');
     if (!saved) saved = JSON.parse(localStorage.getItem('navara_jamaah_kita_list') || '[]');
     let savedFields = await idbGet(STORE_JAMAAH_KITA, 'kita_fields');
     if (!savedFields) savedFields = JSON.parse(localStorage.getItem('navara_jamaah_kita_fields') || 'null');
-    jamaahKitaList = saved || [];
+    _allJamaahKitaData = saved || [];
+    const defaultPid = programList[0] ? programList[0].id : null;
+    let needSave = false;
+    _allJamaahKitaData.forEach(k => { if(!k.program_id && defaultPid) { k.program_id = defaultPid; needSave = true; } });
+    if(needSave) await idbSet(STORE_JAMAAH_KITA, 'kita_list', _allJamaahKitaData);
+    jamaahKitaList = _allJamaahKitaData.filter(k => k.program_id === currentProgramId);
     dynamicFieldsJamaahKita = savedFields || defaultJamaahKitaFields;
 
     // Sinkronkan urutan + icon + label field On Proses mengikuti Database Jamaah
@@ -7819,7 +7846,10 @@ async function loadJamaahKitaData() {
 }
 
 async function saveJamaahKitaData() {
-    await idbSet(STORE_JAMAAH_KITA, 'kita_list', jamaahKitaList);
+    const otherProgramData = _allJamaahKitaData.filter(k => k.program_id !== currentProgramId);
+    jamaahKitaList.forEach(k => { if(!k.program_id) k.program_id = currentProgramId; });
+    _allJamaahKitaData = [...otherProgramData, ...jamaahKitaList];
+    await idbSet(STORE_JAMAAH_KITA, 'kita_list', _allJamaahKitaData);
     await idbSet(STORE_JAMAAH_KITA, 'kita_fields', dynamicFieldsJamaahKita);
     renderJamaahKitaList();
 }
@@ -7902,7 +7932,7 @@ function tambahJamaahKitaMulti() {
             additional.whatsapp = jamaah.additional_fields?.whatsapp || jamaah.additional_fields?.no_hp || jamaah.additional_fields?.telepon || '';
         }
         const now = new Date().toLocaleDateString('id-ID') + ' ' + new Date().toLocaleTimeString('id-ID');
-        jamaahKitaList.push({ id: Date.now() + berhasil, jamaahId: jamaah.id, nama_lengkap: jamaah.nama_lengkap, additional_fields: additional, created_at: now });
+        jamaahKitaList.push({ id: Date.now() + berhasil, jamaahId: jamaah.id, nama_lengkap: jamaah.nama_lengkap, additional_fields: additional, created_at: now, program_id: currentProgramId });
         berhasil++;
     });
     if (berhasil > 0) {
@@ -8837,14 +8867,24 @@ function salinFallback(text) {
 // ==================== PEMBAYARAN ====================
 let paymentTransaksiList = [], currentInvoiceJamaahId = null, currentInvoiceText = '', currentEditJamaahId = null, currentRiwayatJamaahId = null, currentPaymentFilter = 'semua', currentPaymentSearch = '';
 
+let _allPaymentData = [];
+
 async function loadPaymentData() { 
     let saved = await idbGet(STORE_PEMBAYARAN, 'pembayaran_list');
-    if (!saved) saved = paymentTransaksiList;
-    paymentTransaksiList = saved || []; 
+    if (!saved) saved = _allPaymentData.length ? _allPaymentData : paymentTransaksiList;
+    _allPaymentData = saved || [];
+    const defaultPid = programList[0] ? programList[0].id : null;
+    let needSave = false;
+    _allPaymentData.forEach(t => { if(!t.program_id && defaultPid) { t.program_id = defaultPid; needSave = true; } });
+    if(needSave) await idbSet(STORE_PEMBAYARAN, 'pembayaran_list', _allPaymentData);
+    paymentTransaksiList = _allPaymentData.filter(t => t.program_id === currentProgramId);
 }
 
 async function savePaymentData() { 
-    await idbSet(STORE_PEMBAYARAN, 'pembayaran_list', paymentTransaksiList);
+    const otherProgramData = _allPaymentData.filter(t => t.program_id !== currentProgramId);
+    paymentTransaksiList.forEach(t => { if(!t.program_id) t.program_id = currentProgramId; });
+    _allPaymentData = [...otherProgramData, ...paymentTransaksiList];
+    await idbSet(STORE_PEMBAYARAN, 'pembayaran_list', _allPaymentData);
 }
 
 function toggleHargaSeragamInput() {
@@ -9035,7 +9075,8 @@ function simpanPembayaran() {
         tanggal: tanggal || new Date().toISOString().split('T')[0], 
         nominal: nominal, 
         metode: metode, 
-        keterangan: keterangan 
+        keterangan: keterangan,
+        program_id: currentProgramId
     }; 
     paymentTransaksiList.push(newTrx); 
     savePaymentData(); 
@@ -9649,6 +9690,26 @@ async function refilterAllProgramData() {
     if(dashLabel) dashLabel.textContent = '📁 Program: ' + (getCurrentProgram()?.nama || '-');
     if(typeof renderTipePaketList === 'function') renderTipePaketList();
     if(document.getElementById('cfg_harga_seragam_aktif')) reloadHargaSeragamUI();
+    // Absensi: re-filter sesi milik Program aktif
+    absensiList = _allAbsensiData.filter(s => s.program_id === currentProgramId);
+    sesiAktifId = await idbGet(STORE_ABSENSI, 'sesi_aktif_id_' + currentProgramId) || null;
+    if(sesiAktifId && !absensiList.find(s => s.id === sesiAktifId)) sesiAktifId = null;
+    if(typeof renderSesiAktifInfo === 'function') renderSesiAktifInfo();
+    if(typeof renderRekapAbsensi === 'function') renderRekapAbsensi();
+    // Folder Virtual: re-filter milik Program aktif
+    folderList = _allFolderData.filter(f => f.program_id === currentProgramId);
+    if(typeof renderFolderList === 'function') renderFolderList();
+    // On Proses: re-filter milik Program aktif
+    jamaahKitaList = _allJamaahKitaData.filter(k => k.program_id === currentProgramId);
+    if(typeof renderJamaahKitaList === 'function') renderJamaahKitaList();
+    // Pembayaran: re-filter milik Program aktif
+    paymentTransaksiList = _allPaymentData.filter(t => t.program_id === currentProgramId);
+    if(typeof renderPaymentDashboard === 'function') renderPaymentDashboard();
+    if(typeof renderPaymentJamaahList === 'function') renderPaymentJamaahList();
+    // Multi Event: re-filter milik Program aktif
+    masterDataList = _allMasterData.filter(m => m.program_id === currentProgramId);
+    if(typeof renderMasterTable === 'function') renderMasterTable();
+    if(typeof renderMasterForm === 'function') renderMasterForm();
 }
 
 function openCreateProgramForm() {
@@ -9990,29 +10051,41 @@ function closeDetailModal() {
 
 // ==================== FOLDER VIRTUAL ====================
 let folderList = [];
+let _allFolderData = [];
 
 async function loadFolderData() { 
     let saved = await idbGet(STORE_FOLDER, 'folder_list');
-    if (!saved) saved = folderList;
-    folderList = saved || []; 
+    if (!saved) saved = _allFolderData.length ? _allFolderData : folderList;
+    _allFolderData = saved || [];
+    const defaultPid = programList[0] ? programList[0].id : null;
+    let needSave = false;
+    _allFolderData.forEach(f => { if(!f.program_id && defaultPid) { f.program_id = defaultPid; needSave = true; } });
+    if(needSave) await idbSet(STORE_FOLDER, 'folder_list', _allFolderData);
+    folderList = _allFolderData.filter(f => f.program_id === currentProgramId);
     renderFolderList(); 
 }
 
 async function saveFolderData() { 
-    await idbSet(STORE_FOLDER, 'folder_list', folderList);
+    const otherProgramData = _allFolderData.filter(f => f.program_id !== currentProgramId);
+    folderList.forEach(f => { if(!f.program_id) f.program_id = currentProgramId; });
+    _allFolderData = [...otherProgramData, ...folderList];
+    await idbSet(STORE_FOLDER, 'folder_list', _allFolderData);
     renderFolderList(); 
 }
 
 // Simpan tanpa render ulang halaman — dipakai saat update field selector agar tidak keluar halaman
 async function saveFolderDataSilent() {
-    await idbSet(STORE_FOLDER, 'folder_list', folderList);
+    const otherProgramData = _allFolderData.filter(f => f.program_id !== currentProgramId);
+    folderList.forEach(f => { if(!f.program_id) f.program_id = currentProgramId; });
+    _allFolderData = [...otherProgramData, ...folderList];
+    await idbSet(STORE_FOLDER, 'folder_list', _allFolderData);
 }
 
 function tambahFolder() { 
     const nama = document.getElementById('newFolderName')?.value.trim(); 
     if(!nama) return showToast('Isi nama folder!'); 
     if(folderList.some(f => f.nama === nama)) return showToast('Folder sudah ada!'); 
-    folderList.push({ id: Date.now(), nama, jamaahIds: [], fields: [], created_at: new Date().toLocaleDateString('id-ID') }); 
+    folderList.push({ id: Date.now(), nama, jamaahIds: [], fields: [], created_at: new Date().toLocaleDateString('id-ID'), program_id: currentProgramId }); 
     saveFolderData(); 
     document.getElementById('newFolderName').value = ''; 
     showToast('Folder berhasil dibuat'); 
@@ -11554,11 +11627,12 @@ async function bagikanFullZip() {
             created: new Date().toISOString(),
             program: programList,
             jamaah: { data: _allJamaahData, fields: dynamicFieldsJamaah },
-            jamaah_kita: { data: jamaahKitaList, fields: dynamicFieldsJamaahKita },
-            folder: folderList,
+            jamaah_kita: { data: _allJamaahKitaData, fields: dynamicFieldsJamaahKita },
+            folder: _allFolderData,
+            absensi: _allAbsensiData,
             kas: _allKasData,
-            pembayaran: paymentTransaksiList,
-            multi_event: masterDataList,
+            pembayaran: _allPaymentData,
+            multi_event: _allMasterData,
             dokumen_jenis: dokumenJenisList,
             konfigurasi: konfigurasiPro,
             catatan: catatanList,
@@ -11604,9 +11678,9 @@ async function bagikanFullZip() {
                 app: 'Navara', version: '3.0', created: new Date().toISOString(),
                 program: programList,
                 jamaah: { data: _allJamaahData, fields: dynamicFieldsJamaah },
-                jamaah_kita: { data: jamaahKitaList, fields: dynamicFieldsJamaahKita },
-                folder: folderList, kas: _allKasData, pembayaran: paymentTransaksiList,
-                multi_event: masterDataList, dokumen_jenis: dokumenJenisList,
+                jamaah_kita: { data: _allJamaahKitaData, fields: dynamicFieldsJamaahKita },
+                folder: _allFolderData, absensi: _allAbsensiData, kas: _allKasData, pembayaran: _allPaymentData,
+                multi_event: _allMasterData, dokumen_jenis: dokumenJenisList,
                 konfigurasi: konfigurasiPro,
                 catatan: catatanList,
                 pengeluaran: _allPengeluaranData
@@ -11666,11 +11740,12 @@ async function downloadFullZip() {
         zip.file('program.json', JSON.stringify(programList, null, 2));
         zip.file('jamaah.json', JSON.stringify({ data: _allJamaahData, fields: dynamicFieldsJamaah }, null, 2)); 
         zip.file('kas.json', JSON.stringify(_allKasData, null, 2)); 
-        zip.file('pembayaran.json', JSON.stringify(paymentTransaksiList, null, 2)); 
-        zip.file('multi_event.json', JSON.stringify(masterDataList, null, 2)); 
+        zip.file('pembayaran.json', JSON.stringify(_allPaymentData, null, 2)); 
+        zip.file('multi_event.json', JSON.stringify(_allMasterData, null, 2)); 
         zip.file('catatan.json', JSON.stringify(catatanList, null, 2)); 
-        zip.file('jamaah_kita.json', JSON.stringify({ data: jamaahKitaList, fields: dynamicFieldsJamaahKita }, null, 2));
-        zip.file('folder.json', JSON.stringify(folderList, null, 2));
+        zip.file('jamaah_kita.json', JSON.stringify({ data: _allJamaahKitaData, fields: dynamicFieldsJamaahKita }, null, 2));
+        zip.file('folder.json', JSON.stringify(_allFolderData, null, 2));
+        zip.file('absensi.json', JSON.stringify(_allAbsensiData, null, 2));
         zip.file('dokumen_jenis.json', JSON.stringify(dokumenJenisList, null, 2));
         zip.file('konfigurasi.json', JSON.stringify(konfigurasiPro, null, 2));
         zip.file('pengeluaran.json', JSON.stringify(_allPengeluaranData, null, 2));
@@ -11776,12 +11851,34 @@ async function applyRestoreBackupData(backup) {
         await idbSet(STORE_JAMAAH, 'jamaah_fields', dynamicFieldsJamaah);
     }
     if (backup.jamaah_kita) {
-        jamaahKitaList = backup.jamaah_kita.data || [];
         if (backup.jamaah_kita.fields) dynamicFieldsJamaahKita = backup.jamaah_kita.fields;
-        await idbSet(STORE_JAMAAH_KITA, 'kita_list', jamaahKitaList);
+        if (isMultiProgramBackup) {
+            _allJamaahKitaData = backup.jamaah_kita.data || [];
+            await idbSet(STORE_JAMAAH_KITA, 'kita_list', _allJamaahKitaData);
+        } else {
+            _allJamaahKitaData = await mergeRestoreIntoProgram(STORE_JAMAAH_KITA, 'kita_list', backup.jamaah_kita.data || []);
+        }
+        jamaahKitaList = _allJamaahKitaData.filter(k => k.program_id === currentProgramId);
         await idbSet(STORE_JAMAAH_KITA, 'kita_fields', dynamicFieldsJamaahKita);
     }
-    if (backup.folder) { folderList = backup.folder; await idbSet(STORE_FOLDER, 'folder_list', folderList); }
+    if (backup.folder) { 
+        if (isMultiProgramBackup) {
+            _allFolderData = backup.folder || [];
+            await idbSet(STORE_FOLDER, 'folder_list', _allFolderData);
+        } else {
+            _allFolderData = await mergeRestoreIntoProgram(STORE_FOLDER, 'folder_list', backup.folder);
+        }
+        folderList = _allFolderData.filter(f => f.program_id === currentProgramId);
+    }
+    if (backup.absensi) { 
+        if (isMultiProgramBackup) {
+            _allAbsensiData = backup.absensi || [];
+            await idbSet(STORE_ABSENSI, 'absensi_sesi', _allAbsensiData);
+        } else {
+            _allAbsensiData = await mergeRestoreIntoProgram(STORE_ABSENSI, 'absensi_sesi', backup.absensi);
+        }
+        absensiList = _allAbsensiData.filter(s => s.program_id === currentProgramId);
+    }
     if (backup.kas) { 
         if (isMultiProgramBackup) {
             _allKasData = backup.kas || [];
@@ -11791,8 +11888,24 @@ async function applyRestoreBackupData(backup) {
         }
         dataKas = _allKasData.filter(k => k.program_id === currentProgramId);
     }
-    if (backup.pembayaran) { paymentTransaksiList = backup.pembayaran; await idbSet(STORE_PEMBAYARAN, 'pembayaran_list', paymentTransaksiList); }
-    if (backup.multi_event) { masterDataList = backup.multi_event; await idbSet(STORE_MASTER, 'master_data', masterDataList); }
+    if (backup.pembayaran) { 
+        if (isMultiProgramBackup) {
+            _allPaymentData = backup.pembayaran || [];
+            await idbSet(STORE_PEMBAYARAN, 'pembayaran_list', _allPaymentData);
+        } else {
+            _allPaymentData = await mergeRestoreIntoProgram(STORE_PEMBAYARAN, 'pembayaran_list', backup.pembayaran);
+        }
+        paymentTransaksiList = _allPaymentData.filter(t => t.program_id === currentProgramId);
+    }
+    if (backup.multi_event) { 
+        if (isMultiProgramBackup) {
+            _allMasterData = backup.multi_event || [];
+            await idbSet(STORE_MASTER, 'master_data', _allMasterData);
+        } else {
+            _allMasterData = await mergeRestoreIntoProgram(STORE_MASTER, 'master_data', backup.multi_event);
+        }
+        masterDataList = _allMasterData.filter(m => m.program_id === currentProgramId);
+    }
     if (backup.dokumen_jenis) { dokumenJenisList = backup.dokumen_jenis; await saveDokumenJenisToIndexedDB(); }
     if (backup.konfigurasi) { konfigurasiPro = { ...konfigurasiPro, ...backup.konfigurasi }; await idbSet(STORE_KONFIGURASI, 'konfigurasi_pro', konfigurasiPro); }
     if (backup.catatan) { catatanList = backup.catatan; await saveCatatanData(); }
@@ -11891,11 +12004,29 @@ function restoreFromZip(input) {
 
             // Restore pembayaran
             const paymentFile = zip.file('pembayaran.json'); 
-            if (paymentFile) { paymentTransaksiList = JSON.parse(await paymentFile.async('string')); await idbSet(STORE_PEMBAYARAN, 'pembayaran_list', paymentTransaksiList); }
+            if (paymentFile) { 
+                const restoredPayment = JSON.parse(await paymentFile.async('string'));
+                if (isMultiProgramZip) {
+                    _allPaymentData = restoredPayment;
+                    await idbSet(STORE_PEMBAYARAN, 'pembayaran_list', _allPaymentData);
+                } else {
+                    _allPaymentData = await mergeRestoreIntoProgram(STORE_PEMBAYARAN, 'pembayaran_list', restoredPayment);
+                }
+                paymentTransaksiList = _allPaymentData.filter(t => t.program_id === currentProgramId);
+            }
 
             // Restore multi event
             const masterFile = zip.file('multi_event.json'); 
-            if (masterFile) { masterDataList = JSON.parse(await masterFile.async('string')); await idbSet(STORE_MASTER, 'master_data', masterDataList); }
+            if (masterFile) { 
+                const restoredMaster = JSON.parse(await masterFile.async('string'));
+                if (isMultiProgramZip) {
+                    _allMasterData = restoredMaster;
+                    await idbSet(STORE_MASTER, 'master_data', _allMasterData);
+                } else {
+                    _allMasterData = await mergeRestoreIntoProgram(STORE_MASTER, 'master_data', restoredMaster);
+                }
+                masterDataList = _allMasterData.filter(m => m.program_id === currentProgramId);
+            }
 
             // Restore catatan
             const catatanFile = zip.file('catatan.json'); 
@@ -11905,15 +12036,42 @@ function restoreFromZip(input) {
             const kitaFile = zip.file('jamaah_kita.json');
             if (kitaFile) {
                 const parsed = JSON.parse(await kitaFile.async('string'));
-                jamaahKitaList = parsed.data || [];
+                const restoredKita = parsed.data || [];
                 if (parsed.fields) dynamicFieldsJamaahKita = parsed.fields;
-                await idbSet(STORE_JAMAAH_KITA, 'kita_list', jamaahKitaList);
+                if (isMultiProgramZip) {
+                    _allJamaahKitaData = restoredKita;
+                    await idbSet(STORE_JAMAAH_KITA, 'kita_list', _allJamaahKitaData);
+                } else {
+                    _allJamaahKitaData = await mergeRestoreIntoProgram(STORE_JAMAAH_KITA, 'kita_list', restoredKita);
+                }
+                jamaahKitaList = _allJamaahKitaData.filter(k => k.program_id === currentProgramId);
                 await idbSet(STORE_JAMAAH_KITA, 'kita_fields', dynamicFieldsJamaahKita);
             }
 
             // Restore folder virtual
             const folderFile = zip.file('folder.json');
-            if (folderFile) { folderList = JSON.parse(await folderFile.async('string')); await idbSet(STORE_FOLDER, 'folder_list', folderList); }
+            if (folderFile) { 
+                const restoredFolder = JSON.parse(await folderFile.async('string'));
+                if (isMultiProgramZip) {
+                    _allFolderData = restoredFolder;
+                    await idbSet(STORE_FOLDER, 'folder_list', _allFolderData);
+                } else {
+                    _allFolderData = await mergeRestoreIntoProgram(STORE_FOLDER, 'folder_list', restoredFolder);
+                }
+                folderList = _allFolderData.filter(f => f.program_id === currentProgramId);
+            }
+
+            const absensiFile = zip.file('absensi.json');
+            if (absensiFile) { 
+                const restoredAbsensi = JSON.parse(await absensiFile.async('string'));
+                if (isMultiProgramZip) {
+                    _allAbsensiData = restoredAbsensi;
+                    await idbSet(STORE_ABSENSI, 'absensi_sesi', _allAbsensiData);
+                } else {
+                    _allAbsensiData = await mergeRestoreIntoProgram(STORE_ABSENSI, 'absensi_sesi', restoredAbsensi);
+                }
+                absensiList = _allAbsensiData.filter(s => s.program_id === currentProgramId);
+            }
 
             // Restore jenis dokumen
             const jenisFile = zip.file('dokumen_jenis.json');
@@ -12894,11 +13052,17 @@ async function generateAndShareTiketWA(jamaah) {
 // PERBAIKAN POIN 1: CETAK TIKET - Hanya mencetak area tiket, bersih tanpa menu/footer
 // ==================== MULTI EVENT (SINGKAT) ====================
 let masterDataList = [], masterDynamicFields = [], masterItemList = ['Kain Ihram', 'Sendal', 'Obat-obatan', 'Tas', 'Air Zamzam', 'Kopyah'], editingMasterId = null, availableModes = ['Semua', 'Haji', 'Toko', 'Sekolah', 'Umroh', 'Donasi'], activeModes = ['Semua', 'Haji', 'Toko', 'Sekolah', 'Umroh', 'Donasi'], currentDisplayMode = 'Semua';
+let _allMasterData = [];
 
 async function loadMasterData() {
     let saved = await idbGet(STORE_MASTER, 'master_data');
-    if (!saved) saved = masterDataList;
-    masterDataList = saved || [];
+    if (!saved) saved = _allMasterData.length ? _allMasterData : masterDataList;
+    _allMasterData = saved || [];
+    const defaultPid = programList[0] ? programList[0].id : null;
+    let needSave = false;
+    _allMasterData.forEach(m => { if(!m.program_id && defaultPid) { m.program_id = defaultPid; needSave = true; } });
+    if(needSave) await idbSet(STORE_MASTER, 'master_data', _allMasterData);
+    masterDataList = _allMasterData.filter(m => m.program_id === currentProgramId);
     let savedFields = await idbGet(STORE_MASTER, 'master_fields');
     if (!savedFields) savedFields = JSON.parse(localStorage.getItem('navara_master_fields') || 'null');
     if(savedFields) masterDynamicFields = savedFields;
@@ -12910,7 +13074,10 @@ async function loadMasterData() {
 }
 
 async function saveMasterDataToLocal() {
-    await idbSet(STORE_MASTER, 'master_data', masterDataList);
+    const otherProgramData = _allMasterData.filter(m => m.program_id !== currentProgramId);
+    masterDataList.forEach(m => { if(!m.program_id) m.program_id = currentProgramId; });
+    _allMasterData = [...otherProgramData, ...masterDataList];
+    await idbSet(STORE_MASTER, 'master_data', _allMasterData);
     await idbSet(STORE_MASTER, 'master_fields', masterDynamicFields);
     await idbSet(STORE_MASTER, 'master_items', masterItemList);
 }
@@ -12986,7 +13153,7 @@ function saveMasterData() {
             showToast(`⚠️ ${nama} sudah ada di mode ${mode}!`);
             return;
         }
-        masterDataList.push({ id: Date.now(), nama, additional_fields: additional, items, mode, created_at: now });
+        masterDataList.push({ id: Date.now(), nama, additional_fields: additional, items, mode, created_at: now, program_id: currentProgramId });
         showToast('✅ Data ditambahkan!');
     }
     saveMasterDataToLocal();
@@ -13115,7 +13282,8 @@ function confirmDeleteMasterData(id) {
 
 function confirmDeleteAllMasterData() {
     if(masterDataList.length === 0) { showToast('Tidak ada data!'); return; }
-    if(confirm(`⚠️ Hapus SEMUA ${masterDataList.length} data?`)) {
+    const progNama = getCurrentProgram()?.nama || '-';
+    if(confirm(`⚠️ Hapus SEMUA ${masterDataList.length} data di Program "${progNama}"?\n(Program lain tidak terpengaruh)`)) {
         masterDataList = [];
         saveMasterDataToLocal();
         renderMasterTable();
@@ -13395,7 +13563,7 @@ function executeCopyFromJamaah() {
     for(const j of jamaahList) {
         const key = `${j.nama_lengkap.toLowerCase().trim()}__`;
         if(existing.has(key)) { dilewati++; continue; }
-        masterDataList.push({ id: Date.now() + ditambah, nama: j.nama_lengkap, additional_fields: {}, items: [], mode: '', created_at: now });
+        masterDataList.push({ id: Date.now() + ditambah, nama: j.nama_lengkap, additional_fields: {}, items: [], mode: '', created_at: now, program_id: currentProgramId });
         existing.add(key);
         ditambah++;
     }
