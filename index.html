@@ -1888,17 +1888,50 @@
 <div id="toastPremium" class="toast-premium"></div>
 
 <!-- SPLASH SCREEN -->
-<div id="splashScreen" style="position:fixed; inset:0; background:linear-gradient(135deg, var(--primary) 0%, #0a3d31 100%); z-index:99999; display:flex; flex-direction:column; justify-content:center; align-items:center; transition:opacity 0.5s ease; padding:30px;">
-<div style="width:110px; height:110px; background:white; border-radius:28px; display:flex; align-items:center; justify-content:center; margin-bottom:20px; animation:pulse 2s infinite; box-shadow:0 8px 32px rgba(0,0,0,0.2);">
+<div id="splashScreen" style="position:fixed; inset:0; background:linear-gradient(135deg, var(--primary) 0%, #0a3d31 100%); z-index:99999; display:flex; flex-direction:column; justify-content:center; align-items:center; transition:opacity 0.5s ease; padding:30px; overflow:hidden;">
+<div style="position:absolute; width:300px; height:300px; border-radius:50%; background:rgba(255,255,255,.05); top:-100px; right:-100px;"></div>
+<div style="position:absolute; width:200px; height:200px; border-radius:50%; background:rgba(255,255,255,.04); bottom:-60px; left:-60px;"></div>
+<div style="width:110px; height:110px; background:white; border-radius:28px; display:flex; align-items:center; justify-content:center; margin-bottom:20px; animation:pulse 2s infinite; box-shadow:0 8px 32px rgba(0,0,0,0.2); position:relative;">
 <div style="font-size:65px;">✈️</div></div>
-<div style="color:white; font-size:32px; font-weight:bold; margin-bottom:6px;">Navara</div>
-<div style="color:rgba(255,255,255,0.8); font-size:14px; margin-bottom:50px;">Kelola Perjalanan, Raih Keberkahan</div>
-<div id="splashLoading" style="width:100%; max-width:320px;">
+<div style="color:white; font-size:32px; font-weight:bold; margin-bottom:6px; position:relative;">Navara</div>
+<div id="splashQuote" style="color:rgba(255,255,255,0.85); font-size:13px; font-style:italic; margin-bottom:24px; max-width:260px; text-align:center; line-height:1.6; position:relative;">Kelola Perjalanan, Raih Keberkahan</div>
+<div style="display:flex; gap:6px; margin-bottom:28px; position:relative;">
+    <div class="splash-dot" style="width:18px; height:6px; border-radius:4px; background:white;"></div>
+    <div class="splash-dot" style="width:6px; height:6px; border-radius:50%; background:rgba(255,255,255,.3);"></div>
+    <div class="splash-dot" style="width:6px; height:6px; border-radius:50%; background:rgba(255,255,255,.3);"></div>
+</div>
+<div id="splashLoading" style="width:100%; max-width:320px; position:relative;">
 <div style="width:200px; height:4px; background:rgba(255,255,255,0.2); border-radius:2px; margin:0 auto; overflow:hidden;">
-<div style="height:100%; width:100%; background:var(--accent); border-radius:2px;"></div></div>
+<div id="splashProgressBar" style="height:100%; width:40%; background:var(--accent); border-radius:2px; animation:splashShimmer 1.2s ease-in-out infinite;"></div></div>
 </div>
 
 </div>
+<style>
+@keyframes splashShimmer {
+    0% { margin-left:-40%; }
+    100% { margin-left:100%; }
+}
+</style>
+<script>
+// Tampilkan kalimat sapaan splash sesegera mungkin (tidak nunggu init app selesai)
+(function() {
+    try {
+        const cfg = JSON.parse(localStorage.getItem('navara_konfigurasi_pro') || 'null');
+        const pid = localStorage.getItem('navara_current_program_id');
+        let quotes = null;
+        if (cfg && pid && cfg.per_program && cfg.per_program[pid] && Array.isArray(cfg.per_program[pid].splash_quotes) && cfg.per_program[pid].splash_quotes.length > 0) {
+            quotes = cfg.per_program[pid].splash_quotes;
+        } else if (cfg && Array.isArray(cfg.splash_quotes) && cfg.splash_quotes.length > 0) {
+            quotes = cfg.splash_quotes; // fallback lama, kalau ada sisa data sebelum jadi per-Program
+        }
+        if (quotes) {
+            const pilihan = quotes[Math.floor(Math.random() * quotes.length)];
+            const el = document.getElementById('splashQuote');
+            if (el && pilihan) el.textContent = pilihan;
+        }
+    } catch(e) {}
+})();
+</script>
 
 <!-- HOME PAGE -->
 <div id="page-home" class="page active">
@@ -2596,6 +2629,15 @@
                 </div>
             </div>
         </div>
+        <div class="config-section"><h3><i class="fas fa-quote-right"></i> Kalimat Sapaan Splash Screen</h3>
+            <p style="font-size:11px;color:#888;margin-bottom:4px;">Kalimat yang muncul sebentar saat aplikasi dibuka — <b>khusus untuk Program yang sedang aktif</b>. Cocok untuk pengingat sesuai keberangkatan (misal beda pengingat untuk Haji vs Umroh). Bisa isi lebih dari 1, nanti dipilih acak. Kosongkan untuk pakai default.</p>
+            <p id="splashQuoteProgramLabel" style="font-size:11px;color:#0D5C4A;font-weight:600;margin-bottom:10px;">📁 Untuk Program: -</p>
+            <div id="splashQuoteList" style="margin-bottom:10px;"></div>
+            <div style="display:flex;gap:8px;">
+                <input type="text" id="newSplashQuote" placeholder="Tulis kalimat baru..." style="flex:1;min-width:0;">
+                <button class="btn btn-primary btn-small" onclick="tambahSplashQuote()">+ Tambah</button>
+            </div>
+        </div>
         <div class="config-section"><h3><i class="fab fa-whatsapp"></i> Template WhatsApp</h3>
             <div class="config-row"><label>Template Laporan Kas</label><textarea id="cfg_wa_laporan" rows="3" placeholder=" *LAPORAN KAS KANTOR*\n\n Saldo: [saldo]\n Pemasukan: [masuk]\n Pengeluaran: [keluar]\n\nTerima kasih."></textarea><div class="template-variables">Variabel: <code>[saldo]</code> <code>[masuk]</code> <code>[keluar]</code></div></div>
         </div>
@@ -3208,6 +3250,26 @@
     <div style="display:flex;gap:8px;">
         <button id="btnSaveNewProgram" class="btn btn-primary" style="flex:1;" onclick="saveNewProgram()">💾 Simpan & Aktifkan</button>
         <button class="btn" style="flex:1;background:#e2e8f0;color:#333;" onclick="closeCreateProgramModal()">Batal</button>
+    </div>
+</div></div>
+<div id="editProgramModal" class="modal"><div class="modal-content">
+    <h3>✏️ Edit Program</h3>
+    <div class="input-group">
+        <label>Nama Program</label>
+        <input type="text" id="editProgramNama" placeholder="Contoh: Umroh Januari 2027">
+    </div>
+    <div class="input-group" style="margin-bottom:12px;">
+        <label>Jenis</label>
+        <select id="editProgramJenis" style="width:100%;padding:11px 13px;border:1.5px solid #e2e6e4;border-radius:12px;font-size:14px;">
+            <option value="haji">🕋 Haji</option>
+            <option value="umroh">🕌 Umroh</option>
+            <option value="lainnya">📁 Lainnya</option>
+        </select>
+    </div>
+    <input type="hidden" id="editProgramId">
+    <div style="display:flex;gap:8px;">
+        <button id="btnSaveEditProgram" class="btn btn-primary" style="flex:1;" onclick="saveEditProgram()">💾 Simpan Perubahan</button>
+        <button class="btn" style="flex:1;background:#e2e8f0;color:#333;" onclick="closeEditProgramModal()">Batal</button>
     </div>
 </div></div>
 <div id="entryModal" class="modal"><div class="modal-content">
@@ -4422,6 +4484,48 @@ function reloadHargaSeragamUI() {
     if(el) el.value = hp.nominal ? hp.nominal.toLocaleString('id-ID') : '';
     const preview = document.getElementById('previewHargaSeragam');
     if(preview) preview.textContent = hp.nominal ? 'Rp ' + hp.nominal.toLocaleString('id-ID') : '';
+}
+
+function renderSplashQuoteList() {
+    const container = document.getElementById('splashQuoteList');
+    if(!container) return;
+    const slot = ensureProgramConfigSlot();
+    const quotes = slot.splash_quotes || [];
+    const progNama = getCurrentProgram()?.nama || '-';
+    const labelEl = document.getElementById('splashQuoteProgramLabel');
+    if(labelEl) labelEl.textContent = '📁 Untuk Program: ' + progNama;
+    if(quotes.length === 0) {
+        container.innerHTML = '<p style="font-size:12px;color:#aaa;">Belum ada kalimat custom untuk Program ini — memakai default.</p>';
+        return;
+    }
+    container.innerHTML = quotes.map((q, i) => `
+        <div style="display:flex;align-items:center;gap:8px;background:#F8FAFC;border-radius:8px;padding:8px 10px;margin-bottom:6px;">
+            <span style="flex:1;font-size:13px;">${escapeHtml(q)}</span>
+            <button onclick="hapusSplashQuote(${i})" style="border:none;background:none;color:#DC2626;font-size:14px;cursor:pointer;">🗑️</button>
+        </div>`).join('');
+}
+
+function tambahSplashQuote() {
+    const input = document.getElementById('newSplashQuote');
+    const val = input.value.trim();
+    if(!val) return showToast('Tulis kalimatnya dulu!');
+    const slot = ensureProgramConfigSlot();
+    if(!slot.splash_quotes) slot.splash_quotes = [];
+    slot.splash_quotes.push(val);
+    localStorage.setItem('navara_konfigurasi_pro', JSON.stringify(konfigurasiPro));
+    idbSet(STORE_KONFIGURASI, 'konfigurasi_pro', konfigurasiPro);
+    input.value = '';
+    renderSplashQuoteList();
+    showToast('✅ Kalimat ditambahkan untuk Program ini');
+}
+
+function hapusSplashQuote(index) {
+    const slot = ensureProgramConfigSlot();
+    if(!slot.splash_quotes) return;
+    slot.splash_quotes.splice(index, 1);
+    localStorage.setItem('navara_konfigurasi_pro', JSON.stringify(konfigurasiPro));
+    idbSet(STORE_KONFIGURASI, 'konfigurasi_pro', konfigurasiPro);
+    renderSplashQuoteList();
 }
 
 function initTipePaket() {
@@ -9614,6 +9718,7 @@ function renderProgramListInModal() {
                 </div>
                 ${active ? '<span style="color:#0D5C4A;font-weight:700;">✓</span>' : ''}
             </div>
+            <button onclick="event.stopPropagation();openEditProgramForm('${p.id}')" style="flex-shrink:0;width:38px;height:38px;border:none;background:#DBEAFE;color:#2563EB;border-radius:10px;font-size:14px;cursor:pointer;">✏️</button>
             <button onclick="event.stopPropagation();confirmDeleteProgram('${p.id}')" style="flex-shrink:0;width:38px;height:38px;border:none;background:#FEE2E2;color:#DC2626;border-radius:10px;font-size:14px;cursor:pointer;">🗑️</button>
         </div>`;
     });
@@ -9656,6 +9761,43 @@ async function deleteProgram(id) {
     showToast('🗑️ Program dihapus');
 }
 
+function openEditProgramForm(id) {
+    const p = programList.find(x => x.id === id);
+    if(!p) return;
+    document.getElementById('editProgramId').value = p.id;
+    document.getElementById('editProgramNama').value = p.nama;
+    document.getElementById('editProgramJenis').value = p.jenis || 'lainnya';
+    closeProgramModal();
+    document.getElementById('editProgramModal').classList.add('show');
+}
+
+function closeEditProgramModal() {
+    document.getElementById('editProgramModal').classList.remove('show');
+}
+
+async function saveEditProgram() {
+    const btn = document.getElementById('btnSaveEditProgram');
+    if(btn && btn.disabled) return; // cegah double-klik
+    const id = document.getElementById('editProgramId').value;
+    const nama = document.getElementById('editProgramNama').value.trim();
+    const jenis = document.getElementById('editProgramJenis').value;
+    if(!nama) return showToast('Isi nama program dulu!');
+    const p = programList.find(x => x.id === id);
+    if(!p) return;
+    if(btn) { btn.disabled = true; btn.textContent = '⏳ Menyimpan...'; }
+
+    // Hanya ganti nama & jenis — data jamaah/kas/dll di dalamnya TIDAK disentuh sama sekali
+    p.nama = nama;
+    p.jenis = jenis;
+    await saveProgramData();
+
+    if(id === currentProgramId) renderProgramPickerBar();
+
+    if(btn) { btn.disabled = false; btn.textContent = '💾 Simpan Perubahan'; }
+    closeEditProgramModal();
+    showToast('✅ Program "' + nama + '" diperbarui');
+}
+
 function selectProgram(id) {
     currentProgramId = id;
     localStorage.setItem('navara_current_program_id', id);
@@ -9690,6 +9832,7 @@ async function refilterAllProgramData() {
     if(dashLabel) dashLabel.textContent = '📁 Program: ' + (getCurrentProgram()?.nama || '-');
     if(typeof renderTipePaketList === 'function') renderTipePaketList();
     if(document.getElementById('cfg_harga_seragam_aktif')) reloadHargaSeragamUI();
+    if(document.getElementById('splashQuoteList')) renderSplashQuoteList();
     // Absensi: re-filter sesi milik Program aktif
     absensiList = _allAbsensiData.filter(s => s.program_id === currentProgramId);
     sesiAktifId = await idbGet(STORE_ABSENSI, 'sesi_aktif_id_' + currentProgramId) || null;
@@ -13031,6 +13174,7 @@ function getKonfigurasiProData() {
         if(progCfg.harga_paket) data.harga_paket = progCfg.harga_paket;
         if(progCfg.tipe_paket) data.tipe_paket = progCfg.tipe_paket;
         if(progCfg.keberangkatan) data.keberangkatan = progCfg.keberangkatan;
+        if(progCfg.splash_quotes) data.splash_quotes = progCfg.splash_quotes;
     }
     return data;
 }
@@ -13767,6 +13911,7 @@ async function loadKonfigurasiPro() {
     // Load harga seragam (per-Program)
     reloadHargaSeragamUI();
     document.getElementById('cfg_wa_laporan').value = konfigurasiPro.wa_template.laporan || '';
+    renderSplashQuoteList();
     // Load keberangkatan (per-Program)
     const progSlot = ensureProgramConfigSlot();
     const kb = progSlot.keberangkatan || konfigurasiPro.keberangkatan || {};
