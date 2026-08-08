@@ -1996,11 +1996,17 @@
             </div>
         </div>
 
+        <!-- Checklist Keberangkatan -->
+        <div id="homeChecklistCard" style="display:none;background:#EFF6FF;border:1px solid #3B82F6;border-radius:14px;padding:12px 14px;margin-bottom:12px;">
+            <div style="font-weight:700;font-size:13px;color:#1E40AF;margin-bottom:6px;">📋 Checklist Persiapan Keberangkatan</div>
+            <div id="homeChecklistList"></div>
+        </div>
+
         <!-- Peringatan Backup -->
         <div id="homeBackupWarningCard" style="display:none;background:#FEE2E2;border:1px solid #EF4444;border-radius:14px;padding:12px 14px;margin-bottom:12px;">
             <div style="display:flex;justify-content:space-between;align-items:center;">
                 <div style="font-weight:700;font-size:13px;color:#991B1B;">💾 <span id="homeBackupWarningText">Belum pernah backup</span></div>
-                <button onclick="showPage('setting')" style="background:#EF4444;color:#fff;border:none;border-radius:8px;padding:6px 12px;font-size:11px;font-weight:700;cursor:pointer;">Backup Sekarang</button>
+                <button onclick="showPage('cloudstorage')" style="background:#EF4444;color:#fff;border:none;border-radius:8px;padding:6px 12px;font-size:11px;font-weight:700;cursor:pointer;">Backup Sekarang</button>
             </div>
         </div>
 
@@ -2294,7 +2300,7 @@
 <div id="page-jamaah" class="page">
     <div class="header-premium header-premium-small"><div class="back-header"><i class="fas fa-arrow-left" onclick="showPage('home')"></i><h2>Database Jamaah</h2><div style="width:30px;"></div></div></div>
     <div class="card-premium">
-        <div id="jamaahAdminPanel" class="setting-card" style="display:none"><h3 style="color:var(--primary);"> Panel Admin Jamaah</h3><button class="btn btn-primary btn-small mt-2" onclick="openTambahJamaahModal()"> + Tambah database</button><button class="btn btn-blue btn-small mt-2" onclick="openManageFieldsModal()"> Kelola Field Dinamis</button><button class="btn btn-small mt-2" onclick="openRekapKategoriModal()" style="background:#8B5CF6;color:white;"> 📊 Rekap per Kategori</button><button class="btn btn-small mt-2" onclick="openKecocokanKamarModal()" style="background:#0EA5E9;color:white;"> 🛏️ Cek Kecocokan Kamar</button><button class="btn btn-teal btn-small mt-2" onclick="downloadTemplateExcel()" style="background:#1D6F42;">⬇️ Download Template Excel</button><button class="btn btn-teal btn-small mt-2" onclick="exportJamaahToExcel()"> Export ke Excel</button><button class="btn btn-orange btn-small mt-2" onclick="document.getElementById('importExcelFile').click()"> IMPORT EXCEL</button><input type="file" id="importExcelFile" accept=".xlsx,.xls" style="display:none" onchange="importJamaahFromExcel(this)"><button class="btn btn-danger btn-small mt-2" onclick="confirmDeleteAllJamaah()"> HAPUS SEMUA database</button></div>
+        <div id="jamaahAdminPanel" class="setting-card" style="display:none"><h3 style="color:var(--primary);"> Panel Admin Jamaah</h3><button class="btn btn-primary btn-small mt-2" onclick="openTambahJamaahModal()"> + Tambah database</button><button class="btn btn-blue btn-small mt-2" onclick="openManageFieldsModal()"> Kelola Field Dinamis</button><button class="btn btn-small mt-2" onclick="openRekapKategoriModal()" style="background:#8B5CF6;color:white;"> 📊 Rekap per Kategori</button><button class="btn btn-small mt-2" onclick="openKecocokanKamarModal()" style="background:#0EA5E9;color:white;"> 🛏️ Cek Kecocokan Kamar</button><button class="btn btn-small mt-2" onclick="cetakManifestRooming()" style="background:#0D9488;color:white;"> 📋 Cetak Manifest & Rooming</button><button class="btn btn-small mt-2" onclick="openWaMassalModal()" style="background:#22C55E;color:white;"> 📢 Kirim WA Massal</button><button class="btn btn-teal btn-small mt-2" onclick="downloadTemplateExcel()" style="background:#1D6F42;">⬇️ Download Template Excel</button><button class="btn btn-teal btn-small mt-2" onclick="exportJamaahToExcel()"> Export ke Excel</button><button class="btn btn-orange btn-small mt-2" onclick="document.getElementById('importExcelFile').click()"> IMPORT EXCEL</button><input type="file" id="importExcelFile" accept=".xlsx,.xls" style="display:none" onchange="importJamaahFromExcel(this)"><button class="btn btn-danger btn-small mt-2" onclick="confirmDeleteAllJamaah()"> HAPUS SEMUA database</button></div>
         <div class="section-title"><span>DAFTAR JAMAAH</span></div>
         <div class="search-box"><input type="text" id="searchJamaahInput" placeholder=" Cari nama jamaah..." onkeyup="filterJamaahList()"><select id="sortJamaahSelect" onchange="sortJamaahList()"><option value="urutan_asli">Urutan asli</option><option value="nama_asc">Nama A-Z</option><option value="nama_desc">Nama Z-A</option><option value="tgl_asc">Tanggal lama ke baru</option><option value="tgl_desc">Tanggal baru ke lama</option></select><button onclick="resetJamaahFilter()">Reset</button></div>
         <div class="sort-buttons"><span style="font-size:12px; color:var(--gray);">Jumlah per halaman:</span><select id="perPageJamaah" onchange="changePerPage()"><option value="10">10</option><option value="20">20</option><option value="50">50</option><option value="100">100</option><option value="all">Semua</option></select></div>
@@ -2789,6 +2795,10 @@
             <div class="fitur-card" onclick="showPage('cetaklabel')"><div class="fitur-icon">🏷️</div><div class="fitur-title">Cetak Label</div><div class="fitur-desc">Name tag / stiker koper</div></div>
             <div class="fitur-card" onclick="showPage('cloudstorage')"><div class="fitur-icon">☁️</div><div class="fitur-title">Cloud Storage</div><div class="fitur-desc">Backup & Restore data</div></div>
             <div class="fitur-card" onclick="showPage('dashboard')"><div class="fitur-icon">📈</div><div class="fitur-title">Dashboard</div><div class="fitur-desc">Grafik statistik data</div></div>
+            <div class="fitur-card" onclick="openBandingkanProgramModal()"><div class="fitur-icon">📊</div><div class="fitur-title">Bandingkan Program</div><div class="fitur-desc">Performa semua Program sekaligus</div></div>
+            <div class="fitur-card" onclick="cetakRekapTahunanGabungan()"><div class="fitur-icon">📑</div><div class="fitur-title">Rekap Tahunan</div><div class="fitur-desc">Total omzet semua keberangkatan</div></div>
+            <div class="fitur-card" onclick="openKalenderProgramModal()"><div class="fitur-icon">📅</div><div class="fitur-title">Kalender Program</div><div class="fitur-desc">Semua jadwal keberangkatan</div></div>
+            <div class="fitur-card" onclick="openProyeksiKasModal()"><div class="fitur-icon">📉</div><div class="fitur-title">Proyeksi Kas</div><div class="fitur-desc">Estimasi dana yang masih masuk</div></div>
         </div>
     </div>
 </div>
@@ -3717,6 +3727,7 @@ function updateHomeDashboardExtra(totalJamaah, lunasCount, totalPiutang) {
         }
 
         // Peringatan Backup (global — mencakup semua Program dalam 1 file backup)
+        renderChecklistKeberangkatan();
         const backupCard = document.getElementById('homeBackupWarningCard');
         if(backupCard) {
             const lastBackupStr = localStorage.getItem('navara_last_backup');
@@ -7585,6 +7596,354 @@ function exportJamaahToExcel(){
 // ============================================
 function getDropdownFieldsJamaah() {
     return dynamicFieldsJamaah.filter(f => f.type === 'dropdown');
+}
+
+// ==================== BANDINGKAN PERFORMA ANTAR PROGRAM ====================
+function getTotalHargaPaketUntukProgram(jamaah, programId) {
+    const cfg = konfigurasiPro.per_program && konfigurasiPro.per_program[programId];
+    const hp = (cfg && cfg.harga_paket) || konfigurasiPro.harga_paket || { seragam: false, nominal: 0 };
+    if (hp.seragam && hp.nominal > 0) return hp.nominal;
+    const fields = jamaah.additional_fields || {};
+    const possibleNames = ['total_harga_paket', 'total_harga', 'harga_paket', 'paket', 'total harga', 'harga total', 'tagihan', 'nominal'];
+    for (const name of possibleNames) {
+        if (fields[name] !== undefined && fields[name] !== null && fields[name] !== '') {
+            let val = fields[name];
+            if (typeof val === 'string') val = val.replace(/\./g, '').replace(/[^0-9]/g, '');
+            const num = parseInt(val);
+            if (!isNaN(num) && num > 0) return num;
+        }
+    }
+    for (const field of dynamicFieldsJamaah) {
+        const label = field.label.toLowerCase();
+        if (label.includes('harga') || label.includes('paket') || label.includes('tagihan') || label.includes('total')) {
+            const val = fields[field.name];
+            if (val) {
+                const cleaned = val.toString().replace(/\./g, '').replace(/[^0-9]/g, '');
+                const num = parseInt(cleaned);
+                if (!isNaN(num) && num > 0) return num;
+            }
+        }
+    }
+    return 0;
+}
+
+function openBandingkanProgramModal() {
+    let modal = document.getElementById('bandingkanProgramModal');
+    if(!modal) {
+        modal = document.createElement('div');
+        modal.id = 'bandingkanProgramModal';
+        modal.className = 'modal';
+        document.body.appendChild(modal);
+    }
+
+    const rows = programList.map(p => {
+        const jList = _allJamaahData.filter(j => j.program_id === p.id);
+        const kasP = _allKasData.filter(k => k.program_id === p.id);
+        const pengP = _allPengeluaranData.filter(x => x.program_id === p.id);
+        const bayarP = _allPaymentData.filter(t => t.program_id === p.id);
+        let totalKontrak = 0, totalDibayar = 0;
+        jList.forEach(j => {
+            const hp = getTotalHargaPaketUntukProgram(j, p.id);
+            const byr = bayarP.filter(t => t.id_jamaah == j.id).reduce((s,t) => s + t.nominal, 0);
+            totalKontrak += hp;
+            totalDibayar += byr;
+        });
+        const kasMasuk = kasP.filter(k => k.tipe === 'masuk').reduce((s,k) => s + k.nom, 0);
+        const kasKeluar = kasP.filter(k => k.tipe === 'keluar').reduce((s,k) => s + k.nom, 0);
+        const totalPengeluaran = pengP.reduce((s,x) => s + x.nominal, 0);
+        return { p, jumlahJamaah: jList.length, totalKontrak, totalDibayar, piutang: Math.max(0, totalKontrak - totalDibayar), kasMasuk, kasKeluar, totalPengeluaran };
+    });
+
+    rows.sort((a,b) => b.totalKontrak - a.totalKontrak);
+
+    const html = rows.map(r => `
+        <div style="background:${r.p.id === currentProgramId ? '#F0FBF6' : '#F8FAFC'};border:1px solid ${r.p.id === currentProgramId ? '#0D5C4A' : '#eee'};border-radius:10px;padding:12px;margin-bottom:8px;">
+            <div style="font-weight:700;font-size:13px;color:#0D5C4A;margin-bottom:6px;">${PROGRAM_ICON[r.p.jenis]||'📁'} ${escapeHtml(r.p.nama)} ${r.p.id === currentProgramId ? '<span style="font-size:10px;color:#0D5C4A;">(aktif)</span>' : ''}</div>
+            <div style="font-size:12px;color:#555;line-height:1.8;">
+                👥 ${r.jumlahJamaah} jamaah &nbsp;|&nbsp; 💰 Kontrak: Rp ${r.totalKontrak.toLocaleString('id-ID')}<br>
+                ✅ Dibayar: Rp ${r.totalDibayar.toLocaleString('id-ID')} &nbsp;|&nbsp; ⏳ Piutang: <span style="color:${r.piutang > 0 ? '#DC2626' : '#166534'};font-weight:600;">Rp ${r.piutang.toLocaleString('id-ID')}</span><br>
+                📊 Kas Masuk: Rp ${r.kasMasuk.toLocaleString('id-ID')} &nbsp;|&nbsp; Kas Keluar: Rp ${r.kasKeluar.toLocaleString('id-ID')}<br>
+                🧾 Pengeluaran: Rp ${r.totalPengeluaran.toLocaleString('id-ID')}
+            </div>
+        </div>`).join('');
+
+    modal.innerHTML = `<div class="modal-content" style="max-width:440px;">
+        <h3 style="color:#0D5C4A;margin-bottom:4px;">📊 Bandingkan Performa Program</h3>
+        <div style="font-size:11px;color:#888;margin-bottom:12px;">Diurutkan dari total kontrak terbesar</div>
+        <div style="max-height:420px;overflow-y:auto;">${html || '<p style="color:#aaa;text-align:center;">Belum ada Program</p>'}</div>
+        <button onclick="document.getElementById('bandingkanProgramModal').style.display='none'" style="width:100%;padding:11px;background:#e2e8f0;color:#333;border:none;border-radius:10px;font-size:13px;cursor:pointer;margin-top:10px;">Tutup</button>
+    </div>`;
+    modal.style.display = 'flex';
+}
+
+// ==================== REKAP TAHUNAN GABUNGAN ====================
+function cetakRekapTahunanGabungan() {
+    let totalKontrak = 0, totalDibayar = 0, totalJamaah = 0, totalKasMasuk = 0, totalKasKeluar = 0, totalPengeluaran = 0;
+    const perProgram = programList.map(p => {
+        const jList = _allJamaahData.filter(j => j.program_id === p.id);
+        const kasP = _allKasData.filter(k => k.program_id === p.id);
+        const pengP = _allPengeluaranData.filter(x => x.program_id === p.id);
+        const bayarP = _allPaymentData.filter(t => t.program_id === p.id);
+        let kontrak = 0, dibayar = 0;
+        jList.forEach(j => {
+            kontrak += getTotalHargaPaketUntukProgram(j, p.id);
+            dibayar += bayarP.filter(t => t.id_jamaah == j.id).reduce((s,t) => s + t.nominal, 0);
+        });
+        const masuk = kasP.filter(k => k.tipe === 'masuk').reduce((s,k) => s + k.nom, 0);
+        const keluar = kasP.filter(k => k.tipe === 'keluar').reduce((s,k) => s + k.nom, 0);
+        const peng = pengP.reduce((s,x) => s + x.nominal, 0);
+        totalKontrak += kontrak; totalDibayar += dibayar; totalJamaah += jList.length;
+        totalKasMasuk += masuk; totalKasKeluar += keluar; totalPengeluaran += peng;
+        return { nama: p.nama, jenis: p.jenis, jumlahJamaah: jList.length, kontrak, dibayar, masuk, keluar, peng };
+    });
+
+    const namaKBIH = konfigurasiPro.instansi1?.nama || 'Navara';
+    const tgl = new Date().toLocaleDateString('id-ID', { day:'numeric', month:'long', year:'numeric' });
+    const rowsHtml = perProgram.map(r => `
+        <tr>
+            <td style="padding:8px;border-bottom:1px solid #eee;">${PROGRAM_ICON[r.jenis]||'📁'} ${escapeHtml(r.nama)}</td>
+            <td style="padding:8px;border-bottom:1px solid #eee;text-align:center;">${r.jumlahJamaah}</td>
+            <td style="padding:8px;border-bottom:1px solid #eee;text-align:right;">Rp ${r.kontrak.toLocaleString('id-ID')}</td>
+            <td style="padding:8px;border-bottom:1px solid #eee;text-align:right;">Rp ${r.dibayar.toLocaleString('id-ID')}</td>
+            <td style="padding:8px;border-bottom:1px solid #eee;text-align:right;">Rp ${r.peng.toLocaleString('id-ID')}</td>
+        </tr>`).join('');
+
+    const html = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>Rekap Tahunan</title>
+    <style>body{font-family:Arial,sans-serif;padding:24px;color:#222;} h1{color:#0D5C4A;font-size:20px;margin-bottom:2px;} 
+    table{width:100%;border-collapse:collapse;margin-top:14px;font-size:13px;} th{background:#0D5C4A;color:#fff;padding:8px;text-align:left;}
+    .total-box{background:#0D5C4A;color:#fff;border-radius:10px;padding:16px;margin-top:20px;} .total-box div{margin-bottom:4px;font-size:14px;}
+    </style></head><body>
+    <h1>📊 REKAP TAHUNAN GABUNGAN</h1>
+    <p>${escapeHtml(namaKBIH)} — Dicetak: ${tgl}</p>
+    <table><thead><tr><th>Program</th><th style="text-align:center;">Jamaah</th><th style="text-align:right;">Kontrak</th><th style="text-align:right;">Dibayar</th><th style="text-align:right;">Pengeluaran</th></tr></thead>
+    <tbody>${rowsHtml}</tbody></table>
+    <div class="total-box">
+        <div><b>TOTAL KESELURUHAN (${perProgram.length} Program)</b></div>
+        <div>👥 Total Jamaah: ${totalJamaah}</div>
+        <div>💰 Total Kontrak/Omzet: Rp ${totalKontrak.toLocaleString('id-ID')}</div>
+        <div>✅ Total Dibayar: Rp ${totalDibayar.toLocaleString('id-ID')}</div>
+        <div>⏳ Total Piutang: Rp ${Math.max(0,totalKontrak-totalDibayar).toLocaleString('id-ID')}</div>
+        <div>📊 Kas Masuk: Rp ${totalKasMasuk.toLocaleString('id-ID')} — Kas Keluar: Rp ${totalKasKeluar.toLocaleString('id-ID')}</div>
+        <div>🧾 Total Pengeluaran: Rp ${totalPengeluaran.toLocaleString('id-ID')}</div>
+    </div>
+    </body></html>`;
+
+    const win = window.open('', '_blank');
+    win.document.write(html); win.document.close();
+}
+
+// ==================== CHECKLIST H-30/H-14/H-7 ====================
+function getChecklistKeberangkatan() {
+    const kb = getKonfigurasiProData().keberangkatan;
+    if(!kb || !kb.tanggal) return null;
+    const sisaHari = Math.ceil((new Date(kb.tanggal) - new Date()) / 86400000);
+    const items = [
+        { batas: 30, teks: 'Cek kelengkapan dokumen semua jamaah (paspor, visa, foto)' },
+        { batas: 14, teks: 'Cek status pelunasan — kejar jamaah yang masih nunggak' },
+        { batas: 7, teks: 'Siapkan manifest final & rooming list' },
+        { batas: 3, teks: 'Konfirmasi ulang tiket, hotel, dan transportasi' },
+        { batas: 1, teks: 'Briefing terakhir jamaah — jam kumpul, titik temu' }
+    ];
+    return items.map(it => ({ ...it, aktif: sisaHari <= it.batas && sisaHari >= 0, lewat: sisaHari < it.batas && sisaHari < 0 ? false : sisaHari < 0 })).filter(it => sisaHari <= it.batas + 5);
+}
+
+function renderChecklistKeberangkatan() {
+    const card = document.getElementById('homeChecklistCard');
+    if(!card) return;
+    const kb = getKonfigurasiProData().keberangkatan;
+    if(!kb || !kb.tanggal) { card.style.display = 'none'; return; }
+    const sisaHari = Math.ceil((new Date(kb.tanggal) - new Date()) / 86400000);
+    if(sisaHari > 35 || sisaHari < -3) { card.style.display = 'none'; return; }
+    const items = [
+        { batas: 30, teks: 'Cek kelengkapan dokumen semua jamaah' },
+        { batas: 14, teks: 'Cek status pelunasan jamaah' },
+        { batas: 7, teks: 'Siapkan manifest final & rooming list' },
+        { batas: 3, teks: 'Konfirmasi ulang tiket, hotel, transportasi' },
+        { batas: 1, teks: 'Briefing terakhir jamaah' }
+    ];
+    const html = items.map(it => {
+        const status = sisaHari <= it.batas ? '✅' : '⬜';
+        const warna = sisaHari <= it.batas ? '#166534' : '#999';
+        return `<div style="color:${warna};font-size:12px;padding:2px 0;">${status} H-${it.batas}: ${it.teks}</div>`;
+    }).join('');
+    card.style.display = 'block';
+    document.getElementById('homeChecklistList').innerHTML = html;
+}
+
+// ==================== KIRIM WA MASSAL PER PROGRAM ====================
+function openWaMassalModal() {
+    let modal = document.getElementById('waMassalModal');
+    if(!modal) {
+        modal = document.createElement('div');
+        modal.id = 'waMassalModal';
+        modal.className = 'modal';
+        document.body.appendChild(modal);
+    }
+    const punyaWa = jamaahList.filter(j => j.additional_fields?.whatsapp);
+    const listHtml = punyaWa.map(j => `
+        <label style="display:flex;align-items:center;gap:8px;padding:8px;border-bottom:1px solid #f0f0f0;">
+            <input type="checkbox" class="waMassalCheck" value="${j.id}" checked style="width:16px;height:16px;">
+            <span style="font-size:13px;">${escapeHtml(j.nama_lengkap)}</span>
+        </label>`).join('');
+    modal.innerHTML = `<div class="modal-content" style="max-width:440px;">
+        <h3 style="color:#0D5C4A;margin-bottom:10px;">📢 Kirim WA Massal — ${escapeHtml(getCurrentProgram()?.nama || '-')}</h3>
+        <div class="input-group">
+            <label>Pesan (gunakan [nama] untuk sebut nama jamaah otomatis)</label>
+            <textarea id="waMassalPesan" rows="4" placeholder="Contoh: Yth. [nama], besok kumpul jam 5 pagi di bandara ya. Jangan lupa dokumen lengkap."></textarea>
+        </div>
+        <div style="font-size:12px;color:#888;margin:8px 0 4px;">${punyaWa.length} jamaah punya nomor WA:</div>
+        <div style="max-height:200px;overflow-y:auto;border:1px solid #eee;border-radius:8px;margin-bottom:12px;">${listHtml || '<p style="padding:10px;color:#aaa;">Tidak ada jamaah dengan nomor WA di Program ini</p>'}</div>
+        <div style="font-size:11px;color:#888;margin-bottom:10px;">Karena WhatsApp tidak mengizinkan kirim otomatis dari web, tiap "Kirim" akan membuka WA satu per satu — Anda tinggal tekan tombol Kirim di WA masing-masing.</div>
+        <button class="btn btn-primary" style="width:100%;margin-bottom:8px;" onclick="mulaiKirimWaMassal()">📤 Mulai Kirim</button>
+        <button onclick="document.getElementById('waMassalModal').style.display='none'" style="width:100%;padding:11px;background:#e2e8f0;color:#333;border:none;border-radius:10px;font-size:13px;cursor:pointer;">Tutup</button>
+    </div>`;
+    modal.style.display = 'flex';
+}
+
+function mulaiKirimWaMassal() {
+    const pesanTemplate = document.getElementById('waMassalPesan').value.trim();
+    if(!pesanTemplate) return showToast('Isi pesannya dulu!');
+    const checked = document.querySelectorAll('.waMassalCheck:checked');
+    if(checked.length === 0) return showToast('Pilih minimal 1 jamaah!');
+    const ids = Array.from(checked).map(c => parseInt(c.value));
+    const targets = jamaahList.filter(j => ids.includes(j.id));
+    let i = 0;
+    function kirimBerikutnya() {
+        if(i >= targets.length) { showToast('✅ Semua terkirim (dibuka di WA)'); return; }
+        const j = targets[i];
+        let num = (j.additional_fields.whatsapp || '').replace(/\D/g, '');
+        if(num.startsWith('0')) num = '62' + num.substring(1);
+        const pesan = pesanTemplate.replace(/\[nama\]/gi, j.nama_lengkap);
+        window.open(`https://wa.me/${num}?text=${encodeURIComponent(pesan)}`, '_blank');
+        i++;
+        if(i < targets.length) {
+            showToast(`Membuka WA ${i}/${targets.length} — lanjut ke berikutnya...`);
+            setTimeout(kirimBerikutnya, 1800);
+        } else {
+            showToast('✅ Semua sudah dibuka di WA');
+        }
+    }
+    document.getElementById('waMassalModal').style.display = 'none';
+    kirimBerikutnya();
+}
+
+// ==================== MANIFEST & ROOMING LIST ====================
+function cetakManifestRooming() {
+    const grup = {};
+    jamaahList.forEach(j => {
+        const tipe = j.additional_fields?.tipe_paket || 'Belum Ada Tipe';
+        if(!grup[tipe]) grup[tipe] = [];
+        grup[tipe].push(j);
+    });
+    const namaKBIH = konfigurasiPro.instansi1?.nama || 'Navara';
+    const progNama = getCurrentProgram()?.nama || '-';
+    const tgl = new Date().toLocaleDateString('id-ID', { day:'numeric', month:'long', year:'numeric' });
+
+    let kamarNo = 1;
+    let bodyHtml = '';
+    Object.keys(grup).forEach(tipe => {
+        const kapasitas = KAPASITAS_KAMAR[tipe] || grup[tipe].length;
+        const orang = grup[tipe];
+        bodyHtml += `<h3 style="color:#0D5C4A;margin-top:20px;">🛏️ Tipe ${escapeHtml(tipe)}</h3>`;
+        for(let i = 0; i < orang.length; i += kapasitas) {
+            const penghuni = orang.slice(i, i + kapasitas);
+            bodyHtml += `<div style="border:1px solid #ddd;border-radius:8px;padding:10px 14px;margin-bottom:8px;">
+                <b>Kamar ${kamarNo}</b> (${penghuni.length}/${kapasitas} orang)<br>
+                ${penghuni.map(p => '• ' + escapeHtml(p.nama_lengkap)).join('<br>')}
+            </div>`;
+            kamarNo++;
+        }
+    });
+
+    const html = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>Manifest & Rooming List</title>
+    <style>body{font-family:Arial,sans-serif;padding:24px;color:#222;} h1{color:#0D5C4A;font-size:20px;margin-bottom:2px;}</style>
+    </head><body>
+    <h1>🛏️ MANIFEST & ROOMING LIST</h1>
+    <p>${escapeHtml(namaKBIH)} — Program: ${escapeHtml(progNama)} — Dicetak: ${tgl}</p>
+    ${bodyHtml || '<p>Belum ada jamaah dengan Tipe Paket di Program ini.</p>'}
+    </body></html>`;
+    const win = window.open('', '_blank');
+    win.document.write(html); win.document.close();
+}
+
+// ==================== KALENDER GABUNGAN SEMUA PROGRAM ====================
+function openKalenderProgramModal() {
+    let modal = document.getElementById('kalenderProgramModal');
+    if(!modal) {
+        modal = document.createElement('div');
+        modal.id = 'kalenderProgramModal';
+        modal.className = 'modal';
+        document.body.appendChild(modal);
+    }
+    const dataProgram = programList.map(p => {
+        const cfg = konfigurasiPro.per_program && konfigurasiPro.per_program[p.id];
+        const tgl = cfg && cfg.keberangkatan ? cfg.keberangkatan.tanggal : null;
+        return { p, tgl: tgl ? new Date(tgl) : null };
+    }).filter(x => x.tgl).sort((a,b) => a.tgl - b.tgl);
+
+    // Deteksi jadwal berdekatan (selisih < 7 hari)
+    for(let i = 1; i < dataProgram.length; i++) {
+        const selisih = Math.abs((dataProgram[i].tgl - dataProgram[i-1].tgl) / 86400000);
+        dataProgram[i].dekat = selisih < 7;
+        if(selisih < 7) dataProgram[i-1].dekat = true;
+    }
+
+    const html = dataProgram.map(x => {
+        const sisaHari = Math.ceil((x.tgl - new Date()) / 86400000);
+        const statusTeks = sisaHari < 0 ? 'Sudah lewat' : sisaHari + ' hari lagi';
+        return `<div style="background:${x.dekat ? '#FEF3C7' : '#F8FAFC'};border:1px solid ${x.dekat ? '#F59E0B' : '#eee'};border-radius:10px;padding:12px;margin-bottom:8px;">
+            <div style="font-weight:700;font-size:13px;color:#0D5C4A;">${PROGRAM_ICON[x.p.jenis]||'📁'} ${escapeHtml(x.p.nama)}</div>
+            <div style="font-size:12px;color:#555;margin-top:2px;">${x.tgl.toLocaleDateString('id-ID', {weekday:'long', day:'numeric', month:'long', year:'numeric'})} — ${statusTeks}</div>
+            ${x.dekat ? '<div style="font-size:11px;color:#92400E;margin-top:4px;">⚠️ Berdekatan dengan Program lain, cek kesiapan tim!</div>' : ''}
+        </div>`;
+    }).join('');
+
+    modal.innerHTML = `<div class="modal-content" style="max-width:440px;">
+        <h3 style="color:#0D5C4A;margin-bottom:4px;">📅 Kalender Gabungan Semua Program</h3>
+        <div style="font-size:11px;color:#888;margin-bottom:12px;">Program tanpa Tanggal Keberangkatan tidak ditampilkan di sini.</div>
+        <div style="max-height:420px;overflow-y:auto;">${html || '<p style="color:#aaa;text-align:center;">Belum ada Program dengan tanggal keberangkatan diisi.</p>'}</div>
+        <button onclick="document.getElementById('kalenderProgramModal').style.display='none'" style="width:100%;padding:11px;background:#e2e8f0;color:#333;border:none;border-radius:10px;font-size:13px;cursor:pointer;margin-top:10px;">Tutup</button>
+    </div>`;
+    modal.style.display = 'flex';
+}
+
+// ==================== PROYEKSI ARUS KAS ====================
+function openProyeksiKasModal() {
+    let modal = document.getElementById('proyeksiKasModal');
+    if(!modal) {
+        modal = document.createElement('div');
+        modal.id = 'proyeksiKasModal';
+        modal.className = 'modal';
+        document.body.appendChild(modal);
+    }
+    let totalPiutang = 0;
+    const belumLunas = [];
+    jamaahList.forEach(j => {
+        const hp = getTotalHargaPaket(j) || 0;
+        const byr = paymentTransaksiList.filter(t => t.id_jamaah == j.id).reduce((s,t) => s + t.nominal, 0);
+        const sisa = hp - byr;
+        if(hp > 0 && sisa > 0) { totalPiutang += sisa; belumLunas.push({ nama: j.nama_lengkap, sisa }); }
+    });
+    belumLunas.sort((a,b) => b.sisa - a.sisa);
+
+    const html = belumLunas.map(x => `
+        <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #f0f0f0;font-size:13px;">
+            <span>${escapeHtml(x.nama)}</span>
+            <span style="font-weight:600;color:#DC2626;">Rp ${x.sisa.toLocaleString('id-ID')}</span>
+        </div>`).join('');
+
+    modal.innerHTML = `<div class="modal-content" style="max-width:420px;">
+        <h3 style="color:#0D5C4A;margin-bottom:4px;">📈 Proyeksi Arus Kas — ${escapeHtml(getCurrentProgram()?.nama || '-')}</h3>
+        <div style="font-size:11px;color:#888;margin-bottom:12px;">Estimasi kasar berdasarkan piutang jamaah yang belum lunas — aplikasi belum tahu jadwal pasti tiap cicilan, jadi ini bukan tanggal kepastian, cuma potensi total dana yang masih bisa masuk.</div>
+        <div style="background:#0D5C4A;color:#fff;border-radius:10px;padding:14px;margin-bottom:14px;text-align:center;">
+            <div style="font-size:11px;opacity:.8;">TOTAL POTENSI DANA MASUK</div>
+            <div style="font-size:22px;font-weight:800;">Rp ${totalPiutang.toLocaleString('id-ID')}</div>
+            <div style="font-size:11px;opacity:.8;">dari ${belumLunas.length} jamaah belum lunas</div>
+        </div>
+        <div style="max-height:260px;overflow-y:auto;">${html || '<p style="color:#166534;text-align:center;">🎉 Semua jamaah sudah lunas!</p>'}</div>
+        <button onclick="document.getElementById('proyeksiKasModal').style.display='none'" style="width:100%;padding:11px;background:#e2e8f0;color:#333;border:none;border-radius:10px;font-size:13px;cursor:pointer;margin-top:10px;">Tutup</button>
+    </div>`;
+    modal.style.display = 'flex';
 }
 
 // ==================== KECOCOKAN KAMAR ====================
