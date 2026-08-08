@@ -1996,6 +1996,20 @@
             </div>
         </div>
 
+        <!-- Peringatan Backup -->
+        <div id="homeBackupWarningCard" style="display:none;background:#FEE2E2;border:1px solid #EF4444;border-radius:14px;padding:12px 14px;margin-bottom:12px;">
+            <div style="display:flex;justify-content:space-between;align-items:center;">
+                <div style="font-weight:700;font-size:13px;color:#991B1B;">💾 <span id="homeBackupWarningText">Belum pernah backup</span></div>
+                <button onclick="showPage('setting')" style="background:#EF4444;color:#fff;border:none;border-radius:8px;padding:6px 12px;font-size:11px;font-weight:700;cursor:pointer;">Backup Sekarang</button>
+            </div>
+        </div>
+
+        <!-- Peringatan Paspor Akan Habis -->
+        <div id="homePasporWarningCard" style="display:none;background:#FEF3C7;border:1px solid #F59E0B;border-radius:14px;padding:12px 14px;margin-bottom:12px;">
+            <div style="font-weight:700;font-size:13px;color:#92400E;margin-bottom:6px;">⚠️ <span id="homePasporWarningTitle">Paspor Akan Habis Masa Berlaku</span></div>
+            <div id="homePasporWarningList" style="font-size:12px;color:#92400E;line-height:1.7;"></div>
+        </div>
+
         <!-- Quick Action -->
         <div style="display:flex;gap:8px;margin-bottom:12px;">
             <button onclick="openQuickTambahJamaah()" style="flex:1;padding:9px 6px;background:#0D5C4A;color:white;border:none;border-radius:10px;font-size:11px;font-weight:700;cursor:pointer;">
@@ -2280,7 +2294,7 @@
 <div id="page-jamaah" class="page">
     <div class="header-premium header-premium-small"><div class="back-header"><i class="fas fa-arrow-left" onclick="showPage('home')"></i><h2>Database Jamaah</h2><div style="width:30px;"></div></div></div>
     <div class="card-premium">
-        <div id="jamaahAdminPanel" class="setting-card" style="display:none"><h3 style="color:var(--primary);"> Panel Admin Jamaah</h3><button class="btn btn-primary btn-small mt-2" onclick="openTambahJamaahModal()"> + Tambah database</button><button class="btn btn-blue btn-small mt-2" onclick="openManageFieldsModal()"> Kelola Field Dinamis</button><button class="btn btn-small mt-2" onclick="openRekapKategoriModal()" style="background:#8B5CF6;color:white;"> 📊 Rekap per Kategori</button><button class="btn btn-teal btn-small mt-2" onclick="downloadTemplateExcel()" style="background:#1D6F42;">⬇️ Download Template Excel</button><button class="btn btn-teal btn-small mt-2" onclick="exportJamaahToExcel()"> Export ke Excel</button><button class="btn btn-orange btn-small mt-2" onclick="document.getElementById('importExcelFile').click()"> IMPORT EXCEL</button><input type="file" id="importExcelFile" accept=".xlsx,.xls" style="display:none" onchange="importJamaahFromExcel(this)"><button class="btn btn-danger btn-small mt-2" onclick="confirmDeleteAllJamaah()"> HAPUS SEMUA database</button></div>
+        <div id="jamaahAdminPanel" class="setting-card" style="display:none"><h3 style="color:var(--primary);"> Panel Admin Jamaah</h3><button class="btn btn-primary btn-small mt-2" onclick="openTambahJamaahModal()"> + Tambah database</button><button class="btn btn-blue btn-small mt-2" onclick="openManageFieldsModal()"> Kelola Field Dinamis</button><button class="btn btn-small mt-2" onclick="openRekapKategoriModal()" style="background:#8B5CF6;color:white;"> 📊 Rekap per Kategori</button><button class="btn btn-small mt-2" onclick="openKecocokanKamarModal()" style="background:#0EA5E9;color:white;"> 🛏️ Cek Kecocokan Kamar</button><button class="btn btn-teal btn-small mt-2" onclick="downloadTemplateExcel()" style="background:#1D6F42;">⬇️ Download Template Excel</button><button class="btn btn-teal btn-small mt-2" onclick="exportJamaahToExcel()"> Export ke Excel</button><button class="btn btn-orange btn-small mt-2" onclick="document.getElementById('importExcelFile').click()"> IMPORT EXCEL</button><input type="file" id="importExcelFile" accept=".xlsx,.xls" style="display:none" onchange="importJamaahFromExcel(this)"><button class="btn btn-danger btn-small mt-2" onclick="confirmDeleteAllJamaah()"> HAPUS SEMUA database</button></div>
         <div class="section-title"><span>DAFTAR JAMAAH</span></div>
         <div class="search-box"><input type="text" id="searchJamaahInput" placeholder=" Cari nama jamaah..." onkeyup="filterJamaahList()"><select id="sortJamaahSelect" onchange="sortJamaahList()"><option value="urutan_asli">Urutan asli</option><option value="nama_asc">Nama A-Z</option><option value="nama_desc">Nama Z-A</option><option value="tgl_asc">Tanggal lama ke baru</option><option value="tgl_desc">Tanggal baru ke lama</option></select><button onclick="resetJamaahFilter()">Reset</button></div>
         <div class="sort-buttons"><span style="font-size:12px; color:var(--gray);">Jumlah per halaman:</span><select id="perPageJamaah" onchange="changePerPage()"><option value="10">10</option><option value="20">20</option><option value="50">50</option><option value="100">100</option><option value="all">Semua</option></select></div>
@@ -2636,7 +2650,8 @@
             <div class="input-group" style="margin-bottom:8px;">
                 <input type="text" id="newSplashQuote" placeholder="Tulis kalimat baru di sini..." style="width:100%;padding:14px 16px;font-size:15px;">
             </div>
-            <button class="btn btn-primary" style="width:100%;" onclick="tambahSplashQuote()">+ Tambah Kalimat</button>
+            <button id="btnTambahSplashQuote" class="btn btn-primary" style="width:100%;" onclick="tambahSplashQuote()">+ Tambah Kalimat</button>
+            <div style="text-align:center;margin-top:6px;"><a href="#" onclick="event.preventDefault();batalEditSplashQuote();" style="font-size:11px;color:#888;">Batal edit</a></div>
         </div>
         <div class="config-section"><h3><i class="fab fa-whatsapp"></i> Template WhatsApp</h3>
             <div class="config-row"><label>Template Laporan Kas</label><textarea id="cfg_wa_laporan" rows="3" placeholder=" *LAPORAN KAS KANTOR*\n\n Saldo: [saldo]\n Pemasukan: [masuk]\n Pengeluaran: [keluar]\n\nTerima kasih."></textarea><div class="template-variables">Variabel: <code>[saldo]</code> <code>[masuk]</code> <code>[keluar]</code></div></div>
@@ -3700,6 +3715,56 @@ function updateHomeDashboardExtra(totalJamaah, lunasCount, totalPiutang) {
         } else if(card) {
             card.style.display = 'none';
         }
+
+        // Peringatan Backup (global — mencakup semua Program dalam 1 file backup)
+        const backupCard = document.getElementById('homeBackupWarningCard');
+        if(backupCard) {
+            const lastBackupStr = localStorage.getItem('navara_last_backup');
+            let tampilkanPeringatan = false, teks = '';
+            if(!lastBackupStr) {
+                tampilkanPeringatan = true;
+                teks = 'Belum pernah backup sama sekali!';
+            } else {
+                const hariSejakBackup = Math.floor((new Date() - new Date(lastBackupStr)) / 86400000);
+                if(hariSejakBackup >= 7) {
+                    tampilkanPeringatan = true;
+                    teks = `Sudah ${hariSejakBackup} hari belum backup`;
+                }
+            }
+            backupCard.style.display = tampilkanPeringatan ? 'block' : 'none';
+            if(tampilkanPeringatan) document.getElementById('homeBackupWarningText').textContent = teks;
+        }
+
+        // Peringatan Paspor Akan Habis Masa Berlaku (< 6 bulan dari keberangkatan, atau dari hari ini kalau belum ada tanggal keberangkatan)
+        const pasporCard = document.getElementById('homePasporWarningCard');
+        if(pasporCard) {
+            const acuanTgl = tgl ? new Date(tgl) : new Date();
+            const batasAman = new Date(acuanTgl);
+            batasAman.setMonth(batasAman.getMonth() + 6);
+            const jamaahBermasalah = [];
+            jamaahList.forEach(j => {
+                const expStr = j.additional_fields?.tgl_expired_paspor;
+                if(!expStr) return;
+                const expDate = new Date(expStr);
+                if(isNaN(expDate.getTime())) return;
+                if(expDate < batasAman) {
+                    const sisaHari = Math.ceil((expDate - new Date()) / 86400000);
+                    jamaahBermasalah.push({ nama: j.nama_lengkap, sisaHari, expDate });
+                }
+            });
+            if(jamaahBermasalah.length > 0) {
+                jamaahBermasalah.sort((a,b) => a.sisaHari - b.sisaHari);
+                pasporCard.style.display = 'block';
+                document.getElementById('homePasporWarningTitle').textContent = 
+                    jamaahBermasalah.length + ' Paspor Akan/Sudah Habis Masa Berlaku';
+                document.getElementById('homePasporWarningList').innerHTML = jamaahBermasalah.map(x => {
+                    const statusText = x.sisaHari < 0 ? 'Sudah habis' : x.sisaHari + ' hari lagi';
+                    return `• ${escapeHtml(x.nama)} — ${statusText} (${x.expDate.toLocaleDateString('id-ID')})`;
+                }).join('<br>');
+            } else {
+                pasporCard.style.display = 'none';
+            }
+        }
     } catch(e) { console.log('Dashboard extra error:', e); }
 }
 
@@ -4486,6 +4551,8 @@ function reloadHargaSeragamUI() {
     if(preview) preview.textContent = hp.nominal ? 'Rp ' + hp.nominal.toLocaleString('id-ID') : '';
 }
 
+let editingSplashQuoteIndex = null;
+
 function renderSplashQuoteList() {
     const container = document.getElementById('splashQuoteList');
     if(!container) return;
@@ -4501,8 +4568,28 @@ function renderSplashQuoteList() {
     container.innerHTML = quotes.map((q, i) => `
         <div style="display:flex;align-items:center;gap:8px;background:#F8FAFC;border-radius:8px;padding:8px 10px;margin-bottom:6px;">
             <span style="flex:1;font-size:13px;">${escapeHtml(q)}</span>
+            <button onclick="editSplashQuote(${i})" style="border:none;background:none;color:#2563EB;font-size:14px;cursor:pointer;">✏️</button>
             <button onclick="hapusSplashQuote(${i})" style="border:none;background:none;color:#DC2626;font-size:14px;cursor:pointer;">🗑️</button>
         </div>`).join('');
+}
+
+function editSplashQuote(index) {
+    const slot = ensureProgramConfigSlot();
+    const quotes = slot.splash_quotes || [];
+    if(!quotes[index]) return;
+    editingSplashQuoteIndex = index;
+    const input = document.getElementById('newSplashQuote');
+    input.value = quotes[index];
+    input.focus();
+    const btn = document.getElementById('btnTambahSplashQuote');
+    if(btn) btn.textContent = '💾 Simpan Perubahan';
+}
+
+function batalEditSplashQuote() {
+    editingSplashQuoteIndex = null;
+    document.getElementById('newSplashQuote').value = '';
+    const btn = document.getElementById('btnTambahSplashQuote');
+    if(btn) btn.textContent = '+ Tambah Kalimat';
 }
 
 function tambahSplashQuote() {
@@ -4511,12 +4598,18 @@ function tambahSplashQuote() {
     if(!val) return showToast('Tulis kalimatnya dulu!');
     const slot = ensureProgramConfigSlot();
     if(!slot.splash_quotes) slot.splash_quotes = [];
-    slot.splash_quotes.push(val);
+    if(editingSplashQuoteIndex !== null) {
+        slot.splash_quotes[editingSplashQuoteIndex] = val;
+        showToast('✅ Kalimat diperbarui');
+        batalEditSplashQuote();
+    } else {
+        slot.splash_quotes.push(val);
+        showToast('✅ Kalimat ditambahkan untuk Program ini');
+    }
     localStorage.setItem('navara_konfigurasi_pro', JSON.stringify(konfigurasiPro));
     idbSet(STORE_KONFIGURASI, 'konfigurasi_pro', konfigurasiPro);
     input.value = '';
     renderSplashQuoteList();
-    showToast('✅ Kalimat ditambahkan untuk Program ini');
 }
 
 function hapusSplashQuote(index) {
@@ -4525,6 +4618,7 @@ function hapusSplashQuote(index) {
     slot.splash_quotes.splice(index, 1);
     localStorage.setItem('navara_konfigurasi_pro', JSON.stringify(konfigurasiPro));
     idbSet(STORE_KONFIGURASI, 'konfigurasi_pro', konfigurasiPro);
+    if(editingSplashQuoteIndex === index) batalEditSplashQuote();
     renderSplashQuoteList();
 }
 
@@ -5354,6 +5448,14 @@ async function loadDynamicFieldsJamaah() {
     if (!saved) saved = JSON.parse(localStorage.getItem('navara_jamaah_fields') || 'null');
     if (saved) {
         dynamicFieldsJamaah = saved;
+        // Migrasi: tambahkan field baru "Habis Berlaku Paspor" kalau belum ada di daftar field yang sudah tersimpan
+        if (dynamicFieldsJamaah.length > 0 && !dynamicFieldsJamaah.some(f => f.name === 'tgl_expired_paspor')) {
+            const idxNoPaspor = dynamicFieldsJamaah.findIndex(f => f.name === 'no_paspor');
+            const fieldBaru = { name: 'tgl_expired_paspor', label: 'Habis Berlaku Paspor', type: 'date', icon: '⏳', isRequired: false };
+            if (idxNoPaspor !== -1) dynamicFieldsJamaah.splice(idxNoPaspor + 1, 0, fieldBaru);
+            else dynamicFieldsJamaah.push(fieldBaru);
+            await idbSet(STORE_JAMAAH, 'jamaah_fields', dynamicFieldsJamaah);
+        }
     } else {
         dynamicFieldsJamaah = [
             { name: 'nama_paspor',   label: 'Nama Paspor',   type: 'text',     icon: '👤', isRequired: false },
@@ -5362,6 +5464,7 @@ async function loadDynamicFieldsJamaah() {
             { name: 'tempat_lahir',  label: 'Tempat Lahir',   type: 'text',     icon: '📍', isRequired: false },
             { name: 'tgl_lahir',     label: 'Tanggal Lahir',  type: 'date',     icon: '🗓️', isRequired: false },
             { name: 'no_paspor',     label: 'No Paspor',      type: 'text',     icon: '📘', isRequired: false },
+            { name: 'tgl_expired_paspor', label: 'Habis Berlaku Paspor', type: 'date', icon: '⏳', isRequired: false },
             { name: 'nik',           label: 'NIK',             type: 'text',     icon: '🪪', isRequired: false },
             { name: 'kk',            label: 'KK',              type: 'text',     icon: '📋', isRequired: false },
             { name: 'alamat',        label: 'Alamat',          type: 'text',     icon: '🏠', isRequired: false },
@@ -7482,6 +7585,68 @@ function exportJamaahToExcel(){
 // ============================================
 function getDropdownFieldsJamaah() {
     return dynamicFieldsJamaah.filter(f => f.type === 'dropdown');
+}
+
+// ==================== KECOCOKAN KAMAR ====================
+const KAPASITAS_KAMAR = { 'Quad': 4, 'Triple': 3, 'Double': 2 };
+
+function openKecocokanKamarModal() {
+    let modal = document.getElementById('kecocokanKamarModal');
+    if(!modal) {
+        modal = document.createElement('div');
+        modal.id = 'kecocokanKamarModal';
+        modal.className = 'modal';
+        document.body.appendChild(modal);
+    }
+
+    // Kelompokkan jamaah Program aktif berdasarkan tipe kamar (Quad/Triple/Double)
+    const grup = {};
+    jamaahList.forEach(j => {
+        const tipe = j.additional_fields?.tipe_paket || '';
+        if(KAPASITAS_KAMAR[tipe] !== undefined) {
+            if(!grup[tipe]) grup[tipe] = [];
+            grup[tipe].push(j.nama_lengkap);
+        }
+    });
+
+    const tipeAda = Object.keys(grup);
+    if(tipeAda.length === 0) {
+        modal.innerHTML = `<div class="modal-content" style="max-width:400px;">
+            <h3 style="color:#0D5C4A;margin-bottom:10px;">🛏️ Cek Kecocokan Kamar</h3>
+            <div style="background:#fef3c7;border:1.5px solid #f59e0b;border-radius:10px;padding:14px;margin-bottom:16px;font-size:13px;color:#92400e;">
+                Belum ada jamaah dengan Tipe Paket Quad/Triple/Double di Program ini — fitur ini otomatis tidak relevan untuk Program yang tidak memakai pembagian tipe kamar (misal Haji Reguler).
+            </div>
+            <button onclick="document.getElementById('kecocokanKamarModal').style.display='none'" style="width:100%;padding:11px;background:#e2e8f0;color:#333;border:none;border-radius:10px;font-size:13px;cursor:pointer;">Tutup</button>
+        </div>`;
+        modal.style.display = 'flex';
+        return;
+    }
+
+    let html = '';
+    let adaYangBelumPas = false;
+    tipeAda.forEach(tipe => {
+        const nama = grup[tipe];
+        const kapasitas = KAPASITAS_KAMAR[tipe];
+        const kamarPenuh = Math.floor(nama.length / kapasitas);
+        const sisa = nama.length % kapasitas;
+        const namaSisa = sisa > 0 ? nama.slice(-sisa) : [];
+        if(sisa > 0) adaYangBelumPas = true;
+        html += `
+        <div style="background:#F8FAFC;border-radius:10px;padding:12px;margin-bottom:10px;">
+            <div style="font-weight:700;font-size:13px;color:#0D5C4A;margin-bottom:4px;">🛏️ ${tipe} (kapasitas ${kapasitas} orang/kamar)</div>
+            <div style="font-size:12px;color:#555;">${nama.length} jamaah → ${kamarPenuh} kamar penuh${sisa > 0 ? `, <b style="color:#DC2626;">${sisa} orang belum ada pasangan lengkap</b>` : ' (pas, tidak ada sisa)'}</div>
+            ${sisa > 0 ? `<div style="font-size:11.5px;color:#92400E;margin-top:6px;">Kemungkinan: ${namaSisa.map(n => escapeHtml(n)).join(', ')}</div>` : ''}
+        </div>`;
+    });
+
+    modal.innerHTML = `<div class="modal-content" style="max-width:420px;">
+        <h3 style="color:#0D5C4A;margin-bottom:6px;">🛏️ Cek Kecocokan Kamar</h3>
+        <div style="font-size:11px;color:#888;margin-bottom:14px;">Perkiraan otomatis berdasarkan jumlah jamaah per tipe kamar — bukan pencocokan pasti siapa dengan siapa. Tetap cek manual sebelum keberangkatan.</div>
+        <div style="max-height:340px;overflow-y:auto;margin-bottom:10px;">${html}</div>
+        ${!adaYangBelumPas ? '<div style="text-align:center;color:#166534;font-size:13px;font-weight:600;margin-bottom:10px;">🎉 Semua kamar sudah pas, tidak ada yang kurang pasangan!</div>' : ''}
+        <button onclick="document.getElementById('kecocokanKamarModal').style.display='none'" style="width:100%;padding:11px;background:#e2e8f0;color:#333;border:none;border-radius:10px;font-size:13px;cursor:pointer;">Tutup</button>
+    </div>`;
+    modal.style.display = 'flex';
 }
 
 function openRekapKategoriModal() {
@@ -11761,6 +11926,11 @@ function updateStorageInfo() {
     document.getElementById('storageFill').style.width = Math.min(percent, 100) + '%'; 
 }
 
+function catatBackupTerakhir() {
+    localStorage.setItem('navara_last_backup', new Date().toISOString());
+    if(typeof updateHomeStats === 'function') updateHomeStats();
+}
+
 async function bagikanFullZip() {
     try {
         showToast('⏳ Menyiapkan data...');
@@ -11781,6 +11951,7 @@ async function bagikanFullZip() {
             catatan: catatanList,
             pengeluaran: _allPengeluaranData
         };
+        catatBackupTerakhir();
         const json = JSON.stringify(backupData);
         const date = new Date().toISOString().slice(0, 10);
         const fileName = `Navara_Backup_${date}.json`;
@@ -11828,6 +11999,7 @@ async function bagikanFullZip() {
                 catatan: catatanList,
                 pengeluaran: _allPengeluaranData
             };
+            catatBackupTerakhir();
             const json = JSON.stringify(backupData);
             const date = new Date().toISOString().slice(0, 10);
             showJsonBackupModal(json, `Navara_Backup_${date}.json`);
@@ -11892,6 +12064,7 @@ async function downloadFullZip() {
         zip.file('dokumen_jenis.json', JSON.stringify(dokumenJenisList, null, 2));
         zip.file('konfigurasi.json', JSON.stringify(konfigurasiPro, null, 2));
         zip.file('pengeluaran.json', JSON.stringify(_allPengeluaranData, null, 2));
+        catatBackupTerakhir();
         // Dokumen
         const dokumenFolder = zip.folder('dokumen'); 
         for (const j of jamaahList) { 
