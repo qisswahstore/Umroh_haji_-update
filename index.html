@@ -7705,6 +7705,8 @@ function cetakRekapTahunanGabungan() {
             <td style="padding:8px;border-bottom:1px solid #eee;text-align:center;">${r.jumlahJamaah}</td>
             <td style="padding:8px;border-bottom:1px solid #eee;text-align:right;">Rp ${r.kontrak.toLocaleString('id-ID')}</td>
             <td style="padding:8px;border-bottom:1px solid #eee;text-align:right;">Rp ${r.dibayar.toLocaleString('id-ID')}</td>
+            <td style="padding:8px;border-bottom:1px solid #eee;text-align:right;color:#166534;">Rp ${r.masuk.toLocaleString('id-ID')}</td>
+            <td style="padding:8px;border-bottom:1px solid #eee;text-align:right;color:#DC2626;">Rp ${r.keluar.toLocaleString('id-ID')}</td>
             <td style="padding:8px;border-bottom:1px solid #eee;text-align:right;">Rp ${r.peng.toLocaleString('id-ID')}</td>
         </tr>`).join('');
 
@@ -7715,7 +7717,7 @@ function cetakRekapTahunanGabungan() {
     </style></head><body>
     <h1>📊 REKAP TAHUNAN GABUNGAN</h1>
     <p>${escapeHtml(namaKBIH)} — Dicetak: ${tgl}</p>
-    <table><thead><tr><th>Program</th><th style="text-align:center;">Jamaah</th><th style="text-align:right;">Kontrak</th><th style="text-align:right;">Dibayar</th><th style="text-align:right;">Pengeluaran</th></tr></thead>
+    <table><thead><tr><th>Program</th><th style="text-align:center;">Jamaah</th><th style="text-align:right;">Kontrak</th><th style="text-align:right;">Dibayar</th><th style="text-align:right;">Kas Masuk</th><th style="text-align:right;">Kas Keluar</th><th style="text-align:right;">Pengeluaran</th></tr></thead>
     <tbody>${rowsHtml}</tbody></table>
     <div class="total-box">
         <div><b>TOTAL KESELURUHAN (${perProgram.length} Program)</b></div>
