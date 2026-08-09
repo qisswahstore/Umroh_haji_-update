@@ -7714,6 +7714,7 @@ function cetakRekapTahunanGabungan() {
     <style>body{font-family:Arial,sans-serif;padding:24px;color:#222;} h1{color:#0D5C4A;font-size:20px;margin-bottom:2px;} 
     table{width:100%;border-collapse:collapse;margin-top:14px;font-size:13px;} th{background:#0D5C4A;color:#fff;padding:8px;text-align:left;}
     .total-box{background:#0D5C4A;color:#fff;border-radius:10px;padding:16px;margin-top:20px;} .total-box div{margin-bottom:4px;font-size:14px;}
+    @media print{ .no-print{display:none!important;} }
     </style></head><body>
     <h1>📊 REKAP TAHUNAN GABUNGAN</h1>
     <p>${escapeHtml(namaKBIH)} — Dicetak: ${tgl}</p>
@@ -7727,6 +7728,10 @@ function cetakRekapTahunanGabungan() {
         <div>⏳ Total Piutang: Rp ${Math.max(0,totalKontrak-totalDibayar).toLocaleString('id-ID')}</div>
         <div>📊 Kas Masuk: Rp ${totalKasMasuk.toLocaleString('id-ID')} — Kas Keluar: Rp ${totalKasKeluar.toLocaleString('id-ID')}</div>
         <div>🧾 Total Pengeluaran: Rp ${totalPengeluaran.toLocaleString('id-ID')}</div>
+    </div>
+    <div class="no-print" style="text-align:center;padding:20px;background:#f0f0f0;margin-top:20px;">
+        <button onclick="window.print()" style="padding:10px 28px;margin:0 6px;border:none;border-radius:10px;font-size:14px;font-weight:bold;cursor:pointer;background:#0D5C4A;color:white;">🖨️ CETAK / SIMPAN PDF</button>
+        <button onclick="window.close()" style="padding:10px 28px;margin:0 6px;border:none;border-radius:10px;font-size:14px;font-weight:bold;cursor:pointer;background:#e2e8f0;color:#333;">✕ TUTUP</button>
     </div>
     </body></html>`;
 
@@ -7858,11 +7863,17 @@ function cetakManifestRooming() {
     });
 
     const html = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>Manifest & Rooming List</title>
-    <style>body{font-family:Arial,sans-serif;padding:24px;color:#222;} h1{color:#0D5C4A;font-size:20px;margin-bottom:2px;}</style>
+    <style>body{font-family:Arial,sans-serif;padding:24px;color:#222;} h1{color:#0D5C4A;font-size:20px;margin-bottom:2px;}
+    @media print{ .no-print{display:none!important;} }
+    </style>
     </head><body>
     <h1>🛏️ MANIFEST & ROOMING LIST</h1>
     <p>${escapeHtml(namaKBIH)} — Program: ${escapeHtml(progNama)} — Dicetak: ${tgl}</p>
     ${bodyHtml || '<p>Belum ada jamaah dengan Tipe Paket di Program ini.</p>'}
+    <div class="no-print" style="text-align:center;padding:20px;background:#f0f0f0;margin-top:20px;">
+        <button onclick="window.print()" style="padding:10px 28px;margin:0 6px;border:none;border-radius:10px;font-size:14px;font-weight:bold;cursor:pointer;background:#0D5C4A;color:white;">🖨️ CETAK / SIMPAN PDF</button>
+        <button onclick="window.close()" style="padding:10px 28px;margin:0 6px;border:none;border-radius:10px;font-size:14px;font-weight:bold;cursor:pointer;background:#e2e8f0;color:#333;">✕ TUTUP</button>
+    </div>
     </body></html>`;
     const win = window.open('', '_blank');
     win.document.write(html); win.document.close();
