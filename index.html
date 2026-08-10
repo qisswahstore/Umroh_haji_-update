@@ -13428,19 +13428,51 @@ function kirimPengingatWA() {
     if(checked.length === 0) return showToast('Pilih jamaah terlebih dahulu!');
     const jamaahToSend = Array.from(checked).map(cb => jamaahList.find(j => j.id == cb.value)).filter(j => j);
     if(jamaahToSend.length === 0) return showToast('Jamaah tidak ditemukan!'); 
-    for(const j of jamaahToSend) { 
-        let msg = message.replace(/\[nama\]/gi, j.nama_lengkap); 
-        const statusPembayaran = getStatusPembayaran(j); 
-        if(!statusPembayaran.needInput) msg = msg.replace(/\[sisa\]/gi, formatRupiah(statusPembayaran.sisa)); 
-        let waNumber = '628123456789'; 
-        if(j.additional_fields && j.additional_fields.whatsapp) { 
-            let num = j.additional_fields.whatsapp.replace(/\D/g, ''); 
-            if(num.startsWith('0')) num = '62' + num.substring(1); 
-            if(num.length >= 10) waNumber = num; 
-        } 
-        window.open(`https://wa.me/${waNumber}?text=${encodeURIComponent(msg)}`, '_blank'); 
+    tampilkanModalKirimSatuPerSatu(jamaahToSend, message);
+}
+
+function tampilkanModalKirimSatuPerSatu(jamaahToSend, message) {
+    let modal = document.getElementById('kirimSatuPerSatuModal');
+    if(!modal) {
+        modal = document.createElement('div');
+        modal.id = 'kirimSatuPerSatuModal';
+        modal.className = 'modal';
+        document.body.appendChild(modal);
+    }
+    modal.innerHTML = `<div class="modal-content" style="max-width:440px;">
+        <h3 style="color:#0D5C4A;margin-bottom:4px;">📲 Kirim Pengingat WA</h3>
+        <div style="font-size:11px;color:#888;margin-bottom:14px;">WhatsApp tidak mengizinkan kirim otomatis banyak sekaligus — tap "Kirim" satu-satu di bawah ini.</div>
+        <div style="max-height:340px;overflow-y:auto;margin-bottom:12px;">
+        ${jamaahToSend.map(j => `
+            <div style="padding:10px;border:1px solid #e2e8f0;border-radius:10px;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center;gap:8px;">
+                <div style="overflow:hidden;">
+                    <div style="font-weight:bold;font-size:13px;">${escapeHtml(j.nama_lengkap)}</div>
+                    <div style="font-size:11px;color:#888;">${j.additional_fields?.whatsapp ? '📱 '+escapeHtml(j.additional_fields.whatsapp) : '⚠️ No WA tidak ada'}</div>
+                </div>
+                <button onclick="kirimPengingatWAPerorangan(${j.id})" style="background:#25d366;color:white;border:none;border-radius:20px;padding:7px 12px;font-size:11px;font-weight:bold;cursor:pointer;white-space:nowrap;flex-shrink:0;">📲 Kirim</button>
+            </div>`).join('')}
+        </div>
+        <button onclick="document.getElementById('kirimSatuPerSatuModal').style.display='none'" style="width:100%;padding:11px;background:#e2e8f0;color:#333;border:none;border-radius:10px;font-size:13px;cursor:pointer;">Tutup</button>
+    </div>`;
+    modal.dataset.pesan = message;
+    modal.style.display = 'flex';
+}
+
+function kirimPengingatWAPerorangan(jamaahId) {
+    const j = jamaahList.find(x => x.id == jamaahId);
+    if(!j) return;
+    const modal = document.getElementById('kirimSatuPerSatuModal');
+    const message = modal ? modal.dataset.pesan : '';
+    let msg = message.replace(/\[nama\]/gi, j.nama_lengkap); 
+    const statusPembayaran = getStatusPembayaran(j); 
+    if(!statusPembayaran.needInput) msg = msg.replace(/\[sisa\]/gi, formatRupiah(statusPembayaran.sisa)); 
+    let waNumber = '628123456789'; 
+    if(j.additional_fields && j.additional_fields.whatsapp) { 
+        let num = j.additional_fields.whatsapp.replace(/\D/g, ''); 
+        if(num.startsWith('0')) num = '62' + num.substring(1); 
+        if(num.length >= 10) waNumber = num; 
     } 
-    showToast(`📱 Membuka chat untuk ${jamaahToSend.length} jamaah`); 
+    window.open(`https://wa.me/${waNumber}?text=${encodeURIComponent(msg)}`, '_blank'); 
 }
 
 function aturPengingatOtomatis() { 
