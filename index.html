@@ -4416,7 +4416,7 @@ async function cetakEstimasiPDFInternal() {
     const f = n => 'Rp ' + Math.round(n).toLocaleString('id-ID');
     const cfg = getKonfigurasiProData();
     const tgl = new Date().toLocaleDateString('id-ID', {day:'2-digit', month:'long', year:'numeric'});
-    const est = JSON.parse(localStorage.getItem('navara_estimasi_data') || '{}');
+    const est = getEstimasiData() || {};
     const pr = v => parseInt((v||'0').toString().replace(/\./g,'').replace(/[^0-9]/g,'')) || 0;
     const nJam = lastCalculatedTotalJam;
     const nFoc = parseInt(est.jamGratis)||0;
@@ -5120,8 +5120,8 @@ function hitungRekapAktual() {
 
 function getEstimasiData() {
     try {
-        const saved = localStorage.getItem('navara_estimasi_data');
-        return saved ? JSON.parse(saved) : null;
+        const slot = ensureProgramConfigSlot();
+        return slot.estimasi_data || null;
     } catch(e) { return null; }
 }
 
