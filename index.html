@@ -4210,13 +4210,17 @@ function saveEstimasiData() {
         profitPct:document.getElementById('profitPct').value,
         cBuffer:document.getElementById('cBuffer').value
     }; 
-    localStorage.setItem('navara_estimasi_data',JSON.stringify(estimasiData)); 
+    // Per-Program: simpan ke slot Program aktif, bukan lagi 1 tempat global
+    const slot = ensureProgramConfigSlot();
+    slot.estimasi_data = estimasiData;
+    localStorage.setItem('navara_konfigurasi_pro', JSON.stringify(konfigurasiPro));
+    idbSet(STORE_KONFIGURASI, 'konfigurasi_pro', konfigurasiPro);
 }
 
 function loadEstimasiData() { 
-    const saved=localStorage.getItem('navara_estimasi_data'); 
-    if(saved){ 
-        const data=JSON.parse(saved); 
+    const slot = ensureProgramConfigSlot();
+    const data = slot.estimasi_data;
+    if(data){ 
         if(data.lokasiPaket) document.getElementById('lokasiPaket').value=data.lokasiPaket; 
         if(data.totJam) document.getElementById('totJam').value=data.totJam; 
         if(data.jamGratis) document.getElementById('jamGratis').value=data.jamGratis; 
@@ -4229,6 +4233,9 @@ function loadEstimasiData() {
         if(data.modeLA === 'upgrade') {
             const el = document.getElementById('modeUpgrade');
             if(el) { el.checked = true; updateModeLA(); }
+        } else {
+            const el = document.getElementById('modeHargaPenuh');
+            if(el) { el.checked = true; updateModeLA(); }
         }
         updateLAPreview();
         if(data.cAsuransi) document.getElementById('cAsuransi').value=data.cAsuransi; 
@@ -4239,6 +4246,18 @@ function loadEstimasiData() {
         if(data.cLain) document.getElementById('cLain').value=data.cLain; 
         if(data.profitPct) document.getElementById('profitPct').value=data.profitPct;
         if(data.cBuffer) document.getElementById('cBuffer').value=data.cBuffer;
+    } else {
+        // Program ini belum punya Estimasi tersendiri — kosongkan field supaya tidak ketukar sisa Program lain
+        const fieldKosong = ['lokasiPaket','cTiket','cAsuransi','cHandling','cAlat','cAplikasi','cPIC','cLain','cLAquad','cLAtriple','cLAdouble'];
+        fieldKosong.forEach(id => { const el = document.getElementById(id); if(el) el.value = ''; });
+        const totJamEl = document.getElementById('totJam'); if(totJamEl) totJamEl.value = '';
+        const jamGratisEl = document.getElementById('jamGratis'); if(jamGratisEl) jamGratisEl.value = '';
+        const numTLEl = document.getElementById('numTL'); if(numTLEl) numTLEl.value = '';
+        const profitPctEl = document.getElementById('profitPct'); if(profitPctEl) profitPctEl.value = '';
+        const cBufferEl = document.getElementById('cBuffer'); if(cBufferEl) cBufferEl.value = '';
+        const elPenuh = document.getElementById('modeHargaPenuh');
+        if(elPenuh) { elPenuh.checked = true; updateModeLA(); }
+        updateLAPreview();
     } 
 }
 
@@ -10376,6 +10395,7 @@ async function refilterAllProgramData() {
     if(typeof renderTipePaketList === 'function') renderTipePaketList();
     if(document.getElementById('cfg_harga_seragam_aktif')) reloadHargaSeragamUI();
     if(document.getElementById('splashQuoteList')) renderSplashQuoteList();
+    if(document.getElementById('cTiket')) loadEstimasiData();
     // Absensi: re-filter sesi milik Program aktif
     absensiList = _allAbsensiData.filter(s => s.program_id === currentProgramId);
     sesiAktifId = await idbGet(STORE_ABSENSI, 'sesi_aktif_id_' + currentProgramId) || null;
@@ -14446,6 +14466,13 @@ async function loadKonfigurasiPro() {
         if(!slot0.keberangkatan && legacyKeberangkatan && (legacyKeberangkatan.tanggal || legacyKeberangkatan.jenis)) {
             slot0.keberangkatan = { ...legacyKeberangkatan }; migrated = true;
         }
+        // Migrasi Estimasi Cuan Plan lama (tersimpan terpisah di localStorage, bukan di konfigurasiPro)
+        if(!slot0.estimasi_data) {
+            try {
+                const legacyEstimasi = JSON.parse(localStorage.getItem('navara_estimasi_data') || 'null');
+                if(legacyEstimasi) { slot0.estimasi_data = legacyEstimasi; migrated = true; }
+            } catch(e) {}
+        }
         if(migrated) await idbSet(STORE_KONFIGURASI, 'konfigurasi_pro', konfigurasiPro);
     }
     document.getElementById('cfg_nama1').value = konfigurasiPro.instansi1.nama || '';
@@ -14773,11 +14800,11 @@ async function initPremium() {
     loadThemePremium();
     initDarkMode();
     
-    loadEstimasiData();
     // Load semua data dari IndexedDB secara berurutan
     await openIndexedDB(); // Pastikan DB terbuka dulu
     await loadProgramData();
     await loadKonfigurasiPro();
+    loadEstimasiData();
     await loadDynamicFieldsJamaah();
     await loadJamaahData();
     await loadJamaahKitaData();
