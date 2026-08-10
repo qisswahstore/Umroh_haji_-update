@@ -7787,51 +7787,57 @@ function openWaMassalModal() {
         document.body.appendChild(modal);
     }
     const punyaWa = jamaahList.filter(j => j.additional_fields?.whatsapp);
-    const listHtml = punyaWa.map(j => `
-        <label style="display:flex;align-items:center;gap:8px;padding:8px;border-bottom:1px solid #f0f0f0;">
-            <input type="checkbox" class="waMassalCheck" value="${j.id}" checked style="width:16px;height:16px;">
-            <span style="font-size:13px;">${escapeHtml(j.nama_lengkap)}</span>
-        </label>`).join('');
     modal.innerHTML = `<div class="modal-content" style="max-width:440px;">
-        <h3 style="color:#0D5C4A;margin-bottom:10px;">📢 Kirim WA Massal — ${escapeHtml(getCurrentProgram()?.nama || '-')}</h3>
+        <h3 style="color:#0D5C4A;margin-bottom:4px;">📢 Kirim WA Massal</h3>
+        <div style="font-size:12px;color:#888;margin-bottom:14px;">${escapeHtml(getCurrentProgram()?.nama || '-')} — ${punyaWa.length} jamaah punya nomor WA</div>
         <div class="input-group">
             <label>Pesan (gunakan [nama] untuk sebut nama jamaah otomatis)</label>
             <textarea id="waMassalPesan" rows="4" placeholder="Contoh: Yth. [nama], besok kumpul jam 5 pagi di bandara ya. Jangan lupa dokumen lengkap."></textarea>
         </div>
-        <div style="font-size:12px;color:#888;margin:8px 0 4px;">${punyaWa.length} jamaah punya nomor WA:</div>
-        <div style="max-height:200px;overflow-y:auto;border:1px solid #eee;border-radius:8px;margin-bottom:12px;">${listHtml || '<p style="padding:10px;color:#aaa;">Tidak ada jamaah dengan nomor WA di Program ini</p>'}</div>
-        <div style="font-size:11px;color:#888;margin-bottom:10px;">Karena WhatsApp tidak mengizinkan kirim otomatis dari web, tiap "Kirim" akan membuka WA satu per satu — Anda tinggal tekan tombol Kirim di WA masing-masing.</div>
-        <button class="btn btn-primary" style="width:100%;margin-bottom:8px;" onclick="mulaiKirimWaMassal()">📤 Mulai Kirim</button>
+        <div style="max-height:280px;overflow-y:auto;margin:12px 0;">
+        ${punyaWa.map(j => `
+            <div style="padding:10px;border:1px solid #e2e8f0;border-radius:10px;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center;gap:8px;">
+                <div style="overflow:hidden;">
+                    <div style="font-weight:bold;font-size:13px;">${escapeHtml(j.nama_lengkap)}</div>
+                    <div style="font-size:11px;color:#888;">📱 ${escapeHtml(j.additional_fields.whatsapp)}</div>
+                </div>
+                <button onclick="kirimWaMassalPerorangan(${j.id})" style="background:#25d366;color:white;border:none;border-radius:20px;padding:7px 12px;font-size:11px;font-weight:bold;cursor:pointer;white-space:nowrap;flex-shrink:0;">📲 Kirim</button>
+            </div>`).join('') || '<p style="text-align:center;color:#aaa;font-size:13px;">Tidak ada jamaah dengan nomor WA di Program ini</p>'}
+        </div>
+        <div style="background:#F0F9FF;border:1px solid #BAE6FD;border-radius:10px;padding:10px 12px;margin-bottom:12px;">
+            <div style="font-size:11px;color:#0369A1;margin-bottom:8px;">Jumlah jamaah banyak? Kirim satu-satu di atas akan lama. Salin semua nomornya, lalu pakai fitur <b>Daftar Siaran</b> di WhatsApp Business untuk kirim ke semua sekaligus (resmi dari WhatsApp, tidak berisiko diblokir).</div>
+            <button onclick="salinNomorWaMassal()" style="width:100%;padding:9px;background:#0369A1;color:white;border:none;border-radius:8px;font-size:12px;font-weight:bold;cursor:pointer;">📋 Salin Semua Nomor WA</button>
+        </div>
         <button onclick="document.getElementById('waMassalModal').style.display='none'" style="width:100%;padding:11px;background:#e2e8f0;color:#333;border:none;border-radius:10px;font-size:13px;cursor:pointer;">Tutup</button>
     </div>`;
     modal.style.display = 'flex';
 }
 
-function mulaiKirimWaMassal() {
+function kirimWaMassalPerorangan(jamaahId) {
+    const j = jamaahList.find(x => x.id == jamaahId);
+    if(!j) return;
     const pesanTemplate = document.getElementById('waMassalPesan').value.trim();
     if(!pesanTemplate) return showToast('Isi pesannya dulu!');
-    const checked = document.querySelectorAll('.waMassalCheck:checked');
-    if(checked.length === 0) return showToast('Pilih minimal 1 jamaah!');
-    const ids = Array.from(checked).map(c => parseInt(c.value));
-    const targets = jamaahList.filter(j => ids.includes(j.id));
-    let i = 0;
-    function kirimBerikutnya() {
-        if(i >= targets.length) { showToast('✅ Semua terkirim (dibuka di WA)'); return; }
-        const j = targets[i];
-        let num = (j.additional_fields.whatsapp || '').replace(/\D/g, '');
+    let num = (j.additional_fields.whatsapp || '').replace(/\D/g, '');
+    if(!num) return showToast(`⚠️ ${j.nama_lengkap} tidak punya nomor WA`);
+    if(num.startsWith('0')) num = '62' + num.substring(1);
+    const pesan = pesanTemplate.replace(/\[nama\]/gi, j.nama_lengkap);
+    window.open(`https://wa.me/${num}?text=${encodeURIComponent(pesan)}`, '_blank');
+}
+
+function salinNomorWaMassal() {
+    const punyaWa = jamaahList.filter(j => j.additional_fields?.whatsapp);
+    if(punyaWa.length === 0) return showToast('Tidak ada nomor WA untuk disalin!');
+    const nomorList = punyaWa.map(j => {
+        let num = j.additional_fields.whatsapp.replace(/\D/g, '');
         if(num.startsWith('0')) num = '62' + num.substring(1);
-        const pesan = pesanTemplate.replace(/\[nama\]/gi, j.nama_lengkap);
-        window.open(`https://wa.me/${num}?text=${encodeURIComponent(pesan)}`, '_blank');
-        i++;
-        if(i < targets.length) {
-            showToast(`Membuka WA ${i}/${targets.length} — lanjut ke berikutnya...`);
-            setTimeout(kirimBerikutnya, 1800);
-        } else {
-            showToast('✅ Semua sudah dibuka di WA');
-        }
-    }
-    document.getElementById('waMassalModal').style.display = 'none';
-    kirimBerikutnya();
+        return num;
+    }).join('\n');
+    navigator.clipboard.writeText(nomorList).then(() => {
+        showToast(`✅ ${punyaWa.length} nomor tersalin — paste di WhatsApp Business`);
+    }).catch(() => {
+        showToast('Gagal menyalin, coba lagi');
+    });
 }
 
 // ==================== MANIFEST & ROOMING LIST ====================
