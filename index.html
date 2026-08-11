@@ -3279,6 +3279,13 @@
             <option value="lainnya">📁 Lainnya</option>
         </select>
     </div>
+    <div class="input-group" style="margin-bottom:12px;">
+        <label>Salin Pengaturan dari Program Lain <span style="color:#999;font-size:11px;">(opsional)</span></label>
+        <select id="newProgramSalinDari" style="width:100%;padding:11px 13px;border:1.5px solid #e2e6e4;border-radius:12px;font-size:14px;">
+            <option value="">— Mulai kosong —</option>
+        </select>
+        <div style="font-size:11px;color:#888;margin-top:6px;">Menyalin: komponen biaya Estimasi, Tipe Paket, Harga Seragam. Tanggal Keberangkatan & Riwayat tidak ikut disalin.</div>
+    </div>
     <div style="display:flex;gap:8px;">
         <button id="btnSaveNewProgram" class="btn btn-primary" style="flex:1;" onclick="saveNewProgram()">💾 Simpan & Aktifkan</button>
         <button class="btn" style="flex:1;background:#e2e8f0;color:#333;" onclick="closeCreateProgramModal()">Batal</button>
@@ -10502,6 +10509,11 @@ async function refilterAllProgramData() {
 function openCreateProgramForm() {
     document.getElementById('newProgramNama').value = '';
     document.getElementById('newProgramJenis').value = 'umroh';
+    const salinSelect = document.getElementById('newProgramSalinDari');
+    if(salinSelect) {
+        salinSelect.innerHTML = '<option value="">— Mulai kosong —</option>' +
+            programList.map(p => `<option value="${p.id}">${PROGRAM_ICON[p.jenis]||'📁'} ${escapeHtml(p.nama)}</option>`).join('');
+    }
     closeProgramModal();
     document.getElementById('createProgramModal').classList.add('show');
 }
@@ -10515,18 +10527,37 @@ async function saveNewProgram() {
     if(btn && btn.disabled) return; // cegah double-klik
     const nama = document.getElementById('newProgramNama').value.trim();
     const jenis = document.getElementById('newProgramJenis').value;
+    const salinDariId = document.getElementById('newProgramSalinDari')?.value || '';
     if(!nama) return showToast('Isi nama program dulu!');
     if(btn) { btn.disabled = true; btn.textContent = '⏳ Menyimpan...'; }
     const newProgram = { id: 'prog_' + Date.now(), nama, jenis, created_at: new Date().toLocaleDateString('id-ID') };
     programList.push(newProgram);
+
+    // Duplikat pengaturan dari Program lain kalau dipilih (Estimasi, Tipe Paket, Harga Seragam)
+    // Sengaja TIDAK menyalin: Tanggal Keberangkatan, status Kunci, dan Riwayat Harga — itu harus khas per Program
+    if(salinDariId) {
+        const sumberSlot = konfigurasiPro.per_program && konfigurasiPro.per_program[salinDariId];
+        if(sumberSlot) {
+            if(!konfigurasiPro.per_program) konfigurasiPro.per_program = {};
+            const tujuanSlot = {};
+            if(sumberSlot.estimasi_data) tujuanSlot.estimasi_data = { ...sumberSlot.estimasi_data };
+            if(sumberSlot.tipe_paket) tujuanSlot.tipe_paket = [...sumberSlot.tipe_paket];
+            if(sumberSlot.harga_paket) tujuanSlot.harga_paket = { ...sumberSlot.harga_paket };
+            konfigurasiPro.per_program[newProgram.id] = tujuanSlot;
+        }
+    }
+
     await saveProgramData();
+    await idbSet(STORE_KONFIGURASI, 'konfigurasi_pro', konfigurasiPro);
+    localStorage.setItem('navara_konfigurasi_pro', JSON.stringify(konfigurasiPro));
+
     currentProgramId = newProgram.id;
     localStorage.setItem('navara_current_program_id', currentProgramId);
     renderProgramPickerBar();
     refilterAllProgramData();
     closeCreateProgramModal();
     if(btn) { btn.disabled = false; btn.textContent = '💾 Simpan & Aktifkan'; }
-    showToast('✅ Program "' + nama + '" dibuat & diaktifkan');
+    showToast(salinDariId ? '✅ Program "' + nama + '" dibuat, pengaturan tersalin' : '✅ Program "' + nama + '" dibuat & diaktifkan');
 }
 
 // ==================== CATATAN ====================
