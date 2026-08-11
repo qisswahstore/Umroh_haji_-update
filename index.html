@@ -1960,6 +1960,10 @@
             </div>
             <div style="font-size:11px;opacity:.85;flex-shrink:0;color:#fff;">▾ Ganti</div>
         </div>
+        <div onclick="openPencarianGlobalModal()" style="margin-top:8px;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);border-radius:10px;padding:9px 12px;display:flex;align-items:center;gap:8px;cursor:pointer;">
+            <span style="color:rgba(255,255,255,.7);">🔍</span>
+            <span style="color:rgba(255,255,255,.7);font-size:12px;">Cari jamaah di semua Program...</span>
+        </div>
     </div>
     <div class="stats-row">
         <div class="stat-mini-card"><i class="fas fa-coins"></i><div class="stat-label">Total Kas</div><div class="stat-number" id="homeStatKas">Rp 0</div></div>
@@ -1994,6 +1998,12 @@
                 <div id="homeCountdownHari" style="font-size:18px;font-weight:900;color:white;line-height:1;">-</div>
                 <div style="font-size:10px;color:rgba(255,255,255,0.7);margin-top:2px;">hari lagi</div>
             </div>
+        </div>
+
+        <!-- Checklist Program Baru (belum lengkap setup-nya) -->
+        <div id="homeProgramSetupCard" style="display:none;background:#EDE9FE;border:1px solid #8B5CF6;border-radius:14px;padding:12px 14px;margin-bottom:12px;">
+            <div style="font-weight:700;font-size:13px;color:#5B21B6;margin-bottom:6px;">🆕 Program Ini Belum Lengkap</div>
+            <div id="homeProgramSetupList" style="font-size:12px;color:#5B21B6;line-height:1.8;"></div>
         </div>
 
         <!-- Checklist Keberangkatan -->
@@ -2037,6 +2047,18 @@
 </div>
 
 <!-- DASHBOARD PAGE -->
+<div id="page-riwayataktivitas" class="page">
+    <div class="header-premium header-premium-small">
+        <div class="back-header"><i class="fas fa-arrow-left" onclick="showPage('setting')"></i><h2> Riwayat Aktivitas</h2><div style="width:30px;"></div></div>
+        <div id="riwayatAktivitasProgramLabel" style="text-align:center;font-size:11px;color:rgba(255,255,255,.85);font-weight:600;margin-top:-6px;padding-bottom:6px;">📁 -</div>
+    </div>
+    <div class="container">
+        <div class="input-group" style="margin-top:14px;">
+            <input type="text" id="cariRiwayatAktivitas" placeholder="🔍 Cari aktivitas atau nama admin..." oninput="renderRiwayatAktivitas()">
+        </div>
+        <div id="daftarRiwayatAktivitas" style="margin-top:10px;"></div>
+    </div>
+</div>
 <div id="page-dashboard" class="page">
     <div class="header-premium header-premium-small">
         <div class="back-header"><i class="fas fa-arrow-left" onclick="showPage('fitur')"></i><h2> Dashboard</h2><div style="width:30px;"></div></div>
@@ -2104,7 +2126,7 @@
         <div class="input-group"><label>Nama Paket / Lokasi</label><input type="text" id="lokasiPaket" value="Program 9 HARI"></div>
         <div class="row"><div class="input-group"><label>Total Pax</label><input type="number" id="totJam" value="21"></div><div class="input-group"><label>Gratis</label><input type="number" id="jamGratis" value="1"></div><div class="input-group"><label>Jumlah TL</label><input type="number" id="numTL" value="1"></div></div>
         <div class="section-title"><span>KOMPONEN BIAYA</span></div>
-        <div class="input-group"><label>Tiket</label><input type="text" id="cTiket" class="money-input" value="15.450.000"></div>
+        <div class="input-group"><label>Tiket</label><input type="text" id="cTiket" class="money-input" inputmode="numeric" value="15.450.000"></div>
 
         <!-- LA/Hotel Accordion -->
         <div style="margin-bottom:12px;">
@@ -2134,29 +2156,29 @@
 
                 <div class="input-group" style="margin-bottom:8px;">
                     <label style="font-size:12px;color:#555;">Quad (4 orang/kamar)</label>
-                    <input type="text" id="cLAquad" class="money-input" value="14.450.000" oninput="updateLAPreview()">
+                    <input type="text" id="cLAquad" class="money-input" inputmode="numeric" value="14.450.000" oninput="updateLAPreview()">
                 </div>
                 <div class="input-group" style="margin-bottom:8px;">
                     <label id="labelTriple" style="font-size:12px;color:#555;">Triple (3 orang/kamar)</label>
-                    <input type="text" id="cLAtriple" class="money-input" value="0" oninput="updateLAPreview()">
+                    <input type="text" id="cLAtriple" class="money-input" inputmode="numeric" value="0" oninput="updateLAPreview()">
                     <small id="hintTriple" style="display:none;font-size:11px;color:#888;margin-top:3px;">↑ selisih dari Quad</small>
                 </div>
                 <div class="input-group" style="margin-bottom:0;">
                     <label id="labelDouble" style="font-size:12px;color:#555;">Double (2 orang/kamar)</label>
-                    <input type="text" id="cLAdouble" class="money-input" value="0" oninput="updateLAPreview()">
+                    <input type="text" id="cLAdouble" class="money-input" inputmode="numeric" value="0" oninput="updateLAPreview()">
                     <small id="hintDouble" style="display:none;font-size:11px;color:#888;margin-top:3px;">↑ selisih dari Quad</small>
                 </div>
                 <div id="laPreview" style="font-size:11px;color:#888;margin-top:8px;text-align:center;"></div>
             </div>
         </div>
-        <div class="row"><div class="input-group"><label>Asuransi</label><input type="text" id="cAsuransi" class="money-input" value="60.000"></div><div class="input-group"><label>Handling</label><input type="text" id="cHandling" class="money-input" value="100.000"></div></div>
-        <div class="row"><div class="input-group"><label>Perlengkapan</label><input type="text" id="cAlat" class="money-input" value="1.000.000"></div><div class="input-group"><label>Aplikasi</label><input type="text" id="cAplikasi" class="money-input" value="60.000"></div></div>
-        <div class="row"><div class="input-group"><label>Diskon/PIC</label><input type="text" id="cPIC" class="money-input" value="0"></div><div class="input-group"><label>Lain-lain</label><input type="text" id="cLain" class="money-input" value="0"></div></div>
+        <div class="row"><div class="input-group"><label>Asuransi</label><input type="text" id="cAsuransi" class="money-input" inputmode="numeric" value="60.000"></div><div class="input-group"><label>Handling</label><input type="text" id="cHandling" class="money-input" inputmode="numeric" value="100.000"></div></div>
+        <div class="row"><div class="input-group"><label>Perlengkapan</label><input type="text" id="cAlat" class="money-input" inputmode="numeric" value="1.000.000"></div><div class="input-group"><label>Aplikasi</label><input type="text" id="cAplikasi" class="money-input" inputmode="numeric" value="60.000"></div></div>
+        <div class="row"><div class="input-group"><label>Diskon/PIC</label><input type="text" id="cPIC" class="money-input" inputmode="numeric" value="0"></div><div class="input-group"><label>Lain-lain</label><input type="text" id="cLain" class="money-input" inputmode="numeric" value="0"></div></div>
         <div class="section-title"><span>Margin</span></div>
         <div class="input-group"><label>Profit (%)</label><input type="number" id="profitPct" value="5"></div>
         <div class="section-title"><span>Buffer Diskon <small style="font-weight:normal;color:#888;">(Opsional)</small></span></div>
         <div class="input-group">
-            <input type="text" id="cBuffer" class="money-input" value="0">
+            <input type="text" id="cBuffer" class="money-input" inputmode="numeric" value="0">
             <small style="color:#888;font-size:11px;margin-top:4px;display:block;">Ditambahkan ke harga brosur — tidak kena markup profit</small>
         </div>
         <button class="btn btn-primary" onclick="hitungUmroh()"><i class="fas fa-calculator"></i> HITUNG ESTIMASI</button>
@@ -2211,7 +2233,7 @@
             </div>
             <div style="margin-bottom:10px;">
                 <label style="font-size:12px;color:#666;display:block;margin-bottom:4px;">Nominal (Rp)</label>
-                <input type="text" id="pengeluaranNominal" placeholder="Contoh: 570.000.000" class="money-input"
+                <input type="text" id="pengeluaranNominal" placeholder="Contoh: 570.000.000" class="money-input" inputmode="numeric"
                     style="width:100%;padding:10px;border-radius:10px;border:1.5px solid #e2e8f0;font-size:14px;background:var(--input-bg);color:var(--text);">
             </div>
             <div style="margin-bottom:12px;">
@@ -2270,7 +2292,7 @@
         <div class="input-group"><label>Kegiatan / Nama Rombongan</label><input type="text" id="kegiatan" placeholder="Contoh: Umroh Syawal 2026" value="Umroh Syawal 2026"></div>
         <div class="section-title"><span>Input Transaksi</span></div>
         <div class="input-group" style="margin-bottom:12px;"><input type="text" id="ketReal" placeholder="Keterangan detail transaksi"></div>
-        <div class="row"><div style="flex:2"><input id="nomReal" type="text" class="money-input" placeholder="Nominal Rp"></div><div style="flex:1"><select id="tipeReal"><option value="masuk">Masuk</option><option value="keluar">Keluar</option></select></div></div>
+        <div class="row"><div style="flex:2"><input id="nomReal" type="text" class="money-input" inputmode="numeric" placeholder="Nominal Rp"></div><div style="flex:1"><select id="tipeReal"><option value="masuk">Masuk</option><option value="keluar">Keluar</option></select></div></div>
         <button class="btn btn-accent" onclick="tambahTransaksi()"><i class="fas fa-plus-circle"></i> TAMBAH TRANSAKSI</button>
         
         <div class="summary-real" id="summaryKas">Saldo Akhir: Rp 0</div>
@@ -2465,7 +2487,7 @@
         <div class="logo-box text-center"><div style="font-size:40px;"></div></div>
         <p class="text-center" style="color:var(--gray);" id="zakatNama">Navara</p>
         <div class="row"><div class="input-group"><label>Jenis Zakat</label><select id="jenisZakat" onchange="toggleZakatInput()"><option value="mal">Zakat Mal (Harta/Uang)</option><option value="pertanian">Zakat Pertanian</option><option value="perdagangan">Zakat Perdagangan</option></select></div></div>
-        <div id="zakatGlobalInput"><div class="input-group"><label>Harga Emas per Gram (Rp)</label><input type="text" id="hargaEmas" class="money-input" value="1.200.000" oninput="formatMoneyInput(this)"></div></div>
+        <div id="zakatGlobalInput"><div class="input-group"><label>Harga Emas per Gram (Rp)</label><input type="text" id="hargaEmas" class="money-input" inputmode="numeric" value="1.200.000" oninput="formatMoneyInput(this)"></div></div>
         <div class="section-title"><span>Sumber Harta</span></div>
         <div id="sumberHartaContainer"></div>
         <button class="btn btn-accent" onclick="tambahSumberHarta()"><i class="fas fa-plus-circle"></i> + TAMBAH SUMBER HARTA</button>
@@ -2689,6 +2711,13 @@
             </div>
         </div>
         <div class="setting-card" id="modePenyimpananCard" style="display:none;"></div>
+        <div class="setting-card" onclick="showPage('riwayataktivitas')" style="cursor:pointer;">
+            <div style="display:flex;align-items:center;justify-content:space-between;">
+                <div><div style="font-weight:700;font-size:15px;">📜 Riwayat Aktivitas</div></div>
+                <i class="fas fa-chevron-right" style="color:var(--primary);"></i>
+            </div>
+        </div>
+        <div class="setting-card"><div class="setting-row"><span><i class="fas fa-user"></i>  Nama Anda saat ini: <b id="namaAdminSaatIni">Admin</b></span><button onclick="gantiNamaAdmin()" style="background:var(--primary);color:white;border:none;border-radius:8px;padding:6px 12px;font-size:12px;cursor:pointer;">Ganti</button></div></div>
 <div class="setting-card"><div class="setting-row"><span><i class="fas fa-user-shield"></i>  Mode Admin</span><label class="switch"><input type="checkbox" id="adminMode" onchange="toggleAdminMode()"><span class="slider"></span></label></div></div>
         <div class="setting-card"><h4> Warna Tema</h4><div class="color-options" id="colorOptions"></div></div>
         <div class="setting-card"><h4> Atur Tampilan Menu</h4><div id="menuSettingsContainer"></div></div>
@@ -3593,7 +3622,8 @@ function internalShowPage(pageId) {
             if(logoEl && logoSrc) logoEl.src = logoSrc;
         } catch(e) {}
     }
-    if (pageId === 'setting') { updateLicenseSummary(); }
+    if (pageId === 'setting') { updateLicenseSummary(); const na = document.getElementById('namaAdminSaatIni'); if(na) na.textContent = currentAdminNama; }
+    if (pageId === 'riwayataktivitas') { renderRiwayatAktivitas(); }
     if (pageId === 'konfigurasi') { if(window.loadKonfigurasiPro) window.loadKonfigurasiPro(); setTimeout(applyKonfigurasiLock, 400); }    if (pageId === 'catatan') { if(window.renderCatatanList) window.renderCatatanList(); const fab = document.getElementById('catatanFabBtn'); if(fab) fab.style.display = 'flex'; }
     else { const fab = document.getElementById('catatanFabBtn'); if(fab) fab.style.display = 'none'; }
     if (pageId === 'uploaddokumen') { 
@@ -3741,6 +3771,7 @@ function updateHomeDashboardExtra(totalJamaah, lunasCount, totalPiutang) {
         }
 
         // Peringatan Backup (global — mencakup semua Program dalam 1 file backup)
+        renderProgramSetupChecklist();
         renderChecklistKeberangkatan();
         const backupCard = document.getElementById('homeBackupWarningCard');
         if(backupCard) {
@@ -3857,6 +3888,56 @@ const menuItemsPremium = [
 ];
 
 let isAdminModePremium = false;
+let currentAdminNama = localStorage.getItem('navara_current_admin_nama') || 'Admin';
+
+function gantiNamaAdmin() {
+    const nama = prompt('Nama Anda saat ini (untuk jejak aktivitas):', currentAdminNama);
+    if(nama && nama.trim()) {
+        currentAdminNama = nama.trim();
+        localStorage.setItem('navara_current_admin_nama', currentAdminNama);
+        showToast('✅ Nama diubah jadi: ' + currentAdminNama);
+        const el = document.getElementById('namaAdminSaatIni');
+        if(el) el.textContent = currentAdminNama;
+    }
+}
+
+// ==================== RIWAYAT AKTIVITAS ====================
+function catatAktivitas(icon, teks) {
+    try {
+        const slot = ensureProgramConfigSlot();
+        if(!slot.aktivitas_log) slot.aktivitas_log = [];
+        slot.aktivitas_log.unshift({
+            icon, teks,
+            admin: currentAdminNama,
+            waktu: new Date().toLocaleString('id-ID', { day:'2-digit', month:'long', year:'numeric', hour:'2-digit', minute:'2-digit' })
+        });
+        if(slot.aktivitas_log.length > 200) slot.aktivitas_log = slot.aktivitas_log.slice(0, 200);
+        localStorage.setItem('navara_konfigurasi_pro', JSON.stringify(konfigurasiPro));
+        idbSet(STORE_KONFIGURASI, 'konfigurasi_pro', konfigurasiPro);
+    } catch(e) {}
+}
+
+function renderRiwayatAktivitas() {
+    const container = document.getElementById('daftarRiwayatAktivitas');
+    if(!container) return;
+    const slot = ensureProgramConfigSlot();
+    const log = slot.aktivitas_log || [];
+    const kw = (document.getElementById('cariRiwayatAktivitas')?.value || '').trim().toLowerCase();
+    const filtered = kw ? log.filter(l => l.teks.toLowerCase().includes(kw) || l.admin.toLowerCase().includes(kw)) : log;
+
+    const progLabel = document.getElementById('riwayatAktivitasProgramLabel');
+    if(progLabel) progLabel.textContent = '📁 ' + (getCurrentProgram()?.nama || '-');
+
+    if(filtered.length === 0) {
+        container.innerHTML = '<p style="text-align:center;color:#aaa;padding:30px;">Belum ada aktivitas tercatat</p>';
+        return;
+    }
+    container.innerHTML = filtered.map(l => `
+        <div style="background:#F8FAFC;border-radius:10px;padding:10px 12px;margin-bottom:8px;">
+            <div style="font-size:13px;">${l.icon} ${escapeHtml(l.teks)}</div>
+            <div style="font-size:11px;color:#888;margin-top:2px;">oleh ${escapeHtml(l.admin)} — ${escapeHtml(l.waktu)}</div>
+        </div>`).join('');
+}
 
 function renderMenuPremium() { 
     const container = document.getElementById('menuGridPremium'); 
@@ -4231,6 +4312,23 @@ function saveEstimasiData() {
     idbSet(STORE_KONFIGURASI, 'konfigurasi_pro', konfigurasiPro);
 }
 
+function renderProgramSetupChecklist() {
+    const card = document.getElementById('homeProgramSetupCard');
+    if(!card) return;
+    const cfg = getKonfigurasiProData();
+    const slot = ensureProgramConfigSlot();
+    const kurang = [];
+    if(!cfg.keberangkatan || !cfg.keberangkatan.tanggal) kurang.push('⬜ Tanggal Keberangkatan belum diisi');
+    if(!slot.estimasi_data) kurang.push('⬜ Estimasi Cuan Plan belum dihitung');
+    if(!(cfg.harga_paket && cfg.harga_paket.seragam) && jamaahList.length > 0) {
+        const belumAdaHarga = jamaahList.some(j => !getTotalHargaPaket(j));
+        if(belumAdaHarga) kurang.push('⬜ Ada jamaah yang belum diisi harga paketnya');
+    }
+    if(kurang.length === 0) { card.style.display = 'none'; return; }
+    card.style.display = 'block';
+    document.getElementById('homeProgramSetupList').innerHTML = kurang.join('<br>');
+}
+
 // ==================== KUNCI HARGA & RIWAYAT ESTIMASI ====================
 const ESTIMASI_FIELD_IDS = ['lokasiPaket','totJam','jamGratis','numTL','cTiket','cLAquad','cLAtriple','cLAdouble','cAsuransi','cHandling','cAlat','cAplikasi','cPIC','cLain','profitPct','cBuffer'];
 
@@ -4273,6 +4371,7 @@ function toggleKunciEstimasi() {
     localStorage.setItem('navara_konfigurasi_pro', JSON.stringify(konfigurasiPro));
     idbSet(STORE_KONFIGURASI, 'konfigurasi_pro', konfigurasiPro);
     renderKunciEstimasiUI();
+    if(mauDikunci) catatAktivitas('🔒', `Harga Estimasi dikunci`);
     showToast(mauDikunci ? '🔒 Harga dikunci' : '🔓 Harga dibuka, bisa diedit lagi');
 }
 
@@ -7531,15 +7630,45 @@ function editJamaahById(id){
     editJamaah(index); 
 }
 
+let _dataUndoTerakhir = null;
+let _undoTimeoutId = null;
+
 function confirmDeleteJamaahById(id){ 
     if(confirm('Hapus database ini?')){ 
         const index=jamaahList.findIndex(j=>j.id==id); 
         if(index!==-1){ 
+            const namaJamaah = jamaahList[index].nama_lengkap;
+            const dataJamaahDihapus = { ...jamaahList[index] };
+            const posisiAsli = index;
             jamaahList.splice(index,1); 
             saveJamaahData(); 
-            showToast('Data dihapus'); 
+            catatAktivitas('🗑️', `Jamaah "${namaJamaah}" dihapus`);
+            tampilkanUndoBar(`Jamaah "${namaJamaah}" dihapus`, () => {
+                jamaahList.splice(posisiAsli, 0, dataJamaahDihapus);
+                saveJamaahData();
+                showToast('↩️ Dikembalikan: ' + namaJamaah);
+            });
         } 
     } 
+}
+
+function tampilkanUndoBar(pesan, onUndo) {
+    clearTimeout(_undoTimeoutId);
+    let bar = document.getElementById('undoBar');
+    if(!bar) {
+        bar = document.createElement('div');
+        bar.id = 'undoBar';
+        bar.style.cssText = 'position:fixed;bottom:80px;left:16px;right:16px;background:#1a2b27;color:white;border-radius:12px;padding:12px 16px;display:flex;justify-content:space-between;align-items:center;z-index:99998;box-shadow:0 4px 16px rgba(0,0,0,.3);gap:10px;';
+        document.body.appendChild(bar);
+    }
+    bar.innerHTML = `<span style="font-size:13px;flex:1;">${escapeHtml(pesan)}</span><button id="undoBarBtn" style="background:#4ADE80;color:#0D3D31;border:none;border-radius:8px;padding:7px 14px;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap;">↩️ Batalkan</button>`;
+    bar.style.display = 'flex';
+    document.getElementById('undoBarBtn').onclick = () => {
+        clearTimeout(_undoTimeoutId);
+        bar.style.display = 'none';
+        onUndo();
+    };
+    _undoTimeoutId = setTimeout(() => { bar.style.display = 'none'; }, 5000);
 }
 
 function renderJamaahForm(){ 
@@ -8073,6 +8202,64 @@ function openProyeksiKasModal() {
     modal.style.display = 'flex';
 }
 
+// ==================== PENCARIAN JAMAAH LINTAS PROGRAM ====================
+function openPencarianGlobalModal() {
+    let modal = document.getElementById('pencarianGlobalModal');
+    if(!modal) {
+        modal = document.createElement('div');
+        modal.id = 'pencarianGlobalModal';
+        modal.className = 'modal';
+        document.body.appendChild(modal);
+    }
+    modal.innerHTML = `<div class="modal-content" style="max-width:440px;">
+        <h3 style="color:#0D5C4A;margin-bottom:10px;">🔍 Cari Jamaah — Semua Program</h3>
+        <div class="input-group" style="margin-bottom:12px;">
+            <input type="text" id="pencarianGlobalInput" placeholder="Ketik nama jamaah..." oninput="renderHasilPencarianGlobal()" autofocus>
+        </div>
+        <div id="hasilPencarianGlobal" style="max-height:360px;overflow-y:auto;"><p style="text-align:center;color:#aaa;font-size:13px;">Ketik untuk mulai mencari</p></div>
+        <button onclick="document.getElementById('pencarianGlobalModal').style.display='none'" style="width:100%;padding:11px;background:#e2e8f0;color:#333;border:none;border-radius:10px;font-size:13px;cursor:pointer;margin-top:10px;">Tutup</button>
+    </div>`;
+    modal.style.display = 'flex';
+    setTimeout(() => document.getElementById('pencarianGlobalInput')?.focus(), 200);
+}
+
+function renderHasilPencarianGlobal() {
+    const kw = (document.getElementById('pencarianGlobalInput')?.value || '').trim().toLowerCase();
+    const container = document.getElementById('hasilPencarianGlobal');
+    if(!container) return;
+    if(kw.length < 2) { container.innerHTML = '<p style="text-align:center;color:#aaa;font-size:13px;">Ketik minimal 2 huruf</p>'; return; }
+
+    const hasil = _allJamaahData.filter(j => j.nama_lengkap.toLowerCase().includes(kw));
+    if(hasil.length === 0) { container.innerHTML = '<p style="text-align:center;color:#aaa;font-size:13px;">Tidak ditemukan</p>'; return; }
+
+    container.innerHTML = hasil.map(j => {
+        const prog = programList.find(p => p.id === j.program_id);
+        const progNama = prog ? prog.nama : 'Program tidak diketahui';
+        const progIcon = prog ? (PROGRAM_ICON[prog.jenis]||'📁') : '❓';
+        return `<div onclick="lompatKeJamaah('${j.program_id}', ${j.id})" style="padding:10px;border:1px solid #eee;border-radius:10px;margin-bottom:8px;cursor:pointer;">
+            <div style="font-weight:700;font-size:13px;">${escapeHtml(j.nama_lengkap)}</div>
+            <div style="font-size:11px;color:#888;">${progIcon} ${escapeHtml(progNama)}</div>
+        </div>`;
+    }).join('');
+}
+
+async function lompatKeJamaah(programId, jamaahId) {
+    document.getElementById('pencarianGlobalModal').style.display = 'none';
+    if(programId !== currentProgramId) {
+        currentProgramId = programId;
+        localStorage.setItem('navara_current_program_id', currentProgramId);
+        renderProgramPickerBar();
+        await refilterAllProgramData();
+        showToast('📁 Pindah ke Program: ' + (getCurrentProgram()?.nama || '-'));
+    }
+    showPage('jamaah');
+    setTimeout(() => {
+        const el = document.getElementById('searchJamaahInput');
+        const j = jamaahList.find(x => x.id == jamaahId);
+        if(el && j) { el.value = j.nama_lengkap; filterJamaahList(); }
+    }, 300);
+}
+
 // ==================== KECOCOKAN KAMAR ====================
 const KAPASITAS_KAMAR = { 'Quad': 4, 'Triple': 3, 'Double': 2 };
 
@@ -8414,7 +8601,13 @@ async function confirmDeleteAllJamaah(){
         return; 
     } 
     const progNama = getCurrentProgram()?.nama || '-';
-    if(confirm(`⚠️ PERINGATAN!\n\nSemua ${jamaahList.length} data jamaah di Program "${progNama}" akan dihapus PERMANEN termasuk:\n- Data jamaah\n- Foto profil\n- Dokumen jamaah\n- Folder Virtual\n\n(Program lain TIDAK terpengaruh)\nField dinamis & konfigurasi TIDAK dihapus.\nLanjutkan?`)){ 
+    const pesan = `Semua <b>${jamaahList.length} data jamaah</b> di Program "<b>${escapeHtml(progNama)}</b>" akan dihapus PERMANEN, termasuk:<br>• Data jamaah<br>• Foto profil<br>• Dokumen jamaah<br>• Folder Virtual<br><br>(Program lain TIDAK terpengaruh)<br>Field dinamis & konfigurasi TIDAK dihapus.`;
+    konfirmasiBertema('Hapus Semua Jamaah?', pesan, async () => { await eksekusiHapusSemuaJamaah(); });
+}
+
+async function eksekusiHapusSemuaJamaah(){ 
+    { 
+        const progNama = getCurrentProgram()?.nama || '-';
         // Simpan dulu ID jamaah Program aktif, untuk hapus foto/dokumen yang terkait saja
         const idJamaahDihapus = jamaahList.map(j => j.id);
 
@@ -8443,6 +8636,7 @@ async function confirmDeleteAllJamaah(){
         ['navara_jamaah_list','navara_jamaah_kita_list','navara_folder_list'].forEach(k => localStorage.removeItem(k));
 
         showToast('✅ Data jamaah Program "' + progNama + '" telah dihapus');
+        catatAktivitas('🗑️', `Semua data jamaah (${idJamaahDihapus.length}) dihapus dari Program ini`);
         renderJamaahListWithPagination();
         renderJamaahKitaList();
         renderFolderList();
@@ -9462,7 +9656,7 @@ function renderSumberHartaList(){
     let html=''; 
     sumberHartaList.forEach(s=>{ 
         let jumlahTampil=s.jumlah>0?formatRupiah(s.jumlah):''; 
-        html+=`<div class="zakat-sumber-item"><div class="sumber-header"><strong>Sumber Harta</strong><button class="btn-remove-sumber" onclick="hapusSumberHarta(${s.id})">Hapus</button></div><div class="dynamic-field"><label>Nama Sumber</label><input type="text" value="${escapeHtml(s.nama)}" placeholder="Contoh: Tabungan, Dagangan, Pertanian" oninput="updateSumberHarta(${s.id}, 'nama', this.value)"></div><div class="row"><div class="dynamic-field"><label>Jumlah Harta (Rp)</label><input type="text" class="money-input" value="${jumlahTampil}" oninput="updateSumberHarta(${s.id}, 'jumlah', this.value)"></div><div class="dynamic-field"><label>Persen (%)</label><input type="number" step="0.1" value="${s.persen}" oninput="updateSumberHarta(${s.id}, 'persen', this.value)"></div></div></div>`; 
+        html+=`<div class="zakat-sumber-item"><div class="sumber-header"><strong>Sumber Harta</strong><button class="btn-remove-sumber" onclick="hapusSumberHarta(${s.id})">Hapus</button></div><div class="dynamic-field"><label>Nama Sumber</label><input type="text" value="${escapeHtml(s.nama)}" placeholder="Contoh: Tabungan, Dagangan, Pertanian" oninput="updateSumberHarta(${s.id}, 'nama', this.value)"></div><div class="row"><div class="dynamic-field"><label>Jumlah Harta (Rp)</label><input type="text" class="money-input" inputmode="numeric" value="${jumlahTampil}" oninput="updateSumberHarta(${s.id}, 'jumlah', this.value)"></div><div class="dynamic-field"><label>Persen (%)</label><input type="number" step="0.1" value="${s.persen}" oninput="updateSumberHarta(${s.id}, 'persen', this.value)"></div></div></div>`; 
     }); 
     container.innerHTML=html; 
 }
@@ -9471,9 +9665,9 @@ function toggleZakatInput(){
     const jenis=document.getElementById('jenisZakat').value; 
     const globalDiv=document.getElementById('zakatGlobalInput'); 
     if(jenis==='pertanian'){ 
-        globalDiv.innerHTML=`<div class="input-group"><label>Harga Beras per Kg (Rp)</label><input type="text" id="hargaBeras" class="money-input" value="15.000"></div>`; 
+        globalDiv.innerHTML=`<div class="input-group"><label>Harga Beras per Kg (Rp)</label><input type="text" id="hargaBeras" class="money-input" inputmode="numeric" value="15.000"></div>`; 
     } else { 
-        globalDiv.innerHTML=`<div class="input-group"><label>Harga Emas per Gram (Rp)</label><input type="text" id="hargaEmas" class="money-input" value="1.200.000"></div>`; 
+        globalDiv.innerHTML=`<div class="input-group"><label>Harga Emas per Gram (Rp)</label><input type="text" id="hargaEmas" class="money-input" inputmode="numeric" value="1.200.000"></div>`; 
     } 
 }
 
@@ -9835,6 +10029,7 @@ function simpanPembayaran() {
     }; 
     paymentTransaksiList.push(newTrx); 
     savePaymentData(); 
+    catatAktivitas('💰', `Pembayaran Rp ${nominal.toLocaleString('id-ID')} dicatat untuk ${newTrx.nama_jamaah || 'jamaah'}`);
     closePaymentModal(); 
     renderPaymentDashboard(); 
     renderPaymentJamaahList(); 
@@ -10205,8 +10400,10 @@ function closeRiwayatModal() {
 
 function deletePaymentTransaction(trxId) { 
     if (confirm('Hapus transaksi ini?')) { 
+        const trx = paymentTransaksiList.find(t => t.id == trxId);
         paymentTransaksiList = paymentTransaksiList.filter(t => t.id != trxId); 
         savePaymentData(); 
+        catatAktivitas('🗑️', `Pembayaran Rp ${(trx?.nominal||0).toLocaleString('id-ID')} (${trx?.nama_jamaah||'-'}) dihapus`);
         if (currentRiwayatJamaahId) openRiwayatModal(currentRiwayatJamaahId); 
         renderPaymentDashboard(); 
         renderPaymentJamaahList(); 
@@ -10375,6 +10572,32 @@ function renderProgramListInModal() {
     container.innerHTML = html;
 }
 
+// ==================== KONFIRMASI BERTEMA (pengganti confirm() bawaan browser) ====================
+function konfirmasiBertema(judul, pesanHtml, onYa, opsiTombolYa) {
+    let modal = document.getElementById('konfirmasiBertemaModal');
+    if(!modal) {
+        modal = document.createElement('div');
+        modal.id = 'konfirmasiBertemaModal';
+        modal.className = 'modal';
+        document.body.appendChild(modal);
+    }
+    const labelTombol = opsiTombolYa || '🗑️ Ya, Hapus';
+    modal.innerHTML = `<div class="modal-content" style="max-width:400px;">
+        <div style="text-align:center;font-size:40px;margin-bottom:6px;">⚠️</div>
+        <h3 style="color:#DC2626;text-align:center;margin-bottom:10px;">${escapeHtml(judul)}</h3>
+        <div style="font-size:13px;color:#444;line-height:1.7;margin-bottom:20px;">${pesanHtml}</div>
+        <div style="display:flex;gap:8px;">
+            <button id="konfirmasiBertemaBtnYa" style="flex:1;padding:12px;background:#DC2626;color:white;border:none;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;">${labelTombol}</button>
+            <button onclick="document.getElementById('konfirmasiBertemaModal').style.display='none'" style="flex:1;padding:12px;background:#e2e8f0;color:#333;border:none;border-radius:10px;font-size:13px;cursor:pointer;">Batal</button>
+        </div>
+    </div>`;
+    document.getElementById('konfirmasiBertemaBtnYa').onclick = () => {
+        modal.style.display = 'none';
+        onYa();
+    };
+    modal.style.display = 'flex';
+}
+
 function confirmDeleteProgram(id) {
     if(programList.length <= 1) return showToast('Tidak bisa hapus — minimal harus ada 1 Program!');
     const p = programList.find(x => x.id === id);
@@ -10382,12 +10605,12 @@ function confirmDeleteProgram(id) {
     const jumlahJamaah = _allJamaahData.filter(j => j.program_id === id).length;
     const jumlahKas = _allKasData.filter(k => k.program_id === id).length;
     const jumlahPengeluaran = _allPengeluaranData.filter(x => x.program_id === id).length;
-    let pesan = `Hapus Program "${p.nama}"?\n\nSemua datanya akan ikut terhapus PERMANEN:\n- ${jumlahJamaah} jamaah\n- ${jumlahKas} transaksi Kas\n- ${jumlahPengeluaran} Pengeluaran\n\nTidak bisa dibatalkan! Yakin?`;
-    if(!confirm(pesan)) return;
-    deleteProgram(id);
+    const pesan = `Hapus Program "<b>${escapeHtml(p.nama)}</b>"?<br><br>Semua datanya akan ikut terhapus PERMANEN:<br>• ${jumlahJamaah} jamaah<br>• ${jumlahKas} transaksi Kas<br>• ${jumlahPengeluaran} Pengeluaran<br><br>Tidak bisa dibatalkan!`;
+    konfirmasiBertema('Hapus Program?', pesan, () => deleteProgram(id));
 }
 
 async function deleteProgram(id) {
+    const namaProgramDihapus = programList.find(p => p.id === id)?.nama || 'Program';
     programList = programList.filter(p => p.id !== id);
     _allJamaahData = _allJamaahData.filter(j => j.program_id !== id);
     _allKasData = _allKasData.filter(k => k.program_id !== id);
@@ -10407,6 +10630,7 @@ async function deleteProgram(id) {
         renderProgramPickerBar();
         refilterAllProgramData();
     }
+    catatAktivitas('🗑️', `Program "${namaProgramDihapus}" dihapus`);
     renderProgramListInModal();
     showToast('🗑️ Program dihapus');
 }
@@ -10557,6 +10781,7 @@ async function saveNewProgram() {
     refilterAllProgramData();
     closeCreateProgramModal();
     if(btn) { btn.disabled = false; btn.textContent = '💾 Simpan & Aktifkan'; }
+    catatAktivitas('➕', `Program "${nama}" dibuat`);
     showToast(salinDariId ? '✅ Program "' + nama + '" dibuat, pengaturan tersalin' : '✅ Program "' + nama + '" dibuat & diaktifkan');
 }
 
@@ -14712,6 +14937,7 @@ async function saveKonfigurasiPro() {
     // tipe_paket disimpan lewat tambahTipePaket/hapusTipePaket langsung
     localStorage.setItem('navara_konfigurasi_pro', JSON.stringify(konfigurasiPro)); // keep for compat
     await idbSet(STORE_KONFIGURASI, 'konfigurasi_pro', konfigurasiPro);
+    catatAktivitas('✏️', 'Konfigurasi Program diperbarui (Harga Seragam/Tipe Paket/dll)');
     showToast('✅ Konfigurasi berhasil disimpan!');
     updateHeaderFromConfig();
 }
