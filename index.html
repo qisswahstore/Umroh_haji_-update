@@ -7855,20 +7855,6 @@ function cetakRekapTahunanGabungan() {
 }
 
 // ==================== CHECKLIST H-30/H-14/H-7 ====================
-function getChecklistKeberangkatan() {
-    const kb = getKonfigurasiProData().keberangkatan;
-    if(!kb || !kb.tanggal) return null;
-    const sisaHari = Math.ceil((new Date(kb.tanggal) - new Date()) / 86400000);
-    const items = [
-        { batas: 30, teks: 'Cek kelengkapan dokumen semua jamaah (paspor, visa, foto)' },
-        { batas: 14, teks: 'Cek status pelunasan — kejar jamaah yang masih nunggak' },
-        { batas: 7, teks: 'Siapkan manifest final & rooming list' },
-        { batas: 3, teks: 'Konfirmasi ulang tiket, hotel, dan transportasi' },
-        { batas: 1, teks: 'Briefing terakhir jamaah — jam kumpul, titik temu' }
-    ];
-    return items.map(it => ({ ...it, aktif: sisaHari <= it.batas && sisaHari >= 0, lewat: sisaHari < it.batas && sisaHari < 0 ? false : sisaHari < 0 })).filter(it => sisaHari <= it.batas + 5);
-}
-
 function renderChecklistKeberangkatan() {
     const card = document.getElementById('homeChecklistCard');
     if(!card) return;
@@ -10300,7 +10286,6 @@ const PROGRAM_WARNA = {
     lainnya: '#D1D5DB'
 };
 const PROGRAM_ICON = { haji: '🕋', umroh: '🕌', lainnya: '📁' };
-const PROGRAM_LABEL_JENIS = { haji: 'Haji', umroh: 'Umroh', lainnya: 'Lainnya' };
 
 async function loadProgramData() {
     try {
