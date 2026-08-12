@@ -11,7 +11,7 @@
     
     <!-- MANIFEST - DIPERBAIKI UNTUK INSTALL -->
     <meta name="apple-mobile-web-app-title" content="Navara">
-    <link rel="manifest" href="data:application/manifest+json,{%22name%22:%22Navara%22,%22short_name%22:%22Navara%22,%22start_url%22:%22.%22,%22display%22:%22standalone%22,%22background_color%22:%22%230D5C4A%22,%22theme_color%22:%22%230D5C4A%22,%22icons%22:[{%22src%22:%22https://img.icons8.com/color/192/kaaba.png%22,%22sizes%22:%22192x192%22,%22type%22:%22image/png%22},{%22src%22:%22https://img.icons8.com/color/512/kaaba.png%22,%22sizes%22:%22512x512%22,%22type%22:%22image/png%22}]}">
+    <link rel="manifest" href="data:application/manifest+json,{%22name%22:%22Navara%22,%22short_name%22:%22Navara%22,%22start_url%22:%22.%22,%22display%22:%22standalone%22,%22background_color%22:%22%230D5C4A%22,%22theme_color%22:%22%230D5C4A%22,%22icons%22:[{%22src%22:%22https://img.icons8.com/color/192/kaaba.png%22,%22sizes%22:%22192x192%22,%22type%22:%22image/png%22},{%22src%22:%22https://img.icons8.com/color/512/kaaba.png%22,%22sizes%22:%22512x512%22,%22type%22:%22image/png%22}],%22shortcuts%22:[{%22name%22:%22Bayar%20Cepat%22,%22short_name%22:%22Bayar%22,%22url%22:%22./?page=pembayaran%22,%22icons%22:[{%22src%22:%22https://img.icons8.com/fluency/96/bank-card-back-side.png%22,%22sizes%22:%2296x96%22}]},{%22name%22:%22Database%20Jamaah%22,%22short_name%22:%22Jamaah%22,%22url%22:%22./?page=jamaah%22,%22icons%22:[{%22src%22:%22https://img.icons8.com/fluency/96/user-group-man-man.png%22,%22sizes%22:%2296x96%22}]},{%22name%22:%22Kas%22,%22short_name%22:%22Kas%22,%22url%22:%22./?page=kas%22,%22icons%22:[{%22src%22:%22https://img.icons8.com/fluency/96/wallet.png%22,%22sizes%22:%2296x96%22}]},{%22name%22:%22Cari%20Jamaah%22,%22short_name%22:%22Cari%22,%22url%22:%22./?page=carijamaah%22,%22icons%22:[{%22src%22:%22https://img.icons8.com/fluency/96/search.png%22,%22sizes%22:%2296x96%22}]}]}">
     
     <link rel="icon" href="https://img.icons8.com/color/96/kaaba.png">
     <link rel="apple-touch-icon" href="https://img.icons8.com/color/192/kaaba.png">
@@ -1967,9 +1967,9 @@
     </div>
     <div class="stats-row">
         <div class="stat-mini-card"><i class="fas fa-coins"></i><div class="stat-label">Total Kas</div><div class="stat-number" id="homeStatKas">Rp 0</div></div>
-        <div class="stat-mini-card"><i class="fas fa-users"></i><div class="stat-label">Jamaah</div><div class="stat-number" id="homeStatJamaah">0</div></div>
-        <div class="stat-mini-card"><i class="fas fa-money-bill-wave"></i><div class="stat-label">Total Tagihan</div><div class="stat-number" id="homeStatPiutang">Rp 0</div></div>
-        <div class="stat-mini-card"><i class="fas fa-user-check"></i><div class="stat-label">Jamaah Lunas</div><div class="stat-number" id="homeStatLunas">0</div></div>
+        <div class="stat-mini-card" onclick="bukaJamaahDenganFilter('semua')" style="cursor:pointer;"><i class="fas fa-users"></i><div class="stat-label">Jamaah</div><div class="stat-number" id="homeStatJamaah">0</div></div>
+        <div class="stat-mini-card" onclick="bukaJamaahDenganFilter('belum_lunas')" style="cursor:pointer;"><i class="fas fa-money-bill-wave"></i><div class="stat-label">Total Tagihan</div><div class="stat-number" id="homeStatPiutang">Rp 0</div></div>
+        <div class="stat-mini-card" onclick="bukaJamaahDenganFilter('lunas')" style="cursor:pointer;"><i class="fas fa-user-check"></i><div class="stat-label">Jamaah Lunas</div><div class="stat-number" id="homeStatLunas">0</div></div>
     </div>
     <!-- Dashboard Info Cards -->
     <div id="homeDashboardExtra" style="padding:0 16px;">
@@ -2001,6 +2001,12 @@
         </div>
 
         <!-- Checklist Program Baru (belum lengkap setup-nya) -->
+        <!-- Widget Ringkasan "Kerjaan Hari Ini" -->
+        <div id="homeSummaryBar" onclick="toggleHomeSummaryDetail()" style="display:none;background:#F8FAFC;border:1px solid #cbd5e1;border-radius:14px;padding:12px 14px;margin-bottom:12px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;">
+            <div style="font-weight:700;font-size:13px;color:#334155;">📋 <span id="homeSummaryText">0 hal perlu perhatian hari ini</span></div>
+            <span id="homeSummaryArrow" style="font-size:12px;color:#334155;">⌄ Lihat</span>
+        </div>
+        <div id="homeSummaryDetailWrap">
         <div id="homeProgramSetupCard" style="display:none;background:#EDE9FE;border:1px solid #8B5CF6;border-radius:14px;padding:12px 14px;margin-bottom:12px;">
             <div style="font-weight:700;font-size:13px;color:#5B21B6;margin-bottom:6px;">🆕 Program Ini Belum Lengkap</div>
             <div id="homeProgramSetupList" style="font-size:12px;color:#5B21B6;line-height:1.8;"></div>
@@ -2024,6 +2030,7 @@
         <div id="homePasporWarningCard" style="display:none;background:#FEF3C7;border:1px solid #F59E0B;border-radius:14px;padding:12px 14px;margin-bottom:12px;">
             <div style="font-weight:700;font-size:13px;color:#92400E;margin-bottom:6px;">⚠️ <span id="homePasporWarningTitle">Paspor Akan Habis Masa Berlaku</span></div>
             <div id="homePasporWarningList" style="font-size:12px;color:#92400E;line-height:1.7;"></div>
+        </div>
         </div>
 
         <!-- Quick Action -->
@@ -2332,6 +2339,10 @@
         <div id="jamaahAdminPanel" class="setting-card" style="display:none"><h3 style="color:var(--primary);"> Panel Admin Jamaah</h3><button class="btn btn-primary btn-small mt-2" onclick="openTambahJamaahModal()"> + Tambah database</button><button class="btn btn-blue btn-small mt-2" onclick="openManageFieldsModal()"> Kelola Field Dinamis</button><button class="btn btn-small mt-2" onclick="openRekapKategoriModal()" style="background:#8B5CF6;color:white;"> 📊 Rekap per Kategori</button><button class="btn btn-small mt-2" onclick="openKecocokanKamarModal()" style="background:#0EA5E9;color:white;"> 🛏️ Cek Kecocokan Kamar</button><button class="btn btn-small mt-2" onclick="cetakManifestRooming()" style="background:#0D9488;color:white;"> 📋 Cetak Manifest & Rooming</button><button class="btn btn-small mt-2" onclick="openWaMassalModal()" style="background:#22C55E;color:white;"> 📢 Kirim WA Massal</button><button class="btn btn-teal btn-small mt-2" onclick="downloadTemplateExcel()" style="background:#1D6F42;">⬇️ Download Template Excel</button><button class="btn btn-teal btn-small mt-2" onclick="exportJamaahToExcel()"> Export ke Excel</button><button class="btn btn-orange btn-small mt-2" onclick="document.getElementById('importExcelFile').click()"> IMPORT EXCEL</button><input type="file" id="importExcelFile" accept=".xlsx,.xls" style="display:none" onchange="importJamaahFromExcel(this)"><button class="btn btn-danger btn-small mt-2" onclick="confirmDeleteAllJamaah()"> HAPUS SEMUA database</button></div>
         <div class="section-title"><span>DAFTAR JAMAAH</span></div>
         <div class="search-box"><input type="text" id="searchJamaahInput" placeholder=" Cari nama jamaah..." onkeyup="filterJamaahList()"><select id="sortJamaahSelect" onchange="sortJamaahList()"><option value="urutan_asli">Urutan asli</option><option value="nama_asc">Nama A-Z</option><option value="nama_desc">Nama Z-A</option><option value="tgl_asc">Tanggal lama ke baru</option><option value="tgl_desc">Tanggal baru ke lama</option></select><button onclick="resetJamaahFilter()">Reset</button></div>
+        <div id="filterLunasChip" style="display:none;align-items:center;gap:8px;background:#F0FBF6;border:1px solid #0D5C4A;border-radius:20px;padding:6px 12px;margin:8px 0;width:fit-content;">
+            <span style="font-size:12px;color:#0D5C4A;font-weight:600;"></span>
+            <button onclick="hapusFilterLunas()" style="border:none;background:none;color:#0D5C4A;font-weight:700;cursor:pointer;font-size:13px;">✕</button>
+        </div>
         <div class="sort-buttons"><span style="font-size:12px; color:var(--gray);">Jumlah per halaman:</span><select id="perPageJamaah" onchange="changePerPage()"><option value="10">10</option><option value="20">20</option><option value="50">50</option><option value="100">100</option><option value="all">Semua</option></select></div>
         <div id="jamaahListContainer"></div><div id="paginationContainer" class="pagination"></div>
         <button class="btn btn-wa" onclick="shareAllJamaahToWA()"><i class="fab fa-whatsapp"></i> SHARE SEMUA JAMAAH KE WA</button>
@@ -3274,7 +3285,7 @@
 </div>
 
 <!-- MODALS -->
-<div id="jamaahModal" class="modal"><div class="modal-content"><h3 id="jamaahModalTitle">Tambah database</h3><div id="jamaahFormContainer"></div><button class="btn btn-primary" onclick="saveJamaah()"> SIMPAN</button><button class="btn btn-danger mt-2" onclick="closeJamaahModal()">BATAL</button></div></div>
+<div id="jamaahModal" class="modal"><div class="modal-content"><h3 id="jamaahModalTitle">Tambah database</h3><div id="jamaahFormContainer"></div><button class="btn btn-primary" onclick="saveJamaah()"> SIMPAN</button><button id="btnSimpanTambahLagi" class="btn mt-2" onclick="saveJamaah(true)" style="width:100%;background:#0EA5E9;color:white;display:none;">➕ SIMPAN & TAMBAH LAGI</button><button class="btn btn-danger mt-2" onclick="closeJamaahModal()">BATAL</button></div></div>
 <div id="fieldModal" class="modal"><div class="modal-content"><h3>Tambah Field Dinamis</h3><div class="dynamic-field"><label>Nama Field</label><input type="text" id="newFieldName" placeholder="Contoh: tanggal_lahir"><div class="error-message">Hanya huruf kecil, angka, underscore</div></div><div class="dynamic-field"><label>Label Field</label><input type="text" id="newFieldLabel" placeholder="Contoh: Tanggal Lahir"></div><div class="dynamic-field"><label>Tipe Field</label><select id="newFieldType" onchange="toggleDropdownOptionsInput()"><option value="text">Text</option><option value="date">Tanggal</option><option value="tel">Telepon</option><option value="textarea">Text Area</option><option value="dropdown">Dropdown / Pilihan</option></select></div><div class="dynamic-field" id="dropdownOptionsWrap" style="display:none;"><label>Daftar Pilihan (pisahkan dengan koma)</label><input type="text" id="newFieldOptions" placeholder="Contoh: Tamattu', Ifrad, Qiran"><div class="error-message" style="color:#888;">Contoh lain: Ya, Tidak</div></div><div class="dynamic-field" style="display:flex;align-items:center;gap:8px;"><input type="checkbox" id="newFieldRahasia" style="width:18px;height:18px;"><label style="margin:0;">Sembunyikan di PDF Folder (Rahasia)</label></div><button class="btn btn-primary" onclick="addDynamicFieldJamaah()"> TAMBAH FIELD</button><button class="btn btn-danger mt-2" onclick="closeFieldModal()">BATAL</button></div></div>
 <div id="manageFieldsModal" class="modal"><div class="modal-content"><h3>Kelola Field Dinamis</h3><button class="btn btn-primary btn-small" style="margin-bottom:15px;" onclick="closeManageFieldsModal(); openFieldModal();">+ Tambah Field Baru</button><div id="fieldsListContainer"></div><button class="btn btn-primary mt-2" onclick="closeManageFieldsModal()">TUTUP</button></div></div>
 
@@ -3821,6 +3832,7 @@ function updateHomeDashboardExtra(totalJamaah, lunasCount, totalPiutang) {
                 pasporCard.style.display = 'none';
             }
         }
+        updateHomeSummaryBar();
     } catch(e) { console.log('Dashboard extra error:', e); }
 }
 
@@ -4310,6 +4322,36 @@ function saveEstimasiData() {
     slot.estimasi_data = estimasiData;
     localStorage.setItem('navara_konfigurasi_pro', JSON.stringify(konfigurasiPro));
     idbSet(STORE_KONFIGURASI, 'konfigurasi_pro', konfigurasiPro);
+}
+
+let _homeSummaryExpanded = false;
+
+function updateHomeSummaryBar() {
+    const cardIds = ['homeProgramSetupCard', 'homeChecklistCard', 'homeBackupWarningCard', 'homePasporWarningCard'];
+    const aktif = cardIds.filter(id => {
+        const el = document.getElementById(id);
+        return el && el.style.display !== 'none';
+    });
+    const summaryBar = document.getElementById('homeSummaryBar');
+    const detailWrap = document.getElementById('homeSummaryDetailWrap');
+    if(!summaryBar || !detailWrap) return;
+
+    if(aktif.length <= 1) {
+        // 0 atau 1 masalah — tidak perlu diringkas, tampilkan apa adanya
+        summaryBar.style.display = 'none';
+        detailWrap.style.display = 'block';
+        return;
+    }
+    // Lebih dari 1 masalah — ringkas jadi 1 bar
+    summaryBar.style.display = 'flex';
+    document.getElementById('homeSummaryText').textContent = `${aktif.length} hal perlu perhatian hari ini`;
+    detailWrap.style.display = _homeSummaryExpanded ? 'block' : 'none';
+    document.getElementById('homeSummaryArrow').textContent = _homeSummaryExpanded ? '⌃ Tutup' : '⌄ Lihat';
+}
+
+function toggleHomeSummaryDetail() {
+    _homeSummaryExpanded = !_homeSummaryExpanded;
+    updateHomeSummaryBar();
 }
 
 function renderProgramSetupChecklist() {
@@ -5649,7 +5691,7 @@ function confirmResetKas() {
 }
 
 // ==================== DATABASE JAMAAH ====================
-let jamaahList=[], dynamicFieldsJamaah=[], ingJamaahId=null, currentJamaahPage=1, perPageJamaah=10, jamaahFilteredList=[], currentSort='urutan_asli', currentSearch='';
+let jamaahList=[], dynamicFieldsJamaah=[], ingJamaahId=null, currentJamaahPage=1, perPageJamaah=10, jamaahFilteredList=[], currentSort='urutan_asli', currentSearch='', currentLunasFilter='semua';
 
 let _allJamaahData = [];
 
@@ -5724,6 +5766,15 @@ async function saveDynamicFieldsJamaah() {
 function applyJamaahFilterAndSort() { 
     let filtered=[...jamaahList]; 
     if(currentSearch) filtered=filtered.filter(j=>j.nama_lengkap.toLowerCase().includes(currentSearch.toLowerCase())); 
+    if(currentLunasFilter === 'lunas' || currentLunasFilter === 'belum_lunas') {
+        filtered = filtered.filter(j => {
+            const hp = getTotalHargaPaket(j) || 0;
+            if(hp <= 0) return false;
+            const byr = paymentTransaksiList.filter(t => t.id_jamaah == j.id).reduce((s,t) => s + t.nominal, 0);
+            const isLunas = byr >= hp;
+            return currentLunasFilter === 'lunas' ? isLunas : !isLunas;
+        });
+    }
     if(currentSort==='nama_asc') filtered.sort((a,b)=>a.nama_lengkap.localeCompare(b.nama_lengkap,'id')); 
     else if(currentSort==='nama_desc') filtered.sort((a,b)=>b.nama_lengkap.localeCompare(a.nama_lengkap,'id')); 
     else if(currentSort==='tgl_asc') filtered.sort((a,b)=>(a.created_at||'').localeCompare(b.created_at||'')); 
@@ -5731,6 +5782,26 @@ function applyJamaahFilterAndSort() {
     jamaahFilteredList=filtered; 
     currentJamaahPage=1; 
     renderJamaahListWithPagination(); 
+    renderFilterLunasChip();
+}
+
+function renderFilterLunasChip() {
+    const el = document.getElementById('filterLunasChip');
+    if(!el) return;
+    if(currentLunasFilter === 'semua') { el.style.display = 'none'; return; }
+    el.style.display = 'inline-flex';
+    el.querySelector('span').textContent = currentLunasFilter === 'lunas' ? '✅ Filter: Sudah Lunas' : '⏳ Filter: Belum Lunas';
+}
+
+function hapusFilterLunas() {
+    currentLunasFilter = 'semua';
+    applyJamaahFilterAndSort();
+}
+
+async function bukaJamaahDenganFilter(mode) {
+    currentLunasFilter = mode;
+    showPage('jamaah');
+    setTimeout(() => applyJamaahFilterAndSort(), 200);
 }
 
 function renderJamaahListWithPagination() { 
@@ -5749,7 +5820,7 @@ function renderJamaahListWithPagination() {
     let html=`<div style="margin-bottom:10px; font-size:0.8rem; color:var(--accent);"> Total: ${jamaahFilteredList.length} jamaah (halaman ${currentJamaahPage} dari ${totalPages})</div>`; 
     pageData.forEach((j,idx)=>{ 
         const displayNum=start+idx+1; 
-        html+=`<div class="jamaah-card"><div class="jamaah-header"><div style="display:flex;align-items:center;gap:10px;flex:1;"><div id="foto_thumb_${j.id}" style="width:44px;height:44px;border-radius:50%;background:#f0f0f0;border:2px solid #0D5C4A;overflow:hidden;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;" onclick="showFotoProfilModal(${j.id},'${escapeHtml(j.nama_lengkap).replace(/'/g,"\\'")}')"><span style="font-size:22px;">👤</span></div><div><div class="jamaah-nama"><span style="background:var(--primary); color:white; display:inline-block; width:28px; height:28px; border-radius:50%; text-align:center; line-height:28px; font-size:13px; margin-right:10px;">${displayNum}</span> ${escapeHtml(j.nama_lengkap)}</div><div class="jamaah-tgl"> ${j.created_at||'-'}</div></div></div><div class="jamaah-actions"><button class="btn-share-wa" onclick="shareSingleJamaahById('${j.id}')"><i class="fab fa-whatsapp"></i></button><button class="btn-edit-jamaah" onclick="editJamaahById('${j.id}')"><i class="fas fa-edit"></i></button><button class="btn-delete-jamaah" onclick="confirmDeleteJamaahById('${j.id}')"><i class="fas fa-trash"></i></button></div></div><div class="jamaah-detail">`; 
+        html+=`<div class="jamaah-card"><div class="jamaah-header"><div style="display:flex;align-items:center;gap:10px;flex:1;"><div id="foto_thumb_${j.id}" style="width:44px;height:44px;border-radius:50%;background:#f0f0f0;border:2px solid #0D5C4A;overflow:hidden;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;" onclick="showFotoProfilModal(${j.id},'${escapeHtml(j.nama_lengkap).replace(/'/g,"\\'")}')"><span style="font-size:22px;">👤</span></div><div><div class="jamaah-nama"><span style="background:var(--primary); color:white; display:inline-block; width:28px; height:28px; border-radius:50%; text-align:center; line-height:28px; font-size:13px; margin-right:10px;">${displayNum}</span> ${escapeHtml(j.nama_lengkap)}</div><div class="jamaah-tgl"> ${j.created_at||'-'}</div></div></div><div class="jamaah-actions"><button class="btn-share-wa" style="background:#0D9488;" onclick="openPaymentModalWithJamaah(${j.id})" title="Bayar Cepat"><i class="fas fa-money-bill-wave"></i></button><button class="btn-share-wa" onclick="shareSingleJamaahById('${j.id}')"><i class="fab fa-whatsapp"></i></button><button class="btn-edit-jamaah" onclick="editJamaahById('${j.id}')"><i class="fas fa-edit"></i></button><button class="btn-delete-jamaah" onclick="confirmDeleteJamaahById('${j.id}')"><i class="fas fa-trash"></i></button></div></div><div class="jamaah-detail">`; 
         for(const field of dynamicFieldsJamaah){ 
             const val=j.additional_fields?.[field.name]||''; 
             if(val) html+=`<div class="jamaah-detail-item"><strong>${escapeHtml(field.label)}:</strong> ${escapeHtml(val)}</div>`; 
@@ -7608,6 +7679,7 @@ function resetJamaahFilter(){
     document.getElementById('sortJamaahSelect').value='urutan_asli'; 
     currentSearch=''; 
     currentSort='urutan_asli'; 
+    currentLunasFilter='semua';
     applyJamaahFilterAndSort(); 
 }
 
@@ -7646,6 +7718,7 @@ function confirmDeleteJamaahById(id){
             tampilkanUndoBar(`Jamaah "${namaJamaah}" dihapus`, () => {
                 jamaahList.splice(posisiAsli, 0, dataJamaahDihapus);
                 saveJamaahData();
+                catatAktivitas('↩️', `Penghapusan jamaah "${namaJamaah}" DIBATALKAN — data dikembalikan`);
                 showToast('↩️ Dikembalikan: ' + namaJamaah);
             });
         } 
@@ -7706,6 +7779,8 @@ function openTambahJamaahModal(){
     editingJamaahId=null; 
     document.getElementById('jamaahModalTitle').innerText='Tambah database'; 
     renderJamaahForm(); 
+    const btnTambahLagi = document.getElementById('btnSimpanTambahLagi');
+    if(btnTambahLagi) btnTambahLagi.style.display = 'block';
     document.getElementById('jamaahModal').classList.add('show'); 
 }
 
@@ -7716,6 +7791,8 @@ function editJamaah(index){
     editingJamaahId=index; 
     document.getElementById('jamaahModalTitle').innerText='Edit database'; 
     renderJamaahForm(); 
+    const btnTambahLagi = document.getElementById('btnSimpanTambahLagi');
+    if(btnTambahLagi) btnTambahLagi.style.display = 'none';
     document.getElementById('jamaahNamaLengkap').value=j.nama_lengkap||''; 
     for(const field of dynamicFieldsJamaah){ 
         const input=document.getElementById(`jamaahField_${field.name}`); 
@@ -7727,7 +7804,7 @@ function editJamaah(index){
     document.getElementById('jamaahModal').classList.add('show'); 
 }
 
-function saveJamaah(){ 
+function saveJamaah(tetapBuka){ 
     const nama=document.getElementById('jamaahNamaLengkap').value.trim(); 
     if(!nama) return showToast('Nama lengkap wajib diisi!'); 
     const additional={}; 
@@ -7744,10 +7821,20 @@ function saveJamaah(){
         showToast('Data diupdate'); 
     } else {
         jamaahList.push({id:Date.now(), nama_lengkap:nama, additional_fields:additional, created_at:now, program_id:currentProgramId}); 
-        showToast('Data ditambahkan'); 
+        showToast(tetapBuka ? '✅ Ditambahkan, siap isi jamaah berikutnya' : 'Data ditambahkan'); 
     } 
     saveJamaahData(); 
-    closeJamaahModal(); 
+    if(tetapBuka && editingJamaahId===null) {
+        // Mode input berturut-turut: kosongkan form, biarkan modal tetap terbuka
+        document.getElementById('jamaahNamaLengkap').value = '';
+        for(const field of dynamicFieldsJamaah){ 
+            const input=document.getElementById(`jamaahField_${field.name}`); 
+            if(input) input.value=''; 
+        }
+        document.getElementById('jamaahNamaLengkap').focus();
+    } else {
+        closeJamaahModal(); 
+    }
 }
 
 function closeJamaahModal(){ 
@@ -15161,6 +15248,18 @@ async function initPremium() {
     
     // UPDATE STATS SETELAH SEMUA DATA LOAD!
     updateHomeStats();
+
+    // Pintasan Aplikasi (App Shortcuts) — kalau dibuka lewat tekan-tahan ikon, langsung ke halaman yang dituju
+    try {
+        const paramHalaman = new URLSearchParams(window.location.search).get('page');
+        if(paramHalaman === 'carijamaah') {
+            showPage('home');
+            setTimeout(() => openPencarianGlobalModal(), 400);
+        } else if(paramHalaman) {
+            const halamanValid = ['pembayaran','jamaah','kas'];
+            if(halamanValid.includes(paramHalaman)) showPage(paramHalaman);
+        }
+    } catch(e) {}
     
     document.getElementById('paymentFabOpen')?.addEventListener('click', () => openPaymentModal());
     
