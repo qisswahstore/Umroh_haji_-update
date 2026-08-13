@@ -2692,11 +2692,15 @@
         <div class="config-section"><h3><i class="fas fa-sort-numeric-up"></i> Rentang Nomor Porsi Haji</h3>
             <p style="font-size:11px;color:#888;margin-bottom:10px;">Untuk mengelompokkan jamaah Haji otomatis berdasarkan estimasi tahun keberangkatan dari nomor porsi. Berlaku global untuk semua Program. Urutkan dari porsi terkecil ke terbesar.</p>
             <div id="rentangPorsiList" style="margin-bottom:10px;"></div>
-            <div style="display:flex;gap:8px;">
-                <input type="text" id="newRentangSampai" inputmode="numeric" placeholder="Sampai porsi..." style="flex:1;">
-                <input type="text" id="newRentangTahun" inputmode="numeric" placeholder="Tahun" style="width:90px;">
-                <button class="btn btn-primary btn-small" onclick="tambahRentangPorsi()">+ Tambah</button>
+            <div class="input-group" style="margin-bottom:8px;">
+                <label style="font-size:11px;color:#888;">Sampai Nomor Porsi</label>
+                <input type="text" id="newRentangSampai" inputmode="numeric" placeholder="Contoh: 130.073.568" oninput="formatMoneyInput(this)" style="width:100%;padding:14px 16px;font-size:15px;">
             </div>
+            <div class="input-group" style="margin-bottom:12px;">
+                <label style="font-size:11px;color:#888;">Estimasi Tahun</label>
+                <input type="text" id="newRentangTahun" inputmode="numeric" placeholder="Contoh: 2027" style="width:100%;padding:14px 16px;font-size:15px;">
+            </div>
+            <button class="btn btn-primary" style="width:100%;" onclick="tambahRentangPorsi()">+ Tambah Rentang</button>
         </div>
         <div class="config-section"><h3><i class="fas fa-quote-right"></i> Kalimat Sapaan Splash Screen</h3>
             <p style="font-size:11px;color:#888;margin-bottom:4px;">Kalimat yang muncul sebentar saat aplikasi dibuka — <b>khusus untuk Program yang sedang aktif</b>. Cocok untuk pengingat sesuai keberangkatan (misal beda pengingat untuk Haji vs Umroh). Bisa isi lebih dari 1, nanti dipilih acak. Kosongkan untuk pakai default.</p>
