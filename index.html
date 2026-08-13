@@ -2336,7 +2336,7 @@
 <div id="page-jamaah" class="page">
     <div class="header-premium header-premium-small"><div class="back-header"><i class="fas fa-arrow-left" onclick="showPage('home')"></i><h2>Database Jamaah</h2><div style="width:30px;"></div></div></div>
     <div class="card-premium">
-        <div id="jamaahAdminPanel" class="setting-card" style="display:none"><h3 style="color:var(--primary);"> Panel Admin Jamaah</h3><button class="btn btn-primary btn-small mt-2" onclick="openTambahJamaahModal()"> + Tambah database</button><button class="btn btn-blue btn-small mt-2" onclick="openManageFieldsModal()"> Kelola Field Dinamis</button><button class="btn btn-small mt-2" onclick="openRekapKategoriModal()" style="background:#8B5CF6;color:white;"> 📊 Rekap per Kategori</button><button class="btn btn-small mt-2" onclick="openKecocokanKamarModal()" style="background:#0EA5E9;color:white;"> 🛏️ Cek Kecocokan Kamar</button><button class="btn btn-small mt-2" onclick="cetakManifestRooming()" style="background:#0D9488;color:white;"> 📋 Cetak Manifest & Rooming</button><button class="btn btn-small mt-2" onclick="openWaMassalModal()" style="background:#22C55E;color:white;"> 📢 Kirim WA Massal</button><button class="btn btn-teal btn-small mt-2" onclick="downloadTemplateExcel()" style="background:#1D6F42;">⬇️ Download Template Excel</button><button class="btn btn-teal btn-small mt-2" onclick="exportJamaahToExcel()"> Export ke Excel</button><button class="btn btn-orange btn-small mt-2" onclick="document.getElementById('importExcelFile').click()"> IMPORT EXCEL</button><input type="file" id="importExcelFile" accept=".xlsx,.xls" style="display:none" onchange="importJamaahFromExcel(this)"><button class="btn btn-danger btn-small mt-2" onclick="confirmDeleteAllJamaah()"> HAPUS SEMUA database</button></div>
+        <div id="jamaahAdminPanel" class="setting-card" style="display:none"><h3 style="color:var(--primary);"> Panel Admin Jamaah</h3><button class="btn btn-primary btn-small mt-2" onclick="openTambahJamaahModal()"> + Tambah database</button><button class="btn btn-blue btn-small mt-2" onclick="openManageFieldsModal()"> Kelola Field Dinamis</button><button class="btn btn-small mt-2" onclick="openRekapKategoriModal()" style="background:#8B5CF6;color:white;"> 📊 Rekap per Kategori</button><button class="btn btn-small mt-2" onclick="openKecocokanKamarModal()" style="background:#0EA5E9;color:white;"> 🛏️ Cek Kecocokan Kamar</button><button class="btn btn-small mt-2" onclick="openKelompokPorsiModal()" style="background:#F59E0B;color:white;"> 📊 Kelompokkan Berdasarkan Porsi</button><button class="btn btn-small mt-2" onclick="cetakManifestRooming()" style="background:#0D9488;color:white;"> 📋 Cetak Manifest & Rooming</button><button class="btn btn-small mt-2" onclick="openWaMassalModal()" style="background:#22C55E;color:white;"> 📢 Kirim WA Massal</button><button class="btn btn-teal btn-small mt-2" onclick="downloadTemplateExcel()" style="background:#1D6F42;">⬇️ Download Template Excel</button><button class="btn btn-teal btn-small mt-2" onclick="exportJamaahToExcel()"> Export ke Excel</button><button class="btn btn-orange btn-small mt-2" onclick="document.getElementById('importExcelFile').click()"> IMPORT EXCEL</button><input type="file" id="importExcelFile" accept=".xlsx,.xls" style="display:none" onchange="importJamaahFromExcel(this)"><button class="btn btn-danger btn-small mt-2" onclick="confirmDeleteAllJamaah()"> HAPUS SEMUA database</button></div>
         <div class="section-title"><span>DAFTAR JAMAAH</span></div>
         <div class="search-box"><input type="text" id="searchJamaahInput" placeholder=" Cari nama jamaah..." onkeyup="filterJamaahList()"><select id="sortJamaahSelect" onchange="sortJamaahList()"><option value="urutan_asli">Urutan asli</option><option value="nama_asc">Nama A-Z</option><option value="nama_desc">Nama Z-A</option><option value="tgl_asc">Tanggal lama ke baru</option><option value="tgl_desc">Tanggal baru ke lama</option></select><button onclick="resetJamaahFilter()">Reset</button></div>
         <div id="filterLunasChip" style="display:none;align-items:center;gap:8px;background:#F0FBF6;border:1px solid #0D5C4A;border-radius:20px;padding:6px 12px;margin:8px 0;width:fit-content;">
@@ -2687,6 +2687,15 @@
                     <label style="display:flex;justify-content:space-between;align-items:center;font-weight:normal;"><span>No. Izin (Instansi Kedua)</span><label class="switch"><input type="checkbox" id="cfg_show_izin"><span class="slider"></span></label></label>
                     <label style="display:flex;justify-content:space-between;align-items:center;font-weight:normal;"><span>Pimpinan & Jabatan</span><label class="switch"><input type="checkbox" id="cfg_show_pimpinan"><span class="slider"></span></label></label>
                 </div>
+            </div>
+        </div>
+        <div class="config-section"><h3><i class="fas fa-sort-numeric-up"></i> Rentang Nomor Porsi Haji</h3>
+            <p style="font-size:11px;color:#888;margin-bottom:10px;">Untuk mengelompokkan jamaah Haji otomatis berdasarkan estimasi tahun keberangkatan dari nomor porsi. Berlaku global untuk semua Program. Urutkan dari porsi terkecil ke terbesar.</p>
+            <div id="rentangPorsiList" style="margin-bottom:10px;"></div>
+            <div style="display:flex;gap:8px;">
+                <input type="text" id="newRentangSampai" inputmode="numeric" placeholder="Sampai porsi..." style="flex:1;">
+                <input type="text" id="newRentangTahun" inputmode="numeric" placeholder="Tahun" style="width:90px;">
+                <button class="btn btn-primary btn-small" onclick="tambahRentangPorsi()">+ Tambah</button>
             </div>
         </div>
         <div class="config-section"><h3><i class="fas fa-quote-right"></i> Kalimat Sapaan Splash Screen</h3>
@@ -4827,6 +4836,55 @@ function reloadHargaSeragamUI() {
 
 let editingSplashQuoteIndex = null;
 
+// ==================== RENTANG PORSI HAJI (global, untuk pengelompokan otomatis) ====================
+function renderRentangPorsiList() {
+    const container = document.getElementById('rentangPorsiList');
+    if(!container) return;
+    const rentang = (konfigurasiPro.rentang_porsi_haji || []).slice().sort((a,b) => a.sampai - b.sampai);
+    if(rentang.length === 0) {
+        container.innerHTML = '<p style="font-size:12px;color:#aaa;">Belum ada rentang diatur.</p>';
+        return;
+    }
+    container.innerHTML = rentang.map((r, i) => `
+        <div style="display:flex;align-items:center;justify-content:space-between;background:#F8FAFC;border-radius:8px;padding:8px 10px;margin-bottom:6px;">
+            <span style="font-size:13px;">Sampai porsi <b>${r.sampai.toLocaleString('id-ID')}</b> → Estimasi <b>${r.tahun}</b></span>
+            <button onclick="hapusRentangPorsi(${i})" style="border:none;background:none;color:#DC2626;font-size:14px;cursor:pointer;">🗑️</button>
+        </div>`).join('');
+}
+
+function tambahRentangPorsi() {
+    const sampaiRaw = document.getElementById('newRentangSampai').value.replace(/\D/g, '');
+    const tahun = document.getElementById('newRentangTahun').value.trim();
+    if(!sampaiRaw || !tahun) return showToast('Isi nomor porsi dan tahun dulu!');
+    if(!konfigurasiPro.rentang_porsi_haji) konfigurasiPro.rentang_porsi_haji = [];
+    konfigurasiPro.rentang_porsi_haji.push({ sampai: parseInt(sampaiRaw), tahun });
+    localStorage.setItem('navara_konfigurasi_pro', JSON.stringify(konfigurasiPro));
+    idbSet(STORE_KONFIGURASI, 'konfigurasi_pro', konfigurasiPro);
+    document.getElementById('newRentangSampai').value = '';
+    document.getElementById('newRentangTahun').value = '';
+    renderRentangPorsiList();
+    showToast('✅ Rentang ditambahkan');
+}
+
+function hapusRentangPorsi(index) {
+    const rentang = (konfigurasiPro.rentang_porsi_haji || []).slice().sort((a,b) => a.sampai - b.sampai);
+    const target = rentang[index];
+    konfigurasiPro.rentang_porsi_haji = konfigurasiPro.rentang_porsi_haji.filter(r => !(r.sampai === target.sampai && r.tahun === target.tahun));
+    localStorage.setItem('navara_konfigurasi_pro', JSON.stringify(konfigurasiPro));
+    idbSet(STORE_KONFIGURASI, 'konfigurasi_pro', konfigurasiPro);
+    renderRentangPorsiList();
+}
+
+function tentukanEstimasiTahunDariPorsi(noPorsi) {
+    const porsi = parseInt((noPorsi || '').toString().replace(/\D/g, ''));
+    if(!porsi) return null;
+    const rentang = (konfigurasiPro.rentang_porsi_haji || []).slice().sort((a,b) => a.sampai - b.sampai);
+    for(const r of rentang) {
+        if(porsi <= r.sampai) return r.tahun;
+    }
+    return rentang.length > 0 ? 'Di atas ' + rentang[rentang.length-1].tahun : null;
+}
+
 function renderSplashQuoteList() {
     const container = document.getElementById('splashQuoteList');
     if(!container) return;
@@ -5493,8 +5551,16 @@ async function loadKasData() {
     dataKas = _allKasData.filter(k => k.program_id === currentProgramId);
     renderKasTable(); 
     updateSaldoKas(); 
-    const savedKegiatan = await idbGet(STORE_KAS, 'kegiatan') || localStorage.getItem('navara_kegiatan') || '';
-    if(savedKegiatan && document.getElementById('kegiatan')) document.getElementById('kegiatan').value = savedKegiatan;
+
+    // Kegiatan/Nama Rombongan — per-Program, dengan migrasi sekali dari nilai lama yang global
+    const slot = ensureProgramConfigSlot();
+    if(slot.kegiatan_kas === undefined) {
+        const legacyKegiatan = await idbGet(STORE_KAS, 'kegiatan') || localStorage.getItem('navara_kegiatan') || '';
+        slot.kegiatan_kas = legacyKegiatan;
+        localStorage.setItem('navara_konfigurasi_pro', JSON.stringify(konfigurasiPro));
+        idbSet(STORE_KONFIGURASI, 'konfigurasi_pro', konfigurasiPro);
+    }
+    if(document.getElementById('kegiatan')) document.getElementById('kegiatan').value = slot.kegiatan_kas || '';
 }
 
 async function saveKasData() { 
@@ -5535,7 +5601,10 @@ function tambahTransaksi() {
     saveKasData(); 
     document.getElementById('ketReal').value=""; 
     document.getElementById('nomReal').value=""; 
-    localStorage.setItem('navara_kegiatan',kegiatan); 
+    const slot = ensureProgramConfigSlot();
+    slot.kegiatan_kas = kegiatan;
+    localStorage.setItem('navara_konfigurasi_pro', JSON.stringify(konfigurasiPro));
+    idbSet(STORE_KONFIGURASI, 'konfigurasi_pro', konfigurasiPro);
     showToast('Transaksi ditambahkan'); 
 }
 
@@ -8347,6 +8416,111 @@ async function lompatKeJamaah(programId, jamaahId) {
     }, 300);
 }
 
+// ==================== KELOMPOKKAN BERDASARKAN PORSI HAJI ====================
+function openKelompokPorsiModal() {
+    let modal = document.getElementById('kelompokPorsiModal');
+    if(!modal) {
+        modal = document.createElement('div');
+        modal.id = 'kelompokPorsiModal';
+        modal.className = 'modal';
+        document.body.appendChild(modal);
+    }
+    renderKelompokPorsiModal(modal);
+    modal.style.display = 'flex';
+}
+
+function renderKelompokPorsiModal(modal) {
+    modal = modal || document.getElementById('kelompokPorsiModal');
+    if(!modal) return;
+
+    if(!konfigurasiPro.rentang_porsi_haji || konfigurasiPro.rentang_porsi_haji.length === 0) {
+        modal.innerHTML = `<div class="modal-content" style="max-width:400px;">
+            <h3 style="color:#0D5C4A;margin-bottom:10px;">📊 Kelompokkan Berdasarkan Porsi</h3>
+            <div style="background:#fef3c7;border:1.5px solid #f59e0b;border-radius:10px;padding:14px;margin-bottom:16px;font-size:13px;color:#92400e;">
+                Belum ada Rentang Nomor Porsi diatur. Isi dulu di Setting → Konfigurasi → "Rentang Nomor Porsi Haji".
+            </div>
+            <button onclick="closeKelompokPorsiModal()" style="width:100%;padding:11px;background:#e2e8f0;color:#333;border:none;border-radius:10px;font-size:13px;cursor:pointer;">Tutup</button>
+        </div>`;
+        return;
+    }
+
+    // Kelompokkan jamaah Program aktif berdasarkan estimasi tahun dari Nomor Porsi
+    const grup = {};
+    let tanpaPorsi = 0;
+    jamaahList.forEach(j => {
+        const noPorsi = j.additional_fields?.no_porsi;
+        const tahun = tentukanEstimasiTahunDariPorsi(noPorsi);
+        if(!tahun) { tanpaPorsi++; return; }
+        if(!grup[tahun]) grup[tahun] = [];
+        grup[tahun].push(j);
+    });
+
+    const tahunList = Object.keys(grup).sort();
+    const optionsProgram = programList.filter(p => p.id !== currentProgramId)
+        .map(p => `<option value="${p.id}">${PROGRAM_ICON[p.jenis]||'📁'} ${escapeHtml(p.nama)}</option>`).join('');
+
+    let html = tahunList.map(tahun => {
+        const orang = grup[tahun];
+        const idsJson = JSON.stringify(orang.map(o => o.id)).replace(/"/g, '&quot;');
+        return `
+        <div style="background:#F8FAFC;border-radius:10px;padding:12px;margin-bottom:10px;">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+                <div style="font-weight:700;font-size:14px;color:#0D5C4A;">📅 Estimasi ${escapeHtml(tahun)}</div>
+                <div style="font-size:12px;color:#888;">${orang.length} orang</div>
+            </div>
+            <div style="font-size:11px;color:#888;cursor:pointer;margin-bottom:8px;" onclick="this.nextElementSibling.style.display = this.nextElementSibling.style.display === 'none' ? 'block' : 'none';">▾ Lihat/sembunyikan nama</div>
+            <div style="display:none;font-size:12px;color:#555;max-height:120px;overflow-y:auto;margin-bottom:8px;border-top:1px solid #e5e7eb;padding-top:6px;">
+                ${orang.map(o => escapeHtml(o.nama_lengkap)).join('<br>')}
+            </div>
+            ${optionsProgram ? `
+            <div style="display:flex;gap:6px;">
+                <select id="targetProgram_${tahun.replace(/\W/g,'')}" style="flex:1;padding:8px;border:1px solid #e2e6e4;border-radius:8px;font-size:12px;">
+                    <option value="">Pindahkan ke Program...</option>
+                    ${optionsProgram}
+                </select>
+                <button onclick="pindahkanKelompokPorsi('${tahun.replace(/'/g,"\\'")}', ${idsJson})" style="background:#F59E0B;color:white;border:none;border-radius:8px;padding:8px 12px;font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap;">Pindahkan</button>
+            </div>` : '<div style="font-size:11px;color:#aaa;">Buat Program lain dulu untuk bisa memindahkan kelompok ini</div>'}
+        </div>`;
+    }).join('');
+
+    if(tanpaPorsi > 0) {
+        html += `<div style="font-size:12px;color:#aaa;text-align:center;padding:8px;">${tanpaPorsi} jamaah belum diisi Nomor Porsi (tidak ikut dikelompokkan)</div>`;
+    }
+
+    modal.innerHTML = `<div class="modal-content" style="max-width:440px;">
+        <h3 style="color:#0D5C4A;margin-bottom:4px;">📊 Kelompokkan Berdasarkan Porsi</h3>
+        <div style="font-size:11px;color:#888;margin-bottom:12px;">${escapeHtml(getCurrentProgram()?.nama || '-')} — berdasarkan Rentang Nomor Porsi di Konfigurasi</div>
+        <div style="max-height:400px;overflow-y:auto;">${html || '<p style="color:#aaa;text-align:center;">Tidak ada jamaah dengan Nomor Porsi yang cocok rentang manapun</p>'}</div>
+        <button onclick="closeKelompokPorsiModal()" style="width:100%;padding:11px;background:#e2e8f0;color:#333;border:none;border-radius:10px;font-size:13px;cursor:pointer;margin-top:10px;">Tutup</button>
+    </div>`;
+}
+
+function closeKelompokPorsiModal() {
+    const modal = document.getElementById('kelompokPorsiModal');
+    if(modal) modal.style.display = 'none';
+}
+
+async function pindahkanKelompokPorsi(tahun, idsArr) {
+    const selectEl = document.getElementById('targetProgram_' + tahun.replace(/\W/g,''));
+    const targetProgramId = selectEl?.value;
+    if(!targetProgramId) return showToast('Pilih Program tujuan dulu!');
+    const targetProgram = programList.find(p => p.id === targetProgramId);
+    if(!targetProgram) return;
+
+    konfirmasiBertema('Pindahkan Kelompok?', `Pindahkan <b>${idsArr.length} jamaah</b> (Estimasi ${escapeHtml(tahun)}) ke Program "<b>${escapeHtml(targetProgram.nama)}</b>"?<br><br>Data jamaah (Nomor Porsi, dll) tetap ikut, cuma pindah kepemilikan Program.`, async () => {
+        idsArr.forEach(id => {
+            const j = _allJamaahData.find(x => x.id === id);
+            if(j) j.program_id = targetProgramId;
+        });
+        await idbSet(STORE_JAMAAH, 'jamaah_list', _allJamaahData);
+        jamaahList = _allJamaahData.filter(j => j.program_id === currentProgramId);
+        applyJamaahFilterAndSort();
+        catatAktivitas('📊', `${idsArr.length} jamaah (Estimasi ${tahun}) dipindahkan ke Program "${targetProgram.nama}"`);
+        showToast(`✅ ${idsArr.length} jamaah dipindahkan ke ${targetProgram.nama}`);
+        renderKelompokPorsiModal();
+    }, '✅ Ya, Pindahkan');
+}
+
 // ==================== KECOCOKAN KAMAR ====================
 const KAPASITAS_KAMAR = { 'Quad': 4, 'Triple': 3, 'Double': 2 };
 
@@ -10776,6 +10950,10 @@ async function refilterAllProgramData() {
     applyJamaahFilterAndSort();
     renderKasTable();
     updateSaldoKas();
+    if(document.getElementById('kegiatan')) {
+        const slot = ensureProgramConfigSlot();
+        document.getElementById('kegiatan').value = slot.kegiatan_kas || '';
+    }
     if(typeof renderPengeluaranList === 'function') renderPengeluaranList();
     if(typeof updateRingkasanKeuangan === 'function') updateRingkasanKeuangan();
     if(typeof updateHomeStats === 'function') updateHomeStats();
@@ -14946,6 +15124,7 @@ async function loadKonfigurasiPro() {
     reloadHargaSeragamUI();
     document.getElementById('cfg_wa_laporan').value = konfigurasiPro.wa_template.laporan || '';
     renderSplashQuoteList();
+    renderRentangPorsiList();
     // Load keberangkatan (per-Program)
     const progSlot = ensureProgramConfigSlot();
     const kb = progSlot.keberangkatan || konfigurasiPro.keberangkatan || {};
