@@ -5249,7 +5249,29 @@ function toggleKonsorsiumKomponen(id, key) {
     const t = list.find(x => x.id === id);
     if(!t) return;
     if(!t.komponen) { t.komponen = {}; DAFTAR_KOMPONEN_KONSORSIUM.forEach(k => t.komponen[k.key] = true); }
+
+    const komponen = ambilKomponenBiayaEstimasi();
+    const totalGabungan = list.reduce((s,x) => s + (x.jumlah||0), 0);
+
+    // Hitung Modal SEBELUM komponen diubah, dan rasio markup yang sedang berlaku (dari Harga yang sudah diisi)
+    let rasioMarkup = null;
+    if(komponen && totalGabungan > 0 && t.harga > 0) {
+        const modalLama = hitungModalTravelPerKomponen(komponen.rincian, t.komponen, totalGabungan, komponen.nFocGabungan);
+        if(modalLama > 0) rasioMarkup = (t.harga - modalLama) / modalLama;
+    }
+
     t.komponen[key] = !(t.komponen[key] !== false);
+
+    // Sesuaikan Harga otomatis supaya penghematan Modal diteruskan ke Travel Partner (bukan diam-diam jadi profit tambahan)
+    if(rasioMarkup !== null && komponen && totalGabungan > 0) {
+        const modalBaru = hitungModalTravelPerKomponen(komponen.rincian, t.komponen, totalGabungan, komponen.nFocGabungan);
+        if(modalBaru > 0) {
+            t.harga = Math.round(modalBaru * (1 + rasioMarkup));
+            const hInput = document.getElementById('konsorsiumHargaInput_' + id);
+            if(hInput) hInput.value = t.harga.toLocaleString('id-ID');
+        }
+    }
+
     simpanKonsorsium();
     renderSatuKartuKonsorsiumInfo(id);
     renderKonsorsiumRingkasan();
