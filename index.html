@@ -5039,7 +5039,7 @@ function simpanKonsorsium() {
 
 function tambahKonsorsiumTravel() {
     const list = ensureKonsorsiumList();
-    list.push({ id: Date.now(), nama: '', jumlah: 0, harga: 0 });
+    list.push({ id: Date.now(), nama: '', jumlah: 0, harga: 0, persen: '' });
     simpanKonsorsium();
     renderKonsorsiumList();
 }
@@ -5058,8 +5058,50 @@ function updateKonsorsiumTravel(id, field, value) {
     if(field === 'nama') t.nama = value;
     if(field === 'jumlah') t.jumlah = parseInt(value.replace(/\D/g,'')) || 0;
     if(field === 'harga') t.harga = parseInt(value.replace(/\D/g,'')) || 0;
+    if(field === 'persen') {
+        t.persen = value;
+        const komponen = ambilKomponenBiayaEstimasi();
+        const totalGabungan = list.reduce((s,x) => s + (x.jumlah||0), 0);
+        const modalPerPax = komponen && totalGabungan > 0 ? hitungModalPerPaxGabungan(totalGabungan, komponen.nFocGabungan, komponen.sub) : null;
+        const persenNum = parseFloat(value);
+        if(modalPerPax && !isNaN(persenNum)) {
+            t.harga = Math.round(modalPerPax * (1 + persenNum/100));
+            const hargaInput = document.getElementById('konsorsiumHargaInput_' + id);
+            if(hargaInput) hargaInput.value = t.harga.toLocaleString('id-ID');
+        }
+    }
     simpanKonsorsium();
+    if(field === 'jumlah') {
+        list.forEach(x => renderSatuKartuKonsorsiumInfo(x.id));
+    } else {
+        renderSatuKartuKonsorsiumInfo(id);
+    }
     renderKonsorsiumRingkasan();
+}
+
+function renderSatuKartuKonsorsiumInfo(id) {
+    const list = ensureKonsorsiumList();
+    const t = list.find(x => x.id === id);
+    const infoEl = document.getElementById('konsorsiumInfo_' + id);
+    if(!t || !infoEl) return;
+    const komponen = ambilKomponenBiayaEstimasi();
+    const totalGabungan = list.reduce((s,x) => s + (x.jumlah||0), 0);
+    const modalPerPax = komponen && totalGabungan > 0 ? hitungModalPerPaxGabungan(totalGabungan, komponen.nFocGabungan, komponen.sub) : null;
+    const f = n => n ? 'Rp ' + Math.round(n).toLocaleString('id-ID') : '-';
+    if(modalPerPax && t.jumlah > 0 && t.harga > 0) {
+        const profitPerOrang = t.harga - modalPerPax;
+        const totalProfit = profitPerOrang * t.jumlah;
+        infoEl.innerHTML = `
+            <div>📌 Modal per orang: <b>${f(modalPerPax)}</b></div>
+            <div>💵 Ditagihkan ke Travel ini: <b>${f(t.harga)}</b></div>
+            <div style="margin-top:4px;color:${profitPerOrang>=0?'#166534':'#DC2626'};font-weight:700;">
+                ${profitPerOrang>=0?'✅ Profit':'⚠️ Rugi'}: ${f(Math.abs(profitPerOrang))}/orang (${f(Math.abs(totalProfit))} total dari Travel ini)
+            </div>`;
+    } else if(modalPerPax) {
+        infoEl.innerHTML = `<div style="color:#888;">📌 Modal per orang saat ini: ${f(modalPerPax)} — isi harga tagihan untuk lihat profit</div>`;
+    } else {
+        infoEl.innerHTML = '';
+    }
 }
 
 function renderKonsorsiumList() {
@@ -5082,38 +5124,21 @@ function renderKonsorsiumList() {
         return;
     }
 
-    const totalGabungan = list.reduce((s,t) => s + (t.jumlah||0), 0);
-    const modalPerPax = totalGabungan > 0 ? hitungModalPerPaxGabungan(totalGabungan, komponen.nFocGabungan, komponen.sub) : null;
-    const f = n => n ? 'Rp ' + Math.round(n).toLocaleString('id-ID') : '-';
-
     let html = '';
     list.forEach(t => {
         const hargaTampil = t.harga > 0 ? t.harga.toLocaleString('id-ID') : '';
-        let hasilHtml = '';
-        if(modalPerPax && t.jumlah > 0 && t.harga > 0) {
-            const profitPerOrang = t.harga - modalPerPax;
-            const totalProfit = profitPerOrang * t.jumlah;
-            hasilHtml = `
-                <div style="background:#F8FAFC;border-radius:8px;padding:10px;margin-top:8px;font-size:12px;">
-                    <div>📌 Modal per orang: <b>${f(modalPerPax)}</b></div>
-                    <div>💵 Ditagihkan ke Travel ini: <b>${f(t.harga)}</b></div>
-                    <div style="margin-top:4px;color:${profitPerOrang>=0?'#166534':'#DC2626'};font-weight:700;">
-                        ${profitPerOrang>=0?'✅ Profit':'⚠️ Rugi'}: ${f(Math.abs(profitPerOrang))}/orang (${f(Math.abs(totalProfit))} total dari Travel ini)
-                    </div>
-                </div>`;
-        } else if(modalPerPax) {
-            hasilHtml = `<div style="font-size:11px;color:#888;margin-top:6px;">📌 Modal per orang saat ini: ${f(modalPerPax)} — isi harga tagihan untuk lihat profit</div>`;
-        }
         html += `
         <div class="zakat-sumber-item">
             <div class="sumber-header"><strong>Travel Partner</strong><button class="btn-remove-sumber" onclick="hapusKonsorsiumTravel(${t.id})">Hapus</button></div>
             <div class="dynamic-field"><label>Nama Travel</label><input type="text" value="${escapeHtml(t.nama)}" placeholder="Contoh: Travel A" oninput="updateKonsorsiumTravel(${t.id}, 'nama', this.value)"></div>
             <div class="dynamic-field"><label>Jumlah Jamaah</label><input type="text" inputmode="numeric" value="${t.jumlah || ''}" placeholder="Contoh: 10" oninput="updateKonsorsiumTravel(${t.id}, 'jumlah', this.value)"></div>
-            <div class="dynamic-field"><label>Harga yang Anda Tagihkan (Rp/orang)</label><input type="text" class="money-input" inputmode="numeric" value="${hargaTampil}" placeholder="Contoh: 6.900.000" oninput="updateKonsorsiumTravel(${t.id}, 'harga', this.value)"></div>
-            ${hasilHtml}
+            <div class="dynamic-field"><label>Markup dari Modal (%) <span style="color:#999;font-weight:400;">— opsional, isi ini biar Harga terisi otomatis</span></label><input type="number" step="0.1" value="${t.persen || ''}" placeholder="Contoh: 5" oninput="updateKonsorsiumTravel(${t.id}, 'persen', this.value)"></div>
+            <div class="dynamic-field"><label>Harga yang Anda Tagihkan (Rp/orang)</label><input type="text" id="konsorsiumHargaInput_${t.id}" class="money-input" inputmode="numeric" value="${hargaTampil}" placeholder="Contoh: 6.900.000" oninput="updateKonsorsiumTravel(${t.id}, 'harga', this.value)"></div>
+            <div id="konsorsiumInfo_${t.id}" style="background:#F8FAFC;border-radius:8px;padding:10px;margin-top:8px;font-size:12px;"></div>
         </div>`;
     });
     container.innerHTML = html;
+    list.forEach(t => renderSatuKartuKonsorsiumInfo(t.id));
     renderKonsorsiumRingkasan();
 }
 
