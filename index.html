@@ -5357,14 +5357,21 @@ function renderSatuKartuKonsorsiumInfo(id) {
     if(modalPerPax && t.jumlah > 0 && t.harga > 0) {
         const profitPerOrang = t.harga - modalPerPax;
         const totalProfit = profitPerOrang * t.jumlah;
+        const untung = profitPerOrang >= 0;
         infoEl.innerHTML = `
-            <div>📌 Modal per orang: <b>${f(modalPerPax)}</b></div>
-            <div>💵 Ditagihkan ke Travel ini: <b>${f(t.harga)}</b></div>
-            <div style="margin-top:4px;color:${profitPerOrang>=0?'#166534':'#DC2626'};font-weight:700;">
-                ${profitPerOrang>=0?'✅ Profit':'⚠️ Rugi'}: ${f(Math.abs(profitPerOrang))}/orang (${f(Math.abs(totalProfit))} total dari Travel ini)
+            <div style="display:flex;justify-content:space-between;font-size:11px;color:#888;padding:2px 2px;">
+                <span>📌 Modal/orang</span><span>${f(modalPerPax)}</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;font-size:11px;color:#888;padding:2px 2px 8px;">
+                <span>💵 Ditagihkan/orang</span><span>${f(t.harga)}</span>
+            </div>
+            <div style="background:${untung ? 'linear-gradient(135deg,#166534,#0D5C4A)' : 'linear-gradient(135deg,#DC2626,#991B1B)'};border-radius:10px;padding:12px 14px;text-align:center;">
+                <div style="color:rgba(255,255,255,.8);font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;">${untung ? '✅ Profit' : '⚠️ Rugi'} dari Travel Ini</div>
+                <div style="color:${untung ? '#4ADE80' : '#FCA5A5'};font-size:22px;font-weight:900;">${f(Math.abs(totalProfit))}</div>
+                <div style="color:rgba(255,255,255,.75);font-size:11px;">${f(Math.abs(profitPerOrang))}/orang</div>
             </div>`;
     } else if(modalPerPax) {
-        infoEl.innerHTML = `<div style="color:#888;">📌 Modal per orang saat ini: ${f(modalPerPax)} — isi harga tagihan untuk lihat profit</div>`;
+        infoEl.innerHTML = `<div style="background:#F8FAFC;border-radius:8px;padding:10px;font-size:12px;color:#888;">📌 Modal per orang saat ini: ${f(modalPerPax)} — isi harga tagihan untuk lihat profit</div>`;
     } else {
         infoEl.innerHTML = '';
     }
@@ -5424,7 +5431,7 @@ function renderKonsorsiumList() {
                 <div class="dynamic-field" style="margin-bottom:0;"><label style="font-size:12px;">Atau Profit Tetap (Rp)</label><input type="text" class="money-input" inputmode="numeric" value="${t.profitRp ? t.profitRp.toLocaleString('id-ID') : ''}" placeholder="Contoh: 2.500.000 (B2B)" oninput="updateKonsorsiumTravel(${t.id}, 'profitRp', this.value)"></div>
             </div>
             <div class="dynamic-field"><label>Harga yang Anda Tagihkan (Rp/orang)</label><input type="text" id="konsorsiumHargaInput_${t.id}" class="money-input" inputmode="numeric" value="${hargaTampil}" placeholder="Contoh: 6.900.000" oninput="updateKonsorsiumTravel(${t.id}, 'harga', this.value)"></div>
-            <div id="konsorsiumInfo_${t.id}" style="background:#F8FAFC;border-radius:8px;padding:10px;margin-top:8px;font-size:12px;"></div>
+            <div id="konsorsiumInfo_${t.id}" style="margin-top:8px;"></div>
             <button onclick="salinRingkasanTravel(${t.id})" style="width:100%;padding:9px;background:#0369A1;color:white;border:none;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;margin-top:8px;">📋 Salin Ringkasan</button>
         </div>`;
     });
