@@ -141,6 +141,11 @@
             from { opacity: 0; transform: translateY(8px); }
             to { opacity: 1; transform: translateY(0); }
         }
+        @keyframes flashUpdate {
+            0% { background-color: #FDE68A; }
+            100% { background-color: transparent; }
+        }
+        .flash-update { animation: flashUpdate 0.7s ease-out; }
         
         /* Header Premium */
         .header-premium {
@@ -5263,6 +5268,7 @@ function renderSatuKartuKonsorsiumInfo(id) {
     const totalGabungan = list.reduce((s,x) => s + (x.jumlah||0), 0);
     const modalPerPax = komponen && totalGabungan > 0 ? hitungModalPerPaxGabungan(totalGabungan, komponen.nFocGabungan, komponen.sub) : null;
     const f = n => n ? 'Rp ' + Math.round(n).toLocaleString('id-ID') : '-';
+    const isiSebelumnya = infoEl.innerHTML;
     if(modalPerPax && t.jumlah > 0 && t.harga > 0) {
         const profitPerOrang = t.harga - modalPerPax;
         const totalProfit = profitPerOrang * t.jumlah;
@@ -5276,6 +5282,11 @@ function renderSatuKartuKonsorsiumInfo(id) {
         infoEl.innerHTML = `<div style="color:#888;">📌 Modal per orang saat ini: ${f(modalPerPax)} — isi harga tagihan untuk lihat profit</div>`;
     } else {
         infoEl.innerHTML = '';
+    }
+    if(infoEl.innerHTML !== isiSebelumnya && infoEl.innerHTML !== '') {
+        infoEl.classList.remove('flash-update');
+        void infoEl.offsetWidth; // paksa browser reset animasi
+        infoEl.classList.add('flash-update');
     }
 }
 
