@@ -4848,7 +4848,6 @@ async function cetakEstimasiPDFInternal() {
         ['LA/Hotel Double', pr(est.cLAdouble||'0')],
     ].filter(([,v]) => v > 0);
     const items = [['Tiket',pr(est.cTiket)],...laItems,['Asuransi',pr(est.cAsuransi)],['Handling',pr(est.cHandling)],['PIC/Guide',pr(est.cPIC)],['Perlengkapan',pr(est.cAlat)],['Biaya Aplikasi',pr(est.cAplikasi)],['Lain-lain',pr(est.cLain)]];
-    if(buffer > 0) items.push(['Buffer Diskon', buffer]);
     let komponenHtml = '';
     items.forEach(([label, val]) => {
         if(val > 0) komponenHtml += `<tr><td style="padding:8px;border-bottom:1px solid #eee;">${label}</td><td style="padding:8px;border-bottom:1px solid #eee;text-align:right;">${f(val)}</td></tr>`;
@@ -4901,6 +4900,7 @@ async function cetakEstimasiPDFInternal() {
             <div>Biaya TL (${nTL} orang) : <strong style="color:#e74c3c;">- ${f(biayaTL)}</strong></div>
             <div>Profit Bersih &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: <strong style="color:#10B981;">${f(profitBersih)}</strong></div>
             <div>Profit Per Pax &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: <strong style="color:#10B981;">${f(profitPerPax)}</strong></div>
+            ${buffer > 0 ? `<div>+ Buffer Diskon <small style="color:#888;">(langsung ke Harga Jual, bukan Modal)</small>&nbsp;: <strong style="color:#f59e0b;">${f(buffer)}</strong></div>` : ''}
             <div class="harga-jual">HARGA JUAL PER PAX: ${f(lastCalculatedPrice)}</div>
         </div>
         ${ttdHtml}
@@ -5206,12 +5206,13 @@ function hitungKonsorsiumEstimasi() {
     const pPct = (parseFloat(document.getElementById('konProfitPct').value)||0)/100;
     const buffer = pr(document.getElementById('konCBuffer').value);
 
-    const totalOmzet = sub * nJam;
-    const profitKotor = totalOmzet * pPct;
+    const totalModalGrup = sub * nJam; // dasar hitung Profit — TIDAK termasuk Buffer, sama seperti Estimasi asli
+    const profitKotor = totalModalGrup * pPct;
     const biayaTL = sub * nTL;
     const profitBersih = profitKotor - biayaTL;
-    const jualBase = (totalOmzet + profitKotor) / (nJam - nFoc);
+    const jualBase = (totalModalGrup + profitKotor) / (nJam - nFoc);
     const hargaBrosur = jualBase + buffer;
+    const totalOmzet = hargaBrosur * (nJam - nFoc); // yang DITAMPILKAN — Harga Jual (termasuk Buffer) x Jamaah Bayar, sama seperti Estimasi asli
 
     konsorsiumLastModal = sub;
     konsorsiumLastBrosur = hargaBrosur;
@@ -5281,10 +5282,11 @@ function loadKonsorsiumEstimasiUI() {
     const sub = d.modal || 0;
     const pPct = (parseFloat(d.profitPct)||0)/100;
     const buffer = pr(d.cBuffer);
-    const totalOmzet = sub * nJam;
-    const profitKotor = totalOmzet * pPct;
+    const totalModalGrup = sub * nJam;
+    const profitKotor = totalModalGrup * pPct;
     const biayaTL = sub * nTL;
     const profitBersih = profitKotor - biayaTL;
+    const totalOmzet = (d.hargaBrosur || 0) * (nJam - nFoc); // sama seperti Estimasi asli — Harga Jual x Jamaah Bayar
 
     konsorsiumLastModal = sub;
     konsorsiumLastBrosur = d.hargaBrosur || 0;
