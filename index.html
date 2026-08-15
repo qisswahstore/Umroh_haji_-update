@@ -2318,7 +2318,38 @@
 
             <div class="section-title" style="margin-top:15px;"><span>KOMPONEN BIAYA</span></div>
             <div class="input-group"><label>Tiket</label><input type="text" id="konCTiket" class="money-input" inputmode="numeric" value="0"></div>
-            <div class="input-group"><label>LA / Hotel (per Pax)</label><input type="text" id="konCLA" class="money-input" inputmode="numeric" value="0"></div>
+
+            <div style="margin-bottom:12px;">
+                <div onclick="toggleKonLAAccordion()" style="display:flex;justify-content:space-between;align-items:center;padding:10px 14px;background:#f0f9f6;border:1.5px solid #0D5C4A;border-radius:12px;cursor:pointer;">
+                    <div style="font-weight:700;font-size:13px;color:#0D5C4A;">🏨 LA / Hotel (per Pax)</div>
+                    <span id="konLaAccordionIcon" style="color:#0D5C4A;font-size:14px;">▼</span>
+                </div>
+                <div id="konLaAccordionBody" style="border:1.5px solid #e2e8f0;border-top:none;border-radius:0 0 12px 12px;padding:12px;background:white;">
+                    <div style="display:flex;gap:8px;margin-bottom:12px;background:#f8fafc;border-radius:10px;padding:8px;">
+                        <label style="flex:1;display:flex;align-items:center;gap:6px;cursor:pointer;justify-content:center;padding:7px;border-radius:8px;font-size:12px;font-weight:600;" id="konLabelModeHargaPenuh" style="background:#0D5C4A;color:white;">
+                            <input type="radio" name="konModeLA" id="konModeHargaPenuh" value="penuh" checked onchange="updateKonModeLA()" style="display:none;"> ● Harga Penuh
+                        </label>
+                        <label style="flex:1;display:flex;align-items:center;gap:6px;cursor:pointer;justify-content:center;padding:7px;border-radius:8px;font-size:12px;font-weight:600;" id="konLabelModeUpgrade">
+                            <input type="radio" name="konModeLA" id="konModeUpgrade" value="upgrade" onchange="updateKonModeLA()" style="display:none;"> ○ Upgrade dari Quad
+                        </label>
+                    </div>
+                    <div class="input-group" style="margin-bottom:8px;">
+                        <label style="font-size:12px;color:#555;">Quad (4 orang/kamar)</label>
+                        <input type="text" id="konCLAquad" class="money-input" inputmode="numeric" value="0" oninput="updateKonLAPreview()">
+                    </div>
+                    <div class="input-group" style="margin-bottom:8px;">
+                        <label id="konLabelTriple" style="font-size:12px;color:#555;">Triple (3 orang/kamar)</label>
+                        <input type="text" id="konCLAtriple" class="money-input" inputmode="numeric" value="0" oninput="updateKonLAPreview()">
+                        <small id="konHintTriple" style="display:none;font-size:11px;color:#888;margin-top:3px;">↑ selisih dari Quad</small>
+                    </div>
+                    <div class="input-group" style="margin-bottom:0;">
+                        <label id="konLabelDouble" style="font-size:12px;color:#555;">Double (2 orang/kamar)</label>
+                        <input type="text" id="konCLAdouble" class="money-input" inputmode="numeric" value="0" oninput="updateKonLAPreview()">
+                        <small id="konHintDouble" style="display:none;font-size:11px;color:#888;margin-top:3px;">↑ selisih dari Quad</small>
+                    </div>
+                    <div id="konLaPreview" style="font-size:11px;color:#0D5C4A;margin-top:6px;"></div>
+                </div>
+            </div>
             <div class="input-group"><label>Asuransi</label><input type="text" id="konCAsuransi" class="money-input" inputmode="numeric" value="0"></div>
             <div class="input-group"><label>Handling</label><input type="text" id="konCHandling" class="money-input" inputmode="numeric" value="0"></div>
             <div class="row">
@@ -2366,6 +2397,10 @@
         <div id="konsorsiumRingkasan" style="display:none;background:linear-gradient(135deg,#0D5C4A,#0a3d31);border-radius:16px;padding:16px;color:white;">
             <div style="font-weight:700;font-size:14px;margin-bottom:10px;">💰 Ringkasan Konsorsium</div>
             <div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid rgba(255,255,255,0.2);">
+                <span style="opacity:0.8;font-size:13px;">Jumlah Travel Partner</span>
+                <span id="konsorsiumJumlahTravel" style="font-weight:700;">0 Travel</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid rgba(255,255,255,0.2);">
                 <span style="opacity:0.8;font-size:13px;">Total Jamaah Gabungan</span>
                 <span id="konsorsiumTotalPax" style="font-weight:700;">0 orang</span>
             </div>
@@ -2376,6 +2411,22 @@
             <div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid rgba(255,255,255,0.2);">
                 <span style="opacity:0.8;font-size:13px;">Total Tagihan ke Semua Travel</span>
                 <span id="konsorsiumTotalTagihan" style="font-weight:700;">Rp 0</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid rgba(255,255,255,0.2);">
+                <span style="opacity:0.8;font-size:13px;">Rata-rata Harga Tagihan/Pax</span>
+                <span id="konsorsiumRataHarga" style="font-weight:700;">Rp 0</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid rgba(255,255,255,0.2);">
+                <span style="opacity:0.8;font-size:13px;">Selisih dari Harga Brosur B2C</span>
+                <span id="konsorsiumSelisihB2C" style="font-weight:700;">-</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid rgba(255,255,255,0.2);">
+                <span style="opacity:0.8;font-size:13px;">Rata-rata Profit / Pax</span>
+                <span id="konsorsiumProfitPerPax" style="font-weight:700;">Rp 0</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid rgba(255,255,255,0.2);">
+                <span style="opacity:0.8;font-size:13px;">Margin Profit</span>
+                <span id="konsorsiumMarginPct" style="font-weight:700;">0%</span>
             </div>
             <div style="display:flex;justify-content:space-between;padding:8px 0 0;">
                 <span style="font-weight:700;font-size:14px;">PROFIT TOTAL ANDA</span>
@@ -5060,6 +5111,50 @@ function initTipePaket() {
 }
 
 // ==================== ESTIMASI KONSORSIUM MANDIRI (Tahap A) ====================
+// ==================== LA ACCORDION UNTUK ESTIMASI KONSORSIUM (replika dari Estimasi asli) ====================
+function updateKonModeLA() {
+    const isUpgrade = document.getElementById('konModeUpgrade')?.checked;
+    const labelPenuh = document.getElementById('konLabelModeHargaPenuh');
+    const labelUpgrade = document.getElementById('konLabelModeUpgrade');
+    const hintTriple = document.getElementById('konHintTriple');
+    const hintDouble = document.getElementById('konHintDouble');
+    const labelTriple = document.getElementById('konLabelTriple');
+    const labelDouble = document.getElementById('konLabelDouble');
+    if(labelPenuh) { labelPenuh.style.background = isUpgrade ? 'transparent' : '#0D5C4A'; labelPenuh.style.color = isUpgrade ? '#666' : 'white'; }
+    if(labelUpgrade) { labelUpgrade.style.background = isUpgrade ? '#0D5C4A' : 'transparent'; labelUpgrade.style.color = isUpgrade ? 'white' : '#666'; }
+    if(hintTriple) hintTriple.style.display = isUpgrade ? 'block' : 'none';
+    if(hintDouble) hintDouble.style.display = isUpgrade ? 'block' : 'none';
+    if(labelTriple) labelTriple.textContent = isUpgrade ? 'Triple — selisih dari Quad (Rp)' : 'Triple (3 orang/kamar)';
+    if(labelDouble) labelDouble.textContent = isUpgrade ? 'Double — selisih dari Quad (Rp)' : 'Double (2 orang/kamar)';
+    updateKonLAPreview();
+}
+
+function getKonModeLA() {
+    return document.getElementById('konModeUpgrade')?.checked ? 'upgrade' : 'penuh';
+}
+
+function toggleKonLAAccordion() {
+    const body = document.getElementById('konLaAccordionBody');
+    const icon = document.getElementById('konLaAccordionIcon');
+    if(!body) return;
+    const isOpen = body.style.display !== 'none';
+    body.style.display = isOpen ? 'none' : 'block';
+    if(icon) icon.textContent = isOpen ? '▼' : '▲';
+}
+
+function updateKonLAPreview() {
+    const pr = v => parseInt((v||'0').toString().replace(/\./g,'').replace(/[^0-9]/g,''))||0;
+    const preview = document.getElementById('konLaPreview');
+    if(!preview) return;
+    const types = [
+        {n:'Quad',   v: pr(document.getElementById('konCLAquad')?.value)},
+        {n:'Triple', v: pr(document.getElementById('konCLAtriple')?.value)},
+        {n:'Double', v: pr(document.getElementById('konCLAdouble')?.value)},
+    ].filter(t => t.v > 0);
+    if(types.length === 0) { preview.textContent = ''; return; }
+    preview.textContent = '✅ Aktif: ' + types.map(t => t.n).join(', ');
+}
+
 function salinDariEstimasiKeKonsorsium() {
     const est = getEstimasiData();
     if(!est) return showToast('Belum ada Estimasi di Program ini untuk disalin!');
@@ -5068,7 +5163,11 @@ function salinDariEstimasiKeKonsorsium() {
     document.getElementById('konJamGratis').value = est.jamGratis || 1;
     document.getElementById('konNumTL').value = est.numTL || 1;
     document.getElementById('konCTiket').value = pr(est.cTiket);
-    document.getElementById('konCLA').value = pr(est.cLAquad || est.cLA);
+    document.getElementById('konCLAquad').value = pr(est.cLAquad || est.cLA);
+    document.getElementById('konCLAtriple').value = pr(est.cLAtriple);
+    document.getElementById('konCLAdouble').value = pr(est.cLAdouble);
+    if(est.modeLA === 'upgrade') { document.getElementById('konModeUpgrade').checked = true; } else { document.getElementById('konModeHargaPenuh').checked = true; }
+    updateKonModeLA();
     document.getElementById('konCAsuransi').value = pr(est.cAsuransi);
     document.getElementById('konCHandling').value = pr(est.cHandling);
     document.getElementById('konCAlat').value = pr(est.cAlat);
@@ -5090,7 +5189,7 @@ function hitungKonsorsiumEstimasi() {
     if(nJam <= nFoc) return showToast('Total Pax harus lebih besar dari jumlah Gratis!');
 
     const subBase = pr(document.getElementById('konCTiket').value) + pr(document.getElementById('konCAsuransi').value) + pr(document.getElementById('konCHandling').value) + pr(document.getElementById('konCPIC').value) + pr(document.getElementById('konCAlat').value) + pr(document.getElementById('konCAplikasi').value) + pr(document.getElementById('konCLain').value);
-    const laVal = pr(document.getElementById('konCLA').value);
+    const laVal = pr(document.getElementById('konCLAquad').value); // Quad jadi basis Modal & Harga Brosur utama, sama seperti Estimasi asli
     const sub = subBase + laVal;
     const pPct = (parseFloat(document.getElementById('konProfitPct').value)||0)/100;
     const buffer = pr(document.getElementById('konCBuffer').value);
@@ -5111,7 +5210,7 @@ function hitungKonsorsiumEstimasi() {
     document.getElementById('konHasilProfitKotor').textContent = f(profitKotor);
     document.getElementById('konHasilProfitBersih').textContent = f(profitBersih);
     document.getElementById('konHasilBrosur').textContent = f(hargaBrosur);
-    document.getElementById('konHasilKeterangan').textContent = `*Berdasarkan ${nJam-nFoc} jamaah bayar dan ${nFoc} gratis`;
+    document.getElementById('konHasilKeterangan').textContent = `*Berdasarkan ${nJam-nFoc} jamaah bayar dan ${nFoc} gratis (basis kamar Quad)`;
     document.getElementById('konsorsiumHasilCard').style.display = 'block';
 
     // Simpan per-Program
@@ -5119,7 +5218,10 @@ function hitungKonsorsiumEstimasi() {
     slot.konsorsium_estimasi_data = {
         totJam: nJam, jamGratis: nFoc, numTL: nTL,
         cTiket: document.getElementById('konCTiket').value,
-        cLA: document.getElementById('konCLA').value,
+        cLAquad: document.getElementById('konCLAquad').value,
+        cLAtriple: document.getElementById('konCLAtriple').value,
+        cLAdouble: document.getElementById('konCLAdouble').value,
+        modeLA: getKonModeLA(),
         cAsuransi: document.getElementById('konCAsuransi').value,
         cHandling: document.getElementById('konCHandling').value,
         cAlat: document.getElementById('konCAlat').value,
@@ -5147,7 +5249,11 @@ function loadKonsorsiumEstimasiUI() {
     document.getElementById('konJamGratis').value = d.jamGratis;
     document.getElementById('konNumTL').value = d.numTL;
     document.getElementById('konCTiket').value = d.cTiket;
-    document.getElementById('konCLA').value = d.cLA;
+    document.getElementById('konCLAquad').value = d.cLAquad || d.cLA || '0';
+    document.getElementById('konCLAtriple').value = d.cLAtriple || '0';
+    document.getElementById('konCLAdouble').value = d.cLAdouble || '0';
+    if(d.modeLA === 'upgrade') { document.getElementById('konModeUpgrade').checked = true; } else { document.getElementById('konModeHargaPenuh').checked = true; }
+    updateKonModeLA();
     document.getElementById('konCAsuransi').value = d.cAsuransi;
     document.getElementById('konCHandling').value = d.cHandling;
     document.getElementById('konCAlat').value = d.cAlat;
@@ -5186,14 +5292,30 @@ function ambilKomponenBiayaEstimasi() {
     const d = slot.konsorsium_estimasi_data;
     if(!d || !konsorsiumLastModal) return null;
     const pr = v => parseInt((v||'0').toString().replace(/\./g,'').replace(/[^0-9]/g,'')) || 0;
+    const laQuad = pr(d.cLAquad || d.cLA);
+    const laTripleRaw = pr(d.cLAtriple);
+    const laDoubleRaw = pr(d.cLAdouble);
+    const modeUpgrade = d.modeLA === 'upgrade';
     return {
         sub: konsorsiumLastModal,
         nFocGabungan: parseInt(d.jamGratis)||0,
+        laQuad, laTriple: laTripleRaw, laDouble: laDoubleRaw, modeUpgrade,
         rincian: {
-            tiket: pr(d.cTiket), la: pr(d.cLA), asuransi: pr(d.cAsuransi), handling: pr(d.cHandling),
+            tiket: pr(d.cTiket), asuransi: pr(d.cAsuransi), handling: pr(d.cHandling),
             alat: pr(d.cAlat), aplikasi: pr(d.cAplikasi), pic: pr(d.cPIC), lain: pr(d.cLain)
         }
     };
+}
+
+// Hitung rata-rata LA per orang untuk 1 Travel, berdasarkan campuran kamar Quad/Triple/Double mereka
+function hitungRataLATravel(komponen, t) {
+    const jq = t.jumlahQuad || 0, jt = t.jumlahTriple || 0, jd = t.jumlahDouble || 0;
+    const total = jq + jt + jd;
+    if(total === 0) return 0;
+    const laTripleEff = komponen.modeUpgrade ? (komponen.laQuad + komponen.laTriple) : komponen.laTriple;
+    const laDoubleEff = komponen.modeUpgrade ? (komponen.laQuad + komponen.laDouble) : komponen.laDouble;
+    const totalLA = (jq * komponen.laQuad) + (jt * laTripleEff) + (jd * laDoubleEff);
+    return totalLA / total;
 }
 
 const DAFTAR_KOMPONEN_KONSORSIUM = [
@@ -5203,13 +5325,17 @@ const DAFTAR_KOMPONEN_KONSORSIUM = [
     { key: 'pic', label: 'PIC/Diskon' }, { key: 'lain', label: 'Lain-lain' }
 ];
 
-// Modal per travel — hanya menjumlah komponen yang dicentang, tetap kena "diskon gabungan" (redistribusi kursi gratis) secara proporsional
-function hitungModalTravelPerKomponen(rincian, komponenDicentang, totalGabungan, nFoc) {
+// Modal per travel — komponen yang dicentang + rata-rata LA sesuai campuran kamar mereka, tetap kena "diskon gabungan" secara proporsional
+function hitungModalTravelPerKomponen(rincian, komponenDicentang, totalGabungan, nFoc, komponenFull, travel) {
     if(totalGabungan <= nFoc) return null;
     const multiplier = totalGabungan / (totalGabungan - nFoc);
     let subTravel = 0;
     DAFTAR_KOMPONEN_KONSORSIUM.forEach(k => {
-        if(komponenDicentang[k.key] !== false) subTravel += (rincian[k.key] || 0);
+        if(k.key === 'la') {
+            if(komponenDicentang.la !== false && komponenFull && travel) subTravel += hitungRataLATravel(komponenFull, travel);
+        } else if(komponenDicentang[k.key] !== false) {
+            subTravel += (rincian[k.key] || 0);
+        }
     });
     return subTravel * multiplier;
 }
@@ -5235,7 +5361,7 @@ function tambahKonsorsiumTravel() {
     const list = ensureKonsorsiumList();
     const komponenDefault = {};
     DAFTAR_KOMPONEN_KONSORSIUM.forEach(k => komponenDefault[k.key] = true);
-    list.push({ id: Date.now(), nama: '', jumlah: 0, harga: 0, persen: '', komponen: komponenDefault });
+    list.push({ id: Date.now(), nama: '', jumlah: 0, jumlahQuad: 0, jumlahTriple: 0, jumlahDouble: 0, harga: 0, persen: '', profitRp: 0, komponen: komponenDefault });
     simpanKonsorsium();
     renderKonsorsiumList();
 }
@@ -5260,7 +5386,7 @@ function toggleKonsorsiumKomponen(id, key) {
 
     // Sesuaikan Harga otomatis (pakai mode persen ATAU profit tetap yang sedang aktif) supaya penghematan Modal diteruskan ke Travel Partner
     if(komponen && totalGabungan > 0) {
-        const modalBaru = hitungModalTravelPerKomponen(komponen.rincian, t.komponen, totalGabungan, komponen.nFocGabungan);
+        const modalBaru = hitungModalTravelPerKomponen(komponen.rincian, t.komponen, totalGabungan, komponen.nFocGabungan, komponen, t);
         const hasilHarga = hitungUlangHargaDariMode(t, modalBaru);
         if(hasilHarga) {
             t.harga = hasilHarga;
@@ -5292,13 +5418,20 @@ function updateKonsorsiumTravel(id, field, value) {
     if(!t) return;
     if(field === 'nama') t.nama = value;
     if(field === 'jumlah') t.jumlah = parseInt(value.replace(/\D/g,'')) || 0;
+    if(field === 'jumlahQuad' || field === 'jumlahTriple' || field === 'jumlahDouble') {
+        t[field] = parseInt(value.replace(/\D/g,'')) || 0;
+        t.jumlah = (t.jumlahQuad||0) + (t.jumlahTriple||0) + (t.jumlahDouble||0);
+        const totalEl = document.getElementById('konsorsiumTotalOrang_' + id);
+        if(totalEl) totalEl.textContent = 'Total: ' + t.jumlah + ' orang';
+        field = 'jumlah'; // pakai jalur yang sama seperti perubahan Jumlah Jamaah (hitung ulang semua kartu)
+    }
     if(field === 'harga') t.harga = parseInt(value.replace(/\D/g,'')) || 0;
     if(field === 'persen') {
         t.persen = value;
         t.profitRp = null; // pilih salah satu mode saja, biar tidak bentrok
         const komponen = ambilKomponenBiayaEstimasi();
         const totalGabungan = list.reduce((s,x) => s + (x.jumlah||0), 0);
-        const modalPerPax = komponen && totalGabungan > 0 ? hitungModalTravelPerKomponen(komponen.rincian, t.komponen || {}, totalGabungan, komponen.nFocGabungan) : null;
+        const modalPerPax = komponen && totalGabungan > 0 ? hitungModalTravelPerKomponen(komponen.rincian, t.komponen || {}, totalGabungan, komponen.nFocGabungan, komponen, t) : null;
         const hasilHarga = hitungUlangHargaDariMode(t, modalPerPax);
         if(hasilHarga) {
             t.harga = hasilHarga;
@@ -5311,7 +5444,7 @@ function updateKonsorsiumTravel(id, field, value) {
         t.persen = ''; // pilih salah satu mode saja, biar tidak bentrok
         const komponen = ambilKomponenBiayaEstimasi();
         const totalGabungan = list.reduce((s,x) => s + (x.jumlah||0), 0);
-        const modalPerPax = komponen && totalGabungan > 0 ? hitungModalTravelPerKomponen(komponen.rincian, t.komponen || {}, totalGabungan, komponen.nFocGabungan) : null;
+        const modalPerPax = komponen && totalGabungan > 0 ? hitungModalTravelPerKomponen(komponen.rincian, t.komponen || {}, totalGabungan, komponen.nFocGabungan, komponen, t) : null;
         const hasilHarga = hitungUlangHargaDariMode(t, modalPerPax);
         if(hasilHarga) {
             t.harga = hasilHarga;
@@ -5326,7 +5459,7 @@ function updateKonsorsiumTravel(id, field, value) {
         const totalGabungan = list.reduce((s,x) => s + (x.jumlah||0), 0);
         list.forEach(x => {
             if(komponen && totalGabungan > 0) {
-                const modalX = hitungModalTravelPerKomponen(komponen.rincian, x.komponen || {}, totalGabungan, komponen.nFocGabungan);
+                const modalX = hitungModalTravelPerKomponen(komponen.rincian, x.komponen || {}, totalGabungan, komponen.nFocGabungan, komponen, x);
                 const hasilHarga = hitungUlangHargaDariMode(x, modalX);
                 if(hasilHarga) {
                     x.harga = hasilHarga;
@@ -5351,7 +5484,7 @@ function renderSatuKartuKonsorsiumInfo(id) {
     const komponen = ambilKomponenBiayaEstimasi();
     const totalGabungan = list.reduce((s,x) => s + (x.jumlah||0), 0);
     const komponenDicentang = t.komponen || {};
-    const modalPerPax = komponen && totalGabungan > 0 ? hitungModalTravelPerKomponen(komponen.rincian, komponenDicentang, totalGabungan, komponen.nFocGabungan) : null;
+    const modalPerPax = komponen && totalGabungan > 0 ? hitungModalTravelPerKomponen(komponen.rincian, komponenDicentang, totalGabungan, komponen.nFocGabungan, komponen, t) : null;
     const f = n => n ? 'Rp ' + Math.round(n).toLocaleString('id-ID') : '-';
     const isiSebelumnya = infoEl.innerHTML;
     if(modalPerPax && t.jumlah > 0 && t.harga > 0) {
@@ -5421,7 +5554,15 @@ function renderKonsorsiumList() {
                 <label>Komponen yang Diikuti <span style="color:#999;font-weight:400;">— hilangkan centang kalau Travel ini urus sendiri</span></label>
                 <div style="display:grid;grid-template-columns:1fr 1fr;background:#F8FAFC;border-radius:8px;padding:6px 10px;">${checkboxHtml}</div>
             </div>
-            <div class="dynamic-field"><label>Jumlah Jamaah</label><input type="text" inputmode="numeric" value="${t.jumlah || ''}" placeholder="Contoh: 10" oninput="updateKonsorsiumTravel(${t.id}, 'jumlah', this.value)"></div>
+            <div class="dynamic-field">
+                <label>Komposisi Kamar</label>
+                <div class="row">
+                    <div class="dynamic-field" style="margin-bottom:0;"><label style="font-size:11px;">Quad</label><input type="text" inputmode="numeric" value="${t.jumlahQuad || ''}" placeholder="0" oninput="updateKonsorsiumTravel(${t.id}, 'jumlahQuad', this.value)"></div>
+                    <div class="dynamic-field" style="margin-bottom:0;"><label style="font-size:11px;">Triple</label><input type="text" inputmode="numeric" value="${t.jumlahTriple || ''}" placeholder="0" oninput="updateKonsorsiumTravel(${t.id}, 'jumlahTriple', this.value)"></div>
+                    <div class="dynamic-field" style="margin-bottom:0;"><label style="font-size:11px;">Double</label><input type="text" inputmode="numeric" value="${t.jumlahDouble || ''}" placeholder="0" oninput="updateKonsorsiumTravel(${t.id}, 'jumlahDouble', this.value)"></div>
+                </div>
+                <div id="konsorsiumTotalOrang_${t.id}" style="font-size:11px;color:#0D5C4A;font-weight:600;margin-top:4px;">Total: ${(t.jumlah||0)} orang</div>
+            </div>
             <div style="background:#EFF6FF;border-radius:10px;padding:10px;margin:10px 0;">
                 <div style="display:flex;align-items:center;gap:6px;margin-bottom:8px;">
                     <span style="background:#1E40AF;color:white;font-size:9px;font-weight:700;padding:2px 7px;border-radius:10px;">B2B</span>
@@ -5446,7 +5587,7 @@ function salinRingkasanTravel(id) {
     if(!t) return;
     const komponen = ambilKomponenBiayaEstimasi();
     const totalGabungan = list.reduce((s,x) => s + (x.jumlah||0), 0);
-    const modalPerPax = komponen && totalGabungan > 0 ? hitungModalTravelPerKomponen(komponen.rincian, t.komponen || {}, totalGabungan, komponen.nFocGabungan) : null;
+    const modalPerPax = komponen && totalGabungan > 0 ? hitungModalTravelPerKomponen(komponen.rincian, t.komponen || {}, totalGabungan, komponen.nFocGabungan, komponen, t) : null;
     if(!t.jumlah || !t.harga) return showToast('Isi Jumlah Jamaah dan Harga dulu!');
     const totalTagihan = t.harga * t.jumlah;
     const namaKBIH = konfigurasiPro.instansi1?.nama || 'Navara';
@@ -5475,27 +5616,57 @@ function renderKonsorsiumRingkasan() {
     const totalGabungan = list.reduce((s,t) => s + (t.jumlah||0), 0);
     if(totalGabungan <= 0) { ringkasanEl.style.display = 'none'; return; }
 
-    let totalModal = 0, totalTagihan = 0, totalProfit = 0;
-    let adaYangValid = false;
+    let totalModal = 0, totalTagihan = 0, totalProfit = 0, paxDenganHarga = 0, modalUntukPaxHarga = 0;
+    let adaYangValid = false, jumlahTravelAktif = 0;
     list.forEach(t => {
-        const modalTravel = hitungModalTravelPerKomponen(komponen.rincian, t.komponen || {}, totalGabungan, komponen.nFocGabungan);
+        const modalTravel = hitungModalTravelPerKomponen(komponen.rincian, t.komponen || {}, totalGabungan, komponen.nFocGabungan, komponen, t);
         if(t.jumlah > 0 && modalTravel) {
             adaYangValid = true;
+            jumlahTravelAktif++;
             totalModal += modalTravel * t.jumlah;
             if(t.harga > 0) {
                 totalTagihan += t.harga * t.jumlah;
                 totalProfit += (t.harga - modalTravel) * t.jumlah;
+                paxDenganHarga += t.jumlah;
+                modalUntukPaxHarga += modalTravel * t.jumlah;
             }
         }
     });
     if(!adaYangValid) { ringkasanEl.style.display = 'none'; return; }
 
+    const f = n => 'Rp ' + Math.round(n).toLocaleString('id-ID');
+
     ringkasanEl.style.display = 'block';
+    document.getElementById('konsorsiumJumlahTravel').textContent = jumlahTravelAktif + ' Travel';
     document.getElementById('konsorsiumTotalPax').textContent = totalGabungan + ' orang';
-    document.getElementById('konsorsiumTotalModal').textContent = 'Rp ' + Math.round(totalModal).toLocaleString('id-ID');
-    document.getElementById('konsorsiumTotalTagihan').textContent = 'Rp ' + Math.round(totalTagihan).toLocaleString('id-ID');
+    document.getElementById('konsorsiumTotalModal').textContent = f(totalModal);
+    document.getElementById('konsorsiumTotalTagihan').textContent = f(totalTagihan);
+
+    if(paxDenganHarga > 0) {
+        const rataHarga = totalTagihan / paxDenganHarga;
+        const rataProfit = totalProfit / paxDenganHarga;
+        const marginPct = modalUntukPaxHarga > 0 ? (totalProfit / modalUntukPaxHarga) * 100 : 0;
+        document.getElementById('konsorsiumRataHarga').textContent = f(rataHarga);
+        document.getElementById('konsorsiumProfitPerPax').textContent = f(rataProfit);
+        document.getElementById('konsorsiumMarginPct').textContent = marginPct.toFixed(1) + '%';
+
+        if(konsorsiumLastBrosur > 0) {
+            const selisih = konsorsiumLastBrosur - rataHarga;
+            const selisihEl = document.getElementById('konsorsiumSelisihB2C');
+            selisihEl.textContent = (selisih >= 0 ? '↓ Diskon ' : '↑ Lebih Mahal ') + f(Math.abs(selisih));
+            selisihEl.style.color = selisih >= 0 ? '#4ADE80' : '#FCA5A5';
+        } else {
+            document.getElementById('konsorsiumSelisihB2C').textContent = '-';
+        }
+    } else {
+        document.getElementById('konsorsiumRataHarga').textContent = '-';
+        document.getElementById('konsorsiumProfitPerPax').textContent = '-';
+        document.getElementById('konsorsiumMarginPct').textContent = '-';
+        document.getElementById('konsorsiumSelisihB2C').textContent = '-';
+    }
+
     const profitEl = document.getElementById('konsorsiumTotalProfit');
-    profitEl.textContent = 'Rp ' + Math.round(totalProfit).toLocaleString('id-ID');
+    profitEl.textContent = f(totalProfit);
     profitEl.style.color = totalProfit >= 0 ? '#4ADE80' : '#FCA5A5';
 }
 
