@@ -2304,6 +2304,14 @@
 
     <!-- TAB KONSORSIUM -->
     <div id="cuanTabKonsorsium" style="display:none;padding:16px;">
+        <div id="konsorsiumKunciBar" style="display:flex;align-items:center;justify-content:space-between;background:#F8FAFC;border-radius:12px;padding:10px 12px;margin-bottom:14px;">
+            <label style="display:flex;align-items:center;gap:8px;font-size:13px;font-weight:600;color:#333;cursor:pointer;margin:0;">
+                <input type="checkbox" id="konsorsiumKunciToggle" onchange="toggleKunciKonsorsium()" style="width:18px;height:18px;">
+                🔒 Kunci Konsorsium Ini
+            </label>
+            <a href="#" id="konsorsiumRiwayatBtn" onclick="event.preventDefault();openRiwayatKonsorsiumModal();" style="display:none;font-size:12px;color:#0D5C4A;font-weight:600;text-decoration:none;white-space:nowrap;">🕐 Riwayat (<span id="konsorsiumRiwayatCount">0</span>)</a>
+        </div>
+        <div id="konsorsiumRugiWarning" style="display:none;background:#FEE2E2;border:1.5px solid #DC2626;border-radius:10px;padding:12px;font-size:12px;color:#991B1B;margin-bottom:14px;font-weight:600;"></div>
         <div style="background:white;border-radius:16px;padding:16px;margin-bottom:14px;box-shadow:0 2px 8px rgba(0,0,0,0.06);">
             <div style="font-weight:700;font-size:14px;color:#0D5C4A;margin-bottom:4px;">🤝 Estimasi Konsorsium</div>
             <div style="font-size:11px;color:#888;margin-bottom:12px;">Hitung Harga Brosur khusus untuk Konsorsium ini — terpisah dari Estimasi Program biasa. Isi manual atau salin dulu dari Estimasi.</div>
@@ -2432,6 +2440,10 @@
                 <span style="font-weight:700;font-size:14px;">PROFIT TOTAL ANDA</span>
                 <span id="konsorsiumTotalProfit" style="font-weight:900;font-size:18px;color:#4ADE80;">Rp 0</span>
             </div>
+        </div>
+        <div style="display:flex;gap:8px;margin-top:10px;">
+            <button onclick="cetakLaporanKonsorsium()" style="flex:1;padding:11px;background:#F59E0B;color:white;border:none;border-radius:10px;font-size:12px;font-weight:700;cursor:pointer;">🖨️ Cetak Laporan</button>
+            <button onclick="bagikanKonsorsiumWA()" style="flex:1;padding:11px;background:#25D366;color:white;border:none;border-radius:10px;font-size:12px;font-weight:700;cursor:pointer;">📲 Bagikan WA</button>
         </div>
     </div>
 
@@ -5358,6 +5370,8 @@ function simpanKonsorsium() {
 }
 
 function tambahKonsorsiumTravel() {
+    const slot = ensureProgramConfigSlot();
+    if(slot.konsorsium_locked) return showToast('🔒 Konsorsium terkunci, buka dulu untuk edit!');
     const list = ensureKonsorsiumList();
     const komponenDefault = {};
     DAFTAR_KOMPONEN_KONSORSIUM.forEach(k => komponenDefault[k.key] = true);
@@ -5368,6 +5382,7 @@ function tambahKonsorsiumTravel() {
 
 function hapusKonsorsiumTravel(id) {
     const slot = ensureProgramConfigSlot();
+    if(slot.konsorsium_locked) return showToast('🔒 Konsorsium terkunci, buka dulu untuk edit!');
     slot.konsorsium_list = (slot.konsorsium_list || []).filter(t => t.id !== id);
     simpanKonsorsium();
     renderKonsorsiumList();
@@ -5579,6 +5594,7 @@ function renderKonsorsiumList() {
     container.innerHTML = html;
     list.forEach(t => renderSatuKartuKonsorsiumInfo(t.id));
     renderKonsorsiumRingkasan();
+    renderKunciKonsorsiumUI();
 }
 
 function salinRingkasanTravel(id) {
@@ -5611,13 +5627,15 @@ function renderKonsorsiumRingkasan() {
     const komponen = ambilKomponenBiayaEstimasi();
     const list = ensureKonsorsiumList();
     const ringkasanEl = document.getElementById('konsorsiumRingkasan');
-    if(!ringkasanEl || !komponen || list.length === 0) { if(ringkasanEl) ringkasanEl.style.display = 'none'; return; }
+    const warningEl2 = document.getElementById('konsorsiumRugiWarning');
+    if(!ringkasanEl || !komponen || list.length === 0) { if(ringkasanEl) ringkasanEl.style.display = 'none'; if(warningEl2) warningEl2.style.display = 'none'; return; }
 
     const totalGabungan = list.reduce((s,t) => s + (t.jumlah||0), 0);
-    if(totalGabungan <= 0) { ringkasanEl.style.display = 'none'; return; }
+    if(totalGabungan <= 0) { ringkasanEl.style.display = 'none'; if(warningEl2) warningEl2.style.display = 'none'; return; }
 
     let totalModal = 0, totalTagihan = 0, totalProfit = 0, paxDenganHarga = 0, modalUntukPaxHarga = 0;
     let adaYangValid = false, jumlahTravelAktif = 0;
+    const travelRugi = [];
     list.forEach(t => {
         const modalTravel = hitungModalTravelPerKomponen(komponen.rincian, t.komponen || {}, totalGabungan, komponen.nFocGabungan, komponen, t);
         if(t.jumlah > 0 && modalTravel) {
@@ -5629,10 +5647,20 @@ function renderKonsorsiumRingkasan() {
                 totalProfit += (t.harga - modalTravel) * t.jumlah;
                 paxDenganHarga += t.jumlah;
                 modalUntukPaxHarga += modalTravel * t.jumlah;
+                if(t.harga < modalTravel) travelRugi.push(t.nama || 'Travel tanpa nama');
             }
         }
     });
-    if(!adaYangValid) { ringkasanEl.style.display = 'none'; return; }
+    if(!adaYangValid) { ringkasanEl.style.display = 'none'; if(warningEl2) warningEl2.style.display = 'none'; return; }
+
+    if(warningEl2) {
+        if(travelRugi.length > 0) {
+            warningEl2.style.display = 'block';
+            warningEl2.textContent = `⚠️ ${travelRugi.length} Travel Partner masih di BAWAH Modal (rugi): ${travelRugi.join(', ')}`;
+        } else {
+            warningEl2.style.display = 'none';
+        }
+    }
 
     const f = n => 'Rp ' + Math.round(n).toLocaleString('id-ID');
 
@@ -5670,6 +5698,185 @@ function renderKonsorsiumRingkasan() {
     profitEl.style.color = totalProfit >= 0 ? '#4ADE80' : '#FCA5A5';
 }
 
+// ==================== KUNCI & RIWAYAT KONSORSIUM ====================
+const KONSORSIUM_FIELD_IDS = ['konTotJam','konJamGratis','konNumTL','konCTiket','konCLAquad','konCLAtriple','konCLAdouble','konCAsuransi','konCHandling','konCAlat','konCAplikasi','konCPIC','konCLain','konProfitPct','konCBuffer'];
+
+function renderKunciKonsorsiumUI() {
+    const slot = ensureProgramConfigSlot();
+    const terkunci = slot.konsorsium_locked || false;
+    const toggle = document.getElementById('konsorsiumKunciToggle');
+    if(toggle) toggle.checked = terkunci;
+
+    KONSORSIUM_FIELD_IDS.forEach(id => { const el = document.getElementById(id); if(el) el.disabled = terkunci; });
+    const modePenuh = document.getElementById('konModeHargaPenuh');
+    const modeUpgrade = document.getElementById('konModeUpgrade');
+    if(modePenuh) modePenuh.disabled = terkunci;
+    if(modeUpgrade) modeUpgrade.disabled = terkunci;
+    const btnSalin = document.querySelector('#cuanTabKonsorsium button[onclick="salinDariEstimasiKeKonsorsium()"]');
+    if(btnSalin) btnSalin.disabled = terkunci;
+    const btnHitung = document.querySelector('#cuanTabKonsorsium button[onclick="hitungKonsorsiumEstimasi()"]');
+    if(btnHitung) btnHitung.disabled = terkunci;
+    const btnTambahTravel = document.querySelector('#cuanTabKonsorsium button[onclick="tambahKonsorsiumTravel()"]');
+    if(btnTambahTravel) btnTambahTravel.style.display = terkunci ? 'none' : 'block';
+    // Kunci juga semua input di kartu Travel Partner
+    document.querySelectorAll('#konsorsiumContainer input').forEach(el => el.disabled = terkunci);
+    document.querySelectorAll('#konsorsiumContainer button').forEach(el => el.disabled = terkunci);
+
+    const riwayat = slot.konsorsium_history || [];
+    const riwayatBtn = document.getElementById('konsorsiumRiwayatBtn');
+    const riwayatCount = document.getElementById('konsorsiumRiwayatCount');
+    if(riwayatCount) riwayatCount.textContent = riwayat.length;
+    if(riwayatBtn) riwayatBtn.style.display = riwayat.length > 0 ? 'block' : 'none';
+}
+
+function toggleKunciKonsorsium() {
+    const slot = ensureProgramConfigSlot();
+    const toggle = document.getElementById('konsorsiumKunciToggle');
+    const mauDikunci = toggle.checked;
+
+    if(mauDikunci) {
+        if(!slot.konsorsium_history) slot.konsorsium_history = [];
+        const list = ensureKonsorsiumList();
+        const jumlahTravel = list.filter(t => t.jumlah > 0).length;
+        const totalPax = list.reduce((s,t) => s + (t.jumlah||0), 0);
+        slot.konsorsium_history.unshift({
+            tanggal: new Date().toLocaleString('id-ID', { day:'2-digit', month:'long', year:'numeric', hour:'2-digit', minute:'2-digit' }),
+            hargaBrosur: konsorsiumLastBrosur,
+            jumlahTravel, totalPax
+        });
+        if(slot.konsorsium_history.length > 100) slot.konsorsium_history = slot.konsorsium_history.slice(0, 100);
+        catatAktivitas('🔒', `Konsorsium dikunci (${jumlahTravel} Travel, ${totalPax} orang)`);
+    }
+
+    slot.konsorsium_locked = mauDikunci;
+    localStorage.setItem('navara_konfigurasi_pro', JSON.stringify(konfigurasiPro));
+    idbSet(STORE_KONFIGURASI, 'konfigurasi_pro', konfigurasiPro);
+    renderKunciKonsorsiumUI();
+    showToast(mauDikunci ? '🔒 Konsorsium dikunci' : '🔓 Konsorsium dibuka, bisa diedit lagi');
+}
+
+function openRiwayatKonsorsiumModal() {
+    let modal = document.getElementById('riwayatKonsorsiumModal');
+    if(!modal) {
+        modal = document.createElement('div');
+        modal.id = 'riwayatKonsorsiumModal';
+        modal.className = 'modal';
+        document.body.appendChild(modal);
+    }
+    renderRiwayatKonsorsiumModal(modal);
+    modal.style.display = 'flex';
+}
+
+function renderRiwayatKonsorsiumModal(modal) {
+    modal = modal || document.getElementById('riwayatKonsorsiumModal');
+    if(!modal) return;
+    const slot = ensureProgramConfigSlot();
+    const riwayat = slot.konsorsium_history || [];
+    const f = n => n ? 'Rp ' + Math.round(n).toLocaleString('id-ID') : '-';
+    const html = riwayat.map((r, i) => `
+        <div style="display:flex;justify-content:space-between;align-items:center;background:#F8FAFC;border-radius:10px;padding:10px 12px;margin-bottom:8px;">
+            <div>
+                <div style="font-size:11px;color:#888;">📌 ${escapeHtml(r.tanggal)}</div>
+                <div style="font-size:14px;font-weight:700;color:#0D5C4A;">${f(r.hargaBrosur)} (B2C)</div>
+                <div style="font-size:11px;color:#666;">${r.jumlahTravel} Travel, ${r.totalPax} orang</div>
+            </div>
+            <button onclick="hapusRiwayatKonsorsium(${i})" style="border:none;background:none;color:#DC2626;font-size:15px;cursor:pointer;">🗑️</button>
+        </div>`).join('');
+    modal.innerHTML = `<div class="modal-content" style="max-width:420px;">
+        <h3 style="color:#0D5C4A;margin-bottom:4px;">🕐 Riwayat Konsorsium</h3>
+        <div style="font-size:11px;color:#888;margin-bottom:12px;">${escapeHtml(getCurrentProgram()?.nama || '-')} — otomatis tercatat tiap kali dikunci</div>
+        <div style="max-height:360px;overflow-y:auto;">${html || '<p style="color:#aaa;text-align:center;">Belum ada riwayat</p>'}</div>
+        <button onclick="document.getElementById('riwayatKonsorsiumModal').style.display='none'" style="width:100%;padding:11px;background:#e2e8f0;color:#333;border:none;border-radius:10px;font-size:13px;cursor:pointer;margin-top:10px;">Tutup</button>
+    </div>`;
+}
+
+function hapusRiwayatKonsorsium(index) {
+    const slot = ensureProgramConfigSlot();
+    if(!slot.konsorsium_history) return;
+    slot.konsorsium_history.splice(index, 1);
+    localStorage.setItem('navara_konfigurasi_pro', JSON.stringify(konfigurasiPro));
+    idbSet(STORE_KONFIGURASI, 'konfigurasi_pro', konfigurasiPro);
+    renderRiwayatKonsorsiumModal();
+    renderKunciKonsorsiumUI();
+}
+
+// ==================== CETAK & BAGIKAN LAPORAN KONSORSIUM ====================
+function kumpulkanDataKonsorsiumUntukLaporan() {
+    const komponen = ambilKomponenBiayaEstimasi();
+    const list = ensureKonsorsiumList();
+    const totalGabungan = list.reduce((s,t) => s + (t.jumlah||0), 0);
+    if(!komponen || totalGabungan <= 0) return null;
+    let totalModal = 0, totalTagihan = 0, totalProfit = 0;
+    const rows = list.filter(t => t.jumlah > 0).map(t => {
+        const modalTravel = hitungModalTravelPerKomponen(komponen.rincian, t.komponen || {}, totalGabungan, komponen.nFocGabungan, komponen, t);
+        const tagihan = t.harga > 0 ? t.harga * t.jumlah : 0;
+        const profit = t.harga > 0 && modalTravel ? (t.harga - modalTravel) * t.jumlah : 0;
+        totalModal += (modalTravel||0) * t.jumlah;
+        totalTagihan += tagihan;
+        totalProfit += profit;
+        return { nama: t.nama || 'Travel Partner', jumlah: t.jumlah, modalTravel, harga: t.harga, tagihan, profit };
+    });
+    return { rows, totalGabungan, totalModal, totalTagihan, totalProfit, hargaBrosur: konsorsiumLastBrosur };
+}
+
+function cetakLaporanKonsorsium() {
+    const data = kumpulkanDataKonsorsiumUntukLaporan();
+    if(!data) return showToast('Belum ada data Konsorsium untuk dicetak!');
+    const f = n => 'Rp ' + Math.round(n||0).toLocaleString('id-ID');
+    const namaKBIH = konfigurasiPro.instansi1?.nama || 'Navara';
+    const progNama = getCurrentProgram()?.nama || '-';
+    const tgl = new Date().toLocaleDateString('id-ID', { day:'2-digit', month:'long', year:'numeric' });
+
+    const rowsHtml = data.rows.map(r => `
+        <tr>
+            <td style="padding:8px;border-bottom:1px solid #eee;">${escapeHtml(r.nama)}</td>
+            <td style="padding:8px;border-bottom:1px solid #eee;text-align:center;">${r.jumlah}</td>
+            <td style="padding:8px;border-bottom:1px solid #eee;text-align:right;">${f(r.harga)}</td>
+            <td style="padding:8px;border-bottom:1px solid #eee;text-align:right;">${f(r.tagihan)}</td>
+            <td style="padding:8px;border-bottom:1px solid #eee;text-align:right;color:${r.profit>=0?'#166534':'#DC2626'};">${f(r.profit)}</td>
+        </tr>`).join('');
+
+    const html = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>Laporan Konsorsium</title>
+    <style>body{font-family:Arial,sans-serif;padding:24px;color:#222;} h1{color:#0D5C4A;font-size:20px;margin-bottom:2px;}
+    table{width:100%;border-collapse:collapse;margin-top:14px;font-size:13px;} th{background:#0D5C4A;color:#fff;padding:8px;text-align:left;}
+    .total-box{background:#0D5C4A;color:#fff;border-radius:10px;padding:16px;margin-top:20px;} .total-box div{margin-bottom:4px;font-size:14px;}
+    @media print{ .no-print{display:none!important;} }
+    </style></head><body>
+    <h1>🤝 LAPORAN KONSORSIUM (INTERNAL)</h1>
+    <p>${escapeHtml(namaKBIH)} — Program: ${escapeHtml(progNama)} — Dicetak: ${tgl}</p>
+    <p><b>Harga Brosur B2C (acuan):</b> ${f(data.hargaBrosur)}</p>
+    <table><thead><tr><th>Travel Partner</th><th style="text-align:center;">Jamaah</th><th style="text-align:right;">Harga/Orang</th><th style="text-align:right;">Total Tagihan</th><th style="text-align:right;">Profit</th></tr></thead>
+    <tbody>${rowsHtml}</tbody></table>
+    <div class="total-box">
+        <div><b>RINGKASAN (${data.rows.length} Travel Partner)</b></div>
+        <div>👥 Total Jamaah Gabungan: ${data.totalGabungan}</div>
+        <div>💰 Total Modal Gabungan: ${f(data.totalModal)}</div>
+        <div>💵 Total Tagihan: ${f(data.totalTagihan)}</div>
+        <div>✅ PROFIT TOTAL: ${f(data.totalProfit)}</div>
+    </div>
+    <div class="no-print" style="text-align:center;padding:20px;background:#f0f0f0;margin-top:20px;">
+        <button onclick="window.print()" style="padding:10px 28px;margin:0 6px;border:none;border-radius:10px;font-size:14px;font-weight:bold;cursor:pointer;background:#0D5C4A;color:white;">🖨️ CETAK / SIMPAN PDF</button>
+        <button onclick="window.close()" style="padding:10px 28px;margin:0 6px;border:none;border-radius:10px;font-size:14px;font-weight:bold;cursor:pointer;background:#e2e8f0;color:#333;">✕ TUTUP</button>
+    </div>
+    </body></html>`;
+    const win = window.open('', '_blank');
+    win.document.write(html); win.document.close();
+}
+
+function bagikanKonsorsiumWA() {
+    const data = kumpulkanDataKonsorsiumUntukLaporan();
+    if(!data) return showToast('Belum ada data Konsorsium untuk dibagikan!');
+    const f = n => 'Rp ' + Math.round(n||0).toLocaleString('id-ID');
+    const namaKBIH = konfigurasiPro.instansi1?.nama || 'Navara';
+    const progNama = getCurrentProgram()?.nama || '-';
+    let teks = `*RINGKASAN KONSORSIUM (INTERNAL)*\n${namaKBIH} — ${progNama}\n\n`;
+    data.rows.forEach(r => {
+        teks += `${r.nama}: ${r.jumlah} org, Rp ${Math.round(r.harga||0).toLocaleString('id-ID')}/org → Profit ${f(r.profit)}\n`;
+    });
+    teks += `\n👥 Total Jamaah: ${data.totalGabungan}\n💰 Total Modal: ${f(data.totalModal)}\n💵 Total Tagihan: ${f(data.totalTagihan)}\n✅ *PROFIT TOTAL: ${f(data.totalProfit)}*`;
+    window.open(`https://wa.me/?text=${encodeURIComponent(teks)}`, '_blank');
+}
+
 function switchCuanTab(tab) {
     const tabs = {
         estimasi: { content: 'cuanTabEstimasi', btn: 'tabEstimasi' },
@@ -5697,6 +5904,7 @@ function switchCuanTab(tab) {
     if(tab === 'konsorsium') {
         loadKonsorsiumEstimasiUI();
         renderKonsorsiumList();
+        renderKunciKonsorsiumUI();
     }
 }
 
