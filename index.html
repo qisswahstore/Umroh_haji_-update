@@ -4842,6 +4842,7 @@ async function cetakEstimasiPDFInternal() {
     const buffer = pr(est.cBuffer||'0');
     const jualBase = ((sub*nJam)+profitKotor)/(nJam-nFoc);
     const jual = jualBase + buffer;
+    const totalOmzet = jual*(nJam-nFoc);
     const laItems = [
         ['LA/Hotel Quad', pr(est.cLAquad||est.cLA||'0')],
         ['LA/Hotel Triple', pr(est.cLAtriple||'0')],
@@ -4896,6 +4897,7 @@ async function cetakEstimasiPDFInternal() {
             <td style="padding:12px 10px;text-align:right;">${f(sub)}</td>
         </tr></tbody></table>
         <div class="summary">
+            <div>Total Omzet Grup &nbsp;&nbsp;&nbsp;&nbsp;: <strong>${f(totalOmzet)}</strong></div>
             <div>Profit (${est.profitPct||0}%) &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: <strong>${f(profitKotor)}</strong></div>
             <div>Biaya TL (${nTL} orang) : <strong style="color:#e74c3c;">- ${f(biayaTL)}</strong></div>
             <div>Profit Bersih &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: <strong style="color:#10B981;">${f(profitBersih)}</strong></div>
