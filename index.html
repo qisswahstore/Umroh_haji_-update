@@ -2495,7 +2495,7 @@
 <div id="page-jamaah" class="page">
     <div class="header-premium header-premium-small"><div class="back-header"><i class="fas fa-arrow-left" onclick="showPage('home')"></i><h2>Database Jamaah</h2><div style="width:30px;"></div></div></div>
     <div class="card-premium">
-        <div id="jamaahAdminPanel" class="setting-card" style="display:none"><h3 style="color:var(--primary);"> Panel Admin Jamaah</h3><button class="btn btn-primary btn-small mt-2" onclick="openTambahJamaahModal()"> + Tambah database</button><button class="btn btn-blue btn-small mt-2" onclick="openManageFieldsModal()"> Kelola Field Dinamis</button><button class="btn btn-small mt-2" onclick="openRekapKategoriModal()" style="background:#8B5CF6;color:white;"> 📊 Rekap per Kategori</button><button class="btn btn-small mt-2" onclick="openKecocokanKamarModal()" style="background:#0EA5E9;color:white;"> 🛏️ Cek Kecocokan Kamar</button><button class="btn btn-small mt-2" onclick="openKelompokPorsiModal()" style="background:#F59E0B;color:white;"> 📊 Kelompokkan Berdasarkan Porsi</button><button class="btn btn-small mt-2" onclick="cetakManifestRooming()" style="background:#0D9488;color:white;"> 📋 Cetak Manifest & Rooming</button><button class="btn btn-small mt-2" onclick="openWaMassalModal()" style="background:#22C55E;color:white;"> 📢 Kirim WA Massal</button><button class="btn btn-teal btn-small mt-2" onclick="downloadTemplateExcel()" style="background:#1D6F42;">⬇️ Download Template Excel</button><button class="btn btn-teal btn-small mt-2" onclick="exportJamaahToExcel()"> Export ke Excel</button><button class="btn btn-orange btn-small mt-2" onclick="document.getElementById('importExcelFile').click()"> IMPORT EXCEL</button><input type="file" id="importExcelFile" accept=".xlsx,.xls" style="display:none" onchange="importJamaahFromExcel(this)"><button class="btn btn-danger btn-small mt-2" onclick="confirmDeleteAllJamaah()"> HAPUS SEMUA database</button></div>
+        <div id="jamaahAdminPanel" class="setting-card" style="display:none"><h3 style="color:var(--primary);"> Panel Admin Jamaah</h3><button class="btn btn-primary btn-small mt-2" onclick="openTambahJamaahModal()"> + Tambah database</button><button class="btn btn-blue btn-small mt-2" onclick="openManageFieldsModal()"> Kelola Field Dinamis</button><button class="btn btn-small mt-2" onclick="openRekapKategoriModal()" style="background:#8B5CF6;color:white;"> 📊 Rekap per Kategori</button><button class="btn btn-small mt-2" onclick="openKecocokanKamarModal()" style="background:#0EA5E9;color:white;"> 🛏️ Cek Kecocokan Kamar</button><button class="btn btn-small mt-2" onclick="openKelompokPorsiModal()" style="background:#F59E0B;color:white;"> 📊 Kelompokkan Berdasarkan Porsi</button><button class="btn btn-small mt-2" onclick="openAntrianFollowUpModal()" style="background:#DC2626;color:white;"> 📋 Antrian Follow-Up Prioritas</button><button class="btn btn-small mt-2" onclick="cetakManifestRooming()" style="background:#0D9488;color:white;"> 📋 Cetak Manifest & Rooming</button><button class="btn btn-small mt-2" onclick="openWaMassalModal()" style="background:#22C55E;color:white;"> 📢 Kirim WA Massal</button><button class="btn btn-teal btn-small mt-2" onclick="downloadTemplateExcel()" style="background:#1D6F42;">⬇️ Download Template Excel</button><button class="btn btn-teal btn-small mt-2" onclick="exportJamaahToExcel()"> Export ke Excel</button><button class="btn btn-orange btn-small mt-2" onclick="document.getElementById('importExcelFile').click()"> IMPORT EXCEL</button><input type="file" id="importExcelFile" accept=".xlsx,.xls" style="display:none" onchange="importJamaahFromExcel(this)"><button class="btn btn-danger btn-small mt-2" onclick="confirmDeleteAllJamaah()"> HAPUS SEMUA database</button></div>
         <div class="section-title"><span>DAFTAR JAMAAH</span></div>
         <div class="search-box"><input type="text" id="searchJamaahInput" placeholder=" Cari nama jamaah..." onkeyup="filterJamaahList()"><select id="sortJamaahSelect" onchange="sortJamaahList()"><option value="urutan_asli">Urutan asli</option><option value="nama_asc">Nama A-Z</option><option value="nama_desc">Nama Z-A</option><option value="tgl_asc">Tanggal lama ke baru</option><option value="tgl_desc">Tanggal baru ke lama</option></select><button onclick="resetJamaahFilter()">Reset</button></div>
         <div id="filterLunasChip" style="display:none;align-items:center;gap:8px;background:#F0FBF6;border:1px solid #0D5C4A;border-radius:20px;padding:6px 12px;margin:8px 0;width:fit-content;">
@@ -3015,6 +3015,7 @@
             <div class="fitur-card" onclick="showPage('cloudstorage')"><div class="fitur-icon">☁️</div><div class="fitur-title">Cloud Storage</div><div class="fitur-desc">Backup & Restore data</div></div>
             <div class="fitur-card" onclick="showPage('dashboard')"><div class="fitur-icon">📈</div><div class="fitur-title">Dashboard</div><div class="fitur-desc">Grafik statistik data</div></div>
             <div class="fitur-card" onclick="openBandingkanProgramModal()"><div class="fitur-icon">📊</div><div class="fitur-title">Bandingkan Program</div><div class="fitur-desc">Performa semua Program sekaligus</div></div>
+            <div class="fitur-card" onclick="openDashboardTrenModal()"><div class="fitur-icon">📈</div><div class="fitur-title">Dashboard Tren</div><div class="fitur-desc">Perbandingan antar tahun</div></div>
             <div class="fitur-card" onclick="cetakRekapTahunanGabungan()"><div class="fitur-icon">📑</div><div class="fitur-title">Rekap Tahunan</div><div class="fitur-desc">Total omzet semua keberangkatan</div></div>
             <div class="fitur-card" onclick="openKalenderProgramModal()"><div class="fitur-icon">📅</div><div class="fitur-title">Kalender Program</div><div class="fitur-desc">Semua jadwal keberangkatan</div></div>
             <div class="fitur-card" onclick="openProyeksiKasModal()"><div class="fitur-icon">📉</div><div class="fitur-title">Proyeksi Kas</div><div class="fitur-desc">Estimasi dana yang masih masuk</div></div>
@@ -9470,6 +9471,140 @@ async function pindahkanKelompokPorsi(tahun, idsArr) {
     }, '✅ Ya, Pindahkan');
 }
 
+// ==================== ANTRIAN FOLLOW-UP PRIORITAS ====================
+function openAntrianFollowUpModal() {
+    let modal = document.getElementById('antrianFollowUpModal');
+    if(!modal) {
+        modal = document.createElement('div');
+        modal.id = 'antrianFollowUpModal';
+        modal.className = 'modal';
+        document.body.appendChild(modal);
+    }
+
+    const cfg = getKonfigurasiProData();
+    const tglBerangkat = cfg.keberangkatan?.tanggal ? new Date(cfg.keberangkatan.tanggal) : null;
+
+    const daftar = [];
+    jamaahList.forEach(j => {
+        const status = getStatusPembayaran(j);
+        if(status.needInput || status.sisa <= 0) return; // sudah lunas atau belum ada harga sama sekali — tidak perlu di-follow-up
+        let sisaHari = null;
+        if(tglBerangkat) sisaHari = Math.ceil((tglBerangkat - new Date()) / 86400000);
+        daftar.push({ nama: j.nama_lengkap, sisa: status.sisa, sisaHari, wa: j.additional_fields?.whatsapp });
+    });
+
+    if(daftar.length === 0) {
+        modal.innerHTML = `<div class="modal-content" style="max-width:400px;">
+            <h3 style="color:#0D5C4A;margin-bottom:10px;">📋 Antrian Follow-Up</h3>
+            <p style="text-align:center;color:#166534;padding:20px;">🎉 Semua jamaah sudah lunas, tidak ada yang perlu di-follow-up!</p>
+            <button onclick="document.getElementById('antrianFollowUpModal').style.display='none'" style="width:100%;padding:11px;background:#e2e8f0;color:#333;border:none;border-radius:10px;font-size:13px;cursor:pointer;">Tutup</button>
+        </div>`;
+        modal.style.display = 'flex';
+        return;
+    }
+
+    // Urutkan: yang paling dekat keberangkatannya (atau tidak ada tanggal) duluan, baru berdasarkan sisa tagihan terbesar
+    daftar.sort((a, b) => {
+        if(a.sisaHari === null && b.sisaHari === null) return b.sisa - a.sisa;
+        if(a.sisaHari === null) return 1;
+        if(b.sisaHari === null) return -1;
+        return a.sisaHari - b.sisaHari;
+    });
+
+    const f = n => 'Rp ' + Math.round(n).toLocaleString('id-ID');
+    const html = daftar.map(x => {
+        let warna = '#0EA5E9', label = '🟢 MASIH AMAN', border = '#0EA5E9';
+        if(x.sisaHari !== null) {
+            if(x.sisaHari <= 14) { warna = '#DC2626'; label = '🔴 PALING MENDESAK'; border='#DC2626'; }
+            else if(x.sisaHari <= 45) { warna = '#F59E0B'; label = '🟡 PERLU DIPANTAU'; border='#F59E0B'; }
+            else { warna = '#166534'; label = '🟢 MASIH AMAN'; border='#166534'; }
+        } else {
+            warna = '#888'; label = '⚪ Tanggal Keberangkatan belum diisi'; border='#ccc';
+        }
+        const waBtn = x.wa ? `<button onclick="window.open('https://wa.me/${x.wa.replace(/\D/g,'').replace(/^0/,'62')}','_blank')" style="background:#25D366;color:white;border:none;border-radius:20px;padding:6px 12px;font-size:11px;font-weight:700;cursor:pointer;">📲 WA</button>` : '';
+        return `<div style="border-left:4px solid ${border};background:#F8FAFC;border-radius:8px;padding:10px 12px;margin-bottom:8px;">
+            <div style="font-size:10px;color:${warna};font-weight:700;margin-bottom:3px;">${label}</div>
+            <div style="display:flex;justify-content:space-between;align-items:center;">
+                <div>
+                    <div style="font-weight:700;font-size:13px;">${escapeHtml(x.nama)}</div>
+                    <div style="font-size:11px;color:#666;">Sisa: ${f(x.sisa)}${x.sisaHari !== null ? ' — ' + (x.sisaHari >= 0 ? x.sisaHari + ' hari lagi' : 'sudah lewat') : ''}</div>
+                </div>
+                ${waBtn}
+            </div>
+        </div>`;
+    }).join('');
+
+    modal.innerHTML = `<div class="modal-content" style="max-width:440px;">
+        <h3 style="color:#0D5C4A;margin-bottom:4px;">📋 Antrian Follow-Up Prioritas</h3>
+        <div style="font-size:11px;color:#888;margin-bottom:12px;">${escapeHtml(getCurrentProgram()?.nama || '-')} — ${daftar.length} jamaah belum lunas, diurutkan dari paling mendesak</div>
+        <div style="max-height:420px;overflow-y:auto;">${html}</div>
+        <button onclick="document.getElementById('antrianFollowUpModal').style.display='none'" style="width:100%;padding:11px;background:#e2e8f0;color:#333;border:none;border-radius:10px;font-size:13px;cursor:pointer;margin-top:10px;">Tutup</button>
+    </div>`;
+    modal.style.display = 'flex';
+}
+
+// ==================== DASHBOARD TREN TAHUNAN ====================
+function openDashboardTrenModal() {
+    let modal = document.getElementById('dashboardTrenModal');
+    if(!modal) {
+        modal = document.createElement('div');
+        modal.id = 'dashboardTrenModal';
+        modal.className = 'modal';
+        document.body.appendChild(modal);
+    }
+
+    const perTahun = {}; // { '2027': { umrohJamaah, umrohKontrak, hajiRegJamaah, hajiRegTerkumpul } }
+    programList.forEach(p => {
+        const cfgSlot = konfigurasiPro.per_program && konfigurasiPro.per_program[p.id];
+        const tglBerangkat = cfgSlot?.keberangkatan?.tanggal;
+        const tahun = tglBerangkat ? new Date(tglBerangkat).getFullYear().toString() : 'Belum Ada Tanggal';
+        if(!perTahun[tahun]) perTahun[tahun] = { umrohJamaah: 0, umrohKontrak: 0, hajiRegJamaah: 0, hajiRegTerkumpul: 0 };
+
+        const jList = _allJamaahData.filter(j => j.program_id === p.id);
+        const bayarP = _allPaymentData.filter(t => t.program_id === p.id);
+
+        if(p.jenis === 'haji_reguler') {
+            perTahun[tahun].hajiRegJamaah += jList.length;
+            perTahun[tahun].hajiRegTerkumpul += bayarP.reduce((s,t) => s + t.nominal, 0);
+        } else {
+            perTahun[tahun].umrohJamaah += jList.length;
+            jList.forEach(j => { perTahun[tahun].umrohKontrak += getTotalHargaPaketUntukProgram(j, p.id); });
+        }
+    });
+
+    const tahunList = Object.keys(perTahun).sort((a,b) => {
+        if(a === 'Belum Ada Tanggal') return 1;
+        if(b === 'Belum Ada Tanggal') return -1;
+        return a.localeCompare(b);
+    });
+
+    const f = n => 'Rp ' + Math.round(n).toLocaleString('id-ID');
+    const html = tahunList.map(tahun => {
+        const d = perTahun[tahun];
+        let bagianUmroh = '';
+        if(d.umrohJamaah > 0) {
+            const rataHarga = d.umrohKontrak / d.umrohJamaah;
+            bagianUmroh = `<div style="font-size:12px;color:#555;margin-top:4px;">🕌 Umroh/Haji Khusus: ${d.umrohJamaah} jamaah — Kontrak ${f(d.umrohKontrak)} — Rata-rata ${f(rataHarga)}/orang</div>`;
+        }
+        let bagianHaji = '';
+        if(d.hajiRegJamaah > 0) {
+            bagianHaji = `<div style="font-size:12px;color:#555;margin-top:4px;">🕋 Haji Reguler: ${d.hajiRegJamaah} jamaah — Biaya Bimbingan Terkumpul ${f(d.hajiRegTerkumpul)}</div>`;
+        }
+        return `<div style="background:#F8FAFC;border-radius:10px;padding:12px;margin-bottom:10px;">
+            <div style="font-weight:700;font-size:15px;color:#0D5C4A;">📅 ${escapeHtml(tahun)}</div>
+            ${bagianUmroh}${bagianHaji}
+        </div>`;
+    }).join('');
+
+    modal.innerHTML = `<div class="modal-content" style="max-width:440px;">
+        <h3 style="color:#0D5C4A;margin-bottom:4px;">📈 Dashboard Tren Tahunan</h3>
+        <div style="font-size:11px;color:#888;margin-bottom:12px;">Dikelompokkan dari Tanggal Keberangkatan tiap Program. Umroh/Haji Khusus dan Haji Reguler dihitung terpisah karena beda struktur.</div>
+        <div style="max-height:420px;overflow-y:auto;">${html || '<p style="color:#aaa;text-align:center;">Belum ada Program</p>'}</div>
+        <button onclick="document.getElementById('dashboardTrenModal').style.display='none'" style="width:100%;padding:11px;background:#e2e8f0;color:#333;border:none;border-radius:10px;font-size:13px;cursor:pointer;margin-top:10px;">Tutup</button>
+    </div>`;
+    modal.style.display = 'flex';
+}
+
 // ==================== KECOCOKAN KAMAR ====================
 const KAPASITAS_KAMAR = { 'Quad': 4, 'Triple': 3, 'Double': 2 };
 
@@ -14784,7 +14919,7 @@ function openCustomizeNameTagModal() {
 
     let html = '';
 
-    // Banner notifikasi field baru
+   // Banner notifikasi field baru
     if (fieldBaru.length > 0) {
         html += `<div style="background:#fef3c7;border:1.5px solid #f59e0b;border-radius:10px;padding:12px;margin-bottom:12px;">
             <div style="font-weight:bold;color:#92400e;margin-bottom:4px;">🔔 ${fieldBaru.length} Field Baru dari Database</div>
@@ -16737,4 +16872,4 @@ function cetakDariPreviewAlternatif() {
            z-index:999;display:none;align-items:center;justify-content:center;">＋</button>
 
 </body>
-    </html>
+    </html> 
