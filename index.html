@@ -2770,7 +2770,7 @@
             <div class="row"><div class="config-row"><label>No. Izin</label><input type="text" id="cfg_izin2"></div><div class="config-row"><label>Pimpinan</label><input type="text" id="cfg_pimpinan2"></div></div>
             <div class="config-row"><label>Jabatan</label><input type="text" id="cfg_jabatan2"></div>
         </div>
-        <div class="config-section"><h3><i class="fas fa-bed"></i> Tipe Paket</h3>
+        <div class="config-section" id="tipePaketConfigSection"><h3><i class="fas fa-bed"></i> Tipe Paket</h3>
             <div style="font-size:12px;color:#888;margin-bottom:10px;">Digunakan sebagai pilihan tipe kamar di database jamaah dan rekap profit Cuan Plan.</div>
             <div id="tipePaketList" style="margin-bottom:10px;"></div>
             <div style="display:flex;gap:8px;">
@@ -3482,7 +3482,8 @@
     <div class="input-group" style="margin-bottom:12px;">
         <label>Jenis</label>
         <select id="newProgramJenis" style="width:100%;padding:11px 13px;border:1.5px solid #e2e6e4;border-radius:12px;font-size:14px;">
-            <option value="haji">🕋 Haji</option>
+            <option value="haji">🕋 Haji Khusus/Plus</option>
+            <option value="haji_reguler">🕋 Haji Reguler</option>
             <option value="umroh" selected>🕌 Umroh</option>
             <option value="lainnya">📁 Lainnya</option>
         </select>
@@ -3508,7 +3509,8 @@
     <div class="input-group" style="margin-bottom:12px;">
         <label>Jenis</label>
         <select id="editProgramJenis" style="width:100%;padding:11px 13px;border:1.5px solid #e2e6e4;border-radius:12px;font-size:14px;">
-            <option value="haji">🕋 Haji</option>
+            <option value="haji">🕋 Haji Khusus/Plus</option>
+            <option value="haji_reguler">🕋 Haji Reguler</option>
             <option value="umroh">🕌 Umroh</option>
             <option value="lainnya">📁 Lainnya</option>
         </select>
@@ -3742,6 +3744,10 @@ const APP_VERSION = '2025.01.15.006-FINAL';
 // Helper functions
 let lastPage = 'home';
 function showPage(pageId) {
+    if (pageId === 'estimasi' && isHajiReguler()) {
+        showToast('📋 Cuan Plan tidak dipakai untuk Haji Reguler — gunakan Jamaah, Dokumen & Pembayaran');
+        pageId = 'home';
+    }
     const currentActive = document.querySelector('.page.active');
     const currentId = currentActive ? currentActive.id.replace('page-', '') : 'home';
     internalShowPage(pageId);
@@ -3803,7 +3809,8 @@ function internalShowPage(pageId) {
     }
     if (pageId === 'setting') { updateLicenseSummary(); const na = document.getElementById('namaAdminSaatIni'); if(na) na.textContent = currentAdminNama; }
     if (pageId === 'riwayataktivitas') { renderRiwayatAktivitas(); }
-    if (pageId === 'konfigurasi') { if(window.loadKonfigurasiPro) window.loadKonfigurasiPro(); setTimeout(applyKonfigurasiLock, 400); }    if (pageId === 'catatan') { if(window.renderCatatanList) window.renderCatatanList(); const fab = document.getElementById('catatanFabBtn'); if(fab) fab.style.display = 'flex'; }
+    if (pageId === 'konfigurasi') { if(window.loadKonfigurasiPro) window.loadKonfigurasiPro(); setTimeout(applyKonfigurasiLock, 400); applyModeHajiReguler(); }
+    if (pageId === 'jamaah') { applyModeHajiReguler(); }    if (pageId === 'catatan') { if(window.renderCatatanList) window.renderCatatanList(); const fab = document.getElementById('catatanFabBtn'); if(fab) fab.style.display = 'flex'; }
     else { const fab = document.getElementById('catatanFabBtn'); if(fab) fab.style.display = 'none'; }
     if (pageId === 'uploaddokumen') { 
         // PENTING: Reload jamaah data DAN dokumen data untuk memastikan semua ter-load
@@ -4122,9 +4129,11 @@ function renderRiwayatAktivitas() {
 function renderMenuPremium() { 
     const container = document.getElementById('menuGridPremium'); 
     if(!container) return; 
+    const hajiReg = isHajiReguler();
     let html = ''; 
     for(let i=0;i<menuItemsPremium.length;i++) { 
         const menu = menuItemsPremium[i]; 
+        if(hajiReg && menu.id === 'estimasi') continue; // Cuan Plan tidak relevan untuk Haji Reguler
         const isVisible = localStorage.getItem(`menu_${menu.id}_visible`) !== 'false'; 
         if(isVisible || isAdminModePremium) 
             html += `<div class="menu-card-premium" onclick="showPage('${menu.id}')">${isAdminModePremium ? '<div class="edit-badge">✏️</div>' : ''}<div class="menu-icon">${menu.icon}</div><div class="menu-label">${menu.label}</div><div class="menu-badge">${menu.badge}</div></div>`; 
@@ -8754,8 +8763,8 @@ function renderJamaahForm(){
         }
         html+=`<div class="dynamic-field"><label>${escapeHtml(field.label)}</label>${inputHtml}</div>`; 
     }
-    // Field permanen Tipe Paket
-    if(tipeOpts) {
+    // Field permanen Tipe Paket — tidak relevan untuk Haji Reguler
+    if(tipeOpts && !isHajiReguler()) {
         html += `<div class="dynamic-field" style="border-top:1.5px solid #e2e8f0;padding-top:14px;margin-top:4px;">
             <label style="font-weight:700;color:#0D5C4A;">🛏️ Tipe Paket</label>
             <select id="jamaahTipePaket" style="width:100%;padding:10px;border-radius:8px;border:1.5px solid #ddd;font-size:14px;background:var(--input-bg);color:var(--text);">
@@ -11674,7 +11683,7 @@ const PROGRAM_WARNA = {
     umroh: '#4ADE80',
     lainnya: '#D1D5DB'
 };
-const PROGRAM_ICON = { haji: '🕋', umroh: '🕌', lainnya: '📁' };
+const PROGRAM_ICON = { haji: '🕋', haji_reguler: '🕋', umroh: '🕌', lainnya: '📁' };
 
 async function loadProgramData() {
     try {
@@ -11708,6 +11717,29 @@ async function saveProgramData() {
 
 function getCurrentProgram() {
     return programList.find(p => p.id === currentProgramId) || programList[0] || null;
+}
+
+function isHajiReguler() {
+    const p = getCurrentProgram();
+    return p && p.jenis === 'haji_reguler';
+}
+
+function applyModeHajiReguler() {
+    const hajiReg = isHajiReguler();
+
+    // 1. Cuan Plan di Menu Utama sudah ditangani di renderMenuPremium() + guard di showPage()
+
+    // 2 & 3. Tombol Kecocokan Kamar & Manifest Rooming di Jamaah
+    const btnKamar = document.querySelector('button[onclick="openKecocokanKamarModal()"]');
+    if(btnKamar) btnKamar.style.display = hajiReg ? 'none' : 'block';
+    const btnManifest = document.querySelector('button[onclick="cetakManifestRooming()"]');
+    if(btnManifest) btnManifest.style.display = hajiReg ? 'none' : 'block';
+
+    // 4. Dropdown Tipe Paket di form Tambah/Edit Jamaah — ditangani di renderJamaahForm() saat form dibuat
+
+    // 5. Section Tipe Paket di Konfigurasi/Setting
+    const tipePaketConfig = document.getElementById('tipePaketConfigSection');
+    if(tipePaketConfig) tipePaketConfig.style.display = hajiReg ? 'none' : 'block';
 }
 
 function renderProgramPickerBar() {
@@ -11843,6 +11875,26 @@ async function saveEditProgram() {
     if(!nama) return showToast('Isi nama program dulu!');
     const p = programList.find(x => x.id === id);
     if(!p) return;
+
+    // Kalau berubah JADI Haji Reguler dan Program ini sudah punya data Cuan Plan/Konsorsium, konfirmasi dulu
+    const berubahJadiHajiReguler = jenis === 'haji_reguler' && p.jenis !== 'haji_reguler';
+    if(berubahJadiHajiReguler) {
+        const slot = konfigurasiPro.per_program && konfigurasiPro.per_program[id];
+        const punyaDataCuanPlan = slot && (slot.estimasi_data || (slot.konsorsium_list && slot.konsorsium_list.length > 0));
+        if(punyaDataCuanPlan) {
+            konfirmasiBertema('Ubah ke Haji Reguler?', 'Program ini sudah punya data <b>Cuan Plan/Konsorsium</b>. Kalau diubah ke Haji Reguler, menu itu akan <b>disembunyikan</b> (bukan dihapus) — datanya tetap aman, muncul lagi kalau jenisnya dikembalikan.', () => {
+                eksekusiSimpanEditProgram(id, nama, jenis);
+            }, '✅ Lanjutkan');
+            return;
+        }
+    }
+    eksekusiSimpanEditProgram(id, nama, jenis);
+}
+
+async function eksekusiSimpanEditProgram(id, nama, jenis) {
+    const btn = document.getElementById('btnSaveEditProgram');
+    const p = programList.find(x => x.id === id);
+    if(!p) return;
     if(btn) { btn.disabled = true; btn.textContent = '⏳ Menyimpan...'; }
 
     // Hanya ganti nama & jenis — data jamaah/kas/dll di dalamnya TIDAK disentuh sama sekali
@@ -11850,7 +11902,11 @@ async function saveEditProgram() {
     p.jenis = jenis;
     await saveProgramData();
 
-    if(id === currentProgramId) renderProgramPickerBar();
+    if(id === currentProgramId) {
+        renderProgramPickerBar();
+        applyModeHajiReguler();
+        renderMenuPremium();
+    }
 
     if(btn) { btn.disabled = false; btn.textContent = '💾 Simpan Perubahan'; }
     closeEditProgramModal();
@@ -11874,6 +11930,8 @@ async function refilterAllProgramData() {
     applyJamaahFilterAndSort();
     renderKasTable();
     updateSaldoKas();
+    applyModeHajiReguler();
+    if(typeof renderMenuPremium === 'function') renderMenuPremium();
     if(document.getElementById('kegiatan')) {
         const slot = ensureProgramConfigSlot();
         document.getElementById('kegiatan').value = slot.kegiatan_kas || '';
@@ -11972,6 +12030,13 @@ async function saveNewProgram() {
     if(btn) { btn.disabled = false; btn.textContent = '💾 Simpan & Aktifkan'; }
     catatAktivitas('➕', `Program "${nama}" dibuat`);
     showToast(salinDariId ? '✅ Program "' + nama + '" dibuat, pengaturan tersalin' : '✅ Program "' + nama + '" dibuat & diaktifkan');
+
+    if(jenis === 'haji_reguler' && !localStorage.getItem('navara_pernah_lihat_info_haji_reguler')) {
+        localStorage.setItem('navara_pernah_lihat_info_haji_reguler', 'true');
+        setTimeout(() => {
+            konfirmasiBertema('Program Haji Reguler', 'Program ini siap dipakai — cukup gunakan menu <b>Jamaah, Dokumen, dan Pembayaran</b> seperti biasa.<br><br>Menu <b>Cuan Plan & Konsorsium</b> disembunyikan otomatis karena khusus untuk Umroh/Haji Khusus, tidak relevan untuk Haji Reguler.', () => {}, '✅ Mengerti');
+        }, 400);
+    }
 }
 
 // ==================== CATATAN ====================
@@ -16351,6 +16416,8 @@ async function initPremium() {
     
     // UPDATE STATS SETELAH SEMUA DATA LOAD!
     updateHomeStats();
+    applyModeHajiReguler();
+    renderMenuPremium();
 
     // Pintasan Aplikasi (App Shortcuts) — kalau dibuka lewat tekan-tahan ikon, langsung ke halaman yang dituju
     try {
