@@ -2036,6 +2036,10 @@
             <div style="font-weight:700;font-size:13px;color:#92400E;margin-bottom:6px;">⚠️ <span id="homePasporWarningTitle">Paspor Akan Habis Masa Berlaku</span></div>
             <div id="homePasporWarningList" style="font-size:12px;color:#92400E;line-height:1.7;"></div>
         </div>
+        <div id="homeMeningitisWarningCard" style="display:none;background:#FEF3C7;border:1px solid #F59E0B;border-radius:14px;padding:12px 14px;margin-bottom:12px;">
+            <div style="font-weight:700;font-size:13px;color:#92400E;margin-bottom:6px;">💉 <span id="homeMeningitisWarningTitle">Vaksin Meningitis Akan Habis Masa Berlaku</span></div>
+            <div id="homeMeningitisWarningList" style="font-size:12px;color:#92400E;line-height:1.7;"></div>
+        </div>
         </div>
 
         <!-- Quick Action -->
@@ -4007,6 +4011,37 @@ function updateHomeDashboardExtra(totalJamaah, lunasCount, totalPiutang) {
                 pasporCard.style.display = 'none';
             }
         }
+
+        // Peringatan Vaksin Meningitis Akan Habis Masa Berlaku (< 3 bulan dari keberangkatan — lebih pendek dari Paspor karena vaksin ulang cuma butuh 10-14 hari; masa berlaku diisi langsung dari sertifikat karena bervariasi 2-5 tahun tergantung jenis vaksin)
+        const meningitisCard = document.getElementById('homeMeningitisWarningCard');
+        if(meningitisCard) {
+            const acuanTgl2 = tgl ? new Date(tgl) : new Date();
+            const batasAman2 = new Date(acuanTgl2);
+            batasAman2.setMonth(batasAman2.getMonth() + 3);
+            const jamaahBermasalahVaksin = [];
+            jamaahList.forEach(j => {
+                const expStr2 = j.additional_fields?.tgl_expired_meningitis;
+                if(!expStr2) return;
+                const expDateVaksin = new Date(expStr2);
+                if(isNaN(expDateVaksin.getTime())) return;
+                if(expDateVaksin < batasAman2) {
+                    const sisaHari = Math.ceil((expDateVaksin - new Date()) / 86400000);
+                    jamaahBermasalahVaksin.push({ nama: j.nama_lengkap, sisaHari, expDate: expDateVaksin });
+                }
+            });
+            if(jamaahBermasalahVaksin.length > 0) {
+                jamaahBermasalahVaksin.sort((a,b) => a.sisaHari - b.sisaHari);
+                meningitisCard.style.display = 'block';
+                document.getElementById('homeMeningitisWarningTitle').textContent = 
+                    jamaahBermasalahVaksin.length + ' Vaksin Meningitis Akan/Sudah Habis Masa Berlaku';
+                document.getElementById('homeMeningitisWarningList').innerHTML = jamaahBermasalahVaksin.map(x => {
+                    const statusText = x.sisaHari < 0 ? 'Sudah habis' : x.sisaHari + ' hari lagi';
+                    return `• ${escapeHtml(x.nama)} — ${statusText} (${x.expDate.toLocaleDateString('id-ID')})`;
+                }).join('<br>');
+            } else {
+                meningitisCard.style.display = 'none';
+            }
+        }
         updateHomeSummaryBar();
     } catch(e) { console.log('Dashboard extra error:', e); }
 }
@@ -4504,7 +4539,7 @@ function saveEstimasiData() {
 let _homeSummaryExpanded = false;
 
 function updateHomeSummaryBar() {
-    const cardIds = ['homeProgramSetupCard', 'homeChecklistCard', 'homeBackupWarningCard', 'homePasporWarningCard'];
+    const cardIds = ['homeProgramSetupCard', 'homeChecklistCard', 'homeBackupWarningCard', 'homePasporWarningCard', 'homeMeningitisWarningCard'];
     const aktif = cardIds.filter(id => {
         const el = document.getElementById(id);
         return el && el.style.display !== 'none';
@@ -4536,12 +4571,13 @@ function renderProgramSetupChecklist() {
     if(!card) return;
     const cfg = getKonfigurasiProData();
     const slot = ensureProgramConfigSlot();
+    const hajiReg = isHajiReguler();
     const kurang = [];
     if(!cfg.keberangkatan || !cfg.keberangkatan.tanggal) kurang.push('⬜ Tanggal Keberangkatan belum diisi');
-    if(!slot.estimasi_data) kurang.push('⬜ Estimasi Cuan Plan belum dihitung');
+    if(!hajiReg && !slot.estimasi_data) kurang.push('⬜ Estimasi Cuan Plan belum dihitung');
     if(!(cfg.harga_paket && cfg.harga_paket.seragam) && jamaahList.length > 0) {
         const belumAdaHarga = jamaahList.some(j => !getTotalHargaPaket(j));
-        if(belumAdaHarga) kurang.push('⬜ Ada jamaah yang belum diisi harga paketnya');
+        if(belumAdaHarga) kurang.push(hajiReg ? '⬜ Ada jamaah yang belum diisi biaya bimbingannya' : '⬜ Ada jamaah yang belum diisi harga paketnya');
     }
     if(kurang.length === 0) { card.style.display = 'none'; return; }
     card.style.display = 'block';
@@ -6732,6 +6768,14 @@ async function loadDynamicFieldsJamaah() {
             else dynamicFieldsJamaah.push(fieldBaru);
             await idbSet(STORE_JAMAAH, 'jamaah_fields', dynamicFieldsJamaah);
         }
+        // Migrasi: tambahkan field baru "Habis Berlaku Vaksin Meningitis" kalau belum ada
+        if (dynamicFieldsJamaah.length > 0 && !dynamicFieldsJamaah.some(f => f.name === 'tgl_expired_meningitis')) {
+            const idxPaspor2 = dynamicFieldsJamaah.findIndex(f => f.name === 'tgl_expired_paspor');
+            const fieldMeningitis = { name: 'tgl_expired_meningitis', label: 'Habis Berlaku Vaksin Meningitis', type: 'date', icon: '💉', isRequired: false };
+            if (idxPaspor2 !== -1) dynamicFieldsJamaah.splice(idxPaspor2 + 1, 0, fieldMeningitis);
+            else dynamicFieldsJamaah.push(fieldMeningitis);
+            await idbSet(STORE_JAMAAH, 'jamaah_fields', dynamicFieldsJamaah);
+        }
     } else {
         dynamicFieldsJamaah = [
             { name: 'nama_paspor',   label: 'Nama Paspor',   type: 'text',     icon: '👤', isRequired: false },
@@ -6741,6 +6785,7 @@ async function loadDynamicFieldsJamaah() {
             { name: 'tgl_lahir',     label: 'Tanggal Lahir',  type: 'date',     icon: '🗓️', isRequired: false },
             { name: 'no_paspor',     label: 'No Paspor',      type: 'text',     icon: '📘', isRequired: false },
             { name: 'tgl_expired_paspor', label: 'Habis Berlaku Paspor', type: 'date', icon: '⏳', isRequired: false },
+            { name: 'tgl_expired_meningitis', label: 'Habis Berlaku Vaksin Meningitis', type: 'date', icon: '💉', isRequired: false },
             { name: 'nik',           label: 'NIK',             type: 'text',     icon: '🪪', isRequired: false },
             { name: 'kk',            label: 'KK',              type: 'text',     icon: '📋', isRequired: false },
             { name: 'alamat',        label: 'Alamat',          type: 'text',     icon: '🏠', isRequired: false },
