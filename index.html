@@ -2388,7 +2388,7 @@
             <div style="text-align:center;margin-top:14px;">
                 <div style="display:flex;align-items:center;justify-content:center;gap:6px;">
                     <span style="background:#F59E0B;color:#1a1a1a;font-size:9px;font-weight:700;padding:2px 7px;border-radius:10px;">B2C</span>
-                    <div style="opacity:0.85;font-size:13px;">HARGA BROSUR KONSORSIUM</div>
+                    <div style="opacity:0.85;font-size:13px;">HARGA BROSUR</div>
                 </div>
                 <div id="konHasilBrosur" style="font-size:26px;font-weight:900;color:#FBBF24;">Rp 0</div>
                 <div id="konHasilKeterangan" style="font-size:11px;opacity:0.75;"></div>
@@ -2446,7 +2446,7 @@
             </div>
         </div>
         <div style="display:flex;gap:8px;margin-top:10px;">
-            <button onclick="cetakLaporanKonsorsium()" style="flex:1;padding:11px;background:#F59E0B;color:white;border:none;border-radius:10px;font-size:12px;font-weight:700;cursor:pointer;">🖨️ Cetak Laporan</button>
+            <button onclick="cetakLaporanKonsorsium()" style="flex:1;padding:11px;background:#F59E0B;color:white;border:none;border-radius:10px;font-size:12px;font-weight:700;cursor:pointer;">🖨️ Cetak Laporan (Internal)</button>
             <button onclick="bagikanKonsorsiumWA()" style="flex:1;padding:11px;background:#25D366;color:white;border:none;border-radius:10px;font-size:12px;font-weight:700;cursor:pointer;">📲 Bagikan WA</button>
         </div>
     </div>
@@ -3462,9 +3462,9 @@
 <div id="fieldModal" class="modal"><div class="modal-content"><h3>Tambah Field Dinamis</h3><div class="dynamic-field"><label>Nama Field</label><input type="text" id="newFieldName" placeholder="Contoh: tanggal_lahir"><div class="error-message">Hanya huruf kecil, angka, underscore</div></div><div class="dynamic-field"><label>Label Field</label><input type="text" id="newFieldLabel" placeholder="Contoh: Tanggal Lahir"></div><div class="dynamic-field"><label>Tipe Field</label><select id="newFieldType" onchange="toggleDropdownOptionsInput()"><option value="text">Text</option><option value="date">Tanggal</option><option value="tel">Telepon</option><option value="textarea">Text Area</option><option value="dropdown">Dropdown / Pilihan</option></select></div><div class="dynamic-field" id="dropdownOptionsWrap" style="display:none;"><label>Daftar Pilihan (pisahkan dengan koma)</label><input type="text" id="newFieldOptions" placeholder="Contoh: Tamattu', Ifrad, Qiran"><div class="error-message" style="color:#888;">Contoh lain: Ya, Tidak</div></div><div class="dynamic-field" style="display:flex;align-items:center;gap:8px;"><input type="checkbox" id="newFieldRahasia" style="width:18px;height:18px;"><label style="margin:0;">Sembunyikan di PDF Folder (Rahasia)</label></div><button class="btn btn-primary" onclick="addDynamicFieldJamaah()"> TAMBAH FIELD</button><button class="btn btn-danger mt-2" onclick="closeFieldModal()">BATAL</button></div></div>
 <div id="manageFieldsModal" class="modal"><div class="modal-content"><h3>Kelola Field Dinamis</h3><button class="btn btn-primary btn-small" style="margin-bottom:15px;" onclick="closeManageFieldsModal(); openFieldModal();">+ Tambah Field Baru</button><div id="fieldsListContainer"></div><button class="btn btn-primary mt-2" onclick="closeManageFieldsModal()">TUTUP</button></div></div>
 
-<div id="paymentModal" class="modal"><div class="modal-content"><h3> Input Pembayaran</h3><div class="input-group"><label> Tanggal</label><input type="date" id="paymentTanggal"></div><div class="input-group"><label> Nama Jamaah *</label><select id="paymentJamaahSelect"><option value="">-- Pilih Jamaah --</option></select></div><div class="input-group"><label> Nominal (Rp)</label><input type="number" id="paymentNominal" placeholder="Contoh: 5000000"></div><div class="input-group"><label> Metode</label><select id="paymentMetode"><option value="Transfer">Transfer</option><option value="Cash">Cash</option><option value="QRIS">QRIS</option></select></div><div class="input-group"><label> Keterangan</label><input type="text" id="paymentKeterangan" placeholder="DP / Cicilan / Pelunasan"></div><div class="row"><button class="btn btn-danger" onclick="closePaymentModal()" style="flex:1">Batal</button><button class="btn btn-primary" onclick="simpanPembayaran()" style="flex:1">Simpan</button></div></div></div>
+<div id="paymentModal" class="modal"><div class="modal-content"><h3> Input Pembayaran</h3><div class="input-group"><label> Tanggal</label><input type="date" id="paymentTanggal"></div><div class="input-group"><label> Nama Jamaah *</label><select id="paymentJamaahSelect"><option value="">-- Pilih Jamaah --</option></select></div><div class="input-group"><label> Nominal (Rp)</label><input type="text" class="money-input" inputmode="numeric" id="paymentNominal" placeholder="Contoh: 5.000.000"></div><div class="input-group"><label> Metode</label><select id="paymentMetode"><option value="Transfer">Transfer</option><option value="Cash">Cash</option><option value="QRIS">QRIS</option></select></div><div class="input-group"><label> Keterangan</label><input type="text" id="paymentKeterangan" placeholder="DP / Cicilan / Pelunasan"></div><div class="row"><button class="btn btn-danger" onclick="closePaymentModal()" style="flex:1">Batal</button><button class="btn btn-primary" onclick="simpanPembayaran()" style="flex:1">Simpan</button></div></div></div>
 <div id="invoiceConfirmModal" class="modal"><div class="modal-content"><h3> Konfirmasi Kirim Invoice</h3><p>Akan dikirim ke nomor WhatsApp:</p><p id="invoiceWANumber" style="font-weight:bold; font-size:18px; background:#f0f0f0; padding:10px; border-radius:10px;"></p><p id="invoiceWAName" style="color:#666;"></p><div class="row" style="margin-top:20px;"><button class="btn btn-danger" onclick="closeInvoiceConfirmModal()" style="flex:1">Batal</button><button class="btn btn-wa" onclick="sendInvoiceWA()" style="flex:1">Kirim via WA</button><button class="btn btn-orange" onclick="copyInvoiceText()" style="flex:1">Salin Teks</button></div></div></div>
-<div id="editHargaModal" class="modal"><div class="modal-content"><h3> Edit Harga Paket</h3><p id="editHargaNama" style="font-weight:bold;"></p><div class="input-group"><label> Total Harga Paket (Rp)</label><input type="number" id="editHargaValue" placeholder="Contoh: 35000000"></div><div class="row"><button class="btn btn-danger" onclick="closeEditHargaModal()" style="flex:1">Batal</button><button class="btn btn-primary" onclick="saveEditHarga()" style="flex:1">Simpan</button></div></div></div>
+<div id="editHargaModal" class="modal"><div class="modal-content"><h3> Edit Harga Paket</h3><p id="editHargaNama" style="font-weight:bold;"></p><div class="input-group"><label> Total Harga Paket (Rp)</label><input type="text" class="money-input" inputmode="numeric" id="editHargaValue" placeholder="Contoh: 35.000.000"></div><div class="row"><button class="btn btn-danger" onclick="closeEditHargaModal()" style="flex:1">Batal</button><button class="btn btn-primary" onclick="saveEditHarga()" style="flex:1">Simpan</button></div></div></div>
 <div id="riwayatModal" class="modal"><div class="modal-content"><h3> Riwayat Pembayaran</h3><p id="riwayatNama" style="font-weight:bold;"></p><div id="riwayatListContainer" style="max-height:400px; overflow-y:auto;"></div><div class="row" style="margin-top:15px;"><button class="btn btn-danger" onclick="closeRiwayatModal()" style="flex:1">Tutup</button></div></div></div>
 <div id="masterFieldModal" class="modal"><div class="modal-content"><h3>Kelola Field Dinamis</h3><div class="dynamic-field"><label>Nama Field</label><input type="text" id="masterNewFieldName" placeholder="contoh: alamat, no_hp"></div><div class="dynamic-field"><label>Label Field</label><input type="text" id="masterNewFieldLabel" placeholder="Contoh: Alamat, No HP"></div><div class="dynamic-field"><label>Tipe</label><select id="masterNewFieldType"><option value="text">Text</option><option value="date">Tanggal</option><option value="tel">Telepon</option><option value="textarea">Text Area</option></select></div><button class="btn btn-primary" onclick="addMasterDynamicField()"> TAMBAH FIELD</button><div id="masterFieldsList" style="margin-top:15px;"></div><button class="btn btn-danger mt-2" onclick="closeMasterFieldModal()">TUTUP</button></div></div>
 <div id="masterItemModal" class="modal"><div class="modal-content"><h3>Kelola Daftar Item</h3><div class="row"><div class="input-group"><label>Nama Item</label><input type="text" id="masterNewItem" placeholder="Contoh: Kain Ihram"></div><button class="btn-small" onclick="addMasterItem()" style="background:var(--primary); color:white; padding:0 15px;">+ Tambah</button></div><div id="masterItemList" style="margin-top:15px;"></div><button class="btn btn-danger mt-2" onclick="closeMasterItemModal()">TUTUP</button></div></div>
@@ -5587,7 +5587,10 @@ function renderKonsorsiumList() {
                 <div class="dynamic-field" style="margin-bottom:0;"><label style="font-size:12px;">Atau Profit Tetap (Rp)</label><input type="text" class="money-input" inputmode="numeric" value="${t.profitRp ? t.profitRp.toLocaleString('id-ID') : ''}" placeholder="Contoh: 2.500.000 (B2B)" oninput="updateKonsorsiumTravel(${t.id}, 'profitRp', this.value)"></div>
             </div>
             <div id="konsorsiumInfo_${t.id}" style="margin-top:8px;"></div>
-            <button onclick="salinRingkasanTravel(${t.id})" style="width:100%;padding:9px;background:#0369A1;color:white;border:none;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;margin-top:8px;">📋 Salin Ringkasan</button>
+            <div style="display:flex;gap:8px;margin-top:8px;">
+                <button onclick="salinRingkasanTravel(${t.id})" style="flex:1;padding:9px;background:#0369A1;color:white;border:none;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;">📋 Salin Ringkasan</button>
+                <button onclick="cetakTagihanTravelPartner(${t.id})" style="flex:1;padding:9px;background:#0D9488;color:white;border:none;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;">🖨️ Cetak Tagihan</button>
+            </div>
         </div>`;
     });
     container.innerHTML = html;
@@ -5614,6 +5617,54 @@ function hitungRingkasanTravel(t, komponen, totalGabungan) {
         return { ...x, harga };
     });
     return { tipeData: rincianTipe, totalModal, totalTagihan, totalProfit, punyaKebijakan };
+}
+
+function cetakTagihanTravelPartner(id) {
+    const list = ensureKonsorsiumList();
+    const t = list.find(x => x.id === id);
+    if(!t) return;
+    const komponen = ambilKomponenBiayaEstimasi();
+    const totalGabungan = list.reduce((s,x) => s + (x.jumlah||0), 0);
+    if(!komponen || totalGabungan <= 0) return showToast('Hitung Estimasi Konsorsium dulu!');
+    const ring = hitungRingkasanTravel(t, komponen, totalGabungan);
+    if(!t.jumlah || !ring || !ring.punyaKebijakan) return showToast('Isi Komposisi Kamar dan Markup/Profit Tetap dulu!');
+
+    const f = n => 'Rp ' + Math.round(n).toLocaleString('id-ID');
+    const namaKBIH = konfigurasiPro.instansi1?.nama || 'Navara';
+    const progNama = getCurrentProgram()?.nama || '-';
+    const tgl = new Date().toLocaleDateString('id-ID', { day:'2-digit', month:'long', year:'numeric' });
+
+    const rowsHtml = ring.tipeData.map(x => `
+        <tr>
+            <td style="padding:8px;border-bottom:1px solid #eee;">${escapeHtml(x.label)}</td>
+            <td style="padding:8px;border-bottom:1px solid #eee;text-align:center;">${x.jumlah}</td>
+            <td style="padding:8px;border-bottom:1px solid #eee;text-align:right;">${f(x.harga)}</td>
+            <td style="padding:8px;border-bottom:1px solid #eee;text-align:right;">${f(x.harga * x.jumlah)}</td>
+        </tr>`).join('');
+
+    const html = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>Tagihan Konsorsium — ${escapeHtml(t.nama||'Travel Partner')}</title>
+    <style>body{font-family:Arial,sans-serif;padding:24px;color:#222;} h1{color:#0D5C4A;font-size:19px;margin-bottom:2px;}
+    table{width:100%;border-collapse:collapse;margin-top:14px;font-size:13px;} th{background:#0D5C4A;color:#fff;padding:8px;text-align:left;}
+    .total-box{background:#0D5C4A;color:#fff;border-radius:10px;padding:16px;margin-top:20px;text-align:center;}
+    .total-box .label{font-size:12px;opacity:.85;} .total-box .angka{font-size:22px;font-weight:900;margin-top:2px;}
+    @media print{ .no-print{display:none!important;} }
+    </style></head><body>
+    <h1>🤝 TAGIHAN KONSORSIUM</h1>
+    <p>${escapeHtml(namaKBIH)} — Program: ${escapeHtml(progNama)} — Dicetak: ${tgl}</p>
+    <p style="font-size:15px;font-weight:700;color:#0D5C4A;">Kepada: ${escapeHtml(t.nama||'Travel Partner')}</p>
+    <table><thead><tr><th>Tipe Kamar</th><th style="text-align:center;">Jamaah</th><th style="text-align:right;">Harga/Orang</th><th style="text-align:right;">Subtotal</th></tr></thead>
+    <tbody>${rowsHtml}</tbody></table>
+    <div class="total-box">
+        <div class="label">TOTAL TAGIHAN (${t.jumlah} JAMAAH)</div>
+        <div class="angka">${f(ring.totalTagihan)}</div>
+    </div>
+    <div class="no-print" style="text-align:center;padding:20px;background:#f0f0f0;margin-top:20px;">
+        <button onclick="window.print()" style="padding:10px 28px;margin:0 6px;border:none;border-radius:10px;font-size:14px;font-weight:bold;cursor:pointer;background:#0D5C4A;color:white;">🖨️ CETAK / SIMPAN PDF</button>
+        <button onclick="window.close()" style="padding:10px 28px;margin:0 6px;border:none;border-radius:10px;font-size:14px;font-weight:bold;cursor:pointer;background:#e2e8f0;color:#333;">✕ TUTUP</button>
+    </div>
+    </body></html>`;
+    const win = window.open('', '_blank');
+    win.document.write(html); win.document.close();
 }
 
 function salinRingkasanTravel(id) {
@@ -11354,7 +11405,7 @@ function openPaymentModalWithJamaah(id) {
 
 function simpanPembayaran() { 
     const idJamaah = document.getElementById('paymentJamaahSelect').value; 
-    const nominal = parseInt(document.getElementById('paymentNominal').value); 
+    const nominal = parseInt(document.getElementById('paymentNominal').value.replace(/\./g, '')); 
     const tanggal = document.getElementById('paymentTanggal').value; 
     const metode = document.getElementById('paymentMetode').value; 
     const keterangan = document.getElementById('paymentKeterangan').value.trim() || 'Pembayaran'; 
@@ -11688,7 +11739,7 @@ function openEditHargaModal(jamaahId) {
     currentEditJamaahId = jamaahId; 
     let currentHarga = getTotalHargaPaket(jamaah) || 0; 
     document.getElementById('editHargaNama').innerText = jamaah.nama_lengkap; 
-    document.getElementById('editHargaValue').value = currentHarga; 
+    document.getElementById('editHargaValue').value = currentHarga.toLocaleString('id-ID'); 
     document.getElementById('editHargaModal').classList.add('show'); 
 }
 
@@ -11697,7 +11748,7 @@ function closeEditHargaModal() {
 }
 
 function saveEditHarga() { 
-    const newHarga = parseInt(document.getElementById('editHargaValue').value); 
+    const newHarga = parseInt(document.getElementById('editHargaValue').value.replace(/\./g, '')); 
     if (isNaN(newHarga) || newHarga <= 0) { showToast('⚠️ Masukkan harga yang valid!'); return; } 
     const jamaah = jamaahList.find(j => j.id == currentEditJamaahId); 
     if (jamaah) { 
@@ -14919,7 +14970,7 @@ function openCustomizeNameTagModal() {
 
     let html = '';
 
-   // Banner notifikasi field baru
+    // Banner notifikasi field baru
     if (fieldBaru.length > 0) {
         html += `<div style="background:#fef3c7;border:1.5px solid #f59e0b;border-radius:10px;padding:12px;margin-bottom:12px;">
             <div style="font-weight:bold;color:#92400e;margin-bottom:4px;">🔔 ${fieldBaru.length} Field Baru dari Database</div>
@@ -16872,4 +16923,4 @@ function cetakDariPreviewAlternatif() {
            z-index:999;display:none;align-items:center;justify-content:center;">＋</button>
 
 </body>
-    </html> 
+    </html>
