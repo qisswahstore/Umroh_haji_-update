@@ -2417,7 +2417,7 @@
                 <span id="konsorsiumTotalPax" style="font-weight:700;">0 orang</span>
             </div>
             <div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid rgba(255,255,255,0.2);">
-                <span style="opacity:0.8;font-size:13px;">Total Modal Gabungan</span>
+                <span style="opacity:0.8;font-size:13px;">Total Modal Efektif Gabungan</span>
                 <span id="konsorsiumTotalModal" style="font-weight:700;">Rp 0</span>
             </div>
             <div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid rgba(255,255,255,0.2);">
@@ -5495,13 +5495,13 @@ function renderSatuKartuKonsorsiumInfo(id) {
         infoEl.innerHTML = '';
     } else if(!ring.punyaKebijakan) {
         const rincianModal = ring.tipeData.map(x => `${x.label}: ${f(x.modal)}`).join(', ');
-        infoEl.innerHTML = `<div style="background:#F8FAFC;border-radius:8px;padding:10px;font-size:12px;color:#888;">📌 Modal — ${rincianModal}<br>Isi Markup % atau Profit Tetap untuk lihat tagihan & profit.</div>`;
+        infoEl.innerHTML = `<div style="background:#F8FAFC;border-radius:8px;padding:10px;font-size:12px;color:#888;">📌 Modal Efektif — ${rincianModal}<br>Isi Markup % atau Profit Tetap untuk lihat tagihan & profit.</div>`;
     } else {
         const adaRugi = ring.totalProfit < 0;
         const barisTipe = ring.tipeData.map(x => {
             const keteranganGratis = x.gratisDiSini > 0 ? ` <span style="color:#F59E0B;font-weight:700;">(${x.gratisDiSini} gratis)</span>` : '';
             return `<div style="display:flex;justify-content:space-between;font-size:11px;color:#444;padding:3px 0;border-bottom:1px dashed #e2e8f0;">
-                <span>${x.label} (${x.jumlah} org${keteranganGratis}): Modal ${f(x.modal)}</span>
+                <span>${x.label} (${x.jumlah} org${keteranganGratis}): Modal Efektif ${f(x.modal)}</span>
                 <span style="font-weight:700;">→ ${f(x.harga)}</span>
             </div>`;
         }).join('');
@@ -5685,7 +5685,7 @@ function salinRingkasanTravel(id) {
         teks += `${x.label} (${x.jumlah} org${x.gratisDiSini > 0 ? ', ' + x.gratisDiSini + ' gratis' : ''}): Rp ${Math.round(x.harga).toLocaleString('id-ID')}/orang\n`;
     });
     teks += `\nTotal Tagihan: Rp ${Math.round(ring.totalTagihan).toLocaleString('id-ID')}\n`;
-    teks += `Total Modal: Rp ${Math.round(ring.totalModal).toLocaleString('id-ID')}\n`;
+    teks += `Total Modal Efektif: Rp ${Math.round(ring.totalModal).toLocaleString('id-ID')}\n`;
     teks += `${ring.totalProfit>=0?'Profit':'Selisih Rugi'}: Rp ${Math.round(Math.abs(ring.totalProfit)).toLocaleString('id-ID')}\n`;
     navigator.clipboard.writeText(teks).then(() => {
         showToast('✅ Ringkasan tersalin, siap paste ke WA');
@@ -5923,12 +5923,12 @@ function cetakLaporanKonsorsium() {
     <h1>🤝 LAPORAN KONSORSIUM (INTERNAL)</h1>
     <p>${escapeHtml(namaKBIH)} — Program: ${escapeHtml(progNama)} — Dicetak: ${tgl}</p>
     <p><b>Harga Brosur B2C (acuan):</b> ${f(data.hargaBrosur)}</p>
-    <table><thead><tr><th>Travel Partner</th><th>Tipe Kamar</th><th style="text-align:center;">Jamaah</th><th style="text-align:right;">Modal/Orang</th><th style="text-align:right;">Harga/Orang</th><th style="text-align:right;">Total Tagihan</th><th style="text-align:right;">Profit</th></tr></thead>
+    <table><thead><tr><th>Travel Partner</th><th>Tipe Kamar</th><th style="text-align:center;">Jamaah</th><th style="text-align:right;">Modal Efektif/Orang</th><th style="text-align:right;">Harga/Orang</th><th style="text-align:right;">Total Tagihan</th><th style="text-align:right;">Profit</th></tr></thead>
     <tbody>${rowsHtml}</tbody></table>
     <div class="total-box">
         <div><b>RINGKASAN (${data.rows.length} Travel Partner)</b></div>
         <div>👥 Total Jamaah Gabungan: ${data.totalGabungan}</div>
-        <div>💰 Total Modal Gabungan: ${f(data.totalModal)}</div>
+        <div>💰 Total Modal Efektif Gabungan: ${f(data.totalModal)}</div>
         <div>💵 Total Tagihan: ${f(data.totalTagihan)}</div>
         <div>✅ PROFIT TOTAL: ${f(data.totalProfit)}</div>
     </div>
@@ -5951,7 +5951,7 @@ function bagikanKonsorsiumWA() {
     data.rows.forEach(r => {
         teks += `${r.nama} - ${r.tipe} (${r.jumlah} org): Rp ${Math.round(r.harga||0).toLocaleString('id-ID')}/org → Profit ${f(r.profit)}\n`;
     });
-    teks += `\n👥 Total Jamaah: ${data.totalGabungan}\n💰 Total Modal: ${f(data.totalModal)}\n💵 Total Tagihan: ${f(data.totalTagihan)}\n✅ *PROFIT TOTAL: ${f(data.totalProfit)}*`;
+    teks += `\n👥 Total Jamaah: ${data.totalGabungan}\n💰 Total Modal Efektif: ${f(data.totalModal)}\n💵 Total Tagihan: ${f(data.totalTagihan)}\n✅ *PROFIT TOTAL: ${f(data.totalProfit)}*`;
     window.open(`https://wa.me/?text=${encodeURIComponent(teks)}`, '_blank');
 }
 
