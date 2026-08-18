@@ -5387,6 +5387,16 @@ function hitungModalPerTipeKamar(komponen, komponenDicentang, totalGabungan, nFo
     };
 }
 
+// Modal rata-rata tertimbang KHUSUS 1 Travel, berdasarkan campuran kamar yang SUNGGUHAN dia pakai — dasar konversi Markup% <-> Profit Tetap
+function hitungModalRataRataTertimbang(komponen, t, totalGabungan) {
+    const modalTipe = hitungModalPerTipeKamar(komponen, t.komponen || {}, totalGabungan, komponen.nFocGabungan);
+    if(!modalTipe) return null;
+    const jq = t.jumlahQuad||0, jt = t.jumlahTriple||0, jd = t.jumlahDouble||0;
+    const total = jq + jt + jd;
+    if(total === 0) return null;
+    return ((modalTipe.quad*jq) + (modalTipe.triple*jt) + (modalTipe.double*jd)) / total;
+}
+
 // Hitung Harga per tipe dari 1 kebijakan (persen atau profit tetap), diterapkan SAMA RATA ke semua tipe kamar
 function hitungHargaDariKebijakan(modal, t) {
     if(t.persen !== '' && t.persen !== undefined && t.persen !== null) {
@@ -5422,7 +5432,7 @@ function tambahKonsorsiumTravel() {
     const list = ensureKonsorsiumList();
     const komponenDefault = {};
     DAFTAR_KOMPONEN_KONSORSIUM.forEach(k => komponenDefault[k.key] = true);
-    list.push({ id: Date.now(), nama: '', jumlah: 0, jumlahQuad: 0, jumlahTriple: 0, jumlahDouble: 0, harga: 0, persen: '', profitRp: 0, gratisTravel: 0, komponen: komponenDefault });
+    list.push({ id: Date.now(), nama: '', jumlah: 0, jumlahQuad: 0, jumlahTriple: 0, jumlahDouble: 0, harga: 0, persen: '', profitRp: 0, bufferB2B: 0, gratisTravel: 0, komponen: komponenDefault });
     simpanKonsorsium();
     renderKonsorsiumList();
 }
@@ -5458,16 +5468,38 @@ function updateKonsorsiumTravel(id, field, value) {
         if(totalEl) totalEl.textContent = 'Total: ' + t.jumlah + ' orang';
         field = 'jumlah'; // biar semua kartu ikut refresh (Modal Gabungan berubah)
     }
+    if(field === 'bufferB2B') {
+        t.bufferB2B = parseInt(value.replace(/\D/g,'')) || 0;
+    }
     if(field === 'gratisTravel') {
         t.gratisTravel = parseInt(value.replace(/\D/g,'')) || 0;
     }
     if(field === 'persen') {
         t.persen = value;
         t.profitRp = null; // pilih salah satu mode saja, biar tidak bentrok
+        const komponen = ambilKomponenBiayaEstimasi();
+        const totalGabungan = list.reduce((s,x) => s + (x.jumlah||0), 0);
+        const modalRata = komponen && totalGabungan > 0 ? hitungModalRataRataTertimbang(komponen, t, totalGabungan) : null;
+        const p = parseFloat(value.replace(',', '.'));
+        const profitRpInput = document.getElementById('konsorsiumProfitRpInput_' + id);
+        if(modalRata && !isNaN(p) && profitRpInput) {
+            profitRpInput.value = Math.round(modalRata * p / 100).toLocaleString('id-ID');
+        } else if(profitRpInput) {
+            profitRpInput.value = '';
+        }
     }
     if(field === 'profitRp') {
         t.profitRp = parseInt(value.replace(/\D/g,'')) || 0;
         t.persen = ''; // pilih salah satu mode saja, biar tidak bentrok
+        const komponen = ambilKomponenBiayaEstimasi();
+        const totalGabungan = list.reduce((s,x) => s + (x.jumlah||0), 0);
+        const modalRata = komponen && totalGabungan > 0 ? hitungModalRataRataTertimbang(komponen, t, totalGabungan) : null;
+        const persenInput = document.getElementById('konsorsiumPersenInput_' + id);
+        if(modalRata && t.profitRp > 0 && persenInput) {
+            persenInput.value = ((t.profitRp / modalRata) * 100).toFixed(1);
+        } else if(persenInput) {
+            persenInput.value = '';
+        }
     }
     simpanKonsorsium();
     if(field === 'jumlah') {
@@ -5509,6 +5541,7 @@ function renderSatuKartuKonsorsiumInfo(id) {
         infoEl.innerHTML = `
             <div style="background:#F8FAFC;border-radius:8px;padding:10px 12px;margin-bottom:8px;">
                 <div style="font-size:10px;color:#888;font-weight:700;text-transform:uppercase;margin-bottom:4px;">💵 Tagihan per Tipe Kamar${ring.totalGratisTerpakai > 0 ? ` (${ring.totalGratisTerpakai} orang gratis)` : ''}</div>
+                ${ring.bufferB2B > 0 ? `<div style="font-size:10px;color:#0369A1;margin-bottom:6px;">+ Buffer Rp ${ring.bufferB2B.toLocaleString('id-ID')}/orang sudah termasuk di Harga (tidak dihitung Profit)</div>` : ''}
                 ${barisTipe}
             </div>
             <div style="background:${adaRugi ? 'linear-gradient(135deg,#DC2626,#991B1B)' : 'linear-gradient(135deg,#166534,#0D5C4A)'};border-radius:10px;padding:12px 14px;text-align:center;">
@@ -5576,8 +5609,9 @@ function renderKonsorsiumList() {
                     <span style="background:#1E40AF;color:white;font-size:9px;font-weight:700;padding:2px 7px;border-radius:10px;">B2B</span>
                     <span style="font-size:11px;color:#1E40AF;font-weight:600;">Harga ke Travel Partner</span>
                 </div>
-                <div class="dynamic-field" style="margin-bottom:8px;"><label style="font-size:12px;">Markup (%)</label><input type="text" inputmode="decimal" value="${t.persen || ''}" placeholder="Contoh: 6.7" oninput="updateKonsorsiumTravel(${t.id}, 'persen', this.value)"></div>
-                <div class="dynamic-field" style="margin-bottom:0;"><label style="font-size:12px;">Atau Profit Tetap (Rp)</label><input type="text" class="money-input" inputmode="numeric" value="${t.profitRp ? t.profitRp.toLocaleString('id-ID') : ''}" placeholder="Contoh: 2.500.000 (B2B)" oninput="updateKonsorsiumTravel(${t.id}, 'profitRp', this.value)"></div>
+                <div class="dynamic-field" style="margin-bottom:8px;"><label style="font-size:12px;">Markup (%)</label><input type="text" id="konsorsiumPersenInput_${t.id}" inputmode="decimal" value="${t.persen || ''}" placeholder="Contoh: 6.7" oninput="updateKonsorsiumTravel(${t.id}, 'persen', this.value)"></div>
+                <div class="dynamic-field" style="margin-bottom:0;"><label style="font-size:12px;">Atau Profit Tetap (Rp)</label><input type="text" id="konsorsiumProfitRpInput_${t.id}" class="money-input" inputmode="numeric" value="${t.profitRp ? t.profitRp.toLocaleString('id-ID') : ''}" placeholder="Contoh: 2.500.000 (B2B)" oninput="updateKonsorsiumTravel(${t.id}, 'profitRp', this.value)"></div>
+                <div class="dynamic-field" style="margin-bottom:0;"><label style="font-size:12px;">Buffer / Cadangan Nego (Rp) <span style="color:#999;font-weight:400;">— opsional, ditambahkan ke Harga, tidak dihitung Profit</span></label><input type="text" class="money-input" inputmode="numeric" value="${t.bufferB2B ? t.bufferB2B.toLocaleString('id-ID') : ''}" placeholder="Contoh: 500.000" oninput="updateKonsorsiumTravel(${t.id}, 'bufferB2B', this.value)"></div>
             </div>
             <div id="konsorsiumInfo_${t.id}" style="margin-top:8px;"></div>
             <div style="display:flex;gap:8px;margin-top:8px;">
@@ -5606,20 +5640,23 @@ function hitungRingkasanTravel(t, komponen, totalGabungan) {
     // Distribusikan "Gratis dari Travel Ini" — mulai dari Quad, lalu Triple, lalu Double
     let gratisSisa = t.gratisTravel || 0;
 
-    let totalModal = 0, totalTagihan = 0, totalProfit = 0, totalGratisTerpakai = 0;
+    let totalModal = 0, totalTagihan = 0, totalTagihanTanpaBuffer = 0, totalGratisTerpakai = 0;
+    const buffer = t.bufferB2B || 0;
     const rincianTipe = tipeData.map(x => {
         totalModal += x.modal * x.jumlah; // Modal dihitung untuk SEMUA orang, termasuk yang gratis — biaya beneran tetap keluar
         const potonganGratis = Math.min(gratisSisa, x.jumlah);
         gratisSisa -= potonganGratis;
         totalGratisTerpakai += potonganGratis;
         const jumlahDibayar = x.jumlah - potonganGratis;
-        const harga = punyaKebijakan ? hitungHargaDariKebijakan(x.modal, t) : null;
+        const hargaTanpaBuffer = punyaKebijakan ? hitungHargaDariKebijakan(x.modal, t) : null;
+        const harga = hargaTanpaBuffer !== null ? hargaTanpaBuffer + buffer : null; // Buffer masuk ke Harga yang ditagihkan
         const tagihanTipe = harga !== null ? harga * jumlahDibayar : 0;
-        if(harga !== null) totalTagihan += tagihanTipe;
-        return { ...x, harga, jumlahDibayar, gratisDiSini: potonganGratis, tagihanTipe };
+        if(harga !== null) { totalTagihan += tagihanTipe; totalTagihanTanpaBuffer += hargaTanpaBuffer * jumlahDibayar; }
+        return { ...x, harga, hargaTanpaBuffer, jumlahDibayar, gratisDiSini: potonganGratis, tagihanTipe };
     });
-    if(punyaKebijakan) totalProfit = totalTagihan - totalModal; // otomatis "rugi" dari yang gratis ikut kehitung, karena Modal-nya tetap penuh tapi Tagihan tidak
-    return { tipeData: rincianTipe, totalModal, totalTagihan, totalProfit, punyaKebijakan, totalGratisTerpakai, gratisTravel: t.gratisTravel || 0 };
+    // Profit TIDAK menghitung Buffer — sama seperti B2C, Buffer itu cadangan nego, bukan untung pasti
+    const totalProfit = punyaKebijakan ? (totalTagihanTanpaBuffer - totalModal) : 0;
+    return { tipeData: rincianTipe, totalModal, totalTagihan, totalProfit, punyaKebijakan, totalGratisTerpakai, gratisTravel: t.gratisTravel || 0, bufferB2B: buffer };
 }
 
 function cetakTagihanTravelPartner(id) {
@@ -5888,7 +5925,7 @@ function kumpulkanDataKonsorsiumUntukLaporan() {
         totalProfit += ring.totalProfit;
         ring.tipeData.forEach(x => {
             const tagihanTipe = x.tagihanTipe || 0;
-            const profitTipe = x.harga !== null ? tagihanTipe - (x.modal * x.jumlah) : 0;
+            const profitTipe = x.hargaTanpaBuffer !== null && x.hargaTanpaBuffer !== undefined ? (x.hargaTanpaBuffer * x.jumlahDibayar) - (x.modal * x.jumlah) : 0;
             rows.push({ nama: t.nama || 'Travel Partner', tipe: x.label, jumlah: x.jumlah, gratisDiSini: x.gratisDiSini, modal: x.modal, harga: x.harga, tagihan: tagihanTipe, profit: profitTipe });
         });
     });
