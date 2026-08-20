@@ -2244,6 +2244,7 @@
                     <option value="🕌 Muthawif/Guide">🕌 Muthawif/Guide</option>
                     <option value="💼 Operasional">💼 Operasional</option>
                     <option value="💊 Kesehatan">💊 Kesehatan</option>
+                    <option value="🤝 Komisi Mitra">🤝 Komisi Mitra</option>
                     <option value="📦 Lain-lain">📦 Lain-lain</option>
                 </select>
             </div>
@@ -2495,7 +2496,7 @@
 <div id="page-jamaah" class="page">
     <div class="header-premium header-premium-small"><div class="back-header"><i class="fas fa-arrow-left" onclick="showPage('home')"></i><h2>Database Jamaah</h2><div style="width:30px;"></div></div></div>
     <div class="card-premium">
-        <div id="jamaahAdminPanel" class="setting-card" style="display:none"><h3 style="color:var(--primary);"> Panel Admin Jamaah</h3><button class="btn btn-primary btn-small mt-2" onclick="openTambahJamaahModal()"> + Tambah database</button><button class="btn btn-blue btn-small mt-2" onclick="openManageFieldsModal()"> Kelola Field Dinamis</button><button class="btn btn-small mt-2" onclick="openRekapKategoriModal()" style="background:#8B5CF6;color:white;"> 📊 Rekap per Kategori</button><button class="btn btn-small mt-2" onclick="openKecocokanKamarModal()" style="background:#0EA5E9;color:white;"> 🛏️ Cek Kecocokan Kamar</button><button class="btn btn-small mt-2" onclick="openKelompokPorsiModal()" style="background:#F59E0B;color:white;"> 📊 Kelompokkan Berdasarkan Porsi</button><button class="btn btn-small mt-2" onclick="openAntrianFollowUpModal()" style="background:#DC2626;color:white;"> 📋 Antrian Follow-Up Prioritas</button><button class="btn btn-small mt-2" onclick="cetakManifestRooming()" style="background:#0D9488;color:white;"> 📋 Cetak Manifest & Rooming</button><button class="btn btn-small mt-2" onclick="openWaMassalModal()" style="background:#22C55E;color:white;"> 📢 Kirim WA Massal</button><button class="btn btn-teal btn-small mt-2" onclick="downloadTemplateExcel()" style="background:#1D6F42;">⬇️ Download Template Excel</button><button class="btn btn-teal btn-small mt-2" onclick="exportJamaahToExcel()"> Export ke Excel</button><button class="btn btn-orange btn-small mt-2" onclick="document.getElementById('importExcelFile').click()"> IMPORT EXCEL</button><input type="file" id="importExcelFile" accept=".xlsx,.xls" style="display:none" onchange="importJamaahFromExcel(this)"><button class="btn btn-danger btn-small mt-2" onclick="confirmDeleteAllJamaah()"> HAPUS SEMUA database</button></div>
+        <div id="jamaahAdminPanel" class="setting-card" style="display:none"><h3 style="color:var(--primary);"> Panel Admin Jamaah</h3><button class="btn btn-primary btn-small mt-2" onclick="openTambahJamaahModal()"> + Tambah database</button><button class="btn btn-blue btn-small mt-2" onclick="openManageFieldsModal()"> Kelola Field Dinamis</button><button class="btn btn-small mt-2" onclick="openRekapKategoriModal()" style="background:#8B5CF6;color:white;"> 📊 Rekap per Kategori</button><button class="btn btn-small mt-2" onclick="openKecocokanKamarModal()" style="background:#0EA5E9;color:white;"> 🛏️ Cek Kecocokan Kamar</button><button class="btn btn-small mt-2" onclick="openKelompokPorsiModal()" style="background:#F59E0B;color:white;"> 📊 Kelompokkan Berdasarkan Porsi</button><button class="btn btn-small mt-2" onclick="openAntrianFollowUpModal()" style="background:#DC2626;color:white;"> 📋 Antrian Follow-Up Prioritas</button><button class="btn btn-small mt-2" onclick="openRekapKomisiMitraModal()" style="background:#7C3AED;color:white;"> 🤝 Rekap Komisi Mitra</button><button class="btn btn-small mt-2" onclick="cetakManifestRooming()" style="background:#0D9488;color:white;"> 📋 Cetak Manifest & Rooming</button><button class="btn btn-small mt-2" onclick="openWaMassalModal()" style="background:#22C55E;color:white;"> 📢 Kirim WA Massal</button><button class="btn btn-teal btn-small mt-2" onclick="downloadTemplateExcel()" style="background:#1D6F42;">⬇️ Download Template Excel</button><button class="btn btn-teal btn-small mt-2" onclick="exportJamaahToExcel()"> Export ke Excel</button><button class="btn btn-orange btn-small mt-2" onclick="document.getElementById('importExcelFile').click()"> IMPORT EXCEL</button><input type="file" id="importExcelFile" accept=".xlsx,.xls" style="display:none" onchange="importJamaahFromExcel(this)"><button class="btn btn-danger btn-small mt-2" onclick="confirmDeleteAllJamaah()"> HAPUS SEMUA database</button></div>
         <div class="section-title"><span>DAFTAR JAMAAH</span></div>
         <div class="search-box"><input type="text" id="searchJamaahInput" placeholder=" Cari nama jamaah..." onkeyup="filterJamaahList()"><select id="sortJamaahSelect" onchange="sortJamaahList()"><option value="urutan_asli">Urutan asli</option><option value="nama_asc">Nama A-Z</option><option value="nama_desc">Nama Z-A</option><option value="tgl_asc">Tanggal lama ke baru</option><option value="tgl_desc">Tanggal baru ke lama</option></select><button onclick="resetJamaahFilter()">Reset</button></div>
         <div id="filterLunasChip" style="display:none;align-items:center;gap:8px;background:#F0FBF6;border:1px solid #0D5C4A;border-radius:20px;padding:6px 12px;margin:8px 0;width:fit-content;">
@@ -2780,6 +2781,16 @@
             <div style="display:flex;gap:8px;">
                 <input type="text" id="tipePaketBaru" placeholder="Contoh: Quad" style="flex:1;padding:10px;border-radius:8px;border:1.5px solid #ddd;font-size:14px;background:var(--input-bg);color:var(--text);">
                 <button onclick="tambahTipePaket()" style="padding:10px 16px;background:#0D5C4A;color:white;border:none;border-radius:8px;font-size:13px;cursor:pointer;white-space:nowrap;">+ Tambah</button>
+            </div>
+        </div>
+        <div class="config-section"><h3><i class="fas fa-handshake"></i> Kebijakan Gratis Mitra</h3>
+            <div style="font-size:12px;color:#888;margin-bottom:10px;">Aturan berapa jamaah yang harus dibawa Mitra/Agen supaya dia dapat 1 kursi gratis. Bisa beda tiap Program/musim.</div>
+            <div style="display:flex;align-items:center;gap:8px;">
+                <span style="font-size:13px;">Setiap</span>
+                <input type="text" id="cfg_mitra_setiap" inputmode="numeric" placeholder="15" style="width:70px;padding:10px;border-radius:8px;border:1.5px solid #ddd;font-size:14px;text-align:center;background:var(--input-bg);color:var(--text);">
+                <span style="font-size:13px;">orang → dapat</span>
+                <input type="text" id="cfg_mitra_dapat" inputmode="numeric" placeholder="1" style="width:60px;padding:10px;border-radius:8px;border:1.5px solid #ddd;font-size:14px;text-align:center;background:var(--input-bg);color:var(--text);">
+                <span style="font-size:13px;">gratis</span>
             </div>
         </div>
         <div class="config-section"><h3><i class="fas fa-plane-departure"></i> Info Keberangkatan</h3>
@@ -6157,7 +6168,7 @@ function updateRingkasanKeuangan() {
 
     // Total pemasukan = sudah dibayar dari pembayaranData
     let totalPemasukan = 0;
-    const payData = typeof pembayaranData !== 'undefined' ? pembayaranData : [];
+    const payData = _allPaymentData.filter(t => t.program_id === currentProgramId);
     jamaahList.forEach(j => {
         totalPemasukan += payData
             .filter(t => t.id_jamaah == j.id)
@@ -6842,6 +6853,13 @@ async function loadDynamicFieldsJamaah() {
             else dynamicFieldsJamaah.push(fieldMeningitis);
             await idbSet(STORE_JAMAAH, 'jamaah_fields', dynamicFieldsJamaah);
         }
+        // Migrasi: tambahkan 3 field baru untuk Mitra/Referral kalau belum ada
+        if (dynamicFieldsJamaah.length > 0 && !dynamicFieldsJamaah.some(f => f.name === 'mitra_referensi')) {
+            dynamicFieldsJamaah.push({ name: 'mitra_referensi', label: 'Direferensikan oleh Mitra', type: 'text', icon: '🤝', isRequired: false });
+            dynamicFieldsJamaah.push({ name: 'diskon_tersedia', label: 'Diskon Tersedia (Rp)', type: 'money', icon: '💰', isRequired: false });
+            dynamicFieldsJamaah.push({ name: 'status_diskon', label: 'Status Diskon', type: 'dropdown', options: ['Diambil Jamaah', 'Diberikan ke Mitra'], icon: '🔀', isRequired: false });
+            await idbSet(STORE_JAMAAH, 'jamaah_fields', dynamicFieldsJamaah);
+        }
     } else {
         dynamicFieldsJamaah = [
             { name: 'nama_paspor',   label: 'Nama Paspor',   type: 'text',     icon: '👤', isRequired: false },
@@ -6852,6 +6870,9 @@ async function loadDynamicFieldsJamaah() {
             { name: 'no_paspor',     label: 'No Paspor',      type: 'text',     icon: '📘', isRequired: false },
             { name: 'tgl_expired_paspor', label: 'Habis Berlaku Paspor', type: 'date', icon: '⏳', isRequired: false },
             { name: 'tgl_expired_meningitis', label: 'Habis Berlaku Vaksin Meningitis', type: 'date', icon: '💉', isRequired: false },
+            { name: 'mitra_referensi', label: 'Direferensikan oleh Mitra', type: 'text', icon: '🤝', isRequired: false },
+            { name: 'diskon_tersedia', label: 'Diskon Tersedia (Rp)', type: 'money', icon: '💰', isRequired: false },
+            { name: 'status_diskon', label: 'Status Diskon', type: 'dropdown', options: ['Diambil Jamaah', 'Diberikan ke Mitra'], icon: '🔀', isRequired: false },
             { name: 'nik',           label: 'NIK',             type: 'text',     icon: '🪪', isRequired: false },
             { name: 'kk',            label: 'KK',              type: 'text',     icon: '📋', isRequired: false },
             { name: 'alamat',        label: 'Alamat',          type: 'text',     icon: '🏠', isRequired: false },
@@ -8869,6 +8890,8 @@ function renderJamaahForm(){
         } else if(field.type === 'dropdown') {
             const opts = (field.options || []).map(o => `<option value="${escapeHtml(o)}">${escapeHtml(o)}</option>`).join('');
             inputHtml = `<select id="jamaahField_${field.name}"><option value="">-- Pilih --</option>${opts}</select>`;
+        } else if(field.type === 'money') {
+            inputHtml = `<input type="text" class="money-input" inputmode="numeric" id="jamaahField_${field.name}" placeholder="Contoh: 500.000">`;
         } else {
             inputHtml = `<input type="${field.type}" id="jamaahField_${field.name}">`;
         }
@@ -9566,6 +9589,164 @@ async function pindahkanKelompokPorsi(tahun, idsArr) {
 }
 
 // ==================== ANTRIAN FOLLOW-UP PRIORITAS ====================
+// ==================== REKAP KOMISI MITRA ====================
+function hitungModalHargaEstimasiTerkini() {
+    const est = getEstimasiData();
+    if(!est) return null;
+    const pr = v => parseInt((v||'0').toString().replace(/\./g,'').replace(/[^0-9]/g,'')) || 0;
+    const nJam = pr(est.totJam) || 45;
+    const nFoc = pr(est.jamGratis) || 0;
+    const nTL = pr(est.numTL) || 0;
+    const sub = pr(est.cTiket) + pr(est.cLAquad || est.cLA) + pr(est.cAsuransi) + pr(est.cHandling) + pr(est.cPIC) + pr(est.cAlat) + pr(est.cAplikasi) + pr(est.cLain);
+    const pPct = (parseFloat(est.profitPct)||0)/100;
+    const buffer = pr(est.cBuffer);
+    const profitKotor = sub * nJam * pPct;
+    const jualBase = ((sub*nJam) + profitKotor) / (nJam - nFoc);
+    const harga = jualBase + buffer;
+    return { modal: sub, harga };
+}
+
+function hitungSimulasiRasioGratis(modal, harga, setiap, dapat) {
+    if(!modal || !harga || !setiap || setiap <= 0) return null;
+    const totalGrup = setiap; // basis 1 "kelompok" = jumlah yang disyaratkan
+    const gratis = dapat || 1;
+    const bayar = totalGrup - gratis;
+    if(bayar <= 0) return null;
+    const profitNormal = totalGrup * (harga - modal);
+    const profitDenganGratis = (bayar * harga) - (totalGrup * modal);
+    const persenTersisa = profitNormal > 0 ? (profitDenganGratis / profitNormal) * 100 : 0;
+    return { profitNormal, profitDenganGratis, persenTersisa };
+}
+
+function openRekapKomisiMitraModal() {
+    let modal = document.getElementById('rekapKomisiMitraModal');
+    if(!modal) {
+        modal = document.createElement('div');
+        modal.id = 'rekapKomisiMitraModal';
+        modal.className = 'modal';
+        document.body.appendChild(modal);
+    }
+    renderRekapKomisiMitraModal(modal);
+    modal.style.display = 'flex';
+}
+
+function renderRekapKomisiMitraModal(modalEl) {
+    modalEl = modalEl || document.getElementById('rekapKomisiMitraModal');
+    if(!modalEl) return;
+
+    const slot = ensureProgramConfigSlot();
+    const kebijakan = slot.kebijakan_gratis_mitra || { setiap: 15, dapat: 1 };
+    const est = hitungModalHargaEstimasiTerkini();
+    const f = n => 'Rp ' + Math.round(n).toLocaleString('id-ID');
+    const parseMoney = v => parseInt((v||'0').toString().replace(/\./g,'').replace(/[^0-9]/g,'')) || 0;
+
+    // Kelompokkan jamaah berdasarkan Mitra
+    const perMitra = {};
+    jamaahList.forEach(j => {
+        const namaMitra = (j.additional_fields?.mitra_referensi || '').trim();
+        if(!namaMitra) return;
+        if(!perMitra[namaMitra]) perMitra[namaMitra] = { jumlah: 0, komisi: 0, diambilSendiri: 0 };
+        perMitra[namaMitra].jumlah++;
+        const nominalDiskon = parseMoney(j.additional_fields?.diskon_tersedia);
+        if(j.additional_fields?.status_diskon === 'Diberikan ke Mitra') perMitra[namaMitra].komisi += nominalDiskon;
+        else if(j.additional_fields?.status_diskon === 'Diambil Jamaah') perMitra[namaMitra].diambilSendiri++;
+    });
+    const namaMitraList = Object.keys(perMitra).sort((a,b) => perMitra[b].jumlah - perMitra[a].jumlah);
+
+    const htmlMitra = namaMitraList.map(nama => {
+        const d = perMitra[nama];
+        const eligibleGratis = Math.floor(d.jumlah / (kebijakan.setiap||15)) * (kebijakan.dapat||1);
+        let perbandingan = '';
+        if(eligibleGratis > 0 && est) {
+            const biayaGratis = eligibleGratis * est.harga; // Harga Jual "hilang" per kursi gratis (Modal tetap keluar, tidak ada yang bayar)
+            perbandingan = `<div style="background:#FEF3C7;border-radius:8px;padding:8px 10px;margin-top:6px;font-size:11px;color:#92400E;">
+                ⚠️ Eligible ${eligibleGratis} Gratis Berangkat — kalau diberikan, Harga Jual "hilang" ≈ ${f(biayaGratis)}. Bandingkan dengan total Komisi Cash: ${f(d.komisi)}
+            </div>`;
+        }
+        return `<div style="background:#F8FAFC;border-radius:10px;padding:12px;margin-bottom:10px;">
+            <div style="display:flex;justify-content:space-between;align-items:center;">
+                <div style="font-weight:700;font-size:14px;color:#7C3AED;">🤝 ${escapeHtml(nama)}</div>
+                <button onclick="catatKomisiSebagaiPengeluaran('${escapeHtml(nama).replace(/'/g,"\\'")}', ${d.komisi})" style="background:#7C3AED;color:white;border:none;border-radius:20px;padding:5px 12px;font-size:11px;font-weight:700;cursor:pointer;">💸 Catat Pengeluaran</button>
+            </div>
+            <div style="font-size:12px;color:#555;margin-top:4px;">${d.jumlah} jamaah dibawa${eligibleGratis > 0 ? ` — 🎉 Eligible ${eligibleGratis} Gratis` : ''}</div>
+            <div style="font-size:12px;color:#166534;font-weight:700;margin-top:2px;">Total Komisi Cash: ${f(d.komisi)}</div>
+            ${perbandingan}
+        </div>`;
+    }).join('');
+
+    modalEl.innerHTML = `<div class="modal-content" style="max-width:460px;">
+        <h3 style="color:#0D5C4A;margin-bottom:4px;">🤝 Rekap Komisi Mitra</h3>
+        <div style="font-size:11px;color:#888;margin-bottom:4px;">${escapeHtml(getCurrentProgram()?.nama || '-')} — Kebijakan saat ini: setiap ${kebijakan.setiap} orang dapat ${kebijakan.dapat} gratis</div>
+        ${!est ? '<div style="background:#FEE2E2;color:#991B1B;border-radius:8px;padding:8px;font-size:11px;margin-bottom:10px;">⚠️ Hitung Estimasi Program dulu supaya perbandingan biaya bisa tampil.</div>' : ''}
+        <div style="max-height:340px;overflow-y:auto;margin-bottom:10px;">${htmlMitra || '<p style="color:#aaa;text-align:center;padding:20px;">Belum ada jamaah yang punya data Mitra Referensi</p>'}</div>
+        <button onclick="openSimulasiKebijakanGratisModal()" style="width:100%;padding:11px;background:#0369A1;color:white;border:none;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;margin-bottom:8px;">🧮 Simulasi Kebijakan Gratis</button>
+        <button onclick="document.getElementById('rekapKomisiMitraModal').style.display='none'" style="width:100%;padding:11px;background:#e2e8f0;color:#333;border:none;border-radius:10px;font-size:13px;cursor:pointer;">Tutup</button>
+    </div>`;
+}
+
+function catatKomisiSebagaiPengeluaran(namaMitra, nominal) {
+    if(!nominal || nominal <= 0) return showToast('Belum ada Komisi Cash tercatat untuk Mitra ini!');
+    document.getElementById('rekapKomisiMitraModal').style.display = 'none';
+    showPage('estimasi');
+    setTimeout(() => {
+        if(typeof switchCuanTab === 'function') switchCuanTab('pengeluaran');
+        setTimeout(() => {
+            const kat = document.getElementById('pengeluaranKategori');
+            const ket = document.getElementById('pengeluaranKeterangan');
+            const nom = document.getElementById('pengeluaranNominal');
+            if(kat) kat.value = '🤝 Komisi Mitra';
+            if(ket) ket.value = 'Komisi untuk ' + namaMitra;
+            if(nom) nom.value = nominal.toLocaleString('id-ID');
+            showToast('📋 Form Pengeluaran terisi otomatis, cek & simpan');
+        }, 200);
+    }, 300);
+}
+
+function openSimulasiKebijakanGratisModal() {
+    let modal = document.getElementById('simulasiGratisModal');
+    if(!modal) {
+        modal = document.createElement('div');
+        modal.id = 'simulasiGratisModal';
+        modal.className = 'modal';
+        document.body.appendChild(modal);
+    }
+    renderSimulasiGratisModal(15, 1);
+    modal.style.display = 'flex';
+}
+
+function renderSimulasiGratisModal(setiap, dapat) {
+    const modalEl = document.getElementById('simulasiGratisModal');
+    if(!modalEl) return;
+    const est = hitungModalHargaEstimasiTerkini();
+    const f = n => 'Rp ' + Math.round(n).toLocaleString('id-ID');
+
+    let htmlHasil = '<p style="color:#DC2626;text-align:center;padding:16px;font-size:13px;">⚠️ Hitung Estimasi Program dulu (tab Estimasi) supaya simulasi bisa jalan.</p>';
+    if(est) {
+        const rasioList = [10, 15, 20, 25, 30];
+        htmlHasil = rasioList.map(r => {
+            const sim = hitungSimulasiRasioGratis(est.modal, est.harga, r, dapat);
+            if(!sim) return '';
+            let warna = '#166534', label = '🟢 Sehat';
+            if(sim.persenTersisa < 20) { warna = '#DC2626'; label = '🔴 Sangat Berisiko'; }
+            else if(sim.persenTersisa < 50) { warna = '#F59E0B'; label = '🟡 Cukup Aman'; }
+            return `<div style="background:#F8FAFC;border-left:4px solid ${warna};border-radius:8px;padding:10px 12px;margin-bottom:8px;">
+                <div style="display:flex;justify-content:space-between;align-items:center;">
+                    <span style="font-weight:700;font-size:13px;">${r} : ${dapat}</span>
+                    <span style="font-size:11px;color:${warna};font-weight:700;">${label}</span>
+                </div>
+                <div style="font-size:12px;color:#555;margin-top:3px;">Profit per Grup: ${f(sim.profitDenganGratis)} (${sim.persenTersisa.toFixed(0)}% dari normal ${f(sim.profitNormal)})</div>
+            </div>`;
+        }).join('');
+    }
+
+    modalEl.innerHTML = `<div class="modal-content" style="max-width:440px;">
+        <h3 style="color:#0D5C4A;margin-bottom:4px;">🧮 Simulasi Kebijakan Gratis</h3>
+        <div style="font-size:11px;color:#888;margin-bottom:12px;">Coba beberapa rasio sebelum sepakat dengan Mitra — pakai Modal & Harga dari Estimasi Program saat ini.</div>
+        <div style="max-height:400px;overflow-y:auto;">${htmlHasil}</div>
+        <button onclick="document.getElementById('simulasiGratisModal').style.display='none'" style="width:100%;padding:11px;background:#e2e8f0;color:#333;border:none;border-radius:10px;font-size:13px;cursor:pointer;margin-top:10px;">Tutup</button>
+    </div>`;
+}
+
 function openAntrianFollowUpModal() {
     let modal = document.getElementById('antrianFollowUpModal');
     if(!modal) {
@@ -16366,6 +16547,11 @@ async function loadKonfigurasiPro() {
     const elTgl = document.getElementById('cfg_tgl_keberangkatan');
     if(elJenis) elJenis.value = kb.jenis || '';
     if(elTgl) elTgl.value = kb.tanggal || '';
+    const gm = progSlot.kebijakan_gratis_mitra || { setiap: 15, dapat: 1 };
+    const elGmSetiap = document.getElementById('cfg_mitra_setiap');
+    const elGmDapat = document.getElementById('cfg_mitra_dapat');
+    if(elGmSetiap) elGmSetiap.value = gm.setiap || 15;
+    if(elGmDapat) elGmDapat.value = gm.dapat || 1;
     renderTipePaketList();
     updateHeaderFromConfig();
 }
@@ -16433,6 +16619,10 @@ async function saveKonfigurasiPro() {
     slot.keberangkatan = {
         jenis: document.getElementById('cfg_jenis_perjalanan')?.value || '',
         tanggal: document.getElementById('cfg_tgl_keberangkatan')?.value || ''
+    };
+    slot.kebijakan_gratis_mitra = {
+        setiap: parseInt(document.getElementById('cfg_mitra_setiap')?.value) || 15,
+        dapat: parseInt(document.getElementById('cfg_mitra_dapat')?.value) || 1
     };
     // tipe_paket disimpan lewat tambahTipePaket/hapusTipePaket langsung
     localStorage.setItem('navara_konfigurasi_pro', JSON.stringify(konfigurasiPro)); // keep for compat
