@@ -2144,10 +2144,10 @@
             <a href="#" id="estimasiRiwayatBtn" onclick="event.preventDefault();openRiwayatEstimasiModal();" style="display:none;font-size:12px;color:#0D5C4A;font-weight:600;text-decoration:none;white-space:nowrap;">🕐 Riwayat (<span id="estimasiRiwayatCount">0</span>)</a>
         </div>
         <div class="section-title" style="margin-top:15px;"><span>DATA ROMBONGAN</span></div>
-        <div class="input-group"><label>Nama Paket / Lokasi</label><input type="text" id="lokasiPaket" value="Program 9 HARI"></div>
-        <div class="row"><div class="input-group"><label>Total Pax</label><input type="number" id="totJam" value="21"></div><div class="input-group"><label>Gratis</label><input type="number" id="jamGratis" value="1"></div><div class="input-group"><label>Jumlah TL</label><input type="number" id="numTL" value="1"></div></div>
+        <div class="input-group"><label>Nama Paket / Lokasi</label><input type="text" id="lokasiPaket" value="Program 9 HARI" oninput="saveEstimasiData()"></div>
+        <div class="row"><div class="input-group"><label>Total Pax</label><input type="number" id="totJam" value="21" oninput="saveEstimasiData()"></div><div class="input-group"><label>Gratis</label><input type="number" id="jamGratis" value="1" oninput="saveEstimasiData()"></div><div class="input-group"><label>Jumlah TL</label><input type="number" id="numTL" value="1" oninput="saveEstimasiData()"></div></div>
         <div class="section-title"><span>KOMPONEN BIAYA</span></div>
-        <div class="input-group"><label>Tiket</label><input type="text" id="cTiket" class="money-input" inputmode="numeric" value="15.450.000"></div>
+        <div class="input-group"><label>Tiket</label><input type="text" id="cTiket" class="money-input" inputmode="numeric" value="15.450.000" oninput="saveEstimasiData()"></div>
 
         <!-- LA/Hotel Accordion -->
         <div style="margin-bottom:12px;">
@@ -2162,14 +2162,14 @@
                         padding:7px;border-radius:8px;font-size:12px;font-weight:600;transition:all 0.2s;"
                         id="labelModeHargaPenuh"
                         style="background:#0D5C4A;color:white;">
-                        <input type="radio" name="modeLA" id="modeHargaPenuh" value="penuh" checked onchange="updateModeLA()"
+                        <input type="radio" name="modeLA" id="modeHargaPenuh" value="penuh" checked onchange="updateModeLA(); saveEstimasiData();"
                             style="display:none;">
                         ● Harga Penuh
                     </label>
                     <label style="flex:1;display:flex;align-items:center;gap:6px;cursor:pointer;justify-content:center;
                         padding:7px;border-radius:8px;font-size:12px;font-weight:600;transition:all 0.2s;"
                         id="labelModeUpgrade">
-                        <input type="radio" name="modeLA" id="modeUpgrade" value="upgrade" onchange="updateModeLA()"
+                        <input type="radio" name="modeLA" id="modeUpgrade" value="upgrade" onchange="updateModeLA(); saveEstimasiData();"
                             style="display:none;">
                         ○ Upgrade dari Quad
                     </label>
@@ -2177,29 +2177,29 @@
 
                 <div class="input-group" style="margin-bottom:8px;">
                     <label style="font-size:12px;color:#555;">Quad (4 orang/kamar)</label>
-                    <input type="text" id="cLAquad" class="money-input" inputmode="numeric" value="14.450.000" oninput="updateLAPreview()">
+                    <input type="text" id="cLAquad" class="money-input" inputmode="numeric" value="14.450.000" oninput="updateLAPreview(); saveEstimasiData();">
                 </div>
                 <div class="input-group" style="margin-bottom:8px;">
                     <label id="labelTriple" style="font-size:12px;color:#555;">Triple (3 orang/kamar)</label>
-                    <input type="text" id="cLAtriple" class="money-input" inputmode="numeric" value="0" oninput="updateLAPreview()">
+                    <input type="text" id="cLAtriple" class="money-input" inputmode="numeric" value="0" oninput="updateLAPreview(); saveEstimasiData();">
                     <small id="hintTriple" style="display:none;font-size:11px;color:#888;margin-top:3px;">↑ selisih dari Quad</small>
                 </div>
                 <div class="input-group" style="margin-bottom:0;">
                     <label id="labelDouble" style="font-size:12px;color:#555;">Double (2 orang/kamar)</label>
-                    <input type="text" id="cLAdouble" class="money-input" inputmode="numeric" value="0" oninput="updateLAPreview()">
+                    <input type="text" id="cLAdouble" class="money-input" inputmode="numeric" value="0" oninput="updateLAPreview(); saveEstimasiData();">
                     <small id="hintDouble" style="display:none;font-size:11px;color:#888;margin-top:3px;">↑ selisih dari Quad</small>
                 </div>
                 <div id="laPreview" style="font-size:11px;color:#888;margin-top:8px;text-align:center;"></div>
             </div>
         </div>
-        <div class="row"><div class="input-group"><label>Asuransi</label><input type="text" id="cAsuransi" class="money-input" inputmode="numeric" value="60.000"></div><div class="input-group"><label>Handling</label><input type="text" id="cHandling" class="money-input" inputmode="numeric" value="100.000"></div></div>
-        <div class="row"><div class="input-group"><label>Perlengkapan</label><input type="text" id="cAlat" class="money-input" inputmode="numeric" value="1.000.000"></div><div class="input-group"><label>Aplikasi</label><input type="text" id="cAplikasi" class="money-input" inputmode="numeric" value="60.000"></div></div>
-        <div class="row"><div class="input-group"><label>Diskon/PIC</label><input type="text" id="cPIC" class="money-input" inputmode="numeric" value="0"></div><div class="input-group"><label>Lain-lain</label><input type="text" id="cLain" class="money-input" inputmode="numeric" value="0"></div></div>
+        <div class="row"><div class="input-group"><label>Asuransi</label><input type="text" id="cAsuransi" class="money-input" inputmode="numeric" value="60.000" oninput="saveEstimasiData()"></div><div class="input-group"><label>Handling</label><input type="text" id="cHandling" class="money-input" inputmode="numeric" value="100.000" oninput="saveEstimasiData()"></div></div>
+        <div class="row"><div class="input-group"><label>Perlengkapan</label><input type="text" id="cAlat" class="money-input" inputmode="numeric" value="1.000.000" oninput="saveEstimasiData()"></div><div class="input-group"><label>Aplikasi</label><input type="text" id="cAplikasi" class="money-input" inputmode="numeric" value="60.000" oninput="saveEstimasiData()"></div></div>
+        <div class="row"><div class="input-group"><label>Diskon/PIC</label><input type="text" id="cPIC" class="money-input" inputmode="numeric" value="0" oninput="saveEstimasiData()"></div><div class="input-group"><label>Lain-lain</label><input type="text" id="cLain" class="money-input" inputmode="numeric" value="0" oninput="saveEstimasiData()"></div></div>
         <div class="section-title"><span>Margin</span></div>
-        <div class="input-group"><label>Profit (%)</label><input type="number" id="profitPct" value="5"></div>
+        <div class="input-group"><label>Profit (%)</label><input type="number" id="profitPct" value="5" oninput="saveEstimasiData()"></div>
         <div class="section-title"><span>Buffer Diskon <small style="font-weight:normal;color:#888;">(Opsional)</small></span></div>
         <div class="input-group">
-            <input type="text" id="cBuffer" class="money-input" inputmode="numeric" value="0">
+            <input type="text" id="cBuffer" class="money-input" inputmode="numeric" value="0" oninput="saveEstimasiData()">
             <small style="color:#888;font-size:11px;margin-top:4px;display:block;">Ditambahkan ke harga brosur — tidak kena markup profit</small>
         </div>
         <button class="btn btn-primary" onclick="hitungUmroh()"><i class="fas fa-calculator"></i> HITUNG ESTIMASI</button>
