@@ -9727,7 +9727,8 @@ function renderSimulasiGratisModal(setiap, dapat) {
             const sim = hitungSimulasiRasioGratis(est.modal, est.harga, r, dapat);
             if(!sim) return '';
             let warna = '#166534', label = '🟢 Sehat';
-            if(sim.persenTersisa < 20) { warna = '#DC2626'; label = '🔴 Sangat Berisiko'; }
+            if(sim.profitDenganGratis < 0) { warna = '#DC2626'; label = '🔴 RUGI'; }
+            else if(sim.persenTersisa < 20) { warna = '#EA580C'; label = '🟠 Untung Tipis'; }
             else if(sim.persenTersisa < 50) { warna = '#F59E0B'; label = '🟡 Cukup Aman'; }
             return `<div style="background:#F8FAFC;border-left:4px solid ${warna};border-radius:8px;padding:10px 12px;margin-bottom:8px;">
                 <div style="display:flex;justify-content:space-between;align-items:center;">
@@ -14779,7 +14780,7 @@ function restoreFromZip(input) {
                 await idbSet(STORE_JAMAAH_KITA, 'kita_fields', dynamicFieldsJamaahKita);
             }
 
-            // Restore folder virtual
+           // Restore folder virtual
             const folderFile = zip.file('folder.json');
             if (folderFile) { 
                 const restoredFolder = JSON.parse(await folderFile.async('string'));
@@ -17157,3 +17158,4 @@ function cetakDariPreviewAlternatif() {
 
 </body>
     </html>
+ 
