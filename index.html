@@ -2325,13 +2325,13 @@
 
             <div class="section-title" style="margin-top:6px;"><span>DATA ROMBONGAN GABUNGAN</span></div>
             <div class="row">
-                <div class="input-group"><label>Total Pax</label><input type="number" id="konTotJam" value="45"></div>
-                <div class="input-group"><label>Gratis</label><input type="number" id="konJamGratis" value="1"></div>
-                <div class="input-group"><label>Jumlah TL</label><input type="number" id="konNumTL" value="1"></div>
+                <div class="input-group"><label>Total Pax</label><input type="number" id="konTotJam" value="45" oninput="saveKonsorsiumEstimasiData()"></div>
+                <div class="input-group"><label>Gratis</label><input type="number" id="konJamGratis" value="1" oninput="saveKonsorsiumEstimasiData()"></div>
+                <div class="input-group"><label>Jumlah TL</label><input type="number" id="konNumTL" value="1" oninput="saveKonsorsiumEstimasiData()"></div>
             </div>
 
             <div class="section-title" style="margin-top:15px;"><span>KOMPONEN BIAYA</span></div>
-            <div class="input-group"><label>Tiket</label><input type="text" id="konCTiket" class="money-input" inputmode="numeric" value="0"></div>
+            <div class="input-group"><label>Tiket</label><input type="text" id="konCTiket" class="money-input" inputmode="numeric" value="0" oninput="saveKonsorsiumEstimasiData()"></div>
 
             <div style="margin-bottom:12px;">
                 <div onclick="toggleKonLAAccordion()" style="display:flex;justify-content:space-between;align-items:center;padding:10px 14px;background:#f0f9f6;border:1.5px solid #0D5C4A;border-radius:12px;cursor:pointer;">
@@ -2341,42 +2341,42 @@
                 <div id="konLaAccordionBody" style="border:1.5px solid #e2e8f0;border-top:none;border-radius:0 0 12px 12px;padding:12px;background:white;">
                     <div style="display:flex;gap:8px;margin-bottom:12px;background:#f8fafc;border-radius:10px;padding:8px;">
                         <label style="flex:1;display:flex;align-items:center;gap:6px;cursor:pointer;justify-content:center;padding:7px;border-radius:8px;font-size:12px;font-weight:600;" id="konLabelModeHargaPenuh" style="background:#0D5C4A;color:white;">
-                            <input type="radio" name="konModeLA" id="konModeHargaPenuh" value="penuh" checked onchange="updateKonModeLA()" style="display:none;"> ● Harga Penuh
+                            <input type="radio" name="konModeLA" id="konModeHargaPenuh" value="penuh" checked onchange="updateKonModeLA(); saveKonsorsiumEstimasiData();" style="display:none;"> ● Harga Penuh
                         </label>
                         <label style="flex:1;display:flex;align-items:center;gap:6px;cursor:pointer;justify-content:center;padding:7px;border-radius:8px;font-size:12px;font-weight:600;" id="konLabelModeUpgrade">
-                            <input type="radio" name="konModeLA" id="konModeUpgrade" value="upgrade" onchange="updateKonModeLA()" style="display:none;"> ○ Upgrade dari Quad
+                            <input type="radio" name="konModeLA" id="konModeUpgrade" value="upgrade" onchange="updateKonModeLA(); saveKonsorsiumEstimasiData();" style="display:none;"> ○ Upgrade dari Quad
                         </label>
                     </div>
                     <div class="input-group" style="margin-bottom:8px;">
                         <label style="font-size:12px;color:#555;">Quad (4 orang/kamar)</label>
-                        <input type="text" id="konCLAquad" class="money-input" inputmode="numeric" value="0" oninput="updateKonLAPreview()">
+                        <input type="text" id="konCLAquad" class="money-input" inputmode="numeric" value="0" oninput="updateKonLAPreview(); saveKonsorsiumEstimasiData();">
                     </div>
                     <div class="input-group" style="margin-bottom:8px;">
                         <label id="konLabelTriple" style="font-size:12px;color:#555;">Triple (3 orang/kamar)</label>
-                        <input type="text" id="konCLAtriple" class="money-input" inputmode="numeric" value="0" oninput="updateKonLAPreview()">
+                        <input type="text" id="konCLAtriple" class="money-input" inputmode="numeric" value="0" oninput="updateKonLAPreview(); saveKonsorsiumEstimasiData();">
                         <small id="konHintTriple" style="display:none;font-size:11px;color:#888;margin-top:3px;">↑ selisih dari Quad</small>
                     </div>
                     <div class="input-group" style="margin-bottom:0;">
                         <label id="konLabelDouble" style="font-size:12px;color:#555;">Double (2 orang/kamar)</label>
-                        <input type="text" id="konCLAdouble" class="money-input" inputmode="numeric" value="0" oninput="updateKonLAPreview()">
+                        <input type="text" id="konCLAdouble" class="money-input" inputmode="numeric" value="0" oninput="updateKonLAPreview(); saveKonsorsiumEstimasiData();">
                         <small id="konHintDouble" style="display:none;font-size:11px;color:#888;margin-top:3px;">↑ selisih dari Quad</small>
                     </div>
                     <div id="konLaPreview" style="font-size:11px;color:#0D5C4A;margin-top:6px;"></div>
                 </div>
             </div>
-            <div class="input-group"><label>Asuransi</label><input type="text" id="konCAsuransi" class="money-input" inputmode="numeric" value="0"></div>
-            <div class="input-group"><label>Handling</label><input type="text" id="konCHandling" class="money-input" inputmode="numeric" value="0"></div>
+            <div class="input-group"><label>Asuransi</label><input type="text" id="konCAsuransi" class="money-input" inputmode="numeric" value="0" oninput="saveKonsorsiumEstimasiData()"></div>
+            <div class="input-group"><label>Handling</label><input type="text" id="konCHandling" class="money-input" inputmode="numeric" value="0" oninput="saveKonsorsiumEstimasiData()"></div>
             <div class="row">
-                <div class="input-group"><label>Perlengkapan</label><input type="text" id="konCAlat" class="money-input" inputmode="numeric" value="0"></div>
-                <div class="input-group"><label>Aplikasi</label><input type="text" id="konCAplikasi" class="money-input" inputmode="numeric" value="0"></div>
+                <div class="input-group"><label>Perlengkapan</label><input type="text" id="konCAlat" class="money-input" inputmode="numeric" value="0" oninput="saveKonsorsiumEstimasiData()"></div>
+                <div class="input-group"><label>Aplikasi</label><input type="text" id="konCAplikasi" class="money-input" inputmode="numeric" value="0" oninput="saveKonsorsiumEstimasiData()"></div>
             </div>
             <div class="row">
-                <div class="input-group"><label>PIC / Diskon</label><input type="text" id="konCPIC" class="money-input" inputmode="numeric" value="0"></div>
-                <div class="input-group"><label>Lain-lain</label><input type="text" id="konCLain" class="money-input" inputmode="numeric" value="0"></div>
+                <div class="input-group"><label>PIC / Diskon</label><input type="text" id="konCPIC" class="money-input" inputmode="numeric" value="0" oninput="saveKonsorsiumEstimasiData()"></div>
+                <div class="input-group"><label>Lain-lain</label><input type="text" id="konCLain" class="money-input" inputmode="numeric" value="0" oninput="saveKonsorsiumEstimasiData()"></div>
             </div>
             <div class="row">
-                <div class="input-group"><label>Profit (%)</label><input type="number" id="konProfitPct" value="8"></div>
-                <div class="input-group"><label>Buffer Diskon (opsional)</label><input type="text" id="konCBuffer" class="money-input" inputmode="numeric" value="0"></div>
+                <div class="input-group"><label>Profit (%)</label><input type="number" id="konProfitPct" value="8" oninput="saveKonsorsiumEstimasiData()"></div>
+                <div class="input-group"><label>Buffer Diskon (opsional)</label><input type="text" id="konCBuffer" class="money-input" inputmode="numeric" value="0" oninput="saveKonsorsiumEstimasiData()"></div>
             </div>
 
             <button onclick="hitungKonsorsiumEstimasi()" style="width:100%;padding:13px;background:var(--primary);color:white;border:none;border-radius:12px;font-size:14px;font-weight:700;cursor:pointer;margin-top:16px;">🧮 HITUNG ESTIMASI KONSORSIUM</button>
@@ -2425,6 +2425,14 @@
             <div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid rgba(255,255,255,0.2);">
                 <span style="opacity:0.8;font-size:13px;">Total Tagihan ke Semua Travel</span>
                 <span id="konsorsiumTotalTagihan" style="font-weight:700;">Rp 0</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid rgba(255,255,255,0.2);">
+                <span style="opacity:0.8;font-size:13px;">Total Sudah Dibayar</span>
+                <span id="konsorsiumTotalSudahDibayar" style="font-weight:700;color:#4ADE80;">Rp 0</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid rgba(255,255,255,0.2);">
+                <span style="opacity:0.8;font-size:13px;">Sisa Tagihan</span>
+                <span id="konsorsiumTotalSisaTagihan" style="font-weight:700;">Rp 0</span>
             </div>
             <div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid rgba(255,255,255,0.2);">
                 <span style="opacity:0.8;font-size:13px;">Rata-rata Harga Tagihan/Pax</span>
@@ -5253,6 +5261,32 @@ function salinDariEstimasiKeKonsorsium() {
 
 let konsorsiumLastModal = 0, konsorsiumLastBrosur = 0;
 
+// Simpan otomatis field mentah Estimasi Konsorsium tiap kali diketik — TIDAK menunggu tombol Hitung, mempertahankan modal/hargaBrosur hasil hitung terakhir
+function saveKonsorsiumEstimasiData() {
+    const slot = ensureProgramConfigSlot();
+    const existing = slot.konsorsium_estimasi_data || {};
+    slot.konsorsium_estimasi_data = {
+        ...existing,
+        totJam: parseInt(document.getElementById('konTotJam').value) || 0,
+        jamGratis: parseInt(document.getElementById('konJamGratis').value) || 0,
+        numTL: parseInt(document.getElementById('konNumTL').value) || 0,
+        cTiket: document.getElementById('konCTiket').value,
+        cLAquad: document.getElementById('konCLAquad').value,
+        cLAtriple: document.getElementById('konCLAtriple').value,
+        cLAdouble: document.getElementById('konCLAdouble').value,
+        modeLA: getKonModeLA(),
+        cAsuransi: document.getElementById('konCAsuransi').value,
+        cHandling: document.getElementById('konCHandling').value,
+        cAlat: document.getElementById('konCAlat').value,
+        cAplikasi: document.getElementById('konCAplikasi').value,
+        cPIC: document.getElementById('konCPIC').value,
+        cLain: document.getElementById('konCLain').value,
+        profitPct: document.getElementById('konProfitPct').value,
+        cBuffer: document.getElementById('konCBuffer').value,
+    };
+    simpanKonsorsium();
+}
+
 function hitungKonsorsiumEstimasi() {
     const pr = v => parseInt((v||'0').toString().replace(/\./g,'').replace(/[^0-9]/g,'')) || 0;
     const nJam = parseInt(document.getElementById('konTotJam').value) || 0;
@@ -5287,24 +5321,10 @@ function hitungKonsorsiumEstimasi() {
     document.getElementById('konsorsiumHasilCard').style.display = 'block';
 
     // Simpan per-Program
+    saveKonsorsiumEstimasiData();
     const slot = ensureProgramConfigSlot();
-    slot.konsorsium_estimasi_data = {
-        totJam: nJam, jamGratis: nFoc, numTL: nTL,
-        cTiket: document.getElementById('konCTiket').value,
-        cLAquad: document.getElementById('konCLAquad').value,
-        cLAtriple: document.getElementById('konCLAtriple').value,
-        cLAdouble: document.getElementById('konCLAdouble').value,
-        modeLA: getKonModeLA(),
-        cAsuransi: document.getElementById('konCAsuransi').value,
-        cHandling: document.getElementById('konCHandling').value,
-        cAlat: document.getElementById('konCAlat').value,
-        cAplikasi: document.getElementById('konCAplikasi').value,
-        cPIC: document.getElementById('konCPIC').value,
-        cLain: document.getElementById('konCLain').value,
-        profitPct: document.getElementById('konProfitPct').value,
-        cBuffer: document.getElementById('konCBuffer').value,
-        modal: sub, hargaBrosur: hargaBrosur
-    };
+    slot.konsorsium_estimasi_data.modal = sub;
+    slot.konsorsium_estimasi_data.hargaBrosur = hargaBrosur;
     simpanKonsorsium();
     renderKonsorsiumList();
     showToast('✅ Estimasi Konsorsium dihitung');
@@ -5444,7 +5464,7 @@ function tambahKonsorsiumTravel() {
     const list = ensureKonsorsiumList();
     const komponenDefault = {};
     DAFTAR_KOMPONEN_KONSORSIUM.forEach(k => komponenDefault[k.key] = true);
-    list.push({ id: Date.now(), nama: '', jumlah: 0, jumlahQuad: 0, jumlahTriple: 0, jumlahDouble: 0, harga: 0, persen: '', profitRp: 0, bufferB2B: 0, gratisTravel: 0, komponen: komponenDefault });
+    list.push({ id: Date.now(), nama: '', jumlah: 0, jumlahQuad: 0, jumlahTriple: 0, jumlahDouble: 0, harga: 0, persen: '', profitRp: 0, bufferB2B: 0, gratisTravel: 0, komponen: komponenDefault, pembayaran: [] });
     simpanKonsorsium();
     renderKonsorsiumList();
 }
@@ -5626,6 +5646,7 @@ function renderKonsorsiumList() {
                 <div class="dynamic-field" style="margin-bottom:0;"><label style="font-size:12px;">Buffer / Cadangan Nego (Rp) <span style="color:#999;font-weight:400;">— opsional, ditambahkan ke Harga, tidak dihitung Profit</span></label><input type="text" class="money-input" inputmode="numeric" value="${t.bufferB2B ? t.bufferB2B.toLocaleString('id-ID') : ''}" placeholder="Contoh: 500.000" oninput="updateKonsorsiumTravel(${t.id}, 'bufferB2B', this.value)"></div>
             </div>
             <div id="konsorsiumInfo_${t.id}" style="margin-top:8px;"></div>
+            <div id="konsorsiumPembayaran_${t.id}" style="margin-top:8px;"></div>
             <div style="display:flex;gap:8px;margin-top:8px;">
                 <button onclick="salinRingkasanTravel(${t.id})" style="flex:1;padding:9px;background:#0369A1;color:white;border:none;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;">📋 Salin Ringkasan</button>
                 <button onclick="cetakTagihanTravelPartner(${t.id})" style="flex:1;padding:9px;background:#0D9488;color:white;border:none;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;">🖨️ Cetak Tagihan</button>
@@ -5633,7 +5654,7 @@ function renderKonsorsiumList() {
         </div>`;
     });
     container.innerHTML = html;
-    list.forEach(t => renderSatuKartuKonsorsiumInfo(t.id));
+    list.forEach(t => { renderSatuKartuKonsorsiumInfo(t.id); renderStatusPembayaranTravel(t.id); });
     renderKonsorsiumRingkasan();
     renderKunciKonsorsiumUI();
 }
@@ -5719,6 +5740,125 @@ function cetakTagihanTravelPartner(id) {
     win.document.write(html); win.document.close();
 }
 
+// ==================== PEMBAYARAN TRAVEL PARTNER ====================
+function renderStatusPembayaranTravel(id) {
+    const list = ensureKonsorsiumList();
+    const t = list.find(x => x.id === id);
+    const el = document.getElementById('konsorsiumPembayaran_' + id);
+    if(!t || !el) return;
+    const komponen = ambilKomponenBiayaEstimasi();
+    const totalGabungan = list.reduce((s,x) => s + (x.jumlah||0), 0);
+    const ring = komponen && totalGabungan > 0 ? hitungRingkasanTravel(t, komponen, totalGabungan) : null;
+    const f = n => 'Rp ' + Math.round(n).toLocaleString('id-ID');
+
+    if(!ring || !ring.punyaKebijakan) { el.innerHTML = ''; return; }
+
+    const totalDibayar = (t.pembayaran || []).reduce((s,p) => s + (p.nominal||0), 0);
+    const sisa = ring.totalTagihan - totalDibayar;
+    const warnaSisa = sisa <= 0 ? '#166534' : '#DC2626';
+
+    el.innerHTML = `<div style="background:#F0F9FF;border:1px solid #BAE6FD;border-radius:10px;padding:10px 12px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+            <div style="font-size:10px;color:#0369A1;font-weight:700;text-transform:uppercase;">💰 Status Pembayaran Travel Partner</div>
+            <button onclick="openCatatPembayaranTravelModal(${id})" style="background:#0369A1;color:white;border:none;border-radius:20px;padding:5px 12px;font-size:11px;font-weight:700;cursor:pointer;">+ Catat</button>
+        </div>
+        <div style="display:flex;justify-content:space-between;font-size:12px;color:#444;padding:2px 0;"><span>Total Tagihan</span><span style="font-weight:700;">${f(ring.totalTagihan)}</span></div>
+        <div style="display:flex;justify-content:space-between;font-size:12px;color:#444;padding:2px 0;"><span>Sudah Dibayar</span><span style="font-weight:700;color:#166534;">${f(totalDibayar)}</span></div>
+        <div style="display:flex;justify-content:space-between;font-size:12px;padding:2px 0;border-top:1px dashed #BAE6FD;margin-top:2px;"><span style="font-weight:700;">Sisa</span><span style="font-weight:900;color:${warnaSisa};">${f(Math.abs(sisa))}${sisa < 0 ? ' (lebih bayar)' : ''}</span></div>
+        ${(t.pembayaran||[]).length > 0 ? `<div style="font-size:11px;color:#0369A1;margin-top:6px;cursor:pointer;text-decoration:underline;" onclick="openRiwayatPembayaranTravelModal(${id})">Lihat riwayat (${t.pembayaran.length}x)</div>` : ''}
+    </div>`;
+}
+
+function openCatatPembayaranTravelModal(id) {
+    let modal = document.getElementById('catatPembayaranTravelModal');
+    if(!modal) {
+        modal = document.createElement('div');
+        modal.id = 'catatPembayaranTravelModal';
+        modal.className = 'modal';
+        document.body.appendChild(modal);
+    }
+    const list = ensureKonsorsiumList();
+    const t = list.find(x => x.id === id);
+    if(!t) return;
+    const hariIni = new Date().toISOString().split('T')[0];
+    modal.innerHTML = `<div class="modal-content" style="max-width:400px;">
+        <h3 style="color:#0D5C4A;margin-bottom:4px;">💰 Catat Pembayaran</h3>
+        <div style="font-size:12px;color:#888;margin-bottom:12px;">Dari: ${escapeHtml(t.nama || 'Travel Partner')}</div>
+        <div class="input-group"><label>Tanggal</label><input type="date" id="bayarTravelTanggal" value="${hariIni}"></div>
+        <div class="input-group"><label>Nominal (Rp)</label><input type="text" class="money-input" inputmode="numeric" id="bayarTravelNominal" placeholder="Contoh: 500.000.000"></div>
+        <div class="input-group"><label>Catatan (opsional)</label><input type="text" id="bayarTravelCatatan" placeholder="Contoh: Transfer DP tahap 1"></div>
+        <div class="row" style="margin-top:10px;">
+            <button class="btn btn-danger" onclick="document.getElementById('catatPembayaranTravelModal').style.display='none'" style="flex:1;">Batal</button>
+            <button class="btn btn-primary" onclick="simpanPembayaranTravel(${id})" style="flex:1;">Simpan</button>
+        </div>
+    </div>`;
+    modal.style.display = 'flex';
+}
+
+function simpanPembayaranTravel(id) {
+    const list = ensureKonsorsiumList();
+    const t = list.find(x => x.id === id);
+    if(!t) return;
+    const nominal = parseInt((document.getElementById('bayarTravelNominal').value||'').replace(/\./g,'').replace(/[^0-9]/g,'')) || 0;
+    if(nominal <= 0) return showToast('Isi nominal yang benar dulu!');
+    const tanggal = document.getElementById('bayarTravelTanggal').value || new Date().toISOString().split('T')[0];
+    const catatan = document.getElementById('bayarTravelCatatan').value.trim();
+    if(!t.pembayaran) t.pembayaran = [];
+    t.pembayaran.push({ id: Date.now(), tanggal, nominal, catatan });
+    simpanKonsorsium();
+    document.getElementById('catatPembayaranTravelModal').style.display = 'none';
+    renderStatusPembayaranTravel(id);
+    renderKonsorsiumRingkasan();
+    showToast('✅ Pembayaran tercatat');
+}
+
+function openRiwayatPembayaranTravelModal(id) {
+    let modal = document.getElementById('riwayatPembayaranTravelModal');
+    if(!modal) {
+        modal = document.createElement('div');
+        modal.id = 'riwayatPembayaranTravelModal';
+        modal.className = 'modal';
+        document.body.appendChild(modal);
+    }
+    renderRiwayatPembayaranTravelModal(id, modal);
+    modal.style.display = 'flex';
+}
+
+function renderRiwayatPembayaranTravelModal(id, modalEl) {
+    modalEl = modalEl || document.getElementById('riwayatPembayaranTravelModal');
+    if(!modalEl) return;
+    const list = ensureKonsorsiumList();
+    const t = list.find(x => x.id === id);
+    if(!t) return;
+    const f = n => 'Rp ' + Math.round(n).toLocaleString('id-ID');
+    const riwayat = [...(t.pembayaran||[])].sort((a,b) => new Date(b.tanggal) - new Date(a.tanggal));
+    const html = riwayat.map(p => `
+        <div style="display:flex;justify-content:space-between;align-items:center;background:#F8FAFC;border-radius:8px;padding:8px 10px;margin-bottom:6px;">
+            <div>
+                <div style="font-size:13px;font-weight:700;color:#166534;">${f(p.nominal)}</div>
+                <div style="font-size:11px;color:#888;">${new Date(p.tanggal).toLocaleDateString('id-ID')}${p.catatan ? ' — ' + escapeHtml(p.catatan) : ''}</div>
+            </div>
+            <button onclick="hapusPembayaranTravel(${id}, ${p.id})" style="border:none;background:none;color:#DC2626;font-size:15px;cursor:pointer;">🗑️</button>
+        </div>`).join('');
+    modalEl.innerHTML = `<div class="modal-content" style="max-width:420px;">
+        <h3 style="color:#0D5C4A;margin-bottom:4px;">🕐 Riwayat Pembayaran</h3>
+        <div style="font-size:12px;color:#888;margin-bottom:12px;">${escapeHtml(t.nama || 'Travel Partner')}</div>
+        <div style="max-height:340px;overflow-y:auto;">${html || '<p style="color:#aaa;text-align:center;padding:14px;">Belum ada pembayaran tercatat</p>'}</div>
+        <button onclick="document.getElementById('riwayatPembayaranTravelModal').style.display='none'" style="width:100%;padding:11px;background:#e2e8f0;color:#333;border:none;border-radius:10px;font-size:13px;cursor:pointer;margin-top:10px;">Tutup</button>
+    </div>`;
+}
+
+function hapusPembayaranTravel(travelId, paymentId) {
+    const list = ensureKonsorsiumList();
+    const t = list.find(x => x.id === travelId);
+    if(!t || !t.pembayaran) return;
+    t.pembayaran = t.pembayaran.filter(p => p.id !== paymentId);
+    simpanKonsorsium();
+    renderRiwayatPembayaranTravelModal(travelId);
+    renderStatusPembayaranTravel(travelId);
+    renderKonsorsiumRingkasan();
+}
+
 function salinRingkasanTravel(id) {
     const list = ensureKonsorsiumList();
     const t = list.find(x => x.id === id);
@@ -5753,7 +5893,7 @@ function renderKonsorsiumRingkasan() {
     const totalGabungan = list.reduce((s,t) => s + (t.jumlah||0), 0);
     if(totalGabungan <= 0) { ringkasanEl.style.display = 'none'; if(warningEl2) warningEl2.style.display = 'none'; return; }
 
-    let totalModal = 0, totalTagihan = 0, totalProfit = 0, paxDenganHarga = 0, modalUntukPaxHarga = 0;
+    let totalModal = 0, totalTagihan = 0, totalProfit = 0, paxDenganHarga = 0, modalUntukPaxHarga = 0, totalSudahDibayar = 0;
     let adaYangValid = false, jumlahTravelAktif = 0;
     const travelRugi = [];
     list.forEach(t => {
@@ -5763,6 +5903,7 @@ function renderKonsorsiumRingkasan() {
             adaYangValid = true;
             jumlahTravelAktif++;
             totalModal += ring.totalModal;
+            totalSudahDibayar += (t.pembayaran || []).reduce((s,p) => s + (p.nominal||0), 0);
             if(ring.punyaKebijakan) {
                 totalTagihan += ring.totalTagihan;
                 totalProfit += ring.totalProfit;
@@ -5790,6 +5931,10 @@ function renderKonsorsiumRingkasan() {
     document.getElementById('konsorsiumTotalPax').textContent = totalGabungan + ' orang';
     document.getElementById('konsorsiumTotalModal').textContent = f(totalModal);
     document.getElementById('konsorsiumTotalTagihan').textContent = f(totalTagihan);
+    const elSudahDibayar = document.getElementById('konsorsiumTotalSudahDibayar');
+    const elSisaTagihan = document.getElementById('konsorsiumTotalSisaTagihan');
+    if(elSudahDibayar) elSudahDibayar.textContent = f(totalSudahDibayar);
+    if(elSisaTagihan) elSisaTagihan.textContent = f(totalTagihan - totalSudahDibayar);
 
     if(paxDenganHarga > 0) {
         const rataHarga = totalTagihan / paxDenganHarga;
@@ -5842,6 +5987,8 @@ function renderKunciKonsorsiumUI() {
     // Kunci juga semua input di kartu Travel Partner
     document.querySelectorAll('#konsorsiumContainer input').forEach(el => el.disabled = terkunci);
     document.querySelectorAll('#konsorsiumContainer button').forEach(el => el.disabled = terkunci);
+    // KECUALI tombol Catat Pembayaran — pembayaran itu kejadian nyata, tetap boleh dicatat meski kesepakatan harga sudah dikunci
+    document.querySelectorAll('#konsorsiumContainer button[onclick*="openCatatPembayaranTravelModal"]').forEach(el => el.disabled = false);
 
     const riwayat = slot.konsorsium_history || [];
     const riwayatBtn = document.getElementById('konsorsiumRiwayatBtn');
@@ -6462,6 +6609,11 @@ function hitungRekapAktual() {
             border-radius:12px;font-size:13px;font-weight:700;cursor:pointer;min-width:100px;">
             📲 Share WA
         </button>
+        <button onclick="openAnalisisBufferB2CModal()"
+            style="flex:1;padding:11px;background:#0369A1;color:white;border:none;
+            border-radius:12px;font-size:13px;font-weight:700;cursor:pointer;min-width:100px;">
+            📊 Analisis Buffer
+        </button>
     </div>`;
 
     container.innerHTML = html;
@@ -6472,6 +6624,87 @@ function getEstimasiData() {
         const slot = ensureProgramConfigSlot();
         return slot.estimasi_data || null;
     } catch(e) { return null; }
+}
+
+// ==================== ANALISIS BUFFER B2C ====================
+function openAnalisisBufferB2CModal() {
+    let modal = document.getElementById('analisisBufferB2CModal');
+    if(!modal) {
+        modal = document.createElement('div');
+        modal.id = 'analisisBufferB2CModal';
+        modal.className = 'modal';
+        document.body.appendChild(modal);
+    }
+    renderAnalisisBufferB2CModal(modal);
+    modal.style.display = 'flex';
+}
+
+function renderAnalisisBufferB2CModal(modalEl) {
+    modalEl = modalEl || document.getElementById('analisisBufferB2CModal');
+    if(!modalEl) return;
+    const f = n => 'Rp ' + Math.round(n).toLocaleString('id-ID');
+    const est = hitungModalHargaEstimasiTerkini();
+
+    if(!est || !est.buffer) {
+        modalEl.innerHTML = `<div class="modal-content" style="max-width:420px;">
+            <h3 style="color:#0D5C4A;margin-bottom:10px;">📊 Analisis Buffer</h3>
+            <p style="text-align:center;color:#888;padding:20px;font-size:13px;">${!est ? '⚠️ Hitung Estimasi Program dulu (tab Estimasi).' : 'Program ini tidak pakai Buffer Diskon (Buffer = 0), tidak ada yang perlu dianalisis.'}</p>
+            <button onclick="document.getElementById('analisisBufferB2CModal').style.display='none'" style="width:100%;padding:11px;background:#e2e8f0;color:#333;border:none;border-radius:10px;font-size:13px;cursor:pointer;">Tutup</button>
+        </div>`;
+        return;
+    }
+
+    const hargaBrosur = est.harga;
+    const bufferPerOrang = est.buffer;
+    const jamaahRelevan = jamaahList.filter(j => getTotalHargaPaket(j) > 0);
+
+    let totalBufferDisiapkan = 0, totalDiskonTerpakai = 0, totalKelebihanMakanProfit = 0;
+    const rincianJamaah = [];
+    jamaahRelevan.forEach(j => {
+        const hargaPaketJamaah = getTotalHargaPaket(j);
+        const diskon = Math.max(0, hargaBrosur - hargaPaketJamaah);
+        totalBufferDisiapkan += bufferPerOrang;
+        const dipakai = Math.min(diskon, bufferPerOrang);
+        const kelebihan = Math.max(0, diskon - bufferPerOrang);
+        totalDiskonTerpakai += dipakai;
+        totalKelebihanMakanProfit += kelebihan;
+        rincianJamaah.push({ nama: j.nama_lengkap, diskon, kelebihan });
+    });
+
+    const sisaBuffer = totalBufferDisiapkan - totalDiskonTerpakai;
+    const adaJamaahBermasalah = rincianJamaah.filter(x => x.kelebihan > 0);
+
+    // Lapis 3: Peringatan
+    let htmlPeringatan = '';
+    if(adaJamaahBermasalah.length > 0) {
+        htmlPeringatan = `<div style="background:#FEE2E2;border:1.5px solid #DC2626;border-radius:10px;padding:10px 12px;margin-bottom:12px;font-size:12px;color:#991B1B;">
+            ⚠️ ${adaJamaahBermasalah.length} jamaah diskonnya MELEBIHI Buffer (makan Profit asli, total ${f(totalKelebihanMakanProfit)})
+        </div>`;
+    }
+
+    // Lapis 2: Per Jamaah (yang ada diskon saja, biar tidak penuh dengan yang 0)
+    const jamaahDenganDiskon = rincianJamaah.filter(x => x.diskon > 0).sort((a,b) => b.diskon - a.diskon);
+    const htmlPerJamaah = jamaahDenganDiskon.map(x => {
+        const warnaBaris = x.kelebihan > 0 ? '#DC2626' : '#166534';
+        return `<div style="display:flex;justify-content:space-between;font-size:12px;padding:5px 0;border-bottom:1px dashed #e2e8f0;">
+            <span>${escapeHtml(x.nama)}</span>
+            <span style="color:${warnaBaris};font-weight:700;">${f(x.diskon)}${x.kelebihan > 0 ? ' ⚠️' : ''}</span>
+        </div>`;
+    }).join('') || '<p style="color:#aaa;text-align:center;padding:10px;font-size:12px;">Belum ada jamaah yang dapat diskon (semua bayar Harga Brosur penuh)</p>';
+
+    modalEl.innerHTML = `<div class="modal-content" style="max-width:460px;">
+        <h3 style="color:#0D5C4A;margin-bottom:4px;">📊 Analisis Buffer (B2C)</h3>
+        <div style="font-size:11px;color:#888;margin-bottom:12px;">${escapeHtml(getCurrentProgram()?.nama || '-')} — Buffer/orang: ${f(bufferPerOrang)}, Harga Brosur: ${f(hargaBrosur)}</div>
+        ${htmlPeringatan}
+        <div style="background:linear-gradient(135deg,#0D5C4A,#0a3d31);border-radius:14px;padding:14px;color:white;margin-bottom:12px;">
+            <div style="display:flex;justify-content:space-between;padding:4px 0;font-size:13px;"><span style="opacity:0.8;">Total Buffer Disiapkan</span><span style="font-weight:700;">${f(totalBufferDisiapkan)}</span></div>
+            <div style="display:flex;justify-content:space-between;padding:4px 0;font-size:13px;"><span style="opacity:0.8;">Total Diskon Terpakai</span><span style="font-weight:700;">${f(totalDiskonTerpakai)}</span></div>
+            <div style="display:flex;justify-content:space-between;padding:6px 0 0;border-top:1px solid rgba(255,255,255,0.2);margin-top:4px;"><span style="font-weight:700;">Sisa Buffer (jadi untung ekstra)</span><span style="font-weight:900;color:#4ADE80;">${f(sisaBuffer)}</span></div>
+        </div>
+        <div style="font-size:11px;color:#888;font-weight:700;text-transform:uppercase;margin-bottom:6px;">Rincian per Jamaah (yang dapat diskon)</div>
+        <div style="max-height:280px;overflow-y:auto;margin-bottom:12px;">${htmlPerJamaah}</div>
+        <button onclick="document.getElementById('analisisBufferB2CModal').style.display='none'" style="width:100%;padding:11px;background:#e2e8f0;color:#333;border:none;border-radius:10px;font-size:13px;cursor:pointer;">Tutup</button>
+    </div>`;
 }
 
 function cetakRekapAktual() {
@@ -9604,7 +9837,7 @@ function hitungModalHargaEstimasiTerkini() {
     const profitKotor = sub * nJam * pPct;
     const jualBase = ((sub*nJam) + profitKotor) / (nJam - nFoc);
     const harga = jualBase + buffer;
-    return { modal: sub, harga };
+    return { modal: sub, harga, buffer };
 }
 
 function hitungSimulasiRasioGratis(modal, harga, setiap, dapat) {
