@@ -9285,14 +9285,19 @@ function saveJamaah(tetapBuka){
     const tipePaketEl = document.getElementById('jamaahTipePaket');
     if(tipePaketEl) additional['tipe_paket'] = tipePaketEl.value;
     const now=new Date().toLocaleDateString('id-ID')+' '+new Date().toLocaleTimeString('id-ID'); 
+    let idJamaahTersimpan;
     if(editingJamaahId!==null){ 
         jamaahList[editingJamaahId]={...jamaahList[editingJamaahId], nama_lengkap:nama, additional_fields:additional, updated_at:now}; 
+        idJamaahTersimpan = jamaahList[editingJamaahId].id;
         showToast('Data diupdate'); 
     } else {
-        jamaahList.push({id:Date.now(), nama_lengkap:nama, additional_fields:additional, created_at:now, program_id:currentProgramId}); 
+        const jBaru = {id:Date.now(), nama_lengkap:nama, additional_fields:additional, created_at:now, program_id:currentProgramId};
+        jamaahList.push(jBaru); 
+        idJamaahTersimpan = jBaru.id;
         showToast(tetapBuka ? '✅ Ditambahkan, siap isi jamaah berikutnya' : 'Data ditambahkan'); 
     } 
     saveJamaahData(); 
+    sesuaikanHargaDariDiskonMitra(idJamaahTersimpan);
     if(tetapBuka && editingJamaahId===null) {
         // Mode input berturut-turut: kosongkan form, biarkan modal tetap terbuka
         document.getElementById('jamaahNamaLengkap').value = '';
@@ -9304,6 +9309,41 @@ function saveJamaah(tetapBuka){
     } else {
         closeJamaahModal(); 
     }
+}
+
+// Kalau Status Diskon = "Diambil Jamaah", otomatis sesuaikan Harga Paket = Harga Brosur - Diskon Tersedia
+function sesuaikanHargaDariDiskonMitra(jamaahId) {
+    const j = jamaahList.find(x => x.id === jamaahId);
+    if(!j) return;
+    const status = j.additional_fields?.status_diskon;
+    if(status !== 'Diambil Jamaah') return;
+    const diskon = parseInt((j.additional_fields?.diskon_tersedia||'0').toString().replace(/\./g,'').replace(/[^0-9]/g,'')) || 0;
+    if(diskon <= 0) return;
+
+    const hp = getKonfigurasiProData().harga_paket || { seragam: false };
+    if(hp.seragam) { showToast('⚠️ Diskon tidak diterapkan — Harga Seragam sedang aktif di Konfigurasi, harga per orang tidak bisa dibedakan'); return; }
+
+    const est = hitungModalHargaEstimasiTerkini();
+    if(!est) { showToast('⚠️ Diskon belum diterapkan — Hitung Estimasi Program dulu'); return; }
+
+    const hargaBaru = Math.round(est.harga - diskon);
+    if(hargaBaru <= 0) { showToast('⚠️ Diskon melebihi Harga Brosur, tidak diterapkan'); return; }
+
+    // Pakai target field yang sama dengan Edit Harga Paket (cari field label harga/paket/tagihan/total, atau buat baru)
+    let targetField = null;
+    for(const field of dynamicFieldsJamaah) {
+        const label = field.label.toLowerCase();
+        if(label.includes('harga') || label.includes('paket') || label.includes('tagihan') || label.includes('total')) { targetField = field; break; }
+    }
+    if(!targetField) {
+        dynamicFieldsJamaah.push({ name: 'total_harga_paket', label: 'Total Harga Paket', type: 'text' });
+        saveDynamicFieldsJamaah();
+        targetField = dynamicFieldsJamaah[dynamicFieldsJamaah.length - 1];
+    }
+    j.additional_fields[targetField.name] = hargaBaru.toLocaleString('id-ID');
+    saveJamaahData();
+    showToast(`✅ Harga Paket disesuaikan otomatis: Rp ${hargaBaru.toLocaleString('id-ID')} (Brosur ${est.harga.toLocaleString('id-ID')} − Diskon ${diskon.toLocaleString('id-ID')})`);
+    if(typeof applyJamaahFilterAndSort === 'function') applyJamaahFilterAndSort();
 }
 
 function closeJamaahModal(){ 
