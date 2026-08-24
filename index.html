@@ -2040,6 +2040,10 @@
             <div style="font-weight:700;font-size:13px;color:#92400E;margin-bottom:6px;">💉 <span id="homeMeningitisWarningTitle">Vaksin Meningitis Akan Habis Masa Berlaku</span></div>
             <div id="homeMeningitisWarningList" style="font-size:12px;color:#92400E;line-height:1.7;"></div>
         </div>
+        <div id="homeBufferWarningCard" style="display:none;background:#FEE2E2;border:1px solid #DC2626;border-radius:14px;padding:12px 14px;margin-bottom:12px;cursor:pointer;">
+            <div style="font-weight:700;font-size:13px;color:#991B1B;margin-bottom:6px;">📊 Sisa Buffer Minus — Cek Analisis Buffer</div>
+            <div id="homeBufferWarningList" style="font-size:12px;color:#991B1B;line-height:1.7;"></div>
+        </div>
         </div>
 
         <!-- Quick Action -->
@@ -3037,6 +3041,7 @@
             <div class="fitur-card" onclick="showPage('dashboard')"><div class="fitur-icon">📈</div><div class="fitur-title">Dashboard</div><div class="fitur-desc">Grafik statistik data</div></div>
             <div class="fitur-card" onclick="openBandingkanProgramModal()"><div class="fitur-icon">📊</div><div class="fitur-title">Bandingkan Program</div><div class="fitur-desc">Performa semua Program sekaligus</div></div>
             <div class="fitur-card" onclick="openDashboardTrenModal()"><div class="fitur-icon">📈</div><div class="fitur-title">Dashboard Tren</div><div class="fitur-desc">Perbandingan antar tahun</div></div>
+            <div class="fitur-card" onclick="cetakLaporanPenutupanMusim()"><div class="fitur-icon">📕</div><div class="fitur-title">Laporan Penutupan Musim</div><div class="fitur-desc">Gabungan semua laporan akhir</div></div>
             <div class="fitur-card" onclick="cetakRekapTahunanGabungan()"><div class="fitur-icon">📑</div><div class="fitur-title">Rekap Tahunan</div><div class="fitur-desc">Total omzet semua keberangkatan</div></div>
             <div class="fitur-card" onclick="openKalenderProgramModal()"><div class="fitur-icon">📅</div><div class="fitur-title">Kalender Program</div><div class="fitur-desc">Semua jadwal keberangkatan</div></div>
             <div class="fitur-card" onclick="openProyeksiKasModal()"><div class="fitur-icon">📉</div><div class="fitur-title">Proyeksi Kas</div><div class="fitur-desc">Estimasi dana yang masih masuk</div></div>
@@ -4064,8 +4069,58 @@ function updateHomeDashboardExtra(totalJamaah, lunasCount, totalPiutang) {
                 meningitisCard.style.display = 'none';
             }
         }
+
+        // Peringatan Sisa Buffer Minus (B2C + B2B, kalau ada yang makan Profit asli)
+        const bufferCard = document.getElementById('homeBufferWarningCard');
+        if(bufferCard) {
+            const pesanBuffer = [];
+            const sisaB2C = hitungSisaBufferB2CRingan();
+            if(sisaB2C !== null && sisaB2C < 0) pesanBuffer.push(`B2C: Rp ${Math.round(Math.abs(sisaB2C)).toLocaleString('id-ID')} makan Profit`);
+            const sisaB2B = hitungSisaBufferB2BRingan();
+            if(sisaB2B !== null && sisaB2B < 0) pesanBuffer.push(`B2B: Rp ${Math.round(Math.abs(sisaB2B)).toLocaleString('id-ID')} makan Profit`);
+            if(pesanBuffer.length > 0) {
+                bufferCard.style.display = 'block';
+                bufferCard.onclick = () => { showPage('estimasi'); setTimeout(() => switchCuanTab('rekap'), 300); };
+                document.getElementById('homeBufferWarningList').innerHTML = pesanBuffer.join('<br>');
+            } else {
+                bufferCard.style.display = 'none';
+            }
+        }
         updateHomeSummaryBar();
     } catch(e) { console.log('Dashboard extra error:', e); }
+}
+
+// Versi ringan (cuma angka Sisa Buffer, tanpa rincian) untuk cek cepat di Home — dipakai bareng modal Analisis Buffer yang lebih lengkap
+function hitungSisaBufferB2CRingan() {
+    const est = hitungModalHargaEstimasiTerkini();
+    if(!est || !est.buffer) return null;
+    let totalBufferDisiapkan = 0, totalDiskonTerpakai = 0;
+    jamaahList.filter(j => getTotalHargaPaket(j) > 0).forEach(j => {
+        const diskon = Math.max(0, est.harga - getTotalHargaPaket(j));
+        totalBufferDisiapkan += est.buffer;
+        totalDiskonTerpakai += Math.min(diskon, est.buffer);
+    });
+    if(totalBufferDisiapkan === 0) return null;
+    return totalBufferDisiapkan - totalDiskonTerpakai;
+}
+
+function hitungSisaBufferB2BRingan() {
+    const komponen = ambilKomponenBiayaEstimasi();
+    const list = ensureKonsorsiumList();
+    const totalGabungan = list.reduce((s,x) => s + (x.jumlah||0), 0);
+    if(!komponen || totalGabungan <= 0) return null;
+    let totalBufferDisiapkan = 0, totalDiskonTerpakai = 0;
+    list.filter(t => t.jumlah > 0 && (t.bufferB2B||0) > 0 && t.lunasFinal).forEach(t => {
+        const ring = hitungRingkasanTravel(t, komponen, totalGabungan);
+        if(!ring || !ring.punyaKebijakan) return;
+        const totalDibayar = (t.pembayaran||[]).reduce((s,p) => s + (p.nominal||0), 0);
+        const bufferDisiapkanTravel = t.bufferB2B * (t.jumlah - (t.gratisTravel||0));
+        const diskon = Math.max(0, ring.totalTagihan - totalDibayar);
+        totalBufferDisiapkan += bufferDisiapkanTravel;
+        totalDiskonTerpakai += Math.min(diskon, bufferDisiapkanTravel);
+    });
+    if(totalBufferDisiapkan === 0) return null;
+    return totalBufferDisiapkan - totalDiskonTerpakai;
 }
 
 function openQuickTambahJamaah() {
@@ -4561,7 +4616,7 @@ function saveEstimasiData() {
 let _homeSummaryExpanded = false;
 
 function updateHomeSummaryBar() {
-    const cardIds = ['homeProgramSetupCard', 'homeChecklistCard', 'homeBackupWarningCard', 'homePasporWarningCard', 'homeMeningitisWarningCard'];
+    const cardIds = ['homeProgramSetupCard', 'homeChecklistCard', 'homeBackupWarningCard', 'homePasporWarningCard', 'homeMeningitisWarningCard', 'homeBufferWarningCard'];
     const aktif = cardIds.filter(id => {
         const el = document.getElementById(id);
         return el && el.style.display !== 'none';
@@ -9343,7 +9398,7 @@ function sesuaikanHargaDariDiskonMitra(jamaahId) {
     j.additional_fields[targetField.name] = hargaBaru.toLocaleString('id-ID');
     saveJamaahData();
     showToast(`✅ Harga Paket disesuaikan otomatis: Rp ${hargaBaru.toLocaleString('id-ID')} (Brosur ${est.harga.toLocaleString('id-ID')} − Diskon ${diskon.toLocaleString('id-ID')})`);
-    if(typeof applyJamaahFilterAndSort === 'function') applyJamaahFilterAndSort();
+    if(typeof renderJamaahListWithPagination === 'function') renderJamaahListWithPagination();
 }
 
 function closeJamaahModal(){ 
@@ -10193,6 +10248,117 @@ function openAntrianFollowUpModal() {
 }
 
 // ==================== DASHBOARD TREN TAHUNAN ====================
+// ==================== LAPORAN PENUTUPAN MUSIM ====================
+function cetakLaporanPenutupanMusim() {
+    const f = n => 'Rp ' + Math.round(n).toLocaleString('id-ID');
+    const namaKBIH = konfigurasiPro.instansi1?.nama || 'Navara';
+    const progNama = getCurrentProgram()?.nama || '-';
+    const tgl = new Date().toLocaleDateString('id-ID', { day:'2-digit', month:'long', year:'numeric' });
+
+    // 1. Rekap Aktual (ringkas)
+    const est = hitungModalHargaEstimasiTerkini();
+    const jamaahRelevan = jamaahList.filter(j => getTotalHargaPaket(j) > 0);
+    let totalKontrak = 0, totalDibayarJamaah = 0;
+    jamaahRelevan.forEach(j => {
+        totalKontrak += getTotalHargaPaket(j);
+        totalDibayarJamaah += paymentTransaksiList.filter(t => t.id_jamaah == j.id).reduce((s,t) => s + (parseInt(t.nominal)||0), 0);
+    });
+    const totalModalAktual = est ? est.modal * jamaahRelevan.length : 0;
+    const profitAktual = totalKontrak - totalModalAktual;
+
+    let sectionRekap = `<div class="lap-section"><h2>📋 Rekap Profit Aktual</h2>
+        <table class="lap-table"><tr><td>Total Jamaah</td><td>${jamaahRelevan.length}</td></tr>
+        <tr><td>Total Kontrak</td><td>${f(totalKontrak)}</td></tr>
+        <tr><td>Sudah Dibayar</td><td>${f(totalDibayarJamaah)}</td></tr>
+        <tr><td>Total Modal (estimasi)</td><td>${f(totalModalAktual)}</td></tr>
+        <tr class="lap-total"><td>PROFIT AKTUAL</td><td>${f(profitAktual)}</td></tr></table></div>`;
+
+    // 2. Analisis Buffer B2C
+    let sectionBufferB2C = '';
+    if(est && est.buffer > 0) {
+        let totalBufferB2C = 0, totalDiskonB2C = 0;
+        jamaahRelevan.forEach(j => {
+            const diskon = Math.max(0, est.harga - getTotalHargaPaket(j));
+            totalBufferB2C += est.buffer;
+            totalDiskonB2C += Math.min(diskon, est.buffer);
+        });
+        const sisaB2C = totalBufferB2C - totalDiskonB2C;
+        sectionBufferB2C = `<div class="lap-section"><h2>📊 Analisis Buffer (B2C)</h2>
+            <table class="lap-table"><tr><td>Total Buffer Disiapkan</td><td>${f(totalBufferB2C)}</td></tr>
+            <tr><td>Total Diskon Terpakai</td><td>${f(totalDiskonB2C)}</td></tr>
+            <tr class="lap-total" style="color:${sisaB2C<0?'#DC2626':'#166534'};"><td>Sisa Buffer</td><td>${f(sisaB2C)}</td></tr></table></div>`;
+    }
+
+    // 3. Analisis Buffer B2B
+    let sectionBufferB2B = '';
+    const komponen = ambilKomponenBiayaEstimasi();
+    const listKon = ensureKonsorsiumList();
+    const totalGabungan = listKon.reduce((s,x) => s + (x.jumlah||0), 0);
+    if(komponen && totalGabungan > 0) {
+        const travelDenganBuffer = listKon.filter(t => t.jumlah > 0 && (t.bufferB2B||0) > 0);
+        if(travelDenganBuffer.length > 0) {
+            let totalBufferB2B = 0, totalDiskonB2B = 0, belumFinal = 0;
+            travelDenganBuffer.forEach(t => {
+                const ring = hitungRingkasanTravel(t, komponen, totalGabungan);
+                if(!ring || !ring.punyaKebijakan) return;
+                if(!t.lunasFinal) { belumFinal++; return; }
+                const totalDibayar = (t.pembayaran||[]).reduce((s,p) => s + (p.nominal||0), 0);
+                const bufferTravel = t.bufferB2B * (t.jumlah - (t.gratisTravel||0));
+                const diskon = Math.max(0, ring.totalTagihan - totalDibayar);
+                totalBufferB2B += bufferTravel;
+                totalDiskonB2B += Math.min(diskon, bufferTravel);
+            });
+            const sisaB2B = totalBufferB2B - totalDiskonB2B;
+            sectionBufferB2B = `<div class="lap-section"><h2>🤝 Analisis Buffer (B2B - Konsorsium)</h2>
+                <table class="lap-table"><tr><td>Total Buffer Disiapkan</td><td>${f(totalBufferB2B)}</td></tr>
+                <tr><td>Total Diskon Terpakai</td><td>${f(totalDiskonB2B)}</td></tr>
+                <tr class="lap-total" style="color:${sisaB2B<0?'#DC2626':'#166534'};"><td>Sisa Buffer</td><td>${f(sisaB2B)}</td></tr></table>
+                ${belumFinal > 0 ? `<p class="lap-note">ℹ️ ${belumFinal} Travel Partner belum ditandai Lunas/Final, dikecualikan dari perhitungan ini.</p>` : ''}</div>`;
+        }
+    }
+
+    // 4. Rekap Komisi Mitra
+    let sectionMitra = '';
+    const perMitra = {};
+    jamaahList.forEach(j => {
+        const nama = (j.additional_fields?.mitra_referensi || '').trim();
+        if(!nama) return;
+        if(!perMitra[nama]) perMitra[nama] = { jumlah: 0, komisi: 0 };
+        perMitra[nama].jumlah++;
+        if(j.additional_fields?.status_diskon === 'Diberikan ke Mitra') {
+            perMitra[nama].komisi += parseInt((j.additional_fields?.diskon_tersedia||'0').toString().replace(/\./g,'').replace(/[^0-9]/g,'')) || 0;
+        }
+    });
+    const namaMitraList = Object.keys(perMitra);
+    if(namaMitraList.length > 0) {
+        const rows = namaMitraList.map(nama => `<tr><td>${escapeHtml(nama)}</td><td style="text-align:center;">${perMitra[nama].jumlah}</td><td>${f(perMitra[nama].komisi)}</td></tr>`).join('');
+        const totalKomisi = namaMitraList.reduce((s,n) => s + perMitra[n].komisi, 0);
+        sectionMitra = `<div class="lap-section"><h2>🤝 Rekap Komisi Mitra</h2>
+            <table class="lap-table"><thead><tr><th>Mitra</th><th>Jamaah</th><th>Komisi Cash</th></tr></thead><tbody>${rows}</tbody></table>
+            <table class="lap-table"><tr class="lap-total"><td>TOTAL KOMISI MITRA</td><td>${f(totalKomisi)}</td></tr></table></div>`;
+    }
+
+    const html = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>Laporan Penutupan Musim</title>
+    <style>body{font-family:Arial,sans-serif;padding:24px;color:#222;} h1{color:#0D5C4A;font-size:20px;margin-bottom:2px;}
+    .lap-section{margin-top:22px;} .lap-section h2{font-size:15px;color:#0D5C4A;border-bottom:2px solid #0D5C4A;padding-bottom:4px;}
+    .lap-table{width:100%;border-collapse:collapse;margin-top:8px;font-size:13px;}
+    .lap-table td, .lap-table th{padding:7px 4px;border-bottom:1px solid #eee;} .lap-table th{background:#0D5C4A;color:#fff;text-align:left;}
+    .lap-table td:last-child, .lap-table th:last-child{text-align:right;}
+    .lap-total td{font-weight:800;background:#F0FDF4;} .lap-note{font-size:11px;color:#888;margin-top:6px;}
+    @media print{ .no-print{display:none!important;} }
+    </style></head><body>
+    <h1>📕 LAPORAN PENUTUPAN MUSIM</h1>
+    <p>${escapeHtml(namaKBIH)} — Program: ${escapeHtml(progNama)} — Dicetak: ${tgl}</p>
+    ${sectionRekap}${sectionBufferB2C}${sectionBufferB2B}${sectionMitra}
+    <div class="no-print" style="text-align:center;padding:24px;background:#f0f0f0;margin-top:24px;">
+        <button onclick="window.print()" style="padding:10px 28px;margin:0 6px;border:none;border-radius:10px;font-size:14px;font-weight:bold;cursor:pointer;background:#0D5C4A;color:white;">🖨️ CETAK / SIMPAN PDF</button>
+        <button onclick="window.close()" style="padding:10px 28px;margin:0 6px;border:none;border-radius:10px;font-size:14px;font-weight:bold;cursor:pointer;background:#e2e8f0;color:#333;">✕ TUTUP</button>
+    </div>
+    </body></html>`;
+    const win = window.open('', '_blank');
+    win.document.write(html); win.document.close();
+}
+
 function openDashboardTrenModal() {
     let modal = document.getElementById('dashboardTrenModal');
     if(!modal) {
