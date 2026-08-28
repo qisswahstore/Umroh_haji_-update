@@ -2044,6 +2044,10 @@
             <div style="font-weight:700;font-size:13px;color:#991B1B;margin-bottom:6px;">📊 Sisa Buffer Minus — Cek Analisis Buffer</div>
             <div id="homeBufferWarningList" style="font-size:12px;color:#991B1B;line-height:1.7;"></div>
         </div>
+        <div id="homeCicilanWarningCard" onclick="openRekapCicilanModal()" style="display:none;background:#FEF3C7;border:1px solid #F59E0B;border-radius:14px;padding:12px 14px;margin-bottom:12px;cursor:pointer;">
+            <div style="font-weight:700;font-size:13px;color:#92400E;margin-bottom:6px;">📅 <span id="homeCicilanWarningTitle">Cicilan Perlu Perhatian</span></div>
+            <div id="homeCicilanWarningList" style="font-size:12px;color:#92400E;line-height:1.7;"></div>
+        </div>
         </div>
 
         <!-- Quick Action -->
@@ -2545,7 +2549,7 @@
 <div id="page-jamaah" class="page">
     <div class="header-premium header-premium-small"><div class="back-header"><i class="fas fa-arrow-left" onclick="showPage('home')"></i><h2>Database Jamaah</h2><div style="width:30px;"></div></div></div>
     <div class="card-premium">
-        <div id="jamaahAdminPanel" class="setting-card" style="display:none"><h3 style="color:var(--primary);"> Panel Admin Jamaah</h3><button class="btn btn-small mt-2" onclick="showPage('prospek')" style="background:#EC4899;color:white;"> 🎯 Calon Jamaah (Prospek)</button><button class="btn btn-primary btn-small mt-2" onclick="openTambahJamaahModal()"> + Tambah database</button><button class="btn btn-blue btn-small mt-2" onclick="openManageFieldsModal()"> Kelola Field Dinamis</button><button class="btn btn-small mt-2" onclick="openRekapKategoriModal()" style="background:#8B5CF6;color:white;"> 📊 Rekap per Kategori</button><button class="btn btn-small mt-2" onclick="openKecocokanKamarModal()" style="background:#0EA5E9;color:white;"> 🛏️ Cek Kecocokan Kamar</button><button class="btn btn-small mt-2" onclick="openKelompokPorsiModal()" style="background:#F59E0B;color:white;"> 📊 Kelompokkan Berdasarkan Porsi</button><button class="btn btn-small mt-2" onclick="openAntrianFollowUpModal()" style="background:#DC2626;color:white;"> 📋 Antrian Follow-Up Prioritas</button><button class="btn btn-small mt-2" onclick="openRekapKomisiMitraModal()" style="background:#7C3AED;color:white;"> 🤝 Rekap Komisi Mitra</button><button class="btn btn-small mt-2" onclick="cetakManifestRooming()" style="background:#0D9488;color:white;"> 📋 Cetak Manifest & Rooming</button><button class="btn btn-small mt-2" onclick="openWaMassalModal()" style="background:#22C55E;color:white;"> 📢 Kirim WA Massal</button><button class="btn btn-teal btn-small mt-2" onclick="downloadTemplateExcel()" style="background:#1D6F42;">⬇️ Download Template Excel</button><button class="btn btn-teal btn-small mt-2" onclick="exportJamaahToExcel()"> Export ke Excel</button><button class="btn btn-orange btn-small mt-2" onclick="document.getElementById('importExcelFile').click()"> IMPORT EXCEL</button><input type="file" id="importExcelFile" accept=".xlsx,.xls" style="display:none" onchange="importJamaahFromExcel(this)"><button class="btn btn-danger btn-small mt-2" onclick="confirmDeleteAllJamaah()"> HAPUS SEMUA database</button></div>
+        <div id="jamaahAdminPanel" class="setting-card" style="display:none"><h3 style="color:var(--primary);"> Panel Admin Jamaah</h3><button class="btn btn-small mt-2" onclick="showPage('prospek')" style="background:#EC4899;color:white;"> 🎯 Calon Jamaah (Prospek)</button><button class="btn btn-primary btn-small mt-2" onclick="openTambahJamaahModal()"> + Tambah database</button><button class="btn btn-blue btn-small mt-2" onclick="openManageFieldsModal()"> Kelola Field Dinamis</button><button class="btn btn-small mt-2" onclick="openRekapKategoriModal()" style="background:#8B5CF6;color:white;"> 📊 Rekap per Kategori</button><button class="btn btn-small mt-2" onclick="openKecocokanKamarModal()" style="background:#0EA5E9;color:white;"> 🛏️ Cek Kecocokan Kamar</button><button class="btn btn-small mt-2" onclick="openKelompokPorsiModal()" style="background:#F59E0B;color:white;"> 📊 Kelompokkan Berdasarkan Porsi</button><button class="btn btn-small mt-2" onclick="openAntrianFollowUpModal()" style="background:#DC2626;color:white;"> 📋 Antrian Follow-Up Prioritas</button><button class="btn btn-small mt-2" onclick="openRekapKomisiMitraModal()" style="background:#7C3AED;color:white;"> 🤝 Rekap Komisi Mitra</button><button class="btn btn-small mt-2" onclick="openRekapCicilanModal()" style="background:#F59E0B;color:white;"> 📅 Rekap Cicilan</button><button class="btn btn-small mt-2" onclick="cetakManifestRooming()" style="background:#0D9488;color:white;"> 📋 Cetak Manifest & Rooming</button><button class="btn btn-small mt-2" onclick="openWaMassalModal()" style="background:#22C55E;color:white;"> 📢 Kirim WA Massal</button><button class="btn btn-teal btn-small mt-2" onclick="downloadTemplateExcel()" style="background:#1D6F42;">⬇️ Download Template Excel</button><button class="btn btn-teal btn-small mt-2" onclick="exportJamaahToExcel()"> Export ke Excel</button><button class="btn btn-orange btn-small mt-2" onclick="document.getElementById('importExcelFile').click()"> IMPORT EXCEL</button><input type="file" id="importExcelFile" accept=".xlsx,.xls" style="display:none" onchange="importJamaahFromExcel(this)"><button class="btn btn-danger btn-small mt-2" onclick="confirmDeleteAllJamaah()"> HAPUS SEMUA database</button></div>
         <div class="section-title"><span>DAFTAR JAMAAH</span></div>
         <div class="search-box"><input type="text" id="searchJamaahInput" placeholder=" Cari nama jamaah..." onkeyup="filterJamaahList()"><select id="sortJamaahSelect" onchange="sortJamaahList()"><option value="urutan_asli">Urutan asli</option><option value="nama_asc">Nama A-Z</option><option value="nama_desc">Nama Z-A</option><option value="tgl_asc">Tanggal lama ke baru</option><option value="tgl_desc">Tanggal baru ke lama</option></select><button onclick="resetJamaahFilter()">Reset</button></div>
         <div id="filterLunasChip" style="display:none;align-items:center;gap:8px;background:#F0FBF6;border:1px solid #0D5C4A;border-radius:20px;padding:6px 12px;margin:8px 0;width:fit-content;">
@@ -2769,11 +2773,7 @@
             <div class="export-dropdown-menu" id="exportMenuMaster">
                 <div class="export-menu-item" onclick="cetakMasterHTML(); toggleExportDropdown('exportMenuMaster')">
                     <div class="export-icon export-icon-cetak">🖨️</div>
-                    <div><div class="export-label">Cetak</div><div class="export-desc">Buka window cetak</div></div>
-                </div>
-                <div class="export-menu-item" onclick="downloadMasterPDF(); toggleExportDropdown('exportMenuMaster')">
-                    <div class="export-icon export-icon-pdf">📥</div>
-                    <div><div class="export-label">Download PDF</div><div class="export-desc">Download file PDF</div></div>
+                    <div><div class="export-label">Cetak / Simpan PDF</div><div class="export-desc">Buka window cetak, bisa disimpan sebagai PDF</div></div>
                 </div>
                 <div class="export-menu-item" onclick="exportMasterExcel(); toggleExportDropdown('exportMenuMaster')">
                     <div class="export-icon export-icon-excel">📊</div>
@@ -4128,6 +4128,25 @@ function updateHomeDashboardExtra(totalJamaah, lunasCount, totalPiutang) {
                 bufferCard.style.display = 'none';
             }
         }
+
+        // Peringatan Cicilan Terjadwal
+        const cicilanCard = document.getElementById('homeCicilanWarningCard');
+        if(cicilanCard) {
+            const cek = cekPeringatanCicilanSemuaJamaah();
+            const totalMasalah = cek.telat.length + cek.hariIni.length + cek.akanDatang.length;
+            if(totalMasalah > 0) {
+                cicilanCard.style.display = 'block';
+                document.getElementById('homeCicilanWarningTitle').textContent = `${totalMasalah} Cicilan Perlu Perhatian`;
+                const fRp = n => 'Rp ' + Math.round(n).toLocaleString('id-ID');
+                let listHtml = '';
+                cek.telat.forEach(x => listHtml += `🔴 ${escapeHtml(x.nama)} — TELAT, sisa ${fRp(x.sisa)}<br>`);
+                cek.hariIni.forEach(x => listHtml += `🟡 ${escapeHtml(x.nama)} — jatuh tempo HARI INI, ${fRp(x.sisa)}<br>`);
+                cek.akanDatang.forEach(x => listHtml += `🟢 ${escapeHtml(x.nama)} — jatuh tempo ${new Date(x.tanggal).toLocaleDateString('id-ID')}, ${fRp(x.sisa)}<br>`);
+                document.getElementById('homeCicilanWarningList').innerHTML = listHtml;
+            } else {
+                cicilanCard.style.display = 'none';
+            }
+        }
         updateHomeSummaryBar();
     } catch(e) { console.log('Dashboard extra error:', e); }
 }
@@ -4658,7 +4677,7 @@ function saveEstimasiData() {
 let _homeSummaryExpanded = false;
 
 function updateHomeSummaryBar() {
-    const cardIds = ['homeProgramSetupCard', 'homeChecklistCard', 'homeBackupWarningCard', 'homePasporWarningCard', 'homeMeningitisWarningCard', 'homeBufferWarningCard'];
+    const cardIds = ['homeProgramSetupCard', 'homeChecklistCard', 'homeBackupWarningCard', 'homePasporWarningCard', 'homeMeningitisWarningCard', 'homeBufferWarningCard', 'homeCicilanWarningCard'];
     const aktif = cardIds.filter(id => {
         const el = document.getElementById(id);
         return el && el.style.display !== 'none';
@@ -10398,6 +10417,19 @@ function cetakLaporanPenutupanMusim() {
             <table class="lap-table"><tr class="lap-total"><td>TOTAL KOMISI MITRA</td><td>${f(totalKomisi)}</td></tr></table></div>`;
     }
 
+    // 5. Sisa Piutang Belum Tertagih (ringkas — total + daftar nama, bukan rincian per-termin)
+    let sectionPiutang = '';
+    const cekPiutang = cekPeringatanCicilanSemuaJamaah();
+    const semuaPiutang = [...cekPiutang.telat, ...cekPiutang.hariIni, ...cekPiutang.akanDatang];
+    if(semuaPiutang.length > 0) {
+        const totalPiutang = semuaPiutang.reduce((s,x) => s + x.sisa, 0);
+        const rowsPiutang = semuaPiutang.map(x => `<tr><td>${escapeHtml(x.nama)}</td><td>${new Date(x.tanggal).toLocaleDateString('id-ID')}</td><td>${f(x.sisa)}</td></tr>`).join('');
+        sectionPiutang = `<div class="lap-section"><h2>💳 Sisa Piutang Belum Tertagih</h2>
+            <table class="lap-table"><thead><tr><th>Nama</th><th>Jatuh Tempo</th><th>Sisa</th></tr></thead><tbody>${rowsPiutang}</tbody></table>
+            <table class="lap-table"><tr class="lap-total"><td>TOTAL PIUTANG BELUM TERTAGIH</td><td>${f(totalPiutang)}</td></tr></table>
+            <p class="lap-note">Rincian lengkap per-termin tersedia di menu "Rekap Cicilan" dalam aplikasi.</p></div>`;
+    }
+
     const html = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>Laporan Penutupan Musim</title>
     <style>body{font-family:Arial,sans-serif;padding:24px;color:#222;} h1{color:#0D5C4A;font-size:20px;margin-bottom:2px;}
     .lap-section{margin-top:22px;} .lap-section h2{font-size:15px;color:#0D5C4A;border-bottom:2px solid #0D5C4A;padding-bottom:4px;}
@@ -10409,7 +10441,7 @@ function cetakLaporanPenutupanMusim() {
     </style></head><body>
     <h1>📕 LAPORAN PENUTUPAN MUSIM</h1>
     <p>${escapeHtml(namaKBIH)} — Program: ${escapeHtml(progNama)} — Dicetak: ${tgl}</p>
-    ${sectionRekap}${sectionPengeluaran}${sectionBufferB2C}${sectionBufferB2B}${sectionMitra}
+    ${sectionRekap}${sectionPengeluaran}${sectionBufferB2C}${sectionBufferB2B}${sectionMitra}${sectionPiutang}
     <div class="no-print" style="text-align:center;padding:24px;background:#f0f0f0;margin-top:24px;">
         <button onclick="window.print()" style="padding:10px 28px;margin:0 6px;border:none;border-radius:10px;font-size:14px;font-weight:bold;cursor:pointer;background:#0D5C4A;color:white;">🖨️ CETAK / SIMPAN PDF</button>
         <button onclick="window.close()" style="padding:10px 28px;margin:0 6px;border:none;border-radius:10px;font-size:14px;font-weight:bold;cursor:pointer;background:#e2e8f0;color:#333;">✕ TUTUP</button>
@@ -12478,7 +12510,7 @@ function renderPaymentJamaahList() {
         if (needInput) 
             html += `<div class="payment-jamaah-card" style="border-left-color: #f39c12;"><div class="payment-jamaah-info"><h4>${escapeHtml(j.nama_lengkap)}</h4><div class="payment-price-detail" style="color: #f39c12;">⚠️ Total Harga Paket belum diisi!</div></div><div><button class="payment-btn-bayar" onclick="openEditHargaModal('${j.id}')" style="background:#f39c12; color:white;"><i class="fas fa-tag"></i> Atur Harga</button></div></div>`; 
         else 
-            html += `<div class="payment-jamaah-card" style="border-left-color: ${warna};"><div class="payment-jamaah-info"><h4>${escapeHtml(j.nama_lengkap)}</h4><div class="payment-price-detail">💰 Total Paket: ${formatRupiah(totalHargaPaket)}<br>💸 Dibayar: ${formatRupiah(totalBayar)}</div></div><div style="text-align: right;"><div class="payment-sisa-badge" style="color: ${warna}; margin-bottom: 8px;">${status === 'LUNAS' ? '✅ LUNAS' : '💵 Sisa ' + formatRupiah(sisa)}</div><div><button class="payment-btn-bayar" onclick="openPaymentModalWithJamaah('${j.id}')"><i class="fas fa-plus-circle"></i> Bayar</button><button class="payment-btn-bayar" onclick="prepareInvoice('${j.id}')"><i class="fas fa-file-invoice"></i> WA</button><button class="payment-btn-bayar" onclick="shareInvoiceGambar('${j.id}')"><i class="fas fa-share-alt"></i> Share</button><button class="payment-btn-bayar" onclick="cetakInvoiceAuto('${j.id}')"><i class="fas fa-print"></i> Cetak</button><button class="payment-btn-bayar" onclick="openEditHargaModal('${j.id}')"><i class="fas fa-edit"></i> Harga</button><button class="payment-btn-bayar" onclick="openRiwayatModal('${j.id}')"><i class="fas fa-history"></i> Riwayat</button></div></div></div>`; 
+            html += `<div class="payment-jamaah-card" style="border-left-color: ${warna};"><div class="payment-jamaah-info"><h4>${escapeHtml(j.nama_lengkap)}</h4><div class="payment-price-detail">💰 Total Paket: ${formatRupiah(totalHargaPaket)}<br>💸 Dibayar: ${formatRupiah(totalBayar)}</div></div><div style="text-align: right;"><div class="payment-sisa-badge" style="color: ${warna}; margin-bottom: 8px;">${status === 'LUNAS' ? '✅ LUNAS' : '💵 Sisa ' + formatRupiah(sisa)}</div><div><button class="payment-btn-bayar" onclick="openPaymentModalWithJamaah('${j.id}')"><i class="fas fa-plus-circle"></i> Bayar</button><button class="payment-btn-bayar" onclick="prepareInvoice('${j.id}')"><i class="fas fa-file-invoice"></i> WA</button><button class="payment-btn-bayar" onclick="shareInvoiceGambar('${j.id}')"><i class="fas fa-share-alt"></i> Share</button><button class="payment-btn-bayar" onclick="cetakInvoiceAuto('${j.id}')"><i class="fas fa-print"></i> Cetak</button><button class="payment-btn-bayar" onclick="openEditHargaModal('${j.id}')"><i class="fas fa-edit"></i> Harga</button><button class="payment-btn-bayar" onclick="openJadwalCicilanModal('${j.id}')"><i class="fas fa-calendar-alt"></i> Cicilan</button><button class="payment-btn-bayar" onclick="openRiwayatModal('${j.id}')"><i class="fas fa-history"></i> Riwayat</button></div></div></div>`; 
     }); 
     if (filteredJamaah.length === 0) html = '<div style="text-align:center; padding:20px; color:#94a3b8;">Tidak ada jamaah yang sesuai dengan filter.</div>'; 
     container.innerHTML = html; 
@@ -12884,6 +12916,209 @@ function saveEditHarga() {
         showToast(`✅ Harga paket diatur ke ${formatRupiah(newHarga)}`); 
     } 
     closeEditHargaModal(); 
+}
+
+// ==================== CICILAN TERJADWAL ====================
+// Hitung status tiap Termin secara BERURUTAN dari yang paling awal, berdasarkan TOTAL uang yang benar-benar sudah dibayar (bukan input manual terpisah)
+function hitungStatusTerminJamaah(jamaahId) {
+    const j = jamaahList.find(x => x.id == jamaahId);
+    if(!j) return [];
+    const totalDibayar = paymentTransaksiList.filter(t => t.id_jamaah == jamaahId).reduce((s,t) => s + (parseInt(t.nominal)||0), 0);
+    const termin = [...(j.cicilan_termin||[])].sort((a,b) => new Date(a.tanggal) - new Date(b.tanggal));
+    let sisaDibayar = totalDibayar;
+    return termin.map(t => {
+        let statusLabel, dibayarUntukTermin;
+        if(sisaDibayar >= t.nominal) {
+            dibayarUntukTermin = t.nominal;
+            statusLabel = 'Lunas';
+            sisaDibayar -= t.nominal;
+        } else if(sisaDibayar > 0) {
+            dibayarUntukTermin = sisaDibayar;
+            statusLabel = 'Sebagian';
+            sisaDibayar = 0;
+        } else {
+            dibayarUntukTermin = 0;
+            statusLabel = 'Belum';
+        }
+        return { ...t, dibayarUntukTermin, sisaTermin: t.nominal - dibayarUntukTermin, statusLabel };
+    });
+}
+
+function openJadwalCicilanModal(jamaahId) {
+    let modal = document.getElementById('jadwalCicilanModal');
+    if(!modal) {
+        modal = document.createElement('div');
+        modal.id = 'jadwalCicilanModal';
+        modal.className = 'modal';
+        document.body.appendChild(modal);
+    }
+    renderJadwalCicilanModal(jamaahId, modal);
+    modal.style.display = 'flex';
+}
+
+function renderJadwalCicilanModal(jamaahId, modalEl) {
+    modalEl = modalEl || document.getElementById('jadwalCicilanModal');
+    if(!modalEl) return;
+    const j = jamaahList.find(x => x.id == jamaahId);
+    if(!j) return;
+    const f = n => 'Rp ' + Math.round(n).toLocaleString('id-ID');
+    const terminStatus = hitungStatusTerminJamaah(jamaahId);
+    const totalTermin = terminStatus.reduce((s,t) => s + t.nominal, 0);
+    const hargaPaket = getTotalHargaPaket(j) || 0;
+
+    let peringatanTotal = '';
+    if(hargaPaket > 0 && totalTermin !== hargaPaket) {
+        const selisih = totalTermin - hargaPaket;
+        peringatanTotal = `<div style="background:#FEF3C7;border:1px solid #F59E0B;border-radius:8px;padding:8px 10px;font-size:11px;color:#92400E;margin-bottom:10px;">
+            ⚠️ Total Termin (${f(totalTermin)}) ${selisih > 0 ? 'LEBIH' : 'KURANG'} ${f(Math.abs(selisih))} dari Harga Paket (${f(hargaPaket)})
+        </div>`;
+    }
+
+    const ikon = { 'Lunas':'✅', 'Sebagian':'🟡', 'Belum':'⚪' };
+    const warna = { 'Lunas':'#166534', 'Sebagian':'#F59E0B', 'Belum':'#888' };
+    const rows = terminStatus.map((t, i) => `
+        <div style="background:#F8FAFC;border-radius:10px;padding:10px 12px;margin-bottom:8px;">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+                <span style="font-weight:700;font-size:13px;">Termin ${i+1}</span>
+                <button onclick="hapusTerminCicilan('${jamaahId}', ${t.id})" style="border:none;background:none;color:#DC2626;font-size:13px;cursor:pointer;">🗑️</button>
+            </div>
+            <div style="display:flex;gap:8px;margin-bottom:6px;">
+                <input type="date" value="${t.tanggal||''}" onchange="updateTerminCicilan('${jamaahId}', ${t.id}, 'tanggal', this.value)" style="flex:1;padding:8px;border-radius:8px;border:1.5px solid #ddd;font-size:12px;">
+                <input type="text" class="money-input" inputmode="numeric" value="${t.nominal.toLocaleString('id-ID')}" oninput="updateTerminCicilan('${jamaahId}', ${t.id}, 'nominal', this.value)" style="flex:1;padding:8px;border-radius:8px;border:1.5px solid #ddd;font-size:12px;">
+            </div>
+            <div style="font-size:11px;color:${warna[t.statusLabel]};font-weight:700;">
+                ${ikon[t.statusLabel]} ${t.statusLabel}${t.statusLabel==='Sebagian' ? ` — Terbayar ${f(t.dibayarUntukTermin)}, Sisa ${f(t.sisaTermin)}` : ''}
+            </div>
+        </div>`).join('');
+
+    modalEl.innerHTML = `<div class="modal-content" style="max-width:420px;">
+        <h3 style="color:#0D5C4A;margin-bottom:4px;">📅 Jadwal Cicilan</h3>
+        <div style="font-size:12px;color:#888;margin-bottom:12px;">${escapeHtml(j.nama_lengkap)} — status otomatis mengikuti data Pembayaran sungguhan</div>
+        ${peringatanTotal}
+        <div style="max-height:320px;overflow-y:auto;">${rows || '<p style="color:#aaa;text-align:center;padding:14px;font-size:12px;">Belum ada Termin</p>'}</div>
+        <button onclick="tambahTerminCicilan('${jamaahId}')" style="width:100%;padding:10px;background:#E0F2FE;color:#0369A1;border:none;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;margin-top:8px;">+ Tambah Termin</button>
+        <button onclick="document.getElementById('jadwalCicilanModal').style.display='none'" style="width:100%;padding:11px;background:#e2e8f0;color:#333;border:none;border-radius:10px;font-size:13px;cursor:pointer;margin-top:10px;">Tutup</button>
+    </div>`;
+}
+
+function tambahTerminCicilan(jamaahId) {
+    const j = jamaahList.find(x => x.id == jamaahId);
+    if(!j) return;
+    if(!j.cicilan_termin) j.cicilan_termin = [];
+    const hariIni = new Date().toISOString().split('T')[0];
+    j.cicilan_termin.push({ id: Date.now(), tanggal: hariIni, nominal: 0 });
+    saveJamaahData();
+    renderJadwalCicilanModal(jamaahId);
+}
+
+function updateTerminCicilan(jamaahId, terminId, field, value) {
+    const j = jamaahList.find(x => x.id == jamaahId);
+    if(!j || !j.cicilan_termin) return;
+    const t = j.cicilan_termin.find(x => x.id === terminId);
+    if(!t) return;
+    if(field === 'nominal') t.nominal = parseInt((value||'0').replace(/\./g,'').replace(/[^0-9]/g,'')) || 0;
+    else t[field] = value;
+    saveJamaahData();
+    renderJadwalCicilanModal(jamaahId);
+}
+
+function hapusTerminCicilan(jamaahId, terminId) {
+    const j = jamaahList.find(x => x.id == jamaahId);
+    if(!j || !j.cicilan_termin) return;
+    j.cicilan_termin = j.cicilan_termin.filter(x => x.id !== terminId);
+    saveJamaahData();
+    renderJadwalCicilanModal(jamaahId);
+}
+
+// Cek semua Jamaah untuk Peringatan Cicilan di Home: sudah lewat/hari ini/akan datang (3 hari) dan BELUM Lunas
+function cekPeringatanCicilanSemuaJamaah() {
+    const hariIni = new Date(); hariIni.setHours(0,0,0,0);
+    const batasDepan = new Date(hariIni); batasDepan.setDate(batasDepan.getDate() + 3);
+    const hasil = { telat: [], hariIni: [], akanDatang: [] };
+    jamaahList.forEach(j => {
+        if(!j.cicilan_termin || j.cicilan_termin.length === 0) return;
+        const terminStatus = hitungStatusTerminJamaah(j.id);
+        terminStatus.forEach(t => {
+            if(t.statusLabel === 'Lunas' || !t.tanggal) return;
+            const tglTermin = new Date(t.tanggal); tglTermin.setHours(0,0,0,0);
+            const info = { nama: j.nama_lengkap, sisa: t.sisaTermin, tanggal: t.tanggal };
+            if(tglTermin < hariIni) hasil.telat.push(info);
+            else if(tglTermin.getTime() === hariIni.getTime()) hasil.hariIni.push(info);
+            else if(tglTermin <= batasDepan) hasil.akanDatang.push(info);
+        });
+    });
+    return hasil;
+}
+
+// ==================== REKAP CICILAN (laporan gabungan semua jamaah) ====================
+function openRekapCicilanModal() {
+    let modal = document.getElementById('rekapCicilanModal');
+    if(!modal) {
+        modal = document.createElement('div');
+        modal.id = 'rekapCicilanModal';
+        modal.className = 'modal';
+        document.body.appendChild(modal);
+    }
+    renderRekapCicilanModal(modal);
+    modal.style.display = 'flex';
+}
+
+function renderRekapCicilanModal(modalEl) {
+    modalEl = modalEl || document.getElementById('rekapCicilanModal');
+    if(!modalEl) return;
+    const f = n => 'Rp ' + Math.round(n).toLocaleString('id-ID');
+    const cek = cekPeringatanCicilanSemuaJamaah();
+    const totalMasalah = cek.telat.length + cek.hariIni.length + cek.akanDatang.length;
+    const totalSisaTertunggak = [...cek.telat, ...cek.hariIni, ...cek.akanDatang].reduce((s,x) => s + x.sisa, 0);
+
+    const buatBaris = (list, warna) => list.map(x => `
+        <div style="display:flex;justify-content:space-between;font-size:12px;padding:6px 0;border-bottom:1px dashed #e2e8f0;">
+            <span>${escapeHtml(x.nama)} <span style="color:#888;">(${new Date(x.tanggal).toLocaleDateString('id-ID')})</span></span>
+            <span style="color:${warna};font-weight:700;">${f(x.sisa)}</span>
+        </div>`).join('');
+
+    modalEl.innerHTML = `<div class="modal-content" style="max-width:460px;">
+        <h3 style="color:#0D5C4A;margin-bottom:4px;">📅 Rekap Cicilan</h3>
+        <div style="font-size:11px;color:#888;margin-bottom:12px;">${escapeHtml(getCurrentProgram()?.nama || '-')} — ${totalMasalah} termin perlu perhatian, Total Sisa Tertunggak ${f(totalSisaTertunggak)}</div>
+        ${cek.telat.length > 0 ? `<div style="font-weight:700;font-size:12px;color:#DC2626;margin-top:10px;">🔴 TELAT (${cek.telat.length})</div>${buatBaris(cek.telat, '#DC2626')}` : ''}
+        ${cek.hariIni.length > 0 ? `<div style="font-weight:700;font-size:12px;color:#F59E0B;margin-top:10px;">🟡 JATUH TEMPO HARI INI (${cek.hariIni.length})</div>${buatBaris(cek.hariIni, '#F59E0B')}` : ''}
+        ${cek.akanDatang.length > 0 ? `<div style="font-weight:700;font-size:12px;color:#166534;margin-top:10px;">🟢 AKAN DATANG, 3 HARI (${cek.akanDatang.length})</div>${buatBaris(cek.akanDatang, '#166534')}` : ''}
+        ${totalMasalah === 0 ? '<p style="color:#166534;text-align:center;padding:16px;font-size:13px;">🎉 Semua cicilan aman, tidak ada yang perlu perhatian!</p>' : ''}
+        <button onclick="cetakRekapCicilan()" style="width:100%;padding:11px;background:#F59E0B;color:white;border:none;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;margin-top:14px;">🖨️ Cetak Rekap Cicilan</button>
+        <button onclick="document.getElementById('rekapCicilanModal').style.display='none'" style="width:100%;padding:11px;background:#e2e8f0;color:#333;border:none;border-radius:10px;font-size:13px;cursor:pointer;margin-top:8px;">Tutup</button>
+    </div>`;
+}
+
+function cetakRekapCicilan() {
+    const f = n => 'Rp ' + Math.round(n).toLocaleString('id-ID');
+    const cek = cekPeringatanCicilanSemuaJamaah();
+    const namaKBIH = konfigurasiPro.instansi1?.nama || 'Navara';
+    const progNama = getCurrentProgram()?.nama || '-';
+    const tgl = new Date().toLocaleDateString('id-ID', { day:'2-digit', month:'long', year:'numeric' });
+
+    const buatTabel = (list) => list.map(x => `<tr><td>${escapeHtml(x.nama)}</td><td>${new Date(x.tanggal).toLocaleDateString('id-ID')}</td><td style="text-align:right;">${f(x.sisa)}</td></tr>`).join('') || '<tr><td colspan="3" style="color:#888;">Tidak ada</td></tr>';
+    const totalSisaTertunggak = [...cek.telat, ...cek.hariIni, ...cek.akanDatang].reduce((s,x) => s + x.sisa, 0);
+
+    const html = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>Rekap Cicilan</title>
+    <style>body{font-family:Arial,sans-serif;padding:24px;color:#222;} h1{color:#0D5C4A;font-size:20px;margin-bottom:2px;}
+    h2{font-size:14px;margin-top:20px;} table{width:100%;border-collapse:collapse;margin-top:6px;font-size:13px;}
+    th{background:#0D5C4A;color:#fff;padding:6px;text-align:left;} td{padding:6px;border-bottom:1px solid #eee;}
+    .lap-total{background:#F0FDF4;font-weight:800;padding:10px;border-radius:8px;margin-top:16px;}
+    @media print{ .no-print{display:none!important;} }
+    </style></head><body>
+    <h1>📅 REKAP CICILAN</h1>
+    <p>${escapeHtml(namaKBIH)} — Program: ${escapeHtml(progNama)} — Dicetak: ${tgl}</p>
+    <h2 style="color:#DC2626;">🔴 Telat</h2><table><tr><th>Nama</th><th>Jatuh Tempo</th><th>Sisa</th></tr>${buatTabel(cek.telat)}</table>
+    <h2 style="color:#F59E0B;">🟡 Jatuh Tempo Hari Ini</h2><table><tr><th>Nama</th><th>Jatuh Tempo</th><th>Sisa</th></tr>${buatTabel(cek.hariIni)}</table>
+    <h2 style="color:#166534;">🟢 Akan Datang (3 Hari)</h2><table><tr><th>Nama</th><th>Jatuh Tempo</th><th>Sisa</th></tr>${buatTabel(cek.akanDatang)}</table>
+    <div class="lap-total">TOTAL SISA TERTUNGGAK: ${f(totalSisaTertunggak)}</div>
+    <div class="no-print" style="text-align:center;padding:24px;background:#f0f0f0;margin-top:24px;">
+        <button onclick="window.print()" style="padding:10px 28px;margin:0 6px;border:none;border-radius:10px;font-size:14px;font-weight:bold;cursor:pointer;background:#0D5C4A;color:white;">🖨️ CETAK / SIMPAN PDF</button>
+        <button onclick="window.close()" style="padding:10px 28px;margin:0 6px;border:none;border-radius:10px;font-size:14px;font-weight:bold;cursor:pointer;background:#e2e8f0;color:#333;">✕ TUTUP</button>
+    </div>
+    </body></html>`;
+    const win = window.open('', '_blank');
+    win.document.write(html); win.document.close();
 }
 
 function openRiwayatModal(jamaahId) { 
@@ -17876,29 +18111,6 @@ async function downloadKasPDF() {
 
 // Download PDF langsung - PEMBAYARAN
 // Download PDF langsung - MULTI EVENT
-async function downloadMasterPDF() {
-    if(masterDataList.length===0) return showToast('Tidak ada data!');
-    showToast('Menyiapkan download...');
-    try {
-        const {jsPDF} = window.jspdf;
-        const doc = new jsPDF({orientation:'landscape', unit:'mm', format:'a4'});
-        await applyPDFConfig(doc, { landscape: true });
-        const judul = getMasterJudul();
-        doc.setFontSize(16); doc.setTextColor(26,93,74);
-        doc.text(judul, 148.5, 65, { align: 'center' });
-        const headers = ['No', 'Nama Lengkap', ...masterDynamicFields.map(f=>f.label), 'Item'];
-        const body = getSortedMasterList(getFilteredMasterList()).map((item,i)=>{
-            const row = [i+1, item.nama];
-            masterDynamicFields.forEach(f => row.push(item.additional_fields?.[f.name]||'-'));
-            row.push(item.items?.join(', ')||'-');
-            return row;
-        });
-        doc.autoTable({startY:80, head:[headers], body:body, theme:'striped', headStyles:{fillColor:[26,93,74]}, styles:{fontSize:8, lineWidth:0.1}});
-        doc.save(`${judul.replace(/\s+/g,'_')}.pdf`);
-        showToast('✅ PDF berhasil didownload');
-    } catch(e) { showToast('Gagal download: '+e.message); }
-}
-
 function cetakDariPreview() {
     const blobUrl = window._previewBlobUrl;
     if (!blobUrl) { 
