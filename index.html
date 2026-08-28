@@ -2506,11 +2506,46 @@
     </div>
 </div>
 
+<!-- PROSPEK/CRM PAGE -->
+<div id="page-prospek" class="page">
+    <div class="header-premium header-premium-small"><div class="back-header"><i class="fas fa-arrow-left" onclick="showPage('jamaah')"></i><h2>Calon Jamaah (Prospek)</h2><div style="width:30px;"></div></div></div>
+    <div class="card-premium">
+        <div style="font-size:11px;color:#888;margin-bottom:12px;">Data ini GLOBAL — tidak terikat ke Program aktif, karena calon jamaah belum tentu masuk Program yang mana.</div>
+        <button class="btn btn-primary" onclick="openTambahProspekModal()"><i class="fas fa-plus-circle"></i> Tambah Calon Jamaah</button>
+        <div class="input-group" style="margin-top:12px;"><input type="text" id="prospekSearchInput" placeholder="Cari nama..." oninput="renderProspekList()"></div>
+        <select id="prospekFilterStatus" onchange="renderProspekList()" style="width:100%;padding:10px;border-radius:10px;border:1.5px solid #e2e8f0;font-size:14px;margin-top:8px;background:var(--input-bg);color:var(--text);">
+            <option value="">Semua Status</option>
+            <option value="Baru Masuk">🆕 Baru Masuk</option>
+            <option value="Sudah Dihubungi">📞 Sudah Dihubungi</option>
+            <option value="Tertarik-Nego">🤝 Tertarik-Nego</option>
+            <option value="Siap Jadi Jamaah">✅ Siap Jadi Jamaah</option>
+            <option value="Batal">❌ Batal</option>
+        </select>
+        <div id="prospekListContainer" style="margin-top:14px;"></div>
+    </div>
+</div>
+
+<!-- ITINERARY PAGE -->
+<div id="page-itinerary" class="page">
+    <div class="header-premium header-premium-small"><div class="back-header"><i class="fas fa-arrow-left" onclick="showPage('home')"></i><h2>Itinerary</h2><div style="width:30px;"></div></div></div>
+    <div class="card-premium">
+        <div id="itineraryPeringatan" style="display:none;background:#FEF3C7;border:1px solid #F59E0B;border-radius:10px;padding:10px 12px;font-size:12px;color:#92400E;margin-bottom:12px;"></div>
+        <button class="btn btn-primary" onclick="bangunKerangkaItinerary()"><i class="fas fa-magic"></i> Buat/Perbarui Kerangka Hari</button>
+        <div style="font-size:11px;color:#888;margin-top:4px;margin-bottom:14px;">Otomatis buat Hari 1 s/d Hari N sesuai "Jumlah Hari Program" di Konfigurasi, tanggal dihitung dari Tanggal Keberangkatan. Aman ditekan berkali-kali — Hari yang sudah ada isinya tidak akan hilang.</div>
+        <div id="itineraryContainer"></div>
+        <button class="btn btn-accent mt-2" onclick="tambahHariItinerary()"><i class="fas fa-plus-circle"></i> Tambah Hari</button>
+        <div style="display:flex;gap:8px;margin-top:14px;">
+            <button onclick="cetakItinerary('internal')" style="flex:1;padding:11px;background:#F59E0B;color:white;border:none;border-radius:10px;font-size:12px;font-weight:700;cursor:pointer;">🖨️ Cetak Internal</button>
+            <button onclick="cetakItinerary('jamaah')" style="flex:1;padding:11px;background:#2980b9;color:white;border:none;border-radius:10px;font-size:12px;font-weight:700;cursor:pointer;">🖨️ Cetak untuk Jamaah</button>
+        </div>
+    </div>
+</div>
+
 <!-- JAMAAH PAGE -->
 <div id="page-jamaah" class="page">
     <div class="header-premium header-premium-small"><div class="back-header"><i class="fas fa-arrow-left" onclick="showPage('home')"></i><h2>Database Jamaah</h2><div style="width:30px;"></div></div></div>
     <div class="card-premium">
-        <div id="jamaahAdminPanel" class="setting-card" style="display:none"><h3 style="color:var(--primary);"> Panel Admin Jamaah</h3><button class="btn btn-primary btn-small mt-2" onclick="openTambahJamaahModal()"> + Tambah database</button><button class="btn btn-blue btn-small mt-2" onclick="openManageFieldsModal()"> Kelola Field Dinamis</button><button class="btn btn-small mt-2" onclick="openRekapKategoriModal()" style="background:#8B5CF6;color:white;"> 📊 Rekap per Kategori</button><button class="btn btn-small mt-2" onclick="openKecocokanKamarModal()" style="background:#0EA5E9;color:white;"> 🛏️ Cek Kecocokan Kamar</button><button class="btn btn-small mt-2" onclick="openKelompokPorsiModal()" style="background:#F59E0B;color:white;"> 📊 Kelompokkan Berdasarkan Porsi</button><button class="btn btn-small mt-2" onclick="openAntrianFollowUpModal()" style="background:#DC2626;color:white;"> 📋 Antrian Follow-Up Prioritas</button><button class="btn btn-small mt-2" onclick="openRekapKomisiMitraModal()" style="background:#7C3AED;color:white;"> 🤝 Rekap Komisi Mitra</button><button class="btn btn-small mt-2" onclick="cetakManifestRooming()" style="background:#0D9488;color:white;"> 📋 Cetak Manifest & Rooming</button><button class="btn btn-small mt-2" onclick="openWaMassalModal()" style="background:#22C55E;color:white;"> 📢 Kirim WA Massal</button><button class="btn btn-teal btn-small mt-2" onclick="downloadTemplateExcel()" style="background:#1D6F42;">⬇️ Download Template Excel</button><button class="btn btn-teal btn-small mt-2" onclick="exportJamaahToExcel()"> Export ke Excel</button><button class="btn btn-orange btn-small mt-2" onclick="document.getElementById('importExcelFile').click()"> IMPORT EXCEL</button><input type="file" id="importExcelFile" accept=".xlsx,.xls" style="display:none" onchange="importJamaahFromExcel(this)"><button class="btn btn-danger btn-small mt-2" onclick="confirmDeleteAllJamaah()"> HAPUS SEMUA database</button></div>
+        <div id="jamaahAdminPanel" class="setting-card" style="display:none"><h3 style="color:var(--primary);"> Panel Admin Jamaah</h3><button class="btn btn-small mt-2" onclick="showPage('prospek')" style="background:#EC4899;color:white;"> 🎯 Calon Jamaah (Prospek)</button><button class="btn btn-primary btn-small mt-2" onclick="openTambahJamaahModal()"> + Tambah database</button><button class="btn btn-blue btn-small mt-2" onclick="openManageFieldsModal()"> Kelola Field Dinamis</button><button class="btn btn-small mt-2" onclick="openRekapKategoriModal()" style="background:#8B5CF6;color:white;"> 📊 Rekap per Kategori</button><button class="btn btn-small mt-2" onclick="openKecocokanKamarModal()" style="background:#0EA5E9;color:white;"> 🛏️ Cek Kecocokan Kamar</button><button class="btn btn-small mt-2" onclick="openKelompokPorsiModal()" style="background:#F59E0B;color:white;"> 📊 Kelompokkan Berdasarkan Porsi</button><button class="btn btn-small mt-2" onclick="openAntrianFollowUpModal()" style="background:#DC2626;color:white;"> 📋 Antrian Follow-Up Prioritas</button><button class="btn btn-small mt-2" onclick="openRekapKomisiMitraModal()" style="background:#7C3AED;color:white;"> 🤝 Rekap Komisi Mitra</button><button class="btn btn-small mt-2" onclick="cetakManifestRooming()" style="background:#0D9488;color:white;"> 📋 Cetak Manifest & Rooming</button><button class="btn btn-small mt-2" onclick="openWaMassalModal()" style="background:#22C55E;color:white;"> 📢 Kirim WA Massal</button><button class="btn btn-teal btn-small mt-2" onclick="downloadTemplateExcel()" style="background:#1D6F42;">⬇️ Download Template Excel</button><button class="btn btn-teal btn-small mt-2" onclick="exportJamaahToExcel()"> Export ke Excel</button><button class="btn btn-orange btn-small mt-2" onclick="document.getElementById('importExcelFile').click()"> IMPORT EXCEL</button><input type="file" id="importExcelFile" accept=".xlsx,.xls" style="display:none" onchange="importJamaahFromExcel(this)"><button class="btn btn-danger btn-small mt-2" onclick="confirmDeleteAllJamaah()"> HAPUS SEMUA database</button></div>
         <div class="section-title"><span>DAFTAR JAMAAH</span></div>
         <div class="search-box"><input type="text" id="searchJamaahInput" placeholder=" Cari nama jamaah..." onkeyup="filterJamaahList()"><select id="sortJamaahSelect" onchange="sortJamaahList()"><option value="urutan_asli">Urutan asli</option><option value="nama_asc">Nama A-Z</option><option value="nama_desc">Nama Z-A</option><option value="tgl_asc">Tanggal lama ke baru</option><option value="tgl_desc">Tanggal baru ke lama</option></select><button onclick="resetJamaahFilter()">Reset</button></div>
         <div id="filterLunasChip" style="display:none;align-items:center;gap:8px;background:#F0FBF6;border:1px solid #0D5C4A;border-radius:20px;padding:6px 12px;margin:8px 0;width:fit-content;">
@@ -2820,6 +2855,10 @@
                 <input type="date" id="cfg_tgl_keberangkatan" style="width:100%;padding:10px;border-radius:8px;border:1.5px solid #ddd;font-size:14px;background:var(--input-bg);color:var(--text);">
             </div>
             <div style="font-size:12px;color:#888;margin-top:4px;">Digunakan untuk countdown di halaman Home. Kosongkan jika tidak perlu.</div>
+            <div class="config-row" style="margin-top:10px;"><label>Jumlah Hari Program</label>
+                <input type="number" id="cfg_jumlah_hari" placeholder="Contoh: 9" style="width:100%;padding:10px;border-radius:8px;border:1.5px solid #ddd;font-size:14px;background:var(--input-bg);color:var(--text);">
+            </div>
+            <div style="font-size:12px;color:#888;margin-top:4px;">Dipakai untuk buat kerangka Itinerary otomatis (Hari 1 s/d Hari N).</div>
         </div>
         <div class="config-section"><h3><i class="fas fa-watermark"></i> Watermark</h3>
             <div class="config-row" style="display:flex; justify-content:space-between; align-items:center;"><label>Aktifkan Watermark</label><label class="switch"><input type="checkbox" id="cfg_watermark_enabled" checked><span class="slider"></span></label></div>
@@ -3042,6 +3081,7 @@
             <div class="fitur-card" onclick="openBandingkanProgramModal()"><div class="fitur-icon">📊</div><div class="fitur-title">Bandingkan Program</div><div class="fitur-desc">Performa semua Program sekaligus</div></div>
             <div class="fitur-card" onclick="openDashboardTrenModal()"><div class="fitur-icon">📈</div><div class="fitur-title">Dashboard Tren</div><div class="fitur-desc">Perbandingan antar tahun</div></div>
             <div class="fitur-card" onclick="cetakLaporanPenutupanMusim()"><div class="fitur-icon">📕</div><div class="fitur-title">Laporan Penutupan Musim</div><div class="fitur-desc">Gabungan semua laporan akhir</div></div>
+            <div class="fitur-card" onclick="showPage('itinerary')"><div class="fitur-icon">🗓️</div><div class="fitur-title">Itinerary</div><div class="fitur-desc">Jadwal harian perjalanan</div></div>
             <div class="fitur-card" onclick="cetakRekapTahunanGabungan()"><div class="fitur-icon">📑</div><div class="fitur-title">Rekap Tahunan</div><div class="fitur-desc">Total omzet semua keberangkatan</div></div>
             <div class="fitur-card" onclick="openKalenderProgramModal()"><div class="fitur-icon">📅</div><div class="fitur-title">Kalender Program</div><div class="fitur-desc">Semua jadwal keberangkatan</div></div>
             <div class="fitur-card" onclick="openProyeksiKasModal()"><div class="fitur-icon">📉</div><div class="fitur-title">Proyeksi Kas</div><div class="fitur-desc">Estimasi dana yang masih masuk</div></div>
@@ -3812,6 +3852,8 @@ function internalShowPage(pageId) {
     // Hapus padding bawah untuk halaman detail
     document.body.style.paddingBottom = isMainPage ? '' : '0';
     if (pageId === 'kas') { if(window.renderKasTable) window.renderKasTable(); if(window.updateSaldoKas) window.updateSaldoKas(); }
+    if (pageId === 'prospek') { if(typeof loadProspekData === 'function') loadProspekData().then(renderProspekList); }
+    if (pageId === 'itinerary') { if(typeof renderItineraryList === 'function') renderItineraryList(); }
     if (pageId === 'jamaah') { if(window.loadJamaahData) window.loadJamaahData(); if(window.renderJamaahListWithPagination) window.renderJamaahListWithPagination(); }
     if (pageId === 'jamaahkita') {
         const c = document.getElementById('jamaahKitaListContainer');
@@ -10271,7 +10313,25 @@ function cetakLaporanPenutupanMusim() {
         <tr><td>Total Kontrak</td><td>${f(totalKontrak)}</td></tr>
         <tr><td>Sudah Dibayar</td><td>${f(totalDibayarJamaah)}</td></tr>
         <tr><td>Total Modal (estimasi)</td><td>${f(totalModalAktual)}</td></tr>
-        <tr class="lap-total"><td>PROFIT AKTUAL</td><td>${f(profitAktual)}</td></tr></table></div>`;
+        <tr class="lap-total"><td>PROFIT AKTUAL (Kontrak − Modal Estimasi)</td><td>${f(profitAktual)}</td></tr></table></div>`;
+
+    // 1b. Pengeluaran Sungguhan + PROFIT RIIL (bottom-line paling akurat, dari uang yang benar-benar keluar-masuk)
+    const pengeluaranPerKategori = {};
+    let totalPengeluaran = 0;
+    pengeluaranList.forEach(p => {
+        const kat = p.kategori || 'Lain-lain';
+        pengeluaranPerKategori[kat] = (pengeluaranPerKategori[kat] || 0) + (parseInt(p.nominal)||0);
+        totalPengeluaran += (parseInt(p.nominal)||0);
+    });
+    const profitRiil = totalDibayarJamaah - totalPengeluaran;
+    const rowsPengeluaran = Object.keys(pengeluaranPerKategori).map(k => `<tr><td>${escapeHtml(k)}</td><td>-${f(pengeluaranPerKategori[k])}</td></tr>`).join('');
+    let sectionPengeluaran = `<div class="lap-section"><h2>💸 Pengeluaran Sungguhan</h2>
+        <table class="lap-table">${rowsPengeluaran || '<tr><td colspan="2" style="color:#888;">Belum ada Pengeluaran tercatat</td></tr>'}
+        <tr class="lap-total"><td>TOTAL PENGELUARAN</td><td>-${f(totalPengeluaran)}</td></tr></table>
+        <table class="lap-table" style="margin-top:10px;">
+        <tr><td>Total Pemasukan Jamaah (Sudah Dibayar)</td><td>${f(totalDibayarJamaah)}</td></tr>
+        <tr><td>Total Pengeluaran</td><td>-${f(totalPengeluaran)}</td></tr>
+        <tr class="lap-total" style="color:${profitRiil<0?'#DC2626':'#166534'};"><td>PROFIT RIIL (bottom-line sungguhan)</td><td>${f(profitRiil)}</td></tr></table></div>`;
 
     // 2. Analisis Buffer B2C
     let sectionBufferB2C = '';
@@ -10349,7 +10409,294 @@ function cetakLaporanPenutupanMusim() {
     </style></head><body>
     <h1>📕 LAPORAN PENUTUPAN MUSIM</h1>
     <p>${escapeHtml(namaKBIH)} — Program: ${escapeHtml(progNama)} — Dicetak: ${tgl}</p>
-    ${sectionRekap}${sectionBufferB2C}${sectionBufferB2B}${sectionMitra}
+    ${sectionRekap}${sectionPengeluaran}${sectionBufferB2C}${sectionBufferB2B}${sectionMitra}
+    <div class="no-print" style="text-align:center;padding:24px;background:#f0f0f0;margin-top:24px;">
+        <button onclick="window.print()" style="padding:10px 28px;margin:0 6px;border:none;border-radius:10px;font-size:14px;font-weight:bold;cursor:pointer;background:#0D5C4A;color:white;">🖨️ CETAK / SIMPAN PDF</button>
+        <button onclick="window.close()" style="padding:10px 28px;margin:0 6px;border:none;border-radius:10px;font-size:14px;font-weight:bold;cursor:pointer;background:#e2e8f0;color:#333;">✕ TUTUP</button>
+    </div>
+    </body></html>`;
+    const win = window.open('', '_blank');
+    win.document.write(html); win.document.close();
+}
+
+// ==================== ITINERARY ====================
+function ensureItinerary() {
+    const slot = ensureProgramConfigSlot();
+    if(!slot.itinerary) slot.itinerary = { hari: [] };
+    if(!slot.itinerary.hari) slot.itinerary.hari = [];
+    return slot.itinerary;
+}
+
+function simpanItinerary() {
+    localStorage.setItem('navara_konfigurasi_pro', JSON.stringify(konfigurasiPro));
+    idbSet(STORE_KONFIGURASI, 'konfigurasi_pro', konfigurasiPro);
+}
+
+// ==================== PROSPEK / CRM CALON JAMAAH (GLOBAL, tidak per-Program) ====================
+let _allProspekData = [];
+
+async function loadProspekData() {
+    const saved = await idbGet(STORE_PROSPEK, 'prospek_list');
+    _allProspekData = saved || [];
+}
+
+async function saveProspekData() {
+    await idbSet(STORE_PROSPEK, 'prospek_list', _allProspekData);
+}
+
+function openTambahProspekModal(id) {
+    let modal = document.getElementById('prospekModal');
+    if(!modal) {
+        modal = document.createElement('div');
+        modal.id = 'prospekModal';
+        modal.className = 'modal';
+        document.body.appendChild(modal);
+    }
+    const p = id ? _allProspekData.find(x => x.id === id) : null;
+    modal.innerHTML = `<div class="modal-content" style="max-width:420px;">
+        <h3 style="color:#0D5C4A;margin-bottom:10px;">${p ? '✏️ Edit' : '🎯 Tambah'} Calon Jamaah</h3>
+        <input type="hidden" id="prospekEditId" value="${p ? p.id : ''}">
+        <div class="input-group"><label>Nama</label><input type="text" id="prospekNama" value="${escapeHtml(p?.nama || '')}"></div>
+        <div class="input-group"><label>No HP/WA</label><input type="text" id="prospekHp" value="${escapeHtml(p?.hp || '')}"></div>
+        <div class="input-group"><label>Minat Program</label><input type="text" id="prospekMinat" placeholder="Contoh: Umroh Januari 2027" value="${escapeHtml(p?.minat || '')}"></div>
+        <div class="input-group"><label>Status</label>
+            <select id="prospekStatus">
+                <option value="Baru Masuk" ${p?.status==='Baru Masuk'?'selected':''}>🆕 Baru Masuk</option>
+                <option value="Sudah Dihubungi" ${p?.status==='Sudah Dihubungi'?'selected':''}>📞 Sudah Dihubungi</option>
+                <option value="Tertarik-Nego" ${p?.status==='Tertarik-Nego'?'selected':''}>🤝 Tertarik-Nego</option>
+                <option value="Siap Jadi Jamaah" ${p?.status==='Siap Jadi Jamaah'?'selected':''}>✅ Siap Jadi Jamaah</option>
+                <option value="Batal" ${p?.status==='Batal'?'selected':''}>❌ Batal</option>
+            </select>
+        </div>
+        <div class="input-group"><label>Catatan</label><textarea id="prospekCatatan" rows="3">${escapeHtml(p?.catatan || '')}</textarea></div>
+        <div class="row" style="margin-top:10px;">
+            <button class="btn btn-danger" onclick="document.getElementById('prospekModal').style.display='none'" style="flex:1;">Batal</button>
+            <button class="btn btn-primary" onclick="simpanProspek()" style="flex:1;">Simpan</button>
+        </div>
+    </div>`;
+    modal.style.display = 'flex';
+}
+
+async function simpanProspek() {
+    const nama = document.getElementById('prospekNama').value.trim();
+    if(!nama) return showToast('Nama wajib diisi!');
+    const id = document.getElementById('prospekEditId').value;
+    const data = {
+        nama,
+        hp: document.getElementById('prospekHp').value.trim(),
+        minat: document.getElementById('prospekMinat').value.trim(),
+        status: document.getElementById('prospekStatus').value,
+        catatan: document.getElementById('prospekCatatan').value.trim()
+    };
+    if(id) {
+        const p = _allProspekData.find(x => x.id == id);
+        if(p) Object.assign(p, data);
+    } else {
+        _allProspekData.push({ id: Date.now(), ...data, created_at: new Date().toLocaleDateString('id-ID') });
+    }
+    await saveProspekData();
+    document.getElementById('prospekModal').style.display = 'none';
+    renderProspekList();
+    showToast('✅ Tersimpan');
+}
+
+function hapusProspek(id) {
+    konfirmasiBertema('Hapus Calon Jamaah ini?', 'Data ini akan dihapus permanen.', async () => {
+        _allProspekData = _allProspekData.filter(x => x.id !== id);
+        await saveProspekData();
+        renderProspekList();
+    });
+}
+
+function jadikanJamaah(id) {
+    const p = _allProspekData.find(x => x.id === id);
+    if(!p) return;
+    konfirmasiBertema('Jadikan Jamaah?', `${escapeHtml(p.nama)} akan dipindah ke Database Jamaah Program aktif ("${escapeHtml(getCurrentProgram()?.nama || '-')}"), dan dihapus dari daftar Prospek.`, async () => {
+        const now = new Date().toLocaleDateString('id-ID')+' '+new Date().toLocaleTimeString('id-ID');
+        const jBaru = { id: Date.now(), nama_lengkap: p.nama, additional_fields: { whatsapp: p.hp }, created_at: now, program_id: currentProgramId };
+        jamaahList.push(jBaru);
+        await saveJamaahData();
+        _allProspekData = _allProspekData.filter(x => x.id !== id);
+        await saveProspekData();
+        renderProspekList();
+        if(typeof renderJamaahListWithPagination === 'function') renderJamaahListWithPagination();
+        showToast(`✅ ${p.nama} sekarang jadi Jamaah`);
+    }, '✅ Ya, Jadikan Jamaah');
+}
+
+function renderProspekList() {
+    const container = document.getElementById('prospekListContainer');
+    if(!container) return;
+    const cari = (document.getElementById('prospekSearchInput')?.value || '').toLowerCase();
+    const filterStatus = document.getElementById('prospekFilterStatus')?.value || '';
+    const list = _allProspekData.filter(p => {
+        if(cari && !p.nama.toLowerCase().includes(cari)) return false;
+        if(filterStatus && p.status !== filterStatus) return false;
+        return true;
+    });
+    const ikonStatus = { 'Baru Masuk':'🆕', 'Sudah Dihubungi':'📞', 'Tertarik-Nego':'🤝', 'Siap Jadi Jamaah':'✅', 'Batal':'❌' };
+    container.innerHTML = list.map(p => `
+        <div style="background:#F8FAFC;border-radius:12px;padding:12px;margin-bottom:10px;">
+            <div style="display:flex;justify-content:space-between;align-items:start;">
+                <div>
+                    <div style="font-weight:700;font-size:14px;">${escapeHtml(p.nama)}</div>
+                    <div style="font-size:12px;color:#666;">${escapeHtml(p.hp||'-')} ${p.minat ? '— ' + escapeHtml(p.minat) : ''}</div>
+                    <div style="font-size:11px;color:#0369A1;margin-top:2px;">${ikonStatus[p.status]||''} ${escapeHtml(p.status||'-')}</div>
+                    ${p.catatan ? `<div style="font-size:11px;color:#888;margin-top:4px;">${escapeHtml(p.catatan)}</div>` : ''}
+                </div>
+                <div style="display:flex;gap:6px;">
+                    <button onclick="openTambahProspekModal(${p.id})" style="border:none;background:none;color:#0369A1;font-size:14px;cursor:pointer;">✏️</button>
+                    <button onclick="hapusProspek(${p.id})" style="border:none;background:none;color:#DC2626;font-size:14px;cursor:pointer;">🗑️</button>
+                </div>
+            </div>
+            ${p.status === 'Siap Jadi Jamaah' ? `<button onclick="jadikanJamaah(${p.id})" style="width:100%;padding:8px;background:#166534;color:white;border:none;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;margin-top:8px;">→ Jadikan Jamaah</button>` : ''}
+        </div>`).join('') || '<p style="color:#aaa;text-align:center;padding:20px;font-size:13px;">Belum ada Calon Jamaah</p>';
+}
+
+function bangunKerangkaItinerary() {
+    const slot = ensureProgramConfigSlot();
+    const kb = slot.keberangkatan || {};
+    const jumlahHari = parseInt(kb.jumlahHari) || 0;
+    const peringatanEl = document.getElementById('itineraryPeringatan');
+
+    if(jumlahHari <= 0) {
+        if(peringatanEl) { peringatanEl.style.display = 'block'; peringatanEl.textContent = '⚠️ Isi dulu "Jumlah Hari Program" di Konfigurasi.'; }
+        return;
+    }
+    if(!kb.tanggal && peringatanEl) {
+        peringatanEl.style.display = 'block';
+        peringatanEl.textContent = 'ℹ️ Tanggal Keberangkatan belum diisi di Konfigurasi — tanggal tiap Hari belum bisa dihitung otomatis.';
+    } else if(peringatanEl) {
+        peringatanEl.style.display = 'none';
+    }
+
+    const it = ensureItinerary();
+    for(let i = 1; i <= jumlahHari; i++) {
+        if(!it.hari.find(h => h.nomorHari === i)) {
+            let tanggal = '';
+            if(kb.tanggal) {
+                const d = new Date(kb.tanggal);
+                d.setDate(d.getDate() + (i - 1));
+                tanggal = d.toISOString().split('T')[0];
+            }
+            it.hari.push({ id: Date.now() + i, nomorHari: i, tanggal, kegiatan: [] });
+        }
+    }
+    it.hari.sort((a,b) => a.nomorHari - b.nomorHari);
+    simpanItinerary();
+    renderItineraryList();
+    showToast('✅ Kerangka Hari diperbarui');
+}
+
+function tambahHariItinerary() {
+    const it = ensureItinerary();
+    const nomorBaru = it.hari.length > 0 ? Math.max(...it.hari.map(h => h.nomorHari)) + 1 : 1;
+    let tanggal = '';
+    const kb = ensureProgramConfigSlot().keberangkatan || {};
+    if(kb.tanggal) {
+        const d = new Date(kb.tanggal);
+        d.setDate(d.getDate() + (nomorBaru - 1));
+        tanggal = d.toISOString().split('T')[0];
+    }
+    it.hari.push({ id: Date.now(), nomorHari: nomorBaru, tanggal, kegiatan: [] });
+    simpanItinerary();
+    renderItineraryList();
+}
+
+function hapusHariItinerary(hariId) {
+    konfirmasiBertema('Hapus Hari ini?', 'Semua kegiatan di Hari ini akan ikut terhapus.', () => {
+        const it = ensureItinerary();
+        it.hari = it.hari.filter(h => h.id !== hariId);
+        simpanItinerary();
+        renderItineraryList();
+    });
+}
+
+function tambahJamKegiatan(hariId) {
+    const it = ensureItinerary();
+    const h = it.hari.find(x => x.id === hariId);
+    if(!h) return;
+    if(!h.kegiatan) h.kegiatan = [];
+    h.kegiatan.push({ id: Date.now(), jam: '08:00', keterangan: '' });
+    simpanItinerary();
+    renderItineraryList();
+}
+
+function updateJamKegiatan(hariId, kegiatanId, field, value) {
+    const it = ensureItinerary();
+    const h = it.hari.find(x => x.id === hariId);
+    if(!h) return;
+    const k = (h.kegiatan||[]).find(x => x.id === kegiatanId);
+    if(!k) return;
+    k[field] = value;
+    simpanItinerary();
+}
+
+function hapusJamKegiatan(hariId, kegiatanId) {
+    const it = ensureItinerary();
+    const h = it.hari.find(x => x.id === hariId);
+    if(!h) return;
+    h.kegiatan = (h.kegiatan||[]).filter(x => x.id !== kegiatanId);
+    simpanItinerary();
+    renderItineraryList();
+}
+
+function renderItineraryList() {
+    const container = document.getElementById('itineraryContainer');
+    if(!container) return;
+    const it = ensureItinerary();
+    const hariUrut = [...it.hari].sort((a,b) => a.nomorHari - b.nomorHari);
+
+    if(hariUrut.length === 0) {
+        container.innerHTML = '<p style="color:#aaa;text-align:center;padding:20px;font-size:13px;">Belum ada Hari. Tekan "Buat/Perbarui Kerangka Hari" atau "Tambah Hari" manual.</p>';
+        return;
+    }
+
+    container.innerHTML = hariUrut.map(h => {
+        const tglText = h.tanggal ? new Date(h.tanggal).toLocaleDateString('id-ID', { weekday:'long', day:'2-digit', month:'long', year:'numeric' }) : '(tanggal belum ada)';
+        const kegiatanHtml = (h.kegiatan||[]).sort((a,b) => (a.jam||'').localeCompare(b.jam||'')).map(k => `
+            <div style="display:flex;gap:8px;align-items:center;margin-bottom:6px;">
+                <input type="time" value="${k.jam||''}" oninput="updateJamKegiatan(${h.id}, ${k.id}, 'jam', this.value)" style="width:90px;padding:8px;border-radius:8px;border:1.5px solid #ddd;font-size:13px;">
+                <input type="text" value="${escapeHtml(k.keterangan||'')}" placeholder="Kegiatan..." oninput="updateJamKegiatan(${h.id}, ${k.id}, 'keterangan', this.value)" style="flex:1;padding:8px;border-radius:8px;border:1.5px solid #ddd;font-size:13px;">
+                <button onclick="hapusJamKegiatan(${h.id}, ${k.id})" style="border:none;background:none;color:#DC2626;font-size:15px;cursor:pointer;">🗑️</button>
+            </div>`).join('');
+
+        return `<div style="background:#F8FAFC;border-radius:12px;padding:12px;margin-bottom:12px;">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+                <div><span style="font-weight:800;color:#0D5C4A;font-size:14px;">Hari ${h.nomorHari}</span> <span style="font-size:12px;color:#666;">— ${tglText}</span></div>
+                <button onclick="hapusHariItinerary(${h.id})" style="border:none;background:none;color:#DC2626;font-size:14px;cursor:pointer;">🗑️</button>
+            </div>
+            ${kegiatanHtml || '<p style="color:#aaa;font-size:12px;">Belum ada kegiatan di Hari ini</p>'}
+            <button onclick="tambahJamKegiatan(${h.id})" style="width:100%;padding:7px;background:#E0F2FE;color:#0369A1;border:none;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;margin-top:4px;">+ Tambah Jam</button>
+        </div>`;
+    }).join('');
+}
+
+function cetakItinerary(mode) {
+    const it = ensureItinerary();
+    const hariUrut = [...it.hari].sort((a,b) => a.nomorHari - b.nomorHari);
+    if(hariUrut.length === 0) return showToast('Belum ada data Itinerary untuk dicetak!');
+
+    const namaKBIH = konfigurasiPro.instansi1?.nama || 'Navara';
+    const progNama = getCurrentProgram()?.nama || '-';
+    const isInternal = mode === 'internal';
+
+    const hariHtml = hariUrut.map(h => {
+        const tglText = h.tanggal ? new Date(h.tanggal).toLocaleDateString('id-ID', { weekday:'long', day:'2-digit', month:'long', year:'numeric' }) : '-';
+        const kegiatan = (h.kegiatan||[]).filter(k => k.keterangan).sort((a,b) => (a.jam||'').localeCompare(b.jam||''));
+        const rows = kegiatan.map(k => `<tr><td style="width:80px;">${k.jam||'-'}</td><td>${escapeHtml(k.keterangan)}</td></tr>`).join('') || '<tr><td colspan="2" style="color:#888;">Belum ada kegiatan</td></tr>';
+        return `<div style="margin-top:18px;"><h3 style="color:#0D5C4A;font-size:15px;border-bottom:2px solid #0D5C4A;padding-bottom:4px;">Hari ${h.nomorHari} — ${tglText}</h3>
+            <table style="width:100%;border-collapse:collapse;margin-top:8px;font-size:13px;">${rows}</table></div>`;
+    }).join('');
+
+    const html = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>Itinerary — ${escapeHtml(progNama)}</title>
+    <style>body{font-family:Arial,sans-serif;padding:24px;color:#222;} h1{color:#0D5C4A;font-size:20px;margin-bottom:2px;}
+    table td{padding:6px 4px;border-bottom:1px solid #eee;vertical-align:top;}
+    @media print{ .no-print{display:none!important;} }
+    </style></head><body>
+    <h1>🗓️ ITINERARY ${isInternal ? '(INTERNAL)' : ''}</h1>
+    <p>${escapeHtml(namaKBIH)} — Program: ${escapeHtml(progNama)}</p>
+    ${hariHtml}
     <div class="no-print" style="text-align:center;padding:24px;background:#f0f0f0;margin-top:24px;">
         <button onclick="window.print()" style="padding:10px 28px;margin:0 6px;border:none;border-radius:10px;font-size:14px;font-weight:bold;cursor:pointer;background:#0D5C4A;color:white;">🖨️ CETAK / SIMPAN PDF</button>
         <button onclick="window.close()" style="padding:10px 28px;margin:0 6px;border:none;border-radius:10px;font-size:14px;font-weight:bold;cursor:pointer;background:#e2e8f0;color:#333;">✕ TUTUP</button>
@@ -13870,7 +14217,7 @@ function exportFolderToExcel(folderId) {
 // ==================== UPLOAD DOKUMEN ====================
 let dokumenJenisList = [], dokumenData = {}, db = null;
 // ==================== INDEXEDDB TERPUSAT ====================
-const DB_NAME = 'NavaraDB', DB_VERSION = 6, 
+const DB_NAME = 'NavaraDB', DB_VERSION = 7, 
     STORE_NAME = 'dokumen', 
     JENIS_STORE_NAME = 'dokumenJenis',
     STORE_JAMAAH = 'jamaahData',
@@ -13884,7 +14231,8 @@ const DB_NAME = 'NavaraDB', DB_VERSION = 6,
     STORE_ABSENSI = 'absensiData',
     STORE_PENGELUARAN = 'pengeluaranData',
     STORE_CATATAN = 'catatanData',
-    STORE_PROGRAM = 'programData';
+    STORE_PROGRAM = 'programData',
+    STORE_PROSPEK = 'prospekData';
 
 function openIndexedDB() { 
     return new Promise((resolve, reject) => { 
@@ -13897,7 +14245,7 @@ function openIndexedDB() {
             const d = event.target.result; 
             [STORE_NAME, JENIS_STORE_NAME, STORE_JAMAAH, STORE_JAMAAH_KITA, 
              STORE_FOLDER, STORE_KAS, STORE_PEMBAYARAN, STORE_KONFIGURASI, 
-             STORE_MASTER, STORE_FOTO, STORE_ABSENSI, STORE_PENGELUARAN, STORE_CATATAN, STORE_PROGRAM].forEach(name => {
+             STORE_MASTER, STORE_FOTO, STORE_ABSENSI, STORE_PENGELUARAN, STORE_CATATAN, STORE_PROGRAM, STORE_PROSPEK].forEach(name => {
                 if (!d.objectStoreNames.contains(name)) d.createObjectStore(name, { keyPath: 'id' });
             });
         }; 
@@ -14895,6 +15243,7 @@ async function bagikanFullZip() {
             created: new Date().toISOString(),
             program: programList,
             jamaah: { data: _allJamaahData, fields: dynamicFieldsJamaah },
+            prospek: _allProspekData,
             jamaah_kita: { data: _allJamaahKitaData, fields: dynamicFieldsJamaahKita },
             folder: _allFolderData,
             absensi: _allAbsensiData,
@@ -14947,6 +15296,7 @@ async function bagikanFullZip() {
                 app: 'Navara', version: '3.0', created: new Date().toISOString(),
                 program: programList,
                 jamaah: { data: _allJamaahData, fields: dynamicFieldsJamaah },
+            prospek: _allProspekData,
                 jamaah_kita: { data: _allJamaahKitaData, fields: dynamicFieldsJamaahKita },
                 folder: _allFolderData, absensi: _allAbsensiData, kas: _allKasData, pembayaran: _allPaymentData,
                 multi_event: _allMasterData, dokumen_jenis: dokumenJenisList,
@@ -15179,6 +15529,7 @@ async function applyRestoreBackupData(backup) {
     }
     if (backup.dokumen_jenis) { dokumenJenisList = backup.dokumen_jenis; await saveDokumenJenisToIndexedDB(); }
     if (backup.konfigurasi) { konfigurasiPro = { ...konfigurasiPro, ...backup.konfigurasi }; await idbSet(STORE_KONFIGURASI, 'konfigurasi_pro', konfigurasiPro); }
+    if (backup.prospek) { _allProspekData = backup.prospek; await idbSet(STORE_PROSPEK, 'prospek_list', _allProspekData); }
     if (backup.catatan) { catatanList = backup.catatan; await saveCatatanData(); }
     if (backup.pengeluaran) { 
         if (isMultiProgramBackup) {
@@ -17087,6 +17438,8 @@ async function loadKonfigurasiPro() {
     const elTgl = document.getElementById('cfg_tgl_keberangkatan');
     if(elJenis) elJenis.value = kb.jenis || '';
     if(elTgl) elTgl.value = kb.tanggal || '';
+    const elJumlahHari = document.getElementById('cfg_jumlah_hari');
+    if(elJumlahHari) elJumlahHari.value = kb.jumlahHari || '';
     const gm = progSlot.kebijakan_gratis_mitra || { setiap: 15, dapat: 1 };
     const elGmSetiap = document.getElementById('cfg_mitra_setiap');
     const elGmDapat = document.getElementById('cfg_mitra_dapat');
@@ -17158,7 +17511,8 @@ async function saveKonfigurasiPro() {
     konfigurasiPro.wa_template = { laporan: document.getElementById('cfg_wa_laporan').value };
     slot.keberangkatan = {
         jenis: document.getElementById('cfg_jenis_perjalanan')?.value || '',
-        tanggal: document.getElementById('cfg_tgl_keberangkatan')?.value || ''
+        tanggal: document.getElementById('cfg_tgl_keberangkatan')?.value || '',
+        jumlahHari: parseInt(document.getElementById('cfg_jumlah_hari')?.value) || 0
     };
     slot.kebijakan_gratis_mitra = {
         setiap: parseInt(document.getElementById('cfg_mitra_setiap')?.value) || 15,
