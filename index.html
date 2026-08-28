@@ -12969,9 +12969,7 @@ function renderJadwalCicilanModal(jamaahId, modalEl) {
     let peringatanTotal = '';
     if(hargaPaket > 0 && totalTermin !== hargaPaket) {
         const selisih = totalTermin - hargaPaket;
-        peringatanTotal = `<div style="background:#FEF3C7;border:1px solid #F59E0B;border-radius:8px;padding:8px 10px;font-size:11px;color:#92400E;margin-bottom:10px;">
-            ⚠️ Total Termin (${f(totalTermin)}) ${selisih > 0 ? 'LEBIH' : 'KURANG'} ${f(Math.abs(selisih))} dari Harga Paket (${f(hargaPaket)})
-        </div>`;
+        peringatanTotal = `⚠️ Total Termin (${f(totalTermin)}) ${selisih > 0 ? 'LEBIH' : 'KURANG'} ${f(Math.abs(selisih))} dari Harga Paket (${f(hargaPaket)})`;
     }
 
     const ikon = { 'Lunas':'✅', 'Sebagian':'🟡', 'Belum':'⚪' };
@@ -12986,7 +12984,7 @@ function renderJadwalCicilanModal(jamaahId, modalEl) {
                 <input type="date" value="${t.tanggal||''}" onchange="updateTerminCicilan('${jamaahId}', ${t.id}, 'tanggal', this.value)" style="flex:1;padding:8px;border-radius:8px;border:1.5px solid #ddd;font-size:12px;">
                 <input type="text" class="money-input" inputmode="numeric" value="${t.nominal.toLocaleString('id-ID')}" oninput="updateTerminCicilan('${jamaahId}', ${t.id}, 'nominal', this.value)" style="flex:1;padding:8px;border-radius:8px;border:1.5px solid #ddd;font-size:12px;">
             </div>
-            <div style="font-size:11px;color:${warna[t.statusLabel]};font-weight:700;">
+            <div id="cicilanStatus_${t.id}" style="font-size:11px;color:${warna[t.statusLabel]};font-weight:700;">
                 ${ikon[t.statusLabel]} ${t.statusLabel}${t.statusLabel==='Sebagian' ? ` — Terbayar ${f(t.dibayarUntukTermin)}, Sisa ${f(t.sisaTermin)}` : ''}
             </div>
         </div>`).join('');
@@ -12994,8 +12992,8 @@ function renderJadwalCicilanModal(jamaahId, modalEl) {
     modalEl.innerHTML = `<div class="modal-content" style="max-width:420px;">
         <h3 style="color:#0D5C4A;margin-bottom:4px;">📅 Jadwal Cicilan</h3>
         <div style="font-size:12px;color:#888;margin-bottom:12px;">${escapeHtml(j.nama_lengkap)} — status otomatis mengikuti data Pembayaran sungguhan</div>
-        ${peringatanTotal}
-        <div style="max-height:320px;overflow-y:auto;">${rows || '<p style="color:#aaa;text-align:center;padding:14px;font-size:12px;">Belum ada Termin</p>'}</div>
+        <div id="cicilanPeringatanTotal" style="${peringatanTotal ? '' : 'display:none;'}background:#FEF3C7;border:1px solid #F59E0B;border-radius:8px;padding:8px 10px;font-size:11px;color:#92400E;margin-bottom:10px;">${peringatanTotal}</div>
+        <div id="cicilanRowsContainer" style="max-height:320px;overflow-y:auto;">${rows || '<p style="color:#aaa;text-align:center;padding:14px;font-size:12px;">Belum ada Termin</p>'}</div>
         <button onclick="tambahTerminCicilan('${jamaahId}')" style="width:100%;padding:10px;background:#E0F2FE;color:#0369A1;border:none;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;margin-top:8px;">+ Tambah Termin</button>
         <button onclick="document.getElementById('jadwalCicilanModal').style.display='none'" style="width:100%;padding:11px;background:#e2e8f0;color:#333;border:none;border-radius:10px;font-size:13px;cursor:pointer;margin-top:10px;">Tutup</button>
     </div>`;
@@ -13019,7 +13017,41 @@ function updateTerminCicilan(jamaahId, terminId, field, value) {
     if(field === 'nominal') t.nominal = parseInt((value||'0').replace(/\./g,'').replace(/[^0-9]/g,'')) || 0;
     else t[field] = value;
     saveJamaahData();
-    renderJadwalCicilanModal(jamaahId);
+    if(field === 'nominal') {
+        refreshStatusCicilanTanpaRenderUlang(jamaahId); // supaya kotak input tidak hancur-dibuat-ulang tiap ketikan
+    } else {
+        renderJadwalCicilanModal(jamaahId); // tanggal berubah lewat onchange (bukan tiap ketikan), aman render ulang penuh — urutan Termin bisa berubah
+    }
+}
+
+// Update status semua Termin (dan peringatan Total vs Harga Paket) TANPA menyentuh kotak input tanggal/nominal — supaya fokus/kursor Anda tidak terlempar saat mengetik
+function refreshStatusCicilanTanpaRenderUlang(jamaahId) {
+    const j = jamaahList.find(x => x.id == jamaahId);
+    if(!j) return;
+    const f = n => 'Rp ' + Math.round(n).toLocaleString('id-ID');
+    const terminStatus = hitungStatusTerminJamaah(jamaahId);
+    const totalTermin = terminStatus.reduce((s,t) => s + t.nominal, 0);
+    const hargaPaket = getTotalHargaPaket(j) || 0;
+
+    const peringatanEl = document.getElementById('cicilanPeringatanTotal');
+    if(peringatanEl) {
+        if(hargaPaket > 0 && totalTermin !== hargaPaket) {
+            const selisih = totalTermin - hargaPaket;
+            peringatanEl.style.display = 'block';
+            peringatanEl.textContent = `⚠️ Total Termin (${f(totalTermin)}) ${selisih > 0 ? 'LEBIH' : 'KURANG'} ${f(Math.abs(selisih))} dari Harga Paket (${f(hargaPaket)})`;
+        } else {
+            peringatanEl.style.display = 'none';
+        }
+    }
+
+    const ikon = { 'Lunas':'✅', 'Sebagian':'🟡', 'Belum':'⚪' };
+    const warna = { 'Lunas':'#166534', 'Sebagian':'#F59E0B', 'Belum':'#888' };
+    terminStatus.forEach(t => {
+        const statusEl = document.getElementById('cicilanStatus_' + t.id);
+        if(!statusEl) return;
+        statusEl.style.color = warna[t.statusLabel];
+        statusEl.textContent = `${ikon[t.statusLabel]} ${t.statusLabel}${t.statusLabel==='Sebagian' ? ` — Terbayar ${f(t.dibayarUntukTermin)}, Sisa ${f(t.sisaTermin)}` : ''}`;
+    });
 }
 
 function hapusTerminCicilan(jamaahId, terminId) {
