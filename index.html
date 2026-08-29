@@ -2529,6 +2529,32 @@
     </div>
 </div>
 
+<!-- DATABASE ALUMNI PAGE -->
+<div id="page-alumni" class="page">
+    <div class="header-premium header-premium-small"><div class="back-header"><i class="fas fa-arrow-left" onclick="showPage('home')"></i><h2>Database Alumni</h2><div style="width:30px;"></div></div></div>
+    <div class="card-premium">
+        <div style="font-size:11px;color:#888;margin-bottom:12px;">Gabungan otomatis dari Jamaah di semua Program Arsip. Bukan database baru — cocok orang yang sama pakai No. Paspor → No. HP → Nama+Tgl Lahir.</div>
+        <div class="input-group"><input type="text" id="alumniSearch" placeholder="Cari nama..." oninput="renderAlumniList()"></div>
+        <select id="alumniFilterJumlah" onchange="renderAlumniList()" style="width:100%;padding:10px;border-radius:10px;border:1.5px solid #e2e8f0;font-size:14px;margin-top:8px;background:var(--input-bg);color:var(--text);">
+            <option value="">Semua</option>
+            <option value="1">1x Ikut</option>
+            <option value="2">2x Ikut</option>
+            <option value="3">3x+ Ikut</option>
+        </select>
+        <div id="alumniListContainer" style="margin-top:14px;"></div>
+    </div>
+</div>
+
+<!-- PROGRAM ARSIP PAGE -->
+<div id="page-arsipprogram" class="page">
+    <div class="header-premium header-premium-small"><div class="back-header"><i class="fas fa-arrow-left" onclick="showPage('home')"></i><h2>Program Arsip</h2><div style="width:30px;"></div></div></div>
+    <div class="card-premium">
+        <div style="font-size:11px;color:#888;margin-bottom:12px;">Program di sini bersifat READ-ONLY (tidak bisa diedit). Data tetap aman dan tetap masuk laporan/statistik seperti Dashboard Tren.</div>
+        <div class="input-group"><input type="text" id="arsipProgramSearch" placeholder="Cari nama Program..." oninput="renderArsipProgramList()"></div>
+        <div id="arsipProgramListContainer" style="margin-top:14px;"></div>
+    </div>
+</div>
+
 <!-- ITINERARY PAGE -->
 <div id="page-itinerary" class="page">
     <div class="header-premium header-premium-small"><div class="back-header"><i class="fas fa-arrow-left" onclick="showPage('home')"></i><h2>Itinerary</h2><div style="width:30px;"></div></div></div>
@@ -2964,7 +2990,9 @@
                 <i class="fas fa-chevron-right" style="color:var(--primary);"></i>
             </div>
         </div>
-        <div class="setting-card"><div class="setting-row"><span><i class="fas fa-user"></i>  Nama Anda saat ini: <b id="namaAdminSaatIni">Admin</b></span><button onclick="gantiNamaAdmin()" style="background:var(--primary);color:white;border:none;border-radius:8px;padding:6px 12px;font-size:12px;cursor:pointer;">Ganti</button></div></div>
+        <div class="setting-card"><div class="setting-row"><span><i class="fas fa-user"></i>  Nama Anda saat ini: <b id="namaAdminSaatIni">Admin</b></span><button onclick="gantiNamaAdmin()" style="background:var(--primary);color:white;border:none;border-radius:8px;padding:6px 12px;font-size:12px;cursor:pointer;">Ganti</button></div>
+            <button class="btn btn-small mt-2" onclick="openKelolaAdminModal()" style="background:#7C3AED;color:white;width:100%;">🔐 Kelola Admin (Multi-Admin + PIN)</button>
+        </div>
 <div class="setting-card"><div class="setting-row"><span><i class="fas fa-user-shield"></i>  Mode Admin</span><label class="switch"><input type="checkbox" id="adminMode" onchange="toggleAdminMode()"><span class="slider"></span></label></div></div>
         <div class="setting-card"><h4> Warna Tema</h4><div class="color-options" id="colorOptions"></div></div>
         <div class="setting-card"><h4> Atur Tampilan Menu</h4><div id="menuSettingsContainer"></div></div>
@@ -3082,6 +3110,8 @@
             <div class="fitur-card" onclick="openDashboardTrenModal()"><div class="fitur-icon">📈</div><div class="fitur-title">Dashboard Tren</div><div class="fitur-desc">Perbandingan antar tahun</div></div>
             <div class="fitur-card" onclick="cetakLaporanPenutupanMusim()"><div class="fitur-icon">📕</div><div class="fitur-title">Laporan Penutupan Musim</div><div class="fitur-desc">Gabungan semua laporan akhir</div></div>
             <div class="fitur-card" onclick="showPage('itinerary')"><div class="fitur-icon">🗓️</div><div class="fitur-title">Itinerary</div><div class="fitur-desc">Jadwal harian perjalanan</div></div>
+            <div class="fitur-card" onclick="showPage('arsipprogram')"><div class="fitur-icon">📁</div><div class="fitur-title">Program Arsip</div><div class="fitur-desc">Program lama, read-only</div></div>
+            <div class="fitur-card" onclick="showPage('alumni')"><div class="fitur-icon">🎓</div><div class="fitur-title">Database Alumni</div><div class="fitur-desc">Jamaah lama untuk remarketing</div></div>
             <div class="fitur-card" onclick="cetakRekapTahunanGabungan()"><div class="fitur-icon">📑</div><div class="fitur-title">Rekap Tahunan</div><div class="fitur-desc">Total omzet semua keberangkatan</div></div>
             <div class="fitur-card" onclick="openKalenderProgramModal()"><div class="fitur-icon">📅</div><div class="fitur-title">Kalender Program</div><div class="fitur-desc">Semua jadwal keberangkatan</div></div>
             <div class="fitur-card" onclick="openProyeksiKasModal()"><div class="fitur-icon">📉</div><div class="fitur-title">Proyeksi Kas</div><div class="fitur-desc">Estimasi dana yang masih masuk</div></div>
@@ -3591,6 +3621,7 @@
         <button id="btnSaveEditProgram" class="btn btn-primary" style="flex:1;" onclick="saveEditProgram()">💾 Simpan Perubahan</button>
         <button class="btn" style="flex:1;background:#e2e8f0;color:#333;" onclick="closeEditProgramModal()">Batal</button>
     </div>
+    <button class="btn mt-2" style="width:100%;background:#6B7280;color:white;" onclick="arsipkanProgram(document.getElementById('editProgramId').value)">📁 Arsipkan Program Ini</button>
 </div></div>
 <div id="entryModal" class="modal"><div class="modal-content">
     <h3 id="entryModalTitle">Tambah Catatan</h3>
@@ -3853,6 +3884,8 @@ function internalShowPage(pageId) {
     document.body.style.paddingBottom = isMainPage ? '' : '0';
     if (pageId === 'kas') { if(window.renderKasTable) window.renderKasTable(); if(window.updateSaldoKas) window.updateSaldoKas(); }
     if (pageId === 'prospek') { if(typeof loadProspekData === 'function') loadProspekData().then(renderProspekList); }
+    if (pageId === 'alumni') { if(typeof renderAlumniList === 'function') renderAlumniList(); }
+    if (pageId === 'arsipprogram') { if(typeof renderArsipProgramList === 'function') renderArsipProgramList(); }
     if (pageId === 'itinerary') { if(typeof renderItineraryList === 'function') renderItineraryList(); }
     if (pageId === 'jamaah') { if(window.loadJamaahData) window.loadJamaahData(); if(window.renderJamaahListWithPagination) window.renderJamaahListWithPagination(); }
     if (pageId === 'jamaahkita') {
@@ -4249,16 +4282,187 @@ const menuItemsPremium = [
 
 let isAdminModePremium = false;
 let currentAdminNama = localStorage.getItem('navara_current_admin_nama') || 'Admin';
+let currentAdminIsPemilik = localStorage.getItem('navara_current_admin_pemilik') === 'true';
+
+// ==================== MULTI-ADMIN + PIN (hash sederhana, bukan enkripsi tingkat bank — cukup untuk cegah orang iseng ngaku-ngaku) ====================
+async function hashPIN(pin) {
+    const enc = new TextEncoder().encode(pin);
+    const hashBuffer = await crypto.subtle.digest('SHA-256', enc);
+    return Array.from(new Uint8Array(hashBuffer)).map(b => b.toString(16).padStart(2,'0')).join('');
+}
+
+function getAdminList() {
+    return konfigurasiPro.admin_list || [];
+}
+
+function simpanAdminList(list) {
+    konfigurasiPro.admin_list = list;
+    localStorage.setItem('navara_konfigurasi_pro', JSON.stringify(konfigurasiPro));
+    idbSet(STORE_KONFIGURASI, 'konfigurasi_pro', konfigurasiPro);
+}
 
 function gantiNamaAdmin() {
-    const nama = prompt('Nama Anda saat ini (untuk jejak aktivitas):', currentAdminNama);
-    if(nama && nama.trim()) {
-        currentAdminNama = nama.trim();
-        localStorage.setItem('navara_current_admin_nama', currentAdminNama);
-        showToast('✅ Nama diubah jadi: ' + currentAdminNama);
-        const el = document.getElementById('namaAdminSaatIni');
-        if(el) el.textContent = currentAdminNama;
+    const list = getAdminList();
+    if(list.length === 0) {
+        // Multi-Admin belum pernah diaktifkan — persis perilaku lama, ketik bebas tanpa PIN
+        const nama = prompt('Nama Anda saat ini (untuk jejak aktivitas):', currentAdminNama);
+        if(nama && nama.trim()) {
+            currentAdminNama = nama.trim();
+            localStorage.setItem('navara_current_admin_nama', currentAdminNama);
+            showToast('✅ Nama diubah jadi: ' + currentAdminNama);
+            const el = document.getElementById('namaAdminSaatIni');
+            if(el) el.textContent = currentAdminNama;
+        }
+        return;
     }
+    openPilihAdminModal();
+}
+
+function openPilihAdminModal() {
+    let modal = document.getElementById('pilihAdminModal');
+    if(!modal) {
+        modal = document.createElement('div');
+        modal.id = 'pilihAdminModal';
+        modal.className = 'modal';
+        document.body.appendChild(modal);
+    }
+    const list = getAdminList();
+    const tombolNama = list.map(a => `<button onclick="tampilkanInputPIN('${escapeHtml(a.nama).replace(/'/g,"\\'")}')" style="width:100%;padding:12px;background:#F8FAFC;border:1.5px solid #ddd;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;margin-bottom:8px;">${a.isPemilik ? '👑' : '👤'} ${escapeHtml(a.nama)}</button>`).join('');
+    modal.innerHTML = `<div class="modal-content" style="max-width:380px;">
+        <h3 style="color:#0D5C4A;margin-bottom:12px;">🔐 Pilih Nama Anda</h3>
+        <div id="pilihAdminNamaArea">${tombolNama}</div>
+        <div id="pilihAdminPINArea" style="display:none;"></div>
+        <button onclick="document.getElementById('pilihAdminModal').style.display='none'" style="width:100%;padding:11px;background:#e2e8f0;color:#333;border:none;border-radius:10px;font-size:13px;cursor:pointer;margin-top:10px;">Batal</button>
+    </div>`;
+    modal.style.display = 'flex';
+}
+
+function tampilkanInputPIN(nama) {
+    document.getElementById('pilihAdminNamaArea').style.display = 'none';
+    document.getElementById('pilihAdminPINArea').style.display = 'block';
+    document.getElementById('pilihAdminPINArea').innerHTML = `
+        <div style="font-size:13px;color:#666;margin-bottom:8px;">Masukkan PIN untuk <b>${escapeHtml(nama)}</b>:</div>
+        <input type="password" inputmode="numeric" maxlength="8" id="inputPINAdmin" placeholder="PIN" style="width:100%;padding:12px;border-radius:10px;border:1.5px solid #ddd;font-size:18px;text-align:center;letter-spacing:4px;" autofocus>
+        <button onclick="verifikasiPINAdmin('${nama.replace(/'/g,"\\'")}')" style="width:100%;padding:11px;background:#0D5C4A;color:white;border:none;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;margin-top:10px;">Masuk</button>
+    `;
+    document.getElementById('inputPINAdmin').focus();
+}
+
+async function verifikasiPINAdmin(nama) {
+    const pin = document.getElementById('inputPINAdmin').value;
+    if(!pin) return showToast('Masukkan PIN dulu!');
+    const list = getAdminList();
+    const a = list.find(x => x.nama === nama);
+    if(!a) return showToast('Admin tidak ditemukan');
+    const hashInput = await hashPIN(pin);
+    if(hashInput !== a.pinHash) return showToast('❌ PIN salah!');
+    currentAdminNama = a.nama;
+    currentAdminIsPemilik = !!a.isPemilik;
+    localStorage.setItem('navara_current_admin_nama', currentAdminNama);
+    localStorage.setItem('navara_current_admin_pemilik', currentAdminIsPemilik ? 'true' : 'false');
+    document.getElementById('pilihAdminModal').style.display = 'none';
+    const el = document.getElementById('namaAdminSaatIni');
+    if(el) el.textContent = currentAdminNama;
+    showToast(`✅ Masuk sebagai ${currentAdminNama}`);
+}
+
+function openKelolaAdminModal() {
+    const list = getAdminList();
+    // Bootstrap: kalau belum ada admin sama sekali, siapa saja boleh buat yang PERTAMA (otomatis jadi Admin Utama)
+    // Kalau sudah ada, HANYA Admin Utama yang boleh buka ini
+    if(list.length > 0 && !currentAdminIsPemilik) {
+        return showToast('🔒 Hanya Admin Utama yang boleh Kelola Admin');
+    }
+    let modal = document.getElementById('kelolaAdminModal');
+    if(!modal) {
+        modal = document.createElement('div');
+        modal.id = 'kelolaAdminModal';
+        modal.className = 'modal';
+        document.body.appendChild(modal);
+    }
+    renderKelolaAdminModal(modal);
+    modal.style.display = 'flex';
+}
+
+function renderKelolaAdminModal(modalEl) {
+    modalEl = modalEl || document.getElementById('kelolaAdminModal');
+    if(!modalEl) return;
+    const list = getAdminList();
+    const rows = list.map(a => `
+        <div style="display:flex;justify-content:space-between;align-items:center;background:#F8FAFC;border-radius:10px;padding:10px 12px;margin-bottom:8px;">
+            <span style="font-weight:700;font-size:13px;">${a.isPemilik ? '👑' : '👤'} ${escapeHtml(a.nama)} ${a.isPemilik ? '<span style="font-size:10px;color:#888;">(Admin Utama)</span>' : ''}</span>
+            <div style="display:flex;gap:8px;">
+                <button onclick="openTambahAdminForm('${a.nama.replace(/'/g,"\\'")}')" style="border:none;background:none;color:#0369A1;font-size:14px;cursor:pointer;">✏️</button>
+                ${!a.isPemilik ? `<button onclick="hapusAdmin('${a.nama.replace(/'/g,"\\'")}')" style="border:none;background:none;color:#DC2626;font-size:14px;cursor:pointer;">🗑️</button>` : ''}
+            </div>
+        </div>`).join('');
+
+    modalEl.innerHTML = `<div class="modal-content" style="max-width:420px;">
+        <h3 style="color:#0D5C4A;margin-bottom:4px;">🔐 Kelola Admin</h3>
+        <div style="font-size:11px;color:#888;margin-bottom:12px;">${list.length === 0 ? 'Belum ada Admin — buat yang pertama, otomatis jadi Admin Utama (👑)' : 'Admin Utama (👑) tidak bisa dihapus/diganti oleh Admin biasa'}</div>
+        <div style="max-height:280px;overflow-y:auto;">${rows}</div>
+        <button onclick="openTambahAdminForm()" style="width:100%;padding:11px;background:#7C3AED;color:white;border:none;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;margin-top:8px;">+ Tambah Admin</button>
+        <div id="tambahAdminFormArea"></div>
+        <button onclick="document.getElementById('kelolaAdminModal').style.display='none'" style="width:100%;padding:11px;background:#e2e8f0;color:#333;border:none;border-radius:10px;font-size:13px;cursor:pointer;margin-top:10px;">Tutup</button>
+    </div>`;
+}
+
+function openTambahAdminForm(namaEdit) {
+    const list = getAdminList();
+    const a = namaEdit ? list.find(x => x.nama === namaEdit) : null;
+    const namaDefault = a ? a.nama : (list.length === 0 ? currentAdminNama : '');
+    document.getElementById('tambahAdminFormArea').innerHTML = `
+        <div style="background:#F0F9FF;border-radius:10px;padding:12px;margin-top:8px;">
+            <input type="hidden" id="adminEditNamaLama" value="${namaEdit ? escapeHtml(namaEdit) : ''}">
+            <div class="input-group"><label>Nama</label><input type="text" id="adminFormNama" value="${escapeHtml(namaDefault)}"></div>
+            <div class="input-group"><label>PIN Baru (${a ? 'kosongkan kalau tidak ganti PIN' : '4-8 digit'})</label><input type="password" inputmode="numeric" maxlength="8" id="adminFormPIN" placeholder="PIN"></div>
+            <button onclick="simpanAdminBaru()" style="width:100%;padding:10px;background:#166534;color:white;border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;margin-top:6px;">Simpan</button>
+        </div>`;
+}
+
+async function simpanAdminBaru() {
+    const namaLama = document.getElementById('adminEditNamaLama').value;
+    const namaBaru = document.getElementById('adminFormNama').value.trim();
+    const pin = document.getElementById('adminFormPIN').value;
+    if(!namaBaru) return showToast('Nama wajib diisi!');
+    let list = getAdminList();
+
+    if(namaLama) {
+        // Edit admin yang sudah ada
+        const a = list.find(x => x.nama === namaLama);
+        if(!a) return;
+        a.nama = namaBaru;
+        if(pin) a.pinHash = await hashPIN(pin);
+    } else {
+        // Admin baru — wajib isi PIN
+        if(!pin || pin.length < 4) return showToast('PIN minimal 4 digit untuk Admin baru!');
+        if(list.find(x => x.nama === namaBaru)) return showToast('Nama itu sudah dipakai!');
+        const isPemilik = list.length === 0; // Admin PERTAMA otomatis jadi Admin Utama
+        list.push({ nama: namaBaru, pinHash: await hashPIN(pin), isPemilik });
+        if(isPemilik) {
+            // Langsung login sebagai Admin Utama yang baru dibuat
+            currentAdminNama = namaBaru;
+            currentAdminIsPemilik = true;
+            localStorage.setItem('navara_current_admin_nama', currentAdminNama);
+            localStorage.setItem('navara_current_admin_pemilik', 'true');
+            const el = document.getElementById('namaAdminSaatIni');
+            if(el) el.textContent = currentAdminNama;
+        }
+    }
+    simpanAdminList(list);
+    renderKelolaAdminModal();
+    showToast('✅ Tersimpan');
+}
+
+function hapusAdmin(nama) {
+    konfirmasiBertema('Hapus Admin ini?', `${escapeHtml(nama)} tidak akan bisa login lagi setelah dihapus.`, () => {
+        let list = getAdminList();
+        const target = list.find(x => x.nama === nama);
+        if(target && target.isPemilik) return showToast('⚠️ Admin Utama tidak bisa dihapus!');
+        list = list.filter(x => x.nama !== nama);
+        simpanAdminList(list);
+        renderKelolaAdminModal();
+    });
 }
 
 // ==================== RIWAYAT AKTIVITAS ====================
@@ -4857,6 +5061,7 @@ function loadEstimasiData() {
 }
 
 function hitungUmroh() { 
+    if(cekProgramArsip()) return;
     if(!checkTrialHitung()) return;
     saveEstimasiData(); 
     const nJam=parseInt(document.getElementById('totJam').value)||0; 
@@ -5576,6 +5781,7 @@ function simpanKonsorsium() {
 }
 
 function tambahKonsorsiumTravel() {
+    if(cekProgramArsip()) return;
     const slot = ensureProgramConfigSlot();
     if(slot.konsorsium_locked) return showToast('🔒 Konsorsium terkunci, buka dulu untuk edit!');
     const list = ensureKonsorsiumList();
@@ -6433,6 +6639,7 @@ async function savePengeluaran() {
 }
 
 async function simpanPengeluaran() {
+    if(cekProgramArsip()) return;
     const kategori = document.getElementById('pengeluaranKategori').value;
     const keterangan = document.getElementById('pengeluaranKeterangan').value.trim();
     const nominalRaw = document.getElementById('pengeluaranNominal').value;
@@ -9289,6 +9496,7 @@ let _dataUndoTerakhir = null;
 let _undoTimeoutId = null;
 
 function confirmDeleteJamaahById(id){ 
+    if(cekProgramArsip()) return;
     if(confirm('Hapus database ini?')){ 
         const index=jamaahList.findIndex(j=>j.id==id); 
         if(index!==-1){ 
@@ -9390,6 +9598,7 @@ function editJamaah(index){
 }
 
 function saveJamaah(tetapBuka){ 
+    if(cekProgramArsip()) return;
     const nama=document.getElementById('jamaahNamaLengkap').value.trim(); 
     if(!nama) return showToast('Nama lengkap wajib diisi!'); 
     const additional={}; 
@@ -10586,6 +10795,7 @@ function renderProspekList() {
 }
 
 function bangunKerangkaItinerary() {
+    if(cekProgramArsip()) return;
     const slot = ensureProgramConfigSlot();
     const kb = slot.keberangkatan || {};
     const jumlahHari = parseInt(kb.jumlahHari) || 0;
@@ -10621,6 +10831,7 @@ function bangunKerangkaItinerary() {
 }
 
 function tambahHariItinerary() {
+    if(cekProgramArsip()) return;
     const it = ensureItinerary();
     const nomorBaru = it.hari.length > 0 ? Math.max(...it.hari.map(h => h.nomorHari)) + 1 : 1;
     let tanggal = '';
@@ -12547,6 +12758,7 @@ function openPaymentModalWithJamaah(id) {
 }
 
 function simpanPembayaran() { 
+    if(cekProgramArsip()) return;
     const idJamaah = document.getElementById('paymentJamaahSelect').value; 
     const nominal = parseInt(document.getElementById('paymentNominal').value.replace(/\./g, '')); 
     const tanggal = document.getElementById('paymentTanggal').value; 
@@ -13348,7 +13560,7 @@ function renderProgramListInModal() {
     const container = document.getElementById('programListContainer');
     if(!container) return;
     let html = '';
-    programList.forEach(p => {
+    programList.filter(p => !p.isArsip).forEach(p => {
         const active = p.id === currentProgramId;
         const color = PROGRAM_WARNA[p.jenis] || PROGRAM_WARNA.lainnya;
         const jumlahJamaah = _allJamaahData.filter(j => j.program_id === p.id).length;
@@ -13430,6 +13642,133 @@ async function deleteProgram(id) {
     catatAktivitas('🗑️', `Program "${namaProgramDihapus}" dihapus`);
     renderProgramListInModal();
     showToast('🗑️ Program dihapus');
+}
+
+function isProgramArsip() {
+    const p = getCurrentProgram();
+    return p && p.isArsip === true;
+}
+
+// Panggil di awal fungsi yang mengubah data — return true kalau harus dibatalkan (Program sedang Arsip/read-only)
+function cekProgramArsip() {
+    if(isProgramArsip()) {
+        showToast('🔒 Program ini sudah diarsipkan (read-only) — batalkan Arsip dulu di halaman Program Arsip untuk bisa edit');
+        return true;
+    }
+    return false;
+}
+
+function arsipkanProgram(id) {
+    const p = programList.find(x => x.id === id);
+    if(!p) return;
+    konfirmasiBertema('Arsipkan Program?', `"${escapeHtml(p.nama)}" akan dipindah ke Arsip (read-only) dan hilang dari daftar Ganti Program harian. Data TETAP aman, tetap masuk laporan/statistik. Bisa dibatalkan kapan saja.`, async () => {
+        p.isArsip = true;
+        await saveProgramData();
+        closeEditProgramModal();
+        if(currentProgramId === id) {
+            const programLain = programList.find(x => !x.isArsip);
+            if(programLain) await selectProgram(programLain.id);
+        }
+        renderProgramPickerBar();
+        showToast('📁 Program diarsipkan');
+    }, '📁 Ya, Arsipkan');
+}
+
+function batalkanArsipProgram(id) {
+    const p = programList.find(x => x.id === id);
+    if(!p) return;
+    konfirmasiBertema('Batalkan Arsip?', `"${escapeHtml(p.nama)}" akan kembali aktif dan bisa diedit lagi seperti biasa.`, async () => {
+        p.isArsip = false;
+        await saveProgramData();
+        renderArsipProgramList();
+        showToast('✅ Arsip dibatalkan, Program aktif kembali');
+    }, '✅ Ya, Batalkan Arsip');
+}
+
+async function lihatProgramArsip(id) {
+    await selectProgram(id);
+    showPage('home');
+    showToast('👁️ Melihat Program Arsip (read-only)');
+}
+
+// ==================== DATABASE ALUMNI (bukan database baru — gabungan otomatis dari Program Arsip) ====================
+function getFieldPaspor(j) { return (j.additional_fields?.no_paspor || '').trim(); }
+function getFieldHP(j) { return (j.additional_fields?.whatsapp || '').trim(); }
+function getFieldTglLahir(j) { return (j.additional_fields?.tgl_lahir || '').trim(); }
+
+// Cocokkan 2 record Jamaah: Paspor dulu, kalau kosong baru HP, kalau kosong baru Nama+Tgl Lahir. Kalau semua data pendukung kosong, JANGAN gabungkan (lebih aman daripada salah gabung).
+function cocokJamaahSamaOrang(a, b) {
+    const pasporA = getFieldPaspor(a), pasporB = getFieldPaspor(b);
+    if(pasporA && pasporB) return pasporA === pasporB;
+    const hpA = getFieldHP(a), hpB = getFieldHP(b);
+    if(hpA && hpB) return hpA === hpB;
+    const tglA = getFieldTglLahir(a), tglB = getFieldTglLahir(b);
+    if(a.nama_lengkap && b.nama_lengkap && tglA && tglB) {
+        return a.nama_lengkap.trim().toLowerCase() === b.nama_lengkap.trim().toLowerCase() && tglA === tglB;
+    }
+    return false;
+}
+
+function bangunDataAlumni() {
+    const programArsipIds = new Set(programList.filter(p => p.isArsip).map(p => p.id));
+    const jamaahArsip = _allJamaahData.filter(j => programArsipIds.has(j.program_id));
+
+    const cluster = [];
+    jamaahArsip.forEach(j => {
+        const ditemukan = cluster.find(c => c.anggota.some(existing => cocokJamaahSamaOrang(existing, j)));
+        if(ditemukan) ditemukan.anggota.push(j);
+        else cluster.push({ anggota: [j] });
+    });
+
+    return cluster.map(c => {
+        const programIdUnik = [...new Set(c.anggota.map(j => j.program_id))];
+        const namaProgram = programIdUnik.map(pid => programList.find(p => p.id === pid)?.nama || '(Program tidak ditemukan)');
+        const terbaru = c.anggota[c.anggota.length - 1];
+        return {
+            nama: terbaru.nama_lengkap,
+            hp: getFieldHP(terbaru),
+            jumlahIkut: programIdUnik.length,
+            riwayatProgram: namaProgram
+        };
+    });
+}
+
+function renderAlumniList() {
+    const container = document.getElementById('alumniListContainer');
+    if(!container) return;
+    const cari = (document.getElementById('alumniSearch')?.value || '').toLowerCase();
+    const filterJumlah = document.getElementById('alumniFilterJumlah')?.value || '';
+    let list = bangunDataAlumni();
+    if(cari) list = list.filter(a => a.nama.toLowerCase().includes(cari));
+    if(filterJumlah === '3') list = list.filter(a => a.jumlahIkut >= 3);
+    else if(filterJumlah) list = list.filter(a => a.jumlahIkut === parseInt(filterJumlah));
+    list.sort((a,b) => b.jumlahIkut - a.jumlahIkut);
+
+    container.innerHTML = list.map(a => `
+        <div style="background:#F8FAFC;border-radius:12px;padding:12px;margin-bottom:10px;">
+            <div style="font-weight:700;font-size:14px;">🎓 ${escapeHtml(a.nama)}</div>
+            <div style="font-size:12px;color:#666;">${escapeHtml(a.hp||'-')}</div>
+            <div style="font-size:11px;color:#0369A1;margin-top:4px;">Riwayat: ${a.riwayatProgram.map(escapeHtml).join(', ')} (${a.jumlahIkut}x)</div>
+            ${a.hp ? `<button onclick="window.open('https://wa.me/${a.hp.replace(/\\D/g,'').replace(/^0/,'62')}','_blank')" style="width:100%;padding:8px;background:#25D366;color:white;border:none;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;margin-top:8px;">📲 WA</button>` : ''}
+        </div>`).join('') || '<p style="color:#aaa;text-align:center;padding:20px;font-size:13px;">Belum ada Alumni — arsipkan Program dulu supaya jamaahnya muncul di sini</p>';
+}
+
+function renderArsipProgramList() {
+    const container = document.getElementById('arsipProgramListContainer');
+    if(!container) return;
+    const cari = (document.getElementById('arsipProgramSearch')?.value || '').toLowerCase();
+    const list = programList.filter(p => p.isArsip && (!cari || p.nama.toLowerCase().includes(cari)));
+    container.innerHTML = list.map(p => {
+        const jumlahJamaah = _allJamaahData.filter(j => j.program_id === p.id).length;
+        return `<div style="background:#F8FAFC;border-radius:12px;padding:12px;margin-bottom:10px;">
+            <div style="font-weight:700;font-size:14px;">${PROGRAM_ICON[p.jenis]||'📁'} ${escapeHtml(p.nama)}</div>
+            <div style="font-size:11px;color:#888;margin-bottom:8px;">${jumlahJamaah} jamaah — 🔒 Read-only</div>
+            <div style="display:flex;gap:8px;">
+                <button onclick="lihatProgramArsip('${p.id}')" style="flex:1;padding:8px;background:#0369A1;color:white;border:none;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;">👁️ Lihat</button>
+                <button onclick="batalkanArsipProgram('${p.id}')" style="flex:1;padding:8px;background:#166534;color:white;border:none;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;">↩️ Batalkan Arsip</button>
+            </div>
+        </div>`;
+    }).join('') || '<p style="color:#aaa;text-align:center;padding:20px;font-size:13px;">Belum ada Program yang diarsipkan</p>';
 }
 
 function openEditProgramForm(id) {
@@ -17717,6 +18056,7 @@ async function loadKonfigurasiPro() {
 }
 
 async function saveKonfigurasiPro() {
+    if(cekProgramArsip()) return;
     konfigurasiPro.instansi1 = {
         nama: document.getElementById('cfg_nama1').value,
         alamat: document.getElementById('cfg_alamat1').value,
@@ -17907,18 +18247,20 @@ const installPopupClosed = localStorage.getItem('navara_install_popup_closed') =
 // Service Worker - hanya daftarkan jika bukan dari blob URL
 if ('serviceWorker' in navigator && !location.href.startsWith('blob')) {
     const swCode = `
-        const CACHE_NAME = 'navara-v202605030628';
-        const urlsToCache = ['.', 'index.html'];
-        self.addEventListener('install', e => {
-            e.waitUntil(caches.open(CACHE_NAME).then(cache => cache.addAll(urlsToCache)));
-            self.skipWaiting();
-        });
+        const CACHE_NAME = 'navara-v202608291500';
+        self.addEventListener('install', e => { self.skipWaiting(); });
         self.addEventListener('activate', e => {
             e.waitUntil(caches.keys().then(keys => Promise.all(keys.filter(k => k !== CACHE_NAME).map(k => caches.delete(k)))));
             self.clients.claim();
         });
         self.addEventListener('fetch', e => {
-            e.respondWith(fetch(e.request).catch(() => caches.match(e.request)));
+            e.respondWith(
+                fetch(e.request).then(res => {
+                    const resClone = res.clone();
+                    caches.open(CACHE_NAME).then(cache => cache.put(e.request, resClone));
+                    return res;
+                }).catch(() => caches.match(e.request))
+            );
         });
     `
     try {
