@@ -2529,6 +2529,19 @@
     </div>
 </div>
 
+<!-- LAYANAN TAMBAHAN PAGE -->
+<div id="page-layanantambahan" class="page">
+    <div class="header-premium header-premium-small"><div class="back-header"><i class="fas fa-arrow-left" onclick="showPage('home')"></i><h2>Layanan Tambahan</h2><div style="width:30px;"></div></div></div>
+    <div class="card-premium">
+        <div style="font-size:11px;color:#888;margin-bottom:12px;">Badal Haji, Dam, dan layanan tambahan lain — data mengikuti Program aktif saat ini.</div>
+        <button class="btn btn-primary" onclick="openTambahLayananModal()"><i class="fas fa-plus-circle"></i> Tambah Transaksi</button>
+        <div id="layananTambahanRingkasan" style="background:linear-gradient(135deg,#0D5C4A,#0a3d31);border-radius:14px;padding:14px;color:white;margin-top:14px;">
+            <div style="display:flex;justify-content:space-between;"><span style="opacity:0.8;font-size:13px;">Total Profit Layanan Tambahan</span><span id="layananTotalProfit" style="font-weight:900;">Rp 0</span></div>
+        </div>
+        <div id="layananTambahanListContainer" style="margin-top:14px;"></div>
+    </div>
+</div>
+
 <!-- DATABASE ALUMNI PAGE -->
 <div id="page-alumni" class="page">
     <div class="header-premium header-premium-small"><div class="back-header"><i class="fas fa-arrow-left" onclick="showPage('home')"></i><h2>Database Alumni</h2><div style="width:30px;"></div></div></div>
@@ -2992,6 +3005,17 @@
         </div>
         <div class="setting-card"><div class="setting-row"><span><i class="fas fa-user"></i>  Nama Anda saat ini: <b id="namaAdminSaatIni">Admin</b></span><button onclick="gantiNamaAdmin()" style="background:var(--primary);color:white;border:none;border-radius:8px;padding:6px 12px;font-size:12px;cursor:pointer;">Ganti</button></div>
             <button class="btn btn-small mt-2" onclick="openKelolaAdminModal()" style="background:#7C3AED;color:white;width:100%;">🔐 Kelola Admin (Multi-Admin + PIN)</button>
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-top:10px;">
+                <span style="font-size:13px;">🔒 Kunci Otomatis</span>
+                <input type="checkbox" id="cfgKunciOtomatisAktif" onchange="ubahPengaturanKunciOtomatis()" style="width:20px;height:20px;">
+            </div>
+            <div style="font-size:11px;color:#888;margin-top:2px;">Minta PIN lagi kalau aplikasi tidak disentuh selama:</div>
+            <select id="cfgKunciOtomatisMenit" onchange="ubahPengaturanKunciOtomatis()" style="width:100%;padding:8px;border-radius:8px;border:1.5px solid #ddd;font-size:13px;margin-top:4px;background:var(--input-bg);color:var(--text);">
+                <option value="5">5 menit</option>
+                <option value="15">15 menit</option>
+                <option value="30">30 menit</option>
+                <option value="60">1 jam</option>
+            </select>
         </div>
 <div class="setting-card"><div class="setting-row"><span><i class="fas fa-user-shield"></i>  Mode Admin</span><label class="switch"><input type="checkbox" id="adminMode" onchange="toggleAdminMode()"><span class="slider"></span></label></div></div>
         <div class="setting-card"><h4> Warna Tema</h4><div class="color-options" id="colorOptions"></div></div>
@@ -3112,6 +3136,7 @@
             <div class="fitur-card" onclick="showPage('itinerary')"><div class="fitur-icon">🗓️</div><div class="fitur-title">Itinerary</div><div class="fitur-desc">Jadwal harian perjalanan</div></div>
             <div class="fitur-card" onclick="showPage('arsipprogram')"><div class="fitur-icon">📁</div><div class="fitur-title">Program Arsip</div><div class="fitur-desc">Program lama, read-only</div></div>
             <div class="fitur-card" onclick="showPage('alumni')"><div class="fitur-icon">🎓</div><div class="fitur-title">Database Alumni</div><div class="fitur-desc">Jamaah lama untuk remarketing</div></div>
+            <div class="fitur-card" onclick="showPage('layanantambahan')"><div class="fitur-icon">🕋</div><div class="fitur-title">Layanan Tambahan</div><div class="fitur-desc">Badal Haji, Dam, dll</div></div>
             <div class="fitur-card" onclick="cetakRekapTahunanGabungan()"><div class="fitur-icon">📑</div><div class="fitur-title">Rekap Tahunan</div><div class="fitur-desc">Total omzet semua keberangkatan</div></div>
             <div class="fitur-card" onclick="openKalenderProgramModal()"><div class="fitur-icon">📅</div><div class="fitur-title">Kalender Program</div><div class="fitur-desc">Semua jadwal keberangkatan</div></div>
             <div class="fitur-card" onclick="openProyeksiKasModal()"><div class="fitur-icon">📉</div><div class="fitur-title">Proyeksi Kas</div><div class="fitur-desc">Estimasi dana yang masih masuk</div></div>
@@ -3884,6 +3909,7 @@ function internalShowPage(pageId) {
     document.body.style.paddingBottom = isMainPage ? '' : '0';
     if (pageId === 'kas') { if(window.renderKasTable) window.renderKasTable(); if(window.updateSaldoKas) window.updateSaldoKas(); }
     if (pageId === 'prospek') { if(typeof loadProspekData === 'function') loadProspekData().then(renderProspekList); }
+    if (pageId === 'layanantambahan') { if(typeof renderLayananTambahanList === 'function') renderLayananTambahanList(); }
     if (pageId === 'alumni') { if(typeof renderAlumniList === 'function') renderAlumniList(); }
     if (pageId === 'arsipprogram') { if(typeof renderArsipProgramList === 'function') renderArsipProgramList(); }
     if (pageId === 'itinerary') { if(typeof renderItineraryList === 'function') renderItineraryList(); }
@@ -3913,7 +3939,7 @@ function internalShowPage(pageId) {
             if(logoEl && logoSrc) logoEl.src = logoSrc;
         } catch(e) {}
     }
-    if (pageId === 'setting') { updateLicenseSummary(); const na = document.getElementById('namaAdminSaatIni'); if(na) na.textContent = currentAdminNama; }
+    if (pageId === 'setting') { updateLicenseSummary(); const na = document.getElementById('namaAdminSaatIni'); if(na) na.textContent = currentAdminNama; const kuncipengaturan = getPengaturanKunciOtomatis(); const elAktif = document.getElementById('cfgKunciOtomatisAktif'); const elMenit = document.getElementById('cfgKunciOtomatisMenit'); if(elAktif) elAktif.checked = kuncipengaturan.aktif; if(elMenit) elMenit.value = kuncipengaturan.menit; }
     if (pageId === 'riwayataktivitas') { renderRiwayatAktivitas(); }
     if (pageId === 'konfigurasi') { if(window.loadKonfigurasiPro) window.loadKonfigurasiPro(); setTimeout(applyKonfigurasiLock, 400); applyModeHajiReguler(); }
     if (pageId === 'jamaah') { applyModeHajiReguler(); }    if (pageId === 'catatan') { if(window.renderCatatanList) window.renderCatatanList(); const fab = document.getElementById('catatanFabBtn'); if(fab) fab.style.display = 'flex'; }
@@ -4291,6 +4317,132 @@ async function hashPIN(pin) {
     return Array.from(new Uint8Array(hashBuffer)).map(b => b.toString(16).padStart(2,'0')).join('');
 }
 
+// ==================== KODE PEMULIHAN (jaring pengaman kalau PIN lupa — karena Single File, tidak ada server untuk "lupa password") ====================
+function buatKodePemulihanAcak() {
+    const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; // hindari huruf/angka mirip (0/O, 1/I)
+    const acak = new Uint32Array(16);
+    crypto.getRandomValues(acak);
+    let kode = '';
+    for(let i = 0; i < 16; i++) {
+        kode += chars[acak[i] % chars.length];
+        if(i % 4 === 3 && i < 15) kode += '-';
+    }
+    return kode;
+}
+
+async function buatDanTampilkanKodePemulihan() {
+    const kode = buatKodePemulihanAcak();
+    konfigurasiPro.admin_recovery_hash = await hashPIN(kode);
+    localStorage.setItem('navara_konfigurasi_pro', JSON.stringify(konfigurasiPro));
+    idbSet(STORE_KONFIGURASI, 'konfigurasi_pro', konfigurasiPro);
+
+    let modal = document.getElementById('kodePemulihanModal');
+    if(!modal) {
+        modal = document.createElement('div');
+        modal.id = 'kodePemulihanModal';
+        modal.className = 'modal';
+        document.body.appendChild(modal);
+    }
+    modal.innerHTML = `<div class="modal-content" style="max-width:400px;">
+        <h3 style="color:#DC2626;margin-bottom:10px;">⚠️ Simpan Kode Pemulihan Ini!</h3>
+        <p style="font-size:12px;color:#666;margin-bottom:12px;">Kode ini HANYA ditampilkan 1 KALI. Kalau PIN Admin Utama lupa, INI satu-satunya jalan masuk kembali. Simpan di tempat aman (Notes, WhatsApp ke diri sendiri, dll).</p>
+        <div style="background:#F8FAFC;border:2px dashed #0D5C4A;border-radius:10px;padding:16px;text-align:center;font-size:20px;font-weight:900;letter-spacing:2px;color:#0D5C4A;margin-bottom:12px;">${kode}</div>
+        <button onclick="navigator.clipboard.writeText('${kode}').then(()=>showToast('✅ Kode disalin!'))" style="width:100%;padding:11px;background:#0369A1;color:white;border:none;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;margin-bottom:8px;">📋 Salin Kode</button>
+        <button onclick="document.getElementById('kodePemulihanModal').style.display='none'" style="width:100%;padding:11px;background:#166534;color:white;border:none;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;">✅ Sudah Saya Simpan</button>
+    </div>`;
+    modal.style.display = 'flex';
+}
+
+// ==================== KUNCI OTOMATIS (layar kunci kalau tidak disentuh sekian lama) ====================
+function ubahPengaturanKunciOtomatis() {
+    const aktif = document.getElementById('cfgKunciOtomatisAktif').checked;
+    const menit = parseInt(document.getElementById('cfgKunciOtomatisMenit').value) || 15;
+    if(aktif && getAdminList().length === 0) {
+        document.getElementById('cfgKunciOtomatisAktif').checked = false;
+        return showToast('⚠️ Buat Admin (Kelola Admin) dulu sebelum aktifkan Kunci Otomatis!');
+    }
+    simpanPengaturanKunciOtomatis(aktif, menit);
+    showToast(aktif ? `🔒 Kunci Otomatis aktif (${menit} menit)` : '🔓 Kunci Otomatis dimatikan');
+}
+
+function getPengaturanKunciOtomatis() {
+    return konfigurasiPro.kunci_otomatis || { aktif: false, menit: 15 };
+}
+
+function simpanPengaturanKunciOtomatis(aktif, menit) {
+    konfigurasiPro.kunci_otomatis = { aktif, menit };
+    localStorage.setItem('navara_konfigurasi_pro', JSON.stringify(konfigurasiPro));
+    idbSet(STORE_KONFIGURASI, 'konfigurasi_pro', konfigurasiPro);
+}
+
+function catatWaktuAktifTerakhir() {
+    localStorage.setItem('navara_last_active', Date.now().toString());
+}
+
+function cekPerluKunciOtomatis() {
+    const pengaturan = getPengaturanKunciOtomatis();
+    if(!pengaturan.aktif || getAdminList().length === 0) return;
+    const terakhir = parseInt(localStorage.getItem('navara_last_active')) || 0;
+    const selisihMenit = (Date.now() - terakhir) / 60000;
+    if(selisihMenit >= pengaturan.menit) tampilkanLayarKunci();
+}
+
+function tampilkanLayarKunci() {
+    let overlay = document.getElementById('lockScreenOverlay');
+    if(!overlay) {
+        overlay = document.createElement('div');
+        overlay.id = 'lockScreenOverlay';
+        overlay.style.cssText = 'position:fixed;inset:0;background:#0D5C4A;z-index:99999;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;';
+        document.body.appendChild(overlay);
+    }
+    overlay.innerHTML = `
+        <div style="font-size:48px;margin-bottom:12px;">🔒</div>
+        <div style="color:white;font-size:16px;font-weight:700;margin-bottom:4px;">Aplikasi Terkunci</div>
+        <div style="color:rgba(255,255,255,0.8);font-size:13px;margin-bottom:20px;">Masukkan PIN untuk <b>${escapeHtml(currentAdminNama)}</b></div>
+        <input type="password" inputmode="numeric" maxlength="8" id="inputPINKunci" placeholder="PIN" style="width:200px;padding:14px;border-radius:12px;border:none;font-size:20px;text-align:center;letter-spacing:4px;margin-bottom:12px;" autofocus>
+        <button onclick="verifikasiPINLayarKunci()" style="width:200px;padding:12px;background:white;color:#0D5C4A;border:none;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;margin-bottom:10px;">Buka</button>
+        <a href="#" onclick="event.preventDefault();promptKodePemulihan();" style="color:rgba(255,255,255,0.7);font-size:12px;text-decoration:underline;">Lupa PIN? Pakai Kode Pemulihan</a>
+    `;
+    overlay.style.display = 'flex';
+    setTimeout(() => document.getElementById('inputPINKunci')?.focus(), 100);
+}
+
+async function verifikasiPINLayarKunci() {
+    const pin = document.getElementById('inputPINKunci').value;
+    const list = getAdminList();
+    const a = list.find(x => x.nama === currentAdminNama);
+    if(!a) { document.getElementById('lockScreenOverlay').style.display = 'none'; return; } // safety: kalau admin tidak ditemukan, jangan sampai buntu
+    const hashInput = await hashPIN(pin);
+    if(hashInput !== a.pinHash) { showToast('❌ PIN salah!'); return; }
+    document.getElementById('lockScreenOverlay').style.display = 'none';
+    catatWaktuAktifTerakhir();
+}
+
+async function promptKodePemulihan() {
+    const kode = prompt('Masukkan Kode Pemulihan:');
+    if(!kode) return;
+    const hashInput = await hashPIN(kode.trim().toUpperCase());
+    if(hashInput !== konfigurasiPro.admin_recovery_hash) return showToast('❌ Kode Pemulihan salah!');
+    const pinBaru = prompt('Kode benar! Masukkan PIN BARU untuk ' + currentAdminNama + ':');
+    if(!pinBaru || pinBaru.length < 4) return showToast('PIN minimal 4 digit!');
+    const list = getAdminList();
+    const a = list.find(x => x.nama === currentAdminNama);
+    if(a) {
+        a.pinHash = await hashPIN(pinBaru);
+        simpanAdminList(list);
+        document.getElementById('lockScreenOverlay').style.display = 'none';
+        catatWaktuAktifTerakhir();
+        showToast('✅ PIN berhasil direset');
+    }
+}
+
+// Catat aktivitas + cek kunci setiap kali tab/app kembali terlihat (ganti app lain lalu balik, buka HP lagi, dll)
+document.addEventListener('visibilitychange', () => {
+    if(document.visibilityState === 'visible') cekPerluKunciOtomatis();
+    else catatWaktuAktifTerakhir();
+});
+document.addEventListener('click', catatWaktuAktifTerakhir);
+
 function getAdminList() {
     return konfigurasiPro.admin_list || [];
 }
@@ -4447,6 +4599,8 @@ async function simpanAdminBaru() {
             localStorage.setItem('navara_current_admin_pemilik', 'true');
             const el = document.getElementById('namaAdminSaatIni');
             if(el) el.textContent = currentAdminNama;
+            // Buat Kode Pemulihan sekali saat Admin Utama pertama dibuat — jaring pengaman kalau PIN lupa
+            await buatDanTampilkanKodePemulihan();
         }
     }
     simpanAdminList(list);
@@ -10525,7 +10679,7 @@ function cetakLaporanPenutupanMusim() {
     const progNama = getCurrentProgram()?.nama || '-';
     const tgl = new Date().toLocaleDateString('id-ID', { day:'2-digit', month:'long', year:'numeric' });
 
-    // 1. Rekap Aktual (ringkas)
+    // 1. Rekap Aktual (ringkas) — untuk Haji Reguler (tanpa Estimasi), JANGAN label sebagai "Profit", cukup tampilkan sebagai kumpulan Biaya Bimbingan
     const est = hitungModalHargaEstimasiTerkini();
     const jamaahRelevan = jamaahList.filter(j => getTotalHargaPaket(j) > 0);
     let totalKontrak = 0, totalDibayarJamaah = 0;
@@ -10533,15 +10687,25 @@ function cetakLaporanPenutupanMusim() {
         totalKontrak += getTotalHargaPaket(j);
         totalDibayarJamaah += paymentTransaksiList.filter(t => t.id_jamaah == j.id).reduce((s,t) => s + (parseInt(t.nominal)||0), 0);
     });
-    const totalModalAktual = est ? est.modal * jamaahRelevan.length : 0;
-    const profitAktual = totalKontrak - totalModalAktual;
 
-    let sectionRekap = `<div class="lap-section"><h2>📋 Rekap Profit Aktual</h2>
-        <table class="lap-table"><tr><td>Total Jamaah</td><td>${jamaahRelevan.length}</td></tr>
-        <tr><td>Total Kontrak</td><td>${f(totalKontrak)}</td></tr>
-        <tr><td>Sudah Dibayar</td><td>${f(totalDibayarJamaah)}</td></tr>
-        <tr><td>Total Modal (estimasi)</td><td>${f(totalModalAktual)}</td></tr>
-        <tr class="lap-total"><td>PROFIT AKTUAL (Kontrak − Modal Estimasi)</td><td>${f(profitAktual)}</td></tr></table></div>`;
+    let sectionRekap = '';
+    if(est) {
+        const totalModalAktual = est.modal * jamaahRelevan.length;
+        const profitAktual = totalKontrak - totalModalAktual;
+        sectionRekap = `<div class="lap-section"><h2>📋 Rekap Profit Aktual</h2>
+            <table class="lap-table"><tr><td>Total Jamaah</td><td>${jamaahRelevan.length}</td></tr>
+            <tr><td>Total Kontrak</td><td>${f(totalKontrak)}</td></tr>
+            <tr><td>Sudah Dibayar</td><td>${f(totalDibayarJamaah)}</td></tr>
+            <tr><td>Total Modal (estimasi)</td><td>${f(totalModalAktual)}</td></tr>
+            <tr class="lap-total"><td>PROFIT AKTUAL (Kontrak − Modal Estimasi)</td><td>${f(profitAktual)}</td></tr></table></div>`;
+    } else {
+        // Haji Reguler / Program tanpa Estimasi — tidak ada konsep Modal, jadi jangan klaim "Profit"
+        sectionRekap = `<div class="lap-section"><h2>📋 Rekap Biaya Bimbingan</h2>
+            <table class="lap-table"><tr><td>Total Jamaah</td><td>${jamaahRelevan.length}</td></tr>
+            <tr class="lap-total"><td>TOTAL BIAYA BIMBINGAN TERKUMPUL (Kontrak)</td><td>${f(totalKontrak)}</td></tr>
+            <tr><td>Sudah Dibayar</td><td>${f(totalDibayarJamaah)}</td></tr></table>
+            <p class="lap-note">Program ini tidak memakai Estimasi/Modal (khas Haji Reguler) — angka di atas adalah total biaya bimbingan, BUKAN Profit.</p></div>`;
+    }
 
     // 1b. Pengeluaran Sungguhan + PROFIT RIIL (bottom-line paling akurat, dari uang yang benar-benar keluar-masuk)
     const pengeluaranPerKategori = {};
@@ -10639,6 +10803,21 @@ function cetakLaporanPenutupanMusim() {
             <p class="lap-note">Rincian lengkap per-termin tersedia di menu "Rekap Cicilan" dalam aplikasi.</p></div>`;
     }
 
+    // 7. Layanan Tambahan (Badal Haji, Dam, dll) — sumber Profit tambahan, terutama penting untuk Haji Reguler
+    let sectionLayanan = '';
+    const listLayanan = ensureLayananTambahan();
+    if(listLayanan.length > 0) {
+        let totalHarga = 0, totalBiaya = 0, totalProfitLayanan = 0;
+        const rowsLayanan = listLayanan.map(l => {
+            const profit = l.hargaJual - l.biayaPelaksana;
+            totalHarga += l.hargaJual; totalBiaya += l.biayaPelaksana; totalProfitLayanan += profit;
+            return `<tr><td>${escapeHtml(l.jenis)}</td><td>${escapeHtml(l.namaPemesan)}</td><td>${f(l.hargaJual)}</td><td>${f(l.biayaPelaksana)}</td><td>${f(profit)}</td></tr>`;
+        }).join('');
+        sectionLayanan = `<div class="lap-section"><h2>🕋 Layanan Tambahan (Badal Haji, Dam, dll)</h2>
+            <table class="lap-table"><thead><tr><th>Jenis</th><th>Pemesan</th><th>Harga Jual</th><th>Biaya Pelaksana</th><th>Profit</th></tr></thead><tbody>${rowsLayanan}</tbody></table>
+            <table class="lap-table"><tr class="lap-total"><td>TOTAL PROFIT LAYANAN TAMBAHAN</td><td>${f(totalProfitLayanan)}</td></tr></table></div>`;
+    }
+
     const html = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>Laporan Penutupan Musim</title>
     <style>body{font-family:Arial,sans-serif;padding:24px;color:#222;} h1{color:#0D5C4A;font-size:20px;margin-bottom:2px;}
     .lap-section{margin-top:22px;} .lap-section h2{font-size:15px;color:#0D5C4A;border-bottom:2px solid #0D5C4A;padding-bottom:4px;}
@@ -10650,7 +10829,7 @@ function cetakLaporanPenutupanMusim() {
     </style></head><body>
     <h1>📕 LAPORAN PENUTUPAN MUSIM</h1>
     <p>${escapeHtml(namaKBIH)} — Program: ${escapeHtml(progNama)} — Dicetak: ${tgl}</p>
-    ${sectionRekap}${sectionPengeluaran}${sectionBufferB2C}${sectionBufferB2B}${sectionMitra}${sectionPiutang}
+    ${sectionRekap}${sectionPengeluaran}${sectionBufferB2C}${sectionBufferB2B}${sectionMitra}${sectionPiutang}${sectionLayanan}
     <div class="no-print" style="text-align:center;padding:24px;background:#f0f0f0;margin-top:24px;">
         <button onclick="window.print()" style="padding:10px 28px;margin:0 6px;border:none;border-radius:10px;font-size:14px;font-weight:bold;cursor:pointer;background:#0D5C4A;color:white;">🖨️ CETAK / SIMPAN PDF</button>
         <button onclick="window.close()" style="padding:10px 28px;margin:0 6px;border:none;border-radius:10px;font-size:14px;font-weight:bold;cursor:pointer;background:#e2e8f0;color:#333;">✕ TUTUP</button>
@@ -13731,6 +13910,170 @@ function bangunDataAlumni() {
             riwayatProgram: namaProgram
         };
     });
+}
+
+// ==================== LAYANAN TAMBAHAN (Badal Haji, Dam, dll) ====================
+function getJenisLayananTambahan() {
+    let list = JSON.parse(localStorage.getItem('navara_jenis_layanan') || 'null');
+    if(!list) { list = ['Badal Haji', 'Dam']; localStorage.setItem('navara_jenis_layanan', JSON.stringify(list)); }
+    return list;
+}
+
+function ensureLayananTambahan() {
+    const slot = ensureProgramConfigSlot();
+    if(!slot.layanan_tambahan) slot.layanan_tambahan = [];
+    return slot.layanan_tambahan;
+}
+
+function simpanLayananTambahanKeStorage() {
+    localStorage.setItem('navara_konfigurasi_pro', JSON.stringify(konfigurasiPro));
+    idbSet(STORE_KONFIGURASI, 'konfigurasi_pro', konfigurasiPro);
+}
+
+function jenisWajibJamaah(jenis) {
+    return jenis === 'Dam'; // aturan khusus: Dam wajib terhubung ke Jamaah, jenis lain (termasuk baru nanti) opsional
+}
+
+function openTambahLayananModal(id) {
+    if(cekProgramArsip()) return;
+    let modal = document.getElementById('layananModal');
+    if(!modal) {
+        modal = document.createElement('div');
+        modal.id = 'layananModal';
+        modal.className = 'modal';
+        document.body.appendChild(modal);
+    }
+    const list = ensureLayananTambahan();
+    const l = id ? list.find(x => x.id === id) : null;
+    const jenisList = getJenisLayananTambahan();
+    const jamaahOpts = jamaahList.map(j => `<option value="${j.id}" ${l?.jamaahId==j.id?'selected':''}>${escapeHtml(j.nama_lengkap)}</option>`).join('');
+
+    modal.innerHTML = `<div class="modal-content" style="max-width:420px;">
+        <h3 style="color:#0D5C4A;margin-bottom:10px;">${l?'✏️ Edit':'🕋 Tambah'} Layanan Tambahan</h3>
+        <input type="hidden" id="layananEditId" value="${l?l.id:''}">
+        <div class="input-group"><label>Jenis Layanan</label>
+            <select id="layananJenis" onchange="updateFormLayananSesuaiJenis()">
+                ${jenisList.map(j => `<option value="${j}" ${l?.jenis===j?'selected':''}>${j}</option>`).join('')}
+                <option value="__baru__">+ Jenis Baru...</option>
+            </select>
+        </div>
+        <div class="input-group"><label>Nama Pemesan</label><input type="text" id="layananPemesan" value="${escapeHtml(l?.namaPemesan||'')}"></div>
+        <div class="input-group" id="layananJamaahWrap"><label id="layananJamaahLabel">Kaitkan ke Jamaah</label>
+            <select id="layananJamaahId"><option value="">-- Tidak dikaitkan --</option>${jamaahOpts}</select>
+        </div>
+        <div class="input-group" id="layananDibadalkanWrap" style="display:none;"><label>Nama yang Dibadalkan</label><input type="text" id="layananDibadalkan" value="${escapeHtml(l?.namaDibadalkan||'')}"></div>
+        <div class="input-group"><label>Harga Jual (Rp)</label><input type="text" class="money-input" inputmode="numeric" id="layananHargaJual" value="${l?l.hargaJual.toLocaleString('id-ID'):''}"></div>
+        <div class="input-group"><label>Biaya Pelaksana (Rp)</label><input type="text" class="money-input" inputmode="numeric" id="layananBiayaPelaksana" value="${l?l.biayaPelaksana.toLocaleString('id-ID'):''}"></div>
+        <div class="input-group"><label>Status</label>
+            <select id="layananStatus">
+                <option value="Lunas" ${l?.status==='Lunas'?'selected':''}>✅ Lunas</option>
+                <option value="Belum" ${l?.status==='Belum'?'selected':''}>⚪ Belum</option>
+            </select>
+        </div>
+        <div class="row" style="margin-top:10px;">
+            <button class="btn btn-danger" onclick="document.getElementById('layananModal').style.display='none'" style="flex:1;">Batal</button>
+            <button class="btn btn-primary" onclick="simpanLayananTambahan()" style="flex:1;">Simpan</button>
+        </div>
+    </div>`;
+    modal.style.display = 'flex';
+    updateFormLayananSesuaiJenis();
+}
+
+function updateFormLayananSesuaiJenis() {
+    const jenis = document.getElementById('layananJenis').value;
+    if(jenis === '__baru__') {
+        const namaBaru = prompt('Nama Jenis Layanan baru:');
+        if(namaBaru && namaBaru.trim()) {
+            const list = getJenisLayananTambahan();
+            list.push(namaBaru.trim());
+            localStorage.setItem('navara_jenis_layanan', JSON.stringify(list));
+            openTambahLayananModal(document.getElementById('layananEditId').value || null);
+            setTimeout(() => { document.getElementById('layananJenis').value = namaBaru.trim(); updateFormLayananSesuaiJenis(); }, 50);
+        }
+        return;
+    }
+    const wajib = jenisWajibJamaah(jenis);
+    document.getElementById('layananJamaahLabel').textContent = 'Kaitkan ke Jamaah' + (wajib ? ' (WAJIB)' : ' (opsional)');
+    document.getElementById('layananDibadalkanWrap').style.display = jenis === 'Badal Haji' ? 'block' : 'none';
+}
+
+async function simpanLayananTambahan() {
+    if(cekProgramArsip()) return;
+    const jenis = document.getElementById('layananJenis').value;
+    const pemesan = document.getElementById('layananPemesan').value.trim();
+    const jamaahId = document.getElementById('layananJamaahId').value;
+    if(!pemesan) return showToast('Nama Pemesan wajib diisi!');
+    if(jenisWajibJamaah(jenis) && !jamaahId) return showToast(`⚠️ ${jenis} wajib dikaitkan ke Jamaah!`);
+
+    const id = document.getElementById('layananEditId').value;
+    const data = {
+        jenis, namaPemesan: pemesan,
+        jamaahId: jamaahId || null,
+        namaDibadalkan: jenis === 'Badal Haji' ? document.getElementById('layananDibadalkan').value.trim() : '',
+        hargaJual: parseInt(document.getElementById('layananHargaJual').value.replace(/\./g,'').replace(/[^0-9]/g,'')) || 0,
+        biayaPelaksana: parseInt(document.getElementById('layananBiayaPelaksana').value.replace(/\./g,'').replace(/[^0-9]/g,'')) || 0,
+        status: document.getElementById('layananStatus').value
+    };
+    const list = ensureLayananTambahan();
+    if(id) {
+        const l = list.find(x => x.id == id);
+        if(l) Object.assign(l, data);
+    } else {
+        list.push({ id: Date.now(), ...data });
+    }
+    simpanLayananTambahanKeStorage();
+    catatAktivitas('🕋', `Layanan ${jenis} untuk ${pemesan} ${id?'diperbarui':'ditambahkan'}`);
+    document.getElementById('layananModal').style.display = 'none';
+    renderLayananTambahanList();
+    showToast('✅ Tersimpan');
+}
+
+function hapusLayananTambahan(id) {
+    if(cekProgramArsip()) return;
+    konfirmasiBertema('Hapus Transaksi ini?', 'Data ini akan dihapus permanen.', () => {
+        let list = ensureLayananTambahan();
+        list = list.filter(x => x.id !== id);
+        ensureProgramConfigSlot().layanan_tambahan = list;
+        simpanLayananTambahanKeStorage();
+        renderLayananTambahanList();
+    });
+}
+
+function renderLayananTambahanList() {
+    const container = document.getElementById('layananTambahanListContainer');
+    if(!container) return;
+    const list = ensureLayananTambahan();
+    const f = n => 'Rp ' + Math.round(n).toLocaleString('id-ID');
+    const ikonJenis = { 'Badal Haji': '🕋', 'Dam': '🐐' };
+
+    let totalProfit = 0;
+    const html = list.map(l => {
+        const profit = l.hargaJual - l.biayaPelaksana;
+        totalProfit += profit;
+        const jamaahNama = l.jamaahId ? (jamaahList.find(j => j.id == l.jamaahId)?.nama_lengkap || '(Jamaah tidak ditemukan)') : null;
+        return `<div style="background:#F8FAFC;border-radius:12px;padding:12px;margin-bottom:10px;">
+            <div style="display:flex;justify-content:space-between;align-items:start;">
+                <div>
+                    <div style="font-weight:700;font-size:14px;">${ikonJenis[l.jenis]||'📋'} ${escapeHtml(l.jenis)} — ${escapeHtml(l.namaPemesan)}</div>
+                    ${l.namaDibadalkan ? `<div style="font-size:11px;color:#888;">untuk ${escapeHtml(l.namaDibadalkan)}</div>` : ''}
+                    ${jamaahNama ? `<div style="font-size:11px;color:#0369A1;">Terkait Jamaah: ${escapeHtml(jamaahNama)}</div>` : ''}
+                </div>
+                <div style="display:flex;gap:6px;">
+                    <button onclick="openTambahLayananModal(${l.id})" style="border:none;background:none;color:#0369A1;font-size:14px;cursor:pointer;">✏️</button>
+                    <button onclick="hapusLayananTambahan(${l.id})" style="border:none;background:none;color:#DC2626;font-size:14px;cursor:pointer;">🗑️</button>
+                </div>
+            </div>
+            <div style="margin-top:8px;font-size:12px;color:#444;line-height:1.6;">
+                Harga Jual: ${f(l.hargaJual)}<br>
+                Biaya Pelaksana: ${f(l.biayaPelaksana)}<br>
+                <span style="font-weight:700;color:${profit>=0?'#166534':'#DC2626'};">Profit: ${f(profit)}</span> — ${l.status==='Lunas'?'✅ Lunas':'⚪ Belum Lunas'}
+            </div>
+        </div>`;
+    }).join('') || '<p style="color:#aaa;text-align:center;padding:20px;font-size:13px;">Belum ada Layanan Tambahan untuk Program ini</p>';
+
+    container.innerHTML = html;
+    const totalEl = document.getElementById('layananTotalProfit');
+    if(totalEl) totalEl.textContent = f(totalProfit);
 }
 
 function renderAlumniList() {
@@ -18356,6 +18699,8 @@ async function initPremium() {
     updateHomeStats();
     applyModeHajiReguler();
     renderMenuPremium();
+    if(!localStorage.getItem('navara_last_active')) catatWaktuAktifTerakhir(); // instalasi baru, jangan langsung anggap "lama tidak disentuh"
+    cekPerluKunciOtomatis();
 
     // Pintasan Aplikasi (App Shortcuts) — kalau dibuka lewat tekan-tahan ikon, langsung ke halaman yang dituju
     try {
