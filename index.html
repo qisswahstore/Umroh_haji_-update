@@ -2863,6 +2863,11 @@
             <div class="row"><div class="config-row"><label>No. Izin</label><input type="text" id="cfg_izin2"></div><div class="config-row"><label>Pimpinan</label><input type="text" id="cfg_pimpinan2"></div></div>
             <div class="config-row"><label>Jabatan</label><input type="text" id="cfg_jabatan2"></div>
         </div>
+        <div class="config-section" id="komponenHajiConfigSection" style="display:none;"><h3><i class="fas fa-money-bill-wave"></i> Harga per Komponen (Haji Reguler)</h3>
+            <div style="font-size:12px;color:#888;margin-bottom:10px;">Khusus Haji Reguler — pecah Harga Seragam jadi beberapa komponen (Bimbingan, Touring/Ziarah, dll). Umroh tidak terpengaruh sama sekali.</div>
+            <div id="komponenHajiListContainer"></div>
+            <button class="btn btn-small mt-2" onclick="tambahJenisKomponenHaji()" style="background:#0369A1;color:white;">+ Tambah Jenis Komponen</button>
+        </div>
         <div class="config-section" id="tipePaketConfigSection"><h3><i class="fas fa-bed"></i> Tipe Paket</h3>
             <div style="font-size:12px;color:#888;margin-bottom:10px;">Digunakan sebagai pilihan tipe kamar di database jamaah dan rekap profit Cuan Plan.</div>
             <div id="tipePaketList" style="margin-bottom:10px;"></div>
@@ -3583,9 +3588,9 @@
 <div id="fieldModal" class="modal"><div class="modal-content"><h3>Tambah Field Dinamis</h3><div class="dynamic-field"><label>Nama Field</label><input type="text" id="newFieldName" placeholder="Contoh: tanggal_lahir"><div class="error-message">Hanya huruf kecil, angka, underscore</div></div><div class="dynamic-field"><label>Label Field</label><input type="text" id="newFieldLabel" placeholder="Contoh: Tanggal Lahir"></div><div class="dynamic-field"><label>Tipe Field</label><select id="newFieldType" onchange="toggleDropdownOptionsInput()"><option value="text">Text</option><option value="date">Tanggal</option><option value="tel">Telepon</option><option value="textarea">Text Area</option><option value="dropdown">Dropdown / Pilihan</option></select></div><div class="dynamic-field" id="dropdownOptionsWrap" style="display:none;"><label>Daftar Pilihan (pisahkan dengan koma)</label><input type="text" id="newFieldOptions" placeholder="Contoh: Tamattu', Ifrad, Qiran"><div class="error-message" style="color:#888;">Contoh lain: Ya, Tidak</div></div><div class="dynamic-field" style="display:flex;align-items:center;gap:8px;"><input type="checkbox" id="newFieldRahasia" style="width:18px;height:18px;"><label style="margin:0;">Sembunyikan di PDF Folder (Rahasia)</label></div><button class="btn btn-primary" onclick="addDynamicFieldJamaah()"> TAMBAH FIELD</button><button class="btn btn-danger mt-2" onclick="closeFieldModal()">BATAL</button></div></div>
 <div id="manageFieldsModal" class="modal"><div class="modal-content"><h3>Kelola Field Dinamis</h3><button class="btn btn-primary btn-small" style="margin-bottom:15px;" onclick="closeManageFieldsModal(); openFieldModal();">+ Tambah Field Baru</button><div id="fieldsListContainer"></div><button class="btn btn-primary mt-2" onclick="closeManageFieldsModal()">TUTUP</button></div></div>
 
-<div id="paymentModal" class="modal"><div class="modal-content"><h3> Input Pembayaran</h3><div class="input-group"><label> Tanggal</label><input type="date" id="paymentTanggal"></div><div class="input-group"><label> Nama Jamaah *</label><select id="paymentJamaahSelect"><option value="">-- Pilih Jamaah --</option></select></div><div class="input-group"><label> Nominal (Rp)</label><input type="text" class="money-input" inputmode="numeric" id="paymentNominal" placeholder="Contoh: 5.000.000"></div><div class="input-group"><label> Metode</label><select id="paymentMetode"><option value="Transfer">Transfer</option><option value="Cash">Cash</option><option value="QRIS">QRIS</option></select></div><div class="input-group"><label> Keterangan</label><input type="text" id="paymentKeterangan" placeholder="DP / Cicilan / Pelunasan"></div><div class="row"><button class="btn btn-danger" onclick="closePaymentModal()" style="flex:1">Batal</button><button class="btn btn-primary" onclick="simpanPembayaran()" style="flex:1">Simpan</button></div></div></div>
+<div id="paymentModal" class="modal"><div class="modal-content"><h3> Input Pembayaran</h3><div class="input-group"><label> Tanggal</label><input type="date" id="paymentTanggal"></div><div class="input-group"><label> Nama Jamaah *</label><select id="paymentJamaahSelect"><option value="">-- Pilih Jamaah --</option></select></div><div class="input-group" id="paymentKomponenWrap" style="display:none;"><label> Untuk Komponen</label><select id="paymentKomponen"></select></div><div class="input-group"><label> Nominal (Rp)</label><input type="text" class="money-input" inputmode="numeric" id="paymentNominal" placeholder="Contoh: 5.000.000"></div><div class="input-group"><label> Metode</label><select id="paymentMetode"><option value="Transfer">Transfer</option><option value="Cash">Cash</option><option value="QRIS">QRIS</option></select></div><div class="input-group"><label> Keterangan</label><input type="text" id="paymentKeterangan" placeholder="DP / Cicilan / Pelunasan"></div><div class="row"><button class="btn btn-danger" onclick="closePaymentModal()" style="flex:1">Batal</button><button class="btn btn-primary" onclick="simpanPembayaran()" style="flex:1">Simpan</button></div></div></div>
 <div id="invoiceConfirmModal" class="modal"><div class="modal-content"><h3> Konfirmasi Kirim Invoice</h3><p>Akan dikirim ke nomor WhatsApp:</p><p id="invoiceWANumber" style="font-weight:bold; font-size:18px; background:#f0f0f0; padding:10px; border-radius:10px;"></p><p id="invoiceWAName" style="color:#666;"></p><div class="row" style="margin-top:20px;"><button class="btn btn-danger" onclick="closeInvoiceConfirmModal()" style="flex:1">Batal</button><button class="btn btn-wa" onclick="sendInvoiceWA()" style="flex:1">Kirim via WA</button><button class="btn btn-orange" onclick="copyInvoiceText()" style="flex:1">Salin Teks</button></div></div></div>
-<div id="editHargaModal" class="modal"><div class="modal-content"><h3> Edit Harga Paket</h3><p id="editHargaNama" style="font-weight:bold;"></p><div class="input-group"><label> Total Harga Paket (Rp)</label><input type="text" class="money-input" inputmode="numeric" id="editHargaValue" placeholder="Contoh: 35.000.000"></div><div class="row"><button class="btn btn-danger" onclick="closeEditHargaModal()" style="flex:1">Batal</button><button class="btn btn-primary" onclick="saveEditHarga()" style="flex:1">Simpan</button></div></div></div>
+<div id="editHargaModal" class="modal"><div class="modal-content"><h3> Edit Harga Paket</h3><p id="editHargaNama" style="font-weight:bold;"></p><div class="input-group" id="editHargaTotalWrap"><label> Total Harga Paket (Rp)</label><input type="text" class="money-input" inputmode="numeric" id="editHargaValue" placeholder="Contoh: 35.000.000"></div><div id="editHargaKomponenWrap" style="display:none;"></div><div class="row"><button class="btn btn-danger" onclick="closeEditHargaModal()" style="flex:1">Batal</button><button class="btn btn-primary" onclick="saveEditHarga()" style="flex:1">Simpan</button></div></div></div>
 <div id="riwayatModal" class="modal"><div class="modal-content"><h3> Riwayat Pembayaran</h3><p id="riwayatNama" style="font-weight:bold;"></p><div id="riwayatListContainer" style="max-height:400px; overflow-y:auto;"></div><div class="row" style="margin-top:15px;"><button class="btn btn-danger" onclick="closeRiwayatModal()" style="flex:1">Tutup</button></div></div></div>
 <div id="masterFieldModal" class="modal"><div class="modal-content"><h3>Kelola Field Dinamis</h3><div class="dynamic-field"><label>Nama Field</label><input type="text" id="masterNewFieldName" placeholder="contoh: alamat, no_hp"></div><div class="dynamic-field"><label>Label Field</label><input type="text" id="masterNewFieldLabel" placeholder="Contoh: Alamat, No HP"></div><div class="dynamic-field"><label>Tipe</label><select id="masterNewFieldType"><option value="text">Text</option><option value="date">Tanggal</option><option value="tel">Telepon</option><option value="textarea">Text Area</option></select></div><button class="btn btn-primary" onclick="addMasterDynamicField()"> TAMBAH FIELD</button><div id="masterFieldsList" style="margin-top:15px;"></div><button class="btn btn-danger mt-2" onclick="closeMasterFieldModal()">TUTUP</button></div></div>
 <div id="masterItemModal" class="modal"><div class="modal-content"><h3>Kelola Daftar Item</h3><div class="row"><div class="input-group"><label>Nama Item</label><input type="text" id="masterNewItem" placeholder="Contoh: Kain Ihram"></div><button class="btn-small" onclick="addMasterItem()" style="background:var(--primary); color:white; padding:0 15px;">+ Tambah</button></div><div id="masterItemList" style="margin-top:15px;"></div><button class="btn btn-danger mt-2" onclick="closeMasterItemModal()">TUTUP</button></div></div>
@@ -10698,13 +10703,34 @@ function cetakLaporanPenutupanMusim() {
             <tr><td>Sudah Dibayar</td><td>${f(totalDibayarJamaah)}</td></tr>
             <tr><td>Total Modal (estimasi)</td><td>${f(totalModalAktual)}</td></tr>
             <tr class="lap-total"><td>PROFIT AKTUAL (Kontrak − Modal Estimasi)</td><td>${f(profitAktual)}</td></tr></table></div>`;
+    } else if(isHajiReguler()) {
+        // Haji Reguler dengan Komponen — pecah per Jenis (Bimbingan, Touring/Ziarah, dst)
+        const komponenList = ensureKomponenHaji();
+        let totalTargetSemua = 0, totalDibayarSemua = 0;
+        const rowsKomponen = komponenList.map(k => {
+            let targetKomponen = 0, dibayarKomponen = 0;
+            jamaahList.forEach(j => {
+                const override = j.harga_komponen_haji || {};
+                const target = override[k.jenis] !== undefined ? override[k.jenis] : (k.harga || 0);
+                targetKomponen += target;
+                dibayarKomponen += paymentTransaksiList.filter(t => t.id_jamaah == j.id && t.komponen === k.jenis).reduce((s,t) => s + (parseInt(t.nominal)||0), 0);
+            });
+            totalTargetSemua += targetKomponen;
+            totalDibayarSemua += dibayarKomponen;
+            return `<tr><td>${escapeHtml(k.jenis)}</td><td>${f(targetKomponen)}</td><td>${f(dibayarKomponen)}</td><td>${f(targetKomponen - dibayarKomponen)}</td></tr>`;
+        }).join('');
+        sectionRekap = `<div class="lap-section"><h2>💰 Komponen Wajib (per Jenis)</h2>
+            <table class="lap-table"><thead><tr><th>Jenis</th><th>Target</th><th>Sudah Dibayar</th><th>Sisa</th></tr></thead><tbody>${rowsKomponen}</tbody></table>
+            <table class="lap-table"><tr class="lap-total"><td>TOTAL TERKUMPUL</td><td>${f(totalDibayarSemua)}</td></tr>
+            <tr class="lap-total" style="color:${(totalTargetSemua-totalDibayarSemua)>0?'#DC2626':'#166534'};"><td>TOTAL SISA</td><td>${f(totalTargetSemua - totalDibayarSemua)}</td></tr></table>
+            <p class="lap-note">Program ini tidak memakai Estimasi/Modal (khas Haji Reguler) — angka di atas BUKAN Profit, lihat Profit sungguhan di "PROFIT RIIL" dan "Layanan Tambahan" di bawah.</p></div>`;
     } else {
-        // Haji Reguler / Program tanpa Estimasi — tidak ada konsep Modal, jadi jangan klaim "Profit"
-        sectionRekap = `<div class="lap-section"><h2>📋 Rekap Biaya Bimbingan</h2>
+        // Fallback untuk Program tanpa Estimasi yang BUKAN Haji Reguler (edge case jarang terjadi)
+        sectionRekap = `<div class="lap-section"><h2>📋 Rekap Biaya Terkumpul</h2>
             <table class="lap-table"><tr><td>Total Jamaah</td><td>${jamaahRelevan.length}</td></tr>
-            <tr class="lap-total"><td>TOTAL BIAYA BIMBINGAN TERKUMPUL (Kontrak)</td><td>${f(totalKontrak)}</td></tr>
+            <tr class="lap-total"><td>TOTAL KONTRAK</td><td>${f(totalKontrak)}</td></tr>
             <tr><td>Sudah Dibayar</td><td>${f(totalDibayarJamaah)}</td></tr></table>
-            <p class="lap-note">Program ini tidak memakai Estimasi/Modal (khas Haji Reguler) — angka di atas adalah total biaya bimbingan, BUKAN Profit.</p></div>`;
+            <p class="lap-note">Program ini tidak memakai Estimasi/Modal — angka di atas BUKAN Profit.</p></div>`;
     }
 
     // 1b. Pengeluaran Sungguhan + PROFIT RIIL (bottom-line paling akurat, dari uang yang benar-benar keluar-masuk)
@@ -12790,6 +12816,13 @@ function formatHargaInput(el) {
 }
 
 function getTotalHargaPaket(jamaah) { 
+    // Haji Reguler: total = jumlah semua Komponen (Bimbingan+Touring+dst), pakai nilai per-jamaah kalau ada override, kalau tidak pakai Harga Seragam komponen itu
+    if(isHajiReguler()) {
+        const komponenList = ensureKomponenHaji();
+        const override = jamaah.harga_komponen_haji || {};
+        const total = komponenList.reduce((s,k) => s + (override[k.jenis] !== undefined ? override[k.jenis] : (k.harga||0)), 0);
+        if(total > 0) return total;
+    }
     // Cek dulu apakah harga seragam aktif di konfigurasi
     const hp = getKonfigurasiProData().harga_paket || { seragam: false, nominal: 0 };
     if (hp.seragam && hp.nominal > 0) return hp.nominal;
@@ -12879,6 +12912,23 @@ function renderPaymentDashboard() {
     document.getElementById('persentaseText').innerHTML = persen.toFixed(1) + '%'; 
 }
 
+// Hitung status Lunas/Sebagian/Belum PER KOMPONEN (khusus Haji Reguler) — beda dari Total gabungan
+function hitungStatusPerKomponenHaji(jamaahId) {
+    const jamaah = jamaahList.find(j => j.id == jamaahId);
+    if(!jamaah) return [];
+    const komponenList = ensureKomponenHaji();
+    const override = jamaah.harga_komponen_haji || {};
+    return komponenList.map(k => {
+        const target = override[k.jenis] !== undefined ? override[k.jenis] : (k.harga || 0);
+        const dibayar = paymentTransaksiList.filter(t => t.id_jamaah == jamaahId && t.komponen === k.jenis).reduce((s,t) => s + (parseInt(t.nominal)||0), 0);
+        const sisa = target - dibayar;
+        let status = 'Belum';
+        if(target > 0 && dibayar >= target) status = 'Lunas';
+        else if(dibayar > 0) status = 'Sebagian';
+        return { jenis: k.jenis, target, dibayar, sisa, status };
+    });
+}
+
 function renderPaymentJamaahList() { 
     const container = document.getElementById('paymentJamaahListContainer'); 
     if (!container) return; 
@@ -12894,13 +12944,24 @@ function renderPaymentJamaahList() {
         if (currentPaymentFilter === 'belum_lunas') return status === 'BELUM LUNAS' || status === 'BELUM DIISI'; 
         return true; 
     });
+    const hajiReg = isHajiReguler();
+    const ikonStatusKomponen = { 'Lunas':'✅', 'Sebagian':'🟡', 'Belum':'⚪' };
+    const warnaStatusKomponen = { 'Lunas':'#166534', 'Sebagian':'#F59E0B', 'Belum':'#888' };
     let html = ''; 
     filteredJamaah.forEach(j => { 
         const { status, warna, sisa, totalBayar, totalHargaPaket, needInput } = getStatusPembayaran(j); 
         if (needInput) 
             html += `<div class="payment-jamaah-card" style="border-left-color: #f39c12;"><div class="payment-jamaah-info"><h4>${escapeHtml(j.nama_lengkap)}</h4><div class="payment-price-detail" style="color: #f39c12;">⚠️ Total Harga Paket belum diisi!</div></div><div><button class="payment-btn-bayar" onclick="openEditHargaModal('${j.id}')" style="background:#f39c12; color:white;"><i class="fas fa-tag"></i> Atur Harga</button></div></div>`; 
-        else 
-            html += `<div class="payment-jamaah-card" style="border-left-color: ${warna};"><div class="payment-jamaah-info"><h4>${escapeHtml(j.nama_lengkap)}</h4><div class="payment-price-detail">💰 Total Paket: ${formatRupiah(totalHargaPaket)}<br>💸 Dibayar: ${formatRupiah(totalBayar)}</div></div><div style="text-align: right;"><div class="payment-sisa-badge" style="color: ${warna}; margin-bottom: 8px;">${status === 'LUNAS' ? '✅ LUNAS' : '💵 Sisa ' + formatRupiah(sisa)}</div><div><button class="payment-btn-bayar" onclick="openPaymentModalWithJamaah('${j.id}')"><i class="fas fa-plus-circle"></i> Bayar</button><button class="payment-btn-bayar" onclick="prepareInvoice('${j.id}')"><i class="fas fa-file-invoice"></i> WA</button><button class="payment-btn-bayar" onclick="shareInvoiceGambar('${j.id}')"><i class="fas fa-share-alt"></i> Share</button><button class="payment-btn-bayar" onclick="cetakInvoiceAuto('${j.id}')"><i class="fas fa-print"></i> Cetak</button><button class="payment-btn-bayar" onclick="openEditHargaModal('${j.id}')"><i class="fas fa-edit"></i> Harga</button><button class="payment-btn-bayar" onclick="openJadwalCicilanModal('${j.id}')"><i class="fas fa-calendar-alt"></i> Cicilan</button><button class="payment-btn-bayar" onclick="openRiwayatModal('${j.id}')"><i class="fas fa-history"></i> Riwayat</button></div></div></div>`; 
+        else {
+            let rincianKomponen = '';
+            if(hajiReg) {
+                const perKomponen = hitungStatusPerKomponenHaji(j.id);
+                rincianKomponen = '<div style="margin-top:6px;padding-top:6px;border-top:1px dashed #ddd;">' + perKomponen.map(k =>
+                    `<div style="font-size:11px;color:${warnaStatusKomponen[k.status]};">${ikonStatusKomponen[k.status]} ${escapeHtml(k.jenis)}: ${formatRupiah(k.dibayar)} / ${formatRupiah(k.target)}</div>`
+                ).join('') + '</div>';
+            }
+            html += `<div class="payment-jamaah-card" style="border-left-color: ${warna};"><div class="payment-jamaah-info"><h4>${escapeHtml(j.nama_lengkap)}</h4><div class="payment-price-detail">💰 Total Paket: ${formatRupiah(totalHargaPaket)}<br>💸 Dibayar: ${formatRupiah(totalBayar)}</div>${rincianKomponen}</div><div style="text-align: right;"><div class="payment-sisa-badge" style="color: ${warna}; margin-bottom: 8px;">${status === 'LUNAS' ? '✅ LUNAS' : '💵 Sisa ' + formatRupiah(sisa)}</div><div><button class="payment-btn-bayar" onclick="openPaymentModalWithJamaah('${j.id}')"><i class="fas fa-plus-circle"></i> Bayar</button><button class="payment-btn-bayar" onclick="prepareInvoice('${j.id}')"><i class="fas fa-file-invoice"></i> WA</button><button class="payment-btn-bayar" onclick="shareInvoiceGambar('${j.id}')"><i class="fas fa-share-alt"></i> Share</button><button class="payment-btn-bayar" onclick="cetakInvoiceAuto('${j.id}')"><i class="fas fa-print"></i> Cetak</button><button class="payment-btn-bayar" onclick="openEditHargaModal('${j.id}')"><i class="fas fa-edit"></i> Harga</button><button class="payment-btn-bayar" onclick="openJadwalCicilanModal('${j.id}')"><i class="fas fa-calendar-alt"></i> Cicilan</button><button class="payment-btn-bayar" onclick="openRiwayatModal('${j.id}')"><i class="fas fa-history"></i> Riwayat</button></div></div></div>`; 
+        }
     }); 
     if (filteredJamaah.length === 0) html = '<div style="text-align:center; padding:20px; color:#94a3b8;">Tidak ada jamaah yang sesuai dengan filter.</div>'; 
     container.innerHTML = html; 
@@ -12924,6 +12985,15 @@ function openPaymentModal() {
     document.getElementById('paymentTanggal').value = new Date().toISOString().split('T')[0]; 
     document.getElementById('paymentNominal').value = ''; 
     document.getElementById('paymentKeterangan').value = ''; 
+
+    const komponenWrap = document.getElementById('paymentKomponenWrap');
+    if(isHajiReguler()) {
+        komponenWrap.style.display = 'block';
+        const komponenList = ensureKomponenHaji();
+        document.getElementById('paymentKomponen').innerHTML = komponenList.map(k => `<option value="${escapeHtml(k.jenis)}">${escapeHtml(k.jenis)}</option>`).join('');
+    } else {
+        komponenWrap.style.display = 'none';
+    }
 }
 
 function closePaymentModal() { 
@@ -12947,6 +13017,7 @@ function simpanPembayaran() {
     if (!nominal || nominal <= 0) { showToast('⚠️ Masukkan nominal!'); return; } 
     const jamaah = jamaahList.find(j => j.id == idJamaah); 
     if (!jamaah) { showToast('Data jamaah tidak ditemukan'); return; } 
+    const komponen = isHajiReguler() ? document.getElementById('paymentKomponen').value : null;
     const newTrx = { 
         id: 'PMB-' + Date.now() + '-' + Math.floor(Math.random() * 1000), 
         id_jamaah: idJamaah, 
@@ -12955,11 +13026,12 @@ function simpanPembayaran() {
         nominal: nominal, 
         metode: metode, 
         keterangan: keterangan,
+        komponen: komponen,
         program_id: currentProgramId
     }; 
     paymentTransaksiList.push(newTrx); 
     savePaymentData(); 
-    catatAktivitas('💰', `Pembayaran Rp ${nominal.toLocaleString('id-ID')} dicatat untuk ${newTrx.nama_jamaah || 'jamaah'}`);
+    catatAktivitas('💰', `Pembayaran Rp ${nominal.toLocaleString('id-ID')}${komponen ? ' (' + komponen + ')' : ''} dicatat untuk ${newTrx.nama_jamaah || 'jamaah'}`);
     closePaymentModal(); 
     renderPaymentDashboard(); 
     renderPaymentJamaahList(); 
@@ -13271,9 +13343,24 @@ function openEditHargaModal(jamaahId) {
     const jamaah = jamaahList.find(j => j.id == jamaahId); 
     if (!jamaah) return; 
     currentEditJamaahId = jamaahId; 
-    let currentHarga = getTotalHargaPaket(jamaah) || 0; 
     document.getElementById('editHargaNama').innerText = jamaah.nama_lengkap; 
-    document.getElementById('editHargaValue').value = currentHarga.toLocaleString('id-ID'); 
+
+    if(isHajiReguler()) {
+        document.getElementById('editHargaTotalWrap').style.display = 'none';
+        const komponenWrap = document.getElementById('editHargaKomponenWrap');
+        komponenWrap.style.display = 'block';
+        const komponenList = ensureKomponenHaji();
+        const override = jamaah.harga_komponen_haji || {};
+        komponenWrap.innerHTML = komponenList.map(k => {
+            const nilai = override[k.jenis] !== undefined ? override[k.jenis] : (k.harga || 0);
+            return `<div class="input-group"><label>${escapeHtml(k.jenis)} (Rp)</label><input type="text" class="money-input" inputmode="numeric" data-jenis="${escapeHtml(k.jenis)}" value="${nilai?nilai.toLocaleString('id-ID'):''}"></div>`;
+        }).join('');
+    } else {
+        document.getElementById('editHargaTotalWrap').style.display = 'block';
+        document.getElementById('editHargaKomponenWrap').style.display = 'none';
+        let currentHarga = getTotalHargaPaket(jamaah) || 0; 
+        document.getElementById('editHargaValue').value = currentHarga.toLocaleString('id-ID'); 
+    }
     document.getElementById('editHargaModal').classList.add('show'); 
 }
 
@@ -13282,30 +13369,45 @@ function closeEditHargaModal() {
 }
 
 function saveEditHarga() { 
+    const jamaah = jamaahList.find(j => j.id == currentEditJamaahId); 
+    if (!jamaah) { closeEditHargaModal(); return; }
+
+    if(isHajiReguler()) {
+        const inputs = document.querySelectorAll('#editHargaKomponenWrap input[data-jenis]');
+        const hasilKomponen = {};
+        inputs.forEach(inp => {
+            hasilKomponen[inp.dataset.jenis] = parseInt((inp.value||'0').replace(/\./g,'').replace(/[^0-9]/g,'')) || 0;
+        });
+        jamaah.harga_komponen_haji = hasilKomponen;
+        saveJamaahData();
+        renderPaymentJamaahList();
+        renderPaymentDashboard();
+        showToast(`✅ Harga per komponen disimpan untuk ${jamaah.nama_lengkap}`);
+        closeEditHargaModal();
+        return;
+    }
+
     const newHarga = parseInt(document.getElementById('editHargaValue').value.replace(/\./g, '')); 
     if (isNaN(newHarga) || newHarga <= 0) { showToast('⚠️ Masukkan harga yang valid!'); return; } 
-    const jamaah = jamaahList.find(j => j.id == currentEditJamaahId); 
-    if (jamaah) { 
-        let targetField = null; 
-        for (const field of dynamicFieldsJamaah) { 
-            const label = field.label.toLowerCase(); 
-            if (label.includes('harga') || label.includes('paket') || label.includes('tagihan') || label.includes('total')) { 
-                targetField = field; 
-                break; 
-            } 
+    let targetField = null; 
+    for (const field of dynamicFieldsJamaah) { 
+        const label = field.label.toLowerCase(); 
+        if (label.includes('harga') || label.includes('paket') || label.includes('tagihan') || label.includes('total')) { 
+            targetField = field; 
+            break; 
         } 
-        if (!targetField) { 
-            dynamicFieldsJamaah.push({ name: 'total_harga_paket', label: 'Total Harga Paket', type: 'text' }); 
-            saveDynamicFieldsJamaah(); 
-            targetField = dynamicFieldsJamaah[dynamicFieldsJamaah.length - 1]; 
-        } 
-        if (!jamaah.additional_fields) jamaah.additional_fields = {}; 
-        jamaah.additional_fields[targetField.name] = newHarga.toLocaleString('id-ID'); 
-        saveJamaahData(); 
-        renderPaymentJamaahList(); 
-        renderPaymentDashboard(); 
-        showToast(`✅ Harga paket diatur ke ${formatRupiah(newHarga)}`); 
     } 
+    if (!targetField) { 
+        dynamicFieldsJamaah.push({ name: 'total_harga_paket', label: 'Total Harga Paket', type: 'text' }); 
+        saveDynamicFieldsJamaah(); 
+        targetField = dynamicFieldsJamaah[dynamicFieldsJamaah.length - 1]; 
+    } 
+    if (!jamaah.additional_fields) jamaah.additional_fields = {}; 
+    jamaah.additional_fields[targetField.name] = newHarga.toLocaleString('id-ID'); 
+    saveJamaahData(); 
+    renderPaymentJamaahList(); 
+    renderPaymentDashboard(); 
+    showToast(`✅ Harga paket diatur ke ${formatRupiah(newHarga)}`); 
     closeEditHargaModal(); 
 }
 
@@ -13551,7 +13653,7 @@ function openRiwayatModal(jamaahId) {
     document.getElementById('riwayatNama').innerHTML = `${jamaah.nama_lengkap} <span style="font-size:12px;">(Total: ${formatRupiah(transaksi.reduce((s,t)=>s+t.nominal,0))})</span>`; 
     let html = ''; 
     transaksi.forEach((t) => { 
-        html += `<div style="background:var(--gray-light); border-radius:12px; padding:12px; margin-bottom:8px;"><div><div style="font-size:12px; color:var(--gray);">📅 ${t.tanggal} | ${t.metode}</div><div><strong>${escapeHtml(t.keterangan)}</strong></div></div><div style="font-weight:bold; color:var(--primary);">${formatRupiah(t.nominal)}</div><div><button onclick="deletePaymentTransaction('${t.id}')" style="background:none; border:none; color:var(--red); font-size:18px; cursor:pointer;">🗑️</button></div></div>`; 
+        html += `<div style="background:var(--gray-light); border-radius:12px; padding:12px; margin-bottom:8px;"><div><div style="font-size:12px; color:var(--gray);">📅 ${t.tanggal} | ${t.metode}${t.komponen ? ' | 🏷️ ' + escapeHtml(t.komponen) : ''}</div><div><strong>${escapeHtml(t.keterangan)}</strong></div></div><div style="font-weight:bold; color:var(--primary);">${formatRupiah(t.nominal)}</div><div><button onclick="deletePaymentTransaction('${t.id}')" style="background:none; border:none; color:var(--red); font-size:18px; cursor:pointer;">🗑️</button></div></div>`; 
     }); 
     if (transaksi.length === 0) html = '<div style="text-align:center; padding:20px;">Belum ada transaksi</div>'; 
     document.getElementById('riwayatListContainer').innerHTML = html; 
@@ -13711,6 +13813,59 @@ function applyModeHajiReguler() {
     // 5. Section Tipe Paket di Konfigurasi/Setting
     const tipePaketConfig = document.getElementById('tipePaketConfigSection');
     if(tipePaketConfig) tipePaketConfig.style.display = hajiReg ? 'none' : 'block';
+
+    // 6. Section Komponen Biaya Haji Reguler (kebalikan dari Tipe Paket)
+    const komponenHajiConfig = document.getElementById('komponenHajiConfigSection');
+    if(komponenHajiConfig) {
+        komponenHajiConfig.style.display = hajiReg ? 'block' : 'none';
+        if(hajiReg) renderKomponenHajiList();
+    }
+}
+
+// ==================== KOMPONEN BIAYA HAJI REGULER (terpisah TOTAL dari Harga Seragam Umroh) ====================
+function ensureKomponenHaji() {
+    const slot = ensureProgramConfigSlot();
+    if(!slot.komponen_haji) slot.komponen_haji = [{ jenis: 'Bimbingan', harga: 0 }, { jenis: 'Touring/Ziarah', harga: 0 }];
+    return slot.komponen_haji;
+}
+
+function simpanKomponenHajiKeStorage() {
+    localStorage.setItem('navara_konfigurasi_pro', JSON.stringify(konfigurasiPro));
+    idbSet(STORE_KONFIGURASI, 'konfigurasi_pro', konfigurasiPro);
+}
+
+function renderKomponenHajiList() {
+    const container = document.getElementById('komponenHajiListContainer');
+    if(!container) return;
+    const list = ensureKomponenHaji();
+    container.innerHTML = list.map((k, i) => `
+        <div style="display:flex;gap:8px;align-items:center;margin-bottom:8px;">
+            <input type="text" value="${escapeHtml(k.jenis)}" oninput="updateKomponenHaji(${i}, 'jenis', this.value)" placeholder="Nama Komponen" style="flex:1;padding:9px;border-radius:8px;border:1.5px solid #ddd;font-size:13px;">
+            <input type="text" class="money-input" inputmode="numeric" value="${k.harga?k.harga.toLocaleString('id-ID'):''}" oninput="updateKomponenHaji(${i}, 'harga', this.value)" placeholder="Harga Seragam" style="flex:1;padding:9px;border-radius:8px;border:1.5px solid #ddd;font-size:13px;">
+            <button onclick="hapusKomponenHaji(${i})" style="border:none;background:none;color:#DC2626;font-size:14px;cursor:pointer;">🗑️</button>
+        </div>`).join('');
+}
+
+function updateKomponenHaji(index, field, value) {
+    const list = ensureKomponenHaji();
+    if(!list[index]) return;
+    if(field === 'harga') list[index].harga = parseInt((value||'0').replace(/\./g,'').replace(/[^0-9]/g,'')) || 0;
+    else list[index].jenis = value;
+    simpanKomponenHajiKeStorage();
+}
+
+function tambahJenisKomponenHaji() {
+    const list = ensureKomponenHaji();
+    list.push({ jenis: '', harga: 0 });
+    simpanKomponenHajiKeStorage();
+    renderKomponenHajiList();
+}
+
+function hapusKomponenHaji(index) {
+    const list = ensureKomponenHaji();
+    list.splice(index, 1);
+    simpanKomponenHajiKeStorage();
+    renderKomponenHajiList();
 }
 
 function renderProgramPickerBar() {
