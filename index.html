@@ -4757,25 +4757,28 @@ function loadThemePremium() {
 function updateHeaderFromConfig() {
     const cfg = getKonfigurasiProData();
     const cacheBuster = Date.now();
-    const instansi1 = cfg.instansi1.nama || 'Navara';
-    const instansi2 = (cfg.instansi2.aktif && cfg.instansi2.nama) ? cfg.instansi2.nama : 'Navara';
-    document.getElementById('headerInstansi1').innerText = instansi1;
-    document.getElementById('headerInstansi2').innerText = instansi2;
+    const hajiReg = isHajiReguler();
+    const instansiDominan = hajiReg && cfg.instansi2?.aktif && cfg.instansi2?.nama ? cfg.instansi2 : cfg.instansi1;
+    const instansiSekunder = hajiReg && cfg.instansi2?.aktif && cfg.instansi2?.nama ? cfg.instansi1 : cfg.instansi2;
+    const namaDominan = instansiDominan?.nama || 'Navara';
+    const namaSekunder = (instansiSekunder && (hajiReg ? true : cfg.instansi2?.aktif) && instansiSekunder.nama) ? instansiSekunder.nama : 'Navara';
+    document.getElementById('headerInstansi1').innerText = namaDominan;
+    document.getElementById('headerInstansi2').innerText = namaSekunder;
     const dashFooter = document.getElementById('dashFooterNama');
-    if(dashFooter) dashFooter.innerText = instansi1;
+    if(dashFooter) dashFooter.innerText = namaDominan;
     const zakatNama = document.getElementById('zakatNama');
-    if(zakatNama) zakatNama.innerText = instansi1;
+    if(zakatNama) zakatNama.innerText = namaDominan;
     
     const logoIcon = document.getElementById('headerLogo');
     if (logoIcon) {
-        if (cfg.instansi1.logo && cfg.instansi1.logo !== '') {
-            let logoUrl = cfg.instansi1.logo;
+        if (instansiDominan?.logo && instansiDominan.logo !== '') {
+            let logoUrl = instansiDominan.logo;
             if (!logoUrl.startsWith('data:image')) {
                 logoUrl += (logoUrl.includes('?') ? '&' : '?') + 'v=' + cacheBuster;
             }
             logoIcon.innerHTML = `<img src="${logoUrl}" style="width:100%; height:100%; object-fit:cover; border-radius:20px;">`;
-        } else if (cfg.instansi2.aktif && cfg.instansi2.logo && cfg.instansi2.logo !== '') {
-            let logoUrl = cfg.instansi2.logo;
+        } else if (instansiSekunder?.logo && instansiSekunder.logo !== '') {
+            let logoUrl = instansiSekunder.logo;
             if (!logoUrl.startsWith('data:image')) {
                 logoUrl += (logoUrl.includes('?') ? '&' : '?') + 'v=' + cacheBuster;
             }
@@ -6185,7 +6188,7 @@ function cetakTagihanTravelPartner(id) {
     if(!t.jumlah || !ring || !ring.punyaKebijakan) return showToast('Isi Komposisi Kamar dan Markup/Profit Tetap dulu!');
 
     const f = n => 'Rp ' + Math.round(n).toLocaleString('id-ID');
-    const namaKBIH = konfigurasiPro.instansi1?.nama || 'Navara';
+    const namaKBIH = getNamaInstansiUtama();
     const progNama = getCurrentProgram()?.nama || '-';
     const tgl = new Date().toLocaleDateString('id-ID', { day:'2-digit', month:'long', year:'numeric' });
 
@@ -6363,7 +6366,7 @@ function salinRingkasanTravel(id) {
     if(!komponen || totalGabungan <= 0) return showToast('Hitung Estimasi Konsorsium dulu!');
     const ring = hitungRingkasanTravel(t, komponen, totalGabungan);
     if(!t.jumlah || !ring || !ring.punyaKebijakan) return showToast('Isi Komposisi Kamar dan Markup/Profit Tetap dulu!');
-    const namaKBIH = konfigurasiPro.instansi1?.nama || 'Navara';
+    const namaKBIH = getNamaInstansiUtama();
     let teks = `*RINCIAN KONSORSIUM — ${t.nama || 'Travel Partner'}*\n${namaKBIH}\n\n`;
     ring.tipeData.forEach(x => {
         teks += `${x.label} (${x.jumlah} org${x.gratisDiSini > 0 ? ', ' + x.gratisDiSini + ' gratis' : ''}): Rp ${Math.round(x.harga).toLocaleString('id-ID')}/orang\n`;
@@ -6675,7 +6678,7 @@ function cetakLaporanKonsorsium() {
     const data = kumpulkanDataKonsorsiumUntukLaporan();
     if(!data) return showToast('Belum ada data Konsorsium untuk dicetak!');
     const f = n => 'Rp ' + Math.round(n||0).toLocaleString('id-ID');
-    const namaKBIH = konfigurasiPro.instansi1?.nama || 'Navara';
+    const namaKBIH = getNamaInstansiUtama();
     const progNama = getCurrentProgram()?.nama || '-';
     const tgl = new Date().toLocaleDateString('id-ID', { day:'2-digit', month:'long', year:'numeric' });
 
@@ -6721,7 +6724,7 @@ function bagikanKonsorsiumWA() {
     const data = kumpulkanDataKonsorsiumUntukLaporan();
     if(!data) return showToast('Belum ada data Konsorsium untuk dibagikan!');
     const f = n => 'Rp ' + Math.round(n||0).toLocaleString('id-ID');
-    const namaKBIH = konfigurasiPro.instansi1?.nama || 'Navara';
+    const namaKBIH = getNamaInstansiUtama();
     const progNama = getCurrentProgram()?.nama || '-';
     let teks = `*RINGKASAN KONSORSIUM (INTERNAL)*\n${namaKBIH} — ${progNama}\n\n`;
     data.rows.forEach(r => {
@@ -6926,7 +6929,7 @@ function cetakPengeluaran() {
 
 function cetakLaporanGabungan(mode = 'semua') {
     const cfg = getKonfigurasiProData();
-    const namaKBIH = cfg.instansi1?.nama || 'Navara';
+    const namaKBIH = getNamaInstansiUtama();
     const tgl = new Date().toLocaleDateString('id-ID',{day:'numeric',month:'long',year:'numeric'});
 
     // Clone & bersihkan tombol dari rekap
@@ -7296,7 +7299,7 @@ function shareRekapAktual() {
     const content = document.getElementById('rekapAktualContent');
     if(!content || !content.innerHTML.trim()) return showToast('Hitung rekap dulu!');
     const cfg = getKonfigurasiProData();
-    const namaKBIH = cfg.instansi1?.nama || 'Navara';
+    const namaKBIH = getNamaInstansiUtama();
     const tgl = new Date().toLocaleDateString('id-ID');
     const garis = '─'.repeat(28);
     let text = `📊 *REKAP PROFIT AKTUAL*\n*${namaKBIH}*\n📁 Program: ${getCurrentProgram()?.nama || '-'}\n${tgl}\n${garis}\n`;
@@ -10028,7 +10031,7 @@ function cetakRekapTahunanGabungan() {
         return { nama: p.nama, jenis: p.jenis, jumlahJamaah: jList.length, kontrak, dibayar, masuk, keluar, peng };
     });
 
-    const namaKBIH = konfigurasiPro.instansi1?.nama || 'Navara';
+    const namaKBIH = getNamaInstansiUtama();
     const tgl = new Date().toLocaleDateString('id-ID', { day:'numeric', month:'long', year:'numeric' });
     const rowsHtml = perProgram.map(r => `
         <tr>
@@ -10165,7 +10168,7 @@ function cetakManifestRooming() {
         if(!grup[tipe]) grup[tipe] = [];
         grup[tipe].push(j);
     });
-    const namaKBIH = konfigurasiPro.instansi1?.nama || 'Navara';
+    const namaKBIH = getNamaInstansiUtama();
     const progNama = getCurrentProgram()?.nama || '-';
     const tgl = new Date().toLocaleDateString('id-ID', { day:'numeric', month:'long', year:'numeric' });
 
@@ -10680,7 +10683,7 @@ function openAntrianFollowUpModal() {
 // ==================== LAPORAN PENUTUPAN MUSIM ====================
 function cetakLaporanPenutupanMusim() {
     const f = n => 'Rp ' + Math.round(n).toLocaleString('id-ID');
-    const namaKBIH = konfigurasiPro.instansi1?.nama || 'Navara';
+    const namaKBIH = getNamaInstansiUtama();
     const progNama = getCurrentProgram()?.nama || '-';
     const tgl = new Date().toLocaleDateString('id-ID', { day:'2-digit', month:'long', year:'numeric' });
 
@@ -11131,7 +11134,7 @@ function cetakItinerary(mode) {
     const hariUrut = [...it.hari].sort((a,b) => a.nomorHari - b.nomorHari);
     if(hariUrut.length === 0) return showToast('Belum ada data Itinerary untuk dicetak!');
 
-    const namaKBIH = konfigurasiPro.instansi1?.nama || 'Navara';
+    const namaKBIH = getNamaInstansiUtama();
     const progNama = getCurrentProgram()?.nama || '-';
     const isInternal = mode === 'internal';
 
@@ -13623,7 +13626,7 @@ function renderRekapCicilanModal(modalEl) {
 function cetakRekapCicilan() {
     const f = n => 'Rp ' + Math.round(n).toLocaleString('id-ID');
     const cek = cekPeringatanCicilanSemuaJamaah();
-    const namaKBIH = konfigurasiPro.instansi1?.nama || 'Navara';
+    const namaKBIH = getNamaInstansiUtama();
     const progNama = getCurrentProgram()?.nama || '-';
     const tgl = new Date().toLocaleDateString('id-ID', { day:'2-digit', month:'long', year:'numeric' });
 
@@ -13984,6 +13987,13 @@ async function deleteProgram(id) {
     showToast('🗑️ Program dihapus');
 }
 
+// Nama Instansi yang DITONJOLKAN di cetakan — otomatis Instansi 2 kalau Program Haji Reguler, kalau tidak Instansi 1. Instansi lain tetap tampil sebagai pendukung, tidak disembunyikan.
+function getNamaInstansiUtama() {
+    const cfg = konfigurasiPro;
+    if(isHajiReguler() && cfg.instansi2?.aktif && cfg.instansi2?.nama) return cfg.instansi2.nama;
+    return cfg.instansi1?.nama || 'Navara';
+}
+
 function isProgramArsip() {
     const p = getCurrentProgram();
     return p && p.isArsip === true;
@@ -14328,6 +14338,7 @@ async function eksekusiSimpanEditProgram(id, nama, jenis) {
     if(id === currentProgramId) {
         renderProgramPickerBar();
         applyModeHajiReguler();
+        updateHeaderFromConfig();
         renderMenuPremium();
     }
 
@@ -14354,6 +14365,7 @@ async function refilterAllProgramData() {
     renderKasTable();
     updateSaldoKas();
     applyModeHajiReguler();
+    updateHeaderFromConfig();
     if(typeof renderMenuPremium === 'function') renderMenuPremium();
     if(document.getElementById('kegiatan')) {
         const slot = ensureProgramConfigSlot();
@@ -16028,7 +16040,7 @@ function remindAllKurangDokumen() {
     if(kurang.length === 0) { showToast('✅ Semua jamaah sudah lengkap dokumennya!'); return; }
 
     const cfg = getKonfigurasiProData();
-    const namaKBIH = cfg.instansi1?.nama || 'KBIH';
+    const namaKBIH = getNamaInstansiUtama();
 
     // Tampilkan modal pilihan
     const modal = document.createElement('div');
