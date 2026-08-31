@@ -4923,7 +4923,7 @@ async function cetakDashboardHTML() {
     const cfg = getKonfigurasiProData();
     const tanggal = new Date().toLocaleDateString('id-ID', { day:'2-digit', month:'long', year:'numeric' });
     const headerHtml = buildPrintHeader(cfg, tanggal);
-    const qrHtml = await buildPrintQR(cfg, `Dashboard ${cfg.instansi1?.nama||'Navara'}\nTotal Jamaah: ${totalJamaah}\nTanggal: ${tanggal}`);
+    const qrHtml = await buildPrintQR(cfg, `Dashboard ${getNamaInstansiUtama()}\nTotal Jamaah: ${totalJamaah}\nTanggal: ${tanggal}`);
 
     let topHtml = '';
     topPiutang.forEach((j,i) => {
@@ -4988,7 +4988,7 @@ async function downloadDashboardPDF() {
             doc.setTextColor(0,0,0);
             doc.text(`Total Kas: Rp ${formatAngka(totalKas)}`, 20, 80);
             doc.text(`Total Jamaah: ${jamaahData.length} orang`, 20, 90);
-            doc.save(`Dashboard_${getKonfigurasiProData().instansi1?.nama || 'Dashboard'}.pdf`);
+            doc.save(`Dashboard_${getNamaInstansiUtama() || 'Dashboard'}.pdf`);
             showToast('PDF Dashboard berhasil dibuat');
         } catch(e) { showToast('Gagal PDF: ' + e.message); }
     }, 100);
@@ -5005,7 +5005,7 @@ function exportDashboardExcel() {
     XLSX.utils.book_append_sheet(wb, wsJamaah, 'Jamaah');
     XLSX.utils.book_append_sheet(wb, wsKas, 'Kas');
     XLSX.utils.book_append_sheet(wb, wsPayment, 'Pembayaran');
-    XLSX.writeFile(wb, `Dashboard_${getKonfigurasiProData().instansi1?.nama || 'Dashboard'}_${new Date().toLocaleDateString('id-ID').replace(/\//g,'-')}.xlsx`);
+    XLSX.writeFile(wb, `Dashboard_${getNamaInstansiUtama() || 'Dashboard'}_${new Date().toLocaleDateString('id-ID').replace(/\//g,'-')}.xlsx`);
     showToast('Excel Dashboard berhasil di-export');
 }
 
@@ -8651,7 +8651,7 @@ function injectWatermarkToPrintWin(win) {
         if(!cfg.watermark?.enabled) return;
 
         const text = isLicensed()
-            ? (cfg.watermark.text || cfg.instansi1?.nama || 'Navara')
+            ? (cfg.watermark.text || getNamaInstansiUtama() || 'Navara')
             : 'Navara';
         const opacity = cfg.watermark.opacity || 0.15;
         const fontSize = cfg.watermark.fontsize || 60;
@@ -11341,7 +11341,7 @@ async function cetakRekapKategori() {
     const total = jamaahList.length;
     const cfg = getKonfigurasiProData();
     const tanggal = new Date().toLocaleDateString('id-ID', { day:'numeric', month:'long', year:'numeric' });
-    const namaInstansi = isLicensed() ? (cfg.instansi1?.nama || 'Navara') : 'Navara';
+    const namaInstansi = isLicensed() ? getNamaInstansiUtama() : 'Navara';
     const headerHtml = buildPrintHeader(cfg, tanggal);
     const watermarkHtml = buildPrintWatermark(cfg);
 
@@ -12711,7 +12711,7 @@ async function cetakLaporanZakat() {
     const statusLabel = statusWajib ? '✅ WAJIB ZAKAT' : '❌ BELUM MENCAPAI NISAB';
     const headerHtml = buildPrintHeader(cfg, tgl);
     const ttdHtml = buildPrintTandaTangan(cfg, tgl);
-    const qrHtml = await buildPrintQR(cfg, `Laporan Zakat ${cfg.instansi1?.nama||'Navara'}\nTotal Zakat: Rp ${totalZakat.toLocaleString('id-ID')}\nTanggal: ${tgl}`);
+    const qrHtml = await buildPrintQR(cfg, `Laporan Zakat ${getNamaInstansiUtama()}\nTotal Zakat: Rp ${totalZakat.toLocaleString('id-ID')}\nTanggal: ${tgl}`);
     const html = `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Laporan Zakat</title>
     <style>
         *{margin:0;padding:0;box-sizing:border-box;}
@@ -17684,8 +17684,11 @@ async function applyPDFConfig(doc, options = {}) {
 
 // ==================== HEADER CETAK RESMI ====================
 function buildPrintHeader(cfg, tanggal) {
-    const i1 = cfg.instansi1 || {};
-    const i2 = cfg.instansi2 || {};
+    const hajiReg = isHajiReguler();
+    const instansiDominan = hajiReg && cfg.instansi2?.aktif && cfg.instansi2?.nama ? (cfg.instansi2 || {}) : (cfg.instansi1 || {});
+    const instansiSekunder = hajiReg && cfg.instansi2?.aktif && cfg.instansi2?.nama ? (cfg.instansi1 || {}) : (cfg.instansi2 || {});
+    const i1 = instansiDominan;
+    const i2 = instansiSekunder;
     const s = cfg.settings || {};
 
     const showLogo     = s.show_logo     !== false;
@@ -17705,9 +17708,12 @@ function buildPrintHeader(cfg, tanggal) {
             : `<div style="width:72px;height:72px;background:rgba(255,255,255,0.2);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:28px;">🕌</div>`)
         : '';
 
+    // Sekunder dianggap "aktif" kalau: (mode normal, i2 asli) i2.aktif=true, ATAU (mode Haji tertukar) i2 sekarang = Instansi 1 asli yang tidak punya saklar .aktif sendiri, cukup cek namanya ada
+    const sekunderTampil = hajiReg ? !!i2.nama : (i2.aktif && i2.nama);
+
     let infoHtml = '';
     if(showNama1 && i1.nama)             infoHtml += `<div style="font-size:17px;font-weight:bold;">${i1.nama}</div>`;
-    if(showNama2 && i2.aktif && i2.nama) infoHtml += `<div style="font-size:13px;opacity:0.9;">${i2.nama}</div>`;
+    if(showNama2 && sekunderTampil)      infoHtml += `<div style="font-size:13px;opacity:0.9;">${i2.nama}</div>`;
     if(showAlamat && i1.alamat)          infoHtml += `<div style="font-size:11px;opacity:0.8;margin-top:3px;">${i1.alamat}</div>`;
     if(showTelp && i1.telp)              infoHtml += `<div style="font-size:11px;opacity:0.8;">Telp: ${i1.telp}</div>`;
     if(showEmail && i1.email)            infoHtml += `<div style="font-size:11px;opacity:0.8;">Email: ${i1.email}</div>`;
@@ -17732,8 +17738,12 @@ function buildPrintWatermark(cfg) {
 }
 
 function buildPrintTandaTangan(cfg, tglCetak) {
-    const i1 = cfg.instansi1 || {};
-    const i2 = cfg.instansi2 || {};
+    const hajiReg = isHajiReguler();
+    const instansiDominan = hajiReg && cfg.instansi2?.aktif && cfg.instansi2?.nama ? (cfg.instansi2 || {}) : (cfg.instansi1 || {});
+    const instansiSekunder = hajiReg && cfg.instansi2?.aktif && cfg.instansi2?.nama ? (cfg.instansi1 || {}) : (cfg.instansi2 || {});
+    const i1 = instansiDominan;
+    const i2 = instansiSekunder;
+    const sekunderPunyaPimpinan = hajiReg ? !!i2.pimpinan : (i2.aktif && i2.pimpinan);
     const s = cfg.settings || {};
     const showPimpinan = s.show_pimpinan === true;
     if (!showPimpinan) return '';
@@ -17756,7 +17766,7 @@ function buildPrintTandaTangan(cfg, tglCetak) {
         </div>`;
     }
 
-    if (ttdMode === 'both' && i2.aktif && i2.pimpinan) {
+    if (ttdMode === 'both' && sekunderPunyaPimpinan) {
         pihak2 = `
         <div style="text-align:center;flex:1;">
             <div style="font-size:12px;color:#555;">${lokasiTgl}</div>
@@ -18465,7 +18475,7 @@ function saveModes() {
 let konfigurasiPro = {
     instansi1: { nama: '', alamat: '', telp: '', email: '', npwp: '', web: '', pimpinan: '', jabatan: '', logo: '' },
     instansi2: { aktif: false, nama: '', alamat: '', telp: '', email: '', izin: '', pimpinan: '', jabatan: '', logo: '' },
-    watermark: { enabled: true, text: getKonfigurasiProData().instansi1?.nama || 'Navara', opacity: 0.15, fontsize: 60, position: 'diagonal' },
+    watermark: { enabled: true, text: '', opacity: 0.15, fontsize: 60, position: 'diagonal' },
     qr: { enabled: true, text: 'Dokumen Resmi - Divalidasi oleh Sistem Navara', size: 80 },
     settings: { header_mode: 'both', ttd_mode: 'both', invoice_prefix: 'INV/NAVARA' },
     harga_paket: { seragam: false, nominal: 0 },
