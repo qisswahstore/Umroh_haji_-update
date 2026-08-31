@@ -3877,7 +3877,7 @@ const APP_VERSION = '2025.01.15.006-FINAL';
 let lastPage = 'home';
 function showPage(pageId) {
     if (pageId === 'estimasi' && isHajiReguler()) {
-        showToast('📋 Cuan Plan tidak dipakai untuk Haji Reguler — gunakan Jamaah, Dokumen & Pembayaran');
+        showToast('📋 Cuan Plan tidak dipakai untuk Haji Reguler — gunakan Pembayaran, Kas, Layanan Tambahan & Cicilan');
         pageId = 'home';
     }
     const currentActive = document.querySelector('.page.active');
@@ -10733,17 +10733,23 @@ function cetakLaporanPenutupanMusim() {
             <p class="lap-note">Program ini tidak memakai Estimasi/Modal — angka di atas BUKAN Profit.</p></div>`;
     }
 
-    // 1b. Pengeluaran Sungguhan + PROFIT RIIL (bottom-line paling akurat, dari uang yang benar-benar keluar-masuk)
-    const pengeluaranPerKategori = {};
-    let totalPengeluaran = 0;
-    pengeluaranList.forEach(p => {
-        const kat = p.kategori || 'Lain-lain';
-        pengeluaranPerKategori[kat] = (pengeluaranPerKategori[kat] || 0) + (parseInt(p.nominal)||0);
-        totalPengeluaran += (parseInt(p.nominal)||0);
-    });
+    // 1b. Pengeluaran Sungguhan + PROFIT RIIL (bottom-line paling akurat) — Haji Reguler baca dari KAS, Umroh/Haji Khusus tetap baca dari Pengeluaran (Cuan Plan)
+    let totalPengeluaran = 0, rowsPengeluaran = '';
+    if(isHajiReguler()) {
+        const kasKeluar = dataKas.filter(k => k.tipe === 'keluar' && k.program_id === currentProgramId);
+        totalPengeluaran = kasKeluar.reduce((s,k) => s + (parseInt(k.nom)||0), 0);
+        rowsPengeluaran = kasKeluar.map(k => `<tr><td>${escapeHtml(k.ket)} <span style="color:#888;font-size:11px;">(${k.tgl})</span></td><td>-${f(k.nom)}</td></tr>`).join('');
+    } else {
+        const pengeluaranPerKategori = {};
+        pengeluaranList.forEach(p => {
+            const kat = p.kategori || 'Lain-lain';
+            pengeluaranPerKategori[kat] = (pengeluaranPerKategori[kat] || 0) + (parseInt(p.nominal)||0);
+            totalPengeluaran += (parseInt(p.nominal)||0);
+        });
+        rowsPengeluaran = Object.keys(pengeluaranPerKategori).map(k => `<tr><td>${escapeHtml(k)}</td><td>-${f(pengeluaranPerKategori[k])}</td></tr>`).join('');
+    }
     const profitRiil = totalDibayarJamaah - totalPengeluaran;
-    const rowsPengeluaran = Object.keys(pengeluaranPerKategori).map(k => `<tr><td>${escapeHtml(k)}</td><td>-${f(pengeluaranPerKategori[k])}</td></tr>`).join('');
-    let sectionPengeluaran = `<div class="lap-section"><h2>💸 Pengeluaran Sungguhan</h2>
+    let sectionPengeluaran = `<div class="lap-section"><h2>💸 Pengeluaran Sungguhan${isHajiReguler() ? ' (dari Kas)' : ''}</h2>
         <table class="lap-table">${rowsPengeluaran || '<tr><td colspan="2" style="color:#888;">Belum ada Pengeluaran tercatat</td></tr>'}
         <tr class="lap-total"><td>TOTAL PENGELUARAN</td><td>-${f(totalPengeluaran)}</td></tr></table>
         <table class="lap-table" style="margin-top:10px;">
@@ -13800,7 +13806,7 @@ function isHajiReguler() {
 function applyModeHajiReguler() {
     const hajiReg = isHajiReguler();
 
-    // 1. Cuan Plan di Menu Utama sudah ditangani di renderMenuPremium() + guard di showPage()
+    // 1. Kartu Cuan Plan di Menu Utama disembunyikan (renderMenuPremium); tab Estimasi/Konsorsium diblokir di level TAB (switchCuanTab), BUKAN seluruh halaman — supaya Pengeluaran & Rekap Aktual tetap bisa diakses
 
     // 2 & 3. Tombol Kecocokan Kamar & Manifest Rooming di Jamaah
     const btnKamar = document.querySelector('button[onclick="openKecocokanKamarModal()"]');
