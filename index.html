@@ -3577,7 +3577,7 @@
 <!-- BOTTOM NAVIGATION -->
 <div class="bottom-nav-premium" id="bottomNavMain">
     <div class="nav-item-premium" data-page="home" onclick="showPage('home')"><i class="fas fa-home"></i><span>Home</span></div>
-    <div class="nav-item-premium" data-page="estimasi" onclick="showPage('estimasi')"><i class="fas fa-chart-line"></i><span>Estimasi</span></div>
+    <div class="nav-item-premium" id="navItemEstimasi" data-page="estimasi" onclick="handleBottomNavEstimasiSlot()"><i class="fas fa-chart-line"></i><span>Estimasi</span></div>
     <div class="nav-item-premium" data-page="kas" onclick="showPage('kas')"><i class="fas fa-wallet"></i><span>Kas</span></div>
     <div class="nav-item-premium" data-page="jamaah" onclick="showPage('jamaah')"><i class="fas fa-users"></i><span>Jamaah</span></div>
     <div class="nav-item-premium" data-page="setting" onclick="showPage('setting')"><i class="fas fa-sliders-h"></i><span>Setting</span></div>
@@ -13835,6 +13835,11 @@ function getCurrentProgram() {
     return programList.find(p => p.id === currentProgramId) || programList[0] || null;
 }
 
+function handleBottomNavEstimasiSlot() {
+    if(isHajiReguler()) showPage('layanantambahan');
+    else showPage('estimasi');
+}
+
 function isHajiReguler() {
     const p = getCurrentProgram();
     return p && p.jenis === 'haji_reguler';
@@ -13878,6 +13883,20 @@ function applyModeHajiReguler() {
     // 8. Blok Harga Paket Seragam — disembunyikan HANYA untuk Haji Reguler (Umroh/Haji Khusus/Lainnya tetap pakai sistem ini)
     const hargaSeragamBlock = document.getElementById('hargaSeragamConfigBlock');
     if(hargaSeragamBlock) hargaSeragamBlock.style.display = hajiReg ? 'none' : 'block';
+
+    // 9. Ikon bottom nav slot ke-2 — "Estimasi" untuk Umroh/Haji Khusus, "Layanan+" (Layanan Tambahan) untuk Haji Reguler
+    const navEstimasi = document.getElementById('navItemEstimasi');
+    if(navEstimasi) {
+        const icon = navEstimasi.querySelector('i');
+        const label = navEstimasi.querySelector('span');
+        if(hajiReg) {
+            if(icon) icon.className = 'fas fa-kaaba';
+            if(label) label.textContent = 'Layanan+';
+        } else {
+            if(icon) icon.className = 'fas fa-chart-line';
+            if(label) label.textContent = 'Estimasi';
+        }
+    }
 }
 
 // ==================== KOMPONEN BIAYA HAJI REGULER (terpisah TOTAL dari Harga Seragam Umroh) ====================
@@ -19116,16 +19135,7 @@ async function shareKasPDF() {
             }
         }
 
-        // ── QR Code (sama seperti Share Invoice) ───────────────────────────
-        if(cfg.qr?.enabled && typeof QRCode !== 'undefined') {
-            try {
-                const canvas = document.createElement('canvas');
-                await QRCode.toCanvas(canvas, `Laporan Kas: ${judul}\nSaldo: Rp ${saldo.toLocaleString('id-ID')}\nTanggal: ${tglCetak}`, { width: 80 });
-                doc.addImage(canvas.toDataURL(), 'PNG', 270, 190, 20, 20);
-                doc.setFontSize(7); doc.setTextColor(150,150,150);
-                doc.text('Dokumen Resmi', 270, 212, { maxWidth: 20 });
-            } catch(e) {}
-        }
+        // Catatan: QR Code sudah otomatis ditambahkan oleh applyPDFConfig() di atas (kalau diaktifkan di Konfigurasi) — tidak perlu tambah lagi di sini
 
         // ── Share (native share sheet, fallback download) ───────────────────
         const namaFile = `${judul.replace(/\s+/g,'_')}_Laporan_Kas.pdf`;
