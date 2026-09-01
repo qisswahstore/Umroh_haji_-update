@@ -2668,7 +2668,7 @@
         </button>
         <div class="section-title" style="margin-top:24px;"><span>📋 DAFTAR JAMAAH ON PROSES</span></div>
         <div class="search-box">
-            <input type="text" id="searchJamaahKitaInput" placeholder="Cari nama jamaah..." onkeyup="filterJamaahKitaList()">
+            <input type="text" id="searchJamaahKitaInput" placeholder="Cari nama jamaah..." onkeyup="renderJamaahKitaList()">
             <button onclick="resetJamaahKitaFilter()" style="width:auto; padding:0 16px; background:var(--gray);">Reset</button>
         </div>
         <!-- Sort Selector -->
@@ -18062,7 +18062,7 @@ function renderMasterTable() {
     if(!thead || !tbody) return;
     let headerHtml = '<tr><th class="checkbox-col"><input type="checkbox" id="selectAllMaster" onchange="toggleAllMasterCheckboxes(this)"></th><th>No</th><th>Nama Lengkap</th>';
     for(const field of masterDynamicFields) headerHtml += `<th>${escapeHtml(field.label)}</th>`;
-    headerHtml += '<th>Item</th><th>Aksi</th><tr>';
+    headerHtml += '<th>Item</th><th>Aksi</th></tr>';
     thead.innerHTML = headerHtml;
     if(masterDataList.length === 0) { tbody.innerHTML = '<tr><td colspan="100%" style="text-align:center; padding:30px;">Belum ada Data</td></tr>'; return; }
     const filtered = getFilteredMasterList();
