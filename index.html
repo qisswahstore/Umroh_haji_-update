@@ -2906,7 +2906,7 @@
         </div>
         <div class="config-section"><h3><i class="fas fa-watermark"></i> Watermark</h3>
             <div class="config-row" style="display:flex; justify-content:space-between; align-items:center;"><label>Aktifkan Watermark</label><label class="switch"><input type="checkbox" id="cfg_watermark_enabled" checked><span class="slider"></span></label></div>
-            <div class="config-row"><label>Teks Watermark</label><input type="text" id="cfg_watermark_text" value="Navara"></div>
+            <div class="config-row"><label>Teks Watermark</label><input type="text" id="cfg_watermark_text" placeholder="Kosongkan = otomatis ikut Instansi Dominan"></div>
             <div class="config-row"><label>Opacity</label><div class="opacity-slider"><input type="range" id="cfg_watermark_opacity" min="0.05" max="0.4" step="0.05" value="0.15"><span id="opacityValue">0.15</span></div></div>
             <div class="row"><div class="config-row"><label>Ukuran Font</label><select id="cfg_watermark_fontsize"><option value="30">Sangat Kecil (30)</option><option value="40">Kecil (40)</option><option value="60" selected>Sedang (60)</option><option value="80">Besar (80)</option></select></div><div class="config-row"><label>Posisi</label><select id="cfg_watermark_position"><option value="diagonal" selected>Diagonal</option><option value="center">Tengah</option><option value="tile">Ulangi (Tile)</option></select></div></div>
             <div class="preview-btn" onclick="previewWatermark()"><i class="fas fa-eye"></i> Preview Watermark</div>
@@ -2922,7 +2922,7 @@
             <div class="row"><div class="config-row"><label>Header PDF</label><select id="cfg_header_mode"><option value="both">Keduanya</option><option value="instansi1">Instansi 1 saja</option><option value="instansi2">Instansi 2 saja</option><option value="none">Tidak ada</option></select></div><div class="config-row"><label>Tanda Tangan</label><select id="cfg_ttd_mode"><option value="both">Dua Pihak</option><option value="single">Satu Pihak</option></select></div></div>
             <div class="config-row"><label>Prefix Invoice / No. Dokumen</label><input type="text" id="cfg_invoice_prefix" value="INV/NAVARA"></div>
             <div class="config-row"><label>🧓 Batas Usia Lansia (tahun)</label><input type="number" id="cfg_batas_lansia" placeholder="60" min="50" max="80" style="width:120px;"></div>
-            <div style="background:var(--bg);border-radius:12px;padding:14px;margin-top:10px;">
+            <div id="hargaSeragamConfigBlock" style="background:var(--bg);border-radius:12px;padding:14px;margin-top:10px;">
                 <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
                     <div>
                         <div style="font-weight:bold;font-size:14px;">💰 Harga Paket Seragam</div>
@@ -2956,7 +2956,7 @@
                 </div>
             </div>
         </div>
-        <div class="config-section"><h3><i class="fas fa-sort-numeric-up"></i> Rentang Nomor Porsi Haji</h3>
+        <div class="config-section" id="porsiHajiConfigSection"><h3><i class="fas fa-sort-numeric-up"></i> Rentang Nomor Porsi Haji</h3>
             <p style="font-size:11px;color:#888;margin-bottom:10px;">Untuk mengelompokkan jamaah Haji otomatis berdasarkan estimasi tahun keberangkatan dari nomor porsi. Berlaku global untuk semua Program. Urutkan dari porsi terkecil ke terbesar.</p>
             <div id="rentangPorsiList" style="margin-bottom:10px;"></div>
             <div class="input-group" style="margin-bottom:8px;">
@@ -13806,6 +13806,12 @@ function isHajiReguler() {
     return p && p.jenis === 'haji_reguler';
 }
 
+// Haji APAPUN (Reguler MAUPUN Khusus/Plus) — beda dari isHajiReguler() yang cuma cek 1 jenis spesifik
+function isJenisHaji() {
+    const p = getCurrentProgram();
+    return p && (p.jenis === 'haji' || p.jenis === 'haji_reguler');
+}
+
 function applyModeHajiReguler() {
     const hajiReg = isHajiReguler();
 
@@ -13829,6 +13835,15 @@ function applyModeHajiReguler() {
         komponenHajiConfig.style.display = hajiReg ? 'block' : 'none';
         if(hajiReg) renderKomponenHajiList();
     }
+
+    // 7. Section Rentang Nomor Porsi Haji — muncul untuk Haji APAPUN (Reguler & Khusus), disembunyikan untuk Umroh/Lainnya
+    const hajiApapun = isJenisHaji();
+    const porsiConfig = document.getElementById('porsiHajiConfigSection');
+    if(porsiConfig) porsiConfig.style.display = hajiApapun ? 'block' : 'none';
+
+    // 8. Blok Harga Paket Seragam — disembunyikan HANYA untuk Haji Reguler (Umroh/Haji Khusus/Lainnya tetap pakai sistem ini)
+    const hargaSeragamBlock = document.getElementById('hargaSeragamConfigBlock');
+    if(hargaSeragamBlock) hargaSeragamBlock.style.display = hajiReg ? 'none' : 'block';
 }
 
 // ==================== KOMPONEN BIAYA HAJI REGULER (terpisah TOTAL dari Harga Seragam Umroh) ====================
@@ -18535,7 +18550,7 @@ async function loadKonfigurasiPro() {
     document.getElementById('cfg_jabatan2').value = konfigurasiPro.instansi2.jabatan || '';
     if(konfigurasiPro.instansi2.logo) document.getElementById('previewLogo2').src = konfigurasiPro.instansi2.logo;
     document.getElementById('cfg_watermark_enabled').checked = konfigurasiPro.watermark.enabled !== false;
-    document.getElementById('cfg_watermark_text').value = konfigurasiPro.watermark.text || 'Navara';
+    document.getElementById('cfg_watermark_text').value = konfigurasiPro.watermark.text || '';
     document.getElementById('cfg_watermark_opacity').value = konfigurasiPro.watermark.opacity || 0.15;
     document.getElementById('opacityValue').innerText = (konfigurasiPro.watermark.opacity || 0.15).toFixed(2);
     document.getElementById('cfg_watermark_fontsize').value = konfigurasiPro.watermark.fontsize || 60;
