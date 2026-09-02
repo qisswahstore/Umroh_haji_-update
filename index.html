@@ -7647,7 +7647,7 @@ async function saveJamaahData() {
     jamaahList.forEach(j => { if(!j.program_id) j.program_id = currentProgramId; });
     _allJamaahData = [...otherProgramData, ...jamaahList];
     await idbSet(STORE_JAMAAH, 'jamaah_list', _allJamaahData);
-    applyJamaahFilterAndSort(); 
+    rebuildJamaahFilteredList(); 
 }
 
 async function loadDynamicFieldsJamaah() { 
@@ -7715,7 +7715,8 @@ async function saveDynamicFieldsJamaah() {
     await idbSet(STORE_JAMAAH, 'jamaah_fields', dynamicFieldsJamaah);
 }
 
-function applyJamaahFilterAndSort() { 
+// Bangun ulang daftar Jamaah (filter+sort) TANPA reset halaman — aman dipakai setelah simpan data
+function rebuildJamaahFilteredList() { 
     let filtered=[...jamaahList]; 
     if(currentSearch) filtered=filtered.filter(j=>j.nama_lengkap.toLowerCase().includes(currentSearch.toLowerCase())); 
     if(currentLunasFilter === 'lunas' || currentLunasFilter === 'belum_lunas') {
@@ -7732,9 +7733,15 @@ function applyJamaahFilterAndSort() {
     else if(currentSort==='tgl_asc') filtered.sort((a,b)=>(a.created_at||'').localeCompare(b.created_at||'')); 
     else if(currentSort==='tgl_desc') filtered.sort((a,b)=>(b.created_at||'').localeCompare(a.created_at||'')); 
     jamaahFilteredList=filtered; 
-    currentJamaahPage=1; 
     renderJamaahListWithPagination(); 
     renderFilterLunasChip();
+}
+
+// Dipanggil saat user BENAR-BENAR ganti pencarian/filter/urutan — sengaja kembali ke halaman 1 (wajar, hasil baru)
+function applyJamaahFilterAndSort() { 
+    rebuildJamaahFilteredList();
+    currentJamaahPage=1; 
+    renderJamaahListWithPagination(); 
 }
 
 function renderFilterLunasChip() {
@@ -9671,14 +9678,59 @@ function confirmDeleteJamaahById(id){
             jamaahList.splice(index,1); 
             saveJamaahData(); 
             catatAktivitas('🗑️', `Jamaah "${namaJamaah}" dihapus`);
+
+            let dibatalkan = false;
             tampilkanUndoBar(`Jamaah "${namaJamaah}" dihapus`, () => {
+                dibatalkan = true;
                 jamaahList.splice(posisiAsli, 0, dataJamaahDihapus);
                 saveJamaahData();
                 catatAktivitas('↩️', `Penghapusan jamaah "${namaJamaah}" DIBATALKAN — data dikembalikan`);
                 showToast('↩️ Dikembalikan: ' + namaJamaah);
             });
+
+            // Data terkait (Pembayaran, Layanan Tambahan, Absensi, Jamaah Kita, Foto/Dokumen) BARU dibersihkan
+            // setelah jendela Undo (5 detik) lewat TANPA dibatalkan — supaya Undo tetap sederhana & aman (tidak ada yang perlu direstore selain Jamaah-nya sendiri)
+            setTimeout(() => { if(!dibatalkan) bersihkanDataTerkaitJamaah(id); }, 5500);
         } 
     } 
+}
+
+// Bersihkan semua data yang terhubung ke 1 Jamaah — dipanggil setelah window Undo lewat (bukan langsung), supaya Undo tetap aman
+async function bersihkanDataTerkaitJamaah(jamaahId) {
+    // 1. Riwayat Pembayaran — dihapus (memang khusus untuk paket jamaah ini, sudah tidak relevan)
+    const jumlahPembayaran = paymentTransaksiList.filter(t => t.id_jamaah == jamaahId).length;
+    if(jumlahPembayaran > 0) {
+        paymentTransaksiList = paymentTransaksiList.filter(t => t.id_jamaah != jamaahId);
+        await savePaymentData();
+    }
+
+    // 2. Layanan Tambahan (Badal/Dam) — lepaskan KAITANNYA saja, transaksi & profit-nya tetap ada (Badal memang boleh tanpa jamaah)
+    const listLayanan = ensureLayananTambahan();
+    let adaLayananTerkait = false;
+    listLayanan.forEach(l => { if(l.jamaahId == jamaahId) { l.jamaahId = null; adaLayananTerkait = true; } });
+    if(adaLayananTerkait) simpanLayananTambahanKeStorage();
+
+    // 3. Absensi — hapus catatan kehadiran jamaah ini dari SEMUA sesi
+    let adaAbsensiTerkait = false;
+    (absensiList || []).forEach(sesi => {
+        const before = sesi.absensi.length;
+        sesi.absensi = sesi.absensi.filter(a => a.jamaahId != jamaahId);
+        if(sesi.absensi.length !== before) adaAbsensiTerkait = true;
+    });
+    if(adaAbsensiTerkait) await saveAbsensiData();
+
+    // 4. Jamaah Kita — lepaskan KAITANNYA saja (orangnya di Jamaah Kita tetap ada, cuma link ke Jamaah utama ini dilepas)
+    let adaJamaahKitaTerkait = false;
+    (jamaahKitaList || []).forEach(jk => { if(jk.jamaahId == jamaahId) { jk.jamaahId = null; adaJamaahKitaTerkait = true; } });
+    if(adaJamaahKitaTerkait && typeof saveJamaahKitaData === 'function') await saveJamaahKitaData();
+
+    // 5. Foto Profil & Dokumen — dihapus (konsisten dengan perilaku "Hapus Semua Jamaah")
+    try {
+        const database = await openIndexedDB();
+        const tx = database.transaction([STORE_FOTO, STORE_NAME], 'readwrite');
+        tx.objectStore(STORE_FOTO).delete(jamaahId);
+        tx.objectStore(STORE_NAME).delete(jamaahId);
+    } catch(e) {}
 }
 
 function tampilkanUndoBar(pesan, onUndo) {
@@ -11599,6 +11651,25 @@ async function eksekusiHapusSemuaJamaah(){
             tx.objectStore(STORE_NAME).delete(id);
         });
 
+        // Konsisten dengan Hapus 1-per-1: bersihkan juga Pembayaran, kaitan Layanan Tambahan, dan Absensi untuk semua jamaah yang dihapus
+        const idSetDihapus = new Set(idJamaahDihapus.map(String));
+        const jumlahPembayaranTerkait = paymentTransaksiList.filter(t => idSetDihapus.has(String(t.id_jamaah))).length;
+        if(jumlahPembayaranTerkait > 0) {
+            paymentTransaksiList = paymentTransaksiList.filter(t => !idSetDihapus.has(String(t.id_jamaah)));
+            await savePaymentData();
+        }
+        const listLayanan = ensureLayananTambahan();
+        let adaLayananTerkait = false;
+        listLayanan.forEach(l => { if(l.jamaahId && idSetDihapus.has(String(l.jamaahId))) { l.jamaahId = null; adaLayananTerkait = true; } });
+        if(adaLayananTerkait) simpanLayananTambahanKeStorage();
+        let adaAbsensiTerkait = false;
+        (absensiList || []).forEach(sesi => {
+            const before = sesi.absensi.length;
+            sesi.absensi = sesi.absensi.filter(a => !idSetDihapus.has(String(a.jamaahId)));
+            if(sesi.absensi.length !== before) adaAbsensiTerkait = true;
+        });
+        if(adaAbsensiTerkait) await saveAbsensiData();
+
         // Hapus dari localStorage (fallback lama)
         ['navara_jamaah_list','navara_jamaah_kita_list','navara_folder_list'].forEach(k => localStorage.removeItem(k));
 
@@ -12889,7 +12960,8 @@ function getStatusPembayaran(jamaah) {
 }
 
 function renderPaymentDashboard() { 
-    let totalMasuk = paymentTransaksiList.reduce((sum, t) => sum + t.nominal, 0); 
+    const idJamaahAktif = new Set(jamaahList.map(j => j.id));
+    let totalMasuk = paymentTransaksiList.filter(t => idJamaahAktif.has(Number(t.id_jamaah)) || idJamaahAktif.has(t.id_jamaah)).reduce((sum, t) => sum + t.nominal, 0); 
     let totalPiutang = 0; 
     jamaahList.forEach(j => { 
         const totalHarga = getTotalHargaPaket(j); 
