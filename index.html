@@ -4004,6 +4004,13 @@ function showPage(pageId) {
 function internalShowPage(pageId) {
     // Cek lisensi untuk halaman premium
     if(!checkLicenseForPage(pageId)) return;
+    // Jaring pengaman: kalaupun ada yang coba masuk lewat jalan lain (bukan klik menu), tetap diblok
+    // kalau Peran staf yang sedang login tidak diizinkan buka modul ini.
+    if(!cekIzinModul(pageId)) {
+        showToast('🔒 Anda tidak punya izin membuka halaman ini');
+        if(pageId !== 'home') internalShowPage('home');
+        return;
+    }
     const _prevActivePage = document.querySelector('.page.active');
     const _doInternalShowPage = () => {
     document.querySelectorAll('.page').forEach(page => page.classList.remove('active','leaving'));
@@ -4692,12 +4699,25 @@ function getPeranList() {
     if (!konfigurasiPro.peran_list) {
         // Baru pertama kali dipakai — siapkan 3 contoh Peran siap pakai
         konfigurasiPro.peran_list = [
-            { id: 'peran_staf_kas', nama: 'Staf Kas', bolehHapus: false, bolehReset: false },
-            { id: 'peran_staf_database', nama: 'Staf Database', bolehHapus: false, bolehReset: false },
-            { id: 'peran_supervisor', nama: 'Supervisor', bolehHapus: false, bolehReset: false }
+            { id: 'peran_staf_kas', nama: 'Staf Kas', bolehHapus: false, bolehReset: false, modulAllowed: ['kas'] },
+            { id: 'peran_staf_database', nama: 'Staf Database', bolehHapus: false, bolehReset: false, modulAllowed: ['jamaah', 'jamaahkita', 'pembayaran'] },
+            { id: 'peran_supervisor', nama: 'Supervisor', bolehHapus: false, bolehReset: false, modulAllowed: ['estimasi', 'kas', 'jamaah', 'jamaahkita', 'catatan', 'zakat', 'pembayaran', 'datamaster', 'fitur'] }
         ];
         localStorage.setItem('navara_konfigurasi_pro', JSON.stringify(konfigurasiPro));
         idbSet(STORE_KONFIGURASI, 'konfigurasi_pro', konfigurasiPro);
+    } else {
+        // Migrasi aman: kalau 3 Peran contoh ini sudah ada dari sesi sebelumnya (sebelum fitur kunci
+        // modul ada) tapi belum punya modulAllowed sama sekali, isikan default-nya SEKALI — tidak
+        // pernah menimpa modulAllowed yang sudah diatur/diubah sendiri oleh Admin Utama.
+        const defaultModul = { peran_staf_kas: ['kas'], peran_staf_database: ['jamaah','jamaahkita','pembayaran'], peran_supervisor: ['estimasi','kas','jamaah','jamaahkita','catatan','zakat','pembayaran','datamaster','fitur'] };
+        let berubah = false;
+        konfigurasiPro.peran_list.forEach(p => {
+            if (defaultModul[p.id] && p.modulAllowed === undefined) { p.modulAllowed = defaultModul[p.id]; berubah = true; }
+        });
+        if (berubah) {
+            localStorage.setItem('navara_konfigurasi_pro', JSON.stringify(konfigurasiPro));
+            idbSet(STORE_KONFIGURASI, 'konfigurasi_pro', konfigurasiPro);
+        }
     }
     return konfigurasiPro.peran_list;
 }
@@ -4706,6 +4726,22 @@ function simpanPeranList(list) {
     konfigurasiPro.peran_list = list;
     localStorage.setItem('navara_konfigurasi_pro', JSON.stringify(konfigurasiPro));
     idbSet(STORE_KONFIGURASI, 'konfigurasi_pro', konfigurasiPro);
+}
+
+// Modul yang bisa dikunci per Peran (10 menu utama). "home" dan "setting" SENGAJA tidak termasuk —
+// itu berisi pengaturan akun pribadi (ganti PIN, dark mode) yang harus tetap bisa diakses siapa saja yang login.
+const MODUL_BISA_DIKUNCI = ['estimasi','kas','jamaah','jamaahkita','catatan','zakat','pembayaran','datamaster','konfigurasi','fitur'];
+
+// Admin Utama & admin tanpa Peran (atau Peran yang belum diatur modulnya) = akses semua modul.
+// Ini menjaga supaya siapapun yang sudah ada SEBELUM fitur ini tidak mendadak kehilangan akses.
+function cekIzinModul(pageId) {
+    if (!MODUL_BISA_DIKUNCI.includes(pageId)) return true; // halaman di luar daftar (home, setting, dll) selalu boleh
+    if (currentAdminIsPemilik) return true;
+    const admin = getAdminList().find(a => a.nama === currentAdminNama);
+    if (!admin || !admin.peranId) return true;
+    const peran = getPeranList().find(p => p.id === admin.peranId);
+    if (!peran || !peran.modulAllowed) return true;
+    return peran.modulAllowed.includes(pageId);
 }
 
 // Admin Utama SELALU penuh (tidak bisa dibatasi). Admin biasa yang belum dipasangkan Peran
@@ -4933,7 +4969,8 @@ function renderKelolaPeranModal(modalEl) {
                 </div>
             </div>
             <div style="font-size:11px;color:#888;margin-top:4px;">
-                ${p.bolehHapus ? '✓ Boleh hapus data' : '✕ Tidak boleh hapus data'} · ${p.bolehReset ? '✓ Boleh reset data' : '✕ Tidak boleh reset data'}
+                ${p.bolehHapus ? '✓ Boleh hapus data' : '✕ Tidak boleh hapus data'} · ${p.bolehReset ? '✓ Boleh reset data' : '✕ Tidak boleh reset data'}<br>
+                <i class="fas fa-table-cells"></i> ${p.modulAllowed ? `${p.modulAllowed.length} dari ${MODUL_BISA_DIKUNCI.length} halaman` : 'Semua halaman (belum diatur)'}
             </div>
         </div>`).join('');
 
@@ -4950,13 +4987,21 @@ function renderKelolaPeranModal(modalEl) {
 function openTambahPeranForm(peranId) {
     const list = getPeranList();
     const p = peranId ? list.find(x => x.id === peranId) : null;
+    const modulLabel = { estimasi:'Cuan Plan', kas:'Uang Kas', jamaah:'Database Jamaah', jamaahkita:'Jamaah on Proses', catatan:'Catatan', zakat:'Zakat', pembayaran:'Pembayaran', datamaster:'Multi Event', konfigurasi:'Konfigurasi', fitur:'Fitur Lengkap' };
+    const modulAllowed = p?.modulAllowed || MODUL_BISA_DIKUNCI.slice(); // Peran baru: default semua modul dicentang, tinggal di-uncek yang tidak perlu
+    const modulCheckboxes = MODUL_BISA_DIKUNCI.map(mid => `
+        <label style="display:flex;align-items:center;gap:8px;font-size:12px;margin-bottom:5px;cursor:pointer;">
+            <input type="checkbox" class="peranModulCb" value="${mid}" ${modulAllowed.includes(mid) ? 'checked' : ''} style="width:16px;height:16px;"> ${modulLabel[mid]}
+        </label>`).join('');
     document.getElementById('tambahPeranFormArea').innerHTML = `
         <div style="background:#F0F9FF;border-radius:10px;padding:12px;margin-top:8px;">
             <input type="hidden" id="peranEditId" value="${peranId || ''}">
             <div class="input-group"><label>Nama Peran</label><input type="text" id="peranFormNama" value="${p ? escapeHtml(p.nama) : ''}" placeholder="Contoh: Staf Loket"></div>
             <label style="display:flex;align-items:center;gap:8px;font-size:13px;margin-bottom:8px;cursor:pointer;"><input type="checkbox" id="peranFormHapus" ${p?.bolehHapus ? 'checked' : ''} style="width:18px;height:18px;"> Boleh menghapus data</label>
-            <label style="display:flex;align-items:center;gap:8px;font-size:13px;margin-bottom:8px;cursor:pointer;"><input type="checkbox" id="peranFormReset" ${p?.bolehReset ? 'checked' : ''} style="width:18px;height:18px;"> Boleh mereset data</label>
-            <button onclick="simpanPeranBaru()" style="width:100%;padding:10px;background:#166534;color:white;border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;margin-top:6px;">Simpan</button>
+            <label style="display:flex;align-items:center;gap:8px;font-size:13px;margin-bottom:10px;cursor:pointer;"><input type="checkbox" id="peranFormReset" ${p?.bolehReset ? 'checked' : ''} style="width:18px;height:18px;"> Boleh mereset data</label>
+            <div style="font-size:11px;font-weight:700;color:#555;margin-bottom:6px;">Halaman yang boleh dibuka:</div>
+            <div style="max-height:160px;overflow-y:auto;background:white;border-radius:8px;padding:8px;border:1px solid #e2e8f0;">${modulCheckboxes}</div>
+            <button onclick="simpanPeranBaru()" style="width:100%;padding:10px;background:#166534;color:white;border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;margin-top:8px;">Simpan</button>
         </div>`;
 }
 
@@ -4965,18 +5010,20 @@ function simpanPeranBaru() {
     const nama = document.getElementById('peranFormNama').value.trim();
     const bolehHapus = document.getElementById('peranFormHapus').checked;
     const bolehReset = document.getElementById('peranFormReset').checked;
+    const modulAllowed = Array.from(document.querySelectorAll('.peranModulCb:checked')).map(cb => cb.value);
     if(!nama) return showToast('Nama Peran wajib diisi!');
     let list = getPeranList();
     if(peranId) {
         const p = list.find(x => x.id === peranId);
         if(!p) return;
-        p.nama = nama; p.bolehHapus = bolehHapus; p.bolehReset = bolehReset;
+        p.nama = nama; p.bolehHapus = bolehHapus; p.bolehReset = bolehReset; p.modulAllowed = modulAllowed;
     } else {
         if(list.find(x => x.nama === nama)) return showToast('Nama Peran itu sudah dipakai!');
-        list.push({ id: 'peran_' + Date.now(), nama, bolehHapus, bolehReset });
+        list.push({ id: 'peran_' + Date.now(), nama, bolehHapus, bolehReset, modulAllowed });
     }
     simpanPeranList(list);
     renderKelolaPeranModal();
+    renderMenuPremium();
     showToast('✅ Peran tersimpan');
 }
 
@@ -5038,6 +5085,7 @@ function renderMenuPremium() {
     for(let i=0;i<menuItemsPremium.length;i++) { 
         const menu = menuItemsPremium[i]; 
         if(hajiReg && menu.id === 'estimasi') continue; // Cuan Plan tidak relevan untuk Haji Reguler
+        if(!cekIzinModul(menu.id)) continue; // Staf tanpa izin Peran tidak melihat menu ini sama sekali
         const isVisible = localStorage.getItem(`menu_${menu.id}_visible`) !== 'false'; 
         if(isVisible || isAdminModePremium) 
             html += `<div class="menu-card-premium" onclick="showPage('${menu.id}')">${isAdminModePremium ? '<div class="edit-badge">✏️</div>' : ''}<div class="menu-icon">${menu.icon}</div><div class="menu-label">${menu.label}</div><div class="menu-badge">${menu.badge}</div></div>`; 
@@ -5047,6 +5095,11 @@ function renderMenuPremium() {
     container.innerHTML = html; 
     if(isAdminModePremium) document.body.classList.add('admin-mode'); 
     else document.body.classList.remove('admin-mode'); 
+    // Kunci juga item bottom nav yang sesuai (Estimasi/Kas/Jamaah) sesuai izin Peran staf yang login
+    ['estimasi','kas','jamaah'].forEach(pid => {
+        const navEl = document.querySelector(`.nav-item-premium[data-page="${pid}"]`);
+        if(navEl) navEl.style.display = cekIzinModul(pid) ? '' : 'none';
+    });
 }
 
 function toggleAdminMode() { 
