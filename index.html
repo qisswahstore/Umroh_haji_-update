@@ -18414,14 +18414,17 @@ function cetakKontrolLapangan() {
 
     let thHtml = '<th style="width:36px;">No</th><th>Nama Lengkap</th>';
     itemTerpilih.forEach(item => { thHtml += `<th style="text-align:center;">${escapeHtml(item)}</th>`; });
+    thHtml += '<th style="width:110px;">Paraf</th>';
 
     let rowsHtml = '';
     filteredData.forEach((data, i) => {
         rowsHtml += `<tr style="page-break-inside:avoid;"><td style="padding:10px 8px;border-bottom:1px solid #eee;text-align:center;">${i+1}</td><td style="padding:10px 8px;border-bottom:1px solid #eee;">${escapeHtml(data.nama)}</td>`;
+        const itemOrangIni = (data.items || []).map(x => (x||'').toString().trim().toLowerCase());
         itemTerpilih.forEach(item => {
-            const ditugaskan = (data.items || []).includes(item);
+            const ditugaskan = itemOrangIni.includes(item.toString().trim().toLowerCase());
             rowsHtml += `<td style="padding:10px 8px;border-bottom:1px solid #eee;text-align:center;font-size:16px;">${ditugaskan ? '☐' : '—'}</td>`;
         });
+        rowsHtml += `<td style="padding:10px 8px;border-bottom:1px solid #eee;"></td>`;
         rowsHtml += '</tr>';
     });
 
@@ -18434,7 +18437,7 @@ function cetakKontrolLapangan() {
     </style></head><body>
     <h1>📋 KONTROL LAPANGAN — ${escapeHtml(judul)}</h1>
     <p style="font-size:12px;color:#666;">${escapeHtml(namaInstansi)} — Dicetak: ${tanggal}</p>
-    <p style="font-size:11px;color:#888;">☐ = Item ditugaskan, dicentang manual saat sudah diterima di lapangan. — = Item tidak ditugaskan ke orang ini.</p>
+    <p style="font-size:11px;color:#888;">☐ = Item ditugaskan, dicentang manual saat sudah diterima di lapangan. — = Item tidak ditugaskan ke orang ini. Kolom Paraf diisi manual saat serah-terima.</p>
     <table><thead><tr>${thHtml}</tr></thead><tbody>${rowsHtml}</tbody></table>
     `;
     tampilkanJendelaCetak(html);
