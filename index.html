@@ -2233,6 +2233,19 @@
         <div class="row"><div class="input-group"><label>Total Pax</label><input type="number" id="totJam" value="21" oninput="saveEstimasiData()"></div><div class="input-group"><label>Gratis</label><input type="number" id="jamGratis" value="1" oninput="saveEstimasiData()"></div><div class="input-group"><label>Jumlah TL</label><input type="number" id="numTL" value="1" oninput="saveEstimasiData()"></div></div>
         <div class="section-title"><span>KOMPONEN BIAYA</span></div>
         <div class="input-group"><label>Tiket</label><input type="text" id="cTiket" class="money-input" inputmode="numeric" value="15.450.000" oninput="saveEstimasiData()"></div>
+        <div style="margin:-6px 0 12px 0;">
+            <label style="font-size:11px;color:var(--gray);display:flex;align-items:center;gap:6px;cursor:pointer;">
+                <input type="checkbox" id="fxModeTiket" onchange="toggleFXHelper('Tiket')" style="width:15px;height:15px;">
+                Hitung dari USD (opsional)
+            </label>
+            <div id="fxBoxTiket" style="display:none;background:#f8fafc;border-radius:10px;padding:10px;margin-top:6px;">
+                <div class="row">
+                    <div class="input-group" style="margin-bottom:0;"><label style="font-size:11px;color:#555;">Nominal USD</label><input type="text" id="fxNominalTiket" inputmode="numeric" placeholder="500" oninput="hitungFXHelper('Tiket','cTiket')"></div>
+                    <div class="input-group" style="margin-bottom:0;"><label style="font-size:11px;color:#555;">Kurs USD</label><input type="text" id="fxKursTiket" inputmode="numeric" placeholder="15.500" oninput="hitungFXHelper('Tiket','cTiket')"></div>
+                </div>
+                <div id="fxHasilTiket" style="font-size:11px;color:var(--primary);margin-top:6px;text-align:center;font-weight:600;"></div>
+            </div>
+        </div>
 
         <!-- LA/Hotel Accordion -->
         <div style="margin-bottom:12px;">
@@ -2241,6 +2254,20 @@
                 <span id="laAccordionIcon" style="color:#0D5C4A;font-size:14px;">▼</span>
             </div>
             <div id="laAccordionBody" style="border:1.5px solid #e2e8f0;border-top:none;border-radius:0 0 12px 12px;padding:12px;background:white;">
+                <div style="margin-bottom:12px;">
+                    <label style="font-size:11px;color:var(--gray);display:flex;align-items:center;gap:6px;cursor:pointer;" onclick="event.stopPropagation()">
+                        <input type="checkbox" id="fxModeLA" onchange="toggleFXHelper('LA')" style="width:15px;height:15px;" onclick="event.stopPropagation()">
+                        Hitung dari SAR (opsional, berlaku utk Quad/Triple/Double)
+                    </label>
+                    <div id="fxBoxLA" style="display:none;background:#f8fafc;border-radius:10px;padding:10px;margin-top:6px;" onclick="event.stopPropagation()">
+                        <div class="input-group" style="margin-bottom:8px;"><label style="font-size:11px;color:#555;">Kurs SAR</label><input type="text" id="fxKursLA" inputmode="numeric" placeholder="4.300" oninput="hitungFXHelper('LAquad','cLAquad');hitungFXHelper('LAtriple','cLAtriple');hitungFXHelper('LAdouble','cLAdouble')"></div>
+                        <div class="row">
+                            <div class="input-group" style="margin-bottom:0;"><label style="font-size:11px;color:#555;">SAR Quad</label><input type="text" id="fxNominalLAquad" inputmode="numeric" placeholder="3.400" oninput="hitungFXHelper('LAquad','cLAquad')"></div>
+                            <div class="input-group" style="margin-bottom:0;"><label style="font-size:11px;color:#555;">SAR Triple</label><input type="text" id="fxNominalLAtriple" inputmode="numeric" placeholder="0" oninput="hitungFXHelper('LAtriple','cLAtriple')"></div>
+                            <div class="input-group" style="margin-bottom:0;"><label style="font-size:11px;color:#555;">SAR Double</label><input type="text" id="fxNominalLAdouble" inputmode="numeric" placeholder="0" oninput="hitungFXHelper('LAdouble','cLAdouble')"></div>
+                        </div>
+                    </div>
+                </div>
                 <!-- Toggle Mode -->
                 <div style="display:flex;gap:8px;margin-bottom:12px;background:#f8fafc;border-radius:10px;padding:8px;">
                     <label style="flex:1;display:flex;align-items:center;gap:6px;cursor:pointer;justify-content:center;
@@ -3208,25 +3235,25 @@
     <div class="header-premium header-premium-small"><div class="back-header"><i class="fas fa-arrow-left" onclick="showPage('home')"></i><h2> Fitur Lengkap</h2><div style="width:30px;"></div></div></div>
     <div class="container">
         <div class="fitur-grid">
-           <div class="fitur-card" onclick="showPage('uploaddokumen')"><div class="fitur-icon">📁</div><div class="fitur-title">Upload Dokumen</div><div class="fitur-desc">Simpan KTP, Paspor, Foto</div></div>
-            <div class="fitur-card" onclick="showPage('foldervirtual')"><div class="fitur-icon">📂</div><div class="fitur-title">Folder Virtual</div><div class="fitur-desc">Pisah per rombongan</div></div>
-            <div class="fitur-card" onclick="showPage('pengingatwa')"><div class="fitur-icon">📲</div><div class="fitur-title">Pengingat WA</div><div class="fitur-desc">Kirim pengingat otomatis</div></div>
+           <div class="fitur-card" onclick="showPage('uploaddokumen')"><div class="fitur-icon"><i class="fas fa-file-arrow-up"></i></div><div class="fitur-title">Upload Dokumen</div><div class="fitur-desc">Simpan KTP, Paspor, Foto</div></div>
+            <div class="fitur-card" onclick="showPage('foldervirtual')"><div class="fitur-icon"><i class="fas fa-folder-open"></i></div><div class="fitur-title">Folder Virtual</div><div class="fitur-desc">Pisah per rombongan</div></div>
+            <div class="fitur-card" onclick="showPage('pengingatwa')"><div class="fitur-icon"><i class="fab fa-whatsapp"></i></div><div class="fitur-title">Pengingat WA</div><div class="fitur-desc">Kirim pengingat otomatis</div></div>
             <div class="fitur-card" onclick="showPage('etikettiket')"><div class="fitur-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="48" height="48"><rect x="4" y="14" width="56" height="36" rx="6" fill="#f5a623"/><rect x="4" y="14" width="56" height="10" rx="4" fill="#e08000"/><circle cx="20" cy="38" r="4" fill="white"/><rect x="28" y="30" width="20" height="3" rx="2" fill="white"/><rect x="28" y="36" width="14" height="3" rx="2" fill="white"/><rect x="28" y="42" width="17" height="3" rx="2" fill="white"/></svg></div><div class="fitur-title">E-Tiket & QR</div><div class="fitur-desc">Tiket digital dengan QR</div></div>
-            <div class="fitur-card" onclick="showPage('scanqr')"><div class="fitur-icon" style="font-size:40px;">📷</div><div class="fitur-title">Scan QR</div><div class="fitur-desc">Absensi & cek data jamaah</div></div>
-            <div class="fitur-card" onclick="showPage('suratresmi')"><div class="fitur-icon" style="font-size:40px;">📄</div><div class="fitur-title">Surat Resmi</div><div class="fitur-desc">Buat surat otomatis dari data jamaah</div></div>
-            <div class="fitur-card" onclick="showPage('cetaklabel')"><div class="fitur-icon">🏷️</div><div class="fitur-title">Cetak Label</div><div class="fitur-desc">Name tag / stiker koper</div></div>
-            <div class="fitur-card" onclick="showPage('cloudstorage')"><div class="fitur-icon">☁️</div><div class="fitur-title">Cloud Storage</div><div class="fitur-desc">Backup & Restore data</div></div>
-            <div class="fitur-card" onclick="showPage('dashboard')"><div class="fitur-icon">📈</div><div class="fitur-title">Dashboard</div><div class="fitur-desc">Grafik statistik data</div></div>
-            <div class="fitur-card" onclick="openBandingkanProgramModal()"><div class="fitur-icon">📊</div><div class="fitur-title">Bandingkan Program</div><div class="fitur-desc">Performa semua Program sekaligus</div></div>
-            <div class="fitur-card" onclick="openDashboardTrenModal()"><div class="fitur-icon">📈</div><div class="fitur-title">Dashboard Tren</div><div class="fitur-desc">Perbandingan antar tahun</div></div>
-            <div class="fitur-card" onclick="cetakLaporanPenutupanMusim()"><div class="fitur-icon">📕</div><div class="fitur-title">Laporan Penutupan Musim</div><div class="fitur-desc">Gabungan semua laporan akhir</div></div>
-            <div class="fitur-card" onclick="showPage('itinerary')"><div class="fitur-icon">🗓️</div><div class="fitur-title">Itinerary</div><div class="fitur-desc">Jadwal harian perjalanan</div></div>
-            <div class="fitur-card" onclick="showPage('arsipprogram')"><div class="fitur-icon">📁</div><div class="fitur-title">Program Arsip</div><div class="fitur-desc">Program lama, read-only</div></div>
-            <div class="fitur-card" onclick="showPage('alumni')"><div class="fitur-icon">🎓</div><div class="fitur-title">Database Alumni</div><div class="fitur-desc">Jamaah lama untuk remarketing</div></div>
-            <div class="fitur-card" onclick="showPage('layanantambahan')"><div class="fitur-icon">🕋</div><div class="fitur-title">Layanan Tambahan</div><div class="fitur-desc">Badal Haji, Dam, dll</div></div>
-            <div class="fitur-card" onclick="cetakRekapTahunanGabungan()"><div class="fitur-icon">📑</div><div class="fitur-title">Rekap Tahunan</div><div class="fitur-desc">Total omzet semua keberangkatan</div></div>
-            <div class="fitur-card" onclick="openKalenderProgramModal()"><div class="fitur-icon">📅</div><div class="fitur-title">Kalender Program</div><div class="fitur-desc">Semua jadwal keberangkatan</div></div>
-            <div class="fitur-card" onclick="openProyeksiKasModal()"><div class="fitur-icon">📉</div><div class="fitur-title">Proyeksi Kas</div><div class="fitur-desc">Estimasi dana yang masih masuk</div></div>
+            <div class="fitur-card" onclick="showPage('scanqr')"><div class="fitur-icon" style="font-size:40px;"><i class="fas fa-qrcode"></i></div><div class="fitur-title">Scan QR</div><div class="fitur-desc">Absensi & cek data jamaah</div></div>
+            <div class="fitur-card" onclick="showPage('suratresmi')"><div class="fitur-icon" style="font-size:40px;"><i class="fas fa-file-signature"></i></div><div class="fitur-title">Surat Resmi</div><div class="fitur-desc">Buat surat otomatis dari data jamaah</div></div>
+            <div class="fitur-card" onclick="showPage('cetaklabel')"><div class="fitur-icon"><i class="fas fa-tag"></i></div><div class="fitur-title">Cetak Label</div><div class="fitur-desc">Name tag / stiker koper</div></div>
+            <div class="fitur-card" onclick="showPage('cloudstorage')"><div class="fitur-icon"><i class="fas fa-cloud"></i></div><div class="fitur-title">Cloud Storage</div><div class="fitur-desc">Backup & Restore data</div></div>
+            <div class="fitur-card" onclick="showPage('dashboard')"><div class="fitur-icon"><i class="fas fa-chart-line"></i></div><div class="fitur-title">Dashboard</div><div class="fitur-desc">Grafik statistik data</div></div>
+            <div class="fitur-card" onclick="openBandingkanProgramModal()"><div class="fitur-icon"><i class="fas fa-chart-column"></i></div><div class="fitur-title">Bandingkan Program</div><div class="fitur-desc">Performa semua Program sekaligus</div></div>
+            <div class="fitur-card" onclick="openDashboardTrenModal()"><div class="fitur-icon"><i class="fas fa-arrow-trend-up"></i></div><div class="fitur-title">Dashboard Tren</div><div class="fitur-desc">Perbandingan antar tahun</div></div>
+            <div class="fitur-card" onclick="cetakLaporanPenutupanMusim()"><div class="fitur-icon"><i class="fas fa-book"></i></div><div class="fitur-title">Laporan Penutupan Musim</div><div class="fitur-desc">Gabungan semua laporan akhir</div></div>
+            <div class="fitur-card" onclick="showPage('itinerary')"><div class="fitur-icon"><i class="fas fa-route"></i></div><div class="fitur-title">Itinerary</div><div class="fitur-desc">Jadwal harian perjalanan</div></div>
+            <div class="fitur-card" onclick="showPage('arsipprogram')"><div class="fitur-icon"><i class="fas fa-box-archive"></i></div><div class="fitur-title">Program Arsip</div><div class="fitur-desc">Program lama, read-only</div></div>
+            <div class="fitur-card" onclick="showPage('alumni')"><div class="fitur-icon"><i class="fas fa-graduation-cap"></i></div><div class="fitur-title">Database Alumni</div><div class="fitur-desc">Jamaah lama untuk remarketing</div></div>
+            <div class="fitur-card" onclick="showPage('layanantambahan')"><div class="fitur-icon"><i class="fas fa-kaaba"></i></div><div class="fitur-title">Layanan Tambahan</div><div class="fitur-desc">Badal Haji, Dam, dll</div></div>
+            <div class="fitur-card" onclick="cetakRekapTahunanGabungan()"><div class="fitur-icon"><i class="fas fa-file-invoice"></i></div><div class="fitur-title">Rekap Tahunan</div><div class="fitur-desc">Total omzet semua keberangkatan</div></div>
+            <div class="fitur-card" onclick="openKalenderProgramModal()"><div class="fitur-icon"><i class="fas fa-calendar-days"></i></div><div class="fitur-title">Kalender Program</div><div class="fitur-desc">Semua jadwal keberangkatan</div></div>
+            <div class="fitur-card" onclick="openProyeksiKasModal()"><div class="fitur-icon"><i class="fas fa-sack-dollar"></i></div><div class="fitur-title">Proyeksi Kas</div><div class="fitur-desc">Estimasi dana yang masih masuk</div></div>
         </div>
     </div>
 </div>
@@ -4658,6 +4685,41 @@ function getAdminList() {
     return konfigurasiPro.admin_list || [];
 }
 
+// ==================== SISTEM PERAN (hak akses staf) ====================
+// Peran itu "paket izin" yang bisa dipasang ke banyak admin sekaligus — supaya kalau staf
+// gonta-ganti, Admin Utama tinggal pasang/lepas Peran, tidak perlu atur izin dari nol tiap kali.
+function getPeranList() {
+    if (!konfigurasiPro.peran_list) {
+        // Baru pertama kali dipakai — siapkan 3 contoh Peran siap pakai
+        konfigurasiPro.peran_list = [
+            { id: 'peran_staf_kas', nama: 'Staf Kas', bolehHapus: false, bolehReset: false },
+            { id: 'peran_staf_database', nama: 'Staf Database', bolehHapus: false, bolehReset: false },
+            { id: 'peran_supervisor', nama: 'Supervisor', bolehHapus: false, bolehReset: false }
+        ];
+        localStorage.setItem('navara_konfigurasi_pro', JSON.stringify(konfigurasiPro));
+        idbSet(STORE_KONFIGURASI, 'konfigurasi_pro', konfigurasiPro);
+    }
+    return konfigurasiPro.peran_list;
+}
+
+function simpanPeranList(list) {
+    konfigurasiPro.peran_list = list;
+    localStorage.setItem('navara_konfigurasi_pro', JSON.stringify(konfigurasiPro));
+    idbSet(STORE_KONFIGURASI, 'konfigurasi_pro', konfigurasiPro);
+}
+
+// Admin Utama SELALU penuh (tidak bisa dibatasi). Admin biasa yang belum dipasangkan Peran
+// juga dianggap akses penuh — supaya admin yang sudah ada sebelum fitur ini tidak mendadak
+// terkunci. Pembatasan hanya berlaku kalau Admin Utama secara sadar memasangkan sebuah Peran.
+function cekIzinAdmin(key) {
+    if (currentAdminIsPemilik) return true;
+    const admin = getAdminList().find(a => a.nama === currentAdminNama);
+    if (!admin || !admin.peranId) return true;
+    const peran = getPeranList().find(p => p.id === admin.peranId);
+    if (!peran) return true;
+    return !!peran[key];
+}
+
 function simpanAdminList(list) {
     konfigurasiPro.admin_list = list;
     localStorage.setItem('navara_konfigurasi_pro', JSON.stringify(konfigurasiPro));
@@ -4751,9 +4813,11 @@ function renderKelolaAdminModal(modalEl) {
     modalEl = modalEl || document.getElementById('kelolaAdminModal');
     if(!modalEl) return;
     const list = getAdminList();
+    const peranList = getPeranList();
+    const namaPeran = (id) => peranList.find(p => p.id === id)?.nama;
     const rows = list.map(a => `
         <div style="display:flex;justify-content:space-between;align-items:center;background:#F8FAFC;border-radius:10px;padding:10px 12px;margin-bottom:8px;">
-            <span style="font-weight:700;font-size:13px;">${a.isPemilik ? '👑' : '👤'} ${escapeHtml(a.nama)} ${a.isPemilik ? '<span style="font-size:10px;color:#888;">(Admin Utama)</span>' : ''}</span>
+            <span style="font-weight:700;font-size:13px;">${a.isPemilik ? '👑' : '👤'} ${escapeHtml(a.nama)} ${a.isPemilik ? '<span style="font-size:10px;color:#888;">(Admin Utama)</span>' : `<span style="font-size:10px;color:#888;">(${namaPeran(a.peranId) ? escapeHtml(namaPeran(a.peranId)) : 'Akses Penuh'})</span>`}</span>
             <div style="display:flex;gap:8px;">
                 <button onclick="openTambahAdminForm('${a.nama.replace(/'/g,"\\'")}')" style="border:none;background:none;color:#0369A1;font-size:14px;cursor:pointer;"><i class="fas fa-pen"></i></button>
                 ${!a.isPemilik ? `<button onclick="hapusAdmin('${a.nama.replace(/'/g,"\\'")}')" style="border:none;background:none;color:#DC2626;font-size:14px;cursor:pointer;"><i class="fas fa-trash-alt"></i></button>` : ''}
@@ -4764,7 +4828,10 @@ function renderKelolaAdminModal(modalEl) {
         <h3 style="color:var(--primary);margin-bottom:4px;"><i class="fas fa-user-shield"></i> Kelola Admin</h3>
         <div style="font-size:11px;color:#888;margin-bottom:12px;">${list.length === 0 ? 'Belum ada Admin — buat yang pertama, otomatis jadi Admin Utama (👑)' : 'Admin Utama (👑) tidak bisa dihapus/diganti oleh Admin biasa'}</div>
         <div style="max-height:280px;overflow-y:auto;">${rows}</div>
-        <button onclick="openTambahAdminForm()" style="width:100%;padding:11px;background:#7C3AED;color:white;border:none;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;margin-top:8px;">+ Tambah Admin</button>
+        <div class="row" style="margin-top:8px;">
+            <button onclick="openTambahAdminForm()" style="flex:1;padding:11px;background:#7C3AED;color:white;border:none;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;">+ Tambah Admin</button>
+            <button onclick="openKelolaPeranModal()" style="flex:1;padding:11px;background:var(--primary);color:white;border:none;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;"><i class="fas fa-user-tag"></i> Kelola Peran</button>
+        </div>
         <div id="tambahAdminFormArea"></div>
         <button onclick="document.getElementById('kelolaAdminModal').style.display='none'" style="width:100%;padding:11px;background:#e2e8f0;color:#333;border:none;border-radius:10px;font-size:13px;cursor:pointer;margin-top:10px;">Tutup</button>
     </div>`;
@@ -4774,11 +4841,16 @@ function openTambahAdminForm(namaEdit) {
     const list = getAdminList();
     const a = namaEdit ? list.find(x => x.nama === namaEdit) : null;
     const namaDefault = a ? a.nama : (list.length === 0 ? currentAdminNama : '');
+    const peranList = getPeranList();
+    const peranOptions = `<option value="">-- Akses Penuh (tanpa batasan) --</option>` +
+        peranList.map(p => `<option value="${p.id}" ${a?.peranId === p.id ? 'selected' : ''}>${escapeHtml(p.nama)}</option>`).join('');
+    const tampilkanPilihanPeran = !(a ? a.isPemilik : list.length === 0); // Admin Utama tidak perlu/tidak boleh dibatasi Peran
     document.getElementById('tambahAdminFormArea').innerHTML = `
         <div style="background:#F0F9FF;border-radius:10px;padding:12px;margin-top:8px;">
             <input type="hidden" id="adminEditNamaLama" value="${namaEdit ? escapeHtml(namaEdit) : ''}">
             <div class="input-group"><label>Nama</label><input type="text" id="adminFormNama" value="${escapeHtml(namaDefault)}"></div>
             <div class="input-group"><label>PIN Baru (${a ? 'kosongkan kalau tidak ganti PIN' : '4-8 digit'})</label><input type="password" inputmode="numeric" maxlength="8" id="adminFormPIN" placeholder="PIN"></div>
+            ${tampilkanPilihanPeran ? `<div class="input-group"><label>Peran (hak akses)</label><select id="adminFormPeran">${peranOptions}</select></div>` : ''}
             <button onclick="simpanAdminBaru()" style="width:100%;padding:10px;background:#166534;color:white;border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;margin-top:6px;">Simpan</button>
         </div>`;
 }
@@ -4787,6 +4859,8 @@ async function simpanAdminBaru() {
     const namaLama = document.getElementById('adminEditNamaLama').value;
     const namaBaru = document.getElementById('adminFormNama').value.trim();
     const pin = document.getElementById('adminFormPIN').value;
+    const peranEl = document.getElementById('adminFormPeran');
+    const peranId = peranEl ? peranEl.value : '';
     if(!namaBaru) return showToast('Nama wajib diisi!');
     let list = getAdminList();
 
@@ -4796,12 +4870,13 @@ async function simpanAdminBaru() {
         if(!a) return;
         a.nama = namaBaru;
         if(pin) a.pinHash = await hashPIN(pin);
+        if(peranEl) a.peranId = peranId || null;
     } else {
         // Admin baru — wajib isi PIN
         if(!pin || pin.length < 4) return showToast('PIN minimal 4 digit untuk Admin baru!');
         if(list.find(x => x.nama === namaBaru)) return showToast('Nama itu sudah dipakai!');
         const isPemilik = list.length === 0; // Admin PERTAMA otomatis jadi Admin Utama
-        list.push({ nama: namaBaru, pinHash: await hashPIN(pin), isPemilik });
+        list.push({ nama: namaBaru, pinHash: await hashPIN(pin), isPemilik, peranId: (!isPemilik && peranId) ? peranId : null });
         if(isPemilik) {
             // Langsung login sebagai Admin Utama yang baru dibuat
             currentAdminNama = namaBaru;
@@ -4827,6 +4902,93 @@ function hapusAdmin(nama) {
         list = list.filter(x => x.nama !== nama);
         simpanAdminList(list);
         renderKelolaAdminModal();
+    });
+}
+
+// ==================== KELOLA PERAN (hak akses staf) ====================
+function openKelolaPeranModal() {
+    if(!currentAdminIsPemilik && getAdminList().length > 0) return showToast('🔒 Hanya Admin Utama yang boleh Kelola Peran');
+    let modal = document.getElementById('kelolaPeranModal');
+    if(!modal) {
+        modal = document.createElement('div');
+        modal.id = 'kelolaPeranModal';
+        modal.className = 'modal';
+        document.body.appendChild(modal);
+    }
+    renderKelolaPeranModal(modal);
+    modal.style.display = 'flex';
+}
+
+function renderKelolaPeranModal(modalEl) {
+    modalEl = modalEl || document.getElementById('kelolaPeranModal');
+    if(!modalEl) return;
+    const list = getPeranList();
+    const rows = list.map(p => `
+        <div style="background:#F8FAFC;border-radius:10px;padding:10px 12px;margin-bottom:8px;">
+            <div style="display:flex;justify-content:space-between;align-items:center;">
+                <span style="font-weight:700;font-size:13px;"><i class="fas fa-user-tag"></i> ${escapeHtml(p.nama)}</span>
+                <div style="display:flex;gap:8px;">
+                    <button onclick="openTambahPeranForm('${p.id}')" style="border:none;background:none;color:#0369A1;font-size:14px;cursor:pointer;"><i class="fas fa-pen"></i></button>
+                    <button onclick="hapusPeran('${p.id}')" style="border:none;background:none;color:#DC2626;font-size:14px;cursor:pointer;"><i class="fas fa-trash-alt"></i></button>
+                </div>
+            </div>
+            <div style="font-size:11px;color:#888;margin-top:4px;">
+                ${p.bolehHapus ? '✓ Boleh hapus data' : '✕ Tidak boleh hapus data'} · ${p.bolehReset ? '✓ Boleh reset data' : '✕ Tidak boleh reset data'}
+            </div>
+        </div>`).join('');
+
+    modalEl.innerHTML = `<div class="modal-content" style="max-width:420px;">
+        <h3 style="color:var(--primary);margin-bottom:4px;"><i class="fas fa-user-tag"></i> Kelola Peran</h3>
+        <div style="font-size:11px;color:#888;margin-bottom:12px;">Peran itu "paket izin" yang bisa dipasang ke banyak Admin/Staf sekaligus. Ubah satu Peran di sini, semua Admin yang pakai Peran itu ikut berubah.</div>
+        <div style="max-height:280px;overflow-y:auto;">${rows}</div>
+        <button onclick="openTambahPeranForm()" style="width:100%;padding:11px;background:#7C3AED;color:white;border:none;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;margin-top:8px;">+ Tambah Peran</button>
+        <div id="tambahPeranFormArea"></div>
+        <button onclick="document.getElementById('kelolaPeranModal').style.display='none'; renderKelolaAdminModal();" style="width:100%;padding:11px;background:#e2e8f0;color:#333;border:none;border-radius:10px;font-size:13px;cursor:pointer;margin-top:10px;">Tutup</button>
+    </div>`;
+}
+
+function openTambahPeranForm(peranId) {
+    const list = getPeranList();
+    const p = peranId ? list.find(x => x.id === peranId) : null;
+    document.getElementById('tambahPeranFormArea').innerHTML = `
+        <div style="background:#F0F9FF;border-radius:10px;padding:12px;margin-top:8px;">
+            <input type="hidden" id="peranEditId" value="${peranId || ''}">
+            <div class="input-group"><label>Nama Peran</label><input type="text" id="peranFormNama" value="${p ? escapeHtml(p.nama) : ''}" placeholder="Contoh: Staf Loket"></div>
+            <label style="display:flex;align-items:center;gap:8px;font-size:13px;margin-bottom:8px;cursor:pointer;"><input type="checkbox" id="peranFormHapus" ${p?.bolehHapus ? 'checked' : ''} style="width:18px;height:18px;"> Boleh menghapus data</label>
+            <label style="display:flex;align-items:center;gap:8px;font-size:13px;margin-bottom:8px;cursor:pointer;"><input type="checkbox" id="peranFormReset" ${p?.bolehReset ? 'checked' : ''} style="width:18px;height:18px;"> Boleh mereset data</label>
+            <button onclick="simpanPeranBaru()" style="width:100%;padding:10px;background:#166534;color:white;border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;margin-top:6px;">Simpan</button>
+        </div>`;
+}
+
+function simpanPeranBaru() {
+    const peranId = document.getElementById('peranEditId').value;
+    const nama = document.getElementById('peranFormNama').value.trim();
+    const bolehHapus = document.getElementById('peranFormHapus').checked;
+    const bolehReset = document.getElementById('peranFormReset').checked;
+    if(!nama) return showToast('Nama Peran wajib diisi!');
+    let list = getPeranList();
+    if(peranId) {
+        const p = list.find(x => x.id === peranId);
+        if(!p) return;
+        p.nama = nama; p.bolehHapus = bolehHapus; p.bolehReset = bolehReset;
+    } else {
+        if(list.find(x => x.nama === nama)) return showToast('Nama Peran itu sudah dipakai!');
+        list.push({ id: 'peran_' + Date.now(), nama, bolehHapus, bolehReset });
+    }
+    simpanPeranList(list);
+    renderKelolaPeranModal();
+    showToast('✅ Peran tersimpan');
+}
+
+function hapusPeran(peranId) {
+    konfirmasiBertema('Hapus Peran ini?', 'Admin yang sedang pakai Peran ini akan otomatis jadi "Akses Penuh" (tidak dibatasi lagi) — pastikan itu memang yang diinginkan.', () => {
+        let list = getPeranList().filter(x => x.id !== peranId);
+        simpanPeranList(list);
+        // Lepaskan Peran dari admin manapun yang tadinya pakai Peran ini
+        const adminList = getAdminList();
+        adminList.forEach(a => { if(a.peranId === peranId) a.peranId = null; });
+        simpanAdminList(adminList);
+        renderKelolaPeranModal();
     });
 }
 
@@ -5231,6 +5393,38 @@ function exportDashboardExcel() {
 // ==================== ESTIMASI ====================
 let lastCalculatedText='', lastCalculatedPrice=0, lastCalculatedPaket='', lastCalculatedTotalJam=0;
 
+// ==================== HELPER HITUNG DARI MATA UANG ASING (USD/SAR) — murni alat bantu, ====================
+// hasil akhirnya selalu ditulis ke field Rupiah yang SUDAH ADA (cTiket/cLAquad/dst), jadi semua
+// perhitungan total, profit, cetak, dll di tempat lain TIDAK PERLU DIUBAH sama sekali.
+function toggleFXHelper(key) {
+    const checked = document.getElementById('fxMode' + key).checked;
+    const box = document.getElementById('fxBox' + key);
+    if (box) box.style.display = checked ? 'block' : 'none';
+    saveEstimasiData();
+}
+
+function hitungFXHelper(fxKey, targetFieldId) {
+    // Kurs Tiket pakai fxKursTiket sendiri; grup LA (quad/triple/double) berbagi satu fxKursLA
+    const kursId = fxKey === 'Tiket' ? 'fxKursTiket' : 'fxKursLA';
+    const kursEl = document.getElementById(kursId);
+    const nominalEl = document.getElementById('fxNominal' + fxKey);
+    const targetEl = document.getElementById(targetFieldId);
+    if (!kursEl || !nominalEl || !targetEl) return;
+
+    const kurs = parseInt((kursEl.value || '0').replace(/\./g, '').replace(/[^0-9]/g, '')) || 0;
+    const nominal = parseInt((nominalEl.value || '0').replace(/\./g, '').replace(/[^0-9]/g, '')) || 0;
+    const hasilRp = kurs * nominal;
+
+    targetEl.value = hasilRp.toLocaleString('id-ID');
+    targetEl.dispatchEvent(new Event('input')); // biar oninput bawaan field tetap jalan (saveEstimasiData, updateLAPreview, dll)
+
+    const hasilLabelId = fxKey === 'Tiket' ? 'fxHasilTiket' : null;
+    if (hasilLabelId) {
+        const labelEl = document.getElementById(hasilLabelId);
+        if (labelEl) labelEl.textContent = `≈ Rp ${hasilRp.toLocaleString('id-ID')}`;
+    }
+}
+
 function saveEstimasiData() { 
     const estimasiData={ 
         lokasiPaket:document.getElementById('lokasiPaket').value, 
@@ -5250,7 +5444,15 @@ function saveEstimasiData() {
         cPIC:document.getElementById('cPIC').value, 
         cLain:document.getElementById('cLain').value, 
         profitPct:document.getElementById('profitPct').value,
-        cBuffer:document.getElementById('cBuffer').value
+        cBuffer:document.getElementById('cBuffer').value,
+        fxModeTiket: document.getElementById('fxModeTiket')?.checked || false,
+        fxNominalTiket: document.getElementById('fxNominalTiket')?.value || '',
+        fxKursTiket: document.getElementById('fxKursTiket')?.value || '',
+        fxModeLA: document.getElementById('fxModeLA')?.checked || false,
+        fxKursLA: document.getElementById('fxKursLA')?.value || '',
+        fxNominalLAquad: document.getElementById('fxNominalLAquad')?.value || '',
+        fxNominalLAtriple: document.getElementById('fxNominalLAtriple')?.value || '',
+        fxNominalLAdouble: document.getElementById('fxNominalLAdouble')?.value || ''
     }; 
     // Per-Program: simpan ke slot Program aktif, bukan lagi 1 tempat global
     const slot = ensureProgramConfigSlot();
@@ -5426,6 +5628,18 @@ function loadEstimasiData() {
         if(data.cLain) document.getElementById('cLain').value=data.cLain; 
         if(data.profitPct) document.getElementById('profitPct').value=data.profitPct;
         if(data.cBuffer) document.getElementById('cBuffer').value=data.cBuffer;
+        // Pulihkan helper kurs FX (opsional, tidak wajib ada di data lama)
+        const fxModeTiketEl = document.getElementById('fxModeTiket');
+        if(fxModeTiketEl) { fxModeTiketEl.checked = !!data.fxModeTiket; document.getElementById('fxBoxTiket').style.display = data.fxModeTiket ? 'block' : 'none'; }
+        if(document.getElementById('fxNominalTiket')) document.getElementById('fxNominalTiket').value = data.fxNominalTiket || '';
+        if(document.getElementById('fxKursTiket')) document.getElementById('fxKursTiket').value = data.fxKursTiket || '';
+        if(document.getElementById('fxHasilTiket') && data.fxModeTiket) document.getElementById('fxHasilTiket').textContent = `≈ Rp ${document.getElementById('cTiket').value}`;
+        const fxModeLAEl = document.getElementById('fxModeLA');
+        if(fxModeLAEl) { fxModeLAEl.checked = !!data.fxModeLA; document.getElementById('fxBoxLA').style.display = data.fxModeLA ? 'block' : 'none'; }
+        if(document.getElementById('fxKursLA')) document.getElementById('fxKursLA').value = data.fxKursLA || '';
+        if(document.getElementById('fxNominalLAquad')) document.getElementById('fxNominalLAquad').value = data.fxNominalLAquad || '';
+        if(document.getElementById('fxNominalLAtriple')) document.getElementById('fxNominalLAtriple').value = data.fxNominalLAtriple || '';
+        if(document.getElementById('fxNominalLAdouble')) document.getElementById('fxNominalLAdouble').value = data.fxNominalLAdouble || '';
     } else {
         // Program ini belum punya Estimasi tersendiri — kosongkan field supaya tidak ketukar sisa Program lain
         const fieldKosong = ['lokasiPaket','cTiket','cAsuransi','cHandling','cAlat','cAplikasi','cPIC','cLain','cLAquad','cLAtriple','cLAdouble'];
@@ -5438,6 +5652,11 @@ function loadEstimasiData() {
         const elPenuh = document.getElementById('modeHargaPenuh');
         if(elPenuh) { elPenuh.checked = true; updateModeLA(); }
         updateLAPreview();
+        // Kosongkan juga helper kurs FX supaya tidak ketukar sisa Program lain
+        ['fxModeTiket','fxModeLA'].forEach(id => { const el = document.getElementById(id); if(el) el.checked = false; });
+        ['fxBoxTiket','fxBoxLA'].forEach(id => { const el = document.getElementById(id); if(el) el.style.display = 'none'; });
+        ['fxNominalTiket','fxKursTiket','fxKursLA','fxNominalLAquad','fxNominalLAtriple','fxNominalLAdouble'].forEach(id => { const el = document.getElementById(id); if(el) el.value = ''; });
+        const fxHasilEl = document.getElementById('fxHasilTiket'); if(fxHasilEl) fxHasilEl.textContent = '';
     } 
 }
 
@@ -7827,6 +8046,7 @@ function exportKasExcel() {
 }
 
 function confirmResetKas() { 
+    if(!cekIzinAdmin('bolehReset')) return showToast('🔒 Anda tidak punya izin mereset data');
     if(confirm('Kosongkan semua transaksi kas? Data akan hilang!')) { 
         dataKas=[]; 
         saveKasData(); 
@@ -11808,6 +12028,7 @@ function confirmDeleteDynamicField(idx){
 }
 
 async function confirmDeleteAllJamaah(){ 
+    if(!cekIzinAdmin('bolehHapus')) return showToast('🔒 Anda tidak punya izin menghapus data');
     if(jamaahList.length===0){ 
         showToast('Tidak ada data!'); 
         return; 
@@ -12843,6 +13064,7 @@ function confirmDeleteJamaahKitaDynamicField(idx) {
 }
 
 function confirmDeleteAllJamaahKita() {
+    if(!cekIzinAdmin('bolehHapus')) return showToast('🔒 Anda tidak punya izin menghapus data');
     if (jamaahKitaList.length === 0) return showToast('Tidak ada data Jamaah on proses!');
     if (confirm(`PERINGATAN: Semua ${jamaahKitaList.length} data Jamaah on proses akan dihapus PERMANEN! Lanjutkan?`)) {
         jamaahKitaList = [];
@@ -17894,6 +18116,7 @@ function hapusPengingat(id) {
 
 // ==================== RESET ALL DATA ====================
 async function confirmResetAllData() { 
+    if(!cekIzinAdmin('bolehReset')) return showToast('🔒 Anda tidak punya izin mereset data');
     if(!confirm('⚠️ RESET SEMUA DATA?\n\nSEMUA data akan dihapus permanen:\n- Jamaah & dokumen\n- Kas & pembayaran\n- On Proses & Folder\n- Konfigurasi instansi\n- Absensi\n- Foto profil\n- Catatan\n- Pengeluaran (Cuan Plan)\n\nAplikasi kembali seperti pertama kali diinstall!\n\nCatatan: Lisensi & Device ID TETAP tersimpan.\n\nLanjutkan?')) return;
     if(!confirm('Yakin? Tindakan ini TIDAK BISA dibatalkan!')) return;
 
@@ -18406,6 +18629,7 @@ function confirmDeleteMasterData(id) {
 }
 
 function confirmDeleteAllMasterData() {
+    if(!cekIzinAdmin('bolehHapus')) return showToast('🔒 Anda tidak punya izin menghapus data');
     if(masterDataList.length === 0) { showToast('Tidak ada data!'); return; }
     const progNama = getCurrentProgram()?.nama || '-';
     if(confirm(`⚠️ Hapus SEMUA ${masterDataList.length} data di Program "${progNama}"?\n(Program lain tidak terpengaruh)`)) {
@@ -18457,6 +18681,7 @@ function executePindahMode() {
 }
 
 function deleteSelectedMasterData() {
+    if(!cekIzinAdmin('bolehHapus')) return showToast('🔒 Anda tidak punya izin menghapus data');
     const selected = document.querySelectorAll('.master-checkbox:checked');
     if(selected.length === 0) { showToast('Pilih data dulu!'); return; }
     if(confirm(`Hapus ${selected.length} data?`)) {
@@ -19159,6 +19384,7 @@ async function saveKonfigurasiPro() {
 }
 
 function resetKonfigurasiPro() {
+    if(!cekIzinAdmin('bolehReset')) return showToast('🔒 Anda tidak punya izin mereset data');
     if(confirm('Reset semua konfigurasi ke default?')) {
         localStorage.removeItem('navara_konfigurasi_pro');
         idbDelete(STORE_KONFIGURASI, 'konfigurasi_pro');
