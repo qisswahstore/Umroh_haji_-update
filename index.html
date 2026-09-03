@@ -122,7 +122,7 @@
             color: #E2E2E2;
         }
         body.dark-mode .btn-primary {
-            background: #0D5C4A;
+            background: var(--primary);
         }
         body.dark-mode .menu-card-premium {
             background: #2A2A3A;
@@ -533,6 +533,16 @@
         .btn-danger {
             background: var(--red);
             color: white;
+        }
+        .btn-secondary {
+            background: var(--gray-light);
+            color: var(--gray);
+            border: 1.5px solid #E2E8F0;
+        }
+        .btn-utility {
+            background: #EAF3F0;
+            color: var(--primary);
+            border: 1.5px solid rgba(13,92,74,0.18);
         }
         .btn-blue {
             background: var(--blue);
@@ -1728,7 +1738,7 @@
     z-index: 1000;
     gap: 15px;
     align-items: center;
-    border: 2px solid #0D5C4A;
+    border: 2px solid var(--primary);
     opacity: 0;
     transition: 0.25s ease;
 }
@@ -1737,7 +1747,7 @@
     transform: translateX(-50%) translateY(0);
 }
 .btn-action {
-    background: #0D5C4A;
+    background: var(--primary);
     color: white;
     border: none;
     border-radius: 50%;
@@ -1750,7 +1760,7 @@
     justify-content: center;
 }
 .jamaah-card.selected-card {
-    border: 2px solid #0D5C4A;
+    border: 2px solid var(--primary);
     background: #f0f7f4;
 }
 
@@ -1785,7 +1795,7 @@
     width: 100%;
 }
 .export-dropdown-wrapper .btn-export {
-    background: linear-gradient(135deg, #0D5C4A, #1a7a63);
+    background: linear-gradient(135deg, var(--primary), #1a7a63);
     color: white;
     border: none;
     border-radius: 50px;
@@ -1880,7 +1890,7 @@
     align-items: center;
     padding: 16px 20px;
     border-bottom: 1px solid #e2e8f0;
-    background: #0D5C4A;
+    background: var(--primary);
     color: white;
     border-radius: 20px 20px 0 0;
 }
@@ -2184,23 +2194,23 @@
     <div style="display:flex;background:white;border-bottom:2px solid #e2e8f0;position:sticky;top:0;z-index:10;">
         <button id="tabEstimasi" onclick="switchCuanTab('estimasi')"
             style="flex:1;padding:12px;border:none;background:none;font-size:12px;font-weight:700;
-            color:#0D5C4A;border-bottom:3px solid #0D5C4A;cursor:pointer;">
-            📊 Estimasi
+            color:var(--primary);border-bottom:3px solid var(--primary);cursor:pointer;">
+            <i class="fas fa-chart-pie"></i> Estimasi
         </button>
         <button id="tabRekap" onclick="switchCuanTab('rekap')"
             style="flex:1;padding:12px;border:none;background:none;font-size:12px;font-weight:600;
             color:#888;border-bottom:3px solid transparent;cursor:pointer;">
-            📋 Rekap
+            <i class="fas fa-clipboard-list"></i> Rekap
         </button>
         <button id="tabPengeluaran" onclick="switchCuanTab('pengeluaran')"
             style="flex:1;padding:12px;border:none;background:none;font-size:12px;font-weight:600;
             color:#888;border-bottom:3px solid transparent;cursor:pointer;">
-            💸 Pengeluaran
+            <i class="fas fa-money-bill-wave"></i> Pengeluaran
         </button>
         <button id="tabKonsorsium" onclick="switchCuanTab('konsorsium')"
             style="flex:1;padding:12px;border:none;background:none;font-size:12px;font-weight:600;
             color:#888;border-bottom:3px solid transparent;cursor:pointer;">
-            🤝 Konsorsium
+            <i class="fas fa-handshake"></i> Konsorsium
         </button>
     </div>
 
@@ -2208,7 +2218,7 @@
     <div id="cuanTabEstimasi">
     <div class="card-premium">
         <div class="logo-box text-center" id="estimasiLogoBox">
-            <img id="estimasiLogo" src="https://img.icons8.com/color/96/kaaba.png" style="width:50px;border-radius:8px;">
+            <img id="estimasiLogo" src="https://img.icons8.com/color/96/kaaba.png" style="width:50px;border-radius:8px;" onerror="this.onerror=null; this.outerHTML='<div style=&quot;width:50px;height:50px;border-radius:8px;background:var(--primary);color:white;display:flex;align-items:center;justify-content:center;font-size:24px;margin:0 auto;&quot;><i class=&quot;fas fa-kaaba&quot;></i></div>';">
         </div>
         <p class="text-center" style="color:var(--gray); font-size:0.8rem;" id="dashFooterNama">Navara</p>
         <div id="estimasiKunciBar" style="display:flex;align-items:center;justify-content:space-between;background:#F8FAFC;border-radius:12px;padding:10px 12px;margin:12px 0;">
@@ -2655,7 +2665,7 @@
 <div id="page-jamaah" class="page">
     <div class="header-premium header-premium-small"><div class="back-header"><i class="fas fa-arrow-left" onclick="showPage('home')"></i><h2>Database Jamaah</h2><div style="width:30px;"></div></div></div>
     <div class="card-premium">
-        <div id="jamaahAdminPanel" class="setting-card" style="display:none"><h3 style="color:var(--primary);"> Panel Admin Jamaah</h3><button class="btn btn-small mt-2" onclick="showPage('prospek')" style="background:#EC4899;color:white;"> 🎯 Calon Jamaah (Prospek)</button><button class="btn btn-primary btn-small mt-2" onclick="openTambahJamaahModal()"> + Tambah database</button><button class="btn btn-blue btn-small mt-2" onclick="openManageFieldsModal()"> Kelola Field Dinamis</button><button class="btn btn-small mt-2" onclick="openRekapKategoriModal()" style="background:#8B5CF6;color:white;"> 📊 Rekap per Kategori</button><button class="btn btn-small mt-2" onclick="openKecocokanKamarModal()" style="background:#0EA5E9;color:white;"> 🛏️ Cek Kecocokan Kamar</button><button class="btn btn-small mt-2" onclick="openKelompokPorsiModal()" style="background:#F59E0B;color:white;"> 📊 Kelompokkan Berdasarkan Porsi</button><button class="btn btn-small mt-2" onclick="openAntrianFollowUpModal()" style="background:#DC2626;color:white;"> 📋 Antrian Follow-Up Prioritas</button><button class="btn btn-small mt-2" onclick="openRekapKomisiMitraModal()" style="background:#7C3AED;color:white;"> 🤝 Rekap Komisi Mitra</button><button class="btn btn-small mt-2" onclick="openRekapCicilanModal()" style="background:#F59E0B;color:white;"> 📅 Rekap Cicilan</button><button class="btn btn-small mt-2" onclick="cetakManifestRooming()" style="background:#0D9488;color:white;"> 📋 Cetak Manifest & Rooming</button><button class="btn btn-small mt-2" onclick="openWaMassalModal()" style="background:#22C55E;color:white;"> 📢 Kirim WA Massal</button><button class="btn btn-teal btn-small mt-2" onclick="downloadTemplateExcel()" style="background:#1D6F42;">⬇️ Download Template Excel</button><button class="btn btn-teal btn-small mt-2" onclick="exportJamaahToExcel()"> Export ke Excel</button><button class="btn btn-orange btn-small mt-2" onclick="document.getElementById('importExcelFile').click()"> IMPORT EXCEL</button><input type="file" id="importExcelFile" accept=".xlsx,.xls" style="display:none" onchange="importJamaahFromExcel(this)"><button class="btn btn-danger btn-small mt-2" onclick="confirmDeleteAllJamaah()"> HAPUS SEMUA database</button></div>
+        <div id="jamaahAdminPanel" class="setting-card" style="display:none"><h3 style="color:var(--primary);"> Panel Admin Jamaah</h3><button class="btn btn-utility btn-small mt-2" onclick="showPage('prospek')"> 🎯 Calon Jamaah (Prospek)</button><button class="btn btn-primary btn-small mt-2" onclick="openTambahJamaahModal()"> + Tambah database</button><button class="btn btn-utility btn-small mt-2" onclick="openManageFieldsModal()"> Kelola Field Dinamis</button><button class="btn btn-utility btn-small mt-2" onclick="openRekapKategoriModal()"> 📊 Rekap per Kategori</button><button class="btn btn-utility btn-small mt-2" onclick="openKecocokanKamarModal()"> 🛏️ Cek Kecocokan Kamar</button><button class="btn btn-utility btn-small mt-2" onclick="openKelompokPorsiModal()"> 📊 Kelompokkan Berdasarkan Porsi</button><button class="btn btn-utility btn-small mt-2" onclick="openAntrianFollowUpModal()"> 📋 Antrian Follow-Up Prioritas</button><button class="btn btn-utility btn-small mt-2" onclick="openRekapKomisiMitraModal()"> 🤝 Rekap Komisi Mitra</button><button class="btn btn-utility btn-small mt-2" onclick="openRekapCicilanModal()"> 📅 Rekap Cicilan</button><button class="btn btn-utility btn-small mt-2" onclick="cetakManifestRooming()"> 📋 Cetak Manifest & Rooming</button><button class="btn btn-utility btn-small mt-2" onclick="openWaMassalModal()"> 📢 Kirim WA Massal</button><button class="btn btn-utility btn-small mt-2" onclick="downloadTemplateExcel()">⬇️ Download Template Excel</button><button class="btn btn-utility btn-small mt-2" onclick="exportJamaahToExcel()"> Export ke Excel</button><button class="btn btn-utility btn-small mt-2" onclick="document.getElementById('importExcelFile').click()"> IMPORT EXCEL</button><input type="file" id="importExcelFile" accept=".xlsx,.xls" style="display:none" onchange="importJamaahFromExcel(this)"><button class="btn btn-danger btn-small mt-2" onclick="confirmDeleteAllJamaah()"> HAPUS SEMUA database</button></div>
         <div class="section-title"><span>DAFTAR JAMAAH</span></div>
         <div class="search-box"><input type="text" id="searchJamaahInput" placeholder=" Cari nama jamaah..." onkeyup="filterJamaahList()"><select id="sortJamaahSelect" onchange="sortJamaahList()"><option value="urutan_asli">Urutan asli</option><option value="nama_asc">Nama A-Z</option><option value="nama_desc">Nama Z-A</option><option value="tgl_asc">Tanggal lama ke baru</option><option value="tgl_desc">Tanggal baru ke lama</option></select><button onclick="resetJamaahFilter()">Reset</button></div>
         <div id="filterLunasChip" style="display:none;align-items:center;gap:8px;background:#F0FBF6;border:1px solid #0D5C4A;border-radius:20px;padding:6px 12px;margin:8px 0;width:fit-content;">
@@ -2787,7 +2797,7 @@
     <div class="container">
         <div style="display:flex;gap:8px;margin-bottom:12px;align-items:center;">
             <div style="flex:1;position:relative;">
-                <i class="fas fa-search" style="position:absolute;left:12px;top:50%;transform:translateY(-50%);color:#aaa;font-size:14px;"></i>
+                <i class="fas fa-search" style="position:absolute;left:12px;top:50%;transform:translateY(-50%);color:#6B7280;font-size:14px;"></i>
                 <input type="text" id="catatanSearch" placeholder="Cari catatan..."
                     oninput="renderCatatanList()"
                     style="width:100%;padding:11px 14px 11px 36px;border:1.5px solid #e2e8f0;border-radius:24px;font-size:14px;outline:none;background:#f8fafc;">
@@ -2864,10 +2874,10 @@
     <div class="card-premium">
         <div id="masterAdminPanel" style="display:none; background:var(--gray-light); padding:15px; border-radius:20px; margin-bottom:15px;">
             <div class="input-group"><label> Judul Halaman / Laporan</label><input type="text" id="masterJudul" placeholder="Contoh: BADAL HAJI 2026"></div>
-            <div class="row"><button class="btn btn-blue btn-small" onclick="openMasterFieldModal()" style="flex:1"> Kelola Field Dinamis</button><button class="btn btn-teal btn-small" onclick="openMasterItemModal()" style="flex:1"> Kelola Item</button></div>
-            <div class="row mt-2"><button class="btn btn-purple btn-small" onclick="copyFromJamaah()" style="flex:1"> Copy dari database</button><button class="btn btn-orange btn-small" onclick="openModeManager()" style="flex:1"><i class="fas fa-sliders-h"></i>  Kelola Mode</button></div>
+            <div class="row"><button class="btn btn-utility btn-small" onclick="openMasterFieldModal()" style="flex:1"> Kelola Field Dinamis</button><button class="btn btn-utility btn-small" onclick="openMasterItemModal()" style="flex:1"> Kelola Item</button></div>
+            <div class="row mt-2"><button class="btn btn-utility btn-small" onclick="copyFromJamaah()" style="flex:1"> Copy dari database</button><button class="btn btn-utility btn-small" onclick="openModeManager()" style="flex:1"><i class="fas fa-sliders-h"></i>  Kelola Mode</button></div>
             <div class="row mt-2"><button class="btn btn-accent btn-small" onclick="openAssignItemMassalModal()" style="flex:1"><i class="fas fa-check-double"></i>  Assign Item Massal</button></div>
-            <div class="row mt-2"><button class="btn btn-danger btn-small" onclick="confirmDeleteAllMasterData()" style="flex:1"><i class="fas fa-trash-alt"></i>  HAPUS SEMUA</button><button class="btn btn-orange btn-small" onclick="deleteSelectedMasterData()" style="flex:1"><i class="fas fa-trash-alt"></i>  HAPUS TERPILIH</button></div>
+            <div class="row mt-2"><button class="btn btn-danger btn-small" onclick="confirmDeleteAllMasterData()" style="flex:1"><i class="fas fa-trash-alt"></i>  HAPUS SEMUA</button><button class="btn btn-danger btn-small" onclick="deleteSelectedMasterData()" style="flex:1"><i class="fas fa-trash-alt"></i>  HAPUS TERPILIH</button></div>
         </div>
         <div id="modeSwitcherContainer"></div>
         <div class="section-title" id="masterFormTitle"><span>TAMBAH DATA</span></div>
@@ -3067,7 +3077,7 @@
         <div class="setting-card" onclick="showPage('lisensi')" style="cursor:pointer;border:2px solid var(--primary);">
             <div style="display:flex;align-items:center;justify-content:space-between;">
                 <div>
-                    <div style="font-weight:700;font-size:15px;">🔑 Lisensi & Langganan</div>
+                    <div style="font-weight:700;font-size:15px;"><i class="fas fa-key"></i> Lisensi & Langganan</div>
                     <div id="licenseSummary" style="font-size:12px;color:#666;margin-top:3px;">Cek status lisensi</div>
                 </div>
                 <i class="fas fa-chevron-right" style="color:var(--primary);"></i>
@@ -3076,14 +3086,14 @@
         <div class="setting-card" id="modePenyimpananCard" style="display:none;"></div>
         <div class="setting-card" onclick="showPage('riwayataktivitas')" style="cursor:pointer;">
             <div style="display:flex;align-items:center;justify-content:space-between;">
-                <div><div style="font-weight:700;font-size:15px;">📜 Riwayat Aktivitas</div></div>
+                <div><div style="font-weight:700;font-size:15px;"><i class="fas fa-clock-rotate-left"></i> Riwayat Aktivitas</div></div>
                 <i class="fas fa-chevron-right" style="color:var(--primary);"></i>
             </div>
         </div>
         <div class="setting-card"><div class="setting-row"><span><i class="fas fa-user"></i>  Nama Anda saat ini: <b id="namaAdminSaatIni">Admin</b></span><button onclick="gantiNamaAdmin()" style="background:var(--primary);color:white;border:none;border-radius:8px;padding:6px 12px;font-size:12px;cursor:pointer;">Ganti</button></div>
-            <button class="btn btn-small mt-2" onclick="openKelolaAdminModal()" style="background:#7C3AED;color:white;width:100%;">🔐 Kelola Admin (Multi-Admin + PIN)</button>
+            <button class="btn btn-small mt-2" onclick="openKelolaAdminModal()" style="background:#7C3AED;color:white;width:100%;"><i class="fas fa-user-shield"></i> Kelola Admin (Multi-Admin + PIN)</button>
             <div style="display:flex;align-items:center;justify-content:space-between;margin-top:10px;">
-                <span style="font-size:13px;">🔒 Kunci Otomatis</span>
+                <span style="font-size:13px;"><i class="fas fa-lock"></i> Kunci Otomatis</span>
                 <input type="checkbox" id="cfgKunciOtomatisAktif" onchange="ubahPengaturanKunciOtomatis()" style="width:20px;height:20px;">
             </div>
             <div style="font-size:11px;color:#888;margin-top:2px;">Minta PIN lagi kalau aplikasi tidak disentuh selama:</div>
@@ -3640,7 +3650,7 @@
         </div>
 
         <!-- Info -->
-        <div style="font-size:11px;color:#aaa;text-align:center;line-height:1.7;padding:0 8px;">
+        <div style="font-size:11px;color:#6B7280;text-align:center;line-height:1.7;padding:0 8px;">
             App hanya dapat mengakses file yang dibuatnya sendiri di Drive — bukan seluruh Drive Anda. Data Anda aman dan privat.
         </div>
     </div>
@@ -3656,18 +3666,18 @@
 </div>
 
 <!-- MODALS -->
-<div id="jamaahModal" class="modal"><div class="modal-content"><h3 id="jamaahModalTitle">Tambah database</h3><div id="jamaahFormContainer"></div><button class="btn btn-primary" onclick="saveJamaah()"> SIMPAN</button><button id="btnSimpanTambahLagi" class="btn mt-2" onclick="saveJamaah(true)" style="width:100%;background:#0EA5E9;color:white;display:none;">➕ SIMPAN & TAMBAH LAGI</button><button class="btn btn-danger mt-2" onclick="closeJamaahModal()">BATAL</button></div></div>
-<div id="fieldModal" class="modal"><div class="modal-content"><h3>Tambah Field Dinamis</h3><div class="dynamic-field"><label>Nama Field</label><input type="text" id="newFieldName" placeholder="Contoh: tanggal_lahir"><div class="error-message">Hanya huruf kecil, angka, underscore</div></div><div class="dynamic-field"><label>Label Field</label><input type="text" id="newFieldLabel" placeholder="Contoh: Tanggal Lahir"></div><div class="dynamic-field"><label>Tipe Field</label><select id="newFieldType" onchange="toggleDropdownOptionsInput()"><option value="text">Text</option><option value="date">Tanggal</option><option value="tel">Telepon</option><option value="textarea">Text Area</option><option value="dropdown">Dropdown / Pilihan</option></select></div><div class="dynamic-field" id="dropdownOptionsWrap" style="display:none;"><label>Daftar Pilihan (pisahkan dengan koma)</label><input type="text" id="newFieldOptions" placeholder="Contoh: Tamattu', Ifrad, Qiran"><div class="error-message" style="color:#888;">Contoh lain: Ya, Tidak</div></div><div class="dynamic-field" style="display:flex;align-items:center;gap:8px;"><input type="checkbox" id="newFieldRahasia" style="width:18px;height:18px;"><label style="margin:0;">Sembunyikan di PDF Folder (Rahasia)</label></div><button class="btn btn-primary" onclick="addDynamicFieldJamaah()"> TAMBAH FIELD</button><button class="btn btn-danger mt-2" onclick="closeFieldModal()">BATAL</button></div></div>
+<div id="jamaahModal" class="modal"><div class="modal-content"><h3 id="jamaahModalTitle">Tambah database</h3><div id="jamaahFormContainer"></div><button class="btn btn-primary" onclick="saveJamaah()"> SIMPAN</button><button id="btnSimpanTambahLagi" class="btn mt-2" onclick="saveJamaah(true)" style="width:100%;background:#0EA5E9;color:white;display:none;">➕ SIMPAN & TAMBAH LAGI</button><button class="btn btn-secondary mt-2" onclick="closeJamaahModal()">BATAL</button></div></div>
+<div id="fieldModal" class="modal"><div class="modal-content"><h3>Tambah Field Dinamis</h3><div class="dynamic-field"><label>Nama Field</label><input type="text" id="newFieldName" placeholder="Contoh: tanggal_lahir"><div class="error-message">Hanya huruf kecil, angka, underscore</div></div><div class="dynamic-field"><label>Label Field</label><input type="text" id="newFieldLabel" placeholder="Contoh: Tanggal Lahir"></div><div class="dynamic-field"><label>Tipe Field</label><select id="newFieldType" onchange="toggleDropdownOptionsInput()"><option value="text">Text</option><option value="date">Tanggal</option><option value="tel">Telepon</option><option value="textarea">Text Area</option><option value="dropdown">Dropdown / Pilihan</option></select></div><div class="dynamic-field" id="dropdownOptionsWrap" style="display:none;"><label>Daftar Pilihan (pisahkan dengan koma)</label><input type="text" id="newFieldOptions" placeholder="Contoh: Tamattu', Ifrad, Qiran"><div class="error-message" style="color:#888;">Contoh lain: Ya, Tidak</div></div><div class="dynamic-field" style="display:flex;align-items:center;gap:8px;"><input type="checkbox" id="newFieldRahasia" style="width:18px;height:18px;"><label style="margin:0;">Sembunyikan di PDF Folder (Rahasia)</label></div><button class="btn btn-primary" onclick="addDynamicFieldJamaah()"> TAMBAH FIELD</button><button class="btn btn-secondary mt-2" onclick="closeFieldModal()">BATAL</button></div></div>
 <div id="manageFieldsModal" class="modal"><div class="modal-content"><h3>Kelola Field Dinamis</h3><button class="btn btn-primary btn-small" style="margin-bottom:15px;" onclick="closeManageFieldsModal(); openFieldModal();">+ Tambah Field Baru</button><div id="fieldsListContainer"></div><button class="btn btn-primary mt-2" onclick="closeManageFieldsModal()">TUTUP</button></div></div>
 
-<div id="paymentModal" class="modal"><div class="modal-content"><h3> Input Pembayaran</h3><div class="input-group"><label> Tanggal</label><input type="date" id="paymentTanggal"></div><div class="input-group"><label> Nama Jamaah *</label><select id="paymentJamaahSelect"><option value="">-- Pilih Jamaah --</option></select></div><div class="input-group" id="paymentKomponenWrap" style="display:none;"><label> Untuk Komponen</label><select id="paymentKomponen"></select></div><div class="input-group"><label> Nominal (Rp)</label><input type="text" class="money-input" inputmode="numeric" id="paymentNominal" placeholder="Contoh: 5.000.000"></div><div class="input-group"><label> Metode</label><select id="paymentMetode"><option value="Transfer">Transfer</option><option value="Cash">Cash</option><option value="QRIS">QRIS</option></select></div><div class="input-group"><label> Keterangan</label><input type="text" id="paymentKeterangan" placeholder="DP / Cicilan / Pelunasan"></div><div class="row"><button class="btn btn-danger" onclick="closePaymentModal()" style="flex:1">Batal</button><button class="btn btn-primary" onclick="simpanPembayaran()" style="flex:1">Simpan</button></div></div></div>
-<div id="invoiceConfirmModal" class="modal"><div class="modal-content"><h3> Konfirmasi Kirim Invoice</h3><p>Akan dikirim ke nomor WhatsApp:</p><p id="invoiceWANumber" style="font-weight:bold; font-size:18px; background:#f0f0f0; padding:10px; border-radius:10px;"></p><p id="invoiceWAName" style="color:#666;"></p><div class="row" style="margin-top:20px;"><button class="btn btn-danger" onclick="closeInvoiceConfirmModal()" style="flex:1">Batal</button><button class="btn btn-wa" onclick="sendInvoiceWA()" style="flex:1">Kirim via WA</button><button class="btn btn-orange" onclick="copyInvoiceText()" style="flex:1">Salin Teks</button></div></div></div>
-<div id="editHargaModal" class="modal"><div class="modal-content"><h3> Edit Harga Paket</h3><p id="editHargaNama" style="font-weight:bold;"></p><div class="input-group" id="editHargaTotalWrap"><label> Total Harga Paket (Rp)</label><input type="text" class="money-input" inputmode="numeric" id="editHargaValue" placeholder="Contoh: 35.000.000"></div><div id="editHargaKomponenWrap" style="display:none;"></div><div class="row"><button class="btn btn-danger" onclick="closeEditHargaModal()" style="flex:1">Batal</button><button class="btn btn-primary" onclick="saveEditHarga()" style="flex:1">Simpan</button></div></div></div>
-<div id="riwayatModal" class="modal"><div class="modal-content"><h3> Riwayat Pembayaran</h3><p id="riwayatNama" style="font-weight:bold;"></p><div id="riwayatListContainer" style="max-height:400px; overflow-y:auto;"></div><div class="row" style="margin-top:15px;"><button class="btn btn-danger" onclick="closeRiwayatModal()" style="flex:1">Tutup</button></div></div></div>
-<div id="masterFieldModal" class="modal"><div class="modal-content"><h3>Kelola Field Dinamis</h3><div class="dynamic-field"><label>Nama Field</label><input type="text" id="masterNewFieldName" placeholder="contoh: alamat, no_hp"></div><div class="dynamic-field"><label>Label Field</label><input type="text" id="masterNewFieldLabel" placeholder="Contoh: Alamat, No HP"></div><div class="dynamic-field"><label>Tipe</label><select id="masterNewFieldType"><option value="text">Text</option><option value="date">Tanggal</option><option value="tel">Telepon</option><option value="textarea">Text Area</option></select></div><button class="btn btn-primary" onclick="addMasterDynamicField()"> TAMBAH FIELD</button><div id="masterFieldsList" style="margin-top:15px;"></div><button class="btn btn-danger mt-2" onclick="closeMasterFieldModal()">TUTUP</button></div></div>
-<div id="masterItemModal" class="modal"><div class="modal-content"><h3>Kelola Daftar Item</h3><div class="row"><div class="input-group"><label>Nama Item</label><input type="text" id="masterNewItem" placeholder="Contoh: Kain Ihram"></div><button class="btn-small" onclick="addMasterItem()" style="background:var(--primary); color:white; padding:0 15px;">+ Tambah</button></div><div id="masterItemList" style="margin-top:15px;"></div><button class="btn btn-danger mt-2" onclick="closeMasterItemModal()">TUTUP</button></div></div>
-<div id="copyModal" class="modal"><div class="modal-content"><h3>📋 Copy dari Database</h3><p style="font-size:14px;color:#333;margin:10px 0;">Semua jamaah dari database akan disalin ke Multi Event.</p><p style="font-size:12px;color:#0D5C4A;background:#f0fdf4;padding:10px;border-radius:8px;margin:10px 0;">✅ Nama yang sudah ada tidak akan dobel — otomatis dilewati.</p><div class="row"><button class="btn btn-danger" onclick="closeCopyModal()" style="flex:1">BATAL</button><button class="btn btn-primary" onclick="executeCopyFromJamaah()" style="flex:1">COPY SEKARANG</button></div></div></div>
-<div id="modeManagerModal" class="modal"><div class="modal-content"><h3><i class="fas fa-sliders-h"></i> Kelola Mode Switcher</h3><p style="font-size:12px; color:#666; margin-bottom:15px;">Centang mode yang ingin ditampilkan.</p><div id="modeManagerList" style="margin-bottom:20px;"></div><div class="row"><div class="input-group" style="flex:3"><input type="text" id="newModeName" placeholder="Nama mode baru (contoh: Wisata)"></div><button class="btn-small" onclick="addNewMode()" style="background:var(--primary); color:white; padding:0 15px;">+ TAMBAH</button></div><div class="row" style="margin-top:15px;"><button class="btn btn-danger" onclick="closeModeManager()" style="flex:1">BATAL</button><button class="btn btn-primary" onclick="saveModes()" style="flex:1"> SIMPAN PERUBAHAN</button></div></div></div>
+<div id="paymentModal" class="modal"><div class="modal-content"><h3> Input Pembayaran</h3><div class="input-group"><label> Tanggal</label><input type="date" id="paymentTanggal"></div><div class="input-group"><label> Nama Jamaah *</label><select id="paymentJamaahSelect"><option value="">-- Pilih Jamaah --</option></select></div><div class="input-group" id="paymentKomponenWrap" style="display:none;"><label> Untuk Komponen</label><select id="paymentKomponen"></select></div><div class="input-group"><label> Nominal (Rp)</label><input type="text" class="money-input" inputmode="numeric" id="paymentNominal" placeholder="Contoh: 5.000.000"></div><div class="input-group"><label> Metode</label><select id="paymentMetode"><option value="Transfer">Transfer</option><option value="Cash">Cash</option><option value="QRIS">QRIS</option></select></div><div class="input-group"><label> Keterangan</label><input type="text" id="paymentKeterangan" placeholder="DP / Cicilan / Pelunasan"></div><div class="row"><button class="btn btn-secondary" onclick="closePaymentModal()" style="flex:1">Batal</button><button class="btn btn-primary" onclick="simpanPembayaran()" style="flex:1">Simpan</button></div></div></div>
+<div id="invoiceConfirmModal" class="modal"><div class="modal-content"><h3> Konfirmasi Kirim Invoice</h3><p>Akan dikirim ke nomor WhatsApp:</p><p id="invoiceWANumber" style="font-weight:bold; font-size:18px; background:#f0f0f0; padding:10px; border-radius:10px;"></p><p id="invoiceWAName" style="color:#666;"></p><div class="row" style="margin-top:20px;"><button class="btn btn-secondary" onclick="closeInvoiceConfirmModal()" style="flex:1">Batal</button><button class="btn btn-wa" onclick="sendInvoiceWA()" style="flex:1">Kirim via WA</button><button class="btn btn-orange" onclick="copyInvoiceText()" style="flex:1">Salin Teks</button></div></div></div>
+<div id="editHargaModal" class="modal"><div class="modal-content"><h3> Edit Harga Paket</h3><p id="editHargaNama" style="font-weight:bold;"></p><div class="input-group" id="editHargaTotalWrap"><label> Total Harga Paket (Rp)</label><input type="text" class="money-input" inputmode="numeric" id="editHargaValue" placeholder="Contoh: 35.000.000"></div><div id="editHargaKomponenWrap" style="display:none;"></div><div class="row"><button class="btn btn-secondary" onclick="closeEditHargaModal()" style="flex:1">Batal</button><button class="btn btn-primary" onclick="saveEditHarga()" style="flex:1">Simpan</button></div></div></div>
+<div id="riwayatModal" class="modal"><div class="modal-content"><h3> Riwayat Pembayaran</h3><p id="riwayatNama" style="font-weight:bold;"></p><div id="riwayatListContainer" style="max-height:400px; overflow-y:auto;"></div><div class="row" style="margin-top:15px;"><button class="btn btn-secondary" onclick="closeRiwayatModal()" style="flex:1">Tutup</button></div></div></div>
+<div id="masterFieldModal" class="modal"><div class="modal-content"><h3>Kelola Field Dinamis</h3><div class="dynamic-field"><label>Nama Field</label><input type="text" id="masterNewFieldName" placeholder="contoh: alamat, no_hp"></div><div class="dynamic-field"><label>Label Field</label><input type="text" id="masterNewFieldLabel" placeholder="Contoh: Alamat, No HP"></div><div class="dynamic-field"><label>Tipe</label><select id="masterNewFieldType"><option value="text">Text</option><option value="date">Tanggal</option><option value="tel">Telepon</option><option value="textarea">Text Area</option></select></div><button class="btn btn-primary" onclick="addMasterDynamicField()"> TAMBAH FIELD</button><div id="masterFieldsList" style="margin-top:15px;"></div><button class="btn btn-secondary mt-2" onclick="closeMasterFieldModal()">TUTUP</button></div></div>
+<div id="masterItemModal" class="modal"><div class="modal-content"><h3>Kelola Daftar Item</h3><div class="row"><div class="input-group"><label>Nama Item</label><input type="text" id="masterNewItem" placeholder="Contoh: Kain Ihram"></div><button class="btn-small" onclick="addMasterItem()" style="background:var(--primary); color:white; padding:0 15px;">+ Tambah</button></div><div id="masterItemList" style="margin-top:15px;"></div><button class="btn btn-secondary mt-2" onclick="closeMasterItemModal()">TUTUP</button></div></div>
+<div id="copyModal" class="modal"><div class="modal-content"><h3>📋 Copy dari Database</h3><p style="font-size:14px;color:#333;margin:10px 0;">Semua jamaah dari database akan disalin ke Multi Event.</p><p style="font-size:12px;color:#0D5C4A;background:#f0fdf4;padding:10px;border-radius:8px;margin:10px 0;">✅ Nama yang sudah ada tidak akan dobel — otomatis dilewati.</p><div class="row"><button class="btn btn-secondary" onclick="closeCopyModal()" style="flex:1">BATAL</button><button class="btn btn-primary" onclick="executeCopyFromJamaah()" style="flex:1">COPY SEKARANG</button></div></div></div>
+<div id="modeManagerModal" class="modal"><div class="modal-content"><h3><i class="fas fa-sliders-h"></i> Kelola Mode Switcher</h3><p style="font-size:12px; color:#666; margin-bottom:15px;">Centang mode yang ingin ditampilkan.</p><div id="modeManagerList" style="margin-bottom:20px;"></div><div class="row"><div class="input-group" style="flex:3"><input type="text" id="newModeName" placeholder="Nama mode baru (contoh: Wisata)"></div><button class="btn-small" onclick="addNewMode()" style="background:var(--primary); color:white; padding:0 15px;">+ TAMBAH</button></div><div class="row" style="margin-top:15px;"><button class="btn btn-secondary" onclick="closeModeManager()" style="flex:1">BATAL</button><button class="btn btn-primary" onclick="saveModes()" style="flex:1"> SIMPAN PERUBAHAN</button></div></div></div>
 <div id="programModal" class="modal"><div class="modal-content">
     <h3>📁 Pilih Program</h3>
     <div id="programListContainer" style="max-height:280px;overflow-y:auto;margin:12px 0;"></div>
@@ -3692,7 +3702,7 @@
         </select>
     </div>
     <div class="input-group" style="margin-bottom:12px;">
-        <label>Salin Pengaturan dari Program Lain <span style="color:#999;font-size:11px;">(opsional)</span></label>
+        <label>Salin Pengaturan dari Program Lain <span style="color:#6B7280;font-size:11px;">(opsional)</span></label>
         <select id="newProgramSalinDari" style="width:100%;padding:11px 13px;border:1.5px solid #e2e6e4;border-radius:12px;font-size:14px;">
             <option value="">— Mulai kosong —</option>
         </select>
@@ -3728,7 +3738,7 @@
 <div id="entryModal" class="modal"><div class="modal-content">
     <h3 id="entryModalTitle">Tambah Catatan</h3>
     <div class="input-group">
-        <label>Judul <span style="color:#999;font-size:11px;">(opsional)</span></label>
+        <label>Judul <span style="color:#6B7280;font-size:11px;">(opsional)</span></label>
         <input type="text" id="entryJudul" placeholder="Judul catatan..." oninput="autoSaveDraftCatatan()">
     </div>
     <div class="input-group" style="position:relative;">
@@ -3737,7 +3747,7 @@
         <div id="entryCharCount" style="position:absolute;bottom:8px;right:12px;font-size:10px;color:#bbb;">0 karakter</div>
     </div>
     <div class="input-group" style="margin-bottom:12px;">
-        <label>Warna Label <span style="color:#999;font-size:11px;">(pilih setelah selesai menulis)</span></label>
+        <label>Warna Label <span style="color:#6B7280;font-size:11px;">(pilih setelah selesai menulis)</span></label>
         <div style="display:flex;gap:10px;margin-top:6px;">
             <div style="display:flex;flex-direction:column;align-items:center;gap:4px;">
                 <span id="colorOpt_default" onclick="pilihWarnaCatatan('default')" style="width:28px;height:28px;border-radius:50%;background:#0D5C4A;cursor:pointer;border:3px solid #333;display:inline-block;"></span>
@@ -3771,7 +3781,7 @@
 <div id="detailModal" class="modal"><div class="modal-content" style="max-height:85vh;display:flex;flex-direction:column;">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
         <h3 id="detailJudul" style="flex:1;margin:0;font-size:17px;"></h3>
-        <span id="detailTgl" style="font-size:11px;color:#aaa;margin-left:10px;white-space:nowrap;"></span>
+        <span id="detailTgl" style="font-size:11px;color:#6B7280;margin-left:10px;white-space:nowrap;"></span>
     </div>
     <div id="detailIsi" style="flex:1;overflow-y:auto;white-space:pre-wrap;font-size:14px;line-height:1.7;color:#333;margin-bottom:16px;max-height:50vh;"></div>
     <div style="display:flex;gap:8px;flex-wrap:wrap;">
@@ -3782,7 +3792,7 @@
     </div>
     <button onclick="closeDetailModal()" style="width:100%;margin-top:8px;padding:10px;background:#e2e8f0;color:#333;border:none;border-radius:20px;font-size:14px;cursor:pointer;">Tutup</button>
 </div></div>
-<div id="dokumenFieldModal" class="modal"><div class="modal-content"><h3>Tambah Jenis Dokumen</h3><div class="dynamic-field"><label>Nama Dokumen</label><input type="text" id="newDokumenName" placeholder="Contoh: Visa, Tiket, Sertifikat"></div><div class="dynamic-field"><label>Icon</label><select id="newDokumenIcon"><option value="🪪"> KTP</option><option value="📘"> Paspor</option><option value="📷"> Foto</option><option value="💉"> Vaksin</option><option value="🛂"> Visa</option><option value="🎫"> Tiket</option><option value="📄"> Dokumen</option></select></div><button class="btn btn-primary" onclick="addDokumenField()"> TAMBAH</button><button class="btn btn-danger mt-2" onclick="closeDokumenFieldModal()">BATAL</button></div></div>
+<div id="dokumenFieldModal" class="modal"><div class="modal-content"><h3>Tambah Jenis Dokumen</h3><div class="dynamic-field"><label>Nama Dokumen</label><input type="text" id="newDokumenName" placeholder="Contoh: Visa, Tiket, Sertifikat"></div><div class="dynamic-field"><label>Icon</label><select id="newDokumenIcon"><option value="🪪"> KTP</option><option value="📘"> Paspor</option><option value="📷"> Foto</option><option value="💉"> Vaksin</option><option value="🛂"> Visa</option><option value="🎫"> Tiket</option><option value="📄"> Dokumen</option></select></div><button class="btn btn-primary" onclick="addDokumenField()"> TAMBAH</button><button class="btn btn-secondary mt-2" onclick="closeDokumenFieldModal()">BATAL</button></div></div>
 <div id="previewDokumenModal" class="modal"><div class="modal-content" style="max-height:90vh;overflow-y:auto;">
     <h3 id="previewDokumenTitle">Preview Dokumen</h3>
     <img id="previewDokumenImage" class="preview-img" style="max-width:100%;border-radius:12px;margin:12px 0;display:block;">
@@ -3900,7 +3910,7 @@ async function cetakSemuaDokumenJamaah(jamaahId, jamaahNama) {
     </div>
     
     </body></html>`;
-    printWindow.document.write(html);
+    printWindow.document.write(applyPrintTheme(html));
     injectWatermarkToPrintWin(printWindow);
     printWindow.document.close();
 }
@@ -3936,7 +3946,7 @@ async function cetakDokumenPerJenis(jamaahId, jenisId, jenisNama, jamaahNama, id
         </div>
         
     </body></html>`;
-    printWindow.document.write(html);
+    printWindow.document.write(applyPrintTheme(html));
     injectWatermarkToPrintWin(printWindow);
     printWindow.document.close();
 }
@@ -3995,13 +4005,13 @@ function internalShowPage(pageId) {
     if (pageId === 'jamaah') { if(window.loadJamaahData) window.loadJamaahData(); if(window.renderJamaahListWithPagination) window.renderJamaahListWithPagination(); }
     if (pageId === 'jamaahkita') {
         const c = document.getElementById('jamaahKitaListContainer');
-        if(c) c.innerHTML = '<div style="text-align:center;padding:30px;color:#aaa;"><div style="font-size:30px;">⏳</div>Memuat data...</div>';
+        if(c) c.innerHTML = '<div style="text-align:center;padding:30px;color:#6B7280;"><div style="font-size:30px;">⏳</div>Memuat data...</div>';
         setTimeout(() => { selectedJamaahKitaIds = []; updateJamaahKitaBatchBar(); renderPilihJamaahKita(); renderJamaahKitaList(); renderJamaahKitaDynamicFieldsForm(); if(isAdminModePremium) renderJamaahKitaFieldsList(); }, 50);
     }
     if (pageId === 'zakat') { if(window.renderSumberHartaList) window.renderSumberHartaList(); }
     if (pageId === 'pembayaran') {
         const cp = document.getElementById('paymentJamaahListContainer');
-        if(cp) cp.innerHTML = '<div style="text-align:center;padding:30px;color:#aaa;"><div style="font-size:30px;">⏳</div>Memuat data...</div>';
+        if(cp) cp.innerHTML = '<div style="text-align:center;padding:30px;color:#6B7280;"><div style="font-size:30px;">⏳</div>Memuat data...</div>';
         setTimeout(() => { if(window.renderPaymentDashboard) window.renderPaymentDashboard(); if(window.renderPaymentJamaahList) window.renderPaymentJamaahList(); if(window.populatePaymentJamaahDropdown) window.populatePaymentJamaahDropdown(); }, 50);
     }
     if (pageId === 'datamaster') { if(window.loadMasterData) window.loadMasterData(); if(window.renderDynamicModeSwitcher) window.renderDynamicModeSwitcher(); }
@@ -4436,7 +4446,7 @@ function tampilkanJendelaCetak(htmlSebelumTombol) {
     </div>
     </body></html>`;
     const win = window.open('', '_blank');
-    win.document.write(html); win.document.close();
+    win.document.write(applyPrintTheme(html)); win.document.close();
     return win;
 }
 
@@ -4495,16 +4505,16 @@ function initDarkMode() {
 
 // Menu Grid
 const menuItemsPremium = [
-    { id: 'estimasi', icon: '📊', label: 'Cuan Plan', badge: 'Estimasi' }, 
-    { id: 'kas', icon: '💰', label: 'Uang Kas', badge: 'Kas' }, 
-    { id: 'jamaah', icon: '🗂️', label: 'Database', badge: 'Jamaah' }, 
-    { id: 'jamaahkita', icon: '⏳', label: 'Jamaah on proses', badge: 'Proses' }, 
-    { id: 'catatan', icon: '📝', label: 'Catatan', badge: 'Notes' }, 
-    { id: 'zakat', icon: '💸', label: 'Zakat', badge: 'Kalkulator' }, 
-    { id: 'pembayaran', icon: '🧾', label: 'Pembayaran', badge: 'Tagihan' }, 
-    { id: 'datamaster', icon: '🗓️', label: 'Multi Event', badge: 'Event' }, 
-    { id: 'konfigurasi', icon: '⚙️', label: 'Konfigurasi', badge: 'Setting' }, 
-    { id: 'fitur', icon: '🚀', label: 'LENGKAP', badge: 'Fitur' }
+    { id: 'estimasi', icon: '<i class="fas fa-chart-pie"></i>', label: 'Cuan Plan', badge: 'Estimasi' }, 
+    { id: 'kas', icon: '<i class="fas fa-wallet"></i>', label: 'Uang Kas', badge: 'Kas' }, 
+    { id: 'jamaah', icon: '<i class="fas fa-database"></i>', label: 'Database', badge: 'Jamaah' }, 
+    { id: 'jamaahkita', icon: '<i class="fas fa-hourglass-half"></i>', label: 'Jamaah on proses', badge: 'Proses' }, 
+    { id: 'catatan', icon: '<i class="fas fa-note-sticky"></i>', label: 'Catatan', badge: 'Notes' }, 
+    { id: 'zakat', icon: '<i class="fas fa-hand-holding-dollar"></i>', label: 'Zakat', badge: 'Kalkulator' }, 
+    { id: 'pembayaran', icon: '<i class="fas fa-receipt"></i>', label: 'Pembayaran', badge: 'Tagihan' }, 
+    { id: 'datamaster', icon: '<i class="fas fa-calendar-days"></i>', label: 'Multi Event', badge: 'Event' }, 
+    { id: 'konfigurasi', icon: '<i class="fas fa-gear"></i>', label: 'Konfigurasi', badge: 'Setting' }, 
+    { id: 'fitur', icon: '<i class="fas fa-rocket"></i>', label: 'LENGKAP', badge: 'Fitur' }
 ];
 
 let isAdminModePremium = false;
@@ -4745,13 +4755,13 @@ function renderKelolaAdminModal(modalEl) {
         <div style="display:flex;justify-content:space-between;align-items:center;background:#F8FAFC;border-radius:10px;padding:10px 12px;margin-bottom:8px;">
             <span style="font-weight:700;font-size:13px;">${a.isPemilik ? '👑' : '👤'} ${escapeHtml(a.nama)} ${a.isPemilik ? '<span style="font-size:10px;color:#888;">(Admin Utama)</span>' : ''}</span>
             <div style="display:flex;gap:8px;">
-                <button onclick="openTambahAdminForm('${a.nama.replace(/'/g,"\\'")}')" style="border:none;background:none;color:#0369A1;font-size:14px;cursor:pointer;">✏️</button>
-                ${!a.isPemilik ? `<button onclick="hapusAdmin('${a.nama.replace(/'/g,"\\'")}')" style="border:none;background:none;color:#DC2626;font-size:14px;cursor:pointer;">🗑️</button>` : ''}
+                <button onclick="openTambahAdminForm('${a.nama.replace(/'/g,"\\'")}')" style="border:none;background:none;color:#0369A1;font-size:14px;cursor:pointer;"><i class="fas fa-pen"></i></button>
+                ${!a.isPemilik ? `<button onclick="hapusAdmin('${a.nama.replace(/'/g,"\\'")}')" style="border:none;background:none;color:#DC2626;font-size:14px;cursor:pointer;"><i class="fas fa-trash-alt"></i></button>` : ''}
             </div>
         </div>`).join('');
 
     modalEl.innerHTML = `<div class="modal-content" style="max-width:420px;">
-        <h3 style="color:#0D5C4A;margin-bottom:4px;">🔐 Kelola Admin</h3>
+        <h3 style="color:var(--primary);margin-bottom:4px;"><i class="fas fa-user-shield"></i> Kelola Admin</h3>
         <div style="font-size:11px;color:#888;margin-bottom:12px;">${list.length === 0 ? 'Belum ada Admin — buat yang pertama, otomatis jadi Admin Utama (👑)' : 'Admin Utama (👑) tidak bisa dihapus/diganti oleh Admin biasa'}</div>
         <div style="max-height:280px;overflow-y:auto;">${rows}</div>
         <button onclick="openTambahAdminForm()" style="width:100%;padding:11px;background:#7C3AED;color:white;border:none;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;margin-top:8px;">+ Tambah Admin</button>
@@ -4848,7 +4858,7 @@ function renderRiwayatAktivitas() {
     if(progLabel) progLabel.textContent = '📁 ' + (getCurrentProgram()?.nama || '-');
 
     if(filtered.length === 0) {
-        container.innerHTML = '<p style="text-align:center;color:#aaa;padding:30px;">Belum ada aktivitas tercatat</p>';
+        container.innerHTML = '<p style="text-align:center;color:#6B7280;padding:30px;">Belum ada aktivitas tercatat</p>';
         return;
     }
     container.innerHTML = filtered.map(l => `
@@ -4925,6 +4935,19 @@ const themesPremium = [
     { primary: '#EA580C', name: 'Orange Peach' }, 
     { primary: '#7C3AED', name: 'Lavender' } 
 ];
+
+// Menyesuaikan warna hijau baku di HTML cetak (invoice/tiket/label/dll) ke warna tema yang sedang
+// dipilih user. Kalau temanya masih hijau default, HTML dikembalikan apa adanya (tidak diapa-apakan) —
+// jadi untuk mayoritas user yang tidak ganti tema, fungsi ini sama sekali tidak mengubah apa pun.
+function applyPrintTheme(htmlString) {
+    try {
+        const themeColor = localStorage.getItem('premium_theme_primary');
+        if (!themeColor || themeColor.toUpperCase() === '#0D5C4A') return htmlString;
+        return htmlString.replace(/#0D5C4A/gi, themeColor);
+    } catch(e) {
+        return htmlString;
+    }
+}
 
 function applyThemePremium(primary) { 
     document.documentElement.style.setProperty('--primary', primary); 
@@ -5127,12 +5150,12 @@ async function cetakDashboardHTML() {
     });
 
     const printWindow = window.open('', '_blank');
-    printWindow.document.write(`<!DOCTYPE html><html><head><title>Dashboard</title><meta charset="UTF-8">
+    const __printHtml1 = `<!DOCTYPE html><html><head><title>Dashboard</title><meta charset="UTF-8">
     <style>
         *{margin:0;padding:0;box-sizing:border-box;}
         body{font-family:Arial,sans-serif;background:#f0f0f0;padding:20px;}
         .box{background:white;max-width:800px;margin:0 auto;border-radius:16px;padding:30px;box-shadow:0 2px 16px rgba(0,0,0,0.1);}
-        .tgl{color:#aaa;font-size:11px;margin-bottom:20px;}
+        .tgl{color:#6B7280;font-size:11px;margin-bottom:20px;}
         .stats{display:flex;gap:16px;margin-bottom:24px;flex-wrap:wrap;}
         .stat-box{flex:1;min-width:120px;background:#f0f7f4;border-radius:10px;padding:16px;text-align:center;border-left:4px solid #0D5C4A;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
         .stat-box .label{font-size:11px;color:#666;margin-bottom:6px;}
@@ -5162,7 +5185,7 @@ async function cetakDashboardHTML() {
     </div>
     <div class="no-print"><button onclick="window.print()" style="background:#0D5C4A;color:white;">🖨️ CETAK</button><button onclick="window.close()" style="background:#e2e8f0;color:#333;">✕ TUTUP</button></div>
     <script>// Auto-print removed;<\/script>
-    </body></html>`);
+    </body></html>`; printWindow.document.write(applyPrintTheme(__printHtml1));
     injectWatermarkToPrintWin(printWindow);
     printWindow.document.close();
 }
@@ -5354,12 +5377,12 @@ function renderRiwayatEstimasiModal(modal) {
                 <div style="font-size:11px;color:#888;">📌 ${escapeHtml(r.tanggal)}</div>
                 <div style="font-size:15px;font-weight:700;color:#0D5C4A;">${f(r.harga)}/pax</div>
             </div>
-            <button onclick="hapusRiwayatEstimasi(${i})" style="border:none;background:none;color:#DC2626;font-size:15px;cursor:pointer;">🗑️</button>
+            <button onclick="hapusRiwayatEstimasi(${i})" style="border:none;background:none;color:#DC2626;font-size:15px;cursor:pointer;"><i class="fas fa-trash-alt"></i></button>
         </div>`).join('');
     modal.innerHTML = `<div class="modal-content" style="max-width:420px;">
         <h3 style="color:#0D5C4A;margin-bottom:4px;">🕐 Riwayat Harga</h3>
         <div style="font-size:11px;color:#888;margin-bottom:12px;">${escapeHtml(getCurrentProgram()?.nama || '-')} — otomatis tercatat tiap kali Anda kunci harga</div>
-        <div style="max-height:360px;overflow-y:auto;">${html || '<p style="color:#aaa;text-align:center;">Belum ada riwayat</p>'}</div>
+        <div style="max-height:360px;overflow-y:auto;">${html || '<p style="color:#6B7280;text-align:center;">Belum ada riwayat</p>'}</div>
         <button onclick="document.getElementById('riwayatEstimasiModal').style.display='none'" style="width:100%;padding:11px;background:#e2e8f0;color:#333;border:none;border-radius:10px;font-size:13px;cursor:pointer;margin-top:10px;">Tutup</button>
     </div>`;
 }
@@ -5542,7 +5565,7 @@ async function cetakEstimasiPDFJamaah() {
     const watermarkHtml = buildPrintWatermark(cfg);
     const qrHtml = await buildPrintQR(cfg, `Harga Paket: ${lastCalculatedPaket}\nHarga/Pax: ${f(lastCalculatedPrice)}\nTanggal: ${tgl}`);
     const html = `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Harga Paket</title>
-    <style>*{margin:0;padding:0;box-sizing:border-box;}body{font-family:Arial,sans-serif;background:#f0f0f0;padding:20px;}.box{background:white;max-width:520px;margin:0 auto;border-radius:16px;padding:24px;box-shadow:0 2px 16px rgba(0,0,0,0.1);position:relative;overflow:hidden;}.watermark-wrap{position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:0;}.content{position:relative;z-index:1;text-align:center;}h2{color:#0D5C4A;font-size:18px;margin-bottom:12px;}.divider{border:none;border-top:2px solid #0D5C4A;margin:14px 0;}.harga{font-size:28px;font-weight:bold;color:#0D5C4A;margin:14px 0;}.info{color:#555;font-size:12px;line-height:1.8;margin-bottom:12px;text-align:left;}.note{font-size:10px;color:#999;margin-top:12px;}.no-print{text-align:center;margin-top:24px;}.no-print button{padding:12px 32px;margin:0 8px;border:none;border-radius:10px;font-size:14px;font-weight:bold;cursor:pointer;}
+    <style>*{margin:0;padding:0;box-sizing:border-box;}body{font-family:Arial,sans-serif;background:#f0f0f0;padding:20px;}.box{background:white;max-width:520px;margin:0 auto;border-radius:16px;padding:24px;box-shadow:0 2px 16px rgba(0,0,0,0.1);position:relative;overflow:hidden;}.watermark-wrap{position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:0;}.content{position:relative;z-index:1;text-align:center;}h2{color:#0D5C4A;font-size:18px;margin-bottom:12px;}.divider{border:none;border-top:2px solid #0D5C4A;margin:14px 0;}.harga{font-size:28px;font-weight:bold;color:#0D5C4A;margin:14px 0;}.info{color:#555;font-size:12px;line-height:1.8;margin-bottom:12px;text-align:left;}.note{font-size:10px;color:#6B7280;margin-top:12px;}.no-print{text-align:center;margin-top:24px;}.no-print button{padding:12px 32px;margin:0 8px;border:none;border-radius:10px;font-size:14px;font-weight:bold;cursor:pointer;}
     @page{size:A4 portrait;margin:10mm 12mm;}@media print{*{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important;}html{width:210mm;}body{background:white;padding:0;margin:0;width:210mm;}
     .box{box-shadow:none;border-radius:0;max-width:100%;width:210mm;min-height:auto;padding:14mm 18mm;margin:0;}
     .no-print{display:none!important;}}
@@ -5566,7 +5589,7 @@ async function cetakEstimasiPDFJamaah() {
     </body></html>`;
     const win = window.open('','_blank');
     if(!win) return showToast('Izinkan popup untuk cetak!');
-    win.document.write(html); injectWatermarkToPrintWin(win); win.document.close();
+    win.document.write(applyPrintTheme(html)); injectWatermarkToPrintWin(win); win.document.close();
 }
 
 async function cetakEstimasiPDFInternal() {
@@ -5659,7 +5682,7 @@ async function cetakEstimasiPDFInternal() {
     </body></html>`;
     const win = window.open('','_blank');
     if(!win) return showToast('Izinkan popup untuk cetak!');
-    win.document.write(html); injectWatermarkToPrintWin(win); win.document.close();
+    win.document.write(applyPrintTheme(html)); injectWatermarkToPrintWin(win); win.document.close();
 }
 
 // ==================== TIPE PAKET ====================
@@ -5749,13 +5772,13 @@ function renderRentangPorsiList() {
     if(!container) return;
     const rentang = (konfigurasiPro.rentang_porsi_haji || []).slice().sort((a,b) => a.sampai - b.sampai);
     if(rentang.length === 0) {
-        container.innerHTML = '<p style="font-size:12px;color:#aaa;">Belum ada rentang diatur.</p>';
+        container.innerHTML = '<p style="font-size:12px;color:#6B7280;">Belum ada rentang diatur.</p>';
         return;
     }
     container.innerHTML = rentang.map((r, i) => `
         <div style="display:flex;align-items:center;justify-content:space-between;background:#F8FAFC;border-radius:8px;padding:8px 10px;margin-bottom:6px;">
             <span style="font-size:13px;">Sampai porsi <b>${r.sampai.toLocaleString('id-ID')}</b> → Estimasi <b>${r.tahun}</b></span>
-            <button onclick="hapusRentangPorsi(${i})" style="border:none;background:none;color:#DC2626;font-size:14px;cursor:pointer;">🗑️</button>
+            <button onclick="hapusRentangPorsi(${i})" style="border:none;background:none;color:#DC2626;font-size:14px;cursor:pointer;"><i class="fas fa-trash-alt"></i></button>
         </div>`).join('');
 }
 
@@ -5801,14 +5824,14 @@ function renderSplashQuoteList() {
     const labelEl = document.getElementById('splashQuoteProgramLabel');
     if(labelEl) labelEl.textContent = '📁 Untuk Program: ' + progNama;
     if(quotes.length === 0) {
-        container.innerHTML = '<p style="font-size:12px;color:#aaa;">Belum ada kalimat custom untuk Program ini — memakai default.</p>';
+        container.innerHTML = '<p style="font-size:12px;color:#6B7280;">Belum ada kalimat custom untuk Program ini — memakai default.</p>';
         return;
     }
     container.innerHTML = quotes.map((q, i) => `
         <div style="display:flex;align-items:center;gap:8px;background:#F8FAFC;border-radius:8px;padding:8px 10px;margin-bottom:6px;">
             <span style="flex:1;font-size:13px;">${escapeHtml(q)}</span>
-            <button onclick="editSplashQuote(${i})" style="border:none;background:none;color:#2563EB;font-size:14px;cursor:pointer;">✏️</button>
-            <button onclick="hapusSplashQuote(${i})" style="border:none;background:none;color:#DC2626;font-size:14px;cursor:pointer;">🗑️</button>
+            <button onclick="editSplashQuote(${i})" style="border:none;background:none;color:#2563EB;font-size:14px;cursor:pointer;"><i class="fas fa-pen"></i></button>
+            <button onclick="hapusSplashQuote(${i})" style="border:none;background:none;color:#DC2626;font-size:14px;cursor:pointer;"><i class="fas fa-trash-alt"></i></button>
         </div>`).join('');
 }
 
@@ -6304,7 +6327,7 @@ function renderKonsorsiumList() {
             <div class="sumber-header"><strong>Travel Partner</strong><button class="btn-remove-sumber" onclick="hapusKonsorsiumTravel(${t.id})">Hapus</button></div>
             <div class="dynamic-field"><label>Nama Travel</label><input type="text" value="${escapeHtml(t.nama)}" placeholder="Contoh: Travel A" oninput="updateKonsorsiumTravel(${t.id}, 'nama', this.value)"></div>
             <div class="dynamic-field">
-                <label>Komponen yang Diikuti <span style="color:#999;font-weight:400;">— hilangkan centang kalau Travel ini urus sendiri</span></label>
+                <label>Komponen yang Diikuti <span style="color:#6B7280;font-weight:400;">— hilangkan centang kalau Travel ini urus sendiri</span></label>
                 <div style="display:grid;grid-template-columns:1fr 1fr;background:#F8FAFC;border-radius:8px;padding:6px 10px;">${checkboxHtml}</div>
             </div>
             <div class="dynamic-field">
@@ -6316,7 +6339,7 @@ function renderKonsorsiumList() {
                 </div>
                 <div id="konsorsiumTotalOrang_${t.id}" style="font-size:11px;color:#0D5C4A;font-weight:600;margin-top:4px;">Total: ${(t.jumlah||0)} orang</div>
             </div>
-            <div class="dynamic-field"><label>Gratis dari Travel Ini <span style="color:#999;font-weight:400;">— opsional, kalau Travel ini minta kursi gratis (beda dari Gratis B2C di atas)</span></label><input type="text" inputmode="numeric" value="${t.gratisTravel || ''}" placeholder="0" oninput="updateKonsorsiumTravel(${t.id}, 'gratisTravel', this.value)"></div>
+            <div class="dynamic-field"><label>Gratis dari Travel Ini <span style="color:#6B7280;font-weight:400;">— opsional, kalau Travel ini minta kursi gratis (beda dari Gratis B2C di atas)</span></label><input type="text" inputmode="numeric" value="${t.gratisTravel || ''}" placeholder="0" oninput="updateKonsorsiumTravel(${t.id}, 'gratisTravel', this.value)"></div>
             <div style="background:#EFF6FF;border-radius:10px;padding:10px;margin:10px 0;">
                 <div style="display:flex;align-items:center;gap:6px;margin-bottom:8px;">
                     <span style="background:#1E40AF;color:white;font-size:9px;font-weight:700;padding:2px 7px;border-radius:10px;">B2B</span>
@@ -6324,7 +6347,7 @@ function renderKonsorsiumList() {
                 </div>
                 <div class="dynamic-field" style="margin-bottom:8px;"><label style="font-size:12px;">Markup (%)</label><input type="text" id="konsorsiumPersenInput_${t.id}" inputmode="decimal" value="${t.persen || ''}" placeholder="Contoh: 6.7" oninput="updateKonsorsiumTravel(${t.id}, 'persen', this.value)"></div>
                 <div class="dynamic-field" style="margin-bottom:0;"><label style="font-size:12px;">Atau Profit Tetap (Rp)</label><input type="text" id="konsorsiumProfitRpInput_${t.id}" class="money-input" inputmode="numeric" value="${t.profitRp ? t.profitRp.toLocaleString('id-ID') : ''}" placeholder="Contoh: 2.500.000 (B2B)" oninput="updateKonsorsiumTravel(${t.id}, 'profitRp', this.value)"></div>
-                <div class="dynamic-field" style="margin-bottom:0;"><label style="font-size:12px;">Buffer / Cadangan Nego (Rp) <span style="color:#999;font-weight:400;">— opsional, ditambahkan ke Harga, tidak dihitung Profit</span></label><input type="text" class="money-input" inputmode="numeric" value="${t.bufferB2B ? t.bufferB2B.toLocaleString('id-ID') : ''}" placeholder="Contoh: 500.000" oninput="updateKonsorsiumTravel(${t.id}, 'bufferB2B', this.value)"></div>
+                <div class="dynamic-field" style="margin-bottom:0;"><label style="font-size:12px;">Buffer / Cadangan Nego (Rp) <span style="color:#6B7280;font-weight:400;">— opsional, ditambahkan ke Harga, tidak dihitung Profit</span></label><input type="text" class="money-input" inputmode="numeric" value="${t.bufferB2B ? t.bufferB2B.toLocaleString('id-ID') : ''}" placeholder="Contoh: 500.000" oninput="updateKonsorsiumTravel(${t.id}, 'bufferB2B', this.value)"></div>
             </div>
             <div id="konsorsiumInfo_${t.id}" style="margin-top:8px;"></div>
             <div id="konsorsiumPembayaran_${t.id}" style="margin-top:8px;"></div>
@@ -6477,7 +6500,7 @@ function openCatatPembayaranTravelModal(id) {
         <div class="input-group"><label>Nominal (Rp)</label><input type="text" class="money-input" inputmode="numeric" id="bayarTravelNominal" placeholder="Contoh: 500.000.000"></div>
         <div class="input-group"><label>Catatan (opsional)</label><input type="text" id="bayarTravelCatatan" placeholder="Contoh: Transfer DP tahap 1"></div>
         <div class="row" style="margin-top:10px;">
-            <button class="btn btn-danger" onclick="document.getElementById('catatPembayaranTravelModal').style.display='none'" style="flex:1;">Batal</button>
+            <button class="btn btn-secondary" onclick="document.getElementById('catatPembayaranTravelModal').style.display='none'" style="flex:1;">Batal</button>
             <button class="btn btn-primary" onclick="simpanPembayaranTravel(${id})" style="flex:1;">Simpan</button>
         </div>
     </div>`;
@@ -6527,12 +6550,12 @@ function renderRiwayatPembayaranTravelModal(id, modalEl) {
                 <div style="font-size:13px;font-weight:700;color:#166534;">${f(p.nominal)}</div>
                 <div style="font-size:11px;color:#888;">${new Date(p.tanggal).toLocaleDateString('id-ID')}${p.catatan ? ' — ' + escapeHtml(p.catatan) : ''}</div>
             </div>
-            <button onclick="hapusPembayaranTravel(${id}, ${p.id})" style="border:none;background:none;color:#DC2626;font-size:15px;cursor:pointer;">🗑️</button>
+            <button onclick="hapusPembayaranTravel(${id}, ${p.id})" style="border:none;background:none;color:#DC2626;font-size:15px;cursor:pointer;"><i class="fas fa-trash-alt"></i></button>
         </div>`).join('');
     modalEl.innerHTML = `<div class="modal-content" style="max-width:420px;">
         <h3 style="color:#0D5C4A;margin-bottom:4px;">🕐 Riwayat Pembayaran</h3>
         <div style="font-size:12px;color:#888;margin-bottom:12px;">${escapeHtml(t.nama || 'Travel Partner')}</div>
-        <div style="max-height:340px;overflow-y:auto;">${html || '<p style="color:#aaa;text-align:center;padding:14px;">Belum ada pembayaran tercatat</p>'}</div>
+        <div style="max-height:340px;overflow-y:auto;">${html || '<p style="color:#6B7280;text-align:center;padding:14px;">Belum ada pembayaran tercatat</p>'}</div>
         <button onclick="document.getElementById('riwayatPembayaranTravelModal').style.display='none'" style="width:100%;padding:11px;background:#e2e8f0;color:#333;border:none;border-radius:10px;font-size:13px;cursor:pointer;margin-top:10px;">Tutup</button>
     </div>`;
 }
@@ -6635,7 +6658,7 @@ function renderAnalisisBufferB2BModal(modalEl) {
         <div style="display:flex;justify-content:space-between;font-size:12px;padding:5px 0;border-bottom:1px dashed #e2e8f0;">
             <span>${escapeHtml(x.nama)}</span>
             <span style="color:${x.kelebihan > 0 ? '#DC2626' : '#166534'};font-weight:700;">${f(x.diskon)}${x.kelebihan > 0 ? ' ⚠️' : ''}</span>
-        </div>`).join('') || '<p style="color:#aaa;text-align:center;padding:10px;font-size:12px;">Belum ada selisih dari Travel yang sudah Final</p>';
+        </div>`).join('') || '<p style="color:#6B7280;text-align:center;padding:10px;font-size:12px;">Belum ada selisih dari Travel yang sudah Final</p>';
 
     const htmlBelumFinal = travelBelumFinal.length > 0 ? `<div style="background:#F8FAFC;border-radius:8px;padding:8px 10px;margin-top:10px;font-size:11px;color:#888;">
         ℹ️ ${travelBelumFinal.length} Travel belum ditandai Lunas/Final, dikecualikan dari analisis ini: ${travelBelumFinal.join(', ')}
@@ -6822,12 +6845,12 @@ function renderRiwayatKonsorsiumModal(modal) {
                 <div style="font-size:14px;font-weight:700;color:#0D5C4A;">${f(r.hargaBrosur)} (B2C)</div>
                 <div style="font-size:11px;color:#666;">${r.jumlahTravel} Travel, ${r.totalPax} orang</div>
             </div>
-            <button onclick="hapusRiwayatKonsorsium(${i})" style="border:none;background:none;color:#DC2626;font-size:15px;cursor:pointer;">🗑️</button>
+            <button onclick="hapusRiwayatKonsorsium(${i})" style="border:none;background:none;color:#DC2626;font-size:15px;cursor:pointer;"><i class="fas fa-trash-alt"></i></button>
         </div>`).join('');
     modal.innerHTML = `<div class="modal-content" style="max-width:420px;">
         <h3 style="color:#0D5C4A;margin-bottom:4px;">🕐 Riwayat Konsorsium</h3>
         <div style="font-size:11px;color:#888;margin-bottom:12px;">${escapeHtml(getCurrentProgram()?.nama || '-')} — otomatis tercatat tiap kali dikunci</div>
-        <div style="max-height:360px;overflow-y:auto;">${html || '<p style="color:#aaa;text-align:center;">Belum ada riwayat</p>'}</div>
+        <div style="max-height:360px;overflow-y:auto;">${html || '<p style="color:#6B7280;text-align:center;">Belum ada riwayat</p>'}</div>
         <button onclick="document.getElementById('riwayatKonsorsiumModal').style.display='none'" style="width:100%;padding:11px;background:#e2e8f0;color:#333;border:none;border-radius:10px;font-size:13px;cursor:pointer;margin-top:10px;">Tutup</button>
     </div>`;
 }
@@ -6932,8 +6955,9 @@ function switchCuanTab(tab) {
         const btn = document.getElementById(tabs[key].btn);
         if(el) el.style.display = key === tab ? 'block' : 'none';
         if(btn) {
-            btn.style.color = key === tab ? '#0D5C4A' : '#888';
-            btn.style.borderBottomColor = key === tab ? '#0D5C4A' : 'transparent';
+            const primaryColor = getComputedStyle(document.documentElement).getPropertyValue('--primary').trim() || '#0D5C4A';
+            btn.style.color = key === tab ? primaryColor : '#888';
+            btn.style.borderBottomColor = key === tab ? primaryColor : 'transparent';
             btn.style.fontWeight = key === tab ? '700' : '600';
         }
     });
@@ -7150,7 +7174,7 @@ function cetakLaporanGabungan(mode = 'semua') {
     const showRekap = (mode === 'semua' || mode === 'rekap') && rekapAda;
     const showPengeluaran = (mode === 'semua' || mode === 'pengeluaran') && pengeluaranAda;
 
-    win.document.write(`<!DOCTYPE html><html><head>
+    const __printHtml2 = `<!DOCTYPE html><html><head>
         <meta charset="UTF-8">
         <title>Laporan Keuangan${mode === 'semua' ? ' Lengkap' : ''}</title>
         <style>
@@ -7180,7 +7204,7 @@ function cetakLaporanGabungan(mode = 'semua') {
         ${showRekap ? `<div class="section-title">📋 Rekap Profit Aktual</div>${rekapHTML}` : ''}
         ${showRekap && showPengeluaran ? '<hr class="divider">' : ''}
         ${showPengeluaran ? `<div class="section-title">💸 Rincian Pengeluaran</div>${pengeluaranHTML}<div style="margin-top:12px;">${ringkasanHTML}</div>` : ''}
-    </body></html>`);
+    </body></html>`; win.document.write(applyPrintTheme(__printHtml2));
     win.document.close();
 }
 
@@ -7460,7 +7484,7 @@ function renderAnalisisBufferB2CModal(modalEl) {
             <span>${escapeHtml(x.nama)}</span>
             <span style="color:${warnaBaris};font-weight:700;">${f(x.diskon)}${x.kelebihan > 0 ? ' ⚠️' : ''}</span>
         </div>`;
-    }).join('') || '<p style="color:#aaa;text-align:center;padding:10px;font-size:12px;">Belum ada jamaah yang dapat diskon (semua bayar Harga Brosur penuh)</p>';
+    }).join('') || '<p style="color:#6B7280;text-align:center;padding:10px;font-size:12px;">Belum ada jamaah yang dapat diskon (semua bayar Harga Brosur penuh)</p>';
 
     modalEl.innerHTML = `<div class="modal-content" style="max-width:460px;">
         <h3 style="color:#0D5C4A;margin-bottom:4px;">📊 Analisis Buffer (B2C)</h3>
@@ -7742,7 +7766,7 @@ async function cetakKasHTML() {
         .watermark-wrap{position:absolute;top:0;left:0;width:100%;height:100%;display:flex;align-items:center;justify-content:center;pointer-events:none;z-index:0;overflow:hidden;}
         .content{position:relative;z-index:1;}
         h2{color:#0D5C4A;font-size:20px;margin-bottom:2px;}
-        .tgl{color:#aaa;font-size:11px;margin-bottom:20px;}
+        .tgl{color:#6B7280;font-size:11px;margin-bottom:20px;}
         table{width:100%;border-collapse:collapse;font-size:13px;margin-bottom:20px;}
         th{background:#0D5C4A;color:white;padding:10px 8px;text-align:left;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
         tr:nth-child(even) td{background:#f9f9f9;}
@@ -7773,7 +7797,7 @@ async function cetakKasHTML() {
     </body></html>`;
     const win = window.open('','_blank');
     if(!win) return showToast('Izinkan popup untuk cetak!');
-    win.document.write(html); injectWatermarkToPrintWin(win); win.document.close();
+    win.document.write(applyPrintTheme(html)); injectWatermarkToPrintWin(win); win.document.close();
 }
 
 
@@ -8280,7 +8304,7 @@ function cetakSurat() {
     if (!jamaah) return;
     const win = window.open('', '_blank');
     if (!win) return showToast('Izinkan popup untuk cetak!');
-    win.document.write(buildSuratHTML(jamaah));
+    win.document.write(applyPrintTheme(buildSuratHTML(jamaah)));
     injectWatermarkToPrintWin(win);
     win.document.close();
 }
@@ -9515,7 +9539,7 @@ function eksporAbsensi() {
         <button onclick="window.close()" style="background:#e2e8f0;color:#333;">✕ TUTUP</button>
     </div></body></html>`;
     const win = window.open('', '_blank');
-    win.document.write(html);
+    win.document.write(applyPrintTheme(html));
     injectWatermarkToPrintWin(win);
     win.document.close();
 }
@@ -10252,7 +10276,7 @@ function openBandingkanProgramModal() {
     modal.innerHTML = `<div class="modal-content" style="max-width:440px;">
         <h3 style="color:#0D5C4A;margin-bottom:4px;">📊 Bandingkan Performa Program</h3>
         <div style="font-size:11px;color:#888;margin-bottom:12px;">Diurutkan dari total kontrak terbesar</div>
-        <div style="max-height:420px;overflow-y:auto;">${html || '<p style="color:#aaa;text-align:center;">Belum ada Program</p>'}</div>
+        <div style="max-height:420px;overflow-y:auto;">${html || '<p style="color:#6B7280;text-align:center;">Belum ada Program</p>'}</div>
         <button onclick="document.getElementById('bandingkanProgramModal').style.display='none'" style="width:100%;padding:11px;background:#e2e8f0;color:#333;border:none;border-radius:10px;font-size:13px;cursor:pointer;margin-top:10px;">Tutup</button>
     </div>`;
     modal.style.display = 'flex';
@@ -10364,7 +10388,7 @@ function openWaMassalModal() {
                     <div style="font-size:11px;color:#888;">📱 ${escapeHtml(j.additional_fields.whatsapp)}</div>
                 </div>
                 <button onclick="kirimWaMassalPerorangan(${j.id})" style="background:#25d366;color:white;border:none;border-radius:20px;padding:7px 12px;font-size:11px;font-weight:bold;cursor:pointer;white-space:nowrap;flex-shrink:0;">📲 Kirim</button>
-            </div>`).join('') || '<p style="text-align:center;color:#aaa;font-size:13px;">Tidak ada jamaah dengan nomor WA di Program ini</p>'}
+            </div>`).join('') || '<p style="text-align:center;color:#6B7280;font-size:13px;">Tidak ada jamaah dengan nomor WA di Program ini</p>'}
         </div>
         <div style="background:#F0F9FF;border:1px solid #BAE6FD;border-radius:10px;padding:10px 12px;margin-bottom:12px;">
             <div style="font-size:11px;color:#0369A1;margin-bottom:8px;">Jumlah jamaah banyak? Kirim satu-satu di atas akan lama. Salin semua nomornya, lalu pakai fitur <b>Daftar Siaran</b> di WhatsApp Business untuk kirim ke semua sekaligus (resmi dari WhatsApp, tidak berisiko diblokir).</div>
@@ -10474,7 +10498,7 @@ function openKalenderProgramModal() {
     modal.innerHTML = `<div class="modal-content" style="max-width:440px;">
         <h3 style="color:#0D5C4A;margin-bottom:4px;">📅 Kalender Gabungan Semua Program</h3>
         <div style="font-size:11px;color:#888;margin-bottom:12px;">Program tanpa Tanggal Keberangkatan tidak ditampilkan di sini.</div>
-        <div style="max-height:420px;overflow-y:auto;">${html || '<p style="color:#aaa;text-align:center;">Belum ada Program dengan tanggal keberangkatan diisi.</p>'}</div>
+        <div style="max-height:420px;overflow-y:auto;">${html || '<p style="color:#6B7280;text-align:center;">Belum ada Program dengan tanggal keberangkatan diisi.</p>'}</div>
         <button onclick="document.getElementById('kalenderProgramModal').style.display='none'" style="width:100%;padding:11px;background:#e2e8f0;color:#333;border:none;border-radius:10px;font-size:13px;cursor:pointer;margin-top:10px;">Tutup</button>
     </div>`;
     modal.style.display = 'flex';
@@ -10533,7 +10557,7 @@ function openPencarianGlobalModal() {
         <div class="input-group" style="margin-bottom:12px;">
             <input type="text" id="pencarianGlobalInput" placeholder="Ketik nama jamaah..." oninput="renderHasilPencarianGlobal()" autofocus>
         </div>
-        <div id="hasilPencarianGlobal" style="max-height:360px;overflow-y:auto;"><p style="text-align:center;color:#aaa;font-size:13px;">Ketik untuk mulai mencari</p></div>
+        <div id="hasilPencarianGlobal" style="max-height:360px;overflow-y:auto;"><p style="text-align:center;color:#6B7280;font-size:13px;">Ketik untuk mulai mencari</p></div>
         <button onclick="document.getElementById('pencarianGlobalModal').style.display='none'" style="width:100%;padding:11px;background:#e2e8f0;color:#333;border:none;border-radius:10px;font-size:13px;cursor:pointer;margin-top:10px;">Tutup</button>
     </div>`;
     modal.style.display = 'flex';
@@ -10544,10 +10568,10 @@ function renderHasilPencarianGlobal() {
     const kw = (document.getElementById('pencarianGlobalInput')?.value || '').trim().toLowerCase();
     const container = document.getElementById('hasilPencarianGlobal');
     if(!container) return;
-    if(kw.length < 2) { container.innerHTML = '<p style="text-align:center;color:#aaa;font-size:13px;">Ketik minimal 2 huruf</p>'; return; }
+    if(kw.length < 2) { container.innerHTML = '<p style="text-align:center;color:#6B7280;font-size:13px;">Ketik minimal 2 huruf</p>'; return; }
 
     const hasil = _allJamaahData.filter(j => j.nama_lengkap.toLowerCase().includes(kw));
-    if(hasil.length === 0) { container.innerHTML = '<p style="text-align:center;color:#aaa;font-size:13px;">Tidak ditemukan</p>'; return; }
+    if(hasil.length === 0) { container.innerHTML = '<p style="text-align:center;color:#6B7280;font-size:13px;">Tidak ditemukan</p>'; return; }
 
     container.innerHTML = hasil.map(j => {
         const prog = programList.find(p => p.id === j.program_id);
@@ -10640,18 +10664,18 @@ function renderKelompokPorsiModal(modal) {
                     ${optionsProgram}
                 </select>
                 <button onclick="pindahkanKelompokPorsi('${tahun.replace(/'/g,"\\'")}', ${idsJson})" style="background:#F59E0B;color:white;border:none;border-radius:8px;padding:8px 12px;font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap;">Pindahkan</button>
-            </div>` : '<div style="font-size:11px;color:#aaa;">Buat Program lain dulu untuk bisa memindahkan kelompok ini</div>'}
+            </div>` : '<div style="font-size:11px;color:#6B7280;">Buat Program lain dulu untuk bisa memindahkan kelompok ini</div>'}
         </div>`;
     }).join('');
 
     if(tanpaPorsi > 0) {
-        html += `<div style="font-size:12px;color:#aaa;text-align:center;padding:8px;">${tanpaPorsi} jamaah belum diisi Nomor Porsi (tidak ikut dikelompokkan)</div>`;
+        html += `<div style="font-size:12px;color:#6B7280;text-align:center;padding:8px;">${tanpaPorsi} jamaah belum diisi Nomor Porsi (tidak ikut dikelompokkan)</div>`;
     }
 
     modal.innerHTML = `<div class="modal-content" style="max-width:440px;">
         <h3 style="color:#0D5C4A;margin-bottom:4px;">📊 Kelompokkan Berdasarkan Porsi</h3>
         <div style="font-size:11px;color:#888;margin-bottom:12px;">${escapeHtml(getCurrentProgram()?.nama || '-')} — berdasarkan Rentang Nomor Porsi di Konfigurasi</div>
-        <div style="max-height:400px;overflow-y:auto;">${html || '<p style="color:#aaa;text-align:center;">Tidak ada jamaah dengan Nomor Porsi yang cocok rentang manapun</p>'}</div>
+        <div style="max-height:400px;overflow-y:auto;">${html || '<p style="color:#6B7280;text-align:center;">Tidak ada jamaah dengan Nomor Porsi yang cocok rentang manapun</p>'}</div>
         <button onclick="closeKelompokPorsiModal()" style="width:100%;padding:11px;background:#e2e8f0;color:#333;border:none;border-radius:10px;font-size:13px;cursor:pointer;margin-top:10px;">Tutup</button>
     </div>`;
 }
@@ -10772,7 +10796,7 @@ function renderRekapKomisiMitraModal(modalEl) {
         <h3 style="color:#0D5C4A;margin-bottom:4px;">🤝 Rekap Komisi Mitra</h3>
         <div style="font-size:11px;color:#888;margin-bottom:4px;">${escapeHtml(getCurrentProgram()?.nama || '-')} — Kebijakan saat ini: setiap ${kebijakan.setiap} orang dapat ${kebijakan.dapat} gratis</div>
         ${!est ? '<div style="background:#FEE2E2;color:#991B1B;border-radius:8px;padding:8px;font-size:11px;margin-bottom:10px;">⚠️ Hitung Estimasi Program dulu supaya perbandingan biaya bisa tampil.</div>' : ''}
-        <div style="max-height:340px;overflow-y:auto;margin-bottom:10px;">${htmlMitra || '<p style="color:#aaa;text-align:center;padding:20px;">Belum ada jamaah yang punya data Mitra Referensi</p>'}</div>
+        <div style="max-height:340px;overflow-y:auto;margin-bottom:10px;">${htmlMitra || '<p style="color:#6B7280;text-align:center;padding:20px;">Belum ada jamaah yang punya data Mitra Referensi</p>'}</div>
         <button onclick="openSimulasiKebijakanGratisModal()" style="width:100%;padding:11px;background:#0369A1;color:white;border:none;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;margin-bottom:8px;">🧮 Simulasi Kebijakan Gratis</button>
         <button onclick="document.getElementById('rekapKomisiMitraModal').style.display='none'" style="width:100%;padding:11px;background:#e2e8f0;color:#333;border:none;border-radius:10px;font-size:13px;cursor:pointer;">Tutup</button>
     </div>`;
@@ -11154,7 +11178,7 @@ function openTambahProspekModal(id) {
         </div>
         <div class="input-group"><label>Catatan</label><textarea id="prospekCatatan" rows="3">${escapeHtml(p?.catatan || '')}</textarea></div>
         <div class="row" style="margin-top:10px;">
-            <button class="btn btn-danger" onclick="document.getElementById('prospekModal').style.display='none'" style="flex:1;">Batal</button>
+            <button class="btn btn-secondary" onclick="document.getElementById('prospekModal').style.display='none'" style="flex:1;">Batal</button>
             <button class="btn btn-primary" onclick="simpanProspek()" style="flex:1;">Simpan</button>
         </div>
     </div>`;
@@ -11229,12 +11253,12 @@ function renderProspekList() {
                     ${p.catatan ? `<div style="font-size:11px;color:#888;margin-top:4px;">${escapeHtml(p.catatan)}</div>` : ''}
                 </div>
                 <div style="display:flex;gap:6px;">
-                    <button onclick="openTambahProspekModal(${p.id})" style="border:none;background:none;color:#0369A1;font-size:14px;cursor:pointer;">✏️</button>
-                    <button onclick="hapusProspek(${p.id})" style="border:none;background:none;color:#DC2626;font-size:14px;cursor:pointer;">🗑️</button>
+                    <button onclick="openTambahProspekModal(${p.id})" style="border:none;background:none;color:#0369A1;font-size:14px;cursor:pointer;"><i class="fas fa-pen"></i></button>
+                    <button onclick="hapusProspek(${p.id})" style="border:none;background:none;color:#DC2626;font-size:14px;cursor:pointer;"><i class="fas fa-trash-alt"></i></button>
                 </div>
             </div>
             ${p.status === 'Siap Jadi Jamaah' ? `<button onclick="jadikanJamaah(${p.id})" style="width:100%;padding:8px;background:#166534;color:white;border:none;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;margin-top:8px;">→ Jadikan Jamaah</button>` : ''}
-        </div>`).join('') || '<p style="color:#aaa;text-align:center;padding:20px;font-size:13px;">Belum ada Calon Jamaah</p>';
+        </div>`).join('') || '<p style="color:#6B7280;text-align:center;padding:20px;font-size:13px;">Belum ada Calon Jamaah</p>';
 }
 
 function bangunKerangkaItinerary() {
@@ -11334,7 +11358,7 @@ function renderItineraryList() {
     const hariUrut = [...it.hari].sort((a,b) => a.nomorHari - b.nomorHari);
 
     if(hariUrut.length === 0) {
-        container.innerHTML = '<p style="color:#aaa;text-align:center;padding:20px;font-size:13px;">Belum ada Hari. Tekan "Buat/Perbarui Kerangka Hari" atau "Tambah Hari" manual.</p>';
+        container.innerHTML = '<p style="color:#6B7280;text-align:center;padding:20px;font-size:13px;">Belum ada Hari. Tekan "Buat/Perbarui Kerangka Hari" atau "Tambah Hari" manual.</p>';
         return;
     }
 
@@ -11344,15 +11368,15 @@ function renderItineraryList() {
             <div style="display:flex;gap:8px;align-items:center;margin-bottom:6px;">
                 <input type="time" value="${k.jam||''}" oninput="updateJamKegiatan(${h.id}, ${k.id}, 'jam', this.value)" style="width:90px;padding:8px;border-radius:8px;border:1.5px solid #ddd;font-size:13px;">
                 <input type="text" value="${escapeHtml(k.keterangan||'')}" placeholder="Kegiatan..." oninput="updateJamKegiatan(${h.id}, ${k.id}, 'keterangan', this.value)" style="flex:1;padding:8px;border-radius:8px;border:1.5px solid #ddd;font-size:13px;">
-                <button onclick="hapusJamKegiatan(${h.id}, ${k.id})" style="border:none;background:none;color:#DC2626;font-size:15px;cursor:pointer;">🗑️</button>
+                <button onclick="hapusJamKegiatan(${h.id}, ${k.id})" style="border:none;background:none;color:#DC2626;font-size:15px;cursor:pointer;"><i class="fas fa-trash-alt"></i></button>
             </div>`).join('');
 
         return `<div style="background:#F8FAFC;border-radius:12px;padding:12px;margin-bottom:12px;">
             <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
                 <div><span style="font-weight:800;color:#0D5C4A;font-size:14px;">Hari ${h.nomorHari}</span> <span style="font-size:12px;color:#666;">— ${tglText}</span></div>
-                <button onclick="hapusHariItinerary(${h.id})" style="border:none;background:none;color:#DC2626;font-size:14px;cursor:pointer;">🗑️</button>
+                <button onclick="hapusHariItinerary(${h.id})" style="border:none;background:none;color:#DC2626;font-size:14px;cursor:pointer;"><i class="fas fa-trash-alt"></i></button>
             </div>
-            ${kegiatanHtml || '<p style="color:#aaa;font-size:12px;">Belum ada kegiatan di Hari ini</p>'}
+            ${kegiatanHtml || '<p style="color:#6B7280;font-size:12px;">Belum ada kegiatan di Hari ini</p>'}
             <button onclick="tambahJamKegiatan(${h.id})" style="width:100%;padding:7px;background:#E0F2FE;color:#0369A1;border:none;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;margin-top:4px;">+ Tambah Jam</button>
         </div>`;
     }).join('');
@@ -11442,7 +11466,7 @@ function openDashboardTrenModal() {
     modal.innerHTML = `<div class="modal-content" style="max-width:440px;">
         <h3 style="color:#0D5C4A;margin-bottom:4px;">📈 Dashboard Tren Tahunan</h3>
         <div style="font-size:11px;color:#888;margin-bottom:12px;">Dikelompokkan dari Tanggal Keberangkatan tiap Program. Umroh/Haji Khusus dan Haji Reguler dihitung terpisah karena beda struktur.</div>
-        <div style="max-height:420px;overflow-y:auto;">${html || '<p style="color:#aaa;text-align:center;">Belum ada Program</p>'}</div>
+        <div style="max-height:420px;overflow-y:auto;">${html || '<p style="color:#6B7280;text-align:center;">Belum ada Program</p>'}</div>
         <button onclick="document.getElementById('dashboardTrenModal').style.display='none'" style="width:100%;padding:11px;background:#e2e8f0;color:#333;border:none;border-radius:10px;font-size:13px;cursor:pointer;margin-top:10px;">Tutup</button>
     </div>`;
     modal.style.display = 'flex';
@@ -11592,7 +11616,7 @@ async function cetakRekapKategori() {
         });
         if(kosong > 0) {
             const persenKosong = total > 0 ? ((kosong/total)*100).toFixed(1) : 0;
-            rowsHtml += `<tr><td style="padding:8px;border-bottom:1px solid #eee;color:#999;font-style:italic;">(Belum diisi)</td><td style="padding:8px;border-bottom:1px solid #eee;text-align:center;font-weight:bold;color:#999;">${kosong}</td><td style="padding:8px;border-bottom:1px solid #eee;text-align:center;color:#888;">${persenKosong}%</td></tr>`;
+            rowsHtml += `<tr><td style="padding:8px;border-bottom:1px solid #eee;color:#6B7280;font-style:italic;">(Belum diisi)</td><td style="padding:8px;border-bottom:1px solid #eee;text-align:center;font-weight:bold;color:#6B7280;">${kosong}</td><td style="padding:8px;border-bottom:1px solid #eee;text-align:center;color:#888;">${persenKosong}%</td></tr>`;
         }
 
         sectionsHtml += `
@@ -11638,7 +11662,7 @@ async function cetakRekapKategori() {
 
     const win = window.open('', '_blank');
     if(!win) { showToast('Izinkan popup untuk cetak!'); return; }
-    win.document.write(html);
+    win.document.write(applyPrintTheme(html));
     injectWatermarkToPrintWin(win);
     win.document.close();
     document.getElementById('rekapKategoriModal').style.display = 'none';
@@ -12024,7 +12048,7 @@ function filterPilihJamaahKita() {
     if (!container) return;
     const filtered = jamaahList.filter(j => j.nama_lengkap.toLowerCase().includes(q));
     if (filtered.length === 0) {
-        container.innerHTML = '<div style="padding:10px;color:#999;text-align:center;font-size:13px;">Tidak ada jamaah ditemukan</div>';
+        container.innerHTML = '<div style="padding:10px;color:#6B7280;text-align:center;font-size:13px;">Tidak ada jamaah ditemukan</div>';
         return;
     }
     container.innerHTML = filtered.map((j, idx) => {
@@ -12033,7 +12057,7 @@ function filterPilihJamaahKita() {
             <input type="checkbox" value="${j.id}" ${sudahAda?'disabled checked':''}
                 onchange="updateJumlahDipilihKita()"
                 style="width:18px;height:18px;accent-color:#0D5C4A;cursor:${sudahAda?'default':'pointer'};">
-            <span style="font-size:13px;${sudahAda?'color:#aaa;':''}">
+            <span style="font-size:13px;${sudahAda?'color:#6B7280;':''}">
                 ${escapeHtml(j.nama_lengkap)}
                 ${sudahAda?'<span style="color:#10B981;font-size:11px;margin-left:4px;">✅ Sudah ada</span>':''}
             </span>
@@ -12255,7 +12279,7 @@ function cetakRekapOnProses() {
         table{width:100%;border-collapse:collapse;font-size:12px;}
         thead th{background:#0D5C4A;color:white;padding:9px 8px;text-align:left;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
         thead th:first-child{text-align:center;width:36px;}
-        .footer{text-align:center;margin-top:16px;font-size:11px;color:#999;border-top:1px solid #eee;padding-top:10px;}
+        .footer{text-align:center;margin-top:16px;font-size:11px;color:#6B7280;border-top:1px solid #eee;padding-top:10px;}
         .no-print{text-align:center;margin-top:20px;}
         .no-print button{padding:10px 28px;margin:0 6px;border:none;border-radius:10px;font-size:14px;font-weight:bold;cursor:pointer;}
         @page{size:A4 portrait;margin:10mm 12mm;}@media print{*{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important;}html{width:210mm;}body{background:white;padding:0;margin:0;width:210mm;}.box{box-shadow:none;border-radius:0;max-width:none;width:100%;}.no-print{display:none!important;}}
@@ -12284,7 +12308,7 @@ function cetakRekapOnProses() {
     </body></html>`;
 
     const win = window.open('', '_blank');
-    win.document.write(html);
+    win.document.write(applyPrintTheme(html));
     injectWatermarkToPrintWin(win);
     win.document.close();
 }
@@ -12439,7 +12463,7 @@ function cetakLabelJamaahKita() {
         .card-fields{margin-bottom:3px;}
         .field-row{font-size:9.5px;color:#444;margin:1px 0;line-height:1.4;}
         .card-wa{background:#f0f7f4;padding:3px 6px;border-radius:4px;margin-top:3px;font-size:9.5px;word-break:break-all;}
-        .card-footer{text-align:center;margin-top:5px;font-size:8px;color:#999;}
+        .card-footer{text-align:center;margin-top:5px;font-size:8px;color:#6B7280;}
         .no-print{text-align:center;margin-top:16px;padding:12px;}
         .no-print button{padding:10px 28px;margin:0 6px;border:none;border-radius:10px;font-size:14px;font-weight:bold;cursor:pointer;}
         @page{size:A4 portrait;margin:10mm 12mm;}
@@ -12462,7 +12486,7 @@ function cetakLabelJamaahKita() {
     </body></html>`;
     const win = window.open('','_blank');
     if (!win) { showToast('Izinkan popup untuk cetak!'); return; }
-    win.document.write(html);
+    win.document.write(applyPrintTheme(html));
     injectWatermarkToPrintWin(win);
     win.document.close();
 }
@@ -12547,7 +12571,7 @@ async function printGroupedPDFJamaahKita() {
         td{border-bottom:1px solid #eee;padding:8px;}
         tr{page-break-inside:avoid;}
         tr:nth-child(even) td{background:#f9f9f9;}
-        .footer{text-align:center;margin-top:20px;font-size:11px;color:#999;border-top:1px solid #ddd;padding-top:10px;}
+        .footer{text-align:center;margin-top:20px;font-size:11px;color:#6B7280;border-top:1px solid #ddd;padding-top:10px;}
         .no-print{text-align:center;margin-top:20px;}
         .no-print button{padding:10px 28px;margin:0 6px;border:none;border-radius:10px;font-size:14px;font-weight:bold;cursor:pointer;}
         @page{size:A4 portrait;margin:10mm 12mm;}@media print{*{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important;}html{width:210mm;}body{background:white;padding:0;margin:0;width:210mm;}.box{box-shadow:none;border-radius:0;max-width:none;width:100%;}.no-print{display:none!important;}}
@@ -12586,7 +12610,7 @@ async function printGroupedPDFJamaahKita() {
     <script>// Auto-print removed;<\/script>
     </body></html>`;
     const win = window.open("", "_blank");
-    win.document.write(html);
+    win.document.write(applyPrintTheme(html));
     injectWatermarkToPrintWin(win);
     win.document.close();
 }
@@ -12622,7 +12646,7 @@ function renderJamaahKitaFieldsList() {
     }
 
     html += '<div style="font-size:12px;font-weight:bold;color:var(--primary);margin:10px 0 6px;">Daftar Field & Pilih Cetak:</div>';
-    if (dynamicFieldsJamaahKita.length === 0) { container.innerHTML = html + '<p style="color:#999;font-size:13px;">Belum ada field.</p>'; return; }
+    if (dynamicFieldsJamaahKita.length === 0) { container.innerHTML = html + '<p style="color:#6B7280;font-size:13px;">Belum ada field.</p>'; return; }
     dynamicFieldsJamaahKita.forEach((f, idx) => {
         const isProtected = f.name === 'whatsapp';
         const checked = saved.length === 0 || saved.includes(f.name);
@@ -12757,7 +12781,7 @@ function renderOnProsesFieldPrintSelector() {
     if (!container) return;
     const saved = JSON.parse(localStorage.getItem('navara_onproses_print_fields') || '[]');
     if (dynamicFieldsJamaahKita.length === 0) {
-        container.innerHTML = '<div style="color:#999;font-size:13px;">Belum ada field dinamis.</div>';
+        container.innerHTML = '<div style="color:#6B7280;font-size:13px;">Belum ada field dinamis.</div>';
         return;
     }
     container.innerHTML = dynamicFieldsJamaahKita.map(f => {
@@ -12961,7 +12985,7 @@ async function cetakLaporanZakat() {
         body{font-family:Arial,sans-serif;background:#f0f0f0;padding:20px;}
         .box{background:white;max-width:680px;margin:0 auto;border-radius:16px;padding:30px;box-shadow:0 2px 16px rgba(0,0,0,0.1);}
         h2{color:#0D5C4A;font-size:20px;margin-bottom:2px;text-align:center;}
-        .tgl{text-align:center;color:#aaa;font-size:11px;margin-bottom:20px;}
+        .tgl{text-align:center;color:#6B7280;font-size:11px;margin-bottom:20px;}
         .info{font-size:13px;color:#555;line-height:2;margin-bottom:16px;background:#f8f8f8;border-radius:10px;padding:12px;}
         table{width:100%;border-collapse:collapse;font-size:13px;margin-bottom:20px;}
         th{background:#0D5C4A;color:white;padding:10px 8px;text-align:left;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
@@ -13000,7 +13024,7 @@ async function cetakLaporanZakat() {
     </body></html>`;
     const win = window.open('','_blank');
     if(!win) return showToast('Izinkan popup untuk cetak!');
-    win.document.write(html); injectWatermarkToPrintWin(win); win.document.close();
+    win.document.write(applyPrintTheme(html)); injectWatermarkToPrintWin(win); win.document.close();
 }
 
 function salinFallback(text) {
@@ -13556,7 +13580,7 @@ async function cetakInvoiceAuto(jamaahId) {
         transaksiList.forEach((t,i) => {
             rowsHtml += `<tr><td style="padding:8px;border-bottom:1px solid #eee;text-align:center;">${i+1}</td><td style="padding:8px;border-bottom:1px solid #eee;">${t.tanggal}</td><td style="padding:8px;border-bottom:1px solid #eee;">${t.keterangan||'-'}</td><td style="padding:8px;border-bottom:1px solid #eee;">${t.metode||'-'}</td><td style="padding:8px;border-bottom:1px solid #eee;text-align:right;">${formatRupiah(t.nominal)}</td></tr>`;
         });
-        if(!transaksiList.length) rowsHtml = `<tr><td colspan="5" style="padding:12px;text-align:center;color:#999;">Belum ada transaksi</td></tr>`;
+        if(!transaksiList.length) rowsHtml = `<tr><td colspan="5" style="padding:12px;text-align:center;color:#6B7280;">Belum ada transaksi</td></tr>`;
         const html = `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Invoice - ${jamaah.nama_lengkap}</title>
         <style>
             *{margin:0;padding:0;box-sizing:border-box;}
@@ -13617,7 +13641,7 @@ async function cetakInvoiceAuto(jamaahId) {
         </body></html>`;
         const win = window.open('','_blank');
         if(!win){showToast('Izinkan popup untuk cetak!');return;}
-        win.document.write(html); injectWatermarkToPrintWin(win); win.document.close();
+        win.document.write(applyPrintTheme(html)); injectWatermarkToPrintWin(win); win.document.close();
     } catch(e){showToast('Gagal cetak: '+e.message);console.error(e);}
 }
 
@@ -13753,7 +13777,7 @@ function renderJadwalCicilanModal(jamaahId, modalEl) {
         <div style="background:#F8FAFC;border-radius:10px;padding:10px 12px;margin-bottom:8px;">
             <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
                 <span style="font-weight:700;font-size:13px;">Termin ${i+1}</span>
-                <button onclick="hapusTerminCicilan('${jamaahId}', ${t.id})" style="border:none;background:none;color:#DC2626;font-size:13px;cursor:pointer;">🗑️</button>
+                <button onclick="hapusTerminCicilan('${jamaahId}', ${t.id})" style="border:none;background:none;color:#DC2626;font-size:13px;cursor:pointer;"><i class="fas fa-trash-alt"></i></button>
             </div>
             <div style="display:flex;gap:8px;margin-bottom:6px;">
                 <input type="date" value="${t.tanggal||''}" onchange="updateTerminCicilan('${jamaahId}', ${t.id}, 'tanggal', this.value)" style="flex:1;padding:8px;border-radius:8px;border:1.5px solid #ddd;font-size:12px;">
@@ -13768,7 +13792,7 @@ function renderJadwalCicilanModal(jamaahId, modalEl) {
         <h3 style="color:#0D5C4A;margin-bottom:4px;">📅 Jadwal Cicilan</h3>
         <div style="font-size:12px;color:#888;margin-bottom:12px;">${escapeHtml(j.nama_lengkap)} — status otomatis mengikuti data Pembayaran sungguhan</div>
         <div id="cicilanPeringatanTotal" style="${peringatanTotal ? '' : 'display:none;'}background:#FEF3C7;border:1px solid #F59E0B;border-radius:8px;padding:8px 10px;font-size:11px;color:#92400E;margin-bottom:10px;">${peringatanTotal}</div>
-        <div id="cicilanRowsContainer" style="max-height:320px;overflow-y:auto;">${rows || '<p style="color:#aaa;text-align:center;padding:14px;font-size:12px;">Belum ada Termin</p>'}</div>
+        <div id="cicilanRowsContainer" style="max-height:320px;overflow-y:auto;">${rows || '<p style="color:#6B7280;text-align:center;padding:14px;font-size:12px;">Belum ada Termin</p>'}</div>
         <button onclick="tambahTerminCicilan('${jamaahId}')" style="width:100%;padding:10px;background:#E0F2FE;color:#0369A1;border:none;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;margin-top:8px;">+ Tambah Termin</button>
         <button onclick="document.getElementById('jadwalCicilanModal').style.display='none'" style="width:100%;padding:11px;background:#e2e8f0;color:#333;border:none;border-radius:10px;font-size:13px;cursor:pointer;margin-top:10px;">Tutup</button>
     </div>`;
@@ -13982,7 +14006,7 @@ async function cetakPembayaranHTML() {
         .watermark-wrap{position:absolute;top:0;left:0;width:100%;height:100%;display:flex;align-items:center;justify-content:center;pointer-events:none;z-index:0;overflow:hidden;}
         .content{position:relative;z-index:1;}
         h2{color:#0D5C4A;font-size:20px;margin-bottom:2px;}
-        .tgl{color:#aaa;font-size:11px;margin-bottom:20px;}
+        .tgl{color:#6B7280;font-size:11px;margin-bottom:20px;}
         table{width:100%;border-collapse:collapse;font-size:13px;margin-bottom:20px;}
         th{background:#0D5C4A;color:white;padding:10px 8px;text-align:left;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
         tr:nth-child(even) td{background:#f9f9f9;}
@@ -14009,7 +14033,7 @@ async function cetakPembayaranHTML() {
     </body></html>`;
     const win = window.open('','_blank');
     if(!win) return showToast('Izinkan popup untuk cetak!');
-    win.document.write(html); injectWatermarkToPrintWin(win); win.document.close();
+    win.document.write(applyPrintTheme(html)); injectWatermarkToPrintWin(win); win.document.close();
 }
 
 
@@ -14153,7 +14177,7 @@ function renderKomponenHajiList() {
         <div style="display:flex;gap:8px;align-items:center;margin-bottom:8px;">
             <input type="text" value="${escapeHtml(k.jenis)}" oninput="updateKomponenHaji(${i}, 'jenis', this.value)" placeholder="Nama Komponen" style="flex:1;padding:9px;border-radius:8px;border:1.5px solid #ddd;font-size:13px;">
             <input type="text" class="money-input" inputmode="numeric" value="${k.harga?k.harga.toLocaleString('id-ID'):''}" oninput="updateKomponenHaji(${i}, 'harga', this.value)" placeholder="Harga Seragam" style="flex:1;padding:9px;border-radius:8px;border:1.5px solid #ddd;font-size:13px;">
-            <button onclick="hapusKomponenHaji(${i})" style="border:none;background:none;color:#DC2626;font-size:14px;cursor:pointer;">🗑️</button>
+            <button onclick="hapusKomponenHaji(${i})" style="border:none;background:none;color:#DC2626;font-size:14px;cursor:pointer;"><i class="fas fa-trash-alt"></i></button>
         </div>`).join('');
 }
 
@@ -14215,7 +14239,7 @@ function renderProgramListInModal() {
                 <span style="width:10px;height:10px;border-radius:50%;background:${color};flex-shrink:0;"></span>
                 <div style="flex:1;overflow:hidden;">
                     <div style="font-size:14px;font-weight:${active ? '700' : '500'};">${PROGRAM_ICON[p.jenis]||'📁'} ${escapeHtml(p.nama)}</div>
-                    <div style="font-size:10px;color:#999;">${jumlahJamaah} jamaah</div>
+                    <div style="font-size:10px;color:#6B7280;">${jumlahJamaah} jamaah</div>
                 </div>
                 ${active ? '<span style="color:#0D5C4A;font-weight:700;">✓</span>' : ''}
             </div>
@@ -14456,7 +14480,7 @@ function openTambahLayananModal(id) {
             </select>
         </div>
         <div class="row" style="margin-top:10px;">
-            <button class="btn btn-danger" onclick="document.getElementById('layananModal').style.display='none'" style="flex:1;">Batal</button>
+            <button class="btn btn-secondary" onclick="document.getElementById('layananModal').style.display='none'" style="flex:1;">Batal</button>
             <button class="btn btn-primary" onclick="simpanLayananTambahan()" style="flex:1;">Simpan</button>
         </div>
     </div>`;
@@ -14544,8 +14568,8 @@ function renderLayananTambahanList() {
                     ${jamaahNama ? `<div style="font-size:11px;color:#0369A1;">Terkait Jamaah: ${escapeHtml(jamaahNama)}</div>` : ''}
                 </div>
                 <div style="display:flex;gap:6px;">
-                    <button onclick="openTambahLayananModal(${l.id})" style="border:none;background:none;color:#0369A1;font-size:14px;cursor:pointer;">✏️</button>
-                    <button onclick="hapusLayananTambahan(${l.id})" style="border:none;background:none;color:#DC2626;font-size:14px;cursor:pointer;">🗑️</button>
+                    <button onclick="openTambahLayananModal(${l.id})" style="border:none;background:none;color:#0369A1;font-size:14px;cursor:pointer;"><i class="fas fa-pen"></i></button>
+                    <button onclick="hapusLayananTambahan(${l.id})" style="border:none;background:none;color:#DC2626;font-size:14px;cursor:pointer;"><i class="fas fa-trash-alt"></i></button>
                 </div>
             </div>
             <div style="margin-top:8px;font-size:12px;color:#444;line-height:1.6;">
@@ -14554,7 +14578,7 @@ function renderLayananTambahanList() {
                 <span style="font-weight:700;color:${profit>=0?'#166534':'#DC2626'};">Profit: ${f(profit)}</span> — ${l.status==='Lunas'?'✅ Lunas':'⚪ Belum Lunas'}
             </div>
         </div>`;
-    }).join('') || '<p style="color:#aaa;text-align:center;padding:20px;font-size:13px;">Belum ada Layanan Tambahan untuk Program ini</p>';
+    }).join('') || '<p style="color:#6B7280;text-align:center;padding:20px;font-size:13px;">Belum ada Layanan Tambahan untuk Program ini</p>';
 
     container.innerHTML = html;
     const totalEl = document.getElementById('layananTotalProfit');
@@ -14578,7 +14602,7 @@ function renderAlumniList() {
             <div style="font-size:12px;color:#666;">${escapeHtml(a.hp||'-')}</div>
             <div style="font-size:11px;color:#0369A1;margin-top:4px;">Riwayat: ${a.riwayatProgram.map(escapeHtml).join(', ')} (${a.jumlahIkut}x)</div>
             ${a.hp ? `<button onclick="window.open('https://wa.me/${a.hp.replace(/\\D/g,'').replace(/^0/,'62')}','_blank')" style="width:100%;padding:8px;background:#25D366;color:white;border:none;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;margin-top:8px;">📲 WA</button>` : ''}
-        </div>`).join('') || '<p style="color:#aaa;text-align:center;padding:20px;font-size:13px;">Belum ada Alumni — arsipkan Program dulu supaya jamaahnya muncul di sini</p>';
+        </div>`).join('') || '<p style="color:#6B7280;text-align:center;padding:20px;font-size:13px;">Belum ada Alumni — arsipkan Program dulu supaya jamaahnya muncul di sini</p>';
 }
 
 function renderArsipProgramList() {
@@ -14596,7 +14620,7 @@ function renderArsipProgramList() {
                 <button onclick="batalkanArsipProgram('${p.id}')" style="flex:1;padding:8px;background:#166534;color:white;border:none;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;">↩️ Batalkan Arsip</button>
             </div>
         </div>`;
-    }).join('') || '<p style="color:#aaa;text-align:center;padding:20px;font-size:13px;">Belum ada Program yang diarsipkan</p>';
+    }).join('') || '<p style="color:#6B7280;text-align:center;padding:20px;font-size:13px;">Belum ada Program yang diarsipkan</p>';
 }
 
 function openEditProgramForm(id) {
@@ -14869,7 +14893,7 @@ function renderCatatanList() {
     list.sort((a,b) => (b.pinned?1:0) - (a.pinned?1:0));
 
     if(list.length === 0) {
-        container.innerHTML = `<div style="text-align:center;padding:40px 20px;color:#999;">
+        container.innerHTML = `<div style="text-align:center;padding:40px 20px;color:#6B7280;">
             <div style="font-size:40px;margin-bottom:12px;">📝</div>
             <div>${keyword ? 'Tidak ada catatan yang cocok dengan "' + keyword + '"' : 'Belum ada catatan'}</div>
             ${!keyword ? '<div style="font-size:13px;margin-top:8px;">Ketuk tombol ＋ untuk mulai menulis</div>' : ''}
@@ -15188,7 +15212,7 @@ function openFolderDetail(folderId) {
     // FIELD DINAMIS
     const fields = folder.fields || [];
     html += `<div class="section-title">📝 Informasi Folder</div><div id="folderFieldList" style="margin-bottom:10px;">`;
-    if(fields.length === 0) html += `<p class="text-center" style="color:#999;font-size:13px;">Belum ada field. Tambahkan informasi di bawah.</p>`;
+    if(fields.length === 0) html += `<p class="text-center" style="color:#6B7280;font-size:13px;">Belum ada field. Tambahkan informasi di bawah.</p>`;
     fields.forEach((fd, i) => {
         html += `<div class="jamaah-card" style="padding:10px 14px;margin-bottom:8px;"><div style="display:flex;justify-content:space-between;align-items:center;"><div><span style="font-weight:bold;color:#0D5C4A;">${escapeHtml(fd.label)}:</span> <span>${escapeHtml(fd.value)}</span></div><div style="display:flex;gap:6px;"><button class="btn-edit-jamaah" onclick="editFolderField('${folderId}',${i})" style="padding:4px 8px;font-size:11px;"><i class="fas fa-edit"></i></button><button class="btn-delete-jamaah" onclick="deleteFolderField('${folderId}',${i})" style="padding:4px 8px;font-size:11px;"><i class="fas fa-trash"></i></button></div></div></div>`;
     });
@@ -15213,7 +15237,7 @@ function openFolderDetail(folderId) {
             <button onclick="event.stopPropagation();hapusPilihanFolderField('${folderId}')" style="flex:1;padding:8px;background:#e2e8f0;color:#333;border:none;border-radius:8px;font-size:12px;cursor:pointer;">❌ Hapus Pilihan</button>
         </div>`;
     if(allDynFields.length === 0) {
-        html += `<p style="color:#999;font-size:13px;">Belum ada field dinamis jamaah.</p>`;
+        html += `<p style="color:#6B7280;font-size:13px;">Belum ada field dinamis jamaah.</p>`;
     } else {
         orderedFields.forEach((fd, idx) => {
             const checked = selectedFields.includes(fd.name) ? 'checked' : '';
@@ -15279,7 +15303,7 @@ function renderFolderJamaahSection(folderId) {
     </div>
     <div id="multiFolderJamaahSelect" style="max-height:200px;overflow-y:auto;border:1px solid #ddd;border-radius:10px;padding:8px;background:var(--card-bg);">${
         availableJamaah.length === 0
-            ? '<p style="color:#999;font-size:13px;text-align:center;padding:8px;">Semua jamaah sudah ada di folder ini.</p>'
+            ? '<p style="color:#6B7280;font-size:13px;text-align:center;padding:8px;">Semua jamaah sudah ada di folder ini.</p>'
             : availableJamaah.map(j => `
         <label style="display:flex;align-items:center;gap:10px;padding:8px 6px;border-bottom:1px solid #eee;cursor:pointer;">
             <input type="checkbox" value="${j.id}" onchange="updateJumlahDipilihFolder()" style="width:18px;height:18px;accent-color:#0D5C4A;cursor:pointer;">
@@ -15516,7 +15540,7 @@ function renderFolderFieldSelector(folderId) {
             <button onclick="event.stopPropagation();hapusPilihanFolderField('${folderId}')" style="flex:1;padding:8px;background:#e2e8f0;color:#333;border:none;border-radius:8px;font-size:12px;cursor:pointer;">❌ Hapus Pilihan</button>
         </div>`;
     if (allDynFields.length === 0) {
-        html += `<p style="color:#999;font-size:13px;">Belum ada field dinamis jamaah.</p>`;
+        html += `<p style="color:#6B7280;font-size:13px;">Belum ada field dinamis jamaah.</p>`;
     } else {
         orderedFields.forEach((fd, idx) => {
             const checked = selectedFields.includes(fd.name) ? 'checked' : '';
@@ -15586,7 +15610,7 @@ async function exportFolderToPDF(folderId) {
         th{background:#0D5C4A;color:white;padding:10px 8px;text-align:left;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
         tr{page-break-inside:avoid;}
         tr:nth-child(even) td{background:#f9f9f9;}
-        .footer{text-align:center;font-size:11px;color:#999;margin-top:16px;}
+        .footer{text-align:center;font-size:11px;color:#6B7280;margin-top:16px;}
         .no-print{text-align:center;margin-top:24px;}
         .no-print button{padding:12px 32px;margin:0 8px;border:none;border-radius:10px;font-size:14px;font-weight:bold;cursor:pointer;}
         @page{size:A4 portrait;margin:10mm 12mm;}@media print{*{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important;}html{width:210mm;}body{background:white;padding:0;margin:0;width:210mm;}.box{box-shadow:none;border-radius:0;max-width:none;width:100%;}.no-print{display:none!important;}}
@@ -15607,7 +15631,7 @@ async function exportFolderToPDF(folderId) {
     </body></html>`;
     const win = window.open('','_blank');
     if(!win) return showToast('Izinkan popup untuk cetak!');
-    win.document.write(html);
+    win.document.write(applyPrintTheme(html));
     injectWatermarkToPrintWin(win);
     win.document.close();
 }
@@ -15908,7 +15932,7 @@ function renderDokumenList() {
                         style="width:36px;height:36px;object-fit:cover;border-radius:6px;cursor:pointer;border:2px solid #0D5C4A;">`;
                 });
                 html += `<div onclick="uploadDokumen(${j.id},'${jenis.id}','${escapeHtml(jenis.nama)}')"
-                    style="width:36px;height:36px;border-radius:6px;border:2px dashed #ccc;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:18px;color:#aaa;">+</div>`;
+                    style="width:36px;height:36px;border-radius:6px;border:2px dashed #ccc;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:18px;color:#6B7280;">+</div>`;
                 html += `</div>
                 <div class="dokumen-status-ada">✅ ${count} foto</div>`;
             } else {
@@ -16212,7 +16236,7 @@ async function bukaDocPenuh() {
             // Render PDF semua halaman ke gambar via PDF.js → bisa cetak
             const win = window.open('', '_blank');
             if(!win) { URL.revokeObjectURL(blobUrl); return showToast('Izinkan popup untuk membuka dokumen'); }
-            win.document.write(`<!DOCTYPE html><html><head>
+            const __printHtml3 = `<!DOCTYPE html><html><head>
                 <meta charset="UTF-8">
                 <meta name="viewport" content="width=device-width,initial-scale=1.0">
                 <title>${judul}</title>
@@ -16263,14 +16287,14 @@ async function bukaDocPenuh() {
                     }
                 })();
                 <\/script>
-            </body></html>`);
+            </body></html>`; win.document.write(applyPrintTheme(__printHtml3));
             win.document.close();
             setTimeout(() => URL.revokeObjectURL(blobUrl), 30000);
         } else {
             // Gambar: buka di halaman HTML dengan zoom + cetak
             const win = window.open('', '_blank');
             if(!win) { URL.revokeObjectURL(blobUrl); return showToast('Izinkan popup untuk membuka dokumen'); }
-            win.document.write(`<!DOCTYPE html><html><head>
+            const __printHtml4 = `<!DOCTYPE html><html><head>
                 <meta charset="UTF-8">
                 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
                 <title>${judul}</title>
@@ -16295,7 +16319,7 @@ async function bukaDocPenuh() {
                 </div>
                 <div class="img-wrap"><img src="${blobUrl}" alt="${judul}" onload="this.style.opacity=1" style="opacity:0;transition:opacity 0.3s;"></div>
                 <div class="hint">Cubit untuk zoom • Tekan lama gambar → Bagikan → Google Lens</div>
-            </body></html>`);
+            </body></html>`; win.document.write(applyPrintTheme(__printHtml4));
             win.document.close();
             // Bersihkan blob URL saat tab ditutup
             win.addEventListener('unload', () => URL.revokeObjectURL(blobUrl));
@@ -17399,7 +17423,7 @@ async function cetakTiketMulti() {
         + '.tiket-nama{font-size:11px;font-weight:bold;color:#0D5C4A;text-transform:uppercase;margin-bottom:4px;}'
         + '.tiket-paket{font-size:9.5px;color:#888;border-bottom:1px dashed #ccc;padding-bottom:6px;margin-bottom:6px;}'
         + '.tiket-qr img{display:block;margin:0 auto;}'
-        + '.tiket-footer{margin-top:6px;font-size:8px;color:#999;}'
+        + '.tiket-footer{margin-top:6px;font-size:8px;color:#6B7280;}'
         + '.no-print{text-align:center;margin-top:16px;padding:12px;}'
         + '.no-print button{padding:10px 28px;margin:0 6px;border:none;border-radius:10px;font-size:14px;font-weight:bold;cursor:pointer;}'
         + '@media print{'
@@ -17416,7 +17440,7 @@ async function cetakTiketMulti() {
         + '</div>'
         + '<scr' + 'ipt>// Auto-print removed;</scr' + 'ipt>'
         + '</body></html>';
-    win.document.write(htmlAll);
+    win.document.write(applyPrintTheme(htmlAll));
     injectWatermarkToPrintWin(win);
     win.document.close();
 }
@@ -17764,7 +17788,7 @@ function printLabelPreview() {
         </div>
         <scr` + `ipt>// Auto-print removed;<\/scr` + `ipt>
     </body></html>`;
-    printWindow.document.write(html);
+    printWindow.document.write(applyPrintTheme(html));
     injectWatermarkToPrintWin(printWindow);
     printWindow.document.close();
 }
@@ -18102,7 +18126,7 @@ async function buildPrintQR(cfg, qrText) {
         const canvas = document.createElement('canvas');
         await QRCode.toCanvas(canvas, qrText, { width: 90, height: 90 });
         const dataUrl = canvas.toDataURL('image/png');
-        return `<div style="text-align:right;margin-top:24px;"><img src="${dataUrl}" style="width:80px;height:80px;"><div style="font-size:10px;color:#999;margin-top:4px;">Dokumen Resmi</div></div>`;
+        return `<div style="text-align:right;margin-top:24px;"><img src="${dataUrl}" style="width:80px;height:80px;"><div style="font-size:10px;color:#6B7280;margin-top:4px;">Dokumen Resmi</div></div>`;
     } catch(e) { return ''; }
 }
 
@@ -18527,7 +18551,7 @@ function openAssignItemMassalModal() {
             </table>
         </div>
         <div class="row" style="margin-top:12px;">
-            <button class="btn btn-danger" onclick="document.getElementById('assignItemMassalModal').style.display='none'" style="flex:1;">Tutup</button>
+            <button class="btn btn-secondary" onclick="document.getElementById('assignItemMassalModal').style.display='none'" style="flex:1;">Tutup</button>
             <button class="btn btn-primary" onclick="simpanAssignItemMassal()" style="flex:1;">💾 Simpan Semua</button>
         </div>
     </div>`;
@@ -18595,7 +18619,7 @@ function openPilihItemKontrolModal() {
         <div style="font-size:12px;color:#888;margin-bottom:12px;">Pilih Item mana saja yang mau ditampilkan sebagai kolom ceklis kosong:</div>
         <div style="max-height:280px;overflow-y:auto;">${checkboxes}</div>
         <div class="row" style="margin-top:12px;">
-            <button class="btn btn-danger" onclick="document.getElementById('pilihItemKontrolModal').style.display='none'" style="flex:1;">Batal</button>
+            <button class="btn btn-secondary" onclick="document.getElementById('pilihItemKontrolModal').style.display='none'" style="flex:1;">Batal</button>
             <button class="btn btn-primary" onclick="cetakKontrolLapangan()" style="flex:1;">🖨️ Cetak</button>
         </div>
     </div>`;
@@ -18680,7 +18704,7 @@ async function cetakMasterHTML() {
         th{background:#0D5C4A;color:white;padding:10px 8px;text-align:left;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
         tr{page-break-inside:avoid;}
         tr:nth-child(even) td{background:#f9f9f9;}
-        .footer{text-align:center;font-size:11px;color:#999;margin-top:16px;border-top:1px solid #eee;padding-top:12px;}
+        .footer{text-align:center;font-size:11px;color:#6B7280;margin-top:16px;border-top:1px solid #eee;padding-top:12px;}
         .no-print{text-align:center;margin-top:24px;}
         .no-print button{padding:12px 32px;margin:0 8px;border:none;border-radius:10px;font-size:14px;font-weight:bold;cursor:pointer;}
         @page{size:A4 portrait;margin:10mm 12mm;}@media print{*{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important;}html{width:210mm;}body{background:white;padding:0;margin:0;width:210mm;}.box{box-shadow:none;border-radius:0;max-width:none;width:100%;}.no-print{display:none!important;}}
@@ -18700,7 +18724,7 @@ async function cetakMasterHTML() {
     </body></html>`;
     const win = window.open('','_blank');
     if(!win) return showToast('Izinkan popup untuk cetak!');
-    win.document.write(html);
+    win.document.write(applyPrintTheme(html));
     injectWatermarkToPrintWin(win);
     win.document.close();
 }
