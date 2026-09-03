@@ -132,14 +132,14 @@
         /* Page Transitions */
         .page {
             display: none;
-            animation: fadeIn 0.25s ease;
+            animation: fadeIn 0.38s cubic-bezier(0.22,1,0.36,1);
         }
         .page.active {
             display: block;
         }
         @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(8px); }
-            to { opacity: 1; transform: translateY(0); }
+            from { opacity: 0; transform: translateY(16px) scale(0.98); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
         }
         @keyframes flashUpdate {
             0% { background-color: #FDE68A; }
@@ -588,7 +588,7 @@
             position: fixed;
             bottom: 90px;
             left: 50%;
-            transform: translateX(-50%) translateY(100px);
+            transform: translateX(-50%) translateY(100px) scale(0.9);
             background: var(--dark);
             color: white;
             padding: 10px 20px;
@@ -600,8 +600,11 @@
             white-space: nowrap;
         }
         .toast-premium.show {
-            transform: translateX(-50%) translateY(0);
+            transform: translateX(-50%) translateY(0) scale(1);
             opacity: 1;
+        }
+        .toast-premium.success-pop.show {
+            transition: transform 0.45s cubic-bezier(0.34,1.56,0.64,1), opacity 0.3s;
         }
         
         .setting-card {
@@ -1897,7 +1900,7 @@
 <div style="position:absolute; width:300px; height:300px; border-radius:50%; background:rgba(255,255,255,.05); top:-100px; right:-100px; animation:splashDrift1 8s ease-in-out infinite;"></div>
 <div style="position:absolute; width:200px; height:200px; border-radius:50%; background:rgba(255,255,255,.04); bottom:-60px; left:-60px; animation:splashDrift2 10s ease-in-out infinite;"></div>
 <div style="width:110px; height:110px; background:white; border-radius:28px; display:flex; align-items:center; justify-content:center; margin-bottom:20px; animation:splashPopIn 0.6s cubic-bezier(0.34,1.56,0.64,1), splashPulse 2.4s ease-in-out 0.6s infinite; box-shadow:0 8px 32px rgba(0,0,0,0.2); position:relative;">
-<div style="font-size:65px; animation:splashFloat 2.6s ease-in-out infinite;">✈️</div></div>
+<div style="font-size:65px; animation:splashFloat 2.8s ease-in-out infinite;">✈️</div></div>
 <div style="color:white; font-size:32px; font-weight:bold; margin-bottom:6px; position:relative;">Navara</div>
 <div id="splashQuote" style="color:rgba(255,255,255,0.85); font-size:13px; font-style:italic; margin-bottom:24px; max-width:260px; text-align:center; line-height:1.6; position:relative; opacity:0; animation:splashQuoteFocus 0.9s cubic-bezier(0.22,1,0.36,1) 0.35s forwards;">Kelola Perjalanan, Raih Keberkahan</div>
 <div style="display:flex; gap:6px; margin-bottom:28px; position:relative;">
@@ -1925,8 +1928,10 @@
     50% { transform:scale(1.05); }
 }
 @keyframes splashFloat {
-    0%, 100% { transform:translateY(0); }
-    50% { transform:translateY(-6px); }
+    0%, 100% { transform:translateY(0) rotate(0deg); }
+    25% { transform:translateY(-3px) rotate(-4deg); }
+    50% { transform:translateY(-6px) rotate(0deg); }
+    75% { transform:translateY(-3px) rotate(4deg); }
 }
 @keyframes splashDrift1 {
     0%, 100% { transform:translate(0,0); }
@@ -2841,6 +2846,10 @@
                 <div class="export-menu-item" onclick="cetakMasterHTML(); toggleExportDropdown('exportMenuMaster')">
                     <div class="export-icon export-icon-cetak">🖨️</div>
                     <div><div class="export-label">Cetak / Simpan PDF</div><div class="export-desc">Buka window cetak, bisa disimpan sebagai PDF</div></div>
+                </div>
+                <div class="export-menu-item" onclick="openPilihItemKontrolModal(); toggleExportDropdown('exportMenuMaster')">
+                    <div class="export-icon export-icon-cetak">📋</div>
+                    <div><div class="export-label">Cetak Kontrol Lapangan</div><div class="export-desc">Kolom ceklis kosong untuk dicentang manual di lapangan</div></div>
                 </div>
                 <div class="export-menu-item" onclick="exportMasterExcel(); toggleExportDropdown('exportMenuMaster')">
                     <div class="export-icon export-icon-excel">📊</div>
@@ -4027,6 +4036,7 @@ function initHistoryState() {
 function showToast(msg) { 
     const toast = document.getElementById('toastPremium'); 
     toast.textContent = msg; 
+    toast.classList.toggle('success-pop', typeof msg === 'string' && msg.trim().startsWith('✅'));
     toast.classList.add('show'); 
     setTimeout(() => toast.classList.remove('show'), 3000); 
 }
@@ -4299,6 +4309,52 @@ function escapeHtml(text) {
 function formatAngka(angka) { 
     if(!angka && angka!==0) return '0'; 
     return angka.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.'); 
+}
+
+// Animasi angka "menghitung naik/turun" dari nilai lama ke nilai baru — dipakai di dashboard supaya terasa hidup, bukan berubah tiba-tiba
+// Bersihkan nomor HP jadi format siap pakai untuk link WhatsApp (hapus non-angka, ganti awalan 0 jadi 62)
+// Format tanggal "1 Januari 2027" — dipakai di banyak laporan/cetak, dipusatkan supaya konsisten
+// Bungkus & tampilkan jendela Cetak — dipanggil dengan HTML yang SUDAH LENGKAP (termasuk <!DOCTYPE>...<style>...isi laporan),
+// TANPA tombol Cetak/Tutup di akhir dan TANPA penutup </body></html> — bagian itu ditambahkan otomatis di sini, sama persis di semua laporan
+function tampilkanJendelaCetak(htmlSebelumTombol) {
+    const html = htmlSebelumTombol + `
+    <div class="no-print" style="text-align:center;padding:24px;background:#f0f0f0;margin-top:24px;">
+        <button onclick="window.print()" style="padding:10px 28px;margin:0 6px;border:none;border-radius:10px;font-size:14px;font-weight:bold;cursor:pointer;background:#0D5C4A;color:white;">🖨️ CETAK / SIMPAN PDF</button>
+        <button onclick="window.close()" style="padding:10px 28px;margin:0 6px;border:none;border-radius:10px;font-size:14px;font-weight:bold;cursor:pointer;background:#e2e8f0;color:#333;">✕ TUTUP</button>
+    </div>
+    </body></html>`;
+    const win = window.open('', '_blank');
+    win.document.write(html); win.document.close();
+    return win;
+}
+
+function formatTanggalLengkap(tanggal) {
+    const d = tanggal ? new Date(tanggal) : new Date();
+    return d.toLocaleDateString('id-ID', { day:'2-digit', month:'long', year:'numeric' });
+}
+
+function bersihkanNomorWA(nomor) {
+    let num = (nomor || '').toString().replace(/\D/g, '');
+    if (num.startsWith('0')) num = '62' + num.substring(1);
+    return num;
+}
+
+function animateCountUp(el, targetValue, prefix = 'Rp ') {
+    if(!el) return;
+    const startValue = parseInt((el.dataset.rawValue || '0')) || 0;
+    if(startValue === targetValue) { el.innerHTML = prefix + formatAngka(targetValue); return; }
+    const duration = 500;
+    const startTime = performance.now();
+    function step(now) {
+        const progress = Math.min((now - startTime) / duration, 1);
+        const eased = 1 - Math.pow(1 - progress, 3); // ease-out, cepat di awal melambat di akhir
+        const current = Math.round(startValue + (targetValue - startValue) * eased);
+        el.innerHTML = prefix + formatAngka(current);
+        if(progress < 1) requestAnimationFrame(step);
+        else { el.innerHTML = prefix + formatAngka(targetValue); el.dataset.rawValue = targetValue; }
+    }
+    el.dataset.rawValue = targetValue; // simpan target lebih dulu, supaya kalau dipanggil ulang cepat tidak tabrakan
+    requestAnimationFrame(step);
 }
 
 function parseRupiah(str) { 
@@ -4949,7 +5005,7 @@ async function cetakDashboardHTML() {
     }).sort((a,b) => b.sisa - a.sisa).slice(0,5);
 
     const cfg = getKonfigurasiProData();
-    const tanggal = new Date().toLocaleDateString('id-ID', { day:'2-digit', month:'long', year:'numeric' });
+    const tanggal = formatTanggalLengkap();
     const headerHtml = buildPrintHeader(cfg, tanggal);
     const qrHtml = await buildPrintQR(cfg, `Dashboard ${getNamaInstansiUtama()}\nTotal Jamaah: ${totalJamaah}\nTanggal: ${tanggal}`);
 
@@ -5369,7 +5425,7 @@ async function cetakEstimasiPDFJamaah() {
     if(!lastCalculatedPrice) { showToast('Silakan hitung estimasi dulu!'); return; }
     const f = n => 'Rp ' + Math.round(n).toLocaleString('id-ID');
     const cfg = getKonfigurasiProData();
-    const tgl = new Date().toLocaleDateString('id-ID', {day:'2-digit', month:'long', year:'numeric'});
+    const tgl = formatTanggalLengkap();
     const headerHtml = buildPrintHeader(cfg, tgl);
     const watermarkHtml = buildPrintWatermark(cfg);
     const qrHtml = await buildPrintQR(cfg, `Harga Paket: ${lastCalculatedPaket}\nHarga/Pax: ${f(lastCalculatedPrice)}\nTanggal: ${tgl}`);
@@ -5405,7 +5461,7 @@ async function cetakEstimasiPDFInternal() {
     if(!lastCalculatedPrice) { showToast('Silakan hitung estimasi dulu!'); return; }
     const f = n => 'Rp ' + Math.round(n).toLocaleString('id-ID');
     const cfg = getKonfigurasiProData();
-    const tgl = new Date().toLocaleDateString('id-ID', {day:'2-digit', month:'long', year:'numeric'});
+    const tgl = formatTanggalLengkap();
     const est = getEstimasiData() || {};
     const pr = v => parseInt((v||'0').toString().replace(/\./g,'').replace(/[^0-9]/g,'')) || 0;
     const nJam = lastCalculatedTotalJam;
@@ -6218,7 +6274,7 @@ function cetakTagihanTravelPartner(id) {
     const f = n => 'Rp ' + Math.round(n).toLocaleString('id-ID');
     const namaKBIH = getNamaInstansiUtama();
     const progNama = getCurrentProgram()?.nama || '-';
-    const tgl = new Date().toLocaleDateString('id-ID', { day:'2-digit', month:'long', year:'numeric' });
+    const tgl = formatTanggalLengkap();
 
     const rowsHtml = ring.tipeData.map(x => `
         <tr>
@@ -6244,13 +6300,8 @@ function cetakTagihanTravelPartner(id) {
         <div class="label">TOTAL TAGIHAN (${t.jumlah} JAMAAH)</div>
         <div class="angka">${f(ring.totalTagihan)}</div>
     </div>
-    <div class="no-print" style="text-align:center;padding:20px;background:#f0f0f0;margin-top:20px;">
-        <button onclick="window.print()" style="padding:10px 28px;margin:0 6px;border:none;border-radius:10px;font-size:14px;font-weight:bold;cursor:pointer;background:#0D5C4A;color:white;">🖨️ CETAK / SIMPAN PDF</button>
-        <button onclick="window.close()" style="padding:10px 28px;margin:0 6px;border:none;border-radius:10px;font-size:14px;font-weight:bold;cursor:pointer;background:#e2e8f0;color:#333;">✕ TUTUP</button>
-    </div>
-    </body></html>`;
-    const win = window.open('', '_blank');
-    win.document.write(html); win.document.close();
+    `;
+    tampilkanJendelaCetak(html);
 }
 
 // ==================== PEMBAYARAN TRAVEL PARTNER ====================
@@ -6708,7 +6759,7 @@ function cetakLaporanKonsorsium() {
     const f = n => 'Rp ' + Math.round(n||0).toLocaleString('id-ID');
     const namaKBIH = getNamaInstansiUtama();
     const progNama = getCurrentProgram()?.nama || '-';
-    const tgl = new Date().toLocaleDateString('id-ID', { day:'2-digit', month:'long', year:'numeric' });
+    const tgl = formatTanggalLengkap();
 
     const rowsHtml = data.rows.map(r => `
         <tr>
@@ -6739,13 +6790,8 @@ function cetakLaporanKonsorsium() {
         <div>💵 Total Tagihan: ${f(data.totalTagihan)}</div>
         <div>✅ PROFIT TOTAL: ${f(data.totalProfit)}</div>
     </div>
-    <div class="no-print" style="text-align:center;padding:20px;background:#f0f0f0;margin-top:20px;">
-        <button onclick="window.print()" style="padding:10px 28px;margin:0 6px;border:none;border-radius:10px;font-size:14px;font-weight:bold;cursor:pointer;background:#0D5C4A;color:white;">🖨️ CETAK / SIMPAN PDF</button>
-        <button onclick="window.close()" style="padding:10px 28px;margin:0 6px;border:none;border-radius:10px;font-size:14px;font-weight:bold;cursor:pointer;background:#e2e8f0;color:#333;">✕ TUTUP</button>
-    </div>
-    </body></html>`;
-    const win = window.open('', '_blank');
-    win.document.write(html); win.document.close();
+    `;
+    tampilkanJendelaCetak(html);
 }
 
 function bagikanKonsorsiumWA() {
@@ -7480,7 +7526,14 @@ function renderKasTable() {
 function updateSaldoKas() { 
     const total=dataKas.reduce((s,i)=>s+(i.tipe==='masuk'?i.nom:-i.nom),0); 
     const summary=document.getElementById('summaryKas'); 
-    if(summary) summary.innerHTML=`<b>Saldo Akhir: Rp ${total.toLocaleString('id-ID')}</b>`; 
+    if(summary) {
+        let el = document.getElementById('saldoKasValue');
+        if(!el) {
+            summary.innerHTML = '<b>Saldo Akhir: <span id="saldoKasValue">Rp 0</span></b>';
+            el = document.getElementById('saldoKasValue');
+        }
+        animateCountUp(el, total);
+    }
 }
 
 function tambahTransaksi() { 
@@ -7555,7 +7608,7 @@ async function cetakKasHTML() {
     if(dataKas.length===0) return showToast('Tidak ada data!');
     const cfg = getKonfigurasiProData();
     const judul = document.getElementById('kegiatan').value.trim() || 'Laporan Kas';
-    const tglCetak = new Date().toLocaleDateString('id-ID', {day:'2-digit', month:'long', year:'numeric'});
+    const tglCetak = formatTanggalLengkap();
     let masuk=0, keluar=0;
     dataKas.forEach(i=>{ if(i.tipe==='masuk') masuk+=i.nom; else keluar+=i.nom; });
     const saldo = masuk - keluar;
@@ -10146,14 +10199,8 @@ function cetakRekapTahunanGabungan() {
         <div>📊 Kas Masuk: Rp ${totalKasMasuk.toLocaleString('id-ID')} — Kas Keluar: Rp ${totalKasKeluar.toLocaleString('id-ID')}</div>
         <div>🧾 Total Pengeluaran: Rp ${totalPengeluaran.toLocaleString('id-ID')}</div>
     </div>
-    <div class="no-print" style="text-align:center;padding:20px;background:#f0f0f0;margin-top:20px;">
-        <button onclick="window.print()" style="padding:10px 28px;margin:0 6px;border:none;border-radius:10px;font-size:14px;font-weight:bold;cursor:pointer;background:#0D5C4A;color:white;">🖨️ CETAK / SIMPAN PDF</button>
-        <button onclick="window.close()" style="padding:10px 28px;margin:0 6px;border:none;border-radius:10px;font-size:14px;font-weight:bold;cursor:pointer;background:#e2e8f0;color:#333;">✕ TUTUP</button>
-    </div>
-    </body></html>`;
-
-    const win = window.open('', '_blank');
-    win.document.write(html); win.document.close();
+    `;
+    tampilkanJendelaCetak(html);
 }
 
 // ==================== CHECKLIST H-30/H-14/H-7 ====================
@@ -10221,9 +10268,8 @@ function kirimWaMassalPerorangan(jamaahId) {
     if(!j) return;
     const pesanTemplate = document.getElementById('waMassalPesan').value.trim();
     if(!pesanTemplate) return showToast('Isi pesannya dulu!');
-    let num = (j.additional_fields.whatsapp || '').replace(/\D/g, '');
+    let num = bersihkanNomorWA(j.additional_fields.whatsapp);
     if(!num) return showToast(`⚠️ ${j.nama_lengkap} tidak punya nomor WA`);
-    if(num.startsWith('0')) num = '62' + num.substring(1);
     const pesan = pesanTemplate.replace(/\[nama\]/gi, j.nama_lengkap);
     window.open(`https://wa.me/${num}?text=${encodeURIComponent(pesan)}`, '_blank');
 }
@@ -10232,9 +10278,7 @@ function salinNomorWaMassal() {
     const punyaWa = jamaahList.filter(j => j.additional_fields?.whatsapp);
     if(punyaWa.length === 0) return showToast('Tidak ada nomor WA untuk disalin!');
     const nomorList = punyaWa.map(j => {
-        let num = j.additional_fields.whatsapp.replace(/\D/g, '');
-        if(num.startsWith('0')) num = '62' + num.substring(1);
-        return num;
+        return bersihkanNomorWA(j.additional_fields.whatsapp);
     }).join('\n');
     navigator.clipboard.writeText(nomorList).then(() => {
         showToast(`✅ ${punyaWa.length} nomor tersalin — paste di WhatsApp Business`);
@@ -10279,13 +10323,8 @@ function cetakManifestRooming() {
     <h1>🛏️ MANIFEST & ROOMING LIST</h1>
     <p>${escapeHtml(namaKBIH)} — Program: ${escapeHtml(progNama)} — Dicetak: ${tgl}</p>
     ${bodyHtml || '<p>Belum ada jamaah dengan Tipe Paket di Program ini.</p>'}
-    <div class="no-print" style="text-align:center;padding:20px;background:#f0f0f0;margin-top:20px;">
-        <button onclick="window.print()" style="padding:10px 28px;margin:0 6px;border:none;border-radius:10px;font-size:14px;font-weight:bold;cursor:pointer;background:#0D5C4A;color:white;">🖨️ CETAK / SIMPAN PDF</button>
-        <button onclick="window.close()" style="padding:10px 28px;margin:0 6px;border:none;border-radius:10px;font-size:14px;font-weight:bold;cursor:pointer;background:#e2e8f0;color:#333;">✕ TUTUP</button>
-    </div>
-    </body></html>`;
-    const win = window.open('', '_blank');
-    win.document.write(html); win.document.close();
+    `;
+    tampilkanJendelaCetak(html);
 }
 
 // ==================== KALENDER GABUNGAN SEMUA PROGRAM ====================
@@ -10740,7 +10779,7 @@ function openAntrianFollowUpModal() {
         } else {
             warna = '#888'; label = '⚪ Tanggal Keberangkatan belum diisi'; border='#ccc';
         }
-        const waBtn = x.wa ? `<button onclick="window.open('https://wa.me/${x.wa.replace(/\D/g,'').replace(/^0/,'62')}','_blank')" style="background:#25D366;color:white;border:none;border-radius:20px;padding:6px 12px;font-size:11px;font-weight:700;cursor:pointer;">📲 WA</button>` : '';
+        const waBtn = x.wa ? `<button onclick="window.open('https://wa.me/${bersihkanNomorWA(x.wa)}','_blank')" style="background:#25D366;color:white;border:none;border-radius:20px;padding:6px 12px;font-size:11px;font-weight:700;cursor:pointer;">📲 WA</button>` : '';
         return `<div style="border-left:4px solid ${border};background:#F8FAFC;border-radius:8px;padding:10px 12px;margin-bottom:8px;">
             <div style="font-size:10px;color:${warna};font-weight:700;margin-bottom:3px;">${label}</div>
             <div style="display:flex;justify-content:space-between;align-items:center;">
@@ -10768,7 +10807,7 @@ function cetakLaporanPenutupanMusim() {
     const f = n => 'Rp ' + Math.round(n).toLocaleString('id-ID');
     const namaKBIH = getNamaInstansiUtama();
     const progNama = getCurrentProgram()?.nama || '-';
-    const tgl = new Date().toLocaleDateString('id-ID', { day:'2-digit', month:'long', year:'numeric' });
+    const tgl = formatTanggalLengkap();
 
     // 1. Rekap Aktual (ringkas) — untuk Haji Reguler (tanpa Estimasi), JANGAN label sebagai "Profit", cukup tampilkan sebagai kumpulan Biaya Bimbingan
     const est = hitungModalHargaEstimasiTerkini();
@@ -10948,13 +10987,8 @@ function cetakLaporanPenutupanMusim() {
     <h1>📕 LAPORAN PENUTUPAN MUSIM</h1>
     <p>${escapeHtml(namaKBIH)} — Program: ${escapeHtml(progNama)} — Dicetak: ${tgl}</p>
     ${sectionRekap}${sectionPengeluaran}${sectionBufferB2C}${sectionBufferB2B}${sectionMitra}${sectionPiutang}${sectionLayanan}
-    <div class="no-print" style="text-align:center;padding:24px;background:#f0f0f0;margin-top:24px;">
-        <button onclick="window.print()" style="padding:10px 28px;margin:0 6px;border:none;border-radius:10px;font-size:14px;font-weight:bold;cursor:pointer;background:#0D5C4A;color:white;">🖨️ CETAK / SIMPAN PDF</button>
-        <button onclick="window.close()" style="padding:10px 28px;margin:0 6px;border:none;border-radius:10px;font-size:14px;font-weight:bold;cursor:pointer;background:#e2e8f0;color:#333;">✕ TUTUP</button>
-    </div>
-    </body></html>`;
-    const win = window.open('', '_blank');
-    win.document.write(html); win.document.close();
+    `;
+    tampilkanJendelaCetak(html);
 }
 
 // ==================== ITINERARY ====================
@@ -11237,13 +11271,8 @@ function cetakItinerary(mode) {
     <h1>🗓️ ITINERARY ${isInternal ? '(INTERNAL)' : ''}</h1>
     <p>${escapeHtml(namaKBIH)} — Program: ${escapeHtml(progNama)}</p>
     ${hariHtml}
-    <div class="no-print" style="text-align:center;padding:24px;background:#f0f0f0;margin-top:24px;">
-        <button onclick="window.print()" style="padding:10px 28px;margin:0 6px;border:none;border-radius:10px;font-size:14px;font-weight:bold;cursor:pointer;background:#0D5C4A;color:white;">🖨️ CETAK / SIMPAN PDF</button>
-        <button onclick="window.close()" style="padding:10px 28px;margin:0 6px;border:none;border-radius:10px;font-size:14px;font-weight:bold;cursor:pointer;background:#e2e8f0;color:#333;">✕ TUTUP</button>
-    </div>
-    </body></html>`;
-    const win = window.open('', '_blank');
-    win.document.write(html); win.document.close();
+    `;
+    tampilkanJendelaCetak(html);
 }
 
 function openDashboardTrenModal() {
@@ -12793,7 +12822,7 @@ function salinRingkasanZakat(){
 async function cetakLaporanZakat() {
     if(sumberHartaList.length === 0) return showToast('Tambah dan hitung zakat dulu!');
     const cfg = getKonfigurasiProData();
-    const tgl = new Date().toLocaleDateString('id-ID', {day:'2-digit', month:'long', year:'numeric'});
+    const tgl = formatTanggalLengkap();
     const jenis = document.getElementById('jenisZakat').value;
     const jenisLabel = jenis==='mal'?'Zakat Mal (Harta/Uang)':jenis==='pertanian'?'Zakat Pertanian':'Zakat Perdagangan';
     const hargaEmas = parseInt((document.getElementById('hargaEmas')?.value||'1200000').replace(/\./g,'').replace(/[^0-9]/g,''));
@@ -12919,9 +12948,8 @@ function formatMoneyInput(el) {
 }
 
 function formatHargaInput(el) {
-    const raw = el.value.replace(/\./g,'').replace(/[^0-9]/g,'');
-    const num = parseInt(raw) || 0;
-    el.value = num > 0 ? num.toLocaleString('id-ID') : '';
+    formatMoneyInput(el);
+    const num = parseInt(el.value.replace(/\./g,'')) || 0;
     const preview = document.getElementById('previewHargaSeragam');
     if (preview) preview.textContent = num > 0 ? 'Rp ' + num.toLocaleString('id-ID') : '';
 }
@@ -12999,8 +13027,8 @@ function renderPaymentDashboard() {
             if (sisa > 0) totalPiutang += sisa; 
         } 
     }); 
-    document.getElementById('paymentTotalMasuk').innerHTML = 'Rp ' + formatAngka(totalMasuk); 
-    document.getElementById('paymentTotalPiutang').innerHTML = 'Rp ' + formatAngka(totalPiutang); 
+    animateCountUp(document.getElementById('paymentTotalMasuk'), totalMasuk); 
+    animateCountUp(document.getElementById('paymentTotalPiutang'), totalPiutang); 
     let lunasCount = 0, belumCount = 0, belumRp = 0, totalTertagih = 0, totalTerbayar = 0; 
     jamaahList.forEach(j => { 
         const totalHarga = getTotalHargaPaket(j) || 0; 
@@ -13181,8 +13209,7 @@ function prepareInvoice(idJamaah) {
     currentInvoiceText = text; 
     let waNumber = '628123456789'; 
     if (jamaah.additional_fields && jamaah.additional_fields.whatsapp) { 
-        let num = jamaah.additional_fields.whatsapp.replace(/\D/g, ''); 
-        if (num.startsWith('0')) num = '62' + num.substring(1); 
+        let num = bersihkanNomorWA(jamaah.additional_fields.whatsapp);
         if (num.length >= 10) waNumber = num; 
     } 
     document.getElementById('invoiceWANumber').innerText = waNumber; 
@@ -13223,7 +13250,7 @@ async function shareInvoiceGambar(jamaahId) {
         const sisa = totalHargaPaket - totalBayar;
         const lunas = sisa <= 0;
         const prefix = cfg.settings?.invoice_prefix || 'INV/NAVARA';
-        const tglCetak = new Date().toLocaleDateString('id-ID', {day:'2-digit', month:'long', year:'numeric'});
+        const tglCetak = formatTanggalLengkap();
         const noInvoice = `${prefix}/${jamaah.id}/${new Date().toLocaleDateString('id-ID').replace(/\//g,'')}`;
         const namaFile = `Invoice_${jamaah.nama_lengkap.replace(/ /g,'_')}.pdf`;
 
@@ -13407,7 +13434,7 @@ async function cetakInvoiceAuto(jamaahId) {
         const sisa = totalHargaPaket - totalBayar;
         const statusColor = sisa <= 0 ? '#10B981' : '#EF4444';
         const prefix = cfg.settings?.invoice_prefix || 'INV/NAVARA';
-        const tglCetak = new Date().toLocaleDateString('id-ID', {day:'2-digit', month:'long', year:'numeric'});
+        const tglCetak = formatTanggalLengkap();
         const noInvoice = `${prefix}/${jamaah.id}/${new Date().toLocaleDateString('id-ID').replace(/\//g,'')}`;
         const headerHtml = buildPrintHeader(cfg, tglCetak);
         const watermarkHtml = buildPrintWatermark(cfg);
@@ -13762,7 +13789,7 @@ function cetakRekapCicilan() {
     const cek = cekPeringatanCicilanSemuaJamaah();
     const namaKBIH = getNamaInstansiUtama();
     const progNama = getCurrentProgram()?.nama || '-';
-    const tgl = new Date().toLocaleDateString('id-ID', { day:'2-digit', month:'long', year:'numeric' });
+    const tgl = formatTanggalLengkap();
 
     const buatTabel = (list) => list.map(x => `<tr><td>${escapeHtml(x.nama)}</td><td>${new Date(x.tanggal).toLocaleDateString('id-ID')}</td><td style="text-align:right;">${f(x.sisa)}</td></tr>`).join('') || '<tr><td colspan="3" style="color:#888;">Tidak ada</td></tr>';
     const totalSisaTertunggak = [...cek.telat, ...cek.hariIni, ...cek.akanDatang].reduce((s,x) => s + x.sisa, 0);
@@ -13780,13 +13807,8 @@ function cetakRekapCicilan() {
     <h2 style="color:#F59E0B;">🟡 Jatuh Tempo Hari Ini</h2><table><tr><th>Nama</th><th>Jatuh Tempo</th><th>Sisa</th></tr>${buatTabel(cek.hariIni)}</table>
     <h2 style="color:#166534;">🟢 Akan Datang (3 Hari)</h2><table><tr><th>Nama</th><th>Jatuh Tempo</th><th>Sisa</th></tr>${buatTabel(cek.akanDatang)}</table>
     <div class="lap-total">TOTAL SISA TERTUNGGAK: ${f(totalSisaTertunggak)}</div>
-    <div class="no-print" style="text-align:center;padding:24px;background:#f0f0f0;margin-top:24px;">
-        <button onclick="window.print()" style="padding:10px 28px;margin:0 6px;border:none;border-radius:10px;font-size:14px;font-weight:bold;cursor:pointer;background:#0D5C4A;color:white;">🖨️ CETAK / SIMPAN PDF</button>
-        <button onclick="window.close()" style="padding:10px 28px;margin:0 6px;border:none;border-radius:10px;font-size:14px;font-weight:bold;cursor:pointer;background:#e2e8f0;color:#333;">✕ TUTUP</button>
-    </div>
-    </body></html>`;
-    const win = window.open('', '_blank');
-    win.document.write(html); win.document.close();
+    `;
+    tampilkanJendelaCetak(html);
 }
 
 function openRiwayatModal(jamaahId) { 
@@ -13830,7 +13852,7 @@ function filterPaymentJamaahList() {
 async function cetakPembayaranHTML() {
     if(paymentTransaksiList.length===0) return showToast('Tidak ada data transaksi!');
     const cfg = getKonfigurasiProData();
-    const tglCetak = new Date().toLocaleDateString('id-ID', {day:'2-digit', month:'long', year:'numeric'});
+    const tglCetak = formatTanggalLengkap();
     const totalMasuk = paymentTransaksiList.reduce((s,t)=>s+t.nominal,0);
     const headerHtml = buildPrintHeader(cfg, tglCetak);
     const watermarkHtml = buildPrintWatermark(cfg);
@@ -15416,7 +15438,7 @@ async function exportFolderToPDF(folderId) {
     const cfgFolder = getKonfigurasiProData();
     const namaInstansi = getNamaInstansiUtama();
     const watermarkHtmlFolder = buildPrintWatermark(cfgFolder);
-    const tanggal = new Date().toLocaleDateString('id-ID', {day:'2-digit', month:'long', year:'numeric'});
+    const tanggal = formatTanggalLengkap();
     const allDynFields = dynamicFieldsJamaah.length > 0 ? dynamicFieldsJamaah : [];
     const selectedFields = folder.selectedFields || [];
     // Gunakan fieldOrder untuk urutan kolom, filter yang diceklis saja
@@ -16265,8 +16287,7 @@ function remindAllKurangDokumen() {
         const sudahList = dokumenJenisList.filter(d => dokumenData[j.id]?.[d.id]);
         let wa = j.additional_fields?.whatsapp || j.additional_fields?.no_hp || '';
         if(!wa) { showToast(`⚠️ ${namaJamaah} tidak punya nomor WA`); return; }
-        wa = wa.replace(/\D/g,'');
-        if(wa.startsWith('0')) wa = '62' + wa.substring(1);
+        wa = bersihkanNomorWA(wa);
         const pesan = `📋 *Pengingat Dokumen*\n*${namaKBIH}*\n\nYth. Bapak/Ibu *${namaJamaah}*\n\nMohon segera melengkapi dokumen berikut:\n${kurangList.map(d=>`❌ ${d.nama}`).join('\n')}${sudahList.length > 0 ? '\n\n✅ Sudah lengkap:\n'+sudahList.map(d=>`✓ ${d.nama}`).join('\n') : ''}\n\nTerima kasih 🙏\n_${namaKBIH}_`;
         window.open(`https://wa.me/${wa}?text=${encodeURIComponent(pesan)}`, '_blank');
     };
@@ -17698,8 +17719,7 @@ function kirimPengingatWAPerorangan(jamaahId) {
     if(!statusPembayaran.needInput) msg = msg.replace(/\[sisa\]/gi, formatRupiah(statusPembayaran.sisa)); 
     let waNumber = '628123456789'; 
     if(j.additional_fields && j.additional_fields.whatsapp) { 
-        let num = j.additional_fields.whatsapp.replace(/\D/g, ''); 
-        if(num.startsWith('0')) num = '62' + num.substring(1); 
+        let num = bersihkanNomorWA(j.additional_fields.whatsapp);
         if(num.length >= 10) waNumber = num; 
     } 
     window.open(`https://wa.me/${waNumber}?text=${encodeURIComponent(msg)}`, '_blank'); 
@@ -18010,8 +18030,7 @@ function getKonfigurasiProData() {
 async function generateAndShareTiketWA(jamaah) {
     let waNumber = '';
     if(jamaah.additional_fields?.whatsapp) {
-        let num = jamaah.additional_fields.whatsapp.replace(/\D/g, '');
-        if(num.startsWith('0')) num = '62' + num.substring(1);
+        let num = bersihkanNomorWA(jamaah.additional_fields.whatsapp);
         if(num.length >= 10) waNumber = num;
     }
     if(!waNumber) { showToast(`${jamaah.nama_lengkap}: No WA tidak ada, dilewati`); return; }
@@ -18022,7 +18041,7 @@ async function generateAndShareTiketWA(jamaah) {
 
 // PERBAIKAN POIN 1: CETAK TIKET - Hanya mencetak area tiket, bersih tanpa menu/footer
 // ==================== MULTI EVENT (SINGKAT) ====================
-let masterDataList = [], masterDynamicFields = [], masterItemList = ['Kain Ihram', 'Sendal', 'Obat-obatan', 'Tas', 'Air Zamzam', 'Kopyah'], editingMasterId = null, availableModes = ['Semua', 'Haji', 'Toko', 'Sekolah', 'Umroh', 'Donasi'], activeModes = ['Semua', 'Haji', 'Toko', 'Sekolah', 'Umroh', 'Donasi'], currentDisplayMode = 'Semua';
+let masterDataList = [], masterDynamicFields = [], masterItemList = ['Kain Ihram', 'Sendal', 'Obat-obatan', 'Tas', 'Air Zamzam', 'Kopyah'], editingMasterId = null, availableModes = ['Semua', 'Haji', 'Umroh'], activeModes = ['Semua', 'Haji', 'Umroh'], currentDisplayMode = 'Semua';
 let _allMasterData = [];
 
 async function loadMasterData() {
@@ -18217,8 +18236,7 @@ function runBatchWA() {
         const nama = cb.getAttribute('data-nama');
         let wa = cb.getAttribute('data-wa');
         if (wa) {
-            let num = wa.replace(/\D/g, '');
-            if (num.startsWith('0')) num = '62' + num.substring(1);
+            let num = bersihkanNomorWA(wa);
             if (num.length < 10) return;
             const msg = template.replace(/\[nama\]/gi, nama);
             setTimeout(() => { window.open(`https://wa.me/${num}?text=${encodeURIComponent(msg)}`, '_blank'); }, index * 2000);
@@ -18356,13 +18374,79 @@ function shareAllMasterToWA() {
     window.open(`https://wa.me/?text=${encodeURIComponent(text)}`);
 }
 
+// ==================== CETAK KONTROL LAPANGAN (kolom ceklis kosong per Item, dicentang manual pakai bolpoin) ====================
+function openPilihItemKontrolModal() {
+    if(masterDataList.length === 0) return showToast('Tidak ada data!');
+    if(masterItemList.length === 0) return showToast('Belum ada Daftar Item — isi dulu di "Kelola Daftar Item"');
+    let modal = document.getElementById('pilihItemKontrolModal');
+    if(!modal) {
+        modal = document.createElement('div');
+        modal.id = 'pilihItemKontrolModal';
+        modal.className = 'modal';
+        document.body.appendChild(modal);
+    }
+    const checkboxes = masterItemList.map((item, i) => `
+        <label style="display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid #eee;cursor:pointer;">
+            <input type="checkbox" class="pilihItemKontrolCheck" value="${escapeHtml(item)}" checked style="width:18px;height:18px;">
+            ${escapeHtml(item)}
+        </label>`).join('');
+    modal.innerHTML = `<div class="modal-content" style="max-width:400px;">
+        <h3 style="color:#0D5C4A;margin-bottom:4px;">📋 Cetak Kontrol Lapangan</h3>
+        <div style="font-size:12px;color:#888;margin-bottom:12px;">Pilih Item mana saja yang mau ditampilkan sebagai kolom ceklis kosong:</div>
+        <div style="max-height:280px;overflow-y:auto;">${checkboxes}</div>
+        <div class="row" style="margin-top:12px;">
+            <button class="btn btn-danger" onclick="document.getElementById('pilihItemKontrolModal').style.display='none'" style="flex:1;">Batal</button>
+            <button class="btn btn-primary" onclick="cetakKontrolLapangan()" style="flex:1;">🖨️ Cetak</button>
+        </div>
+    </div>`;
+    modal.style.display = 'flex';
+}
+
+function cetakKontrolLapangan() {
+    const itemTerpilih = Array.from(document.querySelectorAll('.pilihItemKontrolCheck:checked')).map(c => c.value);
+    if(itemTerpilih.length === 0) return showToast('Pilih minimal 1 Item!');
+    document.getElementById('pilihItemKontrolModal').style.display = 'none';
+
+    const judul = getMasterJudul();
+    const namaInstansi = getNamaInstansiUtama();
+    const tanggal = formatTanggalLengkap();
+    const filteredData = getSortedMasterList(getFilteredMasterList());
+
+    let thHtml = '<th style="width:36px;">No</th><th>Nama Lengkap</th>';
+    itemTerpilih.forEach(item => { thHtml += `<th style="text-align:center;">${escapeHtml(item)}</th>`; });
+
+    let rowsHtml = '';
+    filteredData.forEach((data, i) => {
+        rowsHtml += `<tr style="page-break-inside:avoid;"><td style="padding:10px 8px;border-bottom:1px solid #eee;text-align:center;">${i+1}</td><td style="padding:10px 8px;border-bottom:1px solid #eee;">${escapeHtml(data.nama)}</td>`;
+        itemTerpilih.forEach(item => {
+            const ditugaskan = (data.items || []).includes(item);
+            rowsHtml += `<td style="padding:10px 8px;border-bottom:1px solid #eee;text-align:center;font-size:16px;">${ditugaskan ? '☐' : '—'}</td>`;
+        });
+        rowsHtml += '</tr>';
+    });
+
+    const html = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>Kontrol Lapangan — ${escapeHtml(judul)}</title>
+    <style>body{font-family:Arial,sans-serif;padding:24px;color:#222;} h1{color:#0D5C4A;font-size:18px;margin-bottom:2px;}
+    table{width:100%;border-collapse:collapse;margin-top:14px;font-size:13px;}
+    th{background:#0D5C4A;color:#fff;padding:8px;text-align:left;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+    tr:nth-child(even) td{background:#f9f9f9;}
+    @media print{ .no-print{display:none!important;} }
+    </style></head><body>
+    <h1>📋 KONTROL LAPANGAN — ${escapeHtml(judul)}</h1>
+    <p style="font-size:12px;color:#666;">${escapeHtml(namaInstansi)} — Dicetak: ${tanggal}</p>
+    <p style="font-size:11px;color:#888;">☐ = Item ditugaskan, dicentang manual saat sudah diterima di lapangan. — = Item tidak ditugaskan ke orang ini.</p>
+    <table><thead><tr>${thHtml}</tr></thead><tbody>${rowsHtml}</tbody></table>
+    `;
+    tampilkanJendelaCetak(html);
+}
+
 async function cetakMasterHTML() {
     if(masterDataList.length === 0) { showToast('Tidak ada data!'); return; }
     const cfgMaster = getKonfigurasiProData();
     const judul = getMasterJudul();
     const namaInstansi = getNamaInstansiUtama();
     const watermarkHtmlMaster = buildPrintWatermark(cfgMaster);
-    const tanggal = new Date().toLocaleDateString('id-ID', {day:'2-digit', month:'long', year:'numeric'});
+    const tanggal = formatTanggalLengkap();
     const filteredData = getSortedMasterList(getFilteredMasterList());
     const modeLabel = currentDisplayMode && currentDisplayMode !== 'Semua' ? ` | Mode: ${currentDisplayMode}` : '';
     let thHtml = '<th style="width:36px;">No</th><th>Nama Lengkap</th>';
@@ -18554,8 +18638,8 @@ function loadModesFromStorage() {
         if(parsed.available) availableModes = parsed.available;
         if(parsed.active) activeModes = parsed.active;
     } else {
-        availableModes = ['Semua', 'Haji', 'Toko', 'Sekolah', 'Umroh', 'Donasi'];
-        activeModes = ['Semua', 'Haji', 'Toko', 'Sekolah', 'Umroh', 'Donasi'];
+        availableModes = ['Semua', 'Haji', 'Umroh'];
+        activeModes = ['Semua', 'Haji', 'Umroh'];
     }
 }
 
@@ -19180,7 +19264,7 @@ async function shareKasPDF() {
         const doc = new jsPDF({orientation:'landscape', unit:'mm', format:'a4'});
         await applyPDFConfig(doc, { landscape: true });
         const judul = document.getElementById('kegiatan').value.trim() || 'Laporan Kas';
-        const tglCetak = new Date().toLocaleDateString('id-ID', {day:'2-digit', month:'long', year:'numeric'});
+        const tglCetak = formatTanggalLengkap();
         let masuk=0, keluar=0;
         dataKas.forEach(i=>{ if(i.tipe==='masuk') masuk+=i.nom; else keluar+=i.nom; });
         const saldo = masuk - keluar;
