@@ -3254,7 +3254,23 @@
             <div class="fitur-card" onclick="cetakRekapTahunanGabungan()"><div class="fitur-icon"><i class="fas fa-file-invoice"></i></div><div class="fitur-title">Rekap Tahunan</div><div class="fitur-desc">Total omzet semua keberangkatan</div></div>
             <div class="fitur-card" onclick="openKalenderProgramModal()"><div class="fitur-icon"><i class="fas fa-calendar-days"></i></div><div class="fitur-title">Kalender Program</div><div class="fitur-desc">Semua jadwal keberangkatan</div></div>
             <div class="fitur-card" onclick="openProyeksiKasModal()"><div class="fitur-icon"><i class="fas fa-sack-dollar"></i></div><div class="fitur-title">Proyeksi Kas</div><div class="fitur-desc">Estimasi dana yang masih masuk</div></div>
+            <div class="fitur-card" onclick="showPage('kalkulatorriyal')"><div class="fitur-icon"><i class="fas fa-right-left"></i></div><div class="fitur-title">Tukar Riyal</div><div class="fitur-desc">Hitung kembalian tukar SAR</div></div>
         </div>
+    </div>
+</div>
+
+<!-- KALKULATOR TUKAR RIYAL PAGE -->
+<div id="page-kalkulatorriyal" class="page">
+    <div class="header-premium header-premium-small"><div class="back-header"><i class="fas fa-arrow-left" onclick="showPage('fitur')"></i><h2>Tukar Riyal</h2><div style="width:30px;"></div></div></div>
+    <div class="card-premium">
+        <div class="input-group"><label>Kurs Jual (1 SAR = Rp)</label><input type="text" id="kursRiyalInput" class="money-input" inputmode="numeric" placeholder="Contoh: 4.300" oninput="formatMoneyInput(this); hitungTukarRiyal();"></div>
+        <div class="input-group"><label>Uang Diberikan Jamaah (Rp)</label><input type="text" id="uangDiberikanInput" class="money-input" inputmode="numeric" placeholder="Contoh: 1.000.000" oninput="formatMoneyInput(this); hitungTukarRiyal();"></div>
+    </div>
+    <div id="hasilTukarRiyal" class="res-card" style="display:none;"></div>
+    <div class="card-premium">
+        <div class="section-title"><span>Riwayat Transaksi</span></div>
+        <div id="riwayatTukarRiyalList"></div>
+        <button class="btn btn-teal btn-small mt-2" onclick="cetakLaporanTukarRiyal()"><i class="fas fa-print"></i> CETAK LAPORAN</button>
     </div>
 </div>
 
@@ -4043,6 +4059,7 @@ function internalShowPage(pageId) {
         setTimeout(() => { selectedJamaahKitaIds = []; updateJamaahKitaBatchBar(); renderPilihJamaahKita(); renderJamaahKitaList(); renderJamaahKitaDynamicFieldsForm(); if(isAdminModePremium) renderJamaahKitaFieldsList(); }, 50);
     }
     if (pageId === 'zakat') { if(window.renderSumberHartaList) window.renderSumberHartaList(); }
+    if (pageId === 'kalkulatorriyal') { if(window.renderRiwayatTukarRiyal) window.renderRiwayatTukarRiyal(); }
     if (pageId === 'pembayaran') {
         const cp = document.getElementById('paymentJamaahListContainer');
         if(cp) cp.innerHTML = '<div style="text-align:center;padding:30px;color:#6B7280;"><div style="font-size:30px;">⏳</div>Memuat data...</div>';
@@ -4107,7 +4124,7 @@ window.addEventListener('popstate', function(event) {
     let pageId = 'home';
     if (event.state && event.state.page) pageId = event.state.page;
     else { const hash = window.location.hash; if (hash && hash.startsWith('#page-')) pageId = hash.replace('#page-', ''); }
-    const validPages = ['home', 'estimasi', 'kas', 'jamaah', 'jamaahkita', 'catatan', 'zakat', 'pembayaran', 'datamaster', 'konfigurasi', 'setting', 'fitur', 'uploaddokumen', 'foldervirtual', 'pengingatwa', 'etikettiket', 'cetaklabel', 'cloudstorage', 'dashboard', 'scanqr', 'suratresmi'];
+    const validPages = ['home', 'estimasi', 'kas', 'jamaah', 'jamaahkita', 'catatan', 'zakat', 'pembayaran', 'datamaster', 'konfigurasi', 'setting', 'fitur', 'uploaddokumen', 'foldervirtual', 'pengingatwa', 'etikettiket', 'cetaklabel', 'cloudstorage', 'dashboard', 'scanqr', 'suratresmi', 'kalkulatorriyal'];
     if (!validPages.includes(pageId)) pageId = 'home';
     internalShowPage(pageId);
     document.querySelectorAll('.nav-item-premium').forEach(nav => { nav.classList.remove('active'); if (nav.getAttribute('data-page') === pageId) nav.classList.add('active'); });
@@ -13197,6 +13214,137 @@ function toggleZakatInput(){
     } 
 }
 
+function hitungTukarRiyal() {
+    const pr = v => parseInt((v||'0').toString().replace(/\./g,'').replace(/[^0-9]/g,'')) || 0;
+    const kurs = pr(document.getElementById('kursRiyalInput').value);
+    const uang = pr(document.getElementById('uangDiberikanInput').value);
+    const hasilEl = document.getElementById('hasilTukarRiyal');
+    if (kurs <= 0 || uang <= 0) { hasilEl.style.display = 'none'; return; }
+
+    const riyalDidapat = Math.floor(uang / kurs);
+    const kembalian = uang - (riyalDidapat * kurs);
+
+    hasilEl.style.display = 'block';
+    hasilEl.innerHTML = `
+        <div style="text-align:center;padding:6px 0;">
+            <div style="font-size:12px;color:var(--gray);margin-bottom:4px;">Riyal yang didapat jamaah</div>
+            <div style="font-size:34px;font-weight:800;color:var(--primary);">${riyalDidapat.toLocaleString('id-ID')} <span style="font-size:16px;font-weight:600;">SAR</span></div>
+        </div>
+        <div style="border-top:1px solid #eee;margin:12px 0;"></div>
+        <div style="display:flex;justify-content:space-between;align-items:center;font-size:14px;">
+            <span>💵 Kembalian (Rupiah)</span>
+            <span style="font-weight:700;font-size:16px;color:${kembalian > 0 ? '#DC2626' : 'var(--primary)'};">Rp ${kembalian.toLocaleString('id-ID')}</span>
+        </div>
+        <div style="font-size:11px;color:#888;margin-top:8px;text-align:center;">Rp ${uang.toLocaleString('id-ID')} ÷ kurs Rp ${kurs.toLocaleString('id-ID')} = ${riyalDidapat.toLocaleString('id-ID')} SAR (dibulatkan ke bawah)</div>
+        <div class="input-group" style="margin-top:14px;"><label>Atas Nama / Keterangan (opsional)</label><input type="text" id="keteranganRiyalInput" placeholder="Contoh: Ahmad Fauzi"></div>
+        <button class="btn btn-primary" onclick="simpanTransaksiRiyal()"><i class="fas fa-save"></i> SIMPAN TRANSAKSI</button>
+    `;
+}
+
+// ==================== RIWAYAT & LAPORAN TUKAR RIYAL ====================
+function getRiwayatTukarRiyal() {
+    return konfigurasiPro.riwayat_tukar_riyal || [];
+}
+function simpanRiwayatTukarRiyalList(list) {
+    konfigurasiPro.riwayat_tukar_riyal = list;
+    localStorage.setItem('navara_konfigurasi_pro', JSON.stringify(konfigurasiPro));
+    idbSet(STORE_KONFIGURASI, 'konfigurasi_pro', konfigurasiPro);
+}
+
+function simpanTransaksiRiyal() {
+    const pr = v => parseInt((v||'0').toString().replace(/\./g,'').replace(/[^0-9]/g,'')) || 0;
+    const kurs = pr(document.getElementById('kursRiyalInput').value);
+    const uang = pr(document.getElementById('uangDiberikanInput').value);
+    if (kurs <= 0 || uang <= 0) return showToast('Isi kurs dan uang dulu!');
+    const riyal = Math.floor(uang / kurs);
+    const kembalian = uang - (riyal * kurs);
+    const keterangan = (document.getElementById('keteranganRiyalInput')?.value || '').trim();
+
+    const list = getRiwayatTukarRiyal();
+    list.unshift({
+        id: Date.now(),
+        tanggalTampil: new Date().toLocaleDateString('id-ID') + ' ' + new Date().toLocaleTimeString('id-ID'),
+        timestamp: Date.now(),
+        kurs, uang, riyal, kembalian, keterangan,
+        admin: (typeof currentAdminNama !== 'undefined' && currentAdminNama) ? currentAdminNama : '-'
+    });
+    simpanRiwayatTukarRiyalList(list);
+    showToast('✅ Transaksi tersimpan');
+    document.getElementById('kursRiyalInput').value = '';
+    document.getElementById('uangDiberikanInput').value = '';
+    document.getElementById('hasilTukarRiyal').style.display = 'none';
+    renderRiwayatTukarRiyal();
+}
+
+function renderRiwayatTukarRiyal() {
+    const container = document.getElementById('riwayatTukarRiyalList');
+    if (!container) return;
+    const list = getRiwayatTukarRiyal();
+    if (list.length === 0) { container.innerHTML = '<p style="text-align:center;color:#888;font-size:12px;padding:12px 0;">Belum ada transaksi tersimpan</p>'; return; }
+    container.innerHTML = list.map(t => `
+        <div style="background:#F8FAFC;border-radius:10px;padding:10px 12px;margin-bottom:8px;">
+            <div style="display:flex;justify-content:space-between;align-items:flex-start;">
+                <div style="font-size:12px;">
+                    <b>${t.riyal.toLocaleString('id-ID')} SAR</b> ← Rp ${t.uang.toLocaleString('id-ID')} (kurs ${t.kurs.toLocaleString('id-ID')})<br>
+                    <span style="color:#888;">Kembalian: Rp ${t.kembalian.toLocaleString('id-ID')} · ${escapeHtml(t.tanggalTampil)}</span><br>
+                    <span style="color:#888;">Oleh: ${escapeHtml(t.admin)}${t.keterangan ? ' · ' + escapeHtml(t.keterangan) : ''}</span>
+                </div>
+                <button onclick="hapusTransaksiRiyal(${t.id})" style="border:none;background:none;color:#DC2626;font-size:14px;cursor:pointer;flex-shrink:0;"><i class="fas fa-trash-alt"></i></button>
+            </div>
+        </div>`).join('');
+}
+
+function hapusTransaksiRiyal(id) {
+    if (!cekIzinAdmin('bolehHapus')) return showToast('🔒 Anda tidak punya izin menghapus data');
+    konfirmasiBertema('Hapus transaksi ini?', 'Riwayat transaksi tukar Riyal ini akan dihapus permanen.', () => {
+        const list = getRiwayatTukarRiyal().filter(t => t.id !== id);
+        simpanRiwayatTukarRiyalList(list);
+        renderRiwayatTukarRiyal();
+    });
+}
+
+function cetakLaporanTukarRiyal() {
+    const list = getRiwayatTukarRiyal();
+    if (list.length === 0) return showToast('Belum ada transaksi untuk dicetak!');
+    const cfg = getKonfigurasiProData();
+    const namaInstansi = getNamaInstansiUtama();
+    const totalUang = list.reduce((a,t) => a + t.uang, 0);
+    const totalRiyal = list.reduce((a,t) => a + t.riyal, 0);
+    const totalKembalian = list.reduce((a,t) => a + t.kembalian, 0);
+    const rowsHtml = list.slice().reverse().map((t,i) => `<tr>
+        <td style="padding:6px 8px;border-bottom:1px solid #eee;">${i+1}</td>
+        <td style="padding:6px 8px;border-bottom:1px solid #eee;">${escapeHtml(t.tanggalTampil)}</td>
+        <td style="padding:6px 8px;border-bottom:1px solid #eee;">${escapeHtml(t.keterangan || '-')}</td>
+        <td style="padding:6px 8px;border-bottom:1px solid #eee;text-align:right;">Rp ${t.uang.toLocaleString('id-ID')}</td>
+        <td style="padding:6px 8px;border-bottom:1px solid #eee;text-align:right;">${t.kurs.toLocaleString('id-ID')}</td>
+        <td style="padding:6px 8px;border-bottom:1px solid #eee;text-align:right;">${t.riyal.toLocaleString('id-ID')} SAR</td>
+        <td style="padding:6px 8px;border-bottom:1px solid #eee;text-align:right;">Rp ${t.kembalian.toLocaleString('id-ID')}</td>
+        <td style="padding:6px 8px;border-bottom:1px solid #eee;">${escapeHtml(t.admin)}</td>
+    </tr>`).join('');
+
+    let html = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>Laporan Tukar Riyal</title>
+    <style>body{font-family:Arial,sans-serif;padding:20px;color:#222;background:#f0f0f0;} h1{color:#0D5C4A;font-size:18px;margin-bottom:2px;}
+    table{width:100%;border-collapse:collapse;margin-top:14px;font-size:11px;}
+    th{background:#0D5C4A;color:#fff;padding:8px;text-align:left;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+    .ringkasan{display:flex;gap:10px;margin-top:14px;flex-wrap:wrap;}
+    .ringkasan div{background:white;border-radius:10px;padding:10px 14px;flex:1;min-width:140px;}
+    @page{size:A4 portrait;margin:10mm 12mm;}
+    @media print{ *{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important;} html{width:210mm;} body{background:white;padding:0;margin:0;width:210mm;} .no-print{display:none!important;} }
+    </style></head><body>
+    <h1>💱 LAPORAN TUKAR RIYAL</h1>
+    <p style="font-size:12px;color:#666;">${escapeHtml(namaInstansi)} — Dicetak: ${new Date().toLocaleDateString('id-ID')}</p>
+    <div class="ringkasan">
+        <div><div style="font-size:11px;color:#888;">Total Transaksi</div><b>${list.length}</b></div>
+        <div><div style="font-size:11px;color:#888;">Total Rupiah Masuk</div><b>Rp ${totalUang.toLocaleString('id-ID')}</b></div>
+        <div><div style="font-size:11px;color:#888;">Total Riyal Keluar</div><b>${totalRiyal.toLocaleString('id-ID')} SAR</b></div>
+        <div><div style="font-size:11px;color:#888;">Total Kembalian</div><b>Rp ${totalKembalian.toLocaleString('id-ID')}</b></div>
+    </div>
+    <table><thead><tr><th>No</th><th>Tanggal</th><th>Ket.</th><th>Uang Masuk</th><th>Kurs</th><th>Riyal</th><th>Kembalian</th><th>Admin</th></tr></thead><tbody>${rowsHtml}</tbody></table>
+    `;
+    html = applyPrintTheme(html);
+    tampilkanJendelaCetak(html);
+}
+
 function hitungZakat(){ 
     if(sumberHartaList.length===0) return showToast('Tambah sumber harta terlebih dahulu!'); 
     const jenis=document.getElementById('jenisZakat').value; 
@@ -14983,7 +15131,7 @@ async function eksekusiSimpanEditProgram(id, nama, jenis) {
     if(!p) return;
     if(btn) { btn.disabled = true; btn.textContent = '⏳ Menyimpan...'; }
 
-   // Hanya ganti nama & jenis — data jamaah/kas/dll di dalamnya TIDAK disentuh sama sekali
+    // Hanya ganti nama & jenis — data jamaah/kas/dll di dalamnya TIDAK disentuh sama sekali
     p.nama = nama;
     p.jenis = jenis;
     await saveProgramData();
@@ -20057,4 +20205,3 @@ function cetakDariPreviewAlternatif() {
 
 </body>
     </html>
- 
