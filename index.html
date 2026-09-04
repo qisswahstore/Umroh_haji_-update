@@ -12193,9 +12193,17 @@ function importJamaahFromExcel(input){
                 const str = val.toString().trim();
                 // Jika sudah format tanggal valid, kembalikan apa adanya
                 if (/^\d{4}-\d{2}-\d{2}/.test(str)) return str.substring(0,10);
-                if (/^\d{1,2}[\/\-]\d{1,2}[\/\-]\d{4}/.test(str)) {
-                    const d = new Date(str);
-                    if (!isNaN(d)) return d.toISOString().substring(0,10);
+                // Format tanggal/bulan/tahun ala Indonesia (termasuk seperti tertulis di KTP) —
+                // dibaca MANUAL sebagai tanggal-bulan-tahun, TIDAK diserahkan ke new Date() yang
+                // sering menebak-nebak format Amerika (bulan-tanggal-tahun) dan bisa salah baca
+                // diam-diam untuk tanggal 12 ke bawah (mis. 05/03 disangka 3 Mei, padahal 5 Maret).
+                const mDMY = str.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})$/);
+                if (mDMY) {
+                    const tgl = parseInt(mDMY[1], 10), bln = parseInt(mDMY[2], 10), thn = parseInt(mDMY[3], 10);
+                    if (tgl >= 1 && tgl <= 31 && bln >= 1 && bln <= 12) {
+                        const d = new Date(thn, bln - 1, tgl);
+                        if (!isNaN(d) && d.getDate() === tgl) return d.toISOString().substring(0,10);
+                    }
                 }
                 // Jika angka serial Excel (biasanya 5 digit)
                 const num = parseFloat(str);
@@ -12208,6 +12216,7 @@ function importJamaahFromExcel(input){
             }
             let added=0; 
             const now=new Date().toLocaleDateString('id-ID')+' '+new Date().toLocaleTimeString('id-ID'); 
+            const namaNomorMencurigakan = []; // dikumpulkan dulu, diperingatkan setelah semua baris diproses
             for(let i=1;i<rows.length;i++){ 
                 const row=rows[i]; 
                 if(!row||row.length===0) continue; 
@@ -12219,12 +12228,18 @@ function importJamaahFromExcel(input){
                     if(fieldIndex!==-1&&row[fieldIndex]!==''&&row[fieldIndex]!==undefined){ 
                         let val = row[fieldIndex].toString().trim();
                         // Konversi notasi ilmiah Excel (misal 6.28124E+12) ke angka utuh
-                        if (/^-?[\d.]+[eE][+\-]?\d+$/.test(val)) {
+                        const kenaNotasiIlmiah = /^-?[\d.]+[eE][+\-]?\d+$/.test(val);
+                        if (kenaNotasiIlmiah) {
                             val = Math.round(parseFloat(val)).toString();
                         }
                         // Konversi serial date Excel ke YYYY-MM-DD
                         if (field.type==='date' || field.name.includes('lahir') || field.name.includes('tgl')) {
                             val = excelSerialToDate(val);
+                        }
+                        // Deteksi nomor WA/telepon yang kemungkinan rusak presisi karena notasi ilmiah
+                        // Excel (angka panjang berakhiran banyak nol berturut-turut = tanda khasnya)
+                        if ((field.type === 'tel' || field.name === 'whatsapp' || field.name.includes('telepon') || field.name.includes('hp')) && /0{4,}$/.test(val) && val.length >= 8) {
+                            namaNomorMencurigakan.push(nama);
                         }
                         additional[field.name]=val; 
                     } 
@@ -12234,7 +12249,12 @@ function importJamaahFromExcel(input){
             } 
             saveJamaahData(); 
             renderJamaahList();
-            showToast(`✅ Import selesai! ${added} jamaah ditambahkan`); 
+            if (namaNomorMencurigakan.length > 0) {
+                const daftar = namaNomorMencurigakan.slice(0, 8).join(', ') + (namaNomorMencurigakan.length > 8 ? `, dan ${namaNomorMencurigakan.length - 8} lainnya` : '');
+                tampilkanPeringatanNomorImport(namaNomorMencurigakan.length, added, daftar);
+            } else {
+                showToast(`✅ Import selesai! ${added} jamaah ditambahkan`); 
+            }
             input.value=''; 
     }; 
     reader.readAsArrayBuffer(file); 
@@ -14526,6 +14546,26 @@ function renderProgramListInModal() {
 }
 
 // ==================== KONFIRMASI BERTEMA (pengganti confirm() bawaan browser) ====================
+function tampilkanPeringatanNomorImport(jumlah, totalImport, daftarNama) {
+    let modal = document.getElementById('peringatanNomorModal');
+    if(!modal) {
+        modal = document.createElement('div');
+        modal.id = 'peringatanNomorModal';
+        modal.className = 'modal';
+        document.body.appendChild(modal);
+    }
+    modal.innerHTML = `<div class="modal-content" style="max-width:400px;">
+        <div style="text-align:center;font-size:40px;margin-bottom:6px;">⚠️</div>
+        <h3 style="color:#B45309;text-align:center;margin-bottom:10px;">${jumlah} Nomor Perlu Dicek Ulang</h3>
+        <div style="font-size:13px;color:#444;line-height:1.7;margin-bottom:16px;">
+            Import <b>${totalImport} jamaah</b> berhasil. Tapi nomor WA/Telepon milik <b>${escapeHtml(daftarNama)}</b> berakhiran banyak angka nol berturut-turut — kemungkinan besar sudah rusak presisi angkanya saat disimpan di file Excel (bukan dari aplikasi ini).
+            <br><br>Mohon cek & perbaiki manual nomornya di Database Jamaah.
+        </div>
+        <button onclick="document.getElementById('peringatanNomorModal').style.display='none'" style="width:100%;padding:12px;background:var(--primary);color:white;border:none;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;">Mengerti</button>
+    </div>`;
+    modal.style.display = 'flex';
+}
+
 function konfirmasiBertema(judul, pesanHtml, onYa, opsiTombolYa) {
     let modal = document.getElementById('konfirmasiBertemaModal');
     if(!modal) {
