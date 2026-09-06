@@ -41,6 +41,7 @@
             --dark: #1E293B;
             --gray: #64748B;
             --gray-light: #F1F5F9;
+            --card-bg: #FFFFFF;
         }
         
         /* Print Media Query - Optimasi untuk cetak */
@@ -3012,6 +3013,7 @@
                 <input type="number" id="cfg_jumlah_hari" placeholder="Contoh: 9" style="width:100%;padding:10px;border-radius:8px;border:1.5px solid #ddd;font-size:14px;background:var(--input-bg);color:var(--text);">
             </div>
             <div style="font-size:12px;color:#888;margin-top:4px;">Dipakai untuk buat kerangka Itinerary otomatis (Hari 1 s/d Hari N).</div>
+            <button onclick="openAturChecklistModal()" style="width:100%;padding:9px;margin-top:10px;background:var(--primary);color:white;border:none;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;"><i class="fas fa-list-check"></i> Atur Checklist Keberangkatan</button>
         </div>
         <div class="config-section"><h3><i class="fas fa-watermark"></i> Watermark</h3>
             <div class="config-row" style="display:flex; justify-content:space-between; align-items:center;"><label>Aktifkan Watermark</label><label class="switch"><input type="checkbox" id="cfg_watermark_enabled" checked><span class="slider"></span></label></div>
@@ -10864,7 +10866,42 @@ function cetakRekapTahunanGabungan() {
     tampilkanJendelaCetak(html);
 }
 
-// ==================== CHECKLIST H-30/H-14/H-7 ====================
+// ==================== CHECKLIST KEBERANGKATAN (template bisa diedit, dicentang manual per Program) ====================
+const CHECKLIST_DEFAULT = [
+    { id: 'chk_dok', teks: 'Cek kelengkapan dokumen semua jamaah', hari: 30 },
+    { id: 'chk_lunas', teks: 'Cek status pelunasan jamaah', hari: 14 },
+    { id: 'chk_manifest', teks: 'Siapkan manifest final & rooming list', hari: 7 },
+    { id: 'chk_konfirmasi', teks: 'Konfirmasi ulang tiket, hotel, transportasi', hari: 3 },
+    { id: 'chk_briefing', teks: 'Briefing terakhir jamaah', hari: 1 }
+];
+
+function getChecklistTemplate() {
+    if (!konfigurasiPro.checklist_template) {
+        konfigurasiPro.checklist_template = CHECKLIST_DEFAULT.map(x => ({...x}));
+        localStorage.setItem('navara_konfigurasi_pro', JSON.stringify(konfigurasiPro));
+        idbSet(STORE_KONFIGURASI, 'konfigurasi_pro', konfigurasiPro);
+    }
+    return konfigurasiPro.checklist_template;
+}
+function simpanChecklistTemplate(list) {
+    konfigurasiPro.checklist_template = list;
+    localStorage.setItem('navara_konfigurasi_pro', JSON.stringify(konfigurasiPro));
+    idbSet(STORE_KONFIGURASI, 'konfigurasi_pro', konfigurasiPro);
+}
+
+function getChecklistProgress() {
+    const slot = ensureProgramConfigSlot();
+    if (!slot.checklist_progress) slot.checklist_progress = {};
+    return slot.checklist_progress;
+}
+function toggleChecklistItem(itemId) {
+    const progress = getChecklistProgress();
+    progress[itemId] = !progress[itemId];
+    localStorage.setItem('navara_konfigurasi_pro', JSON.stringify(konfigurasiPro));
+    idbSet(STORE_KONFIGURASI, 'konfigurasi_pro', konfigurasiPro);
+    renderChecklistKeberangkatan();
+}
+
 function renderChecklistKeberangkatan() {
     const card = document.getElementById('homeChecklistCard');
     if(!card) return;
@@ -10872,20 +10909,77 @@ function renderChecklistKeberangkatan() {
     if(!kb || !kb.tanggal) { card.style.display = 'none'; return; }
     const sisaHari = Math.ceil((new Date(kb.tanggal) - new Date()) / 86400000);
     if(sisaHari > 35 || sisaHari < -3) { card.style.display = 'none'; return; }
-    const items = [
-        { batas: 30, teks: 'Cek kelengkapan dokumen semua jamaah' },
-        { batas: 14, teks: 'Cek status pelunasan jamaah' },
-        { batas: 7, teks: 'Siapkan manifest final & rooming list' },
-        { batas: 3, teks: 'Konfirmasi ulang tiket, hotel, transportasi' },
-        { batas: 1, teks: 'Briefing terakhir jamaah' }
-    ];
-    const html = items.map(it => {
-        const status = sisaHari <= it.batas ? '✅' : '⬜';
-        const warna = sisaHari <= it.batas ? '#166534' : '#999';
-        return `<div style="color:${warna};font-size:12px;padding:2px 0;">${status} H-${it.batas}: ${it.teks}</div>`;
+
+    const items = getChecklistTemplate();
+    const progress = getChecklistProgress();
+    const html = items.slice().sort((a,b) => b.hari - a.hari).map(it => {
+        const sudahCentang = !!progress[it.id];
+        const jatuhTempo = !sudahCentang && sisaHari <= it.hari;
+        return `<div onclick="toggleChecklistItem('${it.id}')" style="display:flex;align-items:flex-start;gap:8px;padding:4px 0;cursor:pointer;">
+            <span style="font-size:15px;flex-shrink:0;">${sudahCentang ? '☑️' : '⬜'}</span>
+            <span style="font-size:12px;color:${sudahCentang ? '#166534' : (jatuhTempo ? '#DC2626' : '#555')};text-decoration:${sudahCentang ? 'line-through' : 'none'};">
+                H-${it.hari}: ${escapeHtml(it.teks)}${jatuhTempo ? ' <b>⚠️ Sudah jatuh tempo</b>' : ''}
+            </span>
+        </div>`;
     }).join('');
     card.style.display = 'block';
-    document.getElementById('homeChecklistList').innerHTML = html;
+    document.getElementById('homeChecklistList').innerHTML = html || '<p style="font-size:12px;color:#888;">Belum ada item checklist</p>';
+}
+
+function openAturChecklistModal() {
+    let modal = document.getElementById('aturChecklistModal');
+    if (!modal) {
+        modal = document.createElement('div');
+        modal.id = 'aturChecklistModal';
+        modal.className = 'modal';
+        document.body.appendChild(modal);
+    }
+    renderAturChecklistModal(modal);
+    modal.style.display = 'flex';
+}
+
+function renderAturChecklistModal(modal) {
+    modal = modal || document.getElementById('aturChecklistModal');
+    if (!modal) return;
+    const items = getChecklistTemplate();
+    const rows = items.slice().sort((a,b) => b.hari - a.hari).map(it => `
+        <div style="background:#F8FAFC;border-radius:10px;padding:10px 12px;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center;gap:8px;">
+            <div style="font-size:12px;"><b>H-${it.hari}</b>: ${escapeHtml(it.teks)}</div>
+            <button onclick="hapusChecklistItem('${it.id}')" style="border:none;background:none;color:#DC2626;font-size:14px;cursor:pointer;flex-shrink:0;"><i class="fas fa-trash-alt"></i></button>
+        </div>`).join('');
+
+    modal.innerHTML = `<div class="modal-content" style="max-width:400px;">
+        <h3 style="color:var(--primary);margin-bottom:4px;"><i class="fas fa-list-check"></i> Atur Checklist Keberangkatan</h3>
+        <div style="font-size:11px;color:#888;margin-bottom:12px;">Berlaku untuk semua Program. Yang dicentang di Dashboard tetap terpisah per Program.</div>
+        <div style="max-height:260px;overflow-y:auto;">${rows || '<p style="text-align:center;color:#888;font-size:12px;">Belum ada item</p>'}</div>
+        <div style="background:#F0F9FF;border-radius:10px;padding:10px;margin-top:10px;">
+            <div class="input-group" style="margin-bottom:8px;"><label>H- berapa hari sebelum berangkat</label><input type="number" id="checklistFormHari" placeholder="Contoh: 20"></div>
+            <div class="input-group" style="margin-bottom:8px;"><label>Item</label><input type="text" id="checklistFormTeks" placeholder="Contoh: Cek visa semua jamaah"></div>
+            <button onclick="tambahChecklistItem()" style="width:100%;padding:9px;background:var(--primary);color:white;border:none;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;">+ Tambah Item</button>
+        </div>
+        <button onclick="document.getElementById('aturChecklistModal').style.display='none'" style="width:100%;padding:11px;background:#e2e8f0;color:#333;border:none;border-radius:10px;font-size:13px;cursor:pointer;margin-top:10px;">Tutup</button>
+    </div>`;
+}
+
+function tambahChecklistItem() {
+    const hari = parseInt(document.getElementById('checklistFormHari').value);
+    const teks = document.getElementById('checklistFormTeks').value.trim();
+    if (!teks) return showToast('Nama item wajib diisi!');
+    if (isNaN(hari) || hari < 0) return showToast('Isi H- dengan angka yang benar!');
+    const list = getChecklistTemplate();
+    list.push({ id: 'chk_' + Date.now(), teks, hari });
+    simpanChecklistTemplate(list);
+    renderAturChecklistModal();
+    renderChecklistKeberangkatan();
+    showToast('✅ Item ditambahkan');
+}
+
+function hapusChecklistItem(itemId) {
+    if (!cekIzinAdmin('bolehHapus')) return showToast('🔒 Anda tidak punya izin menghapus data');
+    const list = getChecklistTemplate().filter(x => x.id !== itemId);
+    simpanChecklistTemplate(list);
+    renderAturChecklistModal();
+    renderChecklistKeberangkatan();
 }
 
 // ==================== KIRIM WA MASSAL PER PROGRAM ====================
