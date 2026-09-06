@@ -2692,7 +2692,7 @@
 <div id="page-jamaah" class="page">
     <div class="header-premium header-premium-small"><div class="back-header"><i class="fas fa-arrow-left" onclick="showPage('home')"></i><h2>Database Jamaah</h2><div style="width:30px;"></div></div></div>
     <div class="card-premium">
-        <div id="jamaahAdminPanel" class="setting-card" style="display:none"><h3 style="color:var(--primary);"> Panel Admin Jamaah</h3><button class="btn btn-utility btn-small mt-2" onclick="showPage('prospek')"> 🎯 Calon Jamaah (Prospek)</button><button class="btn btn-primary btn-small mt-2" onclick="openTambahJamaahModal()"> + Tambah database</button><button class="btn btn-utility btn-small mt-2" onclick="openManageFieldsModal()"> Kelola Field Dinamis</button><button class="btn btn-utility btn-small mt-2" onclick="openRekapKategoriModal()"> 📊 Rekap per Kategori</button><button class="btn btn-utility btn-small mt-2" onclick="openKecocokanKamarModal()"> 🛏️ Cek Kecocokan Kamar</button><button class="btn btn-utility btn-small mt-2" onclick="openKelompokPorsiModal()"> 📊 Kelompokkan Berdasarkan Porsi</button><button class="btn btn-utility btn-small mt-2" onclick="openAntrianFollowUpModal()"> 📋 Antrian Follow-Up Prioritas</button><button class="btn btn-utility btn-small mt-2" onclick="openRekapKomisiMitraModal()"> 🤝 Rekap Komisi Mitra</button><button class="btn btn-utility btn-small mt-2" onclick="openRekapCicilanModal()"> 📅 Rekap Cicilan</button><button class="btn btn-utility btn-small mt-2" onclick="cetakManifestRooming()"> 📋 Cetak Manifest & Rooming</button><button class="btn btn-utility btn-small mt-2" onclick="openWaMassalModal()"> 📢 Kirim WA Massal</button><button class="btn btn-utility btn-small mt-2" onclick="downloadTemplateExcel()">⬇️ Download Template Excel</button><button class="btn btn-utility btn-small mt-2" onclick="exportJamaahToExcel()"> Export ke Excel</button><button class="btn btn-utility btn-small mt-2" onclick="document.getElementById('importExcelFile').click()"> IMPORT EXCEL</button><input type="file" id="importExcelFile" accept=".xlsx,.xls" style="display:none" onchange="importJamaahFromExcel(this)"><button class="btn btn-danger btn-small mt-2" onclick="confirmDeleteAllJamaah()"> HAPUS SEMUA database</button></div>
+        <div id="jamaahAdminPanel" class="setting-card" style="display:none"><h3 style="color:var(--primary);"> Panel Admin Jamaah</h3><button class="btn btn-utility btn-small mt-2" onclick="showPage('prospek')"> 🎯 Calon Jamaah (Prospek)</button><button class="btn btn-primary btn-small mt-2" onclick="openTambahJamaahModal()"> + Tambah database</button><button class="btn btn-utility btn-small mt-2" onclick="openManageFieldsModal()"> Kelola Field Dinamis</button><button class="btn btn-utility btn-small mt-2" onclick="openRekapKategoriModal()"> 📊 Rekap per Kategori</button><button class="btn btn-utility btn-small mt-2" onclick="openKecocokanKamarModal()"> 🛏️ Cek Kecocokan Kamar</button><button class="btn btn-utility btn-small mt-2" onclick="openKelompokPorsiModal()"> 📊 Kelompokkan Berdasarkan Porsi</button><button class="btn btn-utility btn-small mt-2" onclick="openKelompokRombonganModal()"> 👥 Kelompokkan Berdasarkan Rombongan</button><button class="btn btn-utility btn-small mt-2" onclick="openAntrianFollowUpModal()"> 📋 Antrian Follow-Up Prioritas</button><button class="btn btn-utility btn-small mt-2" onclick="openRekapKomisiMitraModal()"> 🤝 Rekap Komisi Mitra</button><button class="btn btn-utility btn-small mt-2" onclick="openRekapCicilanModal()"> 📅 Rekap Cicilan</button><button class="btn btn-utility btn-small mt-2" onclick="cetakManifestRooming()"> 📋 Cetak Manifest & Rooming</button><button class="btn btn-utility btn-small mt-2" onclick="openWaMassalModal()"> 📢 Kirim WA Massal</button><button class="btn btn-utility btn-small mt-2" onclick="downloadTemplateExcel()">⬇️ Download Template Excel</button><button class="btn btn-utility btn-small mt-2" onclick="exportJamaahToExcel()"> Export ke Excel</button><button class="btn btn-utility btn-small mt-2" onclick="document.getElementById('importExcelFile').click()"> IMPORT EXCEL</button><input type="file" id="importExcelFile" accept=".xlsx,.xls" style="display:none" onchange="importJamaahFromExcel(this)"><button class="btn btn-danger btn-small mt-2" onclick="confirmDeleteAllJamaah()"> HAPUS SEMUA database</button></div>
         <div class="section-title"><span>DAFTAR JAMAAH</span></div>
         <div class="search-box"><input type="text" id="searchJamaahInput" placeholder=" Cari nama jamaah..." onkeyup="filterJamaahList()"><select id="sortJamaahSelect" onchange="sortJamaahList()"><option value="urutan_asli">Urutan asli</option><option value="nama_asc">Nama A-Z</option><option value="nama_desc">Nama Z-A</option><option value="tgl_asc">Tanggal lama ke baru</option><option value="tgl_desc">Tanggal baru ke lama</option></select><button onclick="resetJamaahFilter()">Reset</button></div>
         <div id="filterLunasChip" style="display:none;align-items:center;gap:8px;background:#F0FBF6;border:1px solid #0D5C4A;border-radius:20px;padding:6px 12px;margin:8px 0;width:fit-content;">
@@ -3239,7 +3239,7 @@
             <div class="fitur-card" onclick="showPage('foldervirtual')"><div class="fitur-icon"><i class="fas fa-folder-open"></i></div><div class="fitur-title">Folder Virtual</div><div class="fitur-desc">Pisah per rombongan</div></div>
             <div class="fitur-card" onclick="showPage('pengingatwa')"><div class="fitur-icon"><i class="fab fa-whatsapp"></i></div><div class="fitur-title">Pengingat WA</div><div class="fitur-desc">Kirim pengingat otomatis</div></div>
             <div class="fitur-card" onclick="showPage('etikettiket')"><div class="fitur-icon"><i class="fas fa-ticket"></i></div><div class="fitur-title">E-Tiket & QR</div><div class="fitur-desc">Tiket digital dengan QR</div></div>
-            <div class="fitur-card" onclick="showPage('scanqr')"><div class="fitur-icon" style="font-size:40px;"><i class="fas fa-qrcode"></i></div><div class="fitur-title">Scan QR</div><div class="fitur-desc">Absensi & cek data jamaah</div></div>
+            <div class="fitur-card" onclick="showPage('scanqr')"><div class="fitur-icon" style="font-size:40px;"><i class="fas fa-qrcode"></i></div><div class="fitur-title">Manasik & Absensi</div><div class="fitur-desc">Jadwal, presensi & cek data jamaah</div></div>
             <div class="fitur-card" onclick="showPage('suratresmi')"><div class="fitur-icon" style="font-size:40px;"><i class="fas fa-file-signature"></i></div><div class="fitur-title">Surat Resmi</div><div class="fitur-desc">Buat surat otomatis dari data jamaah</div></div>
             <div class="fitur-card" onclick="showPage('cetaklabel')"><div class="fitur-icon"><i class="fas fa-tag"></i></div><div class="fitur-title">Cetak Label</div><div class="fitur-desc">Name tag / stiker koper</div></div>
             <div class="fitur-card" onclick="showPage('cloudstorage')"><div class="fitur-icon"><i class="fas fa-cloud"></i></div><div class="fitur-title">Cloud Storage</div><div class="fitur-desc">Backup & Restore data</div></div>
@@ -3255,6 +3255,22 @@
             <div class="fitur-card" onclick="openKalenderProgramModal()"><div class="fitur-icon"><i class="fas fa-calendar-days"></i></div><div class="fitur-title">Kalender Program</div><div class="fitur-desc">Semua jadwal keberangkatan</div></div>
             <div class="fitur-card" onclick="openProyeksiKasModal()"><div class="fitur-icon"><i class="fas fa-sack-dollar"></i></div><div class="fitur-title">Proyeksi Kas</div><div class="fitur-desc">Estimasi dana yang masih masuk</div></div>
             <div class="fitur-card" onclick="showPage('kalkulatorriyal')"><div class="fitur-icon"><i class="fas fa-right-left"></i></div><div class="fitur-title">Tukar Riyal</div><div class="fitur-desc">Hitung kembalian tukar SAR</div></div>
+            <div class="fitur-card" onclick="showPage('evaluasihotelmaskapai')"><div class="fitur-icon"><i class="fas fa-star-half-stroke"></i></div><div class="fitur-title">Evaluasi Hotel & Maskapai</div><div class="fitur-desc">Catatan penilaian tiap musim</div></div>
+        </div>
+    </div>
+</div>
+
+<!-- EVALUASI HOTEL & MASKAPAI PAGE -->
+<div id="page-evaluasihotelmaskapai" class="page">
+    <div class="header-premium header-premium-small"><div class="back-header"><i class="fas fa-arrow-left" onclick="showPage('fitur')"></i><h2>Evaluasi Hotel & Maskapai</h2><div style="width:30px;"></div></div></div>
+    <div class="container">
+        <div class="card-premium">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+                <div style="font-weight:bold;color:var(--primary);font-size:13px;">Daftar Hotel / Maskapai / Muassasah</div>
+                <button onclick="showTambahRekananHotelModal()" style="padding:6px 12px;background:var(--primary);color:white;border:none;border-radius:8px;font-size:12px;cursor:pointer;">+ Tambah</button>
+            </div>
+            <div id="rekananHotelListArea"></div>
+            <button class="btn btn-teal btn-small mt-2" onclick="cetakLaporanEvaluasiRekanan()"><i class="fas fa-print"></i> CETAK LAPORAN</button>
         </div>
     </div>
 </div>
@@ -3394,8 +3410,17 @@
 </div>
 
 <div id="page-scanqr" class="page">
-    <div class="header-premium header-premium-small"><div class="back-header"><i class="fas fa-arrow-left" onclick="showPage('fitur');stopScanner();"></i><h2>📷 Scan QR Absensi</h2><div style="width:30px;"></div></div></div>
+    <div class="header-premium header-premium-small"><div class="back-header"><i class="fas fa-arrow-left" onclick="showPage('fitur');stopScanner();"></i><h2>Manasik & Absensi</h2><div style="width:30px;"></div></div></div>
     <div class="container">
+
+        <!-- Jadwal Manasik -->
+        <div class="card-premium">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+                <div style="font-weight:bold;color:var(--primary);"><i class="fas fa-calendar-check"></i> Jadwal Manasik</div>
+                <button onclick="showTambahJadwalManasikModal()" style="padding:6px 12px;background:var(--primary);color:white;border:none;border-radius:8px;font-size:12px;cursor:pointer;">+ Tambah</button>
+            </div>
+            <div id="jadwalManasikListArea"></div>
+        </div>
 
         <!-- Kelola Sesi -->
         <div class="card-premium">
@@ -4063,6 +4088,7 @@ function internalShowPage(pageId) {
     }
     if (pageId === 'zakat') { if(window.renderSumberHartaList) window.renderSumberHartaList(); }
     if (pageId === 'kalkulatorriyal') { if(window.renderRiwayatTukarRiyal) window.renderRiwayatTukarRiyal(); }
+    if (pageId === 'evaluasihotelmaskapai') { if(window.renderRekananHotelList) window.renderRekananHotelList(); }
     if (pageId === 'pembayaran') {
         const cp = document.getElementById('paymentJamaahListContainer');
         if(cp) cp.innerHTML = '<div style="text-align:center;padding:30px;color:#6B7280;"><div style="font-size:30px;">⏳</div>Memuat data...</div>';
@@ -4106,7 +4132,7 @@ function internalShowPage(pageId) {
     if (pageId === 'foldervirtual') { if(window.renderFolderList) window.renderFolderList(); }
     if (pageId === 'pengingatwa') { if(window.loadPengingatData) window.loadPengingatData(); }
     if (pageId === 'suratresmi') { initSuratPage(); }
-    if (pageId === 'scanqr') { renderSesiAktifInfo(); renderRekapAbsensi(); }
+    if (pageId === 'scanqr') { renderSesiAktifInfo(); renderRekapAbsensi(); loadJadwalManasikData().then(renderJadwalManasikList); }
     if (pageId === 'etikettiket') { renderMultiTiketJamaah(); }
     if (pageId === 'pengingatwa') { loadPengingatData(); }
     if (pageId === 'cetaklabel') { renderMultiLabelJamaah(); updateNametagnBadge(); }
@@ -4127,7 +4153,7 @@ window.addEventListener('popstate', function(event) {
     let pageId = 'home';
     if (event.state && event.state.page) pageId = event.state.page;
     else { const hash = window.location.hash; if (hash && hash.startsWith('#page-')) pageId = hash.replace('#page-', ''); }
-    const validPages = ['home', 'estimasi', 'kas', 'jamaah', 'jamaahkita', 'catatan', 'zakat', 'pembayaran', 'datamaster', 'konfigurasi', 'setting', 'fitur', 'uploaddokumen', 'foldervirtual', 'pengingatwa', 'etikettiket', 'cetaklabel', 'cloudstorage', 'dashboard', 'scanqr', 'suratresmi', 'kalkulatorriyal'];
+    const validPages = ['home', 'estimasi', 'kas', 'jamaah', 'jamaahkita', 'catatan', 'zakat', 'pembayaran', 'datamaster', 'konfigurasi', 'setting', 'fitur', 'uploaddokumen', 'foldervirtual', 'pengingatwa', 'etikettiket', 'cetaklabel', 'cloudstorage', 'dashboard', 'scanqr', 'suratresmi', 'kalkulatorriyal', 'evaluasihotelmaskapai'];
     if (!validPages.includes(pageId)) pageId = 'home';
     internalShowPage(pageId);
     document.querySelectorAll('.nav-item-premium').forEach(nav => { nav.classList.remove('active'); if (nav.getAttribute('data-page') === pageId) nav.classList.add('active'); });
@@ -8188,10 +8214,29 @@ async function loadDynamicFieldsJamaah() {
             dynamicFieldsJamaah.push({ name: 'status_diskon', label: 'Status Diskon', type: 'dropdown', options: ['Diambil Jamaah', 'Diberikan ke Mitra'], icon: '🔀', isRequired: false });
             await idbSet(STORE_JAMAAH, 'jamaah_fields', dynamicFieldsJamaah);
         }
+        // Migrasi: tambahkan field Rombongan/Kloter/Regu/Karu/Karom kalau belum ada
+        if (dynamicFieldsJamaah.length > 0 && !dynamicFieldsJamaah.some(f => f.name === 'no_rombongan')) {
+            const idxPorsi = dynamicFieldsJamaah.findIndex(f => f.name === 'no_porsi');
+            const fieldsRombongan = [
+                { name: 'no_kloter',    label: 'No. Kloter',    type: 'text', icon: '✈️', isRequired: false },
+                { name: 'no_rombongan', label: 'No. Rombongan', type: 'text', icon: '👥', isRequired: false },
+                { name: 'no_regu',      label: 'No. Regu',      type: 'text', icon: '🔟', isRequired: false },
+                { name: 'nama_karu',    label: 'Nama Karu (Ketua Regu)', type: 'text', icon: '🎖️', isRequired: false },
+                { name: 'nama_karom',   label: 'Nama Karom (Ketua Rombongan)', type: 'text', icon: '🏅', isRequired: false }
+            ];
+            if (idxPorsi !== -1) dynamicFieldsJamaah.splice(idxPorsi + 1, 0, ...fieldsRombongan);
+            else dynamicFieldsJamaah.push(...fieldsRombongan);
+            await idbSet(STORE_JAMAAH, 'jamaah_fields', dynamicFieldsJamaah);
+        }
     } else {
         dynamicFieldsJamaah = [
             { name: 'nama_paspor',   label: 'Nama Paspor',   type: 'text',     icon: '👤', isRequired: false },
             { name: 'no_porsi',      label: 'No Porsi',       type: 'text',     icon: '🔢', isRequired: false },
+            { name: 'no_kloter',     label: 'No. Kloter',     type: 'text',     icon: '✈️', isRequired: false },
+            { name: 'no_rombongan',  label: 'No. Rombongan',  type: 'text',     icon: '👥', isRequired: false },
+            { name: 'no_regu',       label: 'No. Regu',       type: 'text',     icon: '🔟', isRequired: false },
+            { name: 'nama_karu',     label: 'Nama Karu (Ketua Regu)', type: 'text', icon: '🎖️', isRequired: false },
+            { name: 'nama_karom',    label: 'Nama Karom (Ketua Rombongan)', type: 'text', icon: '🏅', isRequired: false },
             { name: 'jenis_kelamin', label: 'Jenis Kelamin',  type: 'text',     icon: '👤', isRequired: false },
             { name: 'tempat_lahir',  label: 'Tempat Lahir',   type: 'text',     icon: '📍', isRequired: false },
             { name: 'tgl_lahir',     label: 'Tanggal Lahir',  type: 'date',     icon: '🗓️', isRequired: false },
@@ -8289,7 +8334,8 @@ function renderJamaahListWithPagination() {
     let html=`<div style="margin-bottom:10px; font-size:0.8rem; color:var(--accent);"> Total: ${jamaahFilteredList.length} jamaah (halaman ${currentJamaahPage} dari ${totalPages})</div>`; 
     pageData.forEach((j,idx)=>{ 
         const displayNum=start+idx+1; 
-        html+=`<div class="jamaah-card"><div class="jamaah-header"><div style="display:flex;align-items:center;gap:10px;flex:1;"><div id="foto_thumb_${j.id}" style="width:44px;height:44px;border-radius:50%;background:#f0f0f0;border:2px solid #0D5C4A;overflow:hidden;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;" onclick="showFotoProfilModal(${j.id},'${escapeHtml(j.nama_lengkap).replace(/'/g,"\\'")}')"><span style="font-size:22px;">👤</span></div><div><div class="jamaah-nama"><span style="background:var(--primary); color:white; display:inline-block; width:28px; height:28px; border-radius:50%; text-align:center; line-height:28px; font-size:13px; margin-right:10px;">${displayNum}</span> ${escapeHtml(j.nama_lengkap)}</div><div class="jamaah-tgl"> ${j.created_at||'-'}</div></div></div><div class="jamaah-actions"><button class="btn-share-wa" style="background:#0D9488;" onclick="openPaymentModalWithJamaah(${j.id})" title="Bayar Cepat"><i class="fas fa-money-bill-wave"></i></button><button class="btn-share-wa" onclick="shareSingleJamaahById('${j.id}')"><i class="fab fa-whatsapp"></i></button><button class="btn-edit-jamaah" onclick="editJamaahById('${j.id}')"><i class="fas fa-edit"></i></button><button class="btn-delete-jamaah" onclick="confirmDeleteJamaahById('${j.id}')"><i class="fas fa-trash"></i></button></div></div><div class="jamaah-detail">`; 
+        const adaKebutuhanKhusus = (j.kebutuhan_khusus?.kondisi?.length > 0) || !!j.kebutuhan_khusus?.catatan;
+        html+=`<div class="jamaah-card"><div class="jamaah-header"><div style="display:flex;align-items:center;gap:10px;flex:1;"><div id="foto_thumb_${j.id}" style="width:44px;height:44px;border-radius:50%;background:#f0f0f0;border:2px solid #0D5C4A;overflow:hidden;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;" onclick="showFotoProfilModal(${j.id},'${escapeHtml(j.nama_lengkap).replace(/'/g,"\\'")}')"><span style="font-size:22px;">👤</span></div><div><div class="jamaah-nama"><span style="background:var(--primary); color:white; display:inline-block; width:28px; height:28px; border-radius:50%; text-align:center; line-height:28px; font-size:13px; margin-right:10px;">${displayNum}</span> ${escapeHtml(j.nama_lengkap)} ${adaKebutuhanKhusus ? '<span title="Ada kebutuhan khusus/kontak darurat tercatat" style="font-size:13px;">🏥</span>' : ''}</div><div class="jamaah-tgl"> ${j.created_at||'-'}</div></div></div><div class="jamaah-actions"><button class="btn-share-wa" style="background:#0D9488;" onclick="openPaymentModalWithJamaah(${j.id})" title="Bayar Cepat"><i class="fas fa-money-bill-wave"></i></button><button class="btn-share-wa" onclick="shareSingleJamaahById('${j.id}')"><i class="fab fa-whatsapp"></i></button><button class="btn-edit-jamaah" onclick="editJamaahById('${j.id}')"><i class="fas fa-edit"></i></button><button class="btn-delete-jamaah" onclick="confirmDeleteJamaahById('${j.id}')"><i class="fas fa-trash"></i></button></div></div><div class="jamaah-detail">`; 
         for(const field of dynamicFieldsJamaah){ 
             const val=j.additional_fields?.[field.name]||''; 
             if(val) html+=`<div class="jamaah-detail-item"><strong>${escapeHtml(field.label)}:</strong> ${escapeHtml(val)}</div>`; 
@@ -8774,6 +8820,138 @@ function getSesiAktif() {
 function getAbsensiSesiAktif() {
     const sesi = getSesiAktif();
     return sesi ? sesi.absensi : [];
+}
+
+// ==================== JADWAL MANASIK ====================
+let jadwalManasikList = [];
+let _allJadwalManasikData = [];
+
+async function loadJadwalManasikData() {
+    const saved = await idbGet(STORE_ABSENSI, 'jadwal_manasik');
+    _allJadwalManasikData = saved || [];
+    jadwalManasikList = _allJadwalManasikData.filter(j => j.program_id === currentProgramId);
+}
+
+async function saveJadwalManasikData() {
+    const other = _allJadwalManasikData.filter(j => j.program_id !== currentProgramId);
+    jadwalManasikList.forEach(j => { if(!j.program_id) j.program_id = currentProgramId; });
+    _allJadwalManasikData = [...other, ...jadwalManasikList];
+    await idbSet(STORE_ABSENSI, 'jadwal_manasik', _allJadwalManasikData);
+}
+
+function renderJadwalManasikList() {
+    const el = document.getElementById('jadwalManasikListArea');
+    if (!el) return;
+    if (jadwalManasikList.length === 0) {
+        el.innerHTML = '<p style="text-align:center;color:#888;font-size:12px;padding:8px 0;">Belum ada jadwal manasik</p>';
+        return;
+    }
+    const sorted = [...jadwalManasikList].sort((a,b) => (a.tanggal||'').localeCompare(b.tanggal||''));
+    el.innerHTML = sorted.map(j => {
+        const sesiTerkait = j.sesiId ? absensiList.find(s => s.id === j.sesiId) : null;
+        return `
+        <div style="background:var(--bg);border-radius:10px;padding:10px 12px;margin-bottom:8px;">
+            <div style="font-weight:700;font-size:13px;color:var(--primary);">${escapeHtml(j.materi)}</div>
+            <div style="font-size:12px;color:#888;margin-top:2px;">
+                <i class="fas fa-calendar-day"></i> ${escapeHtml(j.tanggal)} ${j.waktu ? '· ' + escapeHtml(j.waktu) : ''}<br>
+                ${j.pemateri ? `<i class="fas fa-user"></i> ${escapeHtml(j.pemateri)}<br>` : ''}
+                ${j.lokasi ? `<i class="fas fa-location-dot"></i> ${escapeHtml(j.lokasi)}` : ''}
+            </div>
+            <div style="display:flex;gap:8px;margin-top:8px;">
+                ${sesiTerkait
+                    ? `<span style="flex:1;text-align:center;padding:7px;background:#DCFCE7;color:#166534;border-radius:8px;font-size:12px;font-weight:600;"><i class="fas fa-check"></i> Sudah Dimulai (${sesiTerkait.absensi.length} hadir)</span>`
+                    : `<button onclick="mulaiAbsensiDariJadwal('${j.id}')" style="flex:1;padding:7px;background:var(--primary);color:white;border:none;border-radius:8px;font-size:12px;cursor:pointer;"><i class="fas fa-play"></i> Mulai Absensi</button>`
+                }
+                <button onclick="showTambahJadwalManasikModal('${j.id}')" style="border:none;background:none;color:#0369A1;font-size:14px;cursor:pointer;"><i class="fas fa-pen"></i></button>
+                <button onclick="hapusJadwalManasik('${j.id}')" style="border:none;background:none;color:#DC2626;font-size:14px;cursor:pointer;"><i class="fas fa-trash-alt"></i></button>
+            </div>
+        </div>`;
+    }).join('');
+}
+
+function showTambahJadwalManasikModal(jadwalId) {
+    const j = jadwalId ? jadwalManasikList.find(x => x.id === jadwalId) : null;
+    let modal = document.getElementById('tambahJadwalManasikModal');
+    if (!modal) {
+        modal = document.createElement('div');
+        modal.id = 'tambahJadwalManasikModal';
+        modal.className = 'modal';
+        document.body.appendChild(modal);
+    }
+    modal.innerHTML = `<div class="modal-content" style="max-width:400px;">
+        <h3 style="color:var(--primary);margin-bottom:12px;"><i class="fas fa-calendar-check"></i> ${j ? 'Edit' : 'Tambah'} Jadwal Manasik</h3>
+        <input type="hidden" id="jadwalManasikEditId" value="${jadwalId || ''}">
+        <div class="input-group"><label>Materi *</label><input type="text" id="jadwalManasikMateri" value="${j ? escapeHtml(j.materi) : ''}" placeholder="Contoh: Manasik ke-1: Niat & Ihram"></div>
+        <div class="row">
+            <div class="input-group"><label>Tanggal *</label><input type="date" id="jadwalManasikTanggal" value="${j ? j.tanggalRaw||'' : ''}"></div>
+            <div class="input-group"><label>Waktu</label><input type="time" id="jadwalManasikWaktu" value="${j ? j.waktuRaw||'' : ''}"></div>
+        </div>
+        <div class="input-group"><label>Pemateri / Ustadz</label><input type="text" id="jadwalManasikPemateri" value="${j ? escapeHtml(j.pemateri||'') : ''}" placeholder="Opsional"></div>
+        <div class="input-group"><label>Lokasi</label><input type="text" id="jadwalManasikLokasi" value="${j ? escapeHtml(j.lokasi||'') : ''}" placeholder="Opsional"></div>
+        <button onclick="simpanJadwalManasik()" class="btn btn-primary">Simpan</button>
+        <button onclick="document.getElementById('tambahJadwalManasikModal').style.display='none'" class="btn btn-secondary mt-2">Batal</button>
+    </div>`;
+    modal.style.display = 'flex';
+}
+
+async function simpanJadwalManasik() {
+    const editId = document.getElementById('jadwalManasikEditId').value;
+    const materi = document.getElementById('jadwalManasikMateri').value.trim();
+    const tanggalRaw = document.getElementById('jadwalManasikTanggal').value;
+    const waktuRaw = document.getElementById('jadwalManasikWaktu').value;
+    const pemateri = document.getElementById('jadwalManasikPemateri').value.trim();
+    const lokasi = document.getElementById('jadwalManasikLokasi').value.trim();
+    if (!materi) return showToast('Materi wajib diisi!');
+    if (!tanggalRaw) return showToast('Tanggal wajib diisi!');
+
+    const tanggalTampil = new Date(tanggalRaw + 'T00:00:00').toLocaleDateString('id-ID', { day:'numeric', month:'long', year:'numeric' });
+    const waktuTampil = waktuRaw ? waktuRaw + ' WIB' : '';
+
+    if (editId) {
+        const j = jadwalManasikList.find(x => x.id === editId);
+        if (!j) return;
+        Object.assign(j, { materi, tanggal: tanggalTampil, tanggalRaw, waktu: waktuTampil, waktuRaw, pemateri, lokasi });
+    } else {
+        jadwalManasikList.push({
+            id: Date.now().toString(), materi, tanggal: tanggalTampil, tanggalRaw, waktu: waktuTampil, waktuRaw,
+            pemateri, lokasi, program_id: currentProgramId, sesiId: null
+        });
+    }
+    await saveJadwalManasikData();
+    document.getElementById('tambahJadwalManasikModal').style.display = 'none';
+    renderJadwalManasikList();
+    showToast('✅ Jadwal tersimpan');
+}
+
+function hapusJadwalManasik(jadwalId) {
+    if (!cekIzinAdmin('bolehHapus')) return showToast('🔒 Anda tidak punya izin menghapus data');
+    konfirmasiBertema('Hapus jadwal ini?', 'Jadwal manasik ini akan dihapus. Sesi absensi yang sudah dimulai (kalau ada) TIDAK ikut terhapus.', async () => {
+        jadwalManasikList = jadwalManasikList.filter(j => j.id !== jadwalId);
+        await saveJadwalManasikData();
+        renderJadwalManasikList();
+    });
+}
+
+async function mulaiAbsensiDariJadwal(jadwalId) {
+    const jadwal = jadwalManasikList.find(j => j.id === jadwalId);
+    if (!jadwal) return;
+    const sesi = {
+        id: Date.now().toString(),
+        nama: jadwal.materi,
+        tanggal: new Date().toLocaleDateString('id-ID'),
+        absensi: [],
+        program_id: currentProgramId
+    };
+    absensiList.push(sesi);
+    sesiAktifId = sesi.id;
+    jadwal.sesiId = sesi.id;
+    await saveAbsensiData();
+    await saveJadwalManasikData();
+    renderJadwalManasikList();
+    renderSesiAktifInfo();
+    renderRekapAbsensi();
+    document.getElementById('scannerStatus').textContent = 'Sesi aktif! Tekan Mulai Scan';
+    showToast('✅ Sesi absensi dimulai: ' + jadwal.materi);
 }
 
 function renderSesiAktifInfo() {
@@ -10292,6 +10470,37 @@ function renderJamaahForm(){
         </div>`;
     }
     container.innerHTML=html; 
+    renderKontakDaruratKebutuhanForm();
+}
+
+const DAFTAR_KEBUTUHAN_KHUSUS = ['Kursi Roda', 'Alergi Obat', 'Sakit Jantung', 'Diabetes', 'Asma', 'Gangguan Pendengaran', 'Gangguan Penglihatan', 'Butuh Pendamping'];
+
+function renderKontakDaruratKebutuhanForm() {
+    const container = document.getElementById('jamaahFormContainer');
+    if (!container) return;
+    const checkboxes = DAFTAR_KEBUTUHAN_KHUSUS.map(k => `
+        <label style="display:flex;align-items:center;gap:6px;font-size:12px;background:var(--bg);padding:6px 10px;border-radius:8px;cursor:pointer;">
+            <input type="checkbox" class="kebutuhanKhususCb" value="${escapeHtml(k)}" style="width:15px;height:15px;"> ${escapeHtml(k)}
+        </label>`).join('');
+
+    container.innerHTML += `
+    <div class="dynamic-field" style="border-top:1.5px solid #e2e8f0;padding-top:14px;margin-top:4px;">
+        <label style="font-weight:700;color:#DC2626;"><i class="fas fa-kit-medical"></i> Kontak Darurat & Kebutuhan Khusus</label>
+        <div style="font-size:11px;color:#888;margin-top:-4px;margin-bottom:8px;">Data ini disembunyikan dari tabel/daftar biasa — cuma tampil di sini.</div>
+    </div>
+    <div class="row">
+        <div class="dynamic-field"><label>Kontak Darurat 1 - Nama</label><input type="text" id="jamaahKontakDarurat1Nama"></div>
+        <div class="dynamic-field"><label>No. HP</label><input type="tel" id="jamaahKontakDarurat1HP"></div>
+    </div>
+    <div class="row">
+        <div class="dynamic-field"><label>Kontak Darurat 2 - Nama (opsional)</label><input type="text" id="jamaahKontakDarurat2Nama"></div>
+        <div class="dynamic-field"><label>No. HP</label><input type="tel" id="jamaahKontakDarurat2HP"></div>
+    </div>
+    <div class="dynamic-field">
+        <label>Kebutuhan Khusus / Riwayat Kesehatan</label>
+        <div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:6px;">${checkboxes}</div>
+    </div>
+    <div class="dynamic-field"><label>Catatan Tambahan</label><textarea id="jamaahKebutuhanCatatan" rows="2" placeholder="Opsional, kalau ada yang tidak tercantum di atas"></textarea></div>`;
 }
 
 function openTambahJamaahModal(){ 
@@ -10321,6 +10530,18 @@ function editJamaah(index){
     // Load Tipe Paket
     const tipePaketEl = document.getElementById('jamaahTipePaket');
     if(tipePaketEl) tipePaketEl.value = j.additional_fields?.tipe_paket || '';
+    // Load Kontak Darurat & Kebutuhan Khusus
+    const kd = j.kontak_darurat || {};
+    if(document.getElementById('jamaahKontakDarurat1Nama')) document.getElementById('jamaahKontakDarurat1Nama').value = kd.nama1 || '';
+    if(document.getElementById('jamaahKontakDarurat1HP')) document.getElementById('jamaahKontakDarurat1HP').value = kd.hp1 || '';
+    if(document.getElementById('jamaahKontakDarurat2Nama')) document.getElementById('jamaahKontakDarurat2Nama').value = kd.nama2 || '';
+    if(document.getElementById('jamaahKontakDarurat2HP')) document.getElementById('jamaahKontakDarurat2HP').value = kd.hp2 || '';
+    const kk = j.kebutuhan_khusus || {};
+    (kk.kondisi || []).forEach(kondisi => {
+        const cb = document.querySelector(`.kebutuhanKhususCb[value="${CSS.escape(kondisi)}"]`);
+        if(cb) cb.checked = true;
+    });
+    if(document.getElementById('jamaahKebutuhanCatatan')) document.getElementById('jamaahKebutuhanCatatan').value = kk.catatan || '';
     document.getElementById('jamaahModal').classList.add('show'); 
 }
 
@@ -10336,14 +10557,25 @@ function saveJamaah(tetapBuka){
     // Simpan Tipe Paket
     const tipePaketEl = document.getElementById('jamaahTipePaket');
     if(tipePaketEl) additional['tipe_paket'] = tipePaketEl.value;
+    // Simpan Kontak Darurat & Kebutuhan Khusus (disimpan terpisah dari additional_fields biasa)
+    const kontakDarurat = {
+        nama1: document.getElementById('jamaahKontakDarurat1Nama')?.value.trim() || '',
+        hp1: document.getElementById('jamaahKontakDarurat1HP')?.value.trim() || '',
+        nama2: document.getElementById('jamaahKontakDarurat2Nama')?.value.trim() || '',
+        hp2: document.getElementById('jamaahKontakDarurat2HP')?.value.trim() || ''
+    };
+    const kebutuhanKhusus = {
+        kondisi: Array.from(document.querySelectorAll('.kebutuhanKhususCb:checked')).map(cb => cb.value),
+        catatan: document.getElementById('jamaahKebutuhanCatatan')?.value.trim() || ''
+    };
     const now=new Date().toLocaleDateString('id-ID')+' '+new Date().toLocaleTimeString('id-ID'); 
     let idJamaahTersimpan;
     if(editingJamaahId!==null){ 
-        jamaahList[editingJamaahId]={...jamaahList[editingJamaahId], nama_lengkap:nama, additional_fields:additional, updated_at:now}; 
+        jamaahList[editingJamaahId]={...jamaahList[editingJamaahId], nama_lengkap:nama, additional_fields:additional, kontak_darurat:kontakDarurat, kebutuhan_khusus:kebutuhanKhusus, updated_at:now}; 
         idJamaahTersimpan = jamaahList[editingJamaahId].id;
         showToast('Data diupdate'); 
     } else {
-        const jBaru = {id:Date.now(), nama_lengkap:nama, additional_fields:additional, created_at:now, program_id:currentProgramId};
+        const jBaru = {id:Date.now(), nama_lengkap:nama, additional_fields:additional, kontak_darurat:kontakDarurat, kebutuhan_khusus:kebutuhanKhusus, created_at:now, program_id:currentProgramId};
         jamaahList.push(jBaru); 
         idJamaahTersimpan = jBaru.id;
         showToast(tetapBuka ? '✅ Ditambahkan, siap isi jamaah berikutnya' : 'Data ditambahkan'); 
@@ -10971,6 +11203,78 @@ function renderKelompokPorsiModal(modal) {
         <div style="max-height:400px;overflow-y:auto;">${html || '<p style="color:#6B7280;text-align:center;">Tidak ada jamaah dengan Nomor Porsi yang cocok rentang manapun</p>'}</div>
         <button onclick="closeKelompokPorsiModal()" style="width:100%;padding:11px;background:#e2e8f0;color:#333;border:none;border-radius:10px;font-size:13px;cursor:pointer;margin-top:10px;">Tutup</button>
     </div>`;
+}
+
+// ==================== KELOMPOKKAN BERDASARKAN ROMBONGAN (Kloter/Rombongan/Regu, Karu/Karom) ====================
+function openKelompokRombonganModal() {
+    let modal = document.getElementById('kelompokRombonganModal');
+    if(!modal) {
+        modal = document.createElement('div');
+        modal.id = 'kelompokRombonganModal';
+        modal.className = 'modal';
+        document.body.appendChild(modal);
+    }
+    renderKelompokRombonganModal(modal);
+    modal.style.display = 'flex';
+}
+
+function renderKelompokRombonganModal(modal) {
+    modal = modal || document.getElementById('kelompokRombonganModal');
+    if(!modal) return;
+
+    const grup = {};
+    let belumDiisi = 0;
+    jamaahList.forEach(j => {
+        const noRombongan = (j.additional_fields?.no_rombongan || '').trim();
+        if(!noRombongan) { belumDiisi++; return; }
+        if(!grup[noRombongan]) grup[noRombongan] = { orang: [], karu: new Set(), karom: new Set(), kloter: new Set() };
+        grup[noRombongan].orang.push(j);
+        const karu = j.additional_fields?.nama_karu;
+        const karom = j.additional_fields?.nama_karom;
+        const kloter = j.additional_fields?.no_kloter;
+        if(karu) grup[noRombongan].karu.add(karu);
+        if(karom) grup[noRombongan].karom.add(karom);
+        if(kloter) grup[noRombongan].kloter.add(kloter);
+    });
+
+    const namaRombongan = Object.keys(grup).sort();
+    let html = namaRombongan.map(nr => {
+        const g = grup[nr];
+        const karuTampil = [...g.karu].join(', ') || '-';
+        const karomTampil = [...g.karom].join(', ') || '-';
+        const kloterTampil = [...g.kloter].join(', ') || '-';
+        return `
+        <div style="background:#F8FAFC;border-radius:10px;padding:12px;margin-bottom:10px;">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+                <div style="font-weight:700;font-size:14px;color:#0D5C4A;">👥 Rombongan ${escapeHtml(nr)}</div>
+                <div style="font-size:12px;color:#888;">${g.orang.length} orang</div>
+            </div>
+            <div style="font-size:11px;color:#555;margin-bottom:8px;">
+                <i class="fas fa-plane"></i> Kloter: ${escapeHtml(kloterTampil)}<br>
+                <i class="fas fa-medal"></i> Karom: ${escapeHtml(karomTampil)} · Karu: ${escapeHtml(karuTampil)}
+            </div>
+            <div style="font-size:11px;color:#888;cursor:pointer;" onclick="this.nextElementSibling.style.display = this.nextElementSibling.style.display === 'none' ? 'block' : 'none';">▾ Lihat/sembunyikan nama</div>
+            <div style="display:none;font-size:12px;color:#555;max-height:120px;overflow-y:auto;margin-top:6px;border-top:1px solid #e5e7eb;padding-top:6px;">
+                ${g.orang.map(o => escapeHtml(o.nama_lengkap)).join('<br>')}
+            </div>
+        </div>`;
+    }).join('');
+
+    if(belumDiisi > 0) {
+        html += `<div style="font-size:12px;color:#6B7280;text-align:center;padding:8px;">${belumDiisi} jamaah belum diisi No. Rombongan (tidak ikut dikelompokkan)</div>`;
+    }
+
+    modal.innerHTML = `<div class="modal-content" style="max-width:440px;">
+        <h3 style="color:#0D5C4A;margin-bottom:4px;">👥 Kelompokkan Berdasarkan Rombongan</h3>
+        <div style="font-size:11px;color:#888;margin-bottom:12px;">${escapeHtml(getCurrentProgram()?.nama || '-')} — isi No. Rombongan tiap jamaah dulu di Database</div>
+        <div style="max-height:400px;overflow-y:auto;">${html || '<p style="color:#6B7280;text-align:center;">Belum ada jamaah dengan No. Rombongan terisi</p>'}</div>
+        <button onclick="closeKelompokRombonganModal()" style="width:100%;padding:11px;background:#e2e8f0;color:#333;border:none;border-radius:10px;font-size:13px;cursor:pointer;margin-top:10px;">Tutup</button>
+    </div>`;
+}
+
+function closeKelompokRombonganModal() {
+    const modal = document.getElementById('kelompokRombonganModal');
+    if(modal) modal.style.display = 'none';
 }
 
 function closeKelompokPorsiModal() {
@@ -13215,6 +13519,180 @@ function toggleZakatInput(){
     } else { 
         globalDiv.innerHTML=`<div class="input-group"><label>Harga Emas per Gram (Rp)</label><input type="text" id="hargaEmas" class="money-input" inputmode="numeric" value="1.200.000"></div>`; 
     } 
+}
+
+// ==================== EVALUASI HOTEL & MASKAPAI (terpisah total dari sistem Mitra/agen) ====================
+function getRekananHotelList() {
+    return konfigurasiPro.rekanan_hotel_list || [];
+}
+function simpanRekananHotelList(list) {
+    konfigurasiPro.rekanan_hotel_list = list;
+    localStorage.setItem('navara_konfigurasi_pro', JSON.stringify(konfigurasiPro));
+    idbSet(STORE_KONFIGURASI, 'konfigurasi_pro', konfigurasiPro);
+}
+
+function renderRekananHotelList() {
+    const container = document.getElementById('rekananHotelListArea');
+    if (!container) return;
+    const list = getRekananHotelList();
+    if (list.length === 0) { container.innerHTML = '<p style="text-align:center;color:#888;font-size:12px;padding:12px 0;">Belum ada Hotel/Maskapai yang dicatat</p>'; return; }
+
+    const jenisIcon = { Hotel: 'fa-hotel', Maskapai: 'fa-plane', Muassasah: 'fa-building', Lainnya: 'fa-circle-question' };
+    container.innerHTML = list.map(r => {
+        const rataRata = r.evaluasi.length > 0 ? (r.evaluasi.reduce((a,e) => a + e.rating, 0) / r.evaluasi.length).toFixed(1) : null;
+        const evaluasiHtml = r.evaluasi.slice().reverse().map(e => `
+            <div style="background:white;border-radius:8px;padding:8px 10px;margin-top:6px;">
+                <div style="display:flex;justify-content:space-between;align-items:flex-start;">
+                    <div style="font-size:12px;">
+                        ${'⭐'.repeat(e.rating)}${'☆'.repeat(5-e.rating)}<br>
+                        <span style="color:#555;">${escapeHtml(e.catatan || '-')}</span><br>
+                        <span style="color:#aaa;font-size:11px;">${escapeHtml(e.tanggal)}${e.program ? ' · ' + escapeHtml(e.program) : ''}</span>
+                    </div>
+                    <button onclick="hapusEvaluasiRekanan('${r.id}','${e.id}')" style="border:none;background:none;color:#DC2626;font-size:13px;cursor:pointer;flex-shrink:0;"><i class="fas fa-trash-alt"></i></button>
+                </div>
+            </div>`).join('');
+        return `
+        <div style="background:var(--bg);border-radius:10px;padding:12px;margin-bottom:10px;">
+            <div style="display:flex;justify-content:space-between;align-items:center;">
+                <div>
+                    <div style="font-weight:700;font-size:13px;color:var(--primary);"><i class="fas ${jenisIcon[r.jenis]||'fa-circle-question'}"></i> ${escapeHtml(r.nama)}</div>
+                    <div style="font-size:11px;color:#888;">${escapeHtml(r.jenis)}${rataRata ? ' · Rata-rata ' + rataRata + ' ⭐ (' + r.evaluasi.length + 'x dinilai)' : ' · Belum ada penilaian'}</div>
+                </div>
+                <button onclick="hapusRekananHotel('${r.id}')" style="border:none;background:none;color:#DC2626;font-size:14px;cursor:pointer;"><i class="fas fa-trash-alt"></i></button>
+            </div>
+            <div id="evaluasiListArea_${r.id}" style="margin-top:8px;${r.evaluasi.length === 0 ? 'display:none;' : ''}">${evaluasiHtml}</div>
+            ${r.evaluasi.length > 0 ? `<div onclick="const el=document.getElementById('evaluasiListArea_${r.id}'); el.style.display = el.style.display==='none'?'block':'none';" style="font-size:11px;color:#888;cursor:pointer;margin-top:4px;">▾ Lihat/sembunyikan riwayat</div>` : ''}
+            <button onclick="showTambahEvaluasiForm('${r.id}')" style="width:100%;padding:7px;margin-top:8px;background:var(--primary);color:white;border:none;border-radius:8px;font-size:12px;cursor:pointer;"><i class="fas fa-plus"></i> Tambah Evaluasi</button>
+            <div id="tambahEvaluasiFormArea_${r.id}"></div>
+        </div>`;
+    }).join('');
+}
+
+function showTambahRekananHotelModal() {
+    let modal = document.getElementById('tambahRekananHotelModal');
+    if (!modal) {
+        modal = document.createElement('div');
+        modal.id = 'tambahRekananHotelModal';
+        modal.className = 'modal';
+        document.body.appendChild(modal);
+    }
+    modal.innerHTML = `<div class="modal-content" style="max-width:380px;">
+        <h3 style="color:var(--primary);margin-bottom:12px;">+ Tambah Hotel/Maskapai</h3>
+        <div class="input-group"><label>Nama *</label><input type="text" id="rekananHotelNama" placeholder="Contoh: Hotel Al-Marwa, Saudia Airlines"></div>
+        <div class="input-group"><label>Jenis</label><select id="rekananHotelJenis">
+            <option value="Hotel">Hotel</option>
+            <option value="Maskapai">Maskapai</option>
+            <option value="Muassasah">Muassasah</option>
+            <option value="Lainnya">Lainnya</option>
+        </select></div>
+        <button onclick="simpanRekananHotelBaru()" class="btn btn-primary">Simpan</button>
+        <button onclick="document.getElementById('tambahRekananHotelModal').style.display='none'" class="btn btn-secondary mt-2">Batal</button>
+    </div>`;
+    modal.style.display = 'flex';
+}
+
+function simpanRekananHotelBaru() {
+    const nama = document.getElementById('rekananHotelNama').value.trim();
+    const jenis = document.getElementById('rekananHotelJenis').value;
+    if (!nama) return showToast('Nama wajib diisi!');
+    const list = getRekananHotelList();
+    list.push({ id: 'rk_' + Date.now(), nama, jenis, evaluasi: [] });
+    simpanRekananHotelList(list);
+    document.getElementById('tambahRekananHotelModal').style.display = 'none';
+    renderRekananHotelList();
+    showToast('✅ Tersimpan');
+}
+
+function hapusRekananHotel(rekananId) {
+    if (!cekIzinAdmin('bolehHapus')) return showToast('🔒 Anda tidak punya izin menghapus data');
+    konfirmasiBertema('Hapus data ini?', 'Seluruh riwayat evaluasi untuk hotel/maskapai ini akan ikut terhapus.', () => {
+        const list = getRekananHotelList().filter(r => r.id !== rekananId);
+        simpanRekananHotelList(list);
+        renderRekananHotelList();
+    });
+}
+
+function showTambahEvaluasiForm(rekananId) {
+    const el = document.getElementById('tambahEvaluasiFormArea_' + rekananId);
+    if (!el) return;
+    const bintangHtml = [1,2,3,4,5].map(n => `<span onclick="pilihRatingEvaluasi('${rekananId}', ${n})" id="bintang_${rekananId}_${n}" data-val="${n}" style="font-size:24px;cursor:pointer;color:#ddd;">★</span>`).join('');
+    el.innerHTML = `
+        <div style="background:white;border-radius:8px;padding:10px;margin-top:8px;">
+            <div id="ratingArea_${rekananId}" style="text-align:center;margin-bottom:8px;">${bintangHtml}</div>
+            <input type="hidden" id="ratingValue_${rekananId}" value="0">
+            <div class="input-group" style="margin-bottom:8px;"><input type="text" id="evaluasiCatatan_${rekananId}" placeholder="Catatan singkat, misal: kamar bersih, agak jauh dari Masjidil Haram"></div>
+            <div class="input-group" style="margin-bottom:8px;"><input type="text" id="evaluasiProgram_${rekananId}" placeholder="Program/musim terkait (opsional)"></div>
+            <button onclick="simpanEvaluasiRekanan('${rekananId}')" style="width:100%;padding:8px;background:var(--primary);color:white;border:none;border-radius:8px;font-size:12px;cursor:pointer;">Simpan Evaluasi</button>
+        </div>`;
+}
+
+function pilihRatingEvaluasi(rekananId, nilai) {
+    document.getElementById('ratingValue_' + rekananId).value = nilai;
+    for (let i = 1; i <= 5; i++) {
+        document.getElementById(`bintang_${rekananId}_${i}`).style.color = i <= nilai ? '#F59E0B' : '#ddd';
+    }
+}
+
+function simpanEvaluasiRekanan(rekananId) {
+    const rating = parseInt(document.getElementById('ratingValue_' + rekananId).value) || 0;
+    if (rating === 0) return showToast('Pilih bintang penilaian dulu!');
+    const catatan = document.getElementById('evaluasiCatatan_' + rekananId).value.trim();
+    const program = document.getElementById('evaluasiProgram_' + rekananId).value.trim();
+    const list = getRekananHotelList();
+    const r = list.find(x => x.id === rekananId);
+    if (!r) return;
+    r.evaluasi.push({
+        id: 'ev_' + Date.now(),
+        rating, catatan, program,
+        tanggal: new Date().toLocaleDateString('id-ID')
+    });
+    simpanRekananHotelList(list);
+    document.getElementById('tambahEvaluasiFormArea_' + rekananId).innerHTML = '';
+    renderRekananHotelList();
+    showToast('✅ Evaluasi tersimpan');
+}
+
+function hapusEvaluasiRekanan(rekananId, evaluasiId) {
+    if (!cekIzinAdmin('bolehHapus')) return showToast('🔒 Anda tidak punya izin menghapus data');
+    const list = getRekananHotelList();
+    const r = list.find(x => x.id === rekananId);
+    if (!r) return;
+    r.evaluasi = r.evaluasi.filter(e => e.id !== evaluasiId);
+    simpanRekananHotelList(list);
+    renderRekananHotelList();
+}
+
+function cetakLaporanEvaluasiRekanan() {
+    const list = getRekananHotelList();
+    if (list.length === 0) return showToast('Belum ada data untuk dicetak!');
+    const namaInstansi = getNamaInstansiUtama();
+
+    const rowsHtml = list.map(r => {
+        const rataRata = r.evaluasi.length > 0 ? (r.evaluasi.reduce((a,e) => a + e.rating, 0) / r.evaluasi.length).toFixed(1) : '-';
+        const evaluasiRows = r.evaluasi.length > 0
+            ? r.evaluasi.slice().reverse().map(e => `<tr>
+                <td style="padding:5px 8px;border-bottom:1px solid #eee;"></td>
+                <td style="padding:5px 8px;border-bottom:1px solid #eee;">${'⭐'.repeat(e.rating)}${'☆'.repeat(5-e.rating)}</td>
+                <td style="padding:5px 8px;border-bottom:1px solid #eee;">${escapeHtml(e.catatan || '-')}</td>
+                <td style="padding:5px 8px;border-bottom:1px solid #eee;">${escapeHtml(e.program || '-')}</td>
+                <td style="padding:5px 8px;border-bottom:1px solid #eee;">${escapeHtml(e.tanggal)}</td>
+              </tr>`).join('')
+            : `<tr><td colspan="5" style="padding:5px 8px;border-bottom:1px solid #eee;color:#999;">Belum ada evaluasi</td></tr>`;
+        return `<tr><td colspan="5" style="padding:8px;background:#EAF3F0;font-weight:700;border-bottom:1px solid #eee;">${escapeHtml(r.nama)} (${escapeHtml(r.jenis)}) — Rata-rata: ${rataRata} ⭐</td></tr>${evaluasiRows}`;
+    }).join('');
+
+    let html = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>Evaluasi Hotel & Maskapai</title>
+    <style>body{font-family:Arial,sans-serif;padding:20px;color:#222;background:#f0f0f0;} h1{color:#0D5C4A;font-size:18px;margin-bottom:2px;}
+    table{width:100%;border-collapse:collapse;margin-top:14px;font-size:12px;}
+    @page{size:A4 portrait;margin:10mm 12mm;}
+    @media print{ *{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important;} html{width:210mm;} body{background:white;padding:0;margin:0;width:210mm;} .no-print{display:none!important;} }
+    </style></head><body>
+    <h1>⭐ EVALUASI HOTEL & MASKAPAI</h1>
+    <p style="font-size:12px;color:#666;">${escapeHtml(namaInstansi)} — Dicetak: ${new Date().toLocaleDateString('id-ID')}</p>
+    <table><thead><tr><th style="background:#0D5C4A;color:white;padding:8px;text-align:left;">Nama</th><th style="background:#0D5C4A;color:white;padding:8px;text-align:left;">Rating</th><th style="background:#0D5C4A;color:white;padding:8px;text-align:left;">Catatan</th><th style="background:#0D5C4A;color:white;padding:8px;text-align:left;">Program</th><th style="background:#0D5C4A;color:white;padding:8px;text-align:left;">Tanggal</th></tr></thead><tbody>${rowsHtml}</tbody></table>
+    `;
+    html = applyPrintTheme(html);
+    tampilkanJendelaCetak(html);
 }
 
 function hitungTukarRiyal() {
