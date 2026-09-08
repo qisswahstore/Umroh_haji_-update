@@ -10726,6 +10726,26 @@ function exportJamaahToExcel(){
         return row; 
     }); 
     const ws=XLSX.utils.aoa_to_sheet([headers,...rows]); 
+
+    // Paksa kolom nomor WA/Telepon jadi format Teks (bukan Angka) — supaya Excel/Google Sheets
+    // tidak membulatkan nomor panjang jadi notasi ilmiah (kehilangan digit, jadi "...0000").
+    const kolomNomorHP = [];
+    dynamicFieldsJamaah.forEach((f, idx) => {
+        const isNomorHP = f.type === 'tel' || f.name === 'whatsapp' || f.name.includes('telepon') || f.name.includes('hp');
+        if (isNomorHP) kolomNomorHP.push(3 + idx); // 3 = jumlah kolom tetap (No, Nama, Tanggal) sebelum field dinamis
+    });
+    kolomNomorHP.forEach(colIdx => {
+        for (let r = 1; r <= rows.length; r++) { // baris 0 = header
+            const cellRef = XLSX.utils.encode_cell({ r, c: colIdx });
+            const cell = ws[cellRef];
+            if (cell && cell.v !== undefined && cell.v !== '') {
+                cell.v = String(cell.v);
+                cell.t = 's';   // paksa tipe sel jadi String
+                cell.z = '@';   // paksa format tampilan jadi Teks
+            }
+        }
+    });
+
     const wb=XLSX.utils.book_new(); 
     XLSX.utils.book_append_sheet(wb,ws,'database'); 
     XLSX.writeFile(wb,`Data_Jamaah_${new Date().toLocaleDateString('id-ID').replace(/\//g,'-')}.xlsx`); 
