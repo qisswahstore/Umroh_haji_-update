@@ -2901,7 +2901,7 @@
     <div class="header-premium header-premium-small"><div class="back-header"><i class="fas fa-arrow-left" onclick="showPage('home')"></i><h2 id="masterJudulHeader">Multi Event</h2><i class="fas fa-cog" onclick="openMasterSetting()" style="color:white; font-size:18px; cursor:pointer;"></i></div></div>
     <div class="card-premium">
         <div id="masterAdminPanel" style="display:none; background:var(--gray-light); padding:15px; border-radius:20px; margin-bottom:15px;">
-            <div class="input-group"><label> Judul Halaman / Laporan</label><input type="text" id="masterJudul" placeholder="Contoh: BADAL HAJI 2026"></div>
+            <div class="input-group"><label> Judul Halaman / Laporan</label><input type="text" id="masterJudul" placeholder="Contoh: BADAL HAJI 2026" oninput="saveMasterJudul()"></div>
             <div class="row"><button class="btn btn-utility btn-small" onclick="openMasterFieldModal()" style="flex:1"> Kelola Field Dinamis</button><button class="btn btn-utility btn-small" onclick="openMasterItemModal()" style="flex:1"> Kelola Item</button></div>
             <div class="row mt-2"><button class="btn btn-utility btn-small" onclick="copyFromJamaah()" style="flex:1"> Copy dari database</button><button class="btn btn-utility btn-small" onclick="openModeManager()" style="flex:1"><i class="fas fa-sliders-h"></i>  Kelola Mode</button></div>
             <div class="row mt-2"><button class="btn btn-accent btn-small" onclick="openAssignItemMassalModal()" style="flex:1"><i class="fas fa-check-double"></i>  Assign Item Massal</button></div>
@@ -4082,7 +4082,7 @@ function internalShowPage(pageId) {
     if (pageId === 'alumni') { if(typeof renderAlumniList === 'function') renderAlumniList(); }
     if (pageId === 'arsipprogram') { if(typeof renderArsipProgramList === 'function') renderArsipProgramList(); }
     if (pageId === 'itinerary') { if(typeof renderItineraryList === 'function') renderItineraryList(); }
-    if (pageId === 'jamaah') { if(window.loadJamaahData) window.loadJamaahData(); if(window.renderJamaahListWithPagination) window.renderJamaahListWithPagination(); }
+    if (pageId === 'jamaah') { if(window.loadJamaahData) window.loadJamaahData().then(() => { if(window.renderJamaahListWithPagination) window.renderJamaahListWithPagination(); }); else if(window.renderJamaahListWithPagination) window.renderJamaahListWithPagination(); }
     if (pageId === 'jamaahkita') {
         const c = document.getElementById('jamaahKitaListContainer');
         if(c) c.innerHTML = '<div style="text-align:center;padding:30px;color:#6B7280;"><div style="font-size:30px;">⏳</div>Memuat data...</div>';
@@ -4096,7 +4096,7 @@ function internalShowPage(pageId) {
         if(cp) cp.innerHTML = '<div style="text-align:center;padding:30px;color:#6B7280;"><div style="font-size:30px;">⏳</div>Memuat data...</div>';
         setTimeout(() => { if(window.renderPaymentDashboard) window.renderPaymentDashboard(); if(window.renderPaymentJamaahList) window.renderPaymentJamaahList(); if(window.populatePaymentJamaahDropdown) window.populatePaymentJamaahDropdown(); }, 50);
     }
-    if (pageId === 'datamaster') { if(window.loadMasterData) window.loadMasterData(); if(window.renderDynamicModeSwitcher) window.renderDynamicModeSwitcher(); }
+    if (pageId === 'datamaster') { if(window.loadMasterData) window.loadMasterData().then(() => { if(window.renderDynamicModeSwitcher) window.renderDynamicModeSwitcher(); }); else if(window.renderDynamicModeSwitcher) window.renderDynamicModeSwitcher(); loadMasterJudul(); }
     if (pageId === 'home') { updateLicenseBanner(); updateLicenseSummary(); updateHomeStats(); }
     if (pageId === 'lisensi') { renderLicenseStatus(); }
     if (pageId === 'googledrive') { initGoogleDrivePage(); }
@@ -11581,8 +11581,108 @@ function renderSimulasiGratisModal(setiap, dapat) {
         <h3 style="color:#0D5C4A;margin-bottom:4px;">🧮 Simulasi Kebijakan Gratis</h3>
         <div style="font-size:11px;color:#888;margin-bottom:12px;">Coba beberapa rasio sebelum sepakat dengan Mitra — pakai Modal & Harga dari Estimasi Program saat ini.</div>
         <div style="max-height:400px;overflow-y:auto;">${htmlHasil}</div>
-        <button onclick="document.getElementById('simulasiGratisModal').style.display='none'" style="width:100%;padding:11px;background:#e2e8f0;color:#333;border:none;border-radius:10px;font-size:13px;cursor:pointer;margin-top:10px;">Tutup</button>
+        <div class="row" style="margin-top:10px;">
+            <button onclick="cetakSimulasiGratis()" style="flex:1;padding:10px;background:#0D9488;color:white;border:none;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;"><i class="fas fa-print"></i> Cetak</button>
+            <button onclick="shareSimulasiGratisPDF()" style="flex:1;padding:10px;background:#D4AF37;color:white;border:none;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;"><i class="fas fa-share-nodes"></i> Bagikan</button>
+        </div>
+        <button onclick="document.getElementById('simulasiGratisModal').style.display='none'" style="width:100%;padding:11px;background:#e2e8f0;color:#333;border:none;border-radius:10px;font-size:13px;cursor:pointer;margin-top:8px;">Tutup</button>
     </div>`;
+}
+
+// Data simulasi dipakai bersama oleh tampilan modal, cetak, dan bagikan — supaya angkanya selalu konsisten
+function getDataSimulasiGratis(dapat) {
+    const est = hitungModalHargaEstimasiTerkini();
+    if (!est) return null;
+    const rasioList = [10, 15, 20, 25, 30];
+    return rasioList.map(r => {
+        const sim = hitungSimulasiRasioGratis(est.modal, est.harga, r, dapat);
+        if (!sim) return null;
+        let label = '🟢 Sehat';
+        if (sim.profitDenganGratis < 0) label = '🔴 RUGI';
+        else if (sim.persenTersisa < 20) label = '🟠 Untung Tipis';
+        else if (sim.persenTersisa < 50) label = '🟡 Cukup Aman';
+        return { rasio: r, dapat, ...sim, label };
+    }).filter(x => x);
+}
+
+function cetakSimulasiGratis() {
+    const data = getDataSimulasiGratis(1);
+    if (!data || data.length === 0) return showToast('Hitung Estimasi Program dulu (tab Estimasi)!');
+    const namaInstansi = getNamaInstansiUtama();
+    const namaProgram = getCurrentProgram()?.nama || '-';
+    const f = n => 'Rp ' + Math.round(n).toLocaleString('id-ID');
+
+    const rowsHtml = data.map(d => `<tr>
+        <td style="padding:8px;border-bottom:1px solid #eee;">${d.rasio} : ${d.dapat}</td>
+        <td style="padding:8px;border-bottom:1px solid #eee;">${d.label}</td>
+        <td style="padding:8px;border-bottom:1px solid #eee;text-align:right;">${f(d.profitDenganGratis)}</td>
+        <td style="padding:8px;border-bottom:1px solid #eee;text-align:right;">${d.persenTersisa.toFixed(0)}%</td>
+    </tr>`).join('');
+
+    let html = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>Simulasi Kebijakan Gratis</title>
+    <style>body{font-family:Arial,sans-serif;padding:20px;color:#222;background:#f0f0f0;} h1{color:#0D5C4A;font-size:18px;margin-bottom:2px;}
+    table{width:100%;border-collapse:collapse;margin-top:14px;font-size:13px;}
+    th{background:#0D5C4A;color:#fff;padding:8px;text-align:left;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+    @page{size:A4 portrait;margin:10mm 12mm;}
+    @media print{ *{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important;} html{width:210mm;} body{background:white;padding:0;margin:0;width:210mm;} .no-print{display:none!important;} }
+    </style></head><body>
+    <h1>🧮 SIMULASI KEBIJAKAN GRATIS MITRA</h1>
+    <p style="font-size:12px;color:#666;">${escapeHtml(namaInstansi)} — Program: ${escapeHtml(namaProgram)} — Dicetak: ${new Date().toLocaleDateString('id-ID')}</p>
+    <table><thead><tr><th>Rasio</th><th>Status</th><th>Profit per Grup</th><th>% dari Normal</th></tr></thead><tbody>${rowsHtml}</tbody></table>
+    <p style="font-size:11px;color:#888;margin-top:14px;">Rasio "X : Y" artinya: tiap X orang, Y orang dapat gratis. Dipakai sebagai bahan pertimbangan sebelum sepakat dengan Mitra.</p>
+    `;
+    html = applyPrintTheme(html);
+    tampilkanJendelaCetak(html);
+}
+
+async function shareSimulasiGratisPDF() {
+    const data = getDataSimulasiGratis(1);
+    if (!data || data.length === 0) return showToast('Hitung Estimasi Program dulu (tab Estimasi)!');
+    showToast('Menyiapkan...');
+    try {
+        const namaInstansi = getNamaInstansiUtama();
+        const namaProgram = getCurrentProgram()?.nama || '-';
+        const f = n => 'Rp ' + Math.round(n).toLocaleString('id-ID');
+        const {jsPDF} = window.jspdf;
+        const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+        await applyPDFConfig(doc, { landscape: false });
+
+        doc.setFontSize(16); doc.setTextColor(26,93,74);
+        doc.text('SIMULASI KEBIJAKAN GRATIS MITRA', 105, 65, { align: 'center' });
+        doc.setFontSize(9); doc.setTextColor(150,150,150);
+        doc.text(namaInstansi + ' — Program: ' + namaProgram, 105, 71, { align: 'center' });
+
+        const tableData = data.map(d => [
+            d.rasio + ' : ' + d.dapat,
+            d.label.replace(/[\u{1F534}\u{1F7E0}\u{1F7E1}\u{1F7E2}]/gu, '').trim(),
+            f(d.profitDenganGratis),
+            d.persenTersisa.toFixed(0) + '%'
+        ]);
+        doc.autoTable({
+            startY: 78,
+            head: [['Rasio', 'Status', 'Profit per Grup', '% dari Normal']],
+            body: tableData,
+            theme: 'striped',
+            headStyles: { fillColor: [26,93,74] },
+            styles: { fontSize: 9 }
+        });
+
+        let y = doc.lastAutoTable.finalY + 8;
+        doc.setFontSize(8); doc.setTextColor(120,120,120);
+        doc.text('Rasio "X : Y" = tiap X orang, Y orang dapat gratis. Bahan pertimbangan sebelum sepakat dengan Mitra.', 14, y);
+
+        const namaFile = `Simulasi_Kebijakan_Gratis_${new Date().toLocaleDateString('id-ID').replace(/\//g,'-')}.pdf`;
+        const blob = doc.output('blob');
+        const file = new File([blob], namaFile, { type: 'application/pdf' });
+        if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
+            await navigator.share({ files: [file], title: 'Simulasi Kebijakan Gratis' });
+        } else {
+            doc.save(namaFile);
+            showToast('📥 PDF didownload');
+        }
+    } catch(e) {
+        if (e.name !== 'AbortError') showToast('Gagal: ' + e.message);
+    }
 }
 
 function openAntrianFollowUpModal() {
@@ -16795,7 +16895,29 @@ function exportFolderToExcel(folderId) {
         wsData.push(row);
     });
     const wb = XLSX.utils.book_new(); 
-    XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(wsData, {skipHeader: true}), folder.nama.substring(0,31)); 
+    const wsFolder = XLSX.utils.json_to_sheet(wsData, {skipHeader: true});
+
+    // Paksa kolom nomor HP/WA jadi format Teks — sama seperti export Database Jamaah,
+    // supaya tidak dibulatkan/rusak presisi oleh Excel/Google Sheets.
+    const baseColCountXLS = 2; // 'No' + 'Nama Lengkap' selalu di depan
+    const offsetBarisPertamaJamaah = wsData.length - jamaahInFolder.length; // baris data jamaah pertama dimulai di sini (0-based)
+    chosenFieldsXLS.forEach((fd, idx) => {
+        const isNomorHP = fd.type === 'tel' || fd.name === 'whatsapp' || fd.name.includes('telepon') || fd.name.includes('hp');
+        if (!isNomorHP) return;
+        const colIdx = baseColCountXLS + idx;
+        for (let r = 0; r < jamaahInFolder.length; r++) {
+            const rowIdx = offsetBarisPertamaJamaah + r;
+            const cellRef = XLSX.utils.encode_cell({ r: rowIdx, c: colIdx });
+            const cell = wsFolder[cellRef];
+            if (cell && cell.v !== undefined && cell.v !== '' && cell.v !== '-') {
+                cell.v = String(cell.v);
+                cell.t = 's';
+                cell.z = '@';
+            }
+        }
+    });
+
+    XLSX.utils.book_append_sheet(wb, wsFolder, folder.nama.substring(0,31)); 
     XLSX.writeFile(wb, `Folder_${folder.nama.replace(/\s+/g,'_')}.xlsx`); 
     showToast('Excel berhasil di-export'); 
 }
@@ -19350,6 +19472,25 @@ async function saveMasterDataToLocal() {
 }
 
 function getMasterJudul() { return document.getElementById('masterJudul')?.value.trim() || 'Multi Event'; }
+
+function saveMasterJudul() {
+    const nilai = document.getElementById('masterJudul')?.value || '';
+    const slot = ensureProgramConfigSlot();
+    slot.master_judul = nilai;
+    localStorage.setItem('navara_konfigurasi_pro', JSON.stringify(konfigurasiPro));
+    idbSet(STORE_KONFIGURASI, 'konfigurasi_pro', konfigurasiPro);
+    const headerEl = document.getElementById('masterJudulHeader');
+    if (headerEl) headerEl.textContent = nilai.trim() || 'Multi Event';
+}
+
+function loadMasterJudul() {
+    const slot = ensureProgramConfigSlot();
+    const nilai = slot.master_judul || '';
+    const inputEl = document.getElementById('masterJudul');
+    if (inputEl) inputEl.value = nilai;
+    const headerEl = document.getElementById('masterJudulHeader');
+    if (headerEl) headerEl.textContent = nilai.trim() || 'Multi Event';
+}
 
 function renderMasterForm() {
     const container = document.getElementById('masterFormContainer');
