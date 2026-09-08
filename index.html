@@ -8941,6 +8941,8 @@ async function mulaiAbsensiDariJadwal(jadwalId) {
         id: Date.now().toString(),
         nama: jadwal.materi,
         tanggal: new Date().toLocaleDateString('id-ID'),
+        pemateri: jadwal.pemateri || '',
+        lokasi: jadwal.lokasi || '',
         absensi: [],
         program_id: currentProgramId
     };
@@ -8967,6 +8969,7 @@ function renderSesiAktifInfo() {
         el.innerHTML = `
             <div style="font-weight:bold;color:var(--primary);font-size:14px;">📅 ${escapeHtml(sesi.nama)}</div>
             <div style="color:#888;font-size:12px;margin-top:2px;">${sesi.tanggal} | ${jmlHadir} jamaah hadir</div>
+            ${sesi.pemateri || sesi.lokasi ? `<div style="color:#888;font-size:11px;margin-top:2px;">${sesi.pemateri ? '👤 ' + escapeHtml(sesi.pemateri) : ''}${sesi.pemateri && sesi.lokasi ? ' · ' : ''}${sesi.lokasi ? '📍 ' + escapeHtml(sesi.lokasi) : ''}</div>` : ''}
             <button onclick="tutupSesiAktif()" style="margin-top:8px;padding:6px 12px;background:#EF4444;color:white;border:none;border-radius:8px;font-size:12px;cursor:pointer;">⏹ Tutup Sesi</button>`;
     }
 }
@@ -9983,7 +9986,7 @@ function eksporAbsensi() {
     
     </style></head><body>
     <h2>📋 REKAP ABSENSI — ${escapeHtml(sesi.nama)}</h2>
-    <div class="sub">${namaInstansi} | ${sesi.tanggal} | Total Hadir: ${sesi.absensi.length} jamaah</div>
+    <div class="sub">${namaInstansi} | ${sesi.tanggal} | Total Hadir: ${sesi.absensi.length} jamaah${sesi.pemateri ? ' | Pemateri: ' + escapeHtml(sesi.pemateri) : ''}${sesi.lokasi ? ' | Lokasi: ' + escapeHtml(sesi.lokasi) : ''}</div>
     <table><thead><tr>`;
     
     // Build table headers dynamically
@@ -10110,10 +10113,12 @@ function eksporAbsensiExcel() {
     const namaInstansi = getNamaInstansiUtama();
     const ws_data = [
         ['REKAP ABSENSI — ' + sesi.nama],
-        [namaInstansi + ' | ' + sesi.tanggal + ' | Total Hadir: ' + sesi.absensi.length],
-        [],
-        ['No', 'Nama Jamaah', 'No Porsi', 'Kamar', 'Bus', 'Rombongan', 'Waktu Hadir']
+        [namaInstansi + ' | ' + sesi.tanggal + ' | Total Hadir: ' + sesi.absensi.length]
     ];
+    if (sesi.pemateri) ws_data.push(['Pemateri: ' + sesi.pemateri]);
+    if (sesi.lokasi) ws_data.push(['Lokasi: ' + sesi.lokasi]);
+    ws_data.push([]);
+    ws_data.push(['No', 'Nama Jamaah', 'No Porsi', 'Kamar', 'Bus', 'Rombongan', 'Waktu Hadir']);
     getSortedAbsensi(sesi.absensi).forEach((a, i) => {
         ws_data.push([i+1, a.nama, a.no_porsi, a.kamar||'-', a.bus||'-', a.rombongan||'-', a.waktu]);
     });
@@ -10129,7 +10134,10 @@ function eksporAbsensiCSV() {
     const sesi = getSesiAktif();
     if (!sesi) return showToast('Pilih sesi dulu!');
     if (sesi.absensi.length === 0) return showToast('Belum ada data absensi!');
-    let csv = 'No,Nama Jamaah,No Porsi,Kamar,Bus,Rombongan,Waktu Hadir\n';
+    let csv = '';
+    if (sesi.pemateri) csv += 'Pemateri,"' + sesi.pemateri.replace(/"/g,'""') + '"\n';
+    if (sesi.lokasi) csv += 'Lokasi,"' + sesi.lokasi.replace(/"/g,'""') + '"\n';
+    csv += 'No,Nama Jamaah,No Porsi,Kamar,Bus,Rombongan,Waktu Hadir\n';
     getSortedAbsensi(sesi.absensi).forEach((a, i) => {
         csv += [i+1, '"'+(a.nama||'').replace(/"/g,'""')+'"', '"'+(a.no_porsi||'-')+'"',
             '"'+(a.kamar||'-')+'"', '"'+(a.bus||'-')+'"', '"'+(a.rombongan||'-')+'"',
@@ -17794,6 +17802,9 @@ function catatBackupTerakhir() {
 async function bagikanFullZip() {
     try {
         showToast('⏳ Menyiapkan data...');
+        // Muat data segar Jadwal Manasik langsung dari penyimpanan — supaya tetap lengkap
+        // walau halaman Manasik & Absensi belum sempat dibuka di sesi ini
+        const jadwalManasikSegar = await idbGet(STORE_ABSENSI, 'jadwal_manasik') || [];
         const backupData = {
             app: 'Navara',
             version: '3.0',
@@ -17810,7 +17821,8 @@ async function bagikanFullZip() {
             dokumen_jenis: dokumenJenisList,
             konfigurasi: konfigurasiPro,
             catatan: catatanList,
-            pengeluaran: _allPengeluaranData
+            pengeluaran: _allPengeluaranData,
+            jadwal_manasik: jadwalManasikSegar
         };
         catatBackupTerakhir();
         const json = JSON.stringify(backupData);
@@ -17859,7 +17871,8 @@ async function bagikanFullZip() {
                 multi_event: _allMasterData, dokumen_jenis: dokumenJenisList,
                 konfigurasi: konfigurasiPro,
                 catatan: catatanList,
-                pengeluaran: _allPengeluaranData
+                pengeluaran: _allPengeluaranData,
+                jadwal_manasik: (await idbGet(STORE_ABSENSI, 'jadwal_manasik')) || []
             };
             catatBackupTerakhir();
             const json = JSON.stringify(backupData);
@@ -18056,6 +18069,15 @@ async function applyRestoreBackupData(backup) {
             _allAbsensiData = await mergeRestoreIntoProgram(STORE_ABSENSI, 'absensi_sesi', backup.absensi);
         }
         absensiList = _allAbsensiData.filter(s => s.program_id === currentProgramId);
+    }
+    if (backup.jadwal_manasik) {
+        if (isMultiProgramBackup) {
+            _allJadwalManasikData = backup.jadwal_manasik || [];
+        } else {
+            _allJadwalManasikData = await mergeRestoreIntoProgram(STORE_ABSENSI, 'jadwal_manasik', backup.jadwal_manasik);
+        }
+        await idbSet(STORE_ABSENSI, 'jadwal_manasik', _allJadwalManasikData);
+        jadwalManasikList = _allJadwalManasikData.filter(j => j.program_id === currentProgramId);
     }
     if (backup.kas) { 
         if (isMultiProgramBackup) {
