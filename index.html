@@ -11554,27 +11554,23 @@ function openSimulasiKebijakanGratisModal() {
 function renderSimulasiGratisModal(setiap, dapat) {
     const modalEl = document.getElementById('simulasiGratisModal');
     if(!modalEl) return;
-    const est = hitungModalHargaEstimasiTerkini();
     const f = n => 'Rp ' + Math.round(n).toLocaleString('id-ID');
+    const data = getDataSimulasiGratis(dapat);
 
     let htmlHasil = '<p style="color:#DC2626;text-align:center;padding:16px;font-size:13px;">⚠️ Hitung Estimasi Program dulu (tab Estimasi) supaya simulasi bisa jalan.</p>';
-    if(est) {
-        const rasioList = [10, 15, 20, 25, 30];
-        htmlHasil = rasioList.map(r => {
-            const sim = hitungSimulasiRasioGratis(est.modal, est.harga, r, dapat);
-            if(!sim) return '';
-            let warna = '#166534', label = '🟢 Sehat';
-            if(sim.profitDenganGratis < 0) { warna = '#DC2626'; label = '🔴 RUGI'; }
-            else if(sim.persenTersisa < 20) { warna = '#EA580C'; label = '🟠 Untung Tipis'; }
-            else if(sim.persenTersisa < 50) { warna = '#F59E0B'; label = '🟡 Cukup Aman'; }
-            return `<div style="background:#F8FAFC;border-left:4px solid ${warna};border-radius:8px;padding:10px 12px;margin-bottom:8px;">
+    if (data && data.length > 0) {
+        const warnaMap = { '🟢 Sehat': '#166534', '🟡 Cukup Aman': '#F59E0B', '🟠 Untung Tipis': '#EA580C', '🔴 RUGI': '#DC2626' };
+        htmlHasil = data.map(d => {
+            const warna = warnaMap[d.label] || '#555';
+            return `<div style="background:${d.rekomendasi ? '#F0FDF4' : '#F8FAFC'};border-left:4px solid ${warna};border-radius:8px;padding:10px 12px;margin-bottom:8px;">
                 <div style="display:flex;justify-content:space-between;align-items:center;">
-                    <span style="font-weight:700;font-size:13px;">${r} : ${dapat}</span>
-                    <span style="font-size:11px;color:${warna};font-weight:700;">${label}</span>
+                    <span style="font-weight:700;font-size:13px;">${d.rasio} : ${d.dapat}${d.rekomendasi ? ' <span style="color:#166534;">✅</span>' : ''}</span>
+                    <span style="font-size:11px;color:${warna};font-weight:700;">${d.label}</span>
                 </div>
-                <div style="font-size:12px;color:#555;margin-top:3px;">Profit per Grup: ${f(sim.profitDenganGratis)} (${sim.persenTersisa.toFixed(0)}% dari normal ${f(sim.profitNormal)})</div>
+                <div style="font-size:12px;color:#555;margin-top:3px;">Profit per Grup: ${f(d.profitDenganGratis)} (${d.persenTersisa.toFixed(0)}% dari normal ${f(d.profitNormal)})</div>
+                <div style="font-size:11px;color:#888;margin-top:2px;">Estimasi 1 musim (~${d.estimasiJumlahGrup} grup): ${f(d.estimasiTotalMusim)}</div>
             </div>`;
-        }).join('');
+        }).join('') + `<div style="background:#EFF6FF;border-left:4px solid #3B82F6;border-radius:8px;padding:10px 12px;font-size:12px;color:#333;">📌 ${escapeHtml(buatKesimpulanSimulasiGratis(data))}</div>`;
     }
 
     modalEl.innerHTML = `<div class="modal-content" style="max-width:440px;">
@@ -11594,15 +11590,35 @@ function getDataSimulasiGratis(dapat) {
     const est = hitungModalHargaEstimasiTerkini();
     if (!est) return null;
     const rasioList = [10, 15, 20, 25, 30];
-    return rasioList.map(r => {
+    const jumlahJamaahProgram = jamaahList.length;
+    const hasil = rasioList.map(r => {
         const sim = hitungSimulasiRasioGratis(est.modal, est.harga, r, dapat);
         if (!sim) return null;
-        let label = '🟢 Sehat';
-        if (sim.profitDenganGratis < 0) label = '🔴 RUGI';
-        else if (sim.persenTersisa < 20) label = '🟠 Untung Tipis';
-        else if (sim.persenTersisa < 50) label = '🟡 Cukup Aman';
-        return { rasio: r, dapat, ...sim, label };
+        let label = '🟢 Sehat', aman = true;
+        if (sim.profitDenganGratis < 0) { label = '🔴 RUGI'; aman = false; }
+        else if (sim.persenTersisa < 20) { label = '🟠 Untung Tipis'; aman = false; }
+        else if (sim.persenTersisa < 50) { label = '🟡 Cukup Aman'; aman = true; }
+        const estimasiJumlahGrup = jumlahJamaahProgram > 0 ? Math.round(jumlahJamaahProgram / r) : 0;
+        const estimasiTotalMusim = sim.profitDenganGratis * estimasiJumlahGrup;
+        return { rasio: r, dapat, ...sim, label, aman, estimasiJumlahGrup, estimasiTotalMusim, rekomendasi: false };
     }).filter(x => x);
+
+    // Tandai SATU rasio sebagai rekomendasi: yang paling murah hati ke Mitra (rasio terkecil)
+    // tapi tetap sudah masuk kategori aman (bukan RUGI atau Untung Tipis)
+    const kandidat = hasil.find(d => d.aman);
+    if (kandidat) kandidat.rekomendasi = true;
+
+    return hasil;
+}
+
+function buatKesimpulanSimulasiGratis(data) {
+    const belumAman = data.filter(d => !d.aman);
+    const sudahAman = data.filter(d => d.aman);
+    if (belumAman.length === 0) return 'Semua rasio yang disimulasikan aman digunakan.';
+    if (sudahAman.length === 0) return 'Semua rasio yang disimulasikan berisiko rugi — pertimbangkan rasio yang lebih besar dari 30:1.';
+    const batasAman = sudahAman[0].rasio;
+    const batasBawah = belumAman[belumAman.length - 1].rasio;
+    return `Rasio ${batasBawah}:1 ke bawah berisiko rugi/untung tipis. Rasio ${batasAman}:1 ke atas sudah aman digunakan.`;
 }
 
 function cetakSimulasiGratis() {
@@ -11611,25 +11627,30 @@ function cetakSimulasiGratis() {
     const namaInstansi = getNamaInstansiUtama();
     const namaProgram = getCurrentProgram()?.nama || '-';
     const f = n => 'Rp ' + Math.round(n).toLocaleString('id-ID');
+    const kesimpulan = buatKesimpulanSimulasiGratis(data);
 
-    const rowsHtml = data.map(d => `<tr>
-        <td style="padding:8px;border-bottom:1px solid #eee;">${d.rasio} : ${d.dapat}</td>
+    const rowsHtml = data.map(d => `<tr style="${d.rekomendasi ? 'background:#F0FDF4;' : ''}">
+        <td style="padding:8px;border-bottom:1px solid #eee;">${d.rasio} : ${d.dapat}${d.rekomendasi ? ' <span style="color:#166534;font-weight:700;">✅</span>' : ''}</td>
         <td style="padding:8px;border-bottom:1px solid #eee;">${d.label}</td>
+        <td style="padding:8px;border-bottom:1px solid #eee;text-align:right;">${f(d.profitNormal)}</td>
         <td style="padding:8px;border-bottom:1px solid #eee;text-align:right;">${f(d.profitDenganGratis)}</td>
         <td style="padding:8px;border-bottom:1px solid #eee;text-align:right;">${d.persenTersisa.toFixed(0)}%</td>
+        <td style="padding:8px;border-bottom:1px solid #eee;text-align:right;">${f(d.estimasiTotalMusim)}</td>
     </tr>`).join('');
 
     let html = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>Simulasi Kebijakan Gratis</title>
     <style>body{font-family:Arial,sans-serif;padding:20px;color:#222;background:#f0f0f0;} h1{color:#0D5C4A;font-size:18px;margin-bottom:2px;}
-    table{width:100%;border-collapse:collapse;margin-top:14px;font-size:13px;}
+    table{width:100%;border-collapse:collapse;margin-top:14px;font-size:12px;}
     th{background:#0D5C4A;color:#fff;padding:8px;text-align:left;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+    .kesimpulan{background:#EFF6FF;border-left:4px solid #3B82F6;border-radius:6px;padding:10px 12px;margin-top:14px;font-size:12px;}
     @page{size:A4 portrait;margin:10mm 12mm;}
     @media print{ *{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important;} html{width:210mm;} body{background:white;padding:0;margin:0;width:210mm;} .no-print{display:none!important;} }
     </style></head><body>
     <h1>🧮 SIMULASI KEBIJAKAN GRATIS MITRA</h1>
     <p style="font-size:12px;color:#666;">${escapeHtml(namaInstansi)} — Program: ${escapeHtml(namaProgram)} — Dicetak: ${new Date().toLocaleDateString('id-ID')}</p>
-    <table><thead><tr><th>Rasio</th><th>Status</th><th>Profit per Grup</th><th>% dari Normal</th></tr></thead><tbody>${rowsHtml}</tbody></table>
-    <p style="font-size:11px;color:#888;margin-top:14px;">Rasio "X : Y" artinya: tiap X orang, Y orang dapat gratis. Dipakai sebagai bahan pertimbangan sebelum sepakat dengan Mitra.</p>
+    <table><thead><tr><th>Rasio</th><th>Status</th><th>Profit Normal</th><th>Profit dgn Gratis</th><th>% dari Normal</th><th>Estimasi Dampak 1 Musim*</th></tr></thead><tbody>${rowsHtml}</tbody></table>
+    <div class="kesimpulan"><b>📌 Kesimpulan:</b> ${escapeHtml(kesimpulan)}</div>
+    <p style="font-size:11px;color:#888;margin-top:10px;">Rasio "X : Y" artinya: tiap X orang, Y orang dapat gratis. ✅ = rasio paling murah hati ke Mitra yang masih aman digunakan.<br>*Estimasi dampak 1 musim dihitung dari jumlah jamaah Program aktif saat ini (${jamaahList.length} orang) ÷ rasio — bukan jaminan, cuma perkiraan kasar.</p>
     `;
     html = applyPrintTheme(html);
     tampilkanJendelaCetak(html);
@@ -11653,23 +11674,37 @@ async function shareSimulasiGratisPDF() {
         doc.text(namaInstansi + ' — Program: ' + namaProgram, 105, 71, { align: 'center' });
 
         const tableData = data.map(d => [
-            d.rasio + ' : ' + d.dapat,
+            d.rasio + ' : ' + d.dapat + (d.rekomendasi ? ' ✓' : ''),
             d.label.replace(/[\u{1F534}\u{1F7E0}\u{1F7E1}\u{1F7E2}]/gu, '').trim(),
+            f(d.profitNormal),
             f(d.profitDenganGratis),
-            d.persenTersisa.toFixed(0) + '%'
+            d.persenTersisa.toFixed(0) + '%',
+            f(d.estimasiTotalMusim)
         ]);
         doc.autoTable({
             startY: 78,
-            head: [['Rasio', 'Status', 'Profit per Grup', '% dari Normal']],
+            head: [['Rasio', 'Status', 'Profit Normal', 'Profit+Gratis', '% Normal', 'Estimasi 1 Musim']],
             body: tableData,
             theme: 'striped',
             headStyles: { fillColor: [26,93,74] },
-            styles: { fontSize: 9 }
+            styles: { fontSize: 8 },
+            didParseCell: (hookData) => {
+                if (hookData.section === 'body' && data[hookData.row.index]?.rekomendasi) {
+                    hookData.cell.styles.fillColor = [240, 253, 244];
+                }
+            }
         });
 
         let y = doc.lastAutoTable.finalY + 8;
-        doc.setFontSize(8); doc.setTextColor(120,120,120);
-        doc.text('Rasio "X : Y" = tiap X orang, Y orang dapat gratis. Bahan pertimbangan sebelum sepakat dengan Mitra.', 14, y);
+        doc.setFontSize(9); doc.setTextColor(26,93,74); doc.setFont('helvetica','bold');
+        doc.text('Kesimpulan:', 14, y);
+        doc.setFont('helvetica','normal'); doc.setTextColor(60,60,60);
+        const kesimpulanLines = doc.splitTextToSize(buatKesimpulanSimulasiGratis(data), 180);
+        doc.text(kesimpulanLines, 14, y + 6);
+        y += 6 + (kesimpulanLines.length * 5) + 6;
+        doc.setFontSize(7); doc.setTextColor(140,140,140);
+        doc.text('Rasio "X : Y" = tiap X orang, Y orang dapat gratis. ✓ = rasio paling murah hati ke Mitra yang masih aman.', 14, y);
+        doc.text(`Estimasi 1 Musim dihitung dari jumlah jamaah Program aktif (${jamaahList.length} orang) — perkiraan kasar, bukan jaminan.`, 14, y + 4);
 
         const namaFile = `Simulasi_Kebijakan_Gratis_${new Date().toLocaleDateString('id-ID').replace(/\//g,'-')}.pdf`;
         const blob = doc.output('blob');
