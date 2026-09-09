@@ -3284,6 +3284,15 @@
     <div class="card-premium">
         <div class="input-group"><label>Kurs Jual (1 SAR = Rp)</label><input type="text" id="kursRiyalInput" class="money-input" inputmode="numeric" placeholder="Contoh: 4.300" oninput="formatMoneyInput(this); hitungTukarRiyal();"></div>
         <div class="input-group"><label>Uang Diberikan Jamaah (Rp)</label><input type="text" id="uangDiberikanInput" class="money-input" inputmode="numeric" placeholder="Contoh: 1.000.000" oninput="formatMoneyInput(this); hitungTukarRiyal();"></div>
+        <div class="input-group">
+            <label>Pecahan Riyal Terkecil yang Ada</label>
+            <div style="display:flex;gap:8px;">
+                <button type="button" class="btn-pecahan-riyal aktif" data-pecahan="1" onclick="pilihPecahanRiyal(1)" style="flex:1;padding:9px;border-radius:8px;border:1.5px solid var(--primary);background:var(--primary);color:white;font-size:13px;font-weight:700;cursor:pointer;">1</button>
+                <button type="button" class="btn-pecahan-riyal" data-pecahan="5" onclick="pilihPecahanRiyal(5)" style="flex:1;padding:9px;border-radius:8px;border:1.5px solid #ddd;background:white;color:#555;font-size:13px;font-weight:700;cursor:pointer;">5</button>
+                <button type="button" class="btn-pecahan-riyal" data-pecahan="10" onclick="pilihPecahanRiyal(10)" style="flex:1;padding:9px;border-radius:8px;border:1.5px solid #ddd;background:white;color:#555;font-size:13px;font-weight:700;cursor:pointer;">10</button>
+            </div>
+            <div style="font-size:11px;color:#888;margin-top:4px;">Pilih sesuai pecahan terkecil yang Bapak pegang saat ini — sisa yang tidak bisa diberikan otomatis masuk ke kembalian Rupiah.</div>
+        </div>
     </div>
     <div id="hasilTukarRiyal" class="res-card" style="display:none;"></div>
     <div class="card-premium">
@@ -13958,6 +13967,19 @@ function cetakLaporanEvaluasiRekanan() {
     tampilkanJendelaCetak(html);
 }
 
+let pecahanRiyalDipilih = 1; // default: presisi penuh (1 Riyal)
+
+function pilihPecahanRiyal(pecahan) {
+    pecahanRiyalDipilih = pecahan;
+    document.querySelectorAll('.btn-pecahan-riyal').forEach(btn => {
+        const aktif = parseInt(btn.dataset.pecahan) === pecahan;
+        btn.style.background = aktif ? 'var(--primary)' : 'white';
+        btn.style.color = aktif ? 'white' : '#555';
+        btn.style.borderColor = aktif ? 'var(--primary)' : '#ddd';
+    });
+    hitungTukarRiyal();
+}
+
 function hitungTukarRiyal() {
     const pr = v => parseInt((v||'0').toString().replace(/\./g,'').replace(/[^0-9]/g,'')) || 0;
     const kurs = pr(document.getElementById('kursRiyalInput').value);
@@ -13965,13 +13987,17 @@ function hitungTukarRiyal() {
     const hasilEl = document.getElementById('hasilTukarRiyal');
     if (kurs <= 0 || uang <= 0) { hasilEl.style.display = 'none'; return; }
 
-    const riyalDidapat = Math.floor(uang / kurs);
+    const riyalMentah = Math.floor(uang / kurs);
+    // Bulatkan ke bawah sesuai pecahan terkecil yang tersedia (1/5/10) — sisa yang tidak
+    // bisa diberikan dalam bentuk Riyal otomatis ikut masuk ke kembalian Rupiah.
+    const riyalDidapat = Math.floor(riyalMentah / pecahanRiyalDipilih) * pecahanRiyalDipilih;
     const kembalian = uang - (riyalDidapat * kurs);
+    const keteranganPecahan = pecahanRiyalDipilih > 1 ? ` (dibulatkan ke kelipatan ${pecahanRiyalDipilih})` : '';
 
     hasilEl.style.display = 'block';
     hasilEl.innerHTML = `
         <div style="text-align:center;padding:6px 0;">
-            <div style="font-size:12px;color:var(--gray);margin-bottom:4px;">Riyal yang didapat jamaah</div>
+            <div style="font-size:12px;color:var(--gray);margin-bottom:4px;">Riyal yang didapat jamaah${keteranganPecahan}</div>
             <div style="font-size:34px;font-weight:800;color:var(--primary);">${riyalDidapat.toLocaleString('id-ID')} <span style="font-size:16px;font-weight:600;">SAR</span></div>
         </div>
         <div style="border-top:1px solid #eee;margin:12px 0;"></div>
@@ -13979,7 +14005,7 @@ function hitungTukarRiyal() {
             <span>💵 Kembalian (Rupiah)</span>
             <span style="font-weight:700;font-size:16px;color:${kembalian > 0 ? '#DC2626' : 'var(--primary)'};">Rp ${kembalian.toLocaleString('id-ID')}</span>
         </div>
-        <div style="font-size:11px;color:#888;margin-top:8px;text-align:center;">Rp ${uang.toLocaleString('id-ID')} ÷ kurs Rp ${kurs.toLocaleString('id-ID')} = ${riyalDidapat.toLocaleString('id-ID')} SAR (dibulatkan ke bawah)</div>
+        <div style="font-size:11px;color:#888;margin-top:8px;text-align:center;">Rp ${uang.toLocaleString('id-ID')} ÷ kurs Rp ${kurs.toLocaleString('id-ID')} = ${riyalMentah.toLocaleString('id-ID')} SAR${pecahanRiyalDipilih > 1 ? ` → dibulatkan ke ${riyalDidapat.toLocaleString('id-ID')} SAR (pecahan ${pecahanRiyalDipilih})` : ' (dibulatkan ke bawah)'}</div>
         <div class="input-group" style="margin-top:14px;"><label>Atas Nama / Keterangan (opsional)</label><input type="text" id="keteranganRiyalInput" placeholder="Contoh: Ahmad Fauzi"></div>
         <button class="btn btn-primary" onclick="simpanTransaksiRiyal()"><i class="fas fa-save"></i> SIMPAN TRANSAKSI</button>
     `;
@@ -14000,7 +14026,8 @@ function simpanTransaksiRiyal() {
     const kurs = pr(document.getElementById('kursRiyalInput').value);
     const uang = pr(document.getElementById('uangDiberikanInput').value);
     if (kurs <= 0 || uang <= 0) return showToast('Isi kurs dan uang dulu!');
-    const riyal = Math.floor(uang / kurs);
+    const riyalMentah = Math.floor(uang / kurs);
+    const riyal = Math.floor(riyalMentah / pecahanRiyalDipilih) * pecahanRiyalDipilih;
     const kembalian = uang - (riyal * kurs);
     const keterangan = (document.getElementById('keteranganRiyalInput')?.value || '').trim();
 
@@ -14794,7 +14821,7 @@ async function shareInvoiceGambar(jamaahId) {
             } catch(e) {}
         }
 
-        // ── Share ──────────────────────────────────────────────────────────
+       // ── Share ──────────────────────────────────────────────────────────
         const blob = doc.output('blob');
         const file = new File([blob], namaFile, { type: 'application/pdf' });
         if(navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
@@ -21099,3 +21126,4 @@ function cetakDariPreviewAlternatif() {
 
 </body>
     </html>
+ 
