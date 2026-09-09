@@ -148,7 +148,7 @@
             to { opacity: 0; transform: translateY(-10px) scale(0.99); }
         }
         @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(16px) scale(0.98); }
+            from { opacity: 0.4; transform: translateY(16px) scale(0.98); }
             to { opacity: 1; transform: translateY(0) scale(1); }
         }
         @keyframes flashUpdate {
@@ -2234,9 +2234,9 @@
         <div class="row"><div class="input-group"><label>Total Pax</label><input type="number" id="totJam" value="21" oninput="saveEstimasiData()"></div><div class="input-group"><label>Gratis</label><input type="number" id="jamGratis" value="1" oninput="saveEstimasiData()"></div><div class="input-group"><label>Jumlah TL</label><input type="number" id="numTL" value="1" oninput="saveEstimasiData()"></div></div>
         <div class="section-title"><span>KOMPONEN BIAYA</span></div>
         <div class="input-group"><label>Tiket</label><input type="text" id="cTiket" class="money-input" inputmode="numeric" value="15.450.000" oninput="saveEstimasiData()"></div>
-        <div style="margin:-6px 0 12px 0;">
+        <div style="margin:6px 0 12px 0;">
             <label style="font-size:11px;color:var(--gray);display:flex;align-items:center;gap:6px;cursor:pointer;">
-                <input type="checkbox" id="fxModeTiket" onchange="toggleFXHelper('Tiket')" style="width:15px;height:15px;">
+                <input type="checkbox" id="fxModeTiket" onchange="toggleFXHelper('Tiket')" style="width:15px;height:15px;flex-shrink:0;">
                 Hitung dari USD (opsional)
             </label>
             <div id="fxBoxTiket" style="display:none;background:#f8fafc;border-radius:10px;padding:10px;margin-top:6px;">
@@ -3271,6 +3271,7 @@
                 <div style="font-weight:bold;color:var(--primary);font-size:13px;">Daftar Hotel / Maskapai / Muassasah</div>
                 <button onclick="showTambahRekananHotelModal()" style="padding:6px 12px;background:var(--primary);color:white;border:none;border-radius:8px;font-size:12px;cursor:pointer;">+ Tambah</button>
             </div>
+            <input type="text" id="cariRekananHotel" placeholder="🔍 Cari nama Hotel/Maskapai..." oninput="renderRekananHotelList()" style="width:100%;padding:9px 12px;margin-bottom:10px;border:1.5px solid #ddd;border-radius:10px;font-size:13px;">
             <div id="rekananHotelListArea"></div>
             <button class="btn btn-teal btn-small mt-2" onclick="cetakLaporanEvaluasiRekanan()"><i class="fas fa-print"></i> CETAK LAPORAN</button>
         </div>
@@ -3287,6 +3288,7 @@
     <div id="hasilTukarRiyal" class="res-card" style="display:none;"></div>
     <div class="card-premium">
         <div class="section-title"><span>Riwayat Transaksi</span></div>
+        <input type="text" id="cariRiwayatTukarRiyal" placeholder="🔍 Cari tanggal, keterangan, atau admin..." oninput="renderRiwayatTukarRiyal()" style="width:100%;padding:9px 12px;margin-bottom:10px;border:1.5px solid #ddd;border-radius:10px;font-size:13px;">
         <div id="riwayatTukarRiyalList"></div>
         <div class="row mt-2">
             <button class="btn btn-teal btn-small" onclick="cetakLaporanTukarRiyal()" style="flex:1"><i class="fas fa-print"></i> CETAK</button>
@@ -13791,8 +13793,11 @@ function simpanRekananHotelList(list) {
 function renderRekananHotelList() {
     const container = document.getElementById('rekananHotelListArea');
     if (!container) return;
-    const list = getRekananHotelList();
-    if (list.length === 0) { container.innerHTML = '<p style="text-align:center;color:#888;font-size:12px;padding:12px 0;">Belum ada Hotel/Maskapai yang dicatat</p>'; return; }
+    const listAsli = getRekananHotelList();
+    if (listAsli.length === 0) { container.innerHTML = '<p style="text-align:center;color:#888;font-size:12px;padding:12px 0;">Belum ada Hotel/Maskapai yang dicatat</p>'; return; }
+    const kw = (document.getElementById('cariRekananHotel')?.value || '').trim().toLowerCase();
+    const list = kw ? listAsli.filter(r => r.nama.toLowerCase().includes(kw) || r.jenis.toLowerCase().includes(kw)) : listAsli;
+    if (list.length === 0) { container.innerHTML = '<p style="text-align:center;color:#888;font-size:12px;padding:12px 0;">Tidak ada yang cocok</p>'; return; }
 
     const jenisIcon = { Hotel: 'fa-hotel', Maskapai: 'fa-plane', Muassasah: 'fa-building', Lainnya: 'fa-circle-question' };
     container.innerHTML = list.map(r => {
@@ -13903,6 +13908,7 @@ function simpanEvaluasiRekanan(rekananId) {
         rating, catatan, program,
         tanggal: new Date().toLocaleDateString('id-ID')
     });
+    if (r.evaluasi.length > 100) r.evaluasi = r.evaluasi.slice(-100); // batasi 100 evaluasi terakhir per rekanan
     simpanRekananHotelList(list);
     document.getElementById('tambahEvaluasiFormArea_' + rekananId).innerHTML = '';
     renderRekananHotelList();
@@ -14006,6 +14012,7 @@ function simpanTransaksiRiyal() {
         kurs, uang, riyal, kembalian, keterangan,
         admin: (typeof currentAdminNama !== 'undefined' && currentAdminNama) ? currentAdminNama : '-'
     });
+    if (list.length > 200) list.length = 200; // batasi 200 transaksi terakhir, sama seperti Riwayat Aktivitas
     simpanRiwayatTukarRiyalList(list);
     showToast('✅ Transaksi tersimpan');
     document.getElementById('kursRiyalInput').value = '';
@@ -14019,7 +14026,10 @@ function renderRiwayatTukarRiyal() {
     if (!container) return;
     const list = getRiwayatTukarRiyal();
     if (list.length === 0) { container.innerHTML = '<p style="text-align:center;color:#888;font-size:12px;padding:12px 0;">Belum ada transaksi tersimpan</p>'; return; }
-    container.innerHTML = list.map(t => `
+    const kw = (document.getElementById('cariRiwayatTukarRiyal')?.value || '').trim().toLowerCase();
+    const filtered = kw ? list.filter(t => t.tanggalTampil.toLowerCase().includes(kw) || (t.keterangan||'').toLowerCase().includes(kw) || t.admin.toLowerCase().includes(kw)) : list;
+    if (filtered.length === 0) { container.innerHTML = '<p style="text-align:center;color:#888;font-size:12px;padding:12px 0;">Tidak ada transaksi yang cocok</p>'; return; }
+    container.innerHTML = filtered.map(t => `
         <div style="background:#F8FAFC;border-radius:10px;padding:10px 12px;margin-bottom:8px;">
             <div style="display:flex;justify-content:space-between;align-items:flex-start;">
                 <div style="font-size:12px;">
@@ -18103,6 +18113,9 @@ async function downloadFullZip() {
     showToast('Mempersiapkan data...'); 
     try { 
         const zip = new JSZip(); 
+        // Muat data segar Jadwal Manasik langsung dari penyimpanan — supaya tetap lengkap
+        // walau halaman Manasik & Absensi belum sempat dibuka di sesi ini
+        const jadwalManasikSegar = await idbGet(STORE_ABSENSI, 'jadwal_manasik') || [];
         // Data utama
         zip.file('program.json', JSON.stringify(programList, null, 2));
         zip.file('jamaah.json', JSON.stringify({ data: _allJamaahData, fields: dynamicFieldsJamaah }, null, 2)); 
@@ -18116,10 +18129,12 @@ async function downloadFullZip() {
         zip.file('dokumen_jenis.json', JSON.stringify(dokumenJenisList, null, 2));
         zip.file('konfigurasi.json', JSON.stringify(konfigurasiPro, null, 2));
         zip.file('pengeluaran.json', JSON.stringify(_allPengeluaranData, null, 2));
+        zip.file('prospek.json', JSON.stringify(_allProspekData, null, 2));
+        zip.file('jadwal_manasik.json', JSON.stringify(jadwalManasikSegar, null, 2));
         catatBackupTerakhir();
-        // Dokumen
+        // Dokumen — SEMUA Program, bukan cuma yang sedang aktif
         const dokumenFolder = zip.folder('dokumen'); 
-        for (const j of jamaahList) { 
+        for (const j of _allJamaahData) { 
             const docs = dokumenData[j.id] || {}; 
             const jamaahFolder = dokumenFolder.folder(j.id + '_' + j.nama_lengkap.replace(/[^a-z0-9]/gi, '_')); 
             for (const jenis of dokumenJenisList) { 
@@ -18130,9 +18145,9 @@ async function downloadFullZip() {
                 } 
             } 
         }
-        // Foto profil
+        // Foto profil — SEMUA Program, bukan cuma yang sedang aktif
         const fotoFolder = zip.folder('foto_profil');
-        for (const j of jamaahList) {
+        for (const j of _allJamaahData) {
             const foto = await idbGet(STORE_FOTO, 'foto_' + j.id);
             if (foto) {
                 const ext = foto.startsWith('data:image/png') ? 'png' : 'jpg';
@@ -18449,6 +18464,32 @@ function restoreFromZip(input) {
                     _allAbsensiData = await mergeRestoreIntoProgram(STORE_ABSENSI, 'absensi_sesi', restoredAbsensi);
                 }
                 absensiList = _allAbsensiData.filter(s => s.program_id === currentProgramId);
+            }
+
+            // Restore Jadwal Manasik
+            const jadwalManasikFile = zip.file('jadwal_manasik.json');
+            if (jadwalManasikFile) {
+                const restoredJadwal = JSON.parse(await jadwalManasikFile.async('string'));
+                if (isMultiProgramZip) {
+                    _allJadwalManasikData = restoredJadwal;
+                } else {
+                    _allJadwalManasikData = await mergeRestoreIntoProgram(STORE_ABSENSI, 'jadwal_manasik', restoredJadwal);
+                }
+                await idbSet(STORE_ABSENSI, 'jadwal_manasik', _allJadwalManasikData);
+                jadwalManasikList = _allJadwalManasikData.filter(j => j.program_id === currentProgramId);
+            }
+
+            // Restore Prospek (Calon Jamaah)
+            const prospekFile = zip.file('prospek.json');
+            if (prospekFile) {
+                const restoredProspek = JSON.parse(await prospekFile.async('string'));
+                if (isMultiProgramZip) {
+                    _allProspekData = restoredProspek;
+                    await idbSet(STORE_PROSPEK, 'prospek_list', _allProspekData);
+                } else {
+                    _allProspekData = await mergeRestoreIntoProgram(STORE_PROSPEK, 'prospek_list', restoredProspek);
+                }
+                if (typeof prospekList !== 'undefined') prospekList = _allProspekData.filter(p => p.program_id === currentProgramId);
             }
 
             // Restore jenis dokumen
