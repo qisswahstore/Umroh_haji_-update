@@ -5951,6 +5951,7 @@ async function cetakEstimasiPDFInternal() {
     const f = n => 'Rp ' + Math.round(n).toLocaleString('id-ID');
     const cfg = getKonfigurasiProData();
     const tgl = formatTanggalLengkap();
+    const tglBerangkat = cfg.keberangkatan?.tanggal ? formatTanggalLengkap(cfg.keberangkatan.tanggal) : '';
     const est = getEstimasiData() || {};
     const pr = v => parseInt((v||'0').toString().replace(/\./g,'').replace(/[^0-9]/g,'')) || 0;
     const nJam = lastCalculatedTotalJam;
@@ -6013,7 +6014,8 @@ async function cetakEstimasiPDFInternal() {
             ${(est.namaHotelMakkah || est.namaHotelMadinah) ? `<div><strong>Hotel &nbsp;&nbsp;:</strong> ${[est.namaHotelMakkah ? est.namaHotelMakkah + ' (Makkah)' : '', est.namaHotelMadinah ? est.namaHotelMadinah + ' (Madinah)' : ''].filter(x=>x).join(', ')}</div>` : ''}
             ${est.namaMaskapai ? `<div><strong>Maskapai:</strong> ${est.namaMaskapai}</div>` : ''}
             <div><strong>Jamaah :</strong> ${nJam} orang (${nFoc} gratis, ${nTL} TL)</div>
-            <div><strong>Tanggal :</strong> ${tgl}</div>
+            ${tglBerangkat ? `<div><strong>Tgl Keberangkatan:</strong> ${tglBerangkat}</div>` : ''}
+            <div><strong>Dicetak :</strong> ${tgl}</div>
         </div>
         <table><thead><tr><th>Komponen Biaya</th><th style="text-align:right;">Per Pax</th></tr></thead>
         <tbody>${komponenHtml}
@@ -7260,6 +7262,9 @@ function cetakLaporanKonsorsium() {
     const namaKBIH = getNamaInstansiUtama();
     const progNama = getCurrentProgram()?.nama || '-';
     const tgl = formatTanggalLengkap();
+    const cfg = getKonfigurasiProData();
+    const tglBerangkat = cfg.keberangkatan?.tanggal ? formatTanggalLengkap(cfg.keberangkatan.tanggal) : '';
+    const konData = ensureProgramConfigSlot().konsorsium_estimasi_data || {};
 
     const rowsHtml = data.rows.map(r => `
         <tr>
@@ -7279,7 +7284,11 @@ function cetakLaporanKonsorsium() {
     @media print{ .no-print{display:none!important;} }
     </style></head><body>
     <h1>🤝 LAPORAN KONSORSIUM (INTERNAL)</h1>
-    <p>${escapeHtml(namaKBIH)} — Program: ${escapeHtml(progNama)} — Dicetak: ${tgl}</p>
+    <p>${escapeHtml(namaKBIH)} — Program: ${escapeHtml(progNama)}</p>
+    ${(konData.namaHotelMakkah || konData.namaHotelMadinah) ? `<p><b>Hotel:</b> ${[konData.namaHotelMakkah ? escapeHtml(konData.namaHotelMakkah) + ' (Makkah)' : '', konData.namaHotelMadinah ? escapeHtml(konData.namaHotelMadinah) + ' (Madinah)' : ''].filter(x=>x).join(', ')}</p>` : ''}
+    ${konData.namaMaskapai ? `<p><b>Maskapai:</b> ${escapeHtml(konData.namaMaskapai)}</p>` : ''}
+    ${tglBerangkat ? `<p><b>Tgl Keberangkatan:</b> ${tglBerangkat}</p>` : ''}
+    <p><b>Dicetak:</b> ${tgl}</p>
     <p><b>Harga Brosur B2C (acuan):</b> ${f(data.hargaBrosur)}</p>
     <table><thead><tr><th>Travel Partner</th><th>Tipe Kamar</th><th style="text-align:center;">Jamaah</th><th style="text-align:right;">Modal Efektif/Orang</th><th style="text-align:right;">Harga/Orang</th><th style="text-align:right;">Total Tagihan</th><th style="text-align:right;">Profit</th></tr></thead>
     <tbody>${rowsHtml}</tbody></table>
@@ -14855,7 +14864,7 @@ async function shareInvoiceGambar(jamaahId) {
             } catch(e) {}
         }
 
-       // ── Share ──────────────────────────────────────────────────────────
+        // ── Share ──────────────────────────────────────────────────────────
         const blob = doc.output('blob');
         const file = new File([blob], namaFile, { type: 'application/pdf' });
         if(navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
@@ -21160,4 +21169,3 @@ function cetakDariPreviewAlternatif() {
 
 </body>
     </html>
- 
