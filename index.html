@@ -5723,10 +5723,10 @@ function loadEstimasiData() {
     const data = slot.estimasi_data;
     if(data){ 
         if(data.lokasiPaket) document.getElementById('lokasiPaket').value=data.lokasiPaket; 
-        if(data.totJam) document.getElementById('totJam').value=data.totJam; 
-        if(data.jamGratis) document.getElementById('jamGratis').value=data.jamGratis; 
-        if(data.numTL) document.getElementById('numTL').value=data.numTL; 
-        if(data.cTiket) document.getElementById('cTiket').value=data.cTiket; 
+        if(data.totJam !== undefined) document.getElementById('totJam').value=data.totJam; 
+        if(data.jamGratis !== undefined) document.getElementById('jamGratis').value=data.jamGratis; 
+        if(data.numTL !== undefined) document.getElementById('numTL').value=data.numTL; 
+        if(data.cTiket !== undefined) document.getElementById('cTiket').value=data.cTiket; 
         if(data.cLAquad !== undefined) document.getElementById('cLAquad').value = data.cLAquad;
         else if(data.cLA) document.getElementById('cLAquad').value = data.cLA;
         if(data.cLAtriple !== undefined) document.getElementById('cLAtriple').value = data.cLAtriple;
@@ -5739,14 +5739,14 @@ function loadEstimasiData() {
             if(el) { el.checked = true; updateModeLA(); }
         }
         updateLAPreview();
-        if(data.cAsuransi) document.getElementById('cAsuransi').value=data.cAsuransi; 
-        if(data.cHandling) document.getElementById('cHandling').value=data.cHandling; 
-        if(data.cAlat) document.getElementById('cAlat').value=data.cAlat; 
-        if(data.cAplikasi) document.getElementById('cAplikasi').value=data.cAplikasi; 
-        if(data.cPIC) document.getElementById('cPIC').value=data.cPIC; 
-        if(data.cLain) document.getElementById('cLain').value=data.cLain; 
-        if(data.profitPct) document.getElementById('profitPct').value=data.profitPct;
-        if(data.cBuffer) document.getElementById('cBuffer').value=data.cBuffer;
+        if(data.cAsuransi !== undefined) document.getElementById('cAsuransi').value=data.cAsuransi; 
+        if(data.cHandling !== undefined) document.getElementById('cHandling').value=data.cHandling; 
+        if(data.cAlat !== undefined) document.getElementById('cAlat').value=data.cAlat; 
+        if(data.cAplikasi !== undefined) document.getElementById('cAplikasi').value=data.cAplikasi; 
+        if(data.cPIC !== undefined) document.getElementById('cPIC').value=data.cPIC; 
+        if(data.cLain !== undefined) document.getElementById('cLain').value=data.cLain; 
+        if(data.profitPct !== undefined) document.getElementById('profitPct').value=data.profitPct;
+        if(data.cBuffer !== undefined) document.getElementById('cBuffer').value=data.cBuffer;
         // Pulihkan helper kurs FX (opsional, tidak wajib ada di data lama)
         const fxModeTiketEl = document.getElementById('fxModeTiket');
         if(fxModeTiketEl) { fxModeTiketEl.checked = !!data.fxModeTiket; document.getElementById('fxBoxTiket').style.display = data.fxModeTiket ? 'block' : 'none'; }
@@ -6280,9 +6280,9 @@ function salinDariEstimasiKeKonsorsium() {
     const est = getEstimasiData();
     if(!est) return showToast('Belum ada Estimasi di Program ini untuk disalin!');
     const pr = v => (v||'0').toString();
-    document.getElementById('konTotJam').value = est.totJam || 45;
-    document.getElementById('konJamGratis').value = est.jamGratis || 1;
-    document.getElementById('konNumTL').value = est.numTL || 1;
+    document.getElementById('konTotJam').value = est.totJam !== undefined ? est.totJam : 45;
+    document.getElementById('konJamGratis').value = est.jamGratis !== undefined ? est.jamGratis : 1;
+    document.getElementById('konNumTL').value = est.numTL !== undefined ? est.numTL : 1;
     document.getElementById('konCTiket').value = pr(est.cTiket);
     document.getElementById('konCLAquad').value = pr(est.cLAquad || est.cLA);
     document.getElementById('konCLAtriple').value = pr(est.cLAtriple);
@@ -6295,7 +6295,7 @@ function salinDariEstimasiKeKonsorsium() {
     document.getElementById('konCAplikasi').value = pr(est.cAplikasi);
     document.getElementById('konCPIC').value = pr(est.cPIC);
     document.getElementById('konCLain').value = pr(est.cLain);
-    document.getElementById('konProfitPct').value = est.profitPct || 8;
+    document.getElementById('konProfitPct').value = est.profitPct !== undefined ? est.profitPct : 8;
     document.getElementById('konCBuffer').value = pr(est.cBuffer);
     showToast('✅ Komponen biaya disalin dari Estimasi Program');
 }
