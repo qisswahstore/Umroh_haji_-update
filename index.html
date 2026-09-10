@@ -6010,6 +6010,8 @@ async function cetakEstimasiPDFInternal() {
         <div class="konfidensial">⚠️ Hanya Untuk Internal</div>
         <div class="info">
             <div><strong>Paket &nbsp;&nbsp;:</strong> ${lastCalculatedPaket}</div>
+            ${(est.namaHotelMakkah || est.namaHotelMadinah) ? `<div><strong>Hotel &nbsp;&nbsp;:</strong> ${[est.namaHotelMakkah ? est.namaHotelMakkah + ' (Makkah)' : '', est.namaHotelMadinah ? est.namaHotelMadinah + ' (Madinah)' : ''].filter(x=>x).join(', ')}</div>` : ''}
+            ${est.namaMaskapai ? `<div><strong>Maskapai:</strong> ${est.namaMaskapai}</div>` : ''}
             <div><strong>Jamaah :</strong> ${nJam} orang (${nFoc} gratis, ${nTL} TL)</div>
             <div><strong>Tanggal :</strong> ${tgl}</div>
         </div>
@@ -14853,7 +14855,7 @@ async function shareInvoiceGambar(jamaahId) {
             } catch(e) {}
         }
 
-        // ── Share ──────────────────────────────────────────────────────────
+       // ── Share ──────────────────────────────────────────────────────────
         const blob = doc.output('blob');
         const file = new File([blob], namaFile, { type: 'application/pdf' });
         if(navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
@@ -21158,3 +21160,4 @@ function cetakDariPreviewAlternatif() {
 
 </body>
     </html>
+ 
