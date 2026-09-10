@@ -2231,6 +2231,11 @@
         </div>
         <div class="section-title" style="margin-top:15px;"><span>DATA ROMBONGAN</span></div>
         <div class="input-group"><label>Nama Paket / Lokasi</label><input type="text" id="lokasiPaket" value="Program 9 HARI" oninput="saveEstimasiData()"></div>
+        <div class="row">
+            <div class="input-group"><label>Hotel Makkah</label><input type="text" id="namaHotelMakkah" placeholder="Contoh: Hotel Al-Marwa" oninput="saveEstimasiData()"></div>
+            <div class="input-group"><label>Hotel Madinah</label><input type="text" id="namaHotelMadinah" placeholder="Contoh: Hotel Al-Eiman" oninput="saveEstimasiData()"></div>
+        </div>
+        <div class="input-group"><label>Maskapai</label><input type="text" id="namaMaskapai" placeholder="Contoh: Saudia Airlines" oninput="saveEstimasiData()"></div>
         <div class="row"><div class="input-group"><label>Total Pax</label><input type="number" id="totJam" value="21" oninput="saveEstimasiData()"></div><div class="input-group"><label>Gratis</label><input type="number" id="jamGratis" value="1" oninput="saveEstimasiData()"></div><div class="input-group"><label>Jumlah TL</label><input type="number" id="numTL" value="1" oninput="saveEstimasiData()"></div></div>
         <div class="section-title"><span>KOMPONEN BIAYA</span></div>
         <div class="input-group"><label>Tiket</label><input type="text" id="cTiket" class="money-input" inputmode="numeric" value="15.450.000" oninput="saveEstimasiData()"></div>
@@ -2437,6 +2442,11 @@
             <button onclick="salinDariEstimasiKeKonsorsium()" style="width:100%;padding:10px;background:#EFF6FF;color:#1E40AF;border:1.5px solid #3B82F6;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;margin-bottom:14px;">📋 Salin dari Estimasi Program</button>
 
             <div class="section-title" style="margin-top:6px;"><span>DATA ROMBONGAN GABUNGAN</span></div>
+            <div class="row">
+                <div class="input-group"><label>Hotel Makkah</label><input type="text" id="konNamaHotelMakkah" placeholder="Contoh: Hotel Al-Marwa" oninput="saveKonsorsiumEstimasiData()"></div>
+                <div class="input-group"><label>Hotel Madinah</label><input type="text" id="konNamaHotelMadinah" placeholder="Contoh: Hotel Al-Eiman" oninput="saveKonsorsiumEstimasiData()"></div>
+            </div>
+            <div class="input-group"><label>Maskapai</label><input type="text" id="konNamaMaskapai" placeholder="Contoh: Saudia Airlines" oninput="saveKonsorsiumEstimasiData()"></div>
             <div class="row">
                 <div class="input-group"><label>Total Pax</label><input type="number" id="konTotJam" value="45" oninput="saveKonsorsiumEstimasiData()"></div>
                 <div class="input-group"><label>Gratis</label><input type="number" id="konJamGratis" value="1" oninput="saveKonsorsiumEstimasiData()"></div>
@@ -5547,6 +5557,9 @@ function hitungFXHelper(fxKey, targetFieldId) {
 function saveEstimasiData() { 
     const estimasiData={ 
         lokasiPaket:document.getElementById('lokasiPaket').value, 
+        namaHotelMakkah:document.getElementById('namaHotelMakkah')?.value || '',
+        namaHotelMadinah:document.getElementById('namaHotelMadinah')?.value || '',
+        namaMaskapai:document.getElementById('namaMaskapai')?.value || '',
         totJam:document.getElementById('totJam').value, 
         jamGratis:document.getElementById('jamGratis').value, 
         numTL:document.getElementById('numTL').value, 
@@ -5629,7 +5642,7 @@ function renderProgramSetupChecklist() {
 }
 
 // ==================== KUNCI HARGA & RIWAYAT ESTIMASI ====================
-const ESTIMASI_FIELD_IDS = ['lokasiPaket','totJam','jamGratis','numTL','cTiket','cLAquad','cLAtriple','cLAdouble','cAsuransi','cHandling','cAlat','cAplikasi','cPIC','cLain','profitPct','cBuffer'];
+const ESTIMASI_FIELD_IDS = ['lokasiPaket','namaHotelMakkah','namaHotelMadinah','namaMaskapai','totJam','jamGratis','numTL','cTiket','cLAquad','cLAtriple','cLAdouble','cAsuransi','cHandling','cAlat','cAplikasi','cPIC','cLain','profitPct','cBuffer'];
 
 function renderKunciEstimasiUI() {
     const slot = ensureProgramConfigSlot();
@@ -5723,6 +5736,9 @@ function loadEstimasiData() {
     const data = slot.estimasi_data;
     if(data){ 
         if(data.lokasiPaket) document.getElementById('lokasiPaket').value=data.lokasiPaket; 
+        if(data.namaHotelMakkah !== undefined && document.getElementById('namaHotelMakkah')) document.getElementById('namaHotelMakkah').value = data.namaHotelMakkah;
+        if(data.namaHotelMadinah !== undefined && document.getElementById('namaHotelMadinah')) document.getElementById('namaHotelMadinah').value = data.namaHotelMadinah;
+        if(data.namaMaskapai !== undefined && document.getElementById('namaMaskapai')) document.getElementById('namaMaskapai').value = data.namaMaskapai;
         if(data.totJam !== undefined) document.getElementById('totJam').value=data.totJam; 
         if(data.jamGratis !== undefined) document.getElementById('jamGratis').value=data.jamGratis; 
         if(data.numTL !== undefined) document.getElementById('numTL').value=data.numTL; 
@@ -5761,7 +5777,7 @@ function loadEstimasiData() {
         if(document.getElementById('fxNominalLAdouble')) document.getElementById('fxNominalLAdouble').value = data.fxNominalLAdouble || '';
     } else {
         // Program ini belum punya Estimasi tersendiri — kosongkan field supaya tidak ketukar sisa Program lain
-        const fieldKosong = ['lokasiPaket','cTiket','cAsuransi','cHandling','cAlat','cAplikasi','cPIC','cLain','cLAquad','cLAtriple','cLAdouble'];
+        const fieldKosong = ['lokasiPaket','namaHotelMakkah','namaHotelMadinah','namaMaskapai','cTiket','cAsuransi','cHandling','cAlat','cAplikasi','cPIC','cLain','cLAquad','cLAtriple','cLAdouble'];
         fieldKosong.forEach(id => { const el = document.getElementById(id); if(el) el.value = ''; });
         const totJamEl = document.getElementById('totJam'); if(totJamEl) totJamEl.value = '';
         const jamGratisEl = document.getElementById('jamGratis'); if(jamGratisEl) jamGratisEl.value = '';
@@ -6280,6 +6296,9 @@ function salinDariEstimasiKeKonsorsium() {
     const est = getEstimasiData();
     if(!est) return showToast('Belum ada Estimasi di Program ini untuk disalin!');
     const pr = v => (v||'0').toString();
+    if(document.getElementById('konNamaHotelMakkah')) document.getElementById('konNamaHotelMakkah').value = est.namaHotelMakkah || '';
+    if(document.getElementById('konNamaHotelMadinah')) document.getElementById('konNamaHotelMadinah').value = est.namaHotelMadinah || '';
+    if(document.getElementById('konNamaMaskapai')) document.getElementById('konNamaMaskapai').value = est.namaMaskapai || '';
     document.getElementById('konTotJam').value = est.totJam !== undefined ? est.totJam : 45;
     document.getElementById('konJamGratis').value = est.jamGratis !== undefined ? est.jamGratis : 1;
     document.getElementById('konNumTL').value = est.numTL !== undefined ? est.numTL : 1;
@@ -6308,6 +6327,9 @@ function saveKonsorsiumEstimasiData() {
     const existing = slot.konsorsium_estimasi_data || {};
     slot.konsorsium_estimasi_data = {
         ...existing,
+        namaHotelMakkah: document.getElementById('konNamaHotelMakkah')?.value || '',
+        namaHotelMadinah: document.getElementById('konNamaHotelMadinah')?.value || '',
+        namaMaskapai: document.getElementById('konNamaMaskapai')?.value || '',
         totJam: parseInt(document.getElementById('konTotJam').value) || 0,
         jamGratis: parseInt(document.getElementById('konJamGratis').value) || 0,
         numTL: parseInt(document.getElementById('konNumTL').value) || 0,
@@ -6381,6 +6403,9 @@ function loadKonsorsiumEstimasiUI() {
     }
     document.getElementById('konTotJam').value = d.totJam;
     document.getElementById('konJamGratis').value = d.jamGratis;
+    if(document.getElementById('konNamaHotelMakkah')) document.getElementById('konNamaHotelMakkah').value = d.namaHotelMakkah || '';
+    if(document.getElementById('konNamaHotelMadinah')) document.getElementById('konNamaHotelMadinah').value = d.namaHotelMadinah || '';
+    if(document.getElementById('konNamaMaskapai')) document.getElementById('konNamaMaskapai').value = d.namaMaskapai || '';
     document.getElementById('konNumTL').value = d.numTL;
     document.getElementById('konCTiket').value = d.cTiket;
     document.getElementById('konCLAquad').value = d.cLAquad || d.cLA || '0';
