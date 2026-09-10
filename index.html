@@ -5234,10 +5234,17 @@ function applyThemePremium(primary) {
 function renderColorOptionsPremium() { 
     const container = document.getElementById('colorOptions'); 
     if(!container) return; 
+    const aktifSekarang = (localStorage.getItem('premium_theme_primary') || themesPremium[0].primary).toUpperCase();
     let html=''; 
     themesPremium.forEach(t=>{ 
-        html+=`<div class="color-opt" style="background:${t.primary}" title="${t.name}" onclick="applyThemePremium('${t.primary}')"></div>`; 
+        const dipilih = t.primary.toUpperCase() === aktifSekarang;
+        html+=`<div class="color-opt" style="background:${t.primary};${dipilih ? 'border:3px solid #333;box-shadow:0 0 0 2px white inset, 0 2px 4px rgba(0,0,0,0.2);' : ''}" title="${t.name}" onclick="applyThemePremium('${t.primary}'); renderColorOptionsPremium();"></div>`; 
     }); 
+    // Opsi ke-6: warna custom bebas pilih sendiri
+    const iniCustom = !themesPremium.some(t => t.primary.toUpperCase() === aktifSekarang);
+    const warnaCustomTampil = iniCustom ? aktifSekarang : '#FFFFFF';
+    html += `<div class="color-opt" style="background:${iniCustom ? warnaCustomTampil : 'repeating-conic-gradient(from 0deg, #f00 0deg 60deg, #ff0 60deg 120deg, #0f0 120deg 180deg, #0ff 180deg 240deg, #00f 240deg 300deg, #f0f 300deg 360deg)'};${iniCustom ? 'border:3px solid #333;box-shadow:0 0 0 2px white inset, 0 2px 4px rgba(0,0,0,0.2);' : 'border:2px dashed #999;'}display:flex;align-items:center;justify-content:center;" title="Warna Custom" onclick="document.getElementById('customThemeColorInput').click();">${iniCustom ? '' : '<i class="fas fa-plus" style="color:white;font-size:14px;text-shadow:0 0 2px rgba(0,0,0,0.5);"></i>'}</div>
+    <input type="color" id="customThemeColorInput" value="${iniCustom ? warnaCustomTampil : '#0D5C4A'}" style="position:absolute;width:1px;height:1px;opacity:0;pointer-events:none;" onchange="applyThemePremium(this.value); renderColorOptionsPremium();">`;
     container.innerHTML=html; 
 }
 
@@ -13998,7 +14005,7 @@ function hitungTukarRiyal() {
     hasilEl.innerHTML = `
         <div style="text-align:center;padding:6px 0;">
             <div style="font-size:12px;color:var(--gray);margin-bottom:4px;">Riyal yang didapat jamaah${keteranganPecahan}</div>
-            <div style="font-size:34px;font-weight:800;color:var(--primary);">${riyalDidapat.toLocaleString('id-ID')} <span style="font-size:16px;font-weight:600;">SAR</span></div>
+            <div style="font-size:34px;font-weight:800;color:white;">${riyalDidapat.toLocaleString('id-ID')} <span style="font-size:16px;font-weight:600;">SAR</span></div>
         </div>
         <div style="border-top:1px solid #eee;margin:12px 0;"></div>
         <div style="display:flex;justify-content:space-between;align-items:center;font-size:14px;">
@@ -14821,7 +14828,7 @@ async function shareInvoiceGambar(jamaahId) {
             } catch(e) {}
         }
 
-       // ── Share ──────────────────────────────────────────────────────────
+        // ── Share ──────────────────────────────────────────────────────────
         const blob = doc.output('blob');
         const file = new File([blob], namaFile, { type: 'application/pdf' });
         if(navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
@@ -21126,4 +21133,3 @@ function cetakDariPreviewAlternatif() {
 
 </body>
     </html>
- 
