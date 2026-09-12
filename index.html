@@ -3096,6 +3096,20 @@
                 </div>
             </div>
         </div>
+        <div class="config-section"><h3><i class="fas fa-sack-dollar"></i> Bendahara</h3>
+            <p style="font-size:11px;color:#888;margin-bottom:10px;">Khusus untuk dokumen keuangan (Kas, Invoice, Kwitansi) — Estimasi & Zakat tetap cukup tanda tangan Pimpinan saja.</p>
+            <label style="display:flex;justify-content:space-between;align-items:center;font-weight:normal;margin-bottom:10px;"><span>Tampilkan TTD Bendahara di Dokumen Keuangan</span><label class="switch"><input type="checkbox" id="cfg_show_bendahara"><span class="slider"></span></label></label>
+            <div class="config-row"><label>Nama Bendahara</label><input type="text" id="cfg_nama_bendahara" placeholder="Nama lengkap Bendahara"></div>
+            <div class="config-row">
+                <label>Tanda Tangan Bendahara (opsional)</label>
+                <div class="row">
+                    <button type="button" class="btn btn-primary btn-small" style="flex:1;" onclick="openGambarTTDModal('bendahara')"><i class="fas fa-signature"></i> Gambar di Layar</button>
+                    <button type="button" class="btn btn-secondary btn-small" style="flex:1;" onclick="document.getElementById('uploadTTDBendahara').click()"><i class="fas fa-upload"></i> Upload Foto</button>
+                    <input type="file" id="uploadTTDBendahara" accept="image/*" style="display:none;" onchange="uploadTTDPimpinan(this, 'bendahara')">
+                </div>
+                <div id="previewTTDBendahara" style="margin-top:8px;"></div>
+            </div>
+        </div>
         <div class="config-section" id="porsiHajiConfigSection"><h3><i class="fas fa-sort-numeric-up"></i> Rentang Nomor Porsi Haji</h3>
             <p style="font-size:11px;color:#888;margin-bottom:10px;">Untuk mengelompokkan jamaah Haji otomatis berdasarkan estimasi tahun keberangkatan dari nomor porsi. Berlaku global untuk semua Program. Urutkan dari porsi terkecil ke terbesar.</p>
             <div id="rentangPorsiList" style="margin-bottom:10px;"></div>
@@ -8144,7 +8158,7 @@ async function cetakKasHTML() {
     const saldoColor = saldo>=0 ? '#10B981' : '#EF4444';
     const headerHtml = buildPrintHeader(cfg, tglCetak);
     const watermarkHtml = buildPrintWatermark(cfg);
-    const ttdHtml = buildPrintTandaTangan(cfg, tglCetak, true);
+    const ttdHtml = buildPrintTandaTangan(cfg, tglCetak, true, true);
     const qrHtml = await buildPrintQR(cfg, `Laporan Kas: ${judul}\nSaldo: Rp ${saldo.toLocaleString('id-ID')}\nTanggal: ${tglCetak}`);
     let rowsHtml = '';
     dataKas.forEach((i,idx)=>{
@@ -14883,6 +14897,23 @@ async function shareInvoiceGambar(jamaahId) {
             } catch(e) {}
         }
 
+        // ── Footer & QR ────────────────────────────────────────────────────
+        y += 8;
+        doc.setFontSize(8); doc.setFont('helvetica', 'normal');
+        doc.setTextColor(150, 150, 150);
+        doc.text(`Dicetak: ${tglCetak}`, 14, y);
+
+        // QR pojok kanan bawah
+        if(cfg.qr?.enabled && typeof QRCode !== 'undefined') {
+            try {
+                const canvas = document.createElement('canvas');
+                await QRCode.toCanvas(canvas, `Invoice:${noInvoice}\nJamaah:${jamaah.nama_lengkap}`, { width: 80 });
+                doc.addImage(canvas.toDataURL(), 'PNG', PW - 34, 260, 20, 20);
+                doc.setFontSize(7); doc.setTextColor(150,150,150);
+                doc.text('Dokumen Resmi', PW - 34, 282, { maxWidth: 20 });
+            } catch(e) {}
+        }
+
         // ── Share ──────────────────────────────────────────────────────────
         const blob = doc.output('blob');
         const file = new File([blob], namaFile, { type: 'application/pdf' });
@@ -14914,7 +14945,7 @@ async function cetakInvoiceAuto(jamaahId) {
         const noInvoice = `${prefix}/${jamaah.id}/${new Date().toLocaleDateString('id-ID').replace(/\//g,'')}`;
         const headerHtml = buildPrintHeader(cfg, tglCetak);
         const watermarkHtml = buildPrintWatermark(cfg);
-        const ttdHtml = buildPrintTandaTangan(cfg, tglCetak, true);
+        const ttdHtml = buildPrintTandaTangan(cfg, tglCetak, true, true);
         const qrHtml = await buildPrintQR(cfg, `Invoice:${noInvoice}\nJamaah:${jamaah.nama_lengkap}\nStatus:${sisa<=0?'LUNAS':'BELUM LUNAS'}`);
         let rowsHtml = '';
         transaksiList.forEach((t,i) => {
@@ -15332,7 +15363,7 @@ async function cetakPembayaranHTML() {
     const totalMasuk = paymentTransaksiList.reduce((s,t)=>s+t.nominal,0);
     const headerHtml = buildPrintHeader(cfg, tglCetak);
     const watermarkHtml = buildPrintWatermark(cfg);
-    const ttdHtml = buildPrintTandaTangan(cfg, tglCetak, true);
+    const ttdHtml = buildPrintTandaTangan(cfg, tglCetak, true, true);
     const qrHtml = await buildPrintQR(cfg, `Laporan Pembayaran\nTotal: ${formatRupiah(totalMasuk)}\nTanggal: ${tglCetak}`);
     let rowsHtml = '';
     paymentTransaksiList.forEach((t,i) => {
@@ -19528,7 +19559,8 @@ function hapusTTDPimpinan(instansiKey) {
 }
 
 function renderPreviewTTD(instansiKey) {
-    const container = document.getElementById(instansiKey === 'instansi1' ? 'previewTTDInstansi1' : 'previewTTDInstansi2');
+    const idMap = { instansi1: 'previewTTDInstansi1', instansi2: 'previewTTDInstansi2', bendahara: 'previewTTDBendahara' };
+    const container = document.getElementById(idMap[instansiKey]);
     if (!container) return;
     const img = getTTDPimpinan(instansiKey);
     if (!img) { container.innerHTML = ''; return; }
@@ -19613,7 +19645,7 @@ function simpanCanvasTTD(instansiKey) {
     document.getElementById('gambarTTDModal').style.display = 'none';
 }
 
-function buildPrintTandaTangan(cfg, tglCetak, izinkanGambarTTD) {
+function buildPrintTandaTangan(cfg, tglCetak, izinkanGambarTTD, izinkanBendahara) {
     const hajiReg = isHajiReguler();
     const instansiDominan = hajiReg && cfg.instansi2?.aktif && cfg.instansi2?.nama ? (cfg.instansi2 || {}) : (cfg.instansi1 || {});
     const instansiSekunder = hajiReg && cfg.instansi2?.aktif && cfg.instansi2?.nama ? (cfg.instansi1 || {}) : (cfg.instansi2 || {});
@@ -19637,8 +19669,35 @@ function buildPrintTandaTangan(cfg, tglCetak, izinkanGambarTTD) {
         ? `<img src="${gambar}" style="height:55px;margin-bottom:5px;object-fit:contain;">`
         : `<div style="margin-bottom:60px;"></div>`;
 
+    // Bendahara: cuma tampil kalau dokumen ini eksplisit mengizinkan (Kas/Invoice/Pembayaran) DAN
+    // toggle-nya aktif DAN namanya sudah diisi. Kalau aktif, Bendahara ambil slot kiri ("Hormat kami")
+    // dan Pimpinan pindah jadi "Mengetahui" di kanan — menggantikan slot Instansi Kedua untuk dokumen ini.
+    const bendahara = cfg.bendahara || {};
+    const pakaiBendahara = izinkanBendahara && s.show_bendahara === true && bendahara.nama;
+
     let pihak1 = '';
     let pihak2 = '';
+
+    if (pakaiBendahara) {
+        const gambarBendahara = izinkanGambarTTD ? getTTDPimpinan('bendahara') : '';
+        pihak1 = `
+        <div style="text-align:center;flex:1;">
+            <div style="font-size:12px;color:#555;">${lokasiTgl}</div>
+            <div style="font-size:12px;color:#555;">Hormat kami,</div>
+            ${blokTTD(gambarBendahara)}
+            <div style="border-top:1px solid #333;padding-top:6px;font-size:13px;font-weight:bold;">${bendahara.nama}</div>
+            <div style="font-size:11px;color:#666;">Bendahara</div>
+        </div>`;
+        pihak2 = `
+        <div style="text-align:center;flex:1;">
+            <div style="font-size:12px;color:#555;">${lokasiTgl}</div>
+            <div style="font-size:12px;color:#555;">Mengetahui,</div>
+            ${blokTTD(gambarTTD1)}
+            <div style="border-top:1px solid #333;padding-top:6px;font-size:13px;font-weight:bold;">${i1.pimpinan||'Pimpinan'}</div>
+            <div style="font-size:11px;color:#666;">${i1.jabatan||''}</div>
+        </div>`;
+        return `<div style="display:flex;justify-content:space-around;margin-top:40px;padding-top:20px;border-top:1px dashed #ddd;">${pihak1}${pihak2}</div>`;
+    }
 
     if (ttdMode === 'both' || ttdMode === 'single') {
         pihak1 = `
@@ -20608,6 +20667,9 @@ async function loadKonfigurasiPro() {
     document.getElementById('cfg_pimpinan1').value = konfigurasiPro.instansi1.pimpinan || '';
     renderPreviewTTD('instansi1');
     renderPreviewTTD('instansi2');
+    renderPreviewTTD('bendahara');
+    if(document.getElementById('cfg_nama_bendahara')) document.getElementById('cfg_nama_bendahara').value = konfigurasiPro.bendahara?.nama || '';
+    if(document.getElementById('cfg_show_bendahara')) document.getElementById('cfg_show_bendahara').checked = konfigurasiPro.settings?.show_bendahara === true;
     document.getElementById('cfg_jabatan1').value = konfigurasiPro.instansi1.jabatan || '';
     document.getElementById('cfg_kota1').value = konfigurasiPro.instansi1.kota || '';
     if(konfigurasiPro.instansi1.logo) document.getElementById('previewLogo1').src = konfigurasiPro.instansi1.logo;
@@ -20679,7 +20741,8 @@ async function saveKonfigurasiPro() {
         pimpinan: document.getElementById('cfg_pimpinan1').value,
         jabatan: document.getElementById('cfg_jabatan1').value,
         kota: document.getElementById('cfg_kota1').value,
-        logo: document.getElementById('previewLogo1').src || ''
+        logo: document.getElementById('previewLogo1').src || '',
+        ttd_pimpinan_gambar: konfigurasiPro.instansi1?.ttd_pimpinan_gambar || ''
     };
     konfigurasiPro.instansi2 = {
         aktif: document.getElementById('cfg_instansi2_aktif').checked,
@@ -20690,8 +20753,11 @@ async function saveKonfigurasiPro() {
         izin: document.getElementById('cfg_izin2').value,
         pimpinan: document.getElementById('cfg_pimpinan2').value,
         jabatan: document.getElementById('cfg_jabatan2').value,
-        logo: document.getElementById('previewLogo2').src || ''
+        logo: document.getElementById('previewLogo2').src || '',
+        ttd_pimpinan_gambar: konfigurasiPro.instansi2?.ttd_pimpinan_gambar || ''
     };
+    if (!konfigurasiPro.bendahara) konfigurasiPro.bendahara = {};
+    konfigurasiPro.bendahara.nama = document.getElementById('cfg_nama_bendahara')?.value || '';
     konfigurasiPro.watermark = {
         enabled: document.getElementById('cfg_watermark_enabled').checked,
         text: document.getElementById('cfg_watermark_text').value,
@@ -20718,6 +20784,7 @@ async function saveKonfigurasiPro() {
         show_npwp: document.getElementById('cfg_show_npwp').checked,
         show_izin: document.getElementById('cfg_show_izin').checked,
         show_pimpinan: document.getElementById('cfg_show_pimpinan').checked,
+        show_bendahara: document.getElementById('cfg_show_bendahara')?.checked || false,
         batas_lansia: parseInt(document.getElementById('cfg_batas_lansia').value) || 60
     };
     // Simpan harga paket (per-Program)
