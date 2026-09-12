@@ -5929,6 +5929,7 @@ function hitungUmroh() {
         <button class="btn" onclick="salinRingkasan()" style="background:#34495e;margin-top:0;flex:1;">SALIN</button>
         <button class="btn" onclick="cetakEstimasiPDFJamaah()" style="background:#2980b9;margin-top:0;flex:1;font-size:11px;">🖨️ CETAK JAMAAH</button>
         <button class="btn" onclick="cetakEstimasiPDFInternal()" style="background:var(--orange);margin-top:0;flex:1;font-size:11px;">🖨️ CETAK INTERNAL</button>
+        <button class="btn" onclick="shareEstimasiInternalPDF()" style="background:#8B5CF6;margin-top:0;flex:1;font-size:11px;">📤 BAGIKAN</button>
     </div>`; 
     hasil.style.display='block'; 
     hasil.scrollIntoView({behavior:"smooth"}); 
@@ -6074,6 +6075,101 @@ async function cetakEstimasiPDFInternal() {
     const win = window.open('','_blank');
     if(!win) return showToast('Izinkan popup untuk cetak!');
     win.document.write(applyPrintTheme(html)); injectWatermarkToPrintWin(win); win.document.close();
+}
+
+async function shareEstimasiInternalPDF() {
+    if(!lastCalculatedPrice) { showToast('Silakan hitung estimasi dulu!'); return; }
+    showToast('Menyiapkan...');
+    try {
+        const f = n => 'Rp ' + Math.round(n).toLocaleString('id-ID');
+        const cfg = getKonfigurasiProData();
+        const namaInstansi = getNamaInstansiUtama();
+        const tgl = formatTanggalLengkap();
+        const tglBerangkat = cfg.keberangkatan?.tanggal ? formatTanggalLengkap(cfg.keberangkatan.tanggal) : '';
+        const est = getEstimasiData() || {};
+        const pr = v => parseInt((v||'0').toString().replace(/\./g,'').replace(/[^0-9]/g,'')) || 0;
+        const nJam = lastCalculatedTotalJam;
+        const nFoc = parseInt(est.jamGratis)||0;
+        const nTL = parseInt(est.numTL)||0;
+        const sub = pr(est.cTiket)+pr(est.cLAquad||est.cLA||'0')+pr(est.cAsuransi)+pr(est.cHandling)+pr(est.cPIC)+pr(est.cAlat)+pr(est.cAplikasi)+pr(est.cLain);
+        const pPct = (parseFloat(est.profitPct)||0)/100;
+        const profitKotor = (sub*nJam)*pPct;
+        const biayaTL = sub*nTL;
+        const profitBersih = profitKotor - biayaTL;
+        const profitPerPax = profitBersih/(nJam-nFoc);
+        const buffer = pr(est.cBuffer||'0');
+        const jualBase = ((sub*nJam)+profitKotor)/(nJam-nFoc);
+        const jual = jualBase + buffer;
+        const totalOmzet = jual*(nJam-nFoc);
+        const laItems = [
+            ['LA/Hotel Quad', pr(est.cLAquad||est.cLA||'0')],
+            ['LA/Hotel Triple', pr(est.cLAtriple||'0')],
+            ['LA/Hotel Double', pr(est.cLAdouble||'0')],
+        ].filter(([,v]) => v > 0);
+        const items = [['Tiket',pr(est.cTiket)],...laItems,['Asuransi',pr(est.cAsuransi)],['Handling',pr(est.cHandling)],['PIC/Guide',pr(est.cPIC)],['Perlengkapan',pr(est.cAlat)],['Biaya Aplikasi',pr(est.cAplikasi)],['Lain-lain',pr(est.cLain)]]
+            .filter(([,v]) => v > 0);
+
+        const {jsPDF} = window.jspdf;
+        const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+        await applyPDFConfig(doc, { landscape: false });
+
+        doc.setFontSize(15); doc.setTextColor(26,93,74);
+        doc.text('RINCIAN ESTIMASI INTERNAL', 105, 65, { align: 'center' });
+        doc.setFontSize(9); doc.setTextColor(220,60,60); doc.setFont('helvetica','italic');
+        doc.text('⚠ Hanya Untuk Internal', 105, 71, { align: 'center' });
+        doc.setFont('helvetica','normal'); doc.setFontSize(9); doc.setTextColor(90,90,90);
+        let yInfo = 79;
+        doc.text(`Paket: ${lastCalculatedPaket}`, 14, yInfo); yInfo += 5;
+        if (est.namaHotelMakkah || est.namaHotelMadinah) {
+            const hotelTxt = [est.namaHotelMakkah ? est.namaHotelMakkah + ' (Makkah)' : '', est.namaHotelMadinah ? est.namaHotelMadinah + ' (Madinah)' : ''].filter(x=>x).join(', ');
+            doc.text(`Hotel: ${hotelTxt}`, 14, yInfo); yInfo += 5;
+        }
+        if (est.namaMaskapai) { doc.text(`Maskapai: ${est.namaMaskapai}`, 14, yInfo); yInfo += 5; }
+        doc.text(`Jamaah: ${nJam} orang (${nFoc} gratis, ${nTL} TL)`, 14, yInfo); yInfo += 5;
+        if (tglBerangkat) { doc.text(`Tgl Keberangkatan: ${tglBerangkat}`, 14, yInfo); yInfo += 5; }
+        doc.text(`Dicetak: ${tgl}`, 14, yInfo); yInfo += 4;
+
+        const tableData = items.map(([label, val]) => [label, f(val)]);
+        tableData.push(['Modal Pokok / Pax', f(sub)]);
+        doc.autoTable({
+            startY: yInfo + 4,
+            head: [['Komponen Biaya', 'Per Pax']],
+            body: tableData,
+            theme: 'striped',
+            headStyles: { fillColor: [26,93,74] },
+            styles: { fontSize: 9 },
+            columnStyles: { 1: { halign: 'right' } },
+            didParseCell: (h) => { if (h.section === 'body' && h.row.index === tableData.length - 1) { h.cell.styles.fontStyle = 'bold'; h.cell.styles.fillColor = [240,247,244]; } }
+        });
+
+        let y = doc.lastAutoTable.finalY + 8;
+        doc.setFontSize(10); doc.setFont('helvetica','normal'); doc.setTextColor(0,0,0);
+        doc.text(`Total Omzet Grup: ${f(totalOmzet)}`, 14, y); y += 6;
+        doc.text(`Profit (${est.profitPct||0}%): ${f(profitKotor)}`, 14, y); y += 6;
+        doc.setTextColor(220,60,60);
+        doc.text(`Biaya TL (${nTL} orang): - ${f(biayaTL)}`, 14, y); y += 6;
+        doc.setTextColor(16,185,129);
+        doc.text(`Profit Bersih: ${f(profitBersih)}`, 14, y); y += 6;
+        doc.text(`Profit Per Pax: ${f(profitPerPax)}`, 14, y); y += 6;
+        if (buffer > 0) { doc.setTextColor(245,158,11); doc.text(`+ Buffer Diskon: ${f(buffer)}`, 14, y); y += 6; }
+        doc.setDrawColor(13,92,74); doc.setLineWidth(0.5); doc.line(14, y, 196, y); y += 6;
+        doc.setFontSize(13); doc.setFont('helvetica','bold'); doc.setTextColor(13,92,74);
+        doc.text(`HARGA JUAL PER PAX: ${f(lastCalculatedPrice)}`, 14, y);
+
+        // Sengaja TANPA blok tanda tangan, sesuai permintaan — laporan ini dibagikan cepat tanpa TTD.
+
+        const namaFile = `Estimasi_Internal_${lastCalculatedPaket.replace(/\s+/g,'_')}.pdf`;
+        const blob = doc.output('blob');
+        const file = new File([blob], namaFile, { type: 'application/pdf' });
+        if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
+            await navigator.share({ files: [file], title: 'Rincian Estimasi Internal' });
+        } else {
+            doc.save(namaFile);
+            showToast('📥 PDF didownload');
+        }
+    } catch(e) {
+        if (e.name !== 'AbortError') showToast('Gagal: ' + e.message);
+    }
 }
 
 // ==================== TIPE PAKET ====================
@@ -14880,22 +14976,8 @@ async function shareInvoiceGambar(jamaahId) {
         doc.text(lunas ? '✓  LUNAS' : '!  BELUM LUNAS', 105, y + 8, { align: 'center' });
         y += 16;
 
-        // ── Footer & QR ────────────────────────────────────────────────────
-        y += 8;
-        doc.setFontSize(8); doc.setFont('helvetica', 'normal');
-        doc.setTextColor(150, 150, 150);
-        doc.text(`Dicetak: ${tglCetak}`, 14, y);
-
-        // QR pojok kanan bawah
-        if(cfg.qr?.enabled && typeof QRCode !== 'undefined') {
-            try {
-                const canvas = document.createElement('canvas');
-                await QRCode.toCanvas(canvas, `Invoice:${noInvoice}\nJamaah:${jamaah.nama_lengkap}`, { width: 80 });
-                doc.addImage(canvas.toDataURL(), 'PNG', PW - 34, 260, 20, 20);
-                doc.setFontSize(7); doc.setTextColor(150,150,150);
-                doc.text('Dokumen Resmi', PW - 34, 282, { maxWidth: 20 });
-            } catch(e) {}
-        }
+        // ── Tanda Tangan (sama seperti versi Cetak — gambar TTD & Bendahara didukung) ──
+        y = gambarTandaTanganPDF(doc, cfg, tglCetak, y + 10, PW, true);
 
         // ── Footer & QR ────────────────────────────────────────────────────
         y += 8;
@@ -19645,10 +19727,66 @@ function simpanCanvasTTD(instansiKey) {
     document.getElementById('gambarTTDModal').style.display = 'none';
 }
 
+// Fungsi tanda tangan BERSAMA untuk semua fitur "Bagikan PDF" (jsPDF) — supaya Kas, Invoice, dan PDF
+// lain ke depannya tidak lagi punya kode tanda tangan sendiri-sendiri yang bisa saling ketinggalan versi.
+// Mengembalikan posisi Y baru setelah blok tanda tangan digambar (atau y asli kalau tidak digambar).
+function gambarTandaTanganPDF(doc, cfg, tglCetak, y, pageWidth, izinkanBendahara) {
+    const s = cfg.settings || {};
+    if (s.show_pimpinan !== true) return y;
+
+    const hajiReg = isHajiReguler();
+    const dominanAdalahInstansi2 = hajiReg && cfg.instansi2?.aktif && cfg.instansi2?.nama;
+    const kunciDominan = dominanAdalahInstansi2 ? 'instansi2' : 'instansi1';
+    const kunciSekunder = dominanAdalahInstansi2 ? 'instansi1' : 'instansi2';
+    const iDom = dominanAdalahInstansi2 ? (cfg.instansi2 || {}) : (cfg.instansi1 || {});
+    const iSek = dominanAdalahInstansi2 ? (cfg.instansi1 || {}) : (cfg.instansi2 || {});
+    const sekunderPunyaPimpinan = hajiReg ? !!iSek.pimpinan : (iSek.aktif && iSek.pimpinan);
+    const ttdMode = s.ttd_mode || 'both';
+    const kota = iDom.kota || '';
+    const lokasiTgl = kota ? `${kota}, ${tglCetak}` : tglCetak;
+    const bendahara = cfg.bendahara || {};
+    const pakaiBendahara = izinkanBendahara && s.show_bendahara === true && bendahara.nama;
+
+    const gambarBlok = (x, label, nama, jabatan, namaInstansi, gambarBase64) => {
+        doc.setFontSize(9); doc.setTextColor(85,85,85); doc.setFont('helvetica','normal');
+        doc.text(lokasiTgl, x, y, { align: 'center' });
+        doc.text(label, x, y+5, { align: 'center' });
+        if (gambarBase64) {
+            const format = gambarBase64.startsWith('data:image/png') ? 'PNG' : 'JPEG';
+            try { doc.addImage(gambarBase64, format, x-20, y+7, 40, 18); } catch(e) {}
+        } else {
+            doc.setDrawColor(51,51,51); doc.line(x-25, y+27, x+25, y+27);
+        }
+        doc.setFontSize(10); doc.setFont('helvetica','bold'); doc.setTextColor(0,0,0);
+        doc.text(nama, x, y+32, { align: 'center' });
+        doc.setFontSize(8); doc.setFont('helvetica','normal'); doc.setTextColor(100,100,100);
+        if (jabatan) doc.text(jabatan, x, y+37, { align: 'center' });
+        if (namaInstansi) doc.text(namaInstansi, x, y+42, { align: 'center' });
+    };
+
+    if (pakaiBendahara) {
+        gambarBlok(70, 'Hormat kami,', bendahara.nama, 'Bendahara', '', getTTDPimpinan('bendahara'));
+        gambarBlok(pageWidth - 70, 'Mengetahui,', iDom.pimpinan || 'Pimpinan', iDom.jabatan || '', '', getTTDPimpinan(kunciDominan));
+        return y + 46;
+    }
+
+    if (ttdMode === 'both' || ttdMode === 'single') {
+        const xKiri = ttdMode === 'both' ? 70 : pageWidth / 2;
+        gambarBlok(xKiri, 'Hormat kami,', iDom.pimpinan || 'Pimpinan', iDom.jabatan || '', iDom.nama || '', getTTDPimpinan(kunciDominan));
+    }
+    if (ttdMode === 'both' && sekunderPunyaPimpinan) {
+        gambarBlok(pageWidth - 70, 'Mengetahui,', iSek.pimpinan, iSek.jabatan || '', iSek.nama || '', getTTDPimpinan(kunciSekunder));
+    }
+    return y + 46;
+}
+
 function buildPrintTandaTangan(cfg, tglCetak, izinkanGambarTTD, izinkanBendahara) {
     const hajiReg = isHajiReguler();
-    const instansiDominan = hajiReg && cfg.instansi2?.aktif && cfg.instansi2?.nama ? (cfg.instansi2 || {}) : (cfg.instansi1 || {});
-    const instansiSekunder = hajiReg && cfg.instansi2?.aktif && cfg.instansi2?.nama ? (cfg.instansi1 || {}) : (cfg.instansi2 || {});
+    const dominanAdalahInstansi2 = hajiReg && cfg.instansi2?.aktif && cfg.instansi2?.nama;
+    const kunciDominan = dominanAdalahInstansi2 ? 'instansi2' : 'instansi1';
+    const kunciSekunder = dominanAdalahInstansi2 ? 'instansi1' : 'instansi2';
+    const instansiDominan = dominanAdalahInstansi2 ? (cfg.instansi2 || {}) : (cfg.instansi1 || {});
+    const instansiSekunder = dominanAdalahInstansi2 ? (cfg.instansi1 || {}) : (cfg.instansi2 || {});
     const i1 = instansiDominan;
     const i2 = instansiSekunder;
     const sekunderPunyaPimpinan = hajiReg ? !!i2.pimpinan : (i2.aktif && i2.pimpinan);
@@ -19663,8 +19801,9 @@ function buildPrintTandaTangan(cfg, tglCetak, izinkanGambarTTD, izinkanBendahara
     // Gambar tanda tangan HANYA dipakai kalau pemanggil eksplisit mengizinkan (izinkanGambarTTD=true) —
     // dipakai khusus untuk laporan/kuitansi (Estimasi, Invoice, Kas, dll). Surat Resmi/Perjanjian
     // punya blok tanda tangannya sendiri terpisah dan tidak pernah lewat fungsi ini.
-    const gambarTTD1 = izinkanGambarTTD ? getTTDPimpinan('instansi1') : '';
-    const gambarTTD2 = izinkanGambarTTD ? getTTDPimpinan('instansi2') : '';
+    // Kunci penyimpanan ikut instansi yang BENERAN dominan (bisa instansi2 kalau Haji Reguler dan itu yang diaktifkan).
+    const gambarTTD1 = izinkanGambarTTD ? getTTDPimpinan(kunciDominan) : '';
+    const gambarTTD2 = izinkanGambarTTD ? getTTDPimpinan(kunciSekunder) : '';
     const blokTTD = (gambar) => gambar
         ? `<img src="${gambar}" style="height:55px;margin-bottom:5px;object-fit:contain;">`
         : `<div style="margin-bottom:60px;"></div>`;
@@ -21168,42 +21307,8 @@ async function shareKasPDF() {
         doc.text('SALDO AKHIR: Rp '+(saldo).toLocaleString('id-ID'), 14, y+14);
         y += 24;
 
-        // ── Tanda Tangan (sama seperti versi Cetak) ────────────────────────
-        const s = cfg.settings || {};
-        if(s.show_pimpinan === true) {
-            const iDom = getInstansiDominanObj(cfg);
-            const iSek = getInstansiSekunderObj(cfg);
-            const hajiReg = isHajiReguler();
-            const sekunderPunyaPimpinan = hajiReg ? !!iSek.pimpinan : (iSek.aktif && iSek.pimpinan);
-            const ttdMode = s.ttd_mode || 'both';
-            const kota = iDom.kota || '';
-            const lokasiTgl = kota ? `${kota}, ${tglCetak}` : tglCetak;
-            const PW = 297;
-            if(ttdMode === 'both' || ttdMode === 'single') {
-                const xKiri = ttdMode === 'both' ? 70 : 148.5;
-                doc.setFontSize(9); doc.setTextColor(85,85,85); doc.setFont('helvetica','normal');
-                doc.text(lokasiTgl, xKiri, y, { align: 'center' });
-                doc.text('Hormat kami,', xKiri, y+5, { align: 'center' });
-                doc.setDrawColor(51,51,51); doc.line(xKiri-25, y+27, xKiri+25, y+27);
-                doc.setFontSize(10); doc.setFont('helvetica','bold'); doc.setTextColor(0,0,0);
-                doc.text(iDom.pimpinan || 'Pimpinan', xKiri, y+32, { align: 'center' });
-                doc.setFontSize(8); doc.setFont('helvetica','normal'); doc.setTextColor(100,100,100);
-                doc.text(iDom.jabatan || '', xKiri, y+37, { align: 'center' });
-                doc.text(iDom.nama || '', xKiri, y+42, { align: 'center' });
-            }
-            if(ttdMode === 'both' && sekunderPunyaPimpinan) {
-                const xKanan = PW - 70;
-                doc.setFontSize(9); doc.setTextColor(85,85,85); doc.setFont('helvetica','normal');
-                doc.text(lokasiTgl, xKanan, y, { align: 'center' });
-                doc.text('Mengetahui,', xKanan, y+5, { align: 'center' });
-                doc.setDrawColor(51,51,51); doc.line(xKanan-25, y+27, xKanan+25, y+27);
-                doc.setFontSize(10); doc.setFont('helvetica','bold'); doc.setTextColor(0,0,0);
-                doc.text(iSek.pimpinan, xKanan, y+32, { align: 'center' });
-                doc.setFontSize(8); doc.setFont('helvetica','normal'); doc.setTextColor(100,100,100);
-                doc.text(iSek.jabatan || '', xKanan, y+37, { align: 'center' });
-                doc.text(iSek.nama || '', xKanan, y+42, { align: 'center' });
-            }
-        }
+        // ── Tanda Tangan (sama seperti versi Cetak — gambar TTD & Bendahara didukung) ──
+        y = gambarTandaTanganPDF(doc, cfg, tglCetak, y, 297, true);
 
         // Catatan: QR Code sudah otomatis ditambahkan oleh applyPDFConfig() di atas (kalau diaktifkan di Konfigurasi) — tidak perlu tambah lagi di sini
 
