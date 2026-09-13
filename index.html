@@ -3283,7 +3283,7 @@
            <div class="fitur-card" onclick="showPage('uploaddokumen')"><div class="fitur-icon"><i class="fas fa-file-arrow-up"></i></div><div class="fitur-title">Upload Dokumen</div><div class="fitur-desc">Simpan KTP, Paspor, Foto</div></div>
             <div class="fitur-card" onclick="showPage('foldervirtual')"><div class="fitur-icon"><i class="fas fa-folder-open"></i></div><div class="fitur-title">Folder Virtual</div><div class="fitur-desc">Pisah per rombongan</div></div>
             <div class="fitur-card" onclick="showPage('pengingatwa')"><div class="fitur-icon"><i class="fab fa-whatsapp"></i></div><div class="fitur-title">Pengingat WA</div><div class="fitur-desc">Kirim pengingat otomatis</div></div>
-            <div class="fitur-card" onclick="showPage('etikettiket')"><div class="fitur-icon"><i class="fas fa-ticket"></i></div><div class="fitur-title">E-Tiket & QR</div><div class="fitur-desc">Tiket digital dengan QR</div></div>
+            <div class="fitur-card" onclick="showPage('etikettiket')"><div class="fitur-icon"><i class="fas fa-ticket"></i></div><div class="fitur-title">Kartu ID & QR Jamaah</div><div class="fitur-desc">Kartu identitas untuk presensi</div></div>
             <div class="fitur-card" onclick="showPage('scanqr')"><div class="fitur-icon" style="font-size:40px;"><i class="fas fa-qrcode"></i></div><div class="fitur-title">Manasik & Absensi</div><div class="fitur-desc">Jadwal, presensi & cek data jamaah</div></div>
             <div class="fitur-card" onclick="showPage('suratresmi')"><div class="fitur-icon" style="font-size:40px;"><i class="fas fa-file-signature"></i></div><div class="fitur-title">Surat Resmi</div><div class="fitur-desc">Buat surat otomatis dari data jamaah</div></div>
             <div class="fitur-card" onclick="showPage('cetaklabel')"><div class="fitur-icon"><i class="fas fa-tag"></i></div><div class="fitur-title">Cetak Label</div><div class="fitur-desc">Name tag / stiker koper</div></div>
@@ -3494,8 +3494,32 @@
             </div>
         </div>
 
+        <!-- Pemilih Metode Absensi -->
+        <div class="card-premium" style="padding:8px;">
+            <div style="display:flex;gap:6px;">
+                <button id="tabMetodeScan" onclick="pilihMetodeAbsensi('scan')" style="flex:1;padding:9px 4px;background:var(--primary);color:white;border:none;border-radius:8px;font-size:11px;font-weight:700;cursor:pointer;">📷 Scan QR</button>
+                <button id="tabMetodeManual" onclick="pilihMetodeAbsensi('manual')" style="flex:1;padding:9px 4px;background:var(--bg);color:#555;border:none;border-radius:8px;font-size:11px;font-weight:700;cursor:pointer;">🔍 Cari Manual</button>
+                <button id="tabMetodeRombongan" onclick="pilihMetodeAbsensi('rombongan')" style="flex:1;padding:9px 4px;background:var(--bg);color:#555;border:none;border-radius:8px;font-size:11px;font-weight:700;cursor:pointer;">📋 Per Rombongan</button>
+            </div>
+        </div>
+
+        <!-- Cari Manual -->
+        <div class="card-premium" id="areaAbsensiManual" style="display:none;">
+            <div class="input-group"><label>Cari Nama / No. Porsi</label><input type="text" id="searchAbsensiManual" placeholder="🔍 Ketik nama atau nomor porsi..." oninput="renderHasilCariAbsensiManual()"></div>
+            <div id="hasilCariAbsensiManual" style="max-height:320px;overflow-y:auto;"></div>
+        </div>
+
+        <!-- Per Rombongan -->
+        <div class="card-premium" id="areaAbsensiRombongan" style="display:none;">
+            <div class="input-group">
+                <label>Pilih Rombongan</label>
+                <select id="pilihRombonganAbsensi" onchange="renderChecklistRombonganAbsensi()"></select>
+            </div>
+            <div id="checklistRombonganAbsensi" style="max-height:360px;overflow-y:auto;margin-top:8px;"></div>
+        </div>
+
         <!-- Scanner -->
-        <div class="card-premium" style="text-align:center;">
+        <div class="card-premium" id="areaAbsensiScan" style="text-align:center;">
             <div id="scannerArea" style="position:relative;width:100%;max-width:340px;margin:0 auto;border-radius:16px;overflow:hidden;background:#000;">
                 <video id="scannerVideo" style="width:100%;display:block;" playsinline></video>
                 <canvas id="scannerCanvas" style="display:none;"></canvas>
@@ -3552,7 +3576,7 @@
 </div>
 
 <div id="page-etikettiket" class="page">
-    <div class="header-premium header-premium-small"><div class="back-header"><i class="fas fa-arrow-left" onclick="showPage('fitur')"></i><h2> E-Tiket & QR</h2><div style="width:30px;"></div></div></div>
+    <div class="header-premium header-premium-small"><div class="back-header"><i class="fas fa-arrow-left" onclick="showPage('fitur')"></i><h2> Kartu ID & QR Jamaah</h2><div style="width:30px;"></div></div></div>
     <div class="container">
         <div class="card-premium">
             <div class="input-group">
@@ -3565,7 +3589,7 @@
                 <div id="multiTiketJamaahSelect" style="max-height:220px;overflow-y:auto;border:1px solid #ddd;border-radius:10px;padding:8px;background:var(--card-bg);"></div>
                 <div id="jumlahDipilihTiket" style="font-size:12px;color:#0D5C4A;margin-top:6px;font-weight:bold;"></div>
             </div>
-            <button class="btn btn-primary mt-2" onclick="cetakTiketMulti()"><i class="fas fa-print"></i> CETAK TIKET</button>
+            <button class="btn btn-primary mt-2" onclick="cetakTiketMulti()"><i class="fas fa-print"></i> CETAK KARTU</button>
             <button class="btn btn-wa mt-2" onclick="shareTiketWAMulti()"><i class="fab fa-whatsapp"></i> Kirim ke WA</button>
         </div>
     </div>
@@ -10457,6 +10481,94 @@ async function prosesHasilScan(qrData) {
 
     lastScannedResult = jamaah;
     await tampilHasilScan(jamaah);
+}
+
+// ==================== METODE ABSENSI ALTERNATIF (Cari Manual & Per Rombongan) ====================
+// Keduanya memakai fungsi tandaiHadir() yang sama persis dengan Scan QR — cuma beda cara menemukan jamaahnya
+function pilihMetodeAbsensi(mode) {
+    const tabs = { scan: 'tabMetodeScan', manual: 'tabMetodeManual', rombongan: 'tabMetodeRombongan' };
+    const areas = { scan: 'areaAbsensiScan', manual: 'areaAbsensiManual', rombongan: 'areaAbsensiRombongan' };
+    Object.keys(tabs).forEach(key => {
+        document.getElementById(tabs[key]).style.background = key === mode ? 'var(--primary)' : 'var(--bg)';
+        document.getElementById(tabs[key]).style.color = key === mode ? 'white' : '#555';
+        document.getElementById(areas[key]).style.display = key === mode ? (key === 'scan' ? 'block' : 'block') : 'none';
+    });
+    if (mode !== 'scan') stopScanner();
+    if (mode === 'manual') { document.getElementById('searchAbsensiManual').value = ''; renderHasilCariAbsensiManual(); }
+    if (mode === 'rombongan') renderPilihanRombonganAbsensi();
+}
+
+function renderHasilCariAbsensiManual() {
+    const el = document.getElementById('hasilCariAbsensiManual');
+    const q = document.getElementById('searchAbsensiManual').value.trim().toLowerCase();
+    if (!q) { el.innerHTML = '<p style="text-align:center;color:#888;font-size:12px;padding:10px 0;">Ketik nama atau nomor porsi jamaah</p>'; return; }
+    if (!sesiAktifId) { el.innerHTML = '<p style="text-align:center;color:#EF4444;font-size:12px;padding:10px 0;">Pilih sesi absensi dulu!</p>'; return; }
+    const sesi = getSesiAktif();
+    const list = jamaahList.filter(j => j.program_id === currentProgramId).filter(j => {
+        const noPorsi = (j.additional_fields?.no_porsi || '').toString().toLowerCase();
+        return j.nama_lengkap.toLowerCase().includes(q) || noPorsi.includes(q);
+    }).slice(0, 30);
+    if (list.length === 0) { el.innerHTML = '<p style="text-align:center;color:#888;font-size:12px;padding:10px 0;">Tidak ditemukan</p>'; return; }
+    el.innerHTML = list.map(j => {
+        const sudahHadir = sesi && sesi.absensi.find(a => a.jamaahId === j.id);
+        const noPorsi = j.additional_fields?.no_porsi || '-';
+        return `
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 8px;border-bottom:1px solid #eee;">
+            <div>
+                <div style="font-weight:600;font-size:13px;">${escapeHtml(j.nama_lengkap)}</div>
+                <div style="font-size:11px;color:#888;">No. Porsi: ${escapeHtml(noPorsi.toString())}</div>
+            </div>
+            ${sudahHadir
+                ? `<span style="font-size:11px;font-weight:700;color:#166534;background:#DCFCE7;padding:5px 10px;border-radius:8px;">✅ Hadir</span>`
+                : `<button onclick="tandaiHadirManual('${j.id}')" style="padding:7px 14px;background:#10B981;color:white;border:none;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;">Tandai Hadir</button>`
+            }
+        </div>`;
+    }).join('');
+}
+
+async function tandaiHadirManual(jamaahId) {
+    const jamaah = jamaahList.find(j => j.id == jamaahId);
+    if (!jamaah) return;
+    lastScannedResult = jamaah;
+    await tandaiHadir();
+    if (document.getElementById('areaAbsensiManual').style.display !== 'none') renderHasilCariAbsensiManual();
+    if (document.getElementById('areaAbsensiRombongan').style.display !== 'none') renderChecklistRombonganAbsensi();
+}
+
+function renderPilihanRombonganAbsensi() {
+    const sel = document.getElementById('pilihRombonganAbsensi');
+    const list = jamaahList.filter(j => j.program_id === currentProgramId && j.additional_fields?.no_rombongan);
+    const rombonganUnik = [...new Set(list.map(j => j.additional_fields.no_rombongan))].sort();
+    if (rombonganUnik.length === 0) {
+        sel.innerHTML = '<option value="">Belum ada data Rombongan</option>';
+        document.getElementById('checklistRombonganAbsensi').innerHTML = '<p style="text-align:center;color:#888;font-size:12px;padding:10px 0;">Isi dulu No. Rombongan di Database Jamaah</p>';
+        return;
+    }
+    sel.innerHTML = rombonganUnik.map(r => `<option value="${escapeHtml(r)}">Rombongan ${escapeHtml(r)}</option>`).join('');
+    renderChecklistRombonganAbsensi();
+}
+
+function renderChecklistRombonganAbsensi() {
+    const el = document.getElementById('checklistRombonganAbsensi');
+    const rombongan = document.getElementById('pilihRombonganAbsensi').value;
+    if (!rombongan) { el.innerHTML = ''; return; }
+    if (!sesiAktifId) { el.innerHTML = '<p style="text-align:center;color:#EF4444;font-size:12px;padding:10px 0;">Pilih sesi absensi dulu!</p>'; return; }
+    const sesi = getSesiAktif();
+    const anggota = jamaahList.filter(j => j.program_id === currentProgramId && j.additional_fields?.no_rombongan === rombongan);
+    const karu = anggota[0]?.additional_fields?.nama_karu || '';
+    const karom = anggota[0]?.additional_fields?.nama_karom || '';
+    const infoKaru = (karu || karom) ? `<div style="font-size:11px;color:#888;margin-bottom:8px;">${karu ? 'Karu: '+escapeHtml(karu) : ''}${karu && karom ? ' · ' : ''}${karom ? 'Karom: '+escapeHtml(karom) : ''}</div>` : '';
+    el.innerHTML = infoKaru + anggota.map(j => {
+        const sudahHadir = sesi && sesi.absensi.find(a => a.jamaahId === j.id);
+        return `
+        <div onclick="${sudahHadir ? '' : `tandaiHadirManual('${j.id}')`}" style="display:flex;justify-content:space-between;align-items:center;padding:10px 8px;border-bottom:1px solid #eee;${sudahHadir ? '' : 'cursor:pointer;'}">
+            <div style="font-weight:600;font-size:13px;">${escapeHtml(j.nama_lengkap)}</div>
+            ${sudahHadir
+                ? `<span style="font-size:16px;color:#16A34A;">✅</span>`
+                : `<span style="font-size:16px;color:#ccc;">⬜</span>`
+            }
+        </div>`;
+    }).join('');
 }
 
 function resetScanResult() {
@@ -20206,7 +20318,7 @@ async function generateAndShareTiketWA(jamaah) {
         if(num.length >= 10) waNumber = num;
     }
     if(!waNumber) { showToast(`${jamaah.nama_lengkap}: No WA tidak ada, dilewati`); return; }
-    const text = `🎫 *E-TIKET ${jamaah.nama_lengkap}*\n\n👤 Nama: ${jamaah.nama_lengkap}\n📦 Paket: ${jamaah.paket || '-'}\n📅 Tanggal: ${new Date().toLocaleDateString('id-ID')}\n\n#${getNamaInstansiUtama()}`;
+    const text = `🪪 *KARTU ID ${jamaah.nama_lengkap}*\n\n👤 Nama: ${jamaah.nama_lengkap}\n📦 Paket: ${jamaah.paket || '-'}\n📅 Tanggal: ${new Date().toLocaleDateString('id-ID')}\n\n#${getNamaInstansiUtama()}`;
     window.open(`https://wa.me/${waNumber}?text=${encodeURIComponent(text)}`, '_blank');
     await new Promise(r => setTimeout(r, 1000));
 }
