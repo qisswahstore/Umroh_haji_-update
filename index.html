@@ -8595,7 +8595,7 @@ function renderJamaahListWithPagination() {
     document.getElementById('paginationContainer').innerHTML=paginationHtml;
     // Lazy load foto thumbnail hanya untuk halaman ini
     setTimeout(() => {
-        pageItems.forEach(j => loadFotoThumbnail(j.id));
+        pageData.forEach(j => loadFotoThumbnail(j.id));
     }, 50);
 }
 
