@@ -6110,14 +6110,15 @@ async function shareEstimasiInternalPDF() {
             .filter(([,v]) => v > 0);
 
         const {jsPDF} = window.jspdf;
+        const [wr, wg, wb] = getWarnaTemaRGB();
         const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
         const PW = 210, PH = 297;
-        await applyPDFConfig(doc, { landscape: false, skipHeader: true, skipWatermark: true });
+        await applyPDFConfig(doc, { landscape: false, skipHeader: true, skipWatermark: true, skipQR: true });
 
         gambarWatermarkPDF(doc, cfg, PW, PH);
         let yInfo = await gambarHeaderRoundedPDF(doc, cfg, PW);
 
-        doc.setFontSize(15); doc.setTextColor(13,92,74); doc.setFont('helvetica','bold');
+        doc.setFontSize(15); doc.setTextColor(wr,wg,wb); doc.setFont('helvetica','bold');
         doc.text('RINCIAN ESTIMASI INTERNAL', PW/2, yInfo, { align: 'center' }); yInfo += 6;
         doc.setFontSize(9); doc.setTextColor(220,60,60); doc.setFont('helvetica','italic');
         doc.text('Hanya Untuk Internal', PW/2, yInfo, { align: 'center' }); yInfo += 8;
@@ -6126,16 +6127,25 @@ async function shareEstimasiInternalPDF() {
         const tinggiKotakInfo = jumlahBarisInfo * 5 + 6;
         gambarKotakInfoPDF(doc, 14, yInfo, PW-28, tinggiKotakInfo);
         yInfo += 6;
-        doc.setFont('helvetica','normal'); doc.setFontSize(9); doc.setTextColor(90,90,90);
-        doc.text(`Paket: ${lastCalculatedPaket}`, 18, yInfo); yInfo += 5;
+        doc.setFontSize(9); doc.setTextColor(70,70,70);
+        const tulisBarisInfo = (label, isi) => {
+            doc.setFont('helvetica','bold');
+            doc.text(label, 18, yInfo);
+            const lebarLabel = doc.getTextWidth(label);
+            doc.setFont('helvetica','normal');
+            doc.text(isi, 18 + lebarLabel, yInfo);
+            yInfo += 5;
+        };
+        tulisBarisInfo('Paket: ', lastCalculatedPaket);
         if (est.namaHotelMakkah || est.namaHotelMadinah) {
             const hotelTxt = [est.namaHotelMakkah ? est.namaHotelMakkah + ' (Makkah)' : '', est.namaHotelMadinah ? est.namaHotelMadinah + ' (Madinah)' : ''].filter(x=>x).join(', ');
-            doc.text(`Hotel: ${hotelTxt}`, 18, yInfo); yInfo += 5;
+            tulisBarisInfo('Hotel: ', hotelTxt);
         }
-        if (est.namaMaskapai) { doc.text(`Maskapai: ${est.namaMaskapai}`, 18, yInfo); yInfo += 5; }
-        doc.text(`Jamaah: ${nJam} orang (${nFoc} gratis, ${nTL} TL)`, 18, yInfo); yInfo += 5;
-        if (tglBerangkat) { doc.text(`Tgl Keberangkatan: ${tglBerangkat}`, 18, yInfo); yInfo += 5; }
-        doc.text(`Dicetak: ${tgl}`, 18, yInfo); yInfo += 8;
+        if (est.namaMaskapai) tulisBarisInfo('Maskapai: ', est.namaMaskapai);
+        tulisBarisInfo('Jamaah: ', `${nJam} orang (${nFoc} gratis, ${nTL} TL)`);
+        if (tglBerangkat) tulisBarisInfo('Tgl Keberangkatan: ', tglBerangkat);
+        tulisBarisInfo('Dicetak: ', tgl);
+        yInfo += 3;
 
         const tableData = items.map(([label, val]) => [label, f(val)]);
         tableData.push(['Modal Pokok / Pax', f(sub)]);
@@ -6144,7 +6154,7 @@ async function shareEstimasiInternalPDF() {
             head: [['Komponen Biaya', 'Per Pax']],
             body: tableData,
             theme: 'striped',
-            headStyles: { fillColor: [13,92,74] },
+            headStyles: { fillColor: [wr,wg,wb] },
             styles: { fontSize: 9 },
             columnStyles: { 1: { halign: 'right' } },
             didParseCell: (h) => { if (h.section === 'body' && h.row.index === tableData.length - 1) { h.cell.styles.fontStyle = 'bold'; h.cell.styles.fillColor = [240,247,244]; } }
@@ -6164,11 +6174,14 @@ async function shareEstimasiInternalPDF() {
         doc.text(`Profit Per Pax: ${f(profitPerPax)}`, 18, y); y += 6;
         if (buffer > 0) { doc.setTextColor(245,158,11); doc.text(`+ Buffer Diskon: ${f(buffer)}`, 18, y); y += 6; }
         y += 4;
-        doc.setDrawColor(13,92,74); doc.setLineWidth(0.5); doc.line(14, y, PW-14, y); y += 8;
-        doc.setFontSize(13); doc.setFont('helvetica','bold'); doc.setTextColor(13,92,74);
+        doc.setDrawColor(wr,wg,wb); doc.setLineWidth(0.5); doc.line(14, y, PW-14, y); y += 8;
+        doc.setFontSize(13); doc.setFont('helvetica','bold'); doc.setTextColor(wr,wg,wb);
         doc.text(`HARGA JUAL PER PAX: ${f(lastCalculatedPrice)}`, 14, y);
+        y += 10;
 
-        // Sengaja TANPA blok tanda tangan, sesuai permintaan — laporan ini dibagikan cepat tanpa TTD.
+        // Disamakan dengan versi Cetak — ikut Pimpinan/Bendahara & QR dokumen, tidak lagi dikecualikan
+        y = gambarTandaTanganPDF(doc, cfg, tgl, y, PW, true);
+        await gambarQRDokumenPDF(doc, cfg, `Estimasi Internal: ${lastCalculatedPaket}\nHarga Jual: ${f(lastCalculatedPrice)}\nTanggal: ${tgl}`, PW, PH);
 
         const namaFile = `Estimasi_Internal_${lastCalculatedPaket.replace(/\s+/g,'_')}.pdf`;
         const blob = doc.output('blob');
@@ -11860,10 +11873,11 @@ async function shareSimulasiGratisPDF() {
         const namaProgram = getCurrentProgram()?.nama || '-';
         const f = n => 'Rp ' + Math.round(n).toLocaleString('id-ID');
         const {jsPDF} = window.jspdf;
+        const [wr, wg, wb] = getWarnaTemaRGB();
         const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
         await applyPDFConfig(doc, { landscape: false });
 
-        doc.setFontSize(16); doc.setTextColor(26,93,74);
+        doc.setFontSize(16); doc.setTextColor(wr,wg,wb);
         doc.text('SIMULASI KEBIJAKAN GRATIS MITRA', 105, 65, { align: 'center' });
         doc.setFontSize(9); doc.setTextColor(150,150,150);
         doc.text(namaInstansi + ' — Program: ' + namaProgram, 105, 71, { align: 'center' });
@@ -11881,7 +11895,7 @@ async function shareSimulasiGratisPDF() {
             head: [['Rasio', 'Status', 'Profit Normal', 'Profit+Gratis', '% Normal', 'Estimasi 1 Musim']],
             body: tableData,
             theme: 'striped',
-            headStyles: { fillColor: [26,93,74] },
+            headStyles: { fillColor: [wr,wg,wb] },
             styles: { fontSize: 8 },
             didParseCell: (hookData) => {
                 if (hookData.section === 'body' && data[hookData.row.index]?.rekomendasi) {
@@ -11891,7 +11905,7 @@ async function shareSimulasiGratisPDF() {
         });
 
         let y = doc.lastAutoTable.finalY + 8;
-        doc.setFontSize(9); doc.setTextColor(26,93,74); doc.setFont('helvetica','bold');
+        doc.setFontSize(9); doc.setTextColor(wr,wg,wb); doc.setFont('helvetica','bold');
         doc.text('Kesimpulan:', 14, y);
         doc.setFont('helvetica','normal'); doc.setTextColor(60,60,60);
         const kesimpulanLines = doc.splitTextToSize(buatKesimpulanSimulasiGratis(data), 180);
@@ -14311,6 +14325,7 @@ async function shareTukarRiyalPDF() {
     try {
         const namaInstansi = getNamaInstansiUtama();
         const {jsPDF} = window.jspdf;
+        const [wr, wg, wb] = getWarnaTemaRGB();
         const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
         await applyPDFConfig(doc, { landscape: false });
 
@@ -14319,7 +14334,7 @@ async function shareTukarRiyalPDF() {
         const totalRiyal = list.reduce((a,t) => a + t.riyal, 0);
         const totalKembalian = list.reduce((a,t) => a + t.kembalian, 0);
 
-        doc.setFontSize(16); doc.setTextColor(26,93,74);
+        doc.setFontSize(16); doc.setTextColor(wr,wg,wb);
         doc.text('LAPORAN TUKAR RIYAL', 105, 65, { align: 'center' });
         doc.setFontSize(9); doc.setTextColor(150,150,150);
         doc.text(namaInstansi + ' — Dicetak: ' + tglCetak, 105, 71, { align: 'center' });
@@ -14337,7 +14352,7 @@ async function shareTukarRiyalPDF() {
             head: [['No','Tanggal','Ket.','Uang Masuk','Kurs','Riyal','Kembalian','Admin']],
             body: tableData,
             theme: 'striped',
-            headStyles: { fillColor: [26,93,74] },
+            headStyles: { fillColor: [wr,wg,wb] },
             styles: { fontSize: 7, lineWidth: 0.1 },
             columnStyles: { 0: { cellWidth: 8, halign: 'center' } }
         });
@@ -14347,7 +14362,7 @@ async function shareTukarRiyalPDF() {
         doc.text('Total Transaksi: ' + list.length, 14, y);
         doc.text('Total Rupiah Masuk: Rp ' + totalUang.toLocaleString('id-ID'), 14, y+7);
         doc.text('Total Riyal Keluar: ' + totalRiyal.toLocaleString('id-ID') + ' SAR', 14, y+14);
-        doc.setTextColor(26,93,74); doc.setFont('helvetica','bold');
+        doc.setTextColor(wr,wg,wb); doc.setFont('helvetica','bold');
         doc.text('Total Kembalian: Rp ' + totalKembalian.toLocaleString('id-ID'), 14, y+21);
 
         const namaFile = `Laporan_Tukar_Riyal_${new Date().toLocaleDateString('id-ID').replace(/\//g,'-')}.pdf`;
@@ -14853,12 +14868,13 @@ async function shareInvoiceGambar(jamaahId) {
         const namaFile = `Invoice_${jamaah.nama_lengkap.replace(/ /g,'_')}.pdf`;
 
         const {jsPDF} = window.jspdf;
+        const [wr, wg, wb] = getWarnaTemaRGB();
         const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
         const PW = 210; // page width
         gambarWatermarkPDF(doc, cfg, PW, 297);
         let y = await gambarHeaderRoundedPDF(doc, cfg, PW);
-        // ── Judul Invoice ──────────────────────────────────────────────────
-        doc.setTextColor(13, 92, 74);
+       // ── Judul Invoice ──────────────────────────────────────────────────
+        doc.setTextColor(wr, wg, wb);
         doc.setFontSize(14); doc.setFont('helvetica', 'bold');
         doc.text('INVOICE PEMBAYARAN', PW / 2, y, { align: 'center' });
         y += 6;
@@ -14888,7 +14904,7 @@ async function shareInvoiceGambar(jamaahId) {
             head: [tableHead],
             body: tableData,
             theme: 'striped',
-            headStyles: { fillColor: [13, 92, 74], fontSize: 9, fontStyle: 'bold' },
+            headStyles: { fillColor: [wr, wg, wb], fontSize: 9, fontStyle: 'bold' },
             styles: { fontSize: 9, lineWidth: 0.1, cellPadding: 3 },
             columnStyles: { 0: { cellWidth: 10, halign: 'center' } }
         });
@@ -14899,7 +14915,7 @@ async function shareInvoiceGambar(jamaahId) {
         if(hajiReg) {
             const perKomponen = hitungStatusPerKomponenHaji(jamaahId);
             if(perKomponen.length > 0) {
-                doc.setFontSize(10); doc.setFont('helvetica', 'bold'); doc.setTextColor(13, 92, 74);
+                doc.setFontSize(10); doc.setFont('helvetica', 'bold'); doc.setTextColor(wr, wg, wb);
                 doc.text('Rincian per Komponen', 14, y);
                 y += 5;
                 doc.autoTable({
@@ -14907,7 +14923,7 @@ async function shareInvoiceGambar(jamaahId) {
                     head: [['Komponen', 'Target', 'Dibayar', 'Status']],
                     body: perKomponen.map(k => [k.jenis, formatRupiah(k.target), formatRupiah(k.dibayar), k.status]),
                     theme: 'striped',
-                    headStyles: { fillColor: [13, 92, 74], fontSize: 9, fontStyle: 'bold' },
+                    headStyles: { fillColor: [wr, wg, wb], fontSize: 9, fontStyle: 'bold' },
                     styles: { fontSize: 9, lineWidth: 0.1, cellPadding: 3 }
                 });
                 y = doc.lastAutoTable.finalY + 8;
@@ -14959,16 +14975,8 @@ async function shareInvoiceGambar(jamaahId) {
         doc.setTextColor(150, 150, 150);
         doc.text(`Dicetak: ${tglCetak}`, 14, y);
 
-        // QR pojok kanan bawah
-        if(cfg.qr?.enabled && typeof QRCode !== 'undefined') {
-            try {
-                const canvas = document.createElement('canvas');
-                await QRCode.toCanvas(canvas, `Invoice:${noInvoice}\nJamaah:${jamaah.nama_lengkap}`, { width: 80 });
-                doc.addImage(canvas.toDataURL(), 'PNG', PW - 34, 260, 20, 20);
-                doc.setFontSize(7); doc.setTextColor(150,150,150);
-                doc.text('Dokumen Resmi', PW - 34, 282, { maxWidth: 20 });
-            } catch(e) {}
-        }
+        // QR pojok kanan bawah (sama persis dengan versi Cetak, termasuk info Status)
+        await gambarQRDokumenPDF(doc, cfg, `Invoice:${noInvoice}\nJamaah:${jamaah.nama_lengkap}\nStatus:${sisa<=0?'LUNAS':'BELUM LUNAS'}`, PW, 297);
 
         // ── Share ──────────────────────────────────────────────────────────
         const blob = doc.output('blob');
@@ -19449,6 +19457,32 @@ async function confirmResetAllData() {
 }
 
 // ==================== FUNGSI PDF DENGAN KONFIGURASI ====================
+// Khusus untuk logo di header PDF — beda dari kompresLogo (yang buat versi kecil/JPEG utk email dsb),
+// ini menjaga resolusi cukup tajam (default 200px) dan MEMPERTAHANKAN format PNG kalau logo aslinya PNG
+// (supaya latar transparan tidak berubah jadi kotak putih/hitam seperti yang terjadi kalau dipaksa JPEG).
+async function siapkanLogoUntukPDF(base64Data, maxWidth = 200) {
+    return new Promise((resolve) => {
+        if (!base64Data || !base64Data.startsWith('data:image')) { resolve(null); return; }
+        const formatAsli = base64Data.startsWith('data:image/png') ? 'PNG' : 'JPEG';
+        const img = new Image();
+        img.onload = () => {
+            const canvas = document.createElement('canvas');
+            let width = img.width, height = img.height;
+            if (width > maxWidth) { height = (height * maxWidth) / width; width = maxWidth; }
+            canvas.width = width; canvas.height = height;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0, width, height);
+            if (formatAsli === 'PNG') {
+                resolve({ data: canvas.toDataURL('image/png'), format: 'PNG' });
+            } else {
+                resolve({ data: canvas.toDataURL('image/jpeg', 0.92), format: 'JPEG' });
+            }
+        };
+        img.onerror = () => resolve(null);
+        img.src = base64Data;
+    });
+}
+
 async function kompresLogo(base64Data, maxWidth = 80) { 
     return new Promise((resolve) => { 
         if (!base64Data || !base64Data.startsWith('data:image')) { resolve(null); return; } 
@@ -19484,8 +19518,8 @@ async function applyPDFConfig(doc, options = {}) {
         if (cfg.settings.header_mode === 'both' || cfg.settings.header_mode === 'instansi1') logoToAdd = instansiDominan.logo;
         else if (cfg.settings.header_mode === 'instansi2' && instansiSekunder.logo) logoToAdd = instansiSekunder.logo;
         if (logoToAdd && logoToAdd.startsWith('data:image')) {
-            const kompresLogoData = await kompresLogo(logoToAdd, 60);
-            if (kompresLogoData) { try { doc.addImage(kompresLogoData, 'JPEG', 12, startY + 6, 30, 30); } catch(e) {} }
+            const logoTajam = await siapkanLogoUntukPDF(logoToAdd, 200);
+            if (logoTajam) { try { doc.addImage(logoTajam.data, logoTajam.format, 12, startY + 6, 30, 30); } catch(e) {} }
         }
         doc.setFontSize(12);
         doc.setFont('helvetica', 'bold');
@@ -19523,7 +19557,7 @@ async function applyPDFConfig(doc, options = {}) {
         else if (cfg.watermark.position === 'center') doc.text(cfg.watermark.text, pageWidth/2, pageHeight/2, { align: 'center' });
         doc.restoreGraphicsState();
     }
-    if (cfg.qr.enabled && cfg.qr.text && typeof QRCode !== 'undefined') {
+    if (!options.skipQR && cfg.qr.enabled && cfg.qr.text && typeof QRCode !== 'undefined') {
         const qrSize = cfg.qr.size || 80;
         try {
             const canvas = document.createElement('canvas');
@@ -19758,7 +19792,17 @@ function gambarTandaTanganPDF(doc, cfg, tglCetak, y, pageWidth, izinkanBendahara
 // Supaya Estimasi, Kas, Invoice (dan PDF lain ke depannya) selalu tampil identik dengan versi Cetak —
 // satu sumber kode, bukan ditulis ulang sendiri-sendiri per fitur (itu penyebab ketinggalan versi kemarin).
 
+// Ambil warna tema yang sedang aktif (sama seperti yang dipakai versi Cetak), diubah ke format RGB untuk jsPDF
+function getWarnaTemaRGB() {
+    const hex = (localStorage.getItem('premium_theme_primary') || '#0D5C4A').replace('#','');
+    const r = parseInt(hex.substring(0,2), 16);
+    const g = parseInt(hex.substring(2,4), 16);
+    const b = parseInt(hex.substring(4,6), 16);
+    return [r || 13, g || 92, b || 74];
+}
+
 async function gambarHeaderRoundedPDF(doc, cfg, pageWidth) {
+    const [wr, wg, wb] = getWarnaTemaRGB();
     const hajiReg = isHajiReguler();
     const i1 = getInstansiDominanObj(cfg);
     const i2 = getInstansiSekunderObj(cfg);
@@ -19776,14 +19820,16 @@ async function gambarHeaderRoundedPDF(doc, cfg, pageWidth) {
 
     const hX = 14, hY = 10, hW = pageWidth - 28, hH = 36;
     const r = 4;
-    doc.setFillColor(13, 92, 74);
+    doc.setFillColor(wr, wg, wb);
     doc.roundedRect(hX, hY, hW, hH, r, r, 'F');
 
     let textX = hX + 6;
     if (showLogo && i1.logo && i1.logo.startsWith('data:image')) {
         try {
-            const kompres = await kompresLogo(i1.logo, 60);
-            if (kompres) { doc.addImage(kompres, 'JPEG', hX + 4, hY + (hH-26)/2, 26, 26); textX = hX + 34; }
+            // Logo dijaga tajam — resolusi cukup besar (200px) dan format PNG dipertahankan
+            // kalau aslinya PNG (supaya transparansi tidak hilang jadi kotak putih/hitam).
+            const logoTajam = await siapkanLogoUntukPDF(i1.logo, 200);
+            if (logoTajam) { doc.addImage(logoTajam.data, logoTajam.format, hX + 4, hY + (hH-26)/2, 26, 26); textX = hX + 34; }
         } catch(e) {}
     }
 
@@ -19816,19 +19862,54 @@ async function gambarHeaderRoundedPDF(doc, cfg, pageWidth) {
 
 function gambarWatermarkPDF(doc, cfg, pageWidth, pageHeight) {
     const wm = cfg.watermark || {};
-    if (wm.enabled === false) return;
+    if (!wm.enabled) return;
     const teks = wm.text || getNamaInstansiUtama();
     if (!teks) return;
     const opacity = wm.opacity !== undefined ? wm.opacity : 0.15;
-    const fontSize = (wm.fontsize || 60) * 0.5; // skala kasar dari px HTML ke pt PDF
+    const fontSize = wm.fontsize || 60;
+    const posisi = wm.position || 'diagonal';
 
     doc.saveGraphicsState();
     try { doc.setGState(new doc.GState({ opacity })); } catch(e) {}
     doc.setFont('helvetica', 'bold');
-    doc.setFontSize(fontSize);
     doc.setTextColor(13, 92, 74);
-    doc.text(teks, pageWidth / 2, pageHeight / 2, { align: 'center', angle: 45 });
+
+    if (posisi === 'tile') {
+        // Berulang memenuhi halaman — sama seperti versi HTML: 4 baris x 3 kolom
+        doc.setFontSize(fontSize * 0.4);
+        const totalRows = 4;
+        for (let rIdx = 0; rIdx < totalRows; rIdx++) {
+            const yPos = ((rIdx + 0.5) / totalRows) * pageHeight;
+            for (let cIdx = 0; cIdx < 3; cIdx++) {
+                const xPos = (cIdx * 0.32 + 0.16) * pageWidth;
+                doc.text(teks, xPos, yPos, { align: 'center', angle: 30 });
+            }
+        }
+    } else if (posisi === 'center') {
+        // Di tengah, tanpa dimiringkan
+        doc.setFontSize(fontSize);
+        doc.text(teks, pageWidth / 2, pageHeight / 2, { align: 'center' });
+    } else {
+        // Diagonal (default) — versi HTML pakai rotate(-40deg) CSS, di jsPDF arahnya kebalik jadi +40
+        doc.setFontSize(fontSize);
+        doc.text(teks, pageWidth / 2, pageHeight / 2, { align: 'center', angle: 40 });
+    }
     doc.restoreGraphicsState();
+}
+
+async function gambarQRDokumenPDF(doc, cfg, qrText, pageWidth, pageHeight) {
+    if (!cfg.qr || !cfg.qr.enabled || typeof QRCode === 'undefined') return;
+    try {
+        const canvas = document.createElement('canvas');
+        await QRCode.toCanvas(canvas, qrText, { width: 90, height: 90 });
+        const dataUrl = canvas.toDataURL('image/png');
+        const ukuran = 20; // mm, kira-kira setara 80px di HTML
+        const x = pageWidth - ukuran - 14;
+        const y = pageHeight - ukuran - 18;
+        doc.addImage(dataUrl, 'PNG', x, y, ukuran, ukuran);
+        doc.setFontSize(7); doc.setTextColor(107,114,128); doc.setFont('helvetica','normal');
+        doc.text('Dokumen Resmi', x + ukuran/2, y + ukuran + 4, { align: 'center' });
+    } catch(e) {}
 }
 
 function gambarKotakInfoPDF(doc, x, y, width, height) {
@@ -21342,8 +21423,9 @@ async function shareKasPDF() {
     try {
         const cfg = getKonfigurasiProData();
         const {jsPDF} = window.jspdf;
+        const [wr, wg, wb] = getWarnaTemaRGB();
         const doc = new jsPDF({orientation:'landscape', unit:'mm', format:'a4'});
-        await applyPDFConfig(doc, { landscape: true, skipHeader: true, skipWatermark: true });
+        await applyPDFConfig(doc, { landscape: true, skipHeader: true, skipWatermark: true, skipQR: true });
         gambarWatermarkPDF(doc, cfg, 297, 210);
         const judul = document.getElementById('kegiatan').value.trim() || 'Laporan Kas';
         const tglCetak = formatTanggalLengkap();
@@ -21351,24 +21433,24 @@ async function shareKasPDF() {
         dataKas.forEach(i=>{ if(i.tipe==='masuk') masuk+=i.nom; else keluar+=i.nom; });
         const saldo = masuk - keluar;
         let yHeader = await gambarHeaderRoundedPDF(doc, cfg, 297);
-        doc.setFontSize(16); doc.setTextColor(26,93,74);
+        doc.setFontSize(16); doc.setTextColor(wr,wg,wb);
         doc.text(judul + ' - LAPORAN KAS', 148.5, yHeader, { align: 'center' }); yHeader += 6;
         doc.setFontSize(9); doc.setTextColor(150,150,150);
         doc.text('Tanggal Cetak: ' + tglCetak, 148.5, yHeader, { align: 'center' }); yHeader += 7;
         const tableData = dataKas.map((i,idx)=>[idx+1, i.tgl, i.kegiatan||'-', i.ket, i.tipe==='masuk'?'MASUK':'KELUAR', 'Rp '+i.nom.toLocaleString('id-ID')]);
-        doc.autoTable({startY:yHeader, head:[['No','Tgl','Kegiatan','Keterangan','Tipe','Nominal']], body:tableData, theme:'striped', headStyles:{fillColor:[26,93,74]}, styles:{fontSize:8, lineWidth:0.1}, columnStyles:{0:{cellWidth:10,halign:'center'}}});
+        doc.autoTable({startY:yHeader, head:[['No','Tgl','Kegiatan','Keterangan','Tipe','Nominal']], body:tableData, theme:'striped', headStyles:{fillColor:[wr,wg,wb]}, styles:{fontSize:8, lineWidth:0.1}, columnStyles:{0:{cellWidth:10,halign:'center'}}});
         let y = doc.lastAutoTable.finalY + 10;
         doc.setFontSize(10); doc.setTextColor(0,0,0); doc.setFont('helvetica','normal');
         doc.text('Total Pemasukan: Rp '+masuk.toLocaleString('id-ID'), 14, y);
         doc.text('Total Pengeluaran: Rp '+keluar.toLocaleString('id-ID'), 14, y+7);
-        doc.setTextColor(26,93,74); doc.setFont('helvetica','bold');
+        doc.setTextColor(wr,wg,wb); doc.setFont('helvetica','bold');
         doc.text('SALDO AKHIR: Rp '+(saldo).toLocaleString('id-ID'), 14, y+14);
         y += 24;
 
         // ── Tanda Tangan (sama seperti versi Cetak — gambar TTD & Bendahara didukung) ──
         y = gambarTandaTanganPDF(doc, cfg, tglCetak, y, 297, true);
 
-        // Catatan: QR Code sudah otomatis ditambahkan oleh applyPDFConfig() di atas (kalau diaktifkan di Konfigurasi) — tidak perlu tambah lagi di sini
+        await gambarQRDokumenPDF(doc, cfg, `Laporan Kas: ${judul}\nSaldo: Rp ${saldo.toLocaleString('id-ID')}\nTanggal: ${tglCetak}`, 297, 210);
 
         // ── Share (native share sheet, fallback download) ───────────────────
         const namaFile = `${judul.replace(/\s+/g,'_')}_Laporan_Kas.pdf`;
@@ -21539,3 +21621,4 @@ function cetakDariPreviewAlternatif() {
 
 </body>
     </html>
+ 
