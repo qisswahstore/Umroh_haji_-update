@@ -9087,7 +9087,7 @@ function renderJadwalManasikList() {
         el.innerHTML = '<p style="text-align:center;color:#888;font-size:12px;padding:8px 0;">Belum ada jadwal manasik</p>';
         return;
     }
-    const sorted = [...jadwalManasikList].sort((a,b) => (a.tanggal||'').localeCompare(b.tanggal||''));
+    const sorted = [...jadwalManasikList].sort((a,b) => (a.tanggalRaw||'').localeCompare(b.tanggalRaw||''));
     el.innerHTML = sorted.map(j => {
         const sesiTerkait = j.sesiId ? absensiList.find(s => s.id === j.sesiId) : null;
         return `
@@ -9265,11 +9265,15 @@ async function shareJadwalManasikPDF() {
         doc.text(`Program: ${namaProgram} · Dicetak: ${tgl}`, 14, y); y += 6;
 
         if (adaEstimasi) {
+            const teksPeringatan = 'PERHATIAN: Sebagian/seluruh jadwal ini masih SEMENTARA/ESTIMASI — dapat berubah sewaktu-waktu.';
+            doc.setFontSize(9); doc.setFont('helvetica','bold');
+            const barisPeringatan = doc.splitTextToSize(teksPeringatan, PW-36);
+            const tinggiKotak = barisPeringatan.length * 5 + 6;
             doc.setFillColor(254,243,199);
-            doc.roundedRect(14, y, PW-28, 12, 2, 2, 'F');
-            doc.setTextColor(146,64,14); doc.setFontSize(9); doc.setFont('helvetica','bold');
-            doc.text('⚠ Sebagian/seluruh jadwal ini masih SEMENTARA/ESTIMASI — dapat berubah sewaktu-waktu.', PW/2, y+7, { align: 'center', maxWidth: PW-32 });
-            y += 18;
+            doc.roundedRect(14, y, PW-28, tinggiKotak, 2, 2, 'F');
+            doc.setTextColor(146,64,14);
+            doc.text(barisPeringatan, PW/2, y+7, { align: 'center' });
+            y += tinggiKotak + 6;
         }
 
         const tableData = sorted.map((j, idx) => [
@@ -9294,7 +9298,7 @@ async function shareJadwalManasikPDF() {
 
         y = doc.lastAutoTable.finalY + 10;
         y = gambarTandaTanganPDF(doc, cfg, tgl, y, PW, false);
-        gambarWatermarkPDF(doc, cfg, PW, PH);
+        gambarWatermarkPDF(doc, cfg, PW, PH, y / 2);
 
         const namaFile = `Jadwal_Manasik_${namaProgram.replace(/\s+/g,'_')}.pdf`;
         const blob = doc.output('blob');
@@ -20126,11 +20130,12 @@ async function gambarHeaderRoundedPDF(doc, cfg, pageWidth) {
     return hY + hH + 10; // posisi Y setelah header, siap dipakai konten berikutnya
 }
 
-function gambarWatermarkPDF(doc, cfg, pageWidth, pageHeight) {
+function gambarWatermarkPDF(doc, cfg, pageWidth, pageHeight, tengahYKustom) {
     const wm = cfg.watermark || {};
     if (!wm.enabled) return;
     const teks = wm.text || getNamaInstansiUtama();
     if (!teks) return;
+    const pusatY = tengahYKustom || pageHeight / 2;
     const opacity = wm.opacity !== undefined ? wm.opacity : 0.15;
     const fontSize = wm.fontsize || 60;
     const posisi = wm.position || 'diagonal';
@@ -20154,11 +20159,11 @@ function gambarWatermarkPDF(doc, cfg, pageWidth, pageHeight) {
     } else if (posisi === 'center') {
         // Di tengah, tanpa dimiringkan
         doc.setFontSize(fontSize);
-        doc.text(teks, pageWidth / 2, pageHeight / 2, { align: 'center' });
+        doc.text(teks, pageWidth / 2, pusatY, { align: 'center' });
     } else {
         // Diagonal (default) — versi HTML pakai rotate(-40deg) CSS, di jsPDF arahnya kebalik jadi +40
         doc.setFontSize(fontSize);
-        doc.text(teks, pageWidth / 2, pageHeight / 2, { align: 'center', angle: 40 });
+        doc.text(teks, pageWidth / 2, pusatY, { align: 'center', angle: 40 });
     }
     doc.restoreGraphicsState();
 }
