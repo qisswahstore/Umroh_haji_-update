@@ -2985,13 +2985,15 @@
             </div>
         </div>
         <div class="config-section"><h3><i class="fas fa-mosque"></i> Data Instansi Kedua</h3>
-            <div class="config-row" style="display:flex; justify-content:space-between; align-items:center;"><label>Aktifkan Instansi Kedua</label><label class="switch"><input type="checkbox" id="cfg_instansi2_aktif"><span class="slider"></span></label></div>
+            <div class="config-row" style="display:flex; justify-content:space-between; align-items:center;"><label>Aktifkan Instansi Kedua</label><label class="switch"><input type="checkbox" id="cfg_instansi2_aktif" onchange="updateStatusInstansi2Dominan()"><span class="slider"></span></label></div>
+            <p style="font-size:11px;color:#888;margin:-6px 0 10px;">Otomatis jadi instansi utama (termasuk tanda tangan) saat Program yang sedang aktif berjenis <b>Haji Reguler</b>. Di luar itu, Instansi Pertama tetap utama.</p>
+            <div id="statusInstansi2Dominan" style="font-size:11px;font-weight:600;padding:6px 10px;border-radius:6px;margin-bottom:10px;"></div>
             <div class="config-row"><label>Logo</label><input type="file" id="cfg_logo2" accept="image/*" onchange="previewLogo(this, 'previewLogo2')"><img id="previewLogo2" class="logo-preview"></div>
             <div class="config-row"><label>Nama Instansi</label><input type="text" id="cfg_nama2" placeholder="Navara"></div>
             <div class="config-row"><label>Alamat</label><textarea id="cfg_alamat2" rows="2" placeholder="Jl. Siwalankerto Utara II No. 30, Wonocolo, Surabaya"></textarea></div>
             <div class="row"><div class="config-row"><label>Telepon</label><input type="text" id="cfg_telp2"></div><div class="config-row"><label>Email</label><input type="email" id="cfg_email2"></div></div>
-            <div class="row"><div class="config-row"><label>No. Izin</label><input type="text" id="cfg_izin2"></div><div class="config-row"><label>Pimpinan</label><input type="text" id="cfg_pimpinan2"></div></div>
-            <div class="config-row"><label>Jabatan</label><input type="text" id="cfg_jabatan2"></div>
+            <div class="row"><div class="config-row"><label>No. Izin</label><input type="text" id="cfg_izin2"></div><div class="config-row"><label>Pimpinan</label><input type="text" id="cfg_pimpinan2" placeholder="Ali Mashar"></div></div>
+            <div class="config-row"><label>Jabatan</label><input type="text" id="cfg_jabatan2" placeholder="Direktur Utama"></div>
             <div class="config-row">
                 <label>Tanda Tangan Pimpinan (opsional)</label>
                 <div class="row">
@@ -3060,6 +3062,7 @@
         </div>
         <div class="config-section"><h3><i class="fas fa-file-pdf"></i> Pengaturan Laporan</h3>
             <div class="row"><div class="config-row"><label>Header PDF</label><select id="cfg_header_mode"><option value="both">Keduanya</option><option value="instansi1">Instansi 1 saja</option><option value="instansi2">Instansi 2 saja</option><option value="none">Tidak ada</option></select></div><div class="config-row"><label>Tanda Tangan</label><select id="cfg_ttd_mode"><option value="both">Dua Pihak</option><option value="single">Satu Pihak</option></select></div></div>
+            <p style="font-size:11px;color:#888;margin:-6px 0 10px;">"Tanda Tangan" di atas berlaku untuk semua dokumen. <b>Kecuali</b> untuk Kas, Invoice &amp; Pembayaran: kalau toggle Bendahara di bawah diaktifkan, tanda tangan otomatis jadi Bendahara + Pimpinan, mengabaikan pilihan di atas.</p>
             <div class="config-row"><label>Prefix Invoice / No. Dokumen</label><input type="text" id="cfg_invoice_prefix" value="INV/NAVARA"></div>
             <div class="config-row"><label>🧓 Batas Usia Lansia (tahun)</label><input type="number" id="cfg_batas_lansia" placeholder="60" min="50" max="80" style="width:120px;"></div>
             <div id="hargaSeragamConfigBlock" style="background:var(--bg);border-radius:12px;padding:14px;margin-top:10px;">
@@ -6047,7 +6050,7 @@ async function cetakEstimasiPDFInternal() {
         if(val > 0) komponenHtml += `<tr><td style="padding:8px;border-bottom:1px solid #eee;">${label}</td><td style="padding:8px;border-bottom:1px solid #eee;text-align:right;">${f(val)}</td></tr>`;
     });
     const headerHtml = buildPrintHeader(cfg, tgl);
-    const ttdHtml = buildPrintTandaTangan(cfg, tgl, true);
+    const ttdHtml = buildPrintTandaTangan(cfg, tgl, true, true);
     const qrHtml = await buildPrintQR(cfg, `Estimasi Internal: ${lastCalculatedPaket}\nHarga Jual: ${f(lastCalculatedPrice)}\nTanggal: ${tgl}`);
     const html = `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Estimasi Internal</title>
     <style>
@@ -15814,6 +15817,34 @@ function isHajiReguler() {
     return p && p.jenis === 'haji_reguler';
 }
 
+// Menampilkan status hidup di form Konfigurasi: apakah Instansi Kedua sedang jadi instansi UTAMA
+// (termasuk tanda tangan) untuk Program yang sedang aktif, sesuai aturan di gambarTandaTanganPDF/buildPrintTandaTangan.
+function updateStatusInstansi2Dominan() {
+    const el = document.getElementById('statusInstansi2Dominan');
+    if (!el) return;
+    const aktif = document.getElementById('cfg_instansi2_aktif')?.checked;
+    const namaTerisi = (document.getElementById('cfg_nama2')?.value || '').trim().length > 0;
+    const hajiReg = isHajiReguler();
+    const p = getCurrentProgram();
+    const namaProgram = p ? (p.nama || '-') : 'Belum ada Program aktif';
+
+    if (!aktif) {
+        el.style.display = 'none';
+        return;
+    }
+    el.style.display = 'block';
+    if (hajiReg && namaTerisi) {
+        el.style.background = '#DCFCE7'; el.style.color = '#166534';
+        el.innerHTML = `🟢 Instansi Kedua sedang AKTIF SEBAGAI UTAMA (Program aktif: "${escapeHtml(namaProgram)}" — Haji Reguler)`;
+    } else if (hajiReg && !namaTerisi) {
+        el.style.background = '#FEF3C7'; el.style.color = '#92400E';
+        el.innerHTML = `🟡 Program aktif Haji Reguler, tapi Nama Instansi Kedua belum diisi — Instansi Pertama masih dipakai sebagai utama`;
+    } else {
+        el.style.background = '#F3F4F6'; el.style.color = '#4B5563';
+        el.innerHTML = `⚪ Instansi Kedua aktif, tapi belum jadi utama (Program aktif: "${escapeHtml(namaProgram)}" — bukan Haji Reguler)`;
+    }
+}
+
 // Haji APAPUN (Reguler MAUPUN Khusus/Plus) — beda dari isHajiReguler() yang cuma cek 1 jenis spesifik
 function isJenisHaji() {
     const p = getCurrentProgram();
@@ -21229,6 +21260,8 @@ async function loadKonfigurasiPro() {
     if(konfigurasiPro.instansi1.logo) document.getElementById('previewLogo1').src = konfigurasiPro.instansi1.logo;
     document.getElementById('cfg_instansi2_aktif').checked = konfigurasiPro.instansi2.aktif || false;
     document.getElementById('cfg_nama2').value = konfigurasiPro.instansi2.nama || '';
+    document.getElementById('cfg_nama2').oninput = updateStatusInstansi2Dominan;
+    updateStatusInstansi2Dominan();
     document.getElementById('cfg_alamat2').value = konfigurasiPro.instansi2.alamat || '';
     document.getElementById('cfg_telp2').value = konfigurasiPro.instansi2.telp || '';
     document.getElementById('cfg_email2').value = konfigurasiPro.instansi2.email || '';
