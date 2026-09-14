@@ -4619,6 +4619,13 @@ function formatTanggalLengkap(tanggal) {
     return d.toLocaleDateString('id-ID', { day:'2-digit', month:'long', year:'numeric' });
 }
 
+function formatTanggalDenganHari(tanggalRaw, fallbackTampil) {
+    if (!tanggalRaw) return fallbackTampil || '';
+    const d = new Date(tanggalRaw + 'T00:00:00');
+    if (isNaN(d.getTime())) return fallbackTampil || '';
+    return d.toLocaleDateString('id-ID', { weekday:'long', day:'numeric', month:'long', year:'numeric' });
+}
+
 function bersihkanNomorWA(nomor) {
     let num = (nomor || '').toString().replace(/\D/g, '');
     if (num.startsWith('0')) num = '62' + num.substring(1);
@@ -9097,7 +9104,7 @@ function renderJadwalManasikList() {
                 <span style="flex-shrink:0;font-size:10px;font-weight:700;padding:3px 8px;border-radius:6px;white-space:nowrap;${j.status === 'final' ? 'background:#DCFCE7;color:#166534;' : 'background:#FEF3C7;color:#92400E;'}">${j.status === 'final' ? '✅ Final' : '⏳ Estimasi'}</span>
             </div>
             <div style="font-size:12px;color:#888;margin-top:2px;">
-                <i class="fas fa-calendar-day"></i> ${escapeHtml(j.tanggal)} ${j.waktu ? '· ' + escapeHtml(j.waktu) : ''}<br>
+                <i class="fas fa-calendar-day"></i> ${escapeHtml(formatTanggalDenganHari(j.tanggalRaw, j.tanggal))} ${j.waktu ? '· ' + escapeHtml(j.waktu) : ''}<br>
                 ${j.pemateri ? `<i class="fas fa-user"></i> ${escapeHtml(j.pemateri)}<br>` : ''}
                 ${j.lokasi ? `<i class="fas fa-location-dot"></i> ${escapeHtml(j.lokasi)}` : ''}
             </div>
@@ -9204,7 +9211,7 @@ async function cetakJadwalManasikLengkap() {
         <tr>
             <td style="padding:8px;border-bottom:1px solid #eee;text-align:center;">${idx+1}</td>
             <td style="padding:8px;border-bottom:1px solid #eee;">${escapeHtml(j.materi)}</td>
-            <td style="padding:8px;border-bottom:1px solid #eee;">${escapeHtml(j.tanggal)}${j.waktu ? '<br><span style=\"color:#888;font-size:11px;\">' + escapeHtml(j.waktu) + '</span>' : ''}</td>
+            <td style="padding:8px;border-bottom:1px solid #eee;">${escapeHtml(formatTanggalDenganHari(j.tanggalRaw, j.tanggal))}${j.waktu ? '<br><span style=\"color:#888;font-size:11px;\">' + escapeHtml(j.waktu) + '</span>' : ''}</td>
             <td style="padding:8px;border-bottom:1px solid #eee;">${escapeHtml(j.pemateri||'-')}</td>
             <td style="padding:8px;border-bottom:1px solid #eee;">${escapeHtml(j.lokasi||'-')}</td>
             <td style="padding:8px;border-bottom:1px solid #eee;text-align:center;">
@@ -9277,7 +9284,7 @@ async function shareJadwalManasikPDF() {
         }
 
         const tableData = sorted.map((j, idx) => [
-            idx+1, j.materi, j.tanggal + (j.waktu ? '\n' + j.waktu : ''), j.pemateri||'-', j.lokasi||'-',
+            idx+1, j.materi, formatTanggalDenganHari(j.tanggalRaw, j.tanggal) + (j.waktu ? '\n' + j.waktu : ''), j.pemateri||'-', j.lokasi||'-',
             j.status === 'final' ? 'Final' : 'Estimasi'
         ]);
         doc.autoTable({
