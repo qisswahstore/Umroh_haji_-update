@@ -3028,14 +3028,6 @@
             </div>
         </div>
         <div class="config-section"><h3><i class="fas fa-plane-departure"></i> Info Keberangkatan</h3>
-            <div class="config-row"><label>Jenis Perjalanan</label>
-                <select id="cfg_jenis_perjalanan" style="width:100%;padding:10px;border-radius:8px;border:1.5px solid #ddd;font-size:14px;background:var(--input-bg);color:var(--text);">
-                    <option value="">-- Pilih --</option>
-                    <option value="Haji">🕋 Haji</option>
-                    <option value="Umroh">🕌 Umroh</option>
-                    <option value="Wisata">✈️ Wisata Religi</option>
-                </select>
-            </div>
             <div class="config-row"><label>Tanggal Keberangkatan</label>
                 <input type="date" id="cfg_tgl_keberangkatan" style="width:100%;padding:10px;border-radius:8px;border:1.5px solid #ddd;font-size:14px;background:var(--input-bg);color:var(--text);">
             </div>
@@ -4396,7 +4388,7 @@ function updateHomeDashboardExtra(totalJamaah, lunasCount, totalPiutang) {
         // Countdown keberangkatan
         const cfg = getKonfigurasiProData();
         const tgl = cfg.keberangkatan?.tanggal;
-        const jenis = cfg.keberangkatan?.jenis || 'Perjalanan';
+        const jenis = getLabelJenisProgram();
         const card = document.getElementById('homeCountdownCard');
         if(tgl && card) {
             const hari = Math.ceil((new Date(tgl) - new Date()) / 86400000);
@@ -12762,12 +12754,12 @@ function openDashboardTrenModal() {
         document.body.appendChild(modal);
     }
 
-    const perTahun = {}; // { '2027': { umrohJamaah, umrohKontrak, hajiRegJamaah, hajiRegTerkumpul } }
+    const perTahun = {}; // { '2027': { umrohJamaah, umrohKontrak, hajiKhususJamaah, hajiKhususKontrak, hajiRegJamaah, hajiRegTerkumpul, lainnyaJamaah, lainnyaKontrak } }
     programList.forEach(p => {
         const cfgSlot = konfigurasiPro.per_program && konfigurasiPro.per_program[p.id];
         const tglBerangkat = cfgSlot?.keberangkatan?.tanggal;
         const tahun = tglBerangkat ? new Date(tglBerangkat).getFullYear().toString() : 'Belum Ada Tanggal';
-        if(!perTahun[tahun]) perTahun[tahun] = { umrohJamaah: 0, umrohKontrak: 0, hajiRegJamaah: 0, hajiRegTerkumpul: 0 };
+        if(!perTahun[tahun]) perTahun[tahun] = { umrohJamaah: 0, umrohKontrak: 0, hajiKhususJamaah: 0, hajiKhususKontrak: 0, hajiRegJamaah: 0, hajiRegTerkumpul: 0, lainnyaJamaah: 0, lainnyaKontrak: 0 };
 
         const jList = _allJamaahData.filter(j => j.program_id === p.id);
         const bayarP = _allPaymentData.filter(t => t.program_id === p.id);
@@ -12775,6 +12767,12 @@ function openDashboardTrenModal() {
         if(p.jenis === 'haji_reguler') {
             perTahun[tahun].hajiRegJamaah += jList.length;
             perTahun[tahun].hajiRegTerkumpul += bayarP.reduce((s,t) => s + t.nominal, 0);
+        } else if(p.jenis === 'haji') {
+            perTahun[tahun].hajiKhususJamaah += jList.length;
+            jList.forEach(j => { perTahun[tahun].hajiKhususKontrak += getTotalHargaPaketUntukProgram(j, p.id); });
+        } else if(p.jenis === 'lainnya') {
+            perTahun[tahun].lainnyaJamaah += jList.length;
+            jList.forEach(j => { perTahun[tahun].lainnyaKontrak += getTotalHargaPaketUntukProgram(j, p.id); });
         } else {
             perTahun[tahun].umrohJamaah += jList.length;
             jList.forEach(j => { perTahun[tahun].umrohKontrak += getTotalHargaPaketUntukProgram(j, p.id); });
@@ -12793,21 +12791,31 @@ function openDashboardTrenModal() {
         let bagianUmroh = '';
         if(d.umrohJamaah > 0) {
             const rataHarga = d.umrohKontrak / d.umrohJamaah;
-            bagianUmroh = `<div style="font-size:12px;color:#555;margin-top:4px;">🕌 Umroh/Haji Khusus: ${d.umrohJamaah} jamaah — Kontrak ${f(d.umrohKontrak)} — Rata-rata ${f(rataHarga)}/orang</div>`;
+            bagianUmroh = `<div style="font-size:12px;color:#555;margin-top:4px;">🕌 Umroh: ${d.umrohJamaah} jamaah — Kontrak ${f(d.umrohKontrak)} — Rata-rata ${f(rataHarga)}/orang</div>`;
+        }
+        let bagianHajiKhusus = '';
+        if(d.hajiKhususJamaah > 0) {
+            const rataHarga = d.hajiKhususKontrak / d.hajiKhususJamaah;
+            bagianHajiKhusus = `<div style="font-size:12px;color:#555;margin-top:4px;">🕋 Haji Khusus/Plus: ${d.hajiKhususJamaah} jamaah — Kontrak ${f(d.hajiKhususKontrak)} — Rata-rata ${f(rataHarga)}/orang</div>`;
         }
         let bagianHaji = '';
         if(d.hajiRegJamaah > 0) {
             bagianHaji = `<div style="font-size:12px;color:#555;margin-top:4px;">🕋 Haji Reguler: ${d.hajiRegJamaah} jamaah — Biaya Bimbingan Terkumpul ${f(d.hajiRegTerkumpul)}</div>`;
         }
+        let bagianLainnya = '';
+        if(d.lainnyaJamaah > 0) {
+            const rataHarga = d.lainnyaKontrak / d.lainnyaJamaah;
+            bagianLainnya = `<div style="font-size:12px;color:#555;margin-top:4px;">📁 Lainnya: ${d.lainnyaJamaah} jamaah — Kontrak ${f(d.lainnyaKontrak)} — Rata-rata ${f(rataHarga)}/orang</div>`;
+        }
         return `<div style="background:#F8FAFC;border-radius:10px;padding:12px;margin-bottom:10px;">
             <div style="font-weight:700;font-size:15px;color:#0D5C4A;">📅 ${escapeHtml(tahun)}</div>
-            ${bagianUmroh}${bagianHaji}
+            ${bagianUmroh}${bagianHajiKhusus}${bagianHaji}${bagianLainnya}
         </div>`;
     }).join('');
 
     modal.innerHTML = `<div class="modal-content" style="max-width:440px;">
         <h3 style="color:#0D5C4A;margin-bottom:4px;">📈 Dashboard Tren Tahunan</h3>
-        <div style="font-size:11px;color:#888;margin-bottom:12px;">Dikelompokkan dari Tanggal Keberangkatan tiap Program. Umroh/Haji Khusus dan Haji Reguler dihitung terpisah karena beda struktur.</div>
+        <div style="font-size:11px;color:#888;margin-bottom:12px;">Dikelompokkan dari Tanggal Keberangkatan tiap Program. Umroh, Haji Khusus/Plus, Haji Reguler, dan Lainnya dihitung terpisah karena beda struktur biaya.</div>
         <div style="max-height:420px;overflow-y:auto;">${html || '<p style="color:#6B7280;text-align:center;">Belum ada Program</p>'}</div>
         <button onclick="document.getElementById('dashboardTrenModal').style.display='none'" style="width:100%;padding:11px;background:#e2e8f0;color:#333;border:none;border-radius:10px;font-size:13px;cursor:pointer;margin-top:10px;">Tutup</button>
     </div>`;
@@ -15815,6 +15823,15 @@ function handleBottomNavEstimasiSlot() {
 function isHajiReguler() {
     const p = getCurrentProgram();
     return p && p.jenis === 'haji_reguler';
+}
+
+// Label jenis perjalanan untuk countdown dsb — otomatis dari Jenis Program (bukan input manual terpisah lagi)
+function getLabelJenisProgram() {
+    const p = getCurrentProgram();
+    if (!p) return 'Perjalanan';
+    if (p.jenis === 'haji' || p.jenis === 'haji_reguler') return 'Haji';
+    if (p.jenis === 'umroh') return 'Umroh';
+    return 'Perjalanan';
 }
 
 // Menampilkan status hidup di form Konfigurasi: apakah Instansi Kedua sedang jadi instansi UTAMA
@@ -21301,9 +21318,7 @@ async function loadKonfigurasiPro() {
     // Load keberangkatan (per-Program)
     const progSlot = ensureProgramConfigSlot();
     const kb = progSlot.keberangkatan || konfigurasiPro.keberangkatan || {};
-    const elJenis = document.getElementById('cfg_jenis_perjalanan');
     const elTgl = document.getElementById('cfg_tgl_keberangkatan');
-    if(elJenis) elJenis.value = kb.jenis || '';
     if(elTgl) elTgl.value = kb.tanggal || '';
     const elJumlahHari = document.getElementById('cfg_jumlah_hari');
     if(elJumlahHari) elJumlahHari.value = kb.jumlahHari || '';
@@ -21383,7 +21398,6 @@ async function saveKonfigurasiPro() {
     };
     konfigurasiPro.wa_template = { laporan: document.getElementById('cfg_wa_laporan').value };
     slot.keberangkatan = {
-        jenis: document.getElementById('cfg_jenis_perjalanan')?.value || '',
         tanggal: document.getElementById('cfg_tgl_keberangkatan')?.value || '',
         jumlahHari: parseInt(document.getElementById('cfg_jumlah_hari')?.value) || 0
     };
@@ -21401,9 +21415,29 @@ async function saveKonfigurasiPro() {
 
 function resetKonfigurasiPro() {
     if(!cekIzinAdmin('bolehReset')) return showToast('🔒 Anda tidak punya izin mereset data');
-    if(confirm('Reset semua konfigurasi ke default?')) {
-        localStorage.removeItem('navara_konfigurasi_pro');
-        idbDelete(STORE_KONFIGURASI, 'konfigurasi_pro');
+    const peringatan = '⚠️ Ini akan menghapus:\n\n' +
+        '• Data Instansi 1 & 2, TTD, watermark\n' +
+        '• Pengaturan Laporan (Header PDF, Tanda Tangan, dll)\n' +
+        '• Template WhatsApp\n\n' +
+        'Data Estimasi, Konsorsium, Kalimat Sapaan, dan lainnya yang terkait Program TIDAK ikut terhapus.\n\n' +
+        'Lanjutkan Reset?';
+    if(confirm(peringatan)) {
+        // Simpan dulu semua data per-Program (Estimasi, Konsorsium, Kalimat Sapaan, Tipe Paket, dll) —
+        // ini TIDAK boleh ikut ter-reset, cuma pengaturan branding/laporan di bawah ini yang di-default-kan ulang.
+        const perProgramAman = konfigurasiPro.per_program || {};
+        konfigurasiPro = {
+            instansi1: { nama: '', alamat: '', telp: '', email: '', npwp: '', web: '', pimpinan: '', jabatan: '', logo: '' },
+            instansi2: { aktif: false, nama: '', alamat: '', telp: '', email: '', izin: '', pimpinan: '', jabatan: '', logo: '' },
+            watermark: { enabled: true, text: '', opacity: 0.15, fontsize: 60, position: 'diagonal' },
+            qr: { enabled: true, text: 'Dokumen Resmi - Divalidasi oleh Sistem Navara', size: 80 },
+            settings: { header_mode: 'both', ttd_mode: 'both', invoice_prefix: 'INV/NAVARA' },
+            harga_paket: { seragam: false, nominal: 0 },
+            per_program: perProgramAman,
+            wa_template: { laporan: '📊 *LAPORAN KAS KANTOR*\n\n💰 Saldo: [saldo]\n📈 Pemasukan: [masuk]\n📉 Pengeluaran: [keluar]\n\nTerima kasih.' },
+            bendahara: {}
+        };
+        localStorage.setItem('navara_konfigurasi_pro', JSON.stringify(konfigurasiPro));
+        idbSet(STORE_KONFIGURASI, 'konfigurasi_pro', konfigurasiPro);
         location.reload();
     }
 }
