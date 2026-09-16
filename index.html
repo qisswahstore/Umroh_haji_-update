@@ -8471,15 +8471,26 @@ async function loadDynamicFieldsJamaah() {
             else dynamicFieldsJamaah.push(...fieldsRombongan);
             await idbSet(STORE_JAMAAH, 'jamaah_fields', dynamicFieldsJamaah);
         }
+        // Migrasi: pindahkan Kloter/Rombongan/Regu/Karu/Karom — sebelumnya nempel dekat No Porsi (data awal),
+        // padahal itu data operasional yang baru ditentukan menjelang keberangkatan. Dipindah dekat Kamar/Bus.
+        if (dynamicFieldsJamaah.length > 0 && dynamicFieldsJamaah.some(f => f.name === 'no_rombongan')) {
+            const namaFieldPindah = ['no_kloter', 'no_rombongan', 'no_regu', 'nama_karu', 'nama_karom'];
+            const idxBus = dynamicFieldsJamaah.findIndex(f => f.name === 'bus');
+            const idxKloterSekarang = dynamicFieldsJamaah.findIndex(f => f.name === 'no_kloter');
+            // Cuma pindah kalau posisinya masih SEBELUM 'bus' (berarti belum pernah dipindah sebelumnya)
+            if (idxKloterSekarang !== -1 && (idxBus === -1 || idxKloterSekarang < idxBus)) {
+                const fieldsPindah = namaFieldPindah.map(n => dynamicFieldsJamaah.find(f => f.name === n)).filter(Boolean);
+                dynamicFieldsJamaah = dynamicFieldsJamaah.filter(f => !namaFieldPindah.includes(f.name));
+                const idxBusBaru = dynamicFieldsJamaah.findIndex(f => f.name === 'bus');
+                if (idxBusBaru !== -1) dynamicFieldsJamaah.splice(idxBusBaru + 1, 0, ...fieldsPindah);
+                else dynamicFieldsJamaah.push(...fieldsPindah);
+                await idbSet(STORE_JAMAAH, 'jamaah_fields', dynamicFieldsJamaah);
+            }
+        }
     } else {
         dynamicFieldsJamaah = [
             { name: 'nama_paspor',   label: 'Nama Paspor',   type: 'text',     icon: '👤', isRequired: false },
             { name: 'no_porsi',      label: 'No Porsi',       type: 'text',     icon: '🔢', isRequired: false },
-            { name: 'no_kloter',     label: 'No. Kloter',     type: 'text',     icon: '✈️', isRequired: false },
-            { name: 'no_rombongan',  label: 'No. Rombongan',  type: 'text',     icon: '👥', isRequired: false },
-            { name: 'no_regu',       label: 'No. Regu',       type: 'text',     icon: '🔟', isRequired: false },
-            { name: 'nama_karu',     label: 'Nama Karu (Ketua Regu)', type: 'text', icon: '🎖️', isRequired: false },
-            { name: 'nama_karom',    label: 'Nama Karom (Ketua Rombongan)', type: 'text', icon: '🏅', isRequired: false },
             { name: 'jenis_kelamin', label: 'Jenis Kelamin',  type: 'text',     icon: '👤', isRequired: false },
             { name: 'tempat_lahir',  label: 'Tempat Lahir',   type: 'text',     icon: '📍', isRequired: false },
             { name: 'tgl_lahir',     label: 'Tanggal Lahir',  type: 'date',     icon: '🗓️', isRequired: false },
@@ -8500,6 +8511,11 @@ async function loadDynamicFieldsJamaah() {
             { name: 'visa',          label: 'Visa',            type: 'text',     icon: '📘', isRequired: false },
             { name: 'kamar',         label: 'Kamar',           type: 'text',     icon: '🛏️', isRequired: false },
             { name: 'bus',           label: 'Bus',             type: 'text',     icon: '🚌', isRequired: false },
+            { name: 'no_kloter',     label: 'No. Kloter',     type: 'text',     icon: '✈️', isRequired: false },
+            { name: 'no_rombongan',  label: 'No. Rombongan',  type: 'text',     icon: '👥', isRequired: false },
+            { name: 'no_regu',       label: 'No. Regu',       type: 'text',     icon: '🔟', isRequired: false },
+            { name: 'nama_karu',     label: 'Nama Karu (Ketua Regu)', type: 'text', icon: '🎖️', isRequired: false },
+            { name: 'nama_karom',    label: 'Nama Karom (Ketua Rombongan)', type: 'text', icon: '🏅', isRequired: false },
             { name: 'hotel_makkah',  label: 'Hotel Makkah',   type: 'text',     icon: '🏨', isRequired: false },
             { name: 'hotel_madinah', label: 'Hotel Madinah',  type: 'text',     icon: '🏨', isRequired: false },
             { name: 'warna',         label: 'Warna',           type: 'text',     icon: '🏷️', isRequired: false },
