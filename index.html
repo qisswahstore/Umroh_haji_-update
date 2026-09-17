@@ -9157,13 +9157,32 @@ function gantiBulanAgenda(delta) {
     renderAgendaKantorList();
 }
 
-function hitungStatusAgenda(tanggalStr) {
+function hitungStatusAgenda(tanggalStr, catatanHasil) {
     if (!tanggalStr) return { label: '-', bg: '#F3F4F6', color: '#4B5563' };
     const hariIni = new Date(); hariIni.setHours(0,0,0,0);
     const tgl = new Date(tanggalStr + 'T00:00:00');
     if (tgl.getTime() === hariIni.getTime()) return { label: '🔴 Hari Ini', bg: '#FEE2E2', color: '#991B1B' };
     if (tgl.getTime() > hariIni.getTime()) return { label: '🟡 Akan Datang', bg: '#FEF3C7', color: '#92400E' };
-    return { label: '⚪ Sudah Lewat', bg: '#F3F4F6', color: '#4B5563' };
+    if ((catatanHasil||'').trim()) return { label: '✅ Selesai', bg: '#DCFCE7', color: '#166534' };
+    return { label: '⚠️ Belum Ada Catatan', bg: '#FEE2E2', color: '#991B1B' };
+}
+
+// Ringkasan 1 baris — dipakai bersama di layar, Cetak, dan Bagikan supaya angkanya selalu konsisten
+function buildRingkasanAgenda(list) {
+    let selesai = 0, belumCatatan = 0, akanDatang = 0, hariIni = 0;
+    list.forEach(a => {
+        const s = hitungStatusAgenda(a.tanggal, a.catatan_hasil);
+        if (s.label.includes('Selesai')) selesai++;
+        else if (s.label.includes('Belum Ada Catatan')) belumCatatan++;
+        else if (s.label.includes('Hari Ini')) hariIni++;
+        else if (s.label.includes('Akan Datang')) akanDatang++;
+    });
+    const bagian = [`${list.length} Agenda bulan ini`];
+    if (selesai) bagian.push(`${selesai} Selesai`);
+    if (belumCatatan) bagian.push(`${belumCatatan} Belum Ada Catatan`);
+    if (hariIni) bagian.push(`${hariIni} Hari Ini`);
+    if (akanDatang) bagian.push(`${akanDatang} Akan Datang`);
+    return bagian.join(' · ');
 }
 
 function renderAgendaKantorList() {
@@ -9186,8 +9205,8 @@ function renderAgendaKantorList() {
         return;
     }
 
-    container.innerHTML = listBulanIni.map(a => {
-        const status = hitungStatusAgenda(a.tanggal);
+    container.innerHTML = `<div style="font-size:11px;color:#666;margin-bottom:10px;">${buildRingkasanAgenda(listBulanIni)}</div>` + listBulanIni.map(a => {
+        const status = hitungStatusAgenda(a.tanggal, a.catatan_hasil);
         const tglText = new Date(a.tanggal + 'T00:00:00').toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
         return `<div style="background:#F8FAFC;border-radius:12px;padding:12px;margin-bottom:10px;">
             <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px;">
@@ -9280,7 +9299,8 @@ async function cetakAgendaKantor() {
     const namaBulan = bulanAgendaDilihat.toLocaleDateString('id-ID', { month: 'long', year: 'numeric' });
 
     const baris = sorted.map((a, idx) => {
-        const status = hitungStatusAgenda(a.tanggal);
+        const status = hitungStatusAgenda(a.tanggal, a.catatan_hasil);
+        const barisCatatan = a.catatan_hasil ? `<tr><td></td><td colspan="5" style="padding:0 8px 10px;border-bottom:1px solid #eee;"><div style="background:#F8FAFC;border-radius:6px;padding:8px;font-size:11px;color:#333;">📝 <b>Catatan/Hasil:</b> ${escapeHtml(a.catatan_hasil)}</div></td></tr>` : '';
         return `<tr>
             <td style="padding:8px;border-bottom:1px solid #eee;text-align:center;">${idx+1}</td>
             <td style="padding:8px;border-bottom:1px solid #eee;">${escapeHtml(a.pembahasan)}</td>
@@ -9290,7 +9310,7 @@ async function cetakAgendaKantor() {
             <td style="padding:8px;border-bottom:1px solid #eee;text-align:center;">
                 <span style="font-size:10px;font-weight:700;padding:3px 8px;border-radius:6px;background:${status.bg};color:${status.color};">${status.label}</span>
             </td>
-        </tr>`;
+        </tr>${barisCatatan}`;
     }).join('');
 
     const html = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>Agenda Kantor</title>
@@ -9308,6 +9328,7 @@ async function cetakAgendaKantor() {
         ${headerHtml}
         <h2>AGENDA KANTOR</h2>
         <div style="font-size:12px;color:#888;margin-bottom:8px;">Bulan: ${namaBulan} · Dicetak: ${tgl}</div>
+        <div style="font-size:11px;color:#666;margin-bottom:8px;">${buildRingkasanAgenda(sorted)}</div>
         <table>
             <tr><th>No</th><th>Pembahasan</th><th>Tanggal & Waktu</th><th>Penanggung Jawab</th><th>Lokasi</th><th style="text-align:center;">Status</th></tr>
             ${baris}
@@ -9339,12 +9360,13 @@ async function shareAgendaKantorPDF() {
         doc.setFontSize(15); doc.setTextColor(wr,wg,wb); doc.setFont('helvetica','bold');
         doc.text('AGENDA KANTOR', 14, y); y += 6;
         doc.setFontSize(9); doc.setTextColor(120,120,120); doc.setFont('helvetica','normal');
-        doc.text(`Bulan: ${namaBulan} · Dicetak: ${tgl}`, 14, y); y += 6;
+        doc.text(`Bulan: ${namaBulan} · Dicetak: ${tgl}`, 14, y); y += 5;
+        doc.text(buildRingkasanAgenda(sorted), 14, y); y += 6;
 
         const tableData = sorted.map((a, idx) => {
-            const status = hitungStatusAgenda(a.tanggal);
+            const status = hitungStatusAgenda(a.tanggal, a.catatan_hasil);
             return [
-                idx+1, a.pembahasan,
+                idx+1, a.pembahasan + (a.catatan_hasil ? '\n📝 ' + a.catatan_hasil : ''),
                 new Date(a.tanggal+'T00:00:00').toLocaleDateString('id-ID',{weekday:'long',day:'numeric',month:'long',year:'numeric'}) + (a.waktu ? '\n' + a.waktu + ' WIB' : ''),
                 a.penanggung_jawab||'-', a.lokasi||'-', status.label.replace(/^[^\s]+\s/, '')
             ];
