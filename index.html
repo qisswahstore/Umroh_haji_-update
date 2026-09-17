@@ -2699,7 +2699,41 @@
     </div>
 </div>
 
-<!-- JAMAAH PAGE -->
+<!-- AGENDA KANTOR PAGE -->
+<div id="page-agenda-kantor" class="page">
+    <div class="header-premium header-premium-small"><div class="back-header"><i class="fas fa-arrow-left" onclick="showPage('home')"></i><h2>Agenda Kantor</h2><div style="width:30px;"></div></div></div>
+    <div class="card-premium">
+        <div style="display:flex;align-items:center;justify-content:space-between;background:#F8FAFC;border-radius:10px;padding:8px 12px;margin-bottom:14px;">
+            <button onclick="gantiBulanAgenda(-1)" style="border:none;background:none;color:#0D5C4A;font-size:18px;cursor:pointer;padding:4px 10px;"><i class="fas fa-chevron-left"></i></button>
+            <div id="labelBulanAgenda" style="font-weight:700;color:#0D5C4A;font-size:14px;"></div>
+            <button onclick="gantiBulanAgenda(1)" style="border:none;background:none;color:#0D5C4A;font-size:18px;cursor:pointer;padding:4px 10px;"><i class="fas fa-chevron-right"></i></button>
+        </div>
+        <button class="btn btn-primary" onclick="openTambahAgendaModal()"><i class="fas fa-plus-circle"></i> Tambah Agenda</button>
+        <div style="display:flex;gap:8px;margin-top:10px;">
+            <button onclick="cetakAgendaKantor()" style="flex:1;padding:8px;background:var(--orange);color:white;border:none;border-radius:8px;font-size:12px;cursor:pointer;">🖨️ Cetak</button>
+            <button onclick="shareAgendaKantorPDF()" style="flex:1;padding:8px;background:#8B5CF6;color:white;border:none;border-radius:8px;font-size:12px;cursor:pointer;">📤 Bagikan</button>
+        </div>
+        <div id="agendaKantorListContainer" style="margin-top:14px;"></div>
+    </div>
+</div>
+
+<!-- MODAL TAMBAH/EDIT AGENDA KANTOR -->
+<div id="agendaKantorModal" class="modal">
+    <div class="modal-content">
+        <h3 id="agendaKantorModalTitle" style="color:#0D5C4A;">Tambah Agenda</h3>
+        <input type="hidden" id="agendaKantorEditingId">
+        <div class="dynamic-field"><label>Pembahasan / Topik Rapat <span style="color:red;">*</span></label><input type="text" id="agendaPembahasan" placeholder="Contoh: Evaluasi Keberangkatan Bulan Ini"></div>
+        <div class="row">
+            <div class="dynamic-field"><label>Tanggal <span style="color:red;">*</span></label><input type="date" id="agendaTanggal"></div>
+            <div class="dynamic-field"><label>Jam</label><input type="time" id="agendaWaktu"></div>
+        </div>
+        <div class="dynamic-field"><label>Penanggung Jawab</label><input type="text" id="agendaPenanggungJawab" placeholder="Opsional"></div>
+        <div class="dynamic-field"><label>Lokasi</label><input type="text" id="agendaLokasi" placeholder="Contoh: Ruang Rapat / Online"></div>
+        <div class="dynamic-field"><label>Catatan / Hasil Rapat</label><textarea id="agendaCatatanHasil" rows="3" placeholder="Diisi setelah rapat berlangsung (opsional)"></textarea></div>
+        <button class="btn btn-primary mt-2" onclick="simpanAgendaKantor()">Simpan</button>
+        <button onclick="document.getElementById('agendaKantorModal').style.display='none'" class="btn btn-secondary mt-2">Batal</button>
+    </div>
+</div>
 <div id="page-jamaah" class="page">
     <div class="header-premium header-premium-small"><div class="back-header"><i class="fas fa-arrow-left" onclick="showPage('home')"></i><h2>Database Jamaah</h2><div style="width:30px;"></div></div></div>
     <div class="card-premium">
@@ -4159,6 +4193,7 @@ function internalShowPage(pageId) {
     if (pageId === 'alumni') { if(typeof renderAlumniList === 'function') renderAlumniList(); }
     if (pageId === 'arsipprogram') { if(typeof renderArsipProgramList === 'function') renderArsipProgramList(); }
     if (pageId === 'itinerary') { if(typeof renderItineraryList === 'function') renderItineraryList(); }
+    if (pageId === 'agenda-kantor') { if(typeof loadAgendaKantorData === 'function') loadAgendaKantorData(); }
     if (pageId === 'jamaah') { if(window.loadJamaahData) window.loadJamaahData().then(() => { if(window.renderJamaahListWithPagination) window.renderJamaahListWithPagination(); }); else if(window.renderJamaahListWithPagination) window.renderJamaahListWithPagination(); }
     if (pageId === 'jamaahkita') {
         const c = document.getElementById('jamaahKitaListContainer');
@@ -4676,6 +4711,7 @@ const menuItemsPremium = [
     { id: 'jamaah', icon: '<i class="fas fa-database"></i>', label: 'Database', badge: 'Jamaah' }, 
     { id: 'jamaahkita', icon: '<i class="fas fa-hourglass-half"></i>', label: 'Jamaah on proses', badge: 'Proses' }, 
     { id: 'catatan', icon: '<i class="fas fa-note-sticky"></i>', label: 'Catatan', badge: 'Notes' }, 
+    { id: 'agenda-kantor', icon: '<i class="fas fa-calendar-check"></i>', label: 'Agenda Kantor', badge: 'Rapat' }, 
     { id: 'zakat', icon: '<i class="fas fa-hand-holding-dollar"></i>', label: 'Zakat', badge: 'Kalkulator' }, 
     { id: 'pembayaran', icon: '<i class="fas fa-receipt"></i>', label: 'Pembayaran', badge: 'Tagihan' }, 
     { id: 'datamaster', icon: '<i class="fas fa-calendar-days"></i>', label: 'Multi Event', badge: 'Event' }, 
@@ -8595,7 +8631,7 @@ function renderJamaahListWithPagination() {
         const displayNum=start+idx+1; 
         const adaKebutuhanKhusus = (j.kebutuhan_khusus?.kondisi?.length > 0) || !!j.kebutuhan_khusus?.catatan;
         html+=`<div class="jamaah-card"><div class="jamaah-header"><div style="display:flex;align-items:center;gap:10px;flex:1;"><div id="foto_thumb_${j.id}" style="width:44px;height:44px;border-radius:50%;background:#f0f0f0;border:2px solid #0D5C4A;overflow:hidden;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;" onclick="showFotoProfilModal(${j.id},'${escapeHtml(j.nama_lengkap).replace(/'/g,"\\'")}')"><span style="font-size:22px;">👤</span></div><div><div class="jamaah-nama"><span style="background:var(--primary); color:white; display:inline-block; width:28px; height:28px; border-radius:50%; text-align:center; line-height:28px; font-size:13px; margin-right:10px;">${displayNum}</span> ${escapeHtml(j.nama_lengkap)} ${adaKebutuhanKhusus ? '<span title="Ada kebutuhan khusus/kontak darurat tercatat" style="font-size:13px;">🏥</span>' : ''}</div><div class="jamaah-tgl"> ${j.created_at||'-'}</div></div></div><div class="jamaah-actions"><button class="btn-share-wa" style="background:#0D9488;" onclick="openPaymentModalWithJamaah(${j.id})" title="Bayar Cepat"><i class="fas fa-money-bill-wave"></i></button><button class="btn-share-wa" onclick="shareSingleJamaahById('${j.id}')"><i class="fab fa-whatsapp"></i></button><button class="btn-edit-jamaah" onclick="editJamaahById('${j.id}')"><i class="fas fa-edit"></i></button><button class="btn-delete-jamaah" onclick="confirmDeleteJamaahById('${j.id}')"><i class="fas fa-trash"></i></button></div></div><div class="jamaah-detail">`; 
-        for(const field of dynamicFieldsJamaah){ 
+        for(const field of getDynamicFieldsJamaahTampil()){ 
             const val=j.additional_fields?.[field.name]||''; 
             if(val) html+=`<div class="jamaah-detail-item"><strong>${escapeHtml(field.label)}:</strong> ${escapeHtml(val)}</div>`; 
         } 
@@ -9096,6 +9132,248 @@ async function saveJadwalManasikData() {
     jadwalManasikList.forEach(j => { if(!j.program_id) j.program_id = currentProgramId; });
     _allJadwalManasikData = [...other, ...jadwalManasikList];
     await idbSet(STORE_ABSENSI, 'jadwal_manasik', _allJadwalManasikData);
+}
+
+// ==================== AGENDA KANTOR (global, tidak nempel ke Program manapun) ====================
+let agendaKantorList = [];
+let bulanAgendaDilihat = new Date();
+
+async function loadAgendaKantorData() {
+    try {
+        const saved = await idbGet(STORE_CATATAN, 'agenda_kantor_list');
+        agendaKantorList = saved || [];
+    } catch(e) { agendaKantorList = []; }
+    bulanAgendaDilihat = new Date();
+    renderAgendaKantorList();
+}
+
+async function saveAgendaKantorData() {
+    try { await idbSet(STORE_CATATAN, 'agenda_kantor_list', agendaKantorList); } catch(e) {}
+    renderAgendaKantorList();
+}
+
+function gantiBulanAgenda(delta) {
+    bulanAgendaDilihat.setMonth(bulanAgendaDilihat.getMonth() + delta);
+    renderAgendaKantorList();
+}
+
+function hitungStatusAgenda(tanggalStr) {
+    if (!tanggalStr) return { label: '-', bg: '#F3F4F6', color: '#4B5563' };
+    const hariIni = new Date(); hariIni.setHours(0,0,0,0);
+    const tgl = new Date(tanggalStr + 'T00:00:00');
+    if (tgl.getTime() === hariIni.getTime()) return { label: '🔴 Hari Ini', bg: '#FEE2E2', color: '#991B1B' };
+    if (tgl.getTime() > hariIni.getTime()) return { label: '🟡 Akan Datang', bg: '#FEF3C7', color: '#92400E' };
+    return { label: '⚪ Sudah Lewat', bg: '#F3F4F6', color: '#4B5563' };
+}
+
+function renderAgendaKantorList() {
+    const labelEl = document.getElementById('labelBulanAgenda');
+    if (labelEl) labelEl.textContent = bulanAgendaDilihat.toLocaleDateString('id-ID', { month: 'long', year: 'numeric' });
+
+    const container = document.getElementById('agendaKantorListContainer');
+    if (!container) return;
+
+    const bulanDilihat = bulanAgendaDilihat.getMonth();
+    const tahunDilihat = bulanAgendaDilihat.getFullYear();
+    const listBulanIni = agendaKantorList.filter(a => {
+        if (!a.tanggal) return false;
+        const tgl = new Date(a.tanggal + 'T00:00:00');
+        return tgl.getMonth() === bulanDilihat && tgl.getFullYear() === tahunDilihat;
+    }).sort((a,b) => (a.tanggal + (a.waktu||'')).localeCompare(b.tanggal + (b.waktu||'')));
+
+    if (listBulanIni.length === 0) {
+        container.innerHTML = '<p style="color:#6B7280;text-align:center;padding:20px;font-size:13px;">Belum ada Agenda di bulan ini.</p>';
+        return;
+    }
+
+    container.innerHTML = listBulanIni.map(a => {
+        const status = hitungStatusAgenda(a.tanggal);
+        const tglText = new Date(a.tanggal + 'T00:00:00').toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+        return `<div style="background:#F8FAFC;border-radius:12px;padding:12px;margin-bottom:10px;">
+            <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px;">
+                <div style="font-weight:700;color:#0D5C4A;font-size:14px;">${escapeHtml(a.pembahasan)}</div>
+                <span style="font-size:10px;font-weight:700;padding:3px 8px;border-radius:20px;background:${status.bg};color:${status.color};white-space:nowrap;">${status.label}</span>
+            </div>
+            <div style="font-size:12px;color:#555;margin-top:4px;">🗓️ ${tglText}${a.waktu ? ' · ' + a.waktu + ' WIB' : ''}</div>
+            ${a.penanggung_jawab ? `<div style="font-size:12px;color:#555;margin-top:2px;">👤 ${escapeHtml(a.penanggung_jawab)}</div>` : ''}
+            ${a.lokasi ? `<div style="font-size:12px;color:#555;margin-top:2px;">📍 ${escapeHtml(a.lokasi)}</div>` : ''}
+            ${a.catatan_hasil ? `<div style="font-size:12px;color:#333;margin-top:6px;background:white;border-radius:8px;padding:8px;">📝 ${escapeHtml(a.catatan_hasil)}</div>` : ''}
+            <div style="display:flex;gap:8px;margin-top:8px;">
+                <button onclick="openTambahAgendaModal(${a.id})" style="flex:1;padding:7px;background:#e2e8f0;color:#333;border:none;border-radius:8px;font-size:11px;cursor:pointer;">✏️ Edit</button>
+                <button onclick="hapusAgendaKantor(${a.id})" style="flex:1;padding:7px;background:#FEE2E2;color:#991B1B;border:none;border-radius:8px;font-size:11px;cursor:pointer;">🗑️ Hapus</button>
+            </div>
+        </div>`;
+    }).join('');
+}
+
+function openTambahAgendaModal(id) {
+    const modal = document.getElementById('agendaKantorModal');
+    document.getElementById('agendaKantorEditingId').value = id || '';
+    if (id) {
+        const a = agendaKantorList.find(x => x.id === id);
+        document.getElementById('agendaKantorModalTitle').textContent = 'Edit Agenda';
+        document.getElementById('agendaPembahasan').value = a?.pembahasan || '';
+        document.getElementById('agendaTanggal').value = a?.tanggal || '';
+        document.getElementById('agendaWaktu').value = a?.waktu || '';
+        document.getElementById('agendaPenanggungJawab').value = a?.penanggung_jawab || '';
+        document.getElementById('agendaLokasi').value = a?.lokasi || '';
+        document.getElementById('agendaCatatanHasil').value = a?.catatan_hasil || '';
+    } else {
+        document.getElementById('agendaKantorModalTitle').textContent = 'Tambah Agenda';
+        ['agendaPembahasan','agendaTanggal','agendaWaktu','agendaPenanggungJawab','agendaLokasi','agendaCatatanHasil'].forEach(id2 => {
+            const el = document.getElementById(id2); if(el) el.value = '';
+        });
+    }
+    modal.style.display = 'flex';
+}
+
+async function simpanAgendaKantor() {
+    const pembahasan = document.getElementById('agendaPembahasan').value.trim();
+    const tanggal = document.getElementById('agendaTanggal').value;
+    if (!pembahasan) return showToast('Pembahasan wajib diisi!');
+    if (!tanggal) return showToast('Tanggal wajib diisi!');
+
+    const data = {
+        pembahasan,
+        tanggal,
+        waktu: document.getElementById('agendaWaktu').value,
+        penanggung_jawab: document.getElementById('agendaPenanggungJawab').value.trim(),
+        lokasi: document.getElementById('agendaLokasi').value.trim(),
+        catatan_hasil: document.getElementById('agendaCatatanHasil').value.trim(),
+    };
+
+    const editingId = document.getElementById('agendaKantorEditingId').value;
+    if (editingId) {
+        const idx = agendaKantorList.findIndex(x => x.id === Number(editingId));
+        if (idx !== -1) agendaKantorList[idx] = { ...agendaKantorList[idx], ...data };
+    } else {
+        agendaKantorList.push({ id: Date.now(), ...data, created_at: new Date().toLocaleDateString('id-ID') });
+    }
+    await saveAgendaKantorData();
+    document.getElementById('agendaKantorModal').style.display = 'none';
+    showToast(editingId ? 'Agenda diupdate' : 'Agenda ditambahkan');
+}
+
+function hapusAgendaKantor(id) {
+    if (!confirm('Hapus Agenda ini?')) return;
+    agendaKantorList = agendaKantorList.filter(a => a.id !== id);
+    saveAgendaKantorData();
+    showToast('Agenda dihapus');
+}
+
+function getAgendaKantorBulanDilihat() {
+    const bulanDilihat = bulanAgendaDilihat.getMonth();
+    const tahunDilihat = bulanAgendaDilihat.getFullYear();
+    return agendaKantorList.filter(a => {
+        if (!a.tanggal) return false;
+        const tgl = new Date(a.tanggal + 'T00:00:00');
+        return tgl.getMonth() === bulanDilihat && tgl.getFullYear() === tahunDilihat;
+    }).sort((a,b) => (a.tanggal + (a.waktu||'')).localeCompare(b.tanggal + (b.waktu||'')));
+}
+
+async function cetakAgendaKantor() {
+    const sorted = getAgendaKantorBulanDilihat();
+    if (sorted.length === 0) return showToast('Belum ada Agenda di bulan ini untuk dicetak!');
+    const cfg = getKonfigurasiProData();
+    const tgl = formatTanggalLengkap();
+    const headerHtml = buildPrintHeader(cfg, tgl);
+    const namaBulan = bulanAgendaDilihat.toLocaleDateString('id-ID', { month: 'long', year: 'numeric' });
+
+    const baris = sorted.map((a, idx) => {
+        const status = hitungStatusAgenda(a.tanggal);
+        return `<tr>
+            <td style="padding:8px;border-bottom:1px solid #eee;text-align:center;">${idx+1}</td>
+            <td style="padding:8px;border-bottom:1px solid #eee;">${escapeHtml(a.pembahasan)}</td>
+            <td style="padding:8px;border-bottom:1px solid #eee;">${new Date(a.tanggal+'T00:00:00').toLocaleDateString('id-ID',{weekday:'long',day:'numeric',month:'long',year:'numeric'})}${a.waktu ? '<br><span style="color:#888;font-size:11px;">' + escapeHtml(a.waktu) + ' WIB</span>' : ''}</td>
+            <td style="padding:8px;border-bottom:1px solid #eee;">${escapeHtml(a.penanggung_jawab||'-')}</td>
+            <td style="padding:8px;border-bottom:1px solid #eee;">${escapeHtml(a.lokasi||'-')}</td>
+            <td style="padding:8px;border-bottom:1px solid #eee;text-align:center;">
+                <span style="font-size:10px;font-weight:700;padding:3px 8px;border-radius:6px;background:${status.bg};color:${status.color};">${status.label}</span>
+            </td>
+        </tr>`;
+    }).join('');
+
+    const html = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>Agenda Kantor</title>
+    <style>
+        *{margin:0;padding:0;box-sizing:border-box;}body{font-family:Arial,sans-serif;background:#f0f0f0;padding:20px;}
+        .box{background:white;max-width:800px;margin:0 auto;border-radius:16px;padding:24px;box-shadow:0 2px 16px rgba(0,0,0,0.1);}
+        h2{color:var(--primary);font-size:18px;margin-bottom:2px;}
+        table{width:100%;border-collapse:collapse;margin-top:10px;font-size:12px;}
+        th{background:#0D5C4A;color:white;padding:8px;text-align:left;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+        .no-print{text-align:center;margin-top:20px;}
+        .no-print button{padding:12px 32px;margin:0 8px;border:none;border-radius:10px;font-size:14px;font-weight:bold;cursor:pointer;}
+        @media print{ body{background:white;padding:0;} .box{box-shadow:none;border-radius:0;max-width:100%;width:210mm;padding:12mm 16mm;} .no-print{display:none;} }
+    </style></head><body>
+    <div class="box">
+        ${headerHtml}
+        <h2>AGENDA KANTOR</h2>
+        <div style="font-size:12px;color:#888;margin-bottom:8px;">Bulan: ${namaBulan} · Dicetak: ${tgl}</div>
+        <table>
+            <tr><th>No</th><th>Pembahasan</th><th>Tanggal & Waktu</th><th>Penanggung Jawab</th><th>Lokasi</th><th style="text-align:center;">Status</th></tr>
+            ${baris}
+        </table>
+    </div>
+    <div class="no-print"><button onclick="window.print()" style="background:#0D5C4A;color:white;">🖨️ CETAK</button><button onclick="window.close()" style="background:#e2e8f0;color:#333;">✕ TUTUP</button></div>
+    </body></html>`;
+    const win = window.open('','_blank');
+    if (!win) return showToast('Izinkan popup untuk cetak!');
+    win.document.write(applyPrintTheme(html)); injectWatermarkToPrintWin(win); win.document.close();
+}
+
+async function shareAgendaKantorPDF() {
+    const sorted = getAgendaKantorBulanDilihat();
+    if (sorted.length === 0) return showToast('Belum ada Agenda di bulan ini untuk dibagikan!');
+    showToast('Menyiapkan...');
+    try {
+        const cfg = getKonfigurasiProData();
+        const [wr, wg, wb] = getWarnaTemaRGB();
+        const tgl = formatTanggalLengkap();
+        const namaBulan = bulanAgendaDilihat.toLocaleDateString('id-ID', { month: 'long', year: 'numeric' });
+
+        const {jsPDF} = window.jspdf;
+        const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+        const PW = 210, PH = 297;
+        await applyPDFConfig(doc, { landscape: false, skipHeader: true, skipWatermark: true, skipQR: true });
+
+        let y = await gambarHeaderRoundedPDF(doc, cfg, PW);
+        doc.setFontSize(15); doc.setTextColor(wr,wg,wb); doc.setFont('helvetica','bold');
+        doc.text('AGENDA KANTOR', 14, y); y += 6;
+        doc.setFontSize(9); doc.setTextColor(120,120,120); doc.setFont('helvetica','normal');
+        doc.text(`Bulan: ${namaBulan} · Dicetak: ${tgl}`, 14, y); y += 6;
+
+        const tableData = sorted.map((a, idx) => {
+            const status = hitungStatusAgenda(a.tanggal);
+            return [
+                idx+1, a.pembahasan,
+                new Date(a.tanggal+'T00:00:00').toLocaleDateString('id-ID',{weekday:'long',day:'numeric',month:'long',year:'numeric'}) + (a.waktu ? '\n' + a.waktu + ' WIB' : ''),
+                a.penanggung_jawab||'-', a.lokasi||'-', status.label.replace(/^[^\s]+\s/, '')
+            ];
+        });
+        doc.autoTable({
+            startY: y,
+            head: [['No','Pembahasan','Tanggal & Waktu','Penanggung Jawab','Lokasi','Status']],
+            body: tableData,
+            theme: 'striped',
+            headStyles: { fillColor: [wr,wg,wb] },
+            styles: { fontSize: 8 },
+            columnStyles: { 0: { cellWidth: 10, halign: 'center' } },
+        });
+
+        y = doc.lastAutoTable.finalY + 10;
+        gambarWatermarkPDF(doc, cfg, PW, PH, y / 2);
+
+        const namaFile = `Agenda_Kantor_${namaBulan.replace(/\s+/g,'_')}.pdf`;
+        const blob = doc.output('blob');
+        const file = new File([blob], namaFile, { type: 'application/pdf' });
+        if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
+            await navigator.share({ files: [file], title: 'Agenda Kantor' });
+        } else {
+            doc.save(namaFile);
+            showToast('📥 PDF didownload');
+        }
+    } catch(e) {
+        if (e.name !== 'AbortError') showToast('Gagal: ' + e.message);
+    }
 }
 
 function renderJadwalManasikList() {
@@ -10950,7 +11228,7 @@ function renderJamaahForm(){
     if(!container) return; 
     const tipeOpts = getTipePaketOptions();
     let html=`<div class="dynamic-field"><label>Nama Lengkap <span style="color:red;">*</span></label><input type="text" id="jamaahNamaLengkap" placeholder="Nama lengkap jamaah"></div>`;
-    for(const field of dynamicFieldsJamaah){ 
+    for(const field of getDynamicFieldsJamaahTampil()){ 
         let inputHtml;
         if(field.type === 'textarea') {
             inputHtml = `<textarea id="jamaahField_${field.name}" rows="3"></textarea>`;
@@ -11054,7 +11332,9 @@ function saveJamaah(tetapBuka){
     if(cekProgramArsip()) return;
     const nama=document.getElementById('jamaahNamaLengkap').value.trim(); 
     if(!nama) return showToast('Nama lengkap wajib diisi!'); 
-    const additional={}; 
+    // Mulai dari additional_fields yang SUDAH ADA (kalau edit) — supaya field yang sedang disembunyikan
+    // (misal Kloter/Porsi waktu mode Umroh) TIDAK ikut terhapus cuma karena tidak dirender di form ini.
+    const additional = (editingJamaahId!==null && jamaahList[editingJamaahId]) ? {...(jamaahList[editingJamaahId].additional_fields||{})} : {};
     for(const field of dynamicFieldsJamaah){ 
         const input=document.getElementById(`jamaahField_${field.name}`); 
         if(input) additional[field.name]=input.value.trim(); 
@@ -11156,17 +11436,18 @@ function shareAllJamaahToWA(){
 }
 
 function downloadTemplateExcel() {
-    // Header = Nama Lengkap + semua field dinamis
+    const fieldsTampil = getDynamicFieldsJamaahTampil();
+    // Header = Nama Lengkap + semua field dinamis (sesuai Jenis Program aktif — Umroh tidak ikut field khusus Haji)
     const headers = ['Nama Lengkap'];
     const fieldKeys = ['nama_lengkap'];
-    dynamicFieldsJamaah.forEach(f => {
+    fieldsTampil.forEach(f => {
         headers.push(f.label);
         fieldKeys.push(f.name);
     });
 
     // Baris contoh agar user tahu format isian
     const contohRow = ['MOHAMMAD SUPRIYADI'];
-    dynamicFieldsJamaah.forEach(f => {
+    fieldsTampil.forEach(f => {
         if (f.name === 'tgl_lahir') contohRow.push('1980-10-08');
         else if (f.name === 'jenis_kelamin') contohRow.push('L / P');
         else if (f.name === 'whatsapp') contohRow.push('08123456789');
@@ -11213,11 +11494,12 @@ function downloadTemplateExcel() {
 
 function exportJamaahToExcel(){ 
     if(jamaahList.length===0) return showToast('Tidak ada data!'); 
+    const fieldsTampil = getDynamicFieldsJamaahTampil();
     const headers=['No','Nama Lengkap','Tanggal Input']; 
-    for(const f of dynamicFieldsJamaah) headers.push(f.label); 
+    for(const f of fieldsTampil) headers.push(f.label); 
     const rows=jamaahList.map((j,i)=>{ 
         const row=[i+1,j.nama_lengkap,j.created_at||'-']; 
-        for(const f of dynamicFieldsJamaah) row.push(j.additional_fields?.[f.name]||''); 
+        for(const f of fieldsTampil) row.push(j.additional_fields?.[f.name]||''); 
         return row; 
     }); 
     const ws=XLSX.utils.aoa_to_sheet([headers,...rows]); 
@@ -11225,7 +11507,7 @@ function exportJamaahToExcel(){
     // Paksa kolom nomor WA/Telepon jadi format Teks (bukan Angka) — supaya Excel/Google Sheets
     // tidak membulatkan nomor panjang jadi notasi ilmiah (kehilangan digit, jadi "...0000").
     const kolomNomorHP = [];
-    dynamicFieldsJamaah.forEach((f, idx) => {
+    fieldsTampil.forEach((f, idx) => {
         const isNomorHP = f.type === 'tel' || f.name === 'whatsapp' || f.name.includes('telepon') || f.name.includes('hp');
         if (isNomorHP) kolomNomorHP.push(3 + idx); // 3 = jumlah kolom tetap (No, Nama, Tanggal) sebelum field dinamis
     });
@@ -15839,6 +16121,16 @@ function handleBottomNavEstimasiSlot() {
 function isHajiReguler() {
     const p = getCurrentProgram();
     return p && p.jenis === 'haji_reguler';
+}
+
+// Field yang cuma relevan untuk Haji (struktur resmi Kemenag: Kloter-Rombongan-Regu-Karu-Karom + No Porsi)
+const FIELD_KHUSUS_HAJI = ['no_porsi', 'no_kloter', 'no_rombongan', 'no_regu', 'nama_karu', 'nama_karom'];
+
+// Dipakai di form input, kolom tabel, dan template/export Excel — supaya Umroh tidak ditampilkan field Haji.
+// TIDAK dipakai di halaman Setting (kelola daftar field) — di situ admin tetap perlu lihat/kelola semua field apa adanya.
+function getDynamicFieldsJamaahTampil() {
+    if (isJenisHaji()) return dynamicFieldsJamaah;
+    return dynamicFieldsJamaah.filter(f => !FIELD_KHUSUS_HAJI.includes(f.name));
 }
 
 // Label jenis perjalanan untuk countdown dsb — otomatis dari Jenis Program (bukan input manual terpisah lagi)
@@ -21664,6 +21956,7 @@ async function initPremium() {
     loadModesFromStorage();
     renderDynamicModeSwitcher();
     await loadCatatanData();
+    await loadAgendaKantorData();
     await loadDokumenData();
     loadPengingatData();
     await loadAbsensiData();
