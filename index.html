@@ -2759,7 +2759,9 @@
         <input type="hidden" id="hubunganJamaahId">
         <div class="dynamic-field"><label>Untuk Jamaah</label><input type="text" id="hubunganNamaAsal" disabled style="background:#F3F4F6;"></div>
         <div class="dynamic-field"><label>Terhubung dengan Jamaah <span style="color:red;">*</span></label>
-            <select id="hubunganTargetJamaah"><option value="">-- Pilih Jamaah --</option></select>
+            <input type="hidden" id="hubunganTargetJamaahId">
+            <input type="text" id="hubunganCariJamaah" placeholder="Ketik nama jamaah..." oninput="renderHasilCariHubunganJamaah()" autocomplete="off" style="width:100%;padding:10px;border-radius:8px;border:1.5px solid #ddd;font-size:14px;">
+            <div id="hasilCariHubunganJamaah" style="max-height:200px;overflow-y:auto;margin-top:6px;"></div>
         </div>
         <div class="dynamic-field"><label>Jenis Hubungan <span style="color:red;">*</span></label>
             <select id="hubunganJenis">
@@ -11224,20 +11226,39 @@ function openTambahHubunganModal(jamaahId) {
     if (!j) return;
     document.getElementById('hubunganJamaahId').value = jamaahId;
     document.getElementById('hubunganNamaAsal').value = j.nama_lengkap;
-    const sudahTerhubung = new Set((j.hubungan_keluarga || []).map(r => r.jamaahId));
-    const select = document.getElementById('hubunganTargetJamaah');
-    select.innerHTML = '<option value="">-- Pilih Jamaah --</option>' +
-        jamaahList.filter(x => x.id !== jamaahId && !sudahTerhubung.has(x.id))
-            .map(x => `<option value="${x.id}">${escapeHtml(x.nama_lengkap)}</option>`).join('');
+    document.getElementById('hubunganTargetJamaahId').value = '';
+    document.getElementById('hubunganCariJamaah').value = '';
+    document.getElementById('hasilCariHubunganJamaah').innerHTML = '';
     document.getElementById('hubunganJenis').value = 'Suami';
     document.getElementById('hubunganKeluargaModal').style.display = 'flex';
 }
 
+function renderHasilCariHubunganJamaah() {
+    const jamaahId = Number(document.getElementById('hubunganJamaahId').value);
+    const kataKunci = document.getElementById('hubunganCariJamaah').value.trim().toLowerCase();
+    const container = document.getElementById('hasilCariHubunganJamaah');
+    if (!kataKunci) { container.innerHTML = ''; return; }
+
+    const j = jamaahList.find(x => x.id === jamaahId);
+    const sudahTerhubung = new Set((j?.hubungan_keluarga || []).map(r => r.jamaahId));
+    const hasil = jamaahList.filter(x => x.id !== jamaahId && !sudahTerhubung.has(x.id) &&
+        x.nama_lengkap.toLowerCase().includes(kataKunci)).slice(0, 20);
+
+    if (hasil.length === 0) { container.innerHTML = '<div style="padding:10px;color:#888;font-size:13px;">Tidak ditemukan</div>'; return; }
+    container.innerHTML = hasil.map(x => `<div onclick="pilihHubunganTargetJamaah(${x.id},'${escapeHtml(x.nama_lengkap).replace(/'/g,"\\'")}')" style="padding:10px;border-bottom:1px solid #eee;cursor:pointer;font-size:14px;">${escapeHtml(x.nama_lengkap)}</div>`).join('');
+}
+
+function pilihHubunganTargetJamaah(id, nama) {
+    document.getElementById('hubunganTargetJamaahId').value = id;
+    document.getElementById('hubunganCariJamaah').value = nama;
+    document.getElementById('hasilCariHubunganJamaah').innerHTML = '';
+}
+
 async function simpanHubunganKeluarga() {
     const jamaahId = Number(document.getElementById('hubunganJamaahId').value);
-    const targetId = Number(document.getElementById('hubunganTargetJamaah').value);
+    const targetId = Number(document.getElementById('hubunganTargetJamaahId').value);
     const jenis = document.getElementById('hubunganJenis').value;
-    if (!targetId) return showToast('Pilih jamaah yang mau dihubungkan!');
+    if (!targetId) return showToast('Cari dan pilih jamaah yang mau dihubungkan!');
 
     const j = jamaahList.find(x => x.id === jamaahId);
     const target = jamaahList.find(x => x.id === targetId);
@@ -19254,18 +19275,22 @@ async function downloadFullZip() {
             const docs = dokumenData[j.id] || {}; 
             const jamaahFolder = dokumenFolder.folder(j.id + '_' + j.nama_lengkap.replace(/[^a-z0-9]/gi, '_')); 
             for (const jenis of dokumenJenisList) { 
-                const data = docs[jenis.id]; 
-                if (data && data !== '') { 
-                    const ext = data.startsWith('data:image/png') ? 'png' : 'jpg'; 
-                    jamaahFolder.file(`${jenis.id}.${ext}`, data.split(',')[1], { base64: true }); 
-                } 
+                const isiDokumen = docs[jenis.id]; 
+                const daftarFoto = Array.isArray(isiDokumen) ? isiDokumen : (isiDokumen ? [isiDokumen] : []);
+                daftarFoto.forEach((data, idx) => {
+                    if (typeof data === 'string' && data && data.startsWith('data:')) {
+                        const ext = data.startsWith('data:image/png') ? 'png' : 'jpg';
+                        const namaFile = daftarFoto.length > 1 ? `${jenis.id}_${idx+1}.${ext}` : `${jenis.id}.${ext}`;
+                        jamaahFolder.file(namaFile, data.split(',')[1], { base64: true }); 
+                    }
+                });
             } 
         }
         // Foto profil — SEMUA Program, bukan cuma yang sedang aktif
         const fotoFolder = zip.folder('foto_profil');
         for (const j of _allJamaahData) {
             const foto = await idbGet(STORE_FOTO, 'foto_' + j.id);
-            if (foto) {
+            if (typeof foto === 'string' && foto.startsWith('data:')) {
                 const ext = foto.startsWith('data:image/png') ? 'png' : 'jpg';
                 fotoFolder.file(`${j.id}.${ext}`, foto.split(',')[1], { base64: true });
             }
@@ -19643,20 +19668,31 @@ function restoreFromZip(input) {
                     const prefixBaru = `dokumen/${j.id}_`;
                     const prefixLama = `dokumen/${j.nama_lengkap.replace(/[^a-z0-9]/gi, '_')}/`;
                     for (const jenis of dokumenJenisList) {
-                        // Cari file di format baru
-                        const pathBaru = `dokumen/${j.id}_${j.nama_lengkap.replace(/[^a-z0-9]/gi, '_')}/${jenis.id}.jpg`;
-                        const pathBaruPng = `dokumen/${j.id}_${j.nama_lengkap.replace(/[^a-z0-9]/gi, '_')}/${jenis.id}.png`;
-                        // Format lama
-                        const pathLama = `dokumen/${j.nama_lengkap.replace(/[^a-z0-9]/gi, '_')}/${jenis.nama}.jpg`;
-                        const pathLamaPng = `dokumen/${j.nama_lengkap.replace(/[^a-z0-9]/gi, '_')}/${jenis.nama}.png`;
-                        
-                        const fileInZip = zip.file(pathBaru) || zip.file(pathBaruPng) || zip.file(pathLama) || zip.file(pathLamaPng);
-                        if (fileInZip) { 
-                            const base64 = await fileInZip.async('base64'); 
+                        // Cari SEMUA file yang cocok untuk jenis dokumen ini — format baru bisa lebih dari 1 foto
+                        // (jenisId.jpg / jenisId_1.jpg / jenisId_2.jpg dst), format lama pakai nama jenis dokumen.
+                        const folderBaru = `dokumen/${j.id}_${j.nama_lengkap.replace(/[^a-z0-9]/gi, '_')}/`;
+                        const folderLama = `dokumen/${j.nama_lengkap.replace(/[^a-z0-9]/gi, '_')}/`;
+                        const filesCocok = allFiles.filter(path => {
+                            if (!path.startsWith(folderBaru) && !path.startsWith(folderLama)) return false;
+                            const namaFile = path.split('/').pop();
+                            const namaBase = namaFile.replace(/\.(jpg|png)$/i, '');
+                            if (!/\.(jpg|png)$/i.test(namaFile)) return false;
+                            if (namaBase === jenis.id || namaBase === jenis.nama) return true;
+                            if (namaBase.startsWith(jenis.id + '_') && /^\d+$/.test(namaBase.slice(jenis.id.length + 1))) return true;
+                            return false;
+                        }).sort();
+                        const daftarFoto = [];
+                        for (const path of filesCocok) {
+                            const fileInZip = zip.file(path);
+                            if (!fileInZip) continue;
+                            const base64 = await fileInZip.async('base64');
                             const isJpg = fileInZip.name.endsWith('.jpg');
-                            dokumenData[j.id] = dokumenData[j.id] || {}; 
-                            dokumenData[j.id][jenis.id] = `data:image/${isJpg?'jpeg':'png'};base64,${base64}`; 
-                        } 
+                            daftarFoto.push(`data:image/${isJpg?'jpeg':'png'};base64,${base64}`);
+                        }
+                        if (daftarFoto.length > 0) {
+                            dokumenData[j.id] = dokumenData[j.id] || {};
+                            dokumenData[j.id][jenis.id] = daftarFoto;
+                        }
                     }
                 }
                 // Simpan dokumen ke IndexedDB (bulk)
