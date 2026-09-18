@@ -8517,25 +8517,13 @@ async function loadDynamicFieldsJamaah() {
             dynamicFieldsJamaah.push({ name: 'status_diskon', label: 'Status Diskon', type: 'dropdown', options: ['Diambil Jamaah', 'Diberikan ke Mitra'], icon: '🔀', isRequired: false });
             await idbSet(STORE_JAMAAH, 'jamaah_fields', dynamicFieldsJamaah);
         }
-        // Migrasi PERBAIKAN: field 'status_proses_haji' (versi lama, sempat dobel karena reset sesi) dikonsolidasi
-        // ke 'status_proses' (versi final) — data yang sudah terlanjur terisi dipindah, bukan dihilangkan.
+        // Migrasi PERBAIKAN: field 'status_proses_haji' (versi lama, sempat dobel karena reset sesi) —
+        // definisi field-nya dihapus di sini (aman, tidak menyentuh data jamaah). Pemindahan NILAI datanya
+        // dilakukan terpisah oleh migrasiKonsolidasiStatusProsesHaji(), dipanggil SETELAH loadJamaahData()
+        // selesai — supaya tidak menimpa data jamaah dengan array kosong sebelum sempat dimuat.
         if (dynamicFieldsJamaah.some(f => f.name === 'status_proses_haji')) {
-            const petaNilaiLama = { 'Mutasi': '🔄 Mutasi', 'Penggabungan': '🤝 Penggabungan', 'Pendampingan': '🧑‍🤝‍🧑 Pendampingan' };
-            jamaahList.forEach(j => {
-                const nilaiLama = j.additional_fields?.status_proses_haji;
-                if (nilaiLama && !j.additional_fields?.status_proses) {
-                    if (!j.additional_fields) j.additional_fields = {};
-                    j.additional_fields.status_proses = petaNilaiLama[nilaiLama] || nilaiLama;
-                }
-                const catatanLama = j.additional_fields?.catatan_proses_haji;
-                if (catatanLama && !j.additional_fields?.catatan_status_proses) {
-                    j.additional_fields.catatan_status_proses = catatanLama;
-                }
-                if (j.additional_fields) { delete j.additional_fields.status_proses_haji; delete j.additional_fields.catatan_proses_haji; }
-            });
             dynamicFieldsJamaah = dynamicFieldsJamaah.filter(f => f.name !== 'status_proses_haji' && f.name !== 'catatan_proses_haji');
             await idbSet(STORE_JAMAAH, 'jamaah_fields', dynamicFieldsJamaah);
-            await saveJamaahData();
         }
         // Migrasi: tambahkan field Rombongan/Kloter/Regu/Karu/Karom kalau belum ada
         if (dynamicFieldsJamaah.length > 0 && !dynamicFieldsJamaah.some(f => f.name === 'no_rombongan')) {
@@ -11284,6 +11272,33 @@ function formatKeluargaText(jamaah) {
     }).filter(Boolean).join(', ');
 }
 
+// Migrasi nilai data dari 'status_proses_haji' (field lama) ke 'status_proses' (field final) —
+// HARUS dipanggil SETELAH loadJamaahData() selesai, supaya jamaahList sudah terisi data asli,
+// bukan array kosong (itu penyebab bug data jamaah pernah tertimpa kosong).
+async function migrasiKonsolidasiStatusProsesHaji() {
+    const petaNilaiLama = { 'Mutasi': '🔄 Mutasi', 'Penggabungan': '🤝 Penggabungan', 'Pendampingan': '🧑‍🤝‍🧑 Pendampingan' };
+    let adaPerubahan = false;
+    jamaahList.forEach(j => {
+        const nilaiLama = j.additional_fields?.status_proses_haji;
+        if (nilaiLama && !j.additional_fields?.status_proses) {
+            if (!j.additional_fields) j.additional_fields = {};
+            j.additional_fields.status_proses = petaNilaiLama[nilaiLama] || nilaiLama;
+            adaPerubahan = true;
+        }
+        const catatanLama = j.additional_fields?.catatan_proses_haji;
+        if (catatanLama && !j.additional_fields?.catatan_status_proses) {
+            j.additional_fields.catatan_status_proses = catatanLama;
+            adaPerubahan = true;
+        }
+        if (j.additional_fields && ('status_proses_haji' in j.additional_fields || 'catatan_proses_haji' in j.additional_fields)) {
+            delete j.additional_fields.status_proses_haji;
+            delete j.additional_fields.catatan_proses_haji;
+            adaPerubahan = true;
+        }
+    });
+    if (adaPerubahan) await saveJamaahData();
+}
+
 function confirmDeleteJamaahById(id){ 
     if(cekProgramArsip()) return;
     if(confirm('Hapus database ini?')){ 
@@ -13930,6 +13945,32 @@ async function loadJamaahKitaData() {
     if (!dynamicFieldsJamaahKita.some(f => f.name === 'keluarga')) {
         dynamicFieldsJamaahKita.push({ name: 'keluarga', label: 'Keluarga', type: 'text', icon: '👨‍👩‍👧', isRequired: false });
         await idbSet(STORE_JAMAAH_KITA, 'kita_fields', dynamicFieldsJamaahKita);
+    }
+
+    // Migrasi PERBAIKAN: field lama 'status_proses_haji' (sempat dobel di Database Jamaah, sekarang sudah
+    // dikonsolidasi ke 'status_proses') — dibersihkan juga di sini, DIGANTI dengan 'status_proses' langsung
+    // (bukan menunggu ditemukan lewat notifikasi "Field Baru"), supaya tidak sempat hilang atau dobel.
+    if (dynamicFieldsJamaahKita.some(f => f.name === 'status_proses_haji')) {
+        const petaNilaiLama = { 'Mutasi': '🔄 Mutasi', 'Penggabungan': '🤝 Penggabungan', 'Pendampingan': '🧑‍🤝‍🧑 Pendampingan' };
+        _allJamaahKitaData.forEach(k => {
+            const nilaiLama = k.additional_fields?.status_proses_haji;
+            if (nilaiLama && !k.additional_fields?.status_proses) {
+                if (!k.additional_fields) k.additional_fields = {};
+                k.additional_fields.status_proses = petaNilaiLama[nilaiLama] || nilaiLama;
+            }
+            const catatanLama = k.additional_fields?.catatan_proses_haji;
+            if (catatanLama && !k.additional_fields?.catatan_status_proses) {
+                k.additional_fields.catatan_status_proses = catatanLama;
+            }
+            if (k.additional_fields) { delete k.additional_fields.status_proses_haji; delete k.additional_fields.catatan_proses_haji; }
+        });
+        dynamicFieldsJamaahKita = dynamicFieldsJamaahKita.filter(f => f.name !== 'status_proses_haji' && f.name !== 'catatan_proses_haji');
+        const fieldFinalDariDb = dynamicFieldsJamaah.find(f => f.name === 'status_proses');
+        dynamicFieldsJamaahKita.push(fieldFinalDariDb || { name: 'status_proses', label: 'Status Proses', type: 'dropdown', options: ['Normal', '🔄 Mutasi', '🤝 Penggabungan', '🧑‍🤝‍🧑 Pendampingan'], icon: '📌', isRequired: false });
+        dynamicFieldsJamaahKita.push({ name: 'catatan_status_proses', label: 'Catatan Status Proses', type: 'textarea', icon: '🗒️', isRequired: false });
+        await idbSet(STORE_JAMAAH_KITA, 'kita_fields', dynamicFieldsJamaahKita);
+        await idbSet(STORE_JAMAAH_KITA, 'kita_list', _allJamaahKitaData);
+        jamaahKitaList = _allJamaahKitaData.filter(k => k.program_id === currentProgramId);
     }
 
     // Sinkronkan urutan + icon + label field On Proses mengikuti Database Jamaah
@@ -22207,6 +22248,7 @@ async function initPremium() {
     renderKunciEstimasiUI();
     await loadDynamicFieldsJamaah();
     await loadJamaahData();
+    await migrasiKonsolidasiStatusProsesHaji();
     await loadJamaahKitaData();
     await loadKasData();
     await loadPaymentData();
