@@ -19196,7 +19196,17 @@ async function bagikanFullZip() {
                 konfigurasi: konfigurasiPro,
                 catatan: catatanList,
                 pengeluaran: _allPengeluaranData,
-                jadwal_manasik: (await idbGet(STORE_ABSENSI, 'jadwal_manasik')) || []
+                jadwal_manasik: (await idbGet(STORE_ABSENSI, 'jadwal_manasik')) || [],
+                agenda_kantor: (await idbGet(STORE_CATATAN, 'agenda_kantor_list')) || [],
+                pengaturan_lokal: {
+                    template_surat_kustom: localStorage.getItem('navara_template_surat_kustom') || '',
+                    template_surat_kustom_judul: localStorage.getItem('navara_template_surat_kustom_judul') || '',
+                    jenis_layanan: JSON.parse(localStorage.getItem('navara_jenis_layanan') || 'null'),
+                    scheduled_reminders: JSON.parse(localStorage.getItem('navara_scheduled_reminders') || 'null'),
+                    onproses_print_fields: JSON.parse(localStorage.getItem('navara_onproses_print_fields') || 'null'),
+                    nametag_fields: JSON.parse(localStorage.getItem('navara_nametag_fields') || 'null'),
+                    absensi_columns: JSON.parse(localStorage.getItem('navara_absensi_columns') || 'null'),
+                }
             };
             catatBackupTerakhir();
             const json = JSON.stringify(backupData);
@@ -19268,6 +19278,19 @@ async function downloadFullZip() {
         zip.file('pengeluaran.json', JSON.stringify(_allPengeluaranData, null, 2));
         zip.file('prospek.json', JSON.stringify(_allProspekData, null, 2));
         zip.file('jadwal_manasik.json', JSON.stringify(jadwalManasikSegar, null, 2));
+        const agendaKantorSegar = await idbGet(STORE_CATATAN, 'agenda_kantor_list') || [];
+        zip.file('agenda_kantor.json', JSON.stringify(agendaKantorSegar, null, 2));
+        // Data lain yang tersimpan di localStorage (bukan IndexedDB) — template surat, jenis layanan, pengingat WA, dll
+        const pengaturanLokal = {
+            template_surat_kustom: localStorage.getItem('navara_template_surat_kustom') || '',
+            template_surat_kustom_judul: localStorage.getItem('navara_template_surat_kustom_judul') || '',
+            jenis_layanan: JSON.parse(localStorage.getItem('navara_jenis_layanan') || 'null'),
+            scheduled_reminders: JSON.parse(localStorage.getItem('navara_scheduled_reminders') || 'null'),
+            onproses_print_fields: JSON.parse(localStorage.getItem('navara_onproses_print_fields') || 'null'),
+            nametag_fields: JSON.parse(localStorage.getItem('navara_nametag_fields') || 'null'),
+            absensi_columns: JSON.parse(localStorage.getItem('navara_absensi_columns') || 'null'),
+        };
+        zip.file('pengaturan_lokal.json', JSON.stringify(pengaturanLokal, null, 2));
         catatBackupTerakhir();
         // Dokumen — SEMUA Program, bukan cuma yang sedang aktif
         const dokumenFolder = zip.folder('dokumen'); 
@@ -19411,6 +19434,20 @@ async function applyRestoreBackupData(backup) {
         }
         await idbSet(STORE_ABSENSI, 'jadwal_manasik', _allJadwalManasikData);
         jadwalManasikList = _allJadwalManasikData.filter(j => j.program_id === currentProgramId);
+    }
+    if (backup.agenda_kantor) {
+        agendaKantorList = backup.agenda_kantor || [];
+        await idbSet(STORE_CATATAN, 'agenda_kantor_list', agendaKantorList);
+    }
+    if (backup.pengaturan_lokal) {
+        const pl = backup.pengaturan_lokal;
+        if (pl.template_surat_kustom) localStorage.setItem('navara_template_surat_kustom', pl.template_surat_kustom);
+        if (pl.template_surat_kustom_judul) localStorage.setItem('navara_template_surat_kustom_judul', pl.template_surat_kustom_judul);
+        if (pl.jenis_layanan) localStorage.setItem('navara_jenis_layanan', JSON.stringify(pl.jenis_layanan));
+        if (pl.scheduled_reminders) localStorage.setItem('navara_scheduled_reminders', JSON.stringify(pl.scheduled_reminders));
+        if (pl.onproses_print_fields) localStorage.setItem('navara_onproses_print_fields', JSON.stringify(pl.onproses_print_fields));
+        if (pl.nametag_fields) localStorage.setItem('navara_nametag_fields', JSON.stringify(pl.nametag_fields));
+        if (pl.absensi_columns) localStorage.setItem('navara_absensi_columns', JSON.stringify(pl.absensi_columns));
     }
     if (backup.kas) { 
         if (isMultiProgramBackup) {
@@ -19618,6 +19655,26 @@ function restoreFromZip(input) {
                 }
                 await idbSet(STORE_ABSENSI, 'jadwal_manasik', _allJadwalManasikData);
                 jadwalManasikList = _allJadwalManasikData.filter(j => j.program_id === currentProgramId);
+            }
+
+            // Restore Agenda Kantor — data global, bukan per-Program
+            const agendaKantorFile = zip.file('agenda_kantor.json');
+            if (agendaKantorFile) {
+                agendaKantorList = JSON.parse(await agendaKantorFile.async('string'));
+                await idbSet(STORE_CATATAN, 'agenda_kantor_list', agendaKantorList);
+            }
+
+            // Restore pengaturan lokal (template surat, jenis layanan, pengingat WA, dll)
+            const pengaturanLokalFile = zip.file('pengaturan_lokal.json');
+            if (pengaturanLokalFile) {
+                const pl = JSON.parse(await pengaturanLokalFile.async('string'));
+                if (pl.template_surat_kustom) localStorage.setItem('navara_template_surat_kustom', pl.template_surat_kustom);
+                if (pl.template_surat_kustom_judul) localStorage.setItem('navara_template_surat_kustom_judul', pl.template_surat_kustom_judul);
+                if (pl.jenis_layanan) localStorage.setItem('navara_jenis_layanan', JSON.stringify(pl.jenis_layanan));
+                if (pl.scheduled_reminders) localStorage.setItem('navara_scheduled_reminders', JSON.stringify(pl.scheduled_reminders));
+                if (pl.onproses_print_fields) localStorage.setItem('navara_onproses_print_fields', JSON.stringify(pl.onproses_print_fields));
+                if (pl.nametag_fields) localStorage.setItem('navara_nametag_fields', JSON.stringify(pl.nametag_fields));
+                if (pl.absensi_columns) localStorage.setItem('navara_absensi_columns', JSON.stringify(pl.absensi_columns));
             }
 
             // Restore Prospek (Calon Jamaah)
