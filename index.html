@@ -2727,7 +2727,7 @@
             <div class="dynamic-field"><label>Tanggal <span style="color:red;">*</span></label><input type="date" id="agendaTanggal"></div>
             <div class="dynamic-field"><label>Jam</label><input type="time" id="agendaWaktu"></div>
         </div>
-        <div class="dynamic-field"><label>Penanggung Jawab</label><input type="text" id="agendaPenanggungJawab" placeholder="Opsional"></div>
+        <div class="dynamic-field"><label>PIC</label><input type="text" id="agendaPenanggungJawab" placeholder="Opsional"></div>
         <div class="dynamic-field"><label>Lokasi</label><input type="text" id="agendaLokasi" placeholder="Contoh: Ruang Rapat / Online"></div>
         <div class="dynamic-field"><label>Catatan / Hasil Rapat</label><textarea id="agendaCatatanHasil" rows="3" placeholder="Diisi setelah rapat berlangsung (opsional)"></textarea></div>
         <button class="btn btn-primary mt-2" onclick="simpanAgendaKantor()">Simpan</button>
@@ -2749,6 +2749,30 @@
         <button class="btn btn-wa" onclick="shareAllJamaahToWA()"><i class="fab fa-whatsapp"></i> SHARE SEMUA JAMAAH KE WA</button>
         <div class="row" style="margin-top:20px;"><button class="btn btn-small mt-2" onclick="downloadTemplateExcel()" style="flex:1;background:#1D6F42;color:white;">⬇️ Download Template Excel</button><button class="btn btn-small mt-2" onclick="document.getElementById('importExcelFile2').click()" style="flex:1;background:#F59E0B;color:white;">⬆️ Import Excel</button></div>
         <input type="file" id="importExcelFile2" accept=".xlsx,.xls" style="display:none" onchange="importJamaahFromExcel(this)">
+    </div>
+</div>
+
+<!-- MODAL TAMBAH HUBUNGAN KELUARGA -->
+<div id="hubunganKeluargaModal" class="modal">
+    <div class="modal-content">
+        <h3 style="color:#0D5C4A;">Tambah Hubungan Keluarga</h3>
+        <input type="hidden" id="hubunganJamaahId">
+        <div class="dynamic-field"><label>Untuk Jamaah</label><input type="text" id="hubunganNamaAsal" disabled style="background:#F3F4F6;"></div>
+        <div class="dynamic-field"><label>Terhubung dengan Jamaah <span style="color:red;">*</span></label>
+            <select id="hubunganTargetJamaah"><option value="">-- Pilih Jamaah --</option></select>
+        </div>
+        <div class="dynamic-field"><label>Jenis Hubungan <span style="color:red;">*</span></label>
+            <select id="hubunganJenis">
+                <option value="Suami">Suami</option>
+                <option value="Istri">Istri</option>
+                <option value="Anak">Anak</option>
+                <option value="Orang Tua">Orang Tua</option>
+                <option value="Saudara Kandung">Saudara Kandung</option>
+                <option value="Lainnya">Lainnya</option>
+            </select>
+        </div>
+        <button class="btn btn-primary mt-2" onclick="simpanHubunganKeluarga()">Simpan</button>
+        <button onclick="document.getElementById('hubunganKeluargaModal').style.display='none'" class="btn btn-secondary mt-2">Batal</button>
     </div>
 </div>
 
@@ -8493,6 +8517,13 @@ async function loadDynamicFieldsJamaah() {
             dynamicFieldsJamaah.push({ name: 'status_diskon', label: 'Status Diskon', type: 'dropdown', options: ['Diambil Jamaah', 'Diberikan ke Mitra'], icon: '🔀', isRequired: false });
             await idbSet(STORE_JAMAAH, 'jamaah_fields', dynamicFieldsJamaah);
         }
+        // Migrasi: tambahkan field Status Proses (Mutasi/Penggabungan/Pendampingan) — murni pencatatan manual,
+        // bukan deteksi otomatis. Khusus Haji (disaring oleh FIELD_KHUSUS_HAJI), tidak muncul untuk Umroh.
+        if (dynamicFieldsJamaah.length > 0 && !dynamicFieldsJamaah.some(f => f.name === 'status_proses_haji')) {
+            dynamicFieldsJamaah.push({ name: 'status_proses_haji', label: 'Status Proses', type: 'dropdown', options: ['Mutasi', 'Penggabungan', 'Pendampingan'], icon: '🔄', isRequired: false });
+            dynamicFieldsJamaah.push({ name: 'catatan_proses_haji', label: 'Catatan Status Proses', type: 'textarea', icon: '📝', isRequired: false });
+            await idbSet(STORE_JAMAAH, 'jamaah_fields', dynamicFieldsJamaah);
+        }
         // Migrasi: tambahkan field Rombongan/Kloter/Regu/Karu/Karom kalau belum ada
         if (dynamicFieldsJamaah.length > 0 && !dynamicFieldsJamaah.some(f => f.name === 'no_rombongan')) {
             const idxPorsi = dynamicFieldsJamaah.findIndex(f => f.name === 'no_porsi');
@@ -8523,6 +8554,17 @@ async function loadDynamicFieldsJamaah() {
                 await idbSet(STORE_JAMAAH, 'jamaah_fields', dynamicFieldsJamaah);
             }
         }
+        // Migrasi: tambahkan field Status Proses (Mutasi/Penggabungan/Pendampingan) untuk pengguna lama
+        if (dynamicFieldsJamaah.length > 0 && !dynamicFieldsJamaah.some(f => f.name === 'status_proses')) {
+            const fieldsStatusProses = [
+                { name: 'status_proses', label: 'Status Proses', type: 'dropdown', options: ['Normal', '🔄 Mutasi', '🤝 Penggabungan', '🧑‍🤝‍🧑 Pendampingan'], icon: '📌', isRequired: false },
+                { name: 'catatan_status_proses', label: 'Catatan Status Proses', type: 'textarea', icon: '🗒️', isRequired: false },
+            ];
+            const idxKeterangan = dynamicFieldsJamaah.findIndex(f => f.name === 'keterangan');
+            if (idxKeterangan !== -1) dynamicFieldsJamaah.splice(idxKeterangan, 0, ...fieldsStatusProses);
+            else dynamicFieldsJamaah.push(...fieldsStatusProses);
+            await idbSet(STORE_JAMAAH, 'jamaah_fields', dynamicFieldsJamaah);
+        }
     } else {
         dynamicFieldsJamaah = [
             { name: 'nama_paspor',   label: 'Nama Paspor',   type: 'text',     icon: '👤', isRequired: false },
@@ -8536,6 +8578,8 @@ async function loadDynamicFieldsJamaah() {
             { name: 'mitra_referensi', label: 'Direferensikan oleh Mitra', type: 'text', icon: '🤝', isRequired: false },
             { name: 'diskon_tersedia', label: 'Diskon Tersedia (Rp)', type: 'money', icon: '💰', isRequired: false },
             { name: 'status_diskon', label: 'Status Diskon', type: 'dropdown', options: ['Diambil Jamaah', 'Diberikan ke Mitra'], icon: '🔀', isRequired: false },
+            { name: 'status_proses_haji', label: 'Status Proses', type: 'dropdown', options: ['Mutasi', 'Penggabungan', 'Pendampingan'], icon: '🔄', isRequired: false },
+            { name: 'catatan_proses_haji', label: 'Catatan Status Proses', type: 'textarea', icon: '📝', isRequired: false },
             { name: 'nik',           label: 'NIK',             type: 'text',     icon: '🪪', isRequired: false },
             { name: 'kk',            label: 'KK',              type: 'text',     icon: '📋', isRequired: false },
             { name: 'alamat',        label: 'Alamat',          type: 'text',     icon: '🏠', isRequired: false },
@@ -8555,6 +8599,8 @@ async function loadDynamicFieldsJamaah() {
             { name: 'hotel_makkah',  label: 'Hotel Makkah',   type: 'text',     icon: '🏨', isRequired: false },
             { name: 'hotel_madinah', label: 'Hotel Madinah',  type: 'text',     icon: '🏨', isRequired: false },
             { name: 'warna',         label: 'Warna',           type: 'text',     icon: '🏷️', isRequired: false },
+            { name: 'status_proses', label: 'Status Proses',   type: 'dropdown', options: ['Normal', '🔄 Mutasi', '🤝 Penggabungan', '🧑‍🤝‍🧑 Pendampingan'], icon: '📌', isRequired: false },
+            { name: 'catatan_status_proses', label: 'Catatan Status Proses', type: 'textarea', icon: '🗒️', isRequired: false },
             { name: 'keterangan',    label: 'Keterangan',      type: 'textarea', icon: '📝', isRequired: false }
         ];
         await idbSet(STORE_JAMAAH, 'jamaah_fields', dynamicFieldsJamaah);
@@ -8630,11 +8676,22 @@ function renderJamaahListWithPagination() {
     pageData.forEach((j,idx)=>{ 
         const displayNum=start+idx+1; 
         const adaKebutuhanKhusus = (j.kebutuhan_khusus?.kondisi?.length > 0) || !!j.kebutuhan_khusus?.catatan;
-        html+=`<div class="jamaah-card"><div class="jamaah-header"><div style="display:flex;align-items:center;gap:10px;flex:1;"><div id="foto_thumb_${j.id}" style="width:44px;height:44px;border-radius:50%;background:#f0f0f0;border:2px solid #0D5C4A;overflow:hidden;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;" onclick="showFotoProfilModal(${j.id},'${escapeHtml(j.nama_lengkap).replace(/'/g,"\\'")}')"><span style="font-size:22px;">👤</span></div><div><div class="jamaah-nama"><span style="background:var(--primary); color:white; display:inline-block; width:28px; height:28px; border-radius:50%; text-align:center; line-height:28px; font-size:13px; margin-right:10px;">${displayNum}</span> ${escapeHtml(j.nama_lengkap)} ${adaKebutuhanKhusus ? '<span title="Ada kebutuhan khusus/kontak darurat tercatat" style="font-size:13px;">🏥</span>' : ''}</div><div class="jamaah-tgl"> ${j.created_at||'-'}</div></div></div><div class="jamaah-actions"><button class="btn-share-wa" style="background:#0D9488;" onclick="openPaymentModalWithJamaah(${j.id})" title="Bayar Cepat"><i class="fas fa-money-bill-wave"></i></button><button class="btn-share-wa" onclick="shareSingleJamaahById('${j.id}')"><i class="fab fa-whatsapp"></i></button><button class="btn-edit-jamaah" onclick="editJamaahById('${j.id}')"><i class="fas fa-edit"></i></button><button class="btn-delete-jamaah" onclick="confirmDeleteJamaahById('${j.id}')"><i class="fas fa-trash"></i></button></div></div><div class="jamaah-detail">`; 
+        const statusProses = j.additional_fields?.status_proses || '';
+        const badgeStatusProses = (statusProses && statusProses !== 'Normal') ? `<span title="Status Proses: ${escapeHtml(statusProses)}${j.additional_fields?.catatan_status_proses ? ' — ' + escapeHtml(j.additional_fields.catatan_status_proses) : ''}" style="font-size:13px;">${statusProses}</span>` : '';
+        html+=`<div class="jamaah-card"><div class="jamaah-header"><div style="display:flex;align-items:center;gap:10px;flex:1;"><div id="foto_thumb_${j.id}" style="width:44px;height:44px;border-radius:50%;background:#f0f0f0;border:2px solid #0D5C4A;overflow:hidden;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;" onclick="showFotoProfilModal(${j.id},'${escapeHtml(j.nama_lengkap).replace(/'/g,"\\'")}')"><span style="font-size:22px;">👤</span></div><div><div class="jamaah-nama"><span style="background:var(--primary); color:white; display:inline-block; width:28px; height:28px; border-radius:50%; text-align:center; line-height:28px; font-size:13px; margin-right:10px;">${displayNum}</span> ${escapeHtml(j.nama_lengkap)} ${adaKebutuhanKhusus ? '<span title="Ada kebutuhan khusus/kontak darurat tercatat" style="font-size:13px;">🏥</span>' : ''} ${badgeStatusProses}</div><div class="jamaah-tgl"> ${j.created_at||'-'}</div></div></div><div class="jamaah-actions"><button class="btn-share-wa" style="background:#0D9488;" onclick="openPaymentModalWithJamaah(${j.id})" title="Bayar Cepat"><i class="fas fa-money-bill-wave"></i></button><button class="btn-share-wa" onclick="shareSingleJamaahById('${j.id}')"><i class="fab fa-whatsapp"></i></button><button class="btn-edit-jamaah" onclick="editJamaahById('${j.id}')"><i class="fas fa-edit"></i></button><button class="btn-delete-jamaah" onclick="confirmDeleteJamaahById('${j.id}')"><i class="fas fa-trash"></i></button></div></div><div class="jamaah-detail">`; 
         for(const field of getDynamicFieldsJamaahTampil()){ 
             const val=j.additional_fields?.[field.name]||''; 
             if(val) html+=`<div class="jamaah-detail-item"><strong>${escapeHtml(field.label)}:</strong> ${escapeHtml(val)}</div>`; 
         } 
+        const relasiList = j.hubungan_keluarga || [];
+        if (relasiList.length > 0) {
+            html += `<div class="jamaah-detail-item"><strong>👨‍👩‍👧 Keluarga:</strong><br>` + relasiList.map(r => {
+                const target = jamaahList.find(x => x.id === r.jamaahId);
+                if (!target) return '';
+                return `<span style="display:inline-flex;align-items:center;gap:4px;background:#F8FAFC;border-radius:20px;padding:3px 10px;margin:3px 4px 0 0;font-size:12px;">${escapeHtml(target.nama_lengkap)} (${escapeHtml(r.jenis)}) <span onclick="hapusHubunganKeluarga(${j.id},${r.jamaahId})" style="cursor:pointer;color:#DC2626;font-weight:700;">×</span></span>`;
+            }).join('') + `</div>`;
+        }
+        html += `<div class="jamaah-detail-item"><span onclick="openTambahHubunganModal(${j.id})" style="cursor:pointer;color:#0D5C4A;font-weight:600;font-size:12px;">+ Tambah Hubungan Keluarga</span></div>`;
         html+=`</div></div>`; 
     }); 
     container.innerHTML=html; 
@@ -9330,7 +9387,7 @@ async function cetakAgendaKantor() {
         <div style="font-size:12px;color:#888;margin-bottom:8px;">Bulan: ${namaBulan} · Dicetak: ${tgl}</div>
         <div style="font-size:11px;color:#666;margin-bottom:8px;">${buildRingkasanAgenda(sorted)}</div>
         <table>
-            <tr><th>No</th><th>Pembahasan</th><th>Tanggal & Waktu</th><th>Penanggung Jawab</th><th>Lokasi</th><th style="text-align:center;">Status</th></tr>
+            <tr><th>No</th><th>Pembahasan</th><th>Tanggal & Waktu</th><th>PIC</th><th>Lokasi</th><th style="text-align:center;">Status</th></tr>
             ${baris}
         </table>
     </div>
@@ -9373,7 +9430,7 @@ async function shareAgendaKantorPDF() {
         });
         doc.autoTable({
             startY: y,
-            head: [['No','Pembahasan','Tanggal & Waktu','Penanggung Jawab','Lokasi','Status']],
+            head: [['No','Pembahasan','Tanggal & Waktu','PIC','Lokasi','Status']],
             body: tableData,
             theme: 'striped',
             headStyles: { fillColor: [wr,wg,wb] },
@@ -11160,6 +11217,53 @@ function editJamaahById(id){
 let _dataUndoTerakhir = null;
 let _undoTimeoutId = null;
 
+// ==================== HUBUNGAN KELUARGA (2 arah — sekali diisi, otomatis muncul di kedua jamaah) ====================
+const HUBUNGAN_BALIKAN = { 'Suami': 'Istri', 'Istri': 'Suami', 'Anak': 'Orang Tua', 'Orang Tua': 'Anak', 'Saudara Kandung': 'Saudara Kandung', 'Lainnya': 'Lainnya' };
+
+function openTambahHubunganModal(jamaahId) {
+    const j = jamaahList.find(x => x.id === jamaahId);
+    if (!j) return;
+    document.getElementById('hubunganJamaahId').value = jamaahId;
+    document.getElementById('hubunganNamaAsal').value = j.nama_lengkap;
+    const sudahTerhubung = new Set((j.hubungan_keluarga || []).map(r => r.jamaahId));
+    const select = document.getElementById('hubunganTargetJamaah');
+    select.innerHTML = '<option value="">-- Pilih Jamaah --</option>' +
+        jamaahList.filter(x => x.id !== jamaahId && !sudahTerhubung.has(x.id))
+            .map(x => `<option value="${x.id}">${escapeHtml(x.nama_lengkap)}</option>`).join('');
+    document.getElementById('hubunganJenis').value = 'Suami';
+    document.getElementById('hubunganKeluargaModal').style.display = 'flex';
+}
+
+async function simpanHubunganKeluarga() {
+    const jamaahId = Number(document.getElementById('hubunganJamaahId').value);
+    const targetId = Number(document.getElementById('hubunganTargetJamaah').value);
+    const jenis = document.getElementById('hubunganJenis').value;
+    if (!targetId) return showToast('Pilih jamaah yang mau dihubungkan!');
+
+    const j = jamaahList.find(x => x.id === jamaahId);
+    const target = jamaahList.find(x => x.id === targetId);
+    if (!j || !target) return;
+
+    if (!j.hubungan_keluarga) j.hubungan_keluarga = [];
+    if (!target.hubungan_keluarga) target.hubungan_keluarga = [];
+
+    j.hubungan_keluarga.push({ jamaahId: targetId, jenis });
+    target.hubungan_keluarga.push({ jamaahId: jamaahId, jenis: HUBUNGAN_BALIKAN[jenis] || jenis });
+
+    await saveJamaahData();
+    document.getElementById('hubunganKeluargaModal').style.display = 'none';
+    showToast(`Dihubungkan: ${j.nama_lengkap} — ${target.nama_lengkap} (${jenis})`);
+}
+
+async function hapusHubunganKeluarga(jamaahId, targetId) {
+    const j = jamaahList.find(x => x.id === jamaahId);
+    const target = jamaahList.find(x => x.id === targetId);
+    if (j?.hubungan_keluarga) j.hubungan_keluarga = j.hubungan_keluarga.filter(r => r.jamaahId !== targetId);
+    if (target?.hubungan_keluarga) target.hubungan_keluarga = target.hubungan_keluarga.filter(r => r.jamaahId !== jamaahId);
+    await saveJamaahData();
+    showToast('Hubungan keluarga dihapus');
+}
+
 function confirmDeleteJamaahById(id){ 
     if(cekProgramArsip()) return;
     if(confirm('Hapus database ini?')){ 
@@ -11217,6 +11321,16 @@ async function bersihkanDataTerkaitJamaah(jamaahId) {
     (jamaahKitaList || []).forEach(jk => { if(jk.jamaahId == jamaahId) { jk.jamaahId = null; adaJamaahKitaTerkait = true; } });
     if(adaJamaahKitaTerkait && typeof saveJamaahKitaData === 'function') await saveJamaahKitaData();
 
+    // 5b. Hubungan Keluarga — lepaskan tautan dari jamaah lain yang terhubung ke jamaah yang dihapus ini
+    let adaHubunganTerkait = false;
+    jamaahList.forEach(j => {
+        if (j.hubungan_keluarga?.some(r => r.jamaahId == jamaahId)) {
+            j.hubungan_keluarga = j.hubungan_keluarga.filter(r => r.jamaahId != jamaahId);
+            adaHubunganTerkait = true;
+        }
+    });
+    if (adaHubunganTerkait) await saveJamaahData();
+
     // 5. Foto Profil & Dokumen — dihapus (konsisten dengan perilaku "Hapus Semua Jamaah")
     try {
         const database = await openIndexedDB();
@@ -11224,6 +11338,51 @@ async function bersihkanDataTerkaitJamaah(jamaahId) {
         tx.objectStore(STORE_FOTO).delete(jamaahId);
         tx.objectStore(STORE_NAME).delete(jamaahId);
     } catch(e) {}
+}
+
+// Pembersih otomatis "data yatim-piatu" — untuk kasus jamaah SUDAH terhapus tapi data terkaitnya (pembayaran dkk)
+// tertinggal karena app ditutup/pindah halaman sebelum jendela Undo 5.5 detik selesai. Dijalankan sekali tiap
+// app dibuka, setelah SEMUA data (jamaah, pembayaran, absensi, dst) selesai dimuat — jadi otomatis "menyembuhkan diri".
+async function bersihkanDataYatimPiatuJamaah() {
+    const idValid = new Set(jamaahList.map(j => String(j.id)));
+
+    // 1. Riwayat Pembayaran yang jamaahnya sudah tidak ada
+    const jumlahSebelum = paymentTransaksiList.length;
+    paymentTransaksiList = paymentTransaksiList.filter(t => !t.id_jamaah || idValid.has(String(t.id_jamaah)));
+    if (paymentTransaksiList.length !== jumlahSebelum) {
+        await savePaymentData();
+        catatAktivitas('🧹', `${jumlahSebelum - paymentTransaksiList.length} riwayat pembayaran yatim-piatu dibersihkan otomatis`);
+    }
+
+    // 2. Layanan Tambahan (Badal/Dam) — lepaskan kaitannya saja
+    const listLayanan = ensureLayananTambahan();
+    let adaLayananTerkait = false;
+    listLayanan.forEach(l => { if (l.jamaahId && !idValid.has(String(l.jamaahId))) { l.jamaahId = null; adaLayananTerkait = true; } });
+    if (adaLayananTerkait) simpanLayananTambahanKeStorage();
+
+    // 3. Absensi — hapus catatan kehadiran jamaah yang sudah tidak ada
+    let adaAbsensiTerkait = false;
+    (absensiList || []).forEach(sesi => {
+        const before = sesi.absensi.length;
+        sesi.absensi = sesi.absensi.filter(a => !a.jamaahId || idValid.has(String(a.jamaahId)));
+        if (sesi.absensi.length !== before) adaAbsensiTerkait = true;
+    });
+    if (adaAbsensiTerkait) await saveAbsensiData();
+
+    // 4. Jamaah Kita — lepaskan kaitannya saja
+    let adaJamaahKitaTerkait = false;
+    (jamaahKitaList || []).forEach(jk => { if (jk.jamaahId && !idValid.has(String(jk.jamaahId))) { jk.jamaahId = null; adaJamaahKitaTerkait = true; } });
+    if (adaJamaahKitaTerkait && typeof saveJamaahKitaData === 'function') await saveJamaahKitaData();
+
+    // 5. Hubungan Keluarga — hapus tautan ke jamaah yang sudah tidak ada
+    let adaHubunganYatim = false;
+    jamaahList.forEach(j => {
+        if (j.hubungan_keluarga?.some(r => !idValid.has(String(r.jamaahId)))) {
+            j.hubungan_keluarga = j.hubungan_keluarga.filter(r => idValid.has(String(r.jamaahId)));
+            adaHubunganYatim = true;
+        }
+    });
+    if (adaHubunganYatim) await saveJamaahData();
 }
 
 function tampilkanUndoBar(pesan, onUndo) {
@@ -16146,7 +16305,7 @@ function isHajiReguler() {
 }
 
 // Field yang cuma relevan untuk Haji (struktur resmi Kemenag: Kloter-Rombongan-Regu-Karu-Karom + No Porsi)
-const FIELD_KHUSUS_HAJI = ['no_porsi', 'no_kloter', 'no_rombongan', 'no_regu', 'nama_karu', 'nama_karom'];
+const FIELD_KHUSUS_HAJI = ['no_porsi', 'no_kloter', 'no_rombongan', 'no_regu', 'nama_karu', 'nama_karom', 'status_proses_haji', 'catatan_proses_haji'];
 
 // Dipakai di form input, kolom tabel, dan template/export Excel — supaya Umroh tidak ditampilkan field Haji.
 // TIDAK dipakai di halaman Setting (kelola daftar field) — di situ admin tetap perlu lihat/kelola semua field apa adanya.
@@ -18043,7 +18202,7 @@ function renderDokumenList() {
                 </div>
                 <div style="display:flex;gap:8px;align-items:center;">
                     <div class="dokumen-status-badge ${statusClass}">${statusText}</div>
-                    <button class="btn-print-all-doc" onclick="cetakSemuaDokumenJamaah(${j.id}, '${escapeHtml(j.nama_lengkap)}')">🖨️</button>
+                    <button class="btn-print-all-doc" onclick="cetakSemuaDokumenJamaah(${j.id}, '${escapeHtml(j.nama_lengkap).replace(/'/g,"\\'")}')">🖨️</button>
                 </div>
             </div>
             <div class="dokumen-grid">`;
@@ -18062,13 +18221,13 @@ function renderDokumenList() {
                         onclick="previewDokumen(${j.id},'${jenis.id}',${idx})"
                         style="width:36px;height:36px;object-fit:cover;border-radius:6px;cursor:pointer;border:2px solid #0D5C4A;">`;
                 });
-                html += `<div onclick="uploadDokumen(${j.id},'${jenis.id}','${escapeHtml(jenis.nama)}')"
+                html += `<div onclick="uploadDokumen(${j.id},'${jenis.id}','${escapeHtml(jenis.nama).replace(/'/g,"\\'")}')"
                     style="width:36px;height:36px;border-radius:6px;border:2px dashed #ccc;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:18px;color:#6B7280;">+</div>`;
                 html += `</div>
                 <div class="dokumen-status-ada">✅ ${count} foto</div>`;
             } else {
                 html += `<div class="dokumen-status-belum">⏳ Belum</div>
-                <button class="btn-upload-doc" onclick="uploadDokumen(${j.id},'${jenis.id}','${escapeHtml(jenis.nama)}')">
+                <button class="btn-upload-doc" onclick="uploadDokumen(${j.id},'${jenis.id}','${escapeHtml(jenis.nama).replace(/'/g,"\\'")}')">
                     <i class="fas fa-upload"></i> Upload
                 </button>`;
             }
@@ -18530,7 +18689,7 @@ function remindAllKurangDokumen() {
                     <div style="font-size:11px;color:#ef4444;margin-top:2px;">❌ ${kurangList.map(d=>d.nama).join(', ')}</div>
                     <div style="font-size:11px;color:#888;">${wa ? '📱 '+wa : '⚠️ No WA tidak ada'}</div>
                 </div>
-                <button onclick="kirimReminderDokumenWA(${j.id},'${escapeHtml(j.nama_lengkap)}')"
+                <button onclick="kirimReminderDokumenWA(${j.id},'${escapeHtml(j.nama_lengkap).replace(/'/g,"\\'")}')"
                     style="background:#25d366;color:white;border:none;border-radius:20px;padding:7px 12px;font-size:11px;font-weight:bold;cursor:pointer;white-space:nowrap;">
                     📲 Kirim
                 </button>
@@ -21983,7 +22142,11 @@ async function initPremium() {
     loadPengingatData();
     await loadAbsensiData();
     loadSumberHartaList();
-    
+
+    // Bersihkan otomatis data pembayaran/absensi/dll yang jamaahnya sudah terhapus tapi tertinggal
+    // (misal karena app ditutup sebelum jendela Undo hapus jamaah selesai)
+    await bersihkanDataYatimPiatuJamaah();
+
     // UPDATE STATS SETELAH SEMUA DATA LOAD!
     updateHomeStats();
     applyModeHajiReguler();
