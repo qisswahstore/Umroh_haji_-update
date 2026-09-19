@@ -2423,6 +2423,7 @@
             <div id="pengeluaranList">
                 <div style="text-align:center;color:#888;padding:20px;font-size:13px;">Belum ada pengeluaran</div>
             </div>
+            <div id="paginationContainerPengeluaran" class="pagination"></div>
         </div>
     </div><!-- end cuanTabPengeluaran -->
 
@@ -2631,8 +2632,8 @@
     <div class="card-premium">
         <div style="font-size:11px;color:#888;margin-bottom:12px;">Data ini GLOBAL — tidak terikat ke Program aktif, karena calon jamaah belum tentu masuk Program yang mana.</div>
         <button class="btn btn-primary" onclick="openTambahProspekModal()"><i class="fas fa-plus-circle"></i> Tambah Calon Jamaah</button>
-        <div class="input-group" style="margin-top:12px;"><input type="text" id="prospekSearchInput" placeholder="Cari nama..." oninput="renderProspekList()"></div>
-        <select id="prospekFilterStatus" onchange="renderProspekList()" style="width:100%;padding:10px;border-radius:10px;border:1.5px solid #e2e8f0;font-size:14px;margin-top:8px;background:var(--input-bg);color:var(--text);">
+        <div class="input-group" style="margin-top:12px;"><input type="text" id="prospekSearchInput" placeholder="Cari nama..." oninput="currentProspekPage=1; renderProspekList()"></div>
+        <select id="prospekFilterStatus" onchange="currentProspekPage=1; renderProspekList()" style="width:100%;padding:10px;border-radius:10px;border:1.5px solid #e2e8f0;font-size:14px;margin-top:8px;background:var(--input-bg);color:var(--text);">
             <option value="">Semua Status</option>
             <option value="Baru Masuk">🆕 Baru Masuk</option>
             <option value="Sudah Dihubungi">📞 Sudah Dihubungi</option>
@@ -2640,7 +2641,7 @@
             <option value="Siap Jadi Jamaah">✅ Siap Jadi Jamaah</option>
             <option value="Batal">❌ Batal</option>
         </select>
-        <div id="prospekListContainer" style="margin-top:14px;"></div>
+        <div id="prospekListContainer" style="margin-top:14px;"></div><div id="paginationContainerProspek" class="pagination"></div>
     </div>
 </div>
 
@@ -2662,14 +2663,14 @@
     <div class="header-premium header-premium-small"><div class="back-header"><i class="fas fa-arrow-left" onclick="showPage('home')"></i><h2>Database Alumni</h2><div style="width:30px;"></div></div></div>
     <div class="card-premium">
         <div style="font-size:11px;color:#888;margin-bottom:12px;">Gabungan otomatis dari Jamaah di semua Program Arsip. Bukan database baru — cocok orang yang sama pakai No. Paspor → No. HP → Nama+Tgl Lahir.</div>
-        <div class="input-group"><input type="text" id="alumniSearch" placeholder="Cari nama..." oninput="renderAlumniList()"></div>
-        <select id="alumniFilterJumlah" onchange="renderAlumniList()" style="width:100%;padding:10px;border-radius:10px;border:1.5px solid #e2e8f0;font-size:14px;margin-top:8px;background:var(--input-bg);color:var(--text);">
+        <div class="input-group"><input type="text" id="alumniSearch" placeholder="Cari nama..." oninput="currentAlumniPage=1; renderAlumniList()"></div>
+        <select id="alumniFilterJumlah" onchange="currentAlumniPage=1; renderAlumniList()" style="width:100%;padding:10px;border-radius:10px;border:1.5px solid #e2e8f0;font-size:14px;margin-top:8px;background:var(--input-bg);color:var(--text);">
             <option value="">Semua</option>
             <option value="1">1x Ikut</option>
             <option value="2">2x Ikut</option>
             <option value="3">3x+ Ikut</option>
         </select>
-        <div id="alumniListContainer" style="margin-top:14px;"></div>
+        <div id="alumniListContainer" style="margin-top:14px;"></div><div id="paginationContainerAlumni" class="pagination"></div>
     </div>
 </div>
 
@@ -2843,7 +2844,7 @@
         </button>
         <div class="section-title" style="margin-top:24px;"><span>📋 DAFTAR JAMAAH ON PROSES</span></div>
         <div class="search-box">
-            <input type="text" id="searchJamaahKitaInput" placeholder="Cari nama jamaah..." onkeyup="renderJamaahKitaList()">
+            <input type="text" id="searchJamaahKitaInput" placeholder="Cari nama jamaah..." onkeyup="currentJamaahKitaPage=1; renderJamaahKitaList()">
             <button onclick="resetJamaahKitaFilter()" style="width:auto; padding:0 16px; background:var(--gray);">Reset</button>
         </div>
         <!-- Sort Selector -->
@@ -2858,7 +2859,7 @@
             <button onclick="pilihSemuaOnProses()" style="flex:1;padding:8px;background:#0D5C4A;color:white;border:none;border-radius:8px;font-size:12px;cursor:pointer;">✅ Pilih Semua</button>
             <button onclick="hapusPilihanOnProses()" style="flex:1;padding:8px;background:#EF4444;color:white;border:none;border-radius:8px;font-size:12px;cursor:pointer;">🗑️ Hapus Dipilih</button>
         </div>
-        <div id="jamaahKitaListContainer"></div>
+        <div id="jamaahKitaListContainer"></div><div id="paginationContainerKita" class="pagination"></div>
         <div style="display:flex; gap:8px; margin-top:16px; flex-wrap:wrap; align-items:stretch;">
             <button class="btn btn-accent" onclick="cetakLabelJamaahKita()" style="flex:1;">🏷️ CETAK LABEL</button>
             <div class="export-dropdown-wrapper" style="flex:1;">
@@ -2897,7 +2898,7 @@
             <div style="flex:1;position:relative;">
                 <i class="fas fa-search" style="position:absolute;left:12px;top:50%;transform:translateY(-50%);color:#6B7280;font-size:14px;"></i>
                 <input type="text" id="catatanSearch" placeholder="Cari catatan..."
-                    oninput="renderCatatanList()"
+                    oninput="currentCatatanPage=1; renderCatatanList()"
                     style="width:100%;padding:11px 14px 11px 36px;border:1.5px solid #e2e8f0;border-radius:24px;font-size:14px;outline:none;background:#f8fafc;">
             </div>
             <div style="position:relative;">
@@ -2914,7 +2915,7 @@
             </div>
         </div>
         <input type="hidden" id="catatanFilter" value="semua">
-        <div id="catatanListContainer"></div>
+        <div id="catatanListContainer"></div><div id="paginationContainerCatatan" class="pagination"></div>
     </div>
 </div>
 
@@ -2961,7 +2962,7 @@
             </div>
         </div>
         <div class="section-title"><span><i class="fas fa-users"></i> DAFTAR TAGIHAN JAMAAH</span></div>
-        <div id="paymentJamaahListContainer"><div style="text-align:center; padding:20px;">Memuat data jamaah...</div></div>
+        <div id="paymentJamaahListContainer"><div style="text-align:center; padding:20px;">Memuat data jamaah...</div></div><div id="paginationContainerPayment" class="pagination"></div>
         <button class="payment-fab" id="paymentFabOpen"><i class="fas fa-plus"></i></button>
     </div>
 </div>
@@ -3411,7 +3412,7 @@
         <div id="dokumenAdminPanel" class="setting-card" style="display:none"><h3 style="color:var(--primary);"> Kelola Jenis Dokumen</h3><button class="btn btn-primary btn-small mt-2" onclick="openDokumenFieldModal()"> Tambah Jenis Dokumen</button><div id="dokumenFieldsList" style="margin-top:12px;"></div></div>
         <div class="card-premium" style="margin:0 0 16px 0;"><div class="search-box"><input type="text" id="searchDokumenInput" placeholder=" Cari nama jamaah..." onkeyup="filterDokumenList()"><select id="filterDokumenStatus" onchange="filterDokumenList()"><option value="semua">Semua</option><option value="lengkap"> Lengkap</option><option value="kurang"> Kurang</option></select></div></div>
         <div class="stats-row" style="margin-top:0; margin-bottom:16px;"><div class="stat-mini-card"><div class="stat-label"> Total</div><div class="stat-number" id="statTotalDokumen">0</div></div><div class="stat-mini-card"><div class="stat-label"> Lengkap</div><div class="stat-number" id="statLengkapDokumen">0</div></div><div class="stat-mini-card"><div class="stat-label"> Kurang</div><div class="stat-number" id="statKurangDokumen">0</div></div></div>
-        <div id="dokumenListContainer"></div>
+        <div id="dokumenListContainer"></div><div id="paginationContainerDokumen" class="pagination"></div>
         <div class="row" style="margin-top:16px;"><button class="btn btn-warning" onclick="remindAllKurangDokumen()" style="flex:1"><i class="fab fa-whatsapp"></i> REMINDER WA</button><button class="btn btn-primary" onclick="downloadAllDokumenZip()" style="flex:1"><i class="fas fa-download"></i>  DOWNLOAD ZIP</button></div>
     </div>
 </div>
@@ -7600,6 +7601,7 @@ function switchCuanTab(tab) {
 
 // ==================== PENGELUARAN ====================
 let pengeluaranList = [];
+let currentPengeluaranPage = 1, perPagePengeluaran = 15;
 
 let _allPengeluaranData = [];
 
@@ -7675,21 +7677,31 @@ function renderPengeluaranList() {
     if(!container) return;
     if(pengeluaranList.length === 0) {
         container.innerHTML = '<div style="text-align:center;color:#888;padding:20px;font-size:13px;">Belum ada pengeluaran</div>';
+        const paginationEl0 = document.getElementById('paginationContainerPengeluaran');
+        if (paginationEl0) paginationEl0.innerHTML = '';
         return;
     }
 
-    // Kelompokkan per kategori
-    const grouped = {};
+    // Total keseluruhan dihitung dari SEMUA data (bukan cuma yang sedang tampil di halaman ini)
     let totalAll = 0;
-    pengeluaranList.forEach(p => {
+    pengeluaranList.forEach(p => { totalAll += p.nominal; });
+
+    const perPage = perPagePengeluaran === 'all' ? pengeluaranList.length : parseInt(perPagePengeluaran);
+    const totalPages = Math.ceil(pengeluaranList.length / perPage);
+    if (currentPengeluaranPage > totalPages) currentPengeluaranPage = totalPages || 1;
+    const start = (currentPengeluaranPage - 1) * perPage;
+    const pageItems = pengeluaranList.slice(start, start + perPage);
+
+    // Kelompokkan per kategori — cuma dari data di halaman ini
+    const grouped = {};
+    pageItems.forEach(p => {
         if(!grouped[p.kategori]) grouped[p.kategori] = { items: [], total: 0 };
         grouped[p.kategori].items.push(p);
         grouped[p.kategori].total += p.nominal;
-        totalAll += p.nominal;
     });
 
     const f = n => 'Rp ' + Math.round(n).toLocaleString('id-ID');
-    let html = '';
+    let html = `<div style="margin-bottom:8px; font-size:0.8rem; color:var(--accent);">Total: ${pengeluaranList.length} transaksi (halaman ${currentPengeluaranPage} dari ${totalPages})</div>`;
 
     Object.keys(grouped).forEach(kat => {
         const g = grouped[kat];
@@ -7725,6 +7737,24 @@ function renderPengeluaranList() {
     </div>`;
 
     container.innerHTML = html;
+
+    const paginationEl = document.getElementById('paginationContainerPengeluaran');
+    if (paginationEl) {
+        let paginationHtml = '';
+        if (totalPages > 1) {
+            paginationHtml += `<button onclick="goToPengeluaranPage(1)" ${currentPengeluaranPage===1?'disabled':''}>«</button><button onclick="goToPengeluaranPage(${currentPengeluaranPage-1})" ${currentPengeluaranPage===1?'disabled':''}>‹</button>`;
+            for (let i = Math.max(1,currentPengeluaranPage-2); i <= Math.min(totalPages,currentPengeluaranPage+2); i++) {
+                paginationHtml += `<button onclick="goToPengeluaranPage(${i})" class="${i===currentPengeluaranPage?'active':''}">${i}</button>`;
+            }
+            paginationHtml += `<button onclick="goToPengeluaranPage(${currentPengeluaranPage+1})" ${currentPengeluaranPage===totalPages?'disabled':''}>›</button><button onclick="goToPengeluaranPage(${totalPages})" ${currentPengeluaranPage===totalPages?'disabled':''}>»</button>`;
+        }
+        paginationEl.innerHTML = paginationHtml;
+    }
+}
+
+function goToPengeluaranPage(page) {
+    currentPengeluaranPage = page;
+    renderPengeluaranList();
 }
 
 function updateRingkasanKeuangan() {
@@ -8568,10 +8598,19 @@ async function loadDynamicFieldsJamaah() {
             else dynamicFieldsJamaah.push(...fieldsStatusProses);
             await idbSet(STORE_JAMAAH, 'jamaah_fields', dynamicFieldsJamaah);
         }
+        // Migrasi: tambahkan field Kota Porsi untuk pengguna lama, ditaruh dekat No Porsi
+        if (dynamicFieldsJamaah.length > 0 && !dynamicFieldsJamaah.some(f => f.name === 'kota_porsi')) {
+            const idxNoPorsi = dynamicFieldsJamaah.findIndex(f => f.name === 'no_porsi');
+            const fieldKotaPorsi = { name: 'kota_porsi', label: 'Kota Porsi', type: 'text', icon: '🏙️', isRequired: false };
+            if (idxNoPorsi !== -1) dynamicFieldsJamaah.splice(idxNoPorsi + 1, 0, fieldKotaPorsi);
+            else dynamicFieldsJamaah.push(fieldKotaPorsi);
+            await idbSet(STORE_JAMAAH, 'jamaah_fields', dynamicFieldsJamaah);
+        }
     } else {
         dynamicFieldsJamaah = [
             { name: 'nama_paspor',   label: 'Nama Paspor',   type: 'text',     icon: '👤', isRequired: false },
             { name: 'no_porsi',      label: 'No Porsi',       type: 'text',     icon: '🔢', isRequired: false },
+            { name: 'kota_porsi',    label: 'Kota Porsi',     type: 'text',     icon: '🏙️', isRequired: false },
             { name: 'jenis_kelamin', label: 'Jenis Kelamin',  type: 'text',     icon: '👤', isRequired: false },
             { name: 'tempat_lahir',  label: 'Tempat Lahir',   type: 'text',     icon: '📍', isRequired: false },
             { name: 'tgl_lahir',     label: 'Tanggal Lahir',  type: 'date',     icon: '🗓️', isRequired: false },
@@ -11479,6 +11518,42 @@ async function bersihkanFieldDinamisLabelDobel() {
     catatAktivitas('🧹', `${namaFieldDihapus.length} field jamaah yang labelnya dobel ("${namaFieldDihapus.map(x=>x.duplikat).join(', ')}") dibersihkan otomatis`);
 }
 
+// Versi yang sama untuk Jamaah on Proses — dipanggil setelah loadJamaahKitaData() selesai
+async function bersihkanFieldDinamisKitaLabelDobel() {
+    if (!dynamicFieldsJamaahKita || dynamicFieldsJamaahKita.length === 0) return;
+    const sudahDilihat = new Map();
+    const namaFieldDihapus = [];
+
+    dynamicFieldsJamaahKita.forEach(f => {
+        const labelKey = f.label.trim().toLowerCase();
+        if (!sudahDilihat.has(labelKey)) {
+            sudahDilihat.set(labelKey, f);
+        } else {
+            namaFieldDihapus.push({ duplikat: f.name, asli: sudahDilihat.get(labelKey).name });
+        }
+    });
+
+    if (namaFieldDihapus.length === 0) return;
+
+    namaFieldDihapus.forEach(({ duplikat, asli }) => {
+        _allJamaahKitaData.forEach(k => {
+            const nilaiDuplikat = k.additional_fields?.[duplikat];
+            if (nilaiDuplikat && !k.additional_fields?.[asli]) {
+                if (!k.additional_fields) k.additional_fields = {};
+                k.additional_fields[asli] = nilaiDuplikat;
+            }
+            if (k.additional_fields && duplikat in k.additional_fields) delete k.additional_fields[duplikat];
+        });
+    });
+
+    const namaDihapusSet = new Set(namaFieldDihapus.map(x => x.duplikat));
+    dynamicFieldsJamaahKita = dynamicFieldsJamaahKita.filter(f => !namaDihapusSet.has(f.name));
+    await idbSet(STORE_JAMAAH_KITA, 'kita_fields', dynamicFieldsJamaahKita);
+    await idbSet(STORE_JAMAAH_KITA, 'kita_list', _allJamaahKitaData);
+    jamaahKitaList = _allJamaahKitaData.filter(k => k.program_id === currentProgramId);
+    catatAktivitas('🧹', `${namaFieldDihapus.length} field Jamaah on Proses yang labelnya dobel ("${namaFieldDihapus.map(x=>x.duplikat).join(', ')}") dibersihkan otomatis`);
+}
+
 function tampilkanUndoBar(pesan, onUndo) {
     clearTimeout(_undoTimeoutId);
     let bar = document.getElementById('undoBar');
@@ -13055,6 +13130,7 @@ function simpanItinerary() {
 
 // ==================== PROSPEK / CRM CALON JAMAAH (GLOBAL, tidak per-Program) ====================
 let _allProspekData = [];
+let currentProspekPage = 1, perPageProspek = 10;
 
 async function loadProspekData() {
     const saved = await idbGet(STORE_PROSPEK, 'prospek_list');
@@ -13156,7 +13232,18 @@ function renderProspekList() {
         return true;
     });
     const ikonStatus = { 'Baru Masuk':'🆕', 'Sudah Dihubungi':'📞', 'Tertarik-Nego':'🤝', 'Siap Jadi Jamaah':'✅', 'Batal':'❌' };
-    container.innerHTML = list.map(p => `
+    const paginationEl = document.getElementById('paginationContainerProspek');
+    if (list.length === 0) {
+        container.innerHTML = '<p style="color:#6B7280;text-align:center;padding:20px;font-size:13px;">Belum ada Calon Jamaah</p>';
+        if (paginationEl) paginationEl.innerHTML = '';
+        return;
+    }
+    const perPage = perPageProspek === 'all' ? list.length : parseInt(perPageProspek);
+    const totalPages = Math.ceil(list.length / perPage);
+    const start = (currentProspekPage - 1) * perPage;
+    const pageData = list.slice(start, start + perPage);
+    const ringkasan = `<div style="margin-bottom:10px; font-size:0.8rem; color:var(--accent);">Total: ${list.length} calon jamaah (halaman ${currentProspekPage} dari ${totalPages})</div>`;
+    container.innerHTML = ringkasan + pageData.map(p => `
         <div style="background:#F8FAFC;border-radius:12px;padding:12px;margin-bottom:10px;">
             <div style="display:flex;justify-content:space-between;align-items:start;">
                 <div>
@@ -13171,7 +13258,24 @@ function renderProspekList() {
                 </div>
             </div>
             ${p.status === 'Siap Jadi Jamaah' ? `<button onclick="jadikanJamaah(${p.id})" style="width:100%;padding:8px;background:#166534;color:white;border:none;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;margin-top:8px;">→ Jadikan Jamaah</button>` : ''}
-        </div>`).join('') || '<p style="color:#6B7280;text-align:center;padding:20px;font-size:13px;">Belum ada Calon Jamaah</p>';
+        </div>`).join('');
+
+    if (paginationEl) {
+        let paginationHtml = '';
+        if (totalPages > 1) {
+            paginationHtml += `<button onclick="goToProspekPage(1)" ${currentProspekPage===1?'disabled':''}>«</button><button onclick="goToProspekPage(${currentProspekPage-1})" ${currentProspekPage===1?'disabled':''}>‹</button>`;
+            for (let i = Math.max(1,currentProspekPage-2); i <= Math.min(totalPages,currentProspekPage+2); i++) {
+                paginationHtml += `<button onclick="goToProspekPage(${i})" class="${i===currentProspekPage?'active':''}">${i}</button>`;
+            }
+            paginationHtml += `<button onclick="goToProspekPage(${currentProspekPage+1})" ${currentProspekPage===totalPages?'disabled':''}>›</button><button onclick="goToProspekPage(${totalPages})" ${currentProspekPage===totalPages?'disabled':''}>»</button>`;
+        }
+        paginationEl.innerHTML = paginationHtml;
+    }
+}
+
+function goToProspekPage(page) {
+    currentProspekPage = page;
+    renderProspekList();
 }
 
 function bangunKerangkaItinerary() {
@@ -13920,11 +14024,12 @@ function importJamaahFromExcel(input){
 }
 
 // ==================== JAMAAH KITA ====================
-let jamaahKitaList = [], dynamicFieldsJamaahKita = [], selectedJamaahKitaIds = [], editingJamaahKitaId = null;
+let jamaahKitaList = [], dynamicFieldsJamaahKita = [], selectedJamaahKitaIds = [], editingJamaahKitaId = null, currentJamaahKitaPage = 1, perPageJamaahKita = 10;
 
 const defaultJamaahKitaFields = [
     { name: 'nama_paspor',   label: 'Nama Paspor',   type: 'text',     icon: '👤', isRequired: false },
     { name: 'no_porsi',      label: 'No Porsi',       type: 'text',     icon: '🔢', isRequired: false },
+    { name: 'kota_porsi',    label: 'Kota Porsi',     type: 'text',     icon: '🏙️', isRequired: false },
     { name: 'jenis_kelamin', label: 'Jenis Kelamin',  type: 'text',     icon: '👤', isRequired: false },
     { name: 'tempat_lahir',  label: 'Tempat Lahir',   type: 'text',     icon: '📍', isRequired: false },
     { name: 'tgl_lahir',     label: 'Tanggal Lahir',  type: 'date',     icon: '🗓️', isRequired: false },
@@ -13968,6 +14073,15 @@ async function loadJamaahKitaData() {
         await idbSet(STORE_JAMAAH_KITA, 'kita_fields', dynamicFieldsJamaahKita);
     }
 
+    // Migrasi: tambahkan field Kota Porsi untuk pengguna lama, ditaruh dekat No Porsi
+    if (!dynamicFieldsJamaahKita.some(f => f.name === 'kota_porsi')) {
+        const idxNoPorsiKita = dynamicFieldsJamaahKita.findIndex(f => f.name === 'no_porsi');
+        const fieldKotaPorsiKita = { name: 'kota_porsi', label: 'Kota Porsi', type: 'text', icon: '🏙️', isRequired: false };
+        if (idxNoPorsiKita !== -1) dynamicFieldsJamaahKita.splice(idxNoPorsiKita + 1, 0, fieldKotaPorsiKita);
+        else dynamicFieldsJamaahKita.push(fieldKotaPorsiKita);
+        await idbSet(STORE_JAMAAH_KITA, 'kita_fields', dynamicFieldsJamaahKita);
+    }
+
     // Migrasi PERBAIKAN: field lama 'status_proses_haji' (sempat dobel di Database Jamaah, sekarang sudah
     // dikonsolidasi ke 'status_proses') — dibersihkan juga di sini, DIGANTI dengan 'status_proses' langsung
     // (bukan menunggu ditemukan lewat notifikasi "Field Baru"), supaya tidak sempat hilang atau dobel.
@@ -13986,9 +14100,13 @@ async function loadJamaahKitaData() {
             if (k.additional_fields) { delete k.additional_fields.status_proses_haji; delete k.additional_fields.catatan_proses_haji; }
         });
         dynamicFieldsJamaahKita = dynamicFieldsJamaahKita.filter(f => f.name !== 'status_proses_haji' && f.name !== 'catatan_proses_haji');
-        const fieldFinalDariDb = dynamicFieldsJamaah.find(f => f.name === 'status_proses');
-        dynamicFieldsJamaahKita.push(fieldFinalDariDb || { name: 'status_proses', label: 'Status Proses', type: 'dropdown', options: ['Normal', '🔄 Mutasi', '🤝 Penggabungan', '🧑‍🤝‍🧑 Pendampingan'], icon: '📌', isRequired: false });
-        dynamicFieldsJamaahKita.push({ name: 'catatan_status_proses', label: 'Catatan Status Proses', type: 'textarea', icon: '🗒️', isRequired: false });
+        if (!dynamicFieldsJamaahKita.some(f => f.name === 'status_proses')) {
+            const fieldFinalDariDb = dynamicFieldsJamaah.find(f => f.name === 'status_proses');
+            dynamicFieldsJamaahKita.push(fieldFinalDariDb || { name: 'status_proses', label: 'Status Proses', type: 'dropdown', options: ['Normal', '🔄 Mutasi', '🤝 Penggabungan', '🧑‍🤝‍🧑 Pendampingan'], icon: '📌', isRequired: false });
+        }
+        if (!dynamicFieldsJamaahKita.some(f => f.name === 'catatan_status_proses')) {
+            dynamicFieldsJamaahKita.push({ name: 'catatan_status_proses', label: 'Catatan Status Proses', type: 'textarea', icon: '🗒️', isRequired: false });
+        }
         await idbSet(STORE_JAMAAH_KITA, 'kita_fields', dynamicFieldsJamaahKita);
         await idbSet(STORE_JAMAAH_KITA, 'kita_list', _allJamaahKitaData);
         jamaahKitaList = _allJamaahKitaData.filter(k => k.program_id === currentProgramId);
@@ -14151,10 +14269,21 @@ function renderJamaahKitaList() {
     const keyword = document.getElementById('searchJamaahKitaInput')?.value.toLowerCase() || "";
     let filtered = [...jamaahKitaList];
     if (keyword) filtered = filtered.filter(j => j.nama_lengkap.toLowerCase().includes(keyword));
-    if (filtered.length === 0) { container.innerHTML = '<div style="text-align:center;padding:40px;color:#94a3b8;">Belum ada data</div>'; return; }
+    if (filtered.length === 0) {
+        container.innerHTML = '<div style="text-align:center;padding:40px;color:#94a3b8;">Belum ada data</div>';
+        const paginationEl = document.getElementById('paginationContainerKita');
+        if (paginationEl) paginationEl.innerHTML = '';
+        return;
+    }
     const sorted = getSortedKitaList(filtered);
-    let html = "";
-    sorted.forEach(jk => {
+
+    const perPage = perPageJamaahKita === 'all' ? sorted.length : parseInt(perPageJamaahKita);
+    const totalPages = Math.ceil(sorted.length / perPage);
+    const start = (currentJamaahKitaPage - 1) * perPage;
+    const pageData = sorted.slice(start, start + perPage);
+
+    let html = `<div style="margin-bottom:10px; font-size:0.8rem; color:var(--accent);">Total: ${sorted.length} jamaah (halaman ${currentJamaahKitaPage} dari ${totalPages})</div>`;
+    pageData.forEach(jk => {
         const isChecked = selectedJamaahKitaIds.includes(jk.id);
         html += `<div class="jamaah-kita-item">
             <input type="checkbox" class="jamaah-kita-checkbox" value="${jk.id}" ${isChecked ? "checked" : ""} onchange="toggleJamaahKitaSelect(${jk.id}, this.checked)">
@@ -14169,7 +14298,25 @@ function renderJamaahKitaList() {
         </div>`;
     });
     container.innerHTML = html;
+
+    const paginationEl = document.getElementById('paginationContainerKita');
+    if (paginationEl) {
+        let paginationHtml = '';
+        if (totalPages > 1) {
+            paginationHtml += `<button onclick="goToJamaahKitaPage(1)" ${currentJamaahKitaPage===1?'disabled':''}>«</button><button onclick="goToJamaahKitaPage(${currentJamaahKitaPage-1})" ${currentJamaahKitaPage===1?'disabled':''}>‹</button>`;
+            for (let i = Math.max(1,currentJamaahKitaPage-2); i <= Math.min(totalPages,currentJamaahKitaPage+2); i++) {
+                paginationHtml += `<button onclick="goToJamaahKitaPage(${i})" class="${i===currentJamaahKitaPage?'active':''}">${i}</button>`;
+            }
+            paginationHtml += `<button onclick="goToJamaahKitaPage(${currentJamaahKitaPage+1})" ${currentJamaahKitaPage===totalPages?'disabled':''}>›</button><button onclick="goToJamaahKitaPage(${totalPages})" ${currentJamaahKitaPage===totalPages?'disabled':''}>»</button>`;
+        }
+        paginationEl.innerHTML = paginationHtml;
+    }
     updateJamaahKitaBatchBar();
+}
+
+function goToJamaahKitaPage(page) {
+    currentJamaahKitaPage = page;
+    renderJamaahKitaList();
 }
 
 function hitungUmurDariTanggal(tglLahir) {
@@ -15428,7 +15575,7 @@ function salinFallback(text) {
 }
 
 // ==================== PEMBAYARAN ====================
-let paymentTransaksiList = [], currentInvoiceJamaahId = null, currentInvoiceText = '', currentEditJamaahId = null, currentRiwayatJamaahId = null, currentPaymentFilter = 'semua', currentPaymentSearch = '';
+let paymentTransaksiList = [], currentInvoiceJamaahId = null, currentInvoiceText = '', currentEditJamaahId = null, currentRiwayatJamaahId = null, currentPaymentFilter = 'semua', currentPaymentSearch = '', currentPaymentPage = 1, perPagePayment = 10;
 
 let _allPaymentData = [];
 
@@ -15606,8 +15753,18 @@ function renderPaymentJamaahList() {
     const hajiReg = isHajiReguler();
     const ikonStatusKomponen = { 'Lunas':'✅', 'Sebagian':'🟡', 'Belum':'⚪' };
     const warnaStatusKomponen = { 'Lunas':'#166534', 'Sebagian':'#F59E0B', 'Belum':'#888' };
-    let html = ''; 
-    filteredJamaah.forEach(j => { 
+    if (filteredJamaah.length === 0) {
+        container.innerHTML = '<div style="text-align:center; padding:20px; color:#94a3b8;">Tidak ada jamaah yang sesuai dengan filter.</div>';
+        const paginationEl = document.getElementById('paginationContainerPayment');
+        if (paginationEl) paginationEl.innerHTML = '';
+        return;
+    }
+    const perPage = perPagePayment === 'all' ? filteredJamaah.length : parseInt(perPagePayment);
+    const totalPages = Math.ceil(filteredJamaah.length / perPage);
+    const start = (currentPaymentPage - 1) * perPage;
+    const pageData = filteredJamaah.slice(start, start + perPage);
+    let html = `<div style="margin-bottom:10px; font-size:0.8rem; color:var(--accent);">Total: ${filteredJamaah.length} jamaah (halaman ${currentPaymentPage} dari ${totalPages})</div>`; 
+    pageData.forEach(j => { 
         const { status, warna, sisa, totalBayar, totalHargaPaket, needInput } = getStatusPembayaran(j); 
         if (needInput) 
             html += `<div class="payment-jamaah-card" style="border-left-color: #f39c12;"><div class="payment-jamaah-info"><h4>${escapeHtml(j.nama_lengkap)}</h4><div class="payment-price-detail" style="color: #f39c12;">⚠️ Total Harga Paket belum diisi!</div></div><div><button class="payment-btn-bayar" onclick="openEditHargaModal('${j.id}')" style="background:#f39c12; color:white;"><i class="fas fa-tag"></i> Atur Harga</button></div></div>`; 
@@ -15622,8 +15779,25 @@ function renderPaymentJamaahList() {
             html += `<div class="payment-jamaah-card" style="border-left-color: ${warna};"><div class="payment-jamaah-info"><h4>${escapeHtml(j.nama_lengkap)}</h4><div class="payment-price-detail">💰 Total Paket: ${formatRupiah(totalHargaPaket)}<br>💸 Dibayar: ${formatRupiah(totalBayar)}</div>${rincianKomponen}</div><div style="text-align: right;"><div class="payment-sisa-badge" style="color: ${warna}; margin-bottom: 8px;">${status === 'LUNAS' ? '✅ LUNAS' : '💵 Sisa ' + formatRupiah(sisa)}</div><div><button class="payment-btn-bayar" onclick="openPaymentModalWithJamaah('${j.id}')"><i class="fas fa-plus-circle"></i> Bayar</button><button class="payment-btn-bayar" onclick="prepareInvoice('${j.id}')"><i class="fas fa-file-invoice"></i> WA</button><button class="payment-btn-bayar" onclick="shareInvoiceGambar('${j.id}')"><i class="fas fa-share-alt"></i> Share</button><button class="payment-btn-bayar" onclick="cetakInvoiceAuto('${j.id}')"><i class="fas fa-print"></i> Cetak</button><button class="payment-btn-bayar" onclick="openEditHargaModal('${j.id}')"><i class="fas fa-edit"></i> Harga</button><button class="payment-btn-bayar" onclick="openJadwalCicilanModal('${j.id}')"><i class="fas fa-calendar-alt"></i> Cicilan</button><button class="payment-btn-bayar" onclick="openRiwayatModal('${j.id}')"><i class="fas fa-history"></i> Riwayat</button></div></div></div>`; 
         }
     }); 
-    if (filteredJamaah.length === 0) html = '<div style="text-align:center; padding:20px; color:#94a3b8;">Tidak ada jamaah yang sesuai dengan filter.</div>'; 
     container.innerHTML = html; 
+
+    const paginationEl = document.getElementById('paginationContainerPayment');
+    if (paginationEl) {
+        let paginationHtml = '';
+        if (totalPages > 1) {
+            paginationHtml += `<button onclick="goToPaymentPage(1)" ${currentPaymentPage===1?'disabled':''}>«</button><button onclick="goToPaymentPage(${currentPaymentPage-1})" ${currentPaymentPage===1?'disabled':''}>‹</button>`;
+            for (let i = Math.max(1,currentPaymentPage-2); i <= Math.min(totalPages,currentPaymentPage+2); i++) {
+                paginationHtml += `<button onclick="goToPaymentPage(${i})" class="${i===currentPaymentPage?'active':''}">${i}</button>`;
+            }
+            paginationHtml += `<button onclick="goToPaymentPage(${currentPaymentPage+1})" ${currentPaymentPage===totalPages?'disabled':''}>›</button><button onclick="goToPaymentPage(${totalPages})" ${currentPaymentPage===totalPages?'disabled':''}>»</button>`;
+        }
+        paginationEl.innerHTML = paginationHtml;
+    }
+}
+
+function goToPaymentPage(page) {
+    currentPaymentPage = page;
+    renderPaymentJamaahList();
 }
 
 function populatePaymentJamaahDropdown() { 
@@ -16323,6 +16497,7 @@ function deletePaymentTransaction(trxId) {
 function filterPaymentJamaahList() { 
     currentPaymentFilter = document.getElementById('paymentStatusFilter').value; 
     currentPaymentSearch = document.getElementById('paymentSearchNama').value.toLowerCase(); 
+    currentPaymentPage = 1;
     renderPaymentJamaahList(); 
 }
 
@@ -16805,6 +16980,7 @@ function cocokJamaahSamaOrang(a, b) {
     return false;
 }
 
+let currentAlumniPage = 1, perPageAlumni = 10;
 function bangunDataAlumni() {
     const programArsipIds = new Set(programList.filter(p => p.isArsip).map(p => p.id));
     const jamaahArsip = _allJamaahData.filter(j => programArsipIds.has(j.program_id));
@@ -17004,13 +17180,43 @@ function renderAlumniList() {
     else if(filterJumlah) list = list.filter(a => a.jumlahIkut === parseInt(filterJumlah));
     list.sort((a,b) => b.jumlahIkut - a.jumlahIkut);
 
-    container.innerHTML = list.map(a => `
+    const paginationEl = document.getElementById('paginationContainerAlumni');
+    if (list.length === 0) {
+        container.innerHTML = '<p style="color:#6B7280;text-align:center;padding:20px;font-size:13px;">Belum ada Alumni — arsipkan Program dulu supaya jamaahnya muncul di sini</p>';
+        if (paginationEl) paginationEl.innerHTML = '';
+        return;
+    }
+    const perPage = perPageAlumni === 'all' ? list.length : parseInt(perPageAlumni);
+    const totalPages = Math.ceil(list.length / perPage);
+    if (currentAlumniPage > totalPages) currentAlumniPage = totalPages;
+    const start = (currentAlumniPage - 1) * perPage;
+    const pageData = list.slice(start, start + perPage);
+    const ringkasan = `<div style="margin-bottom:10px; font-size:0.8rem; color:var(--accent);">Total: ${list.length} alumni (halaman ${currentAlumniPage} dari ${totalPages})</div>`;
+
+    container.innerHTML = ringkasan + pageData.map(a => `
         <div style="background:#F8FAFC;border-radius:12px;padding:12px;margin-bottom:10px;">
             <div style="font-weight:700;font-size:14px;">🎓 ${escapeHtml(a.nama)}</div>
             <div style="font-size:12px;color:#666;">${escapeHtml(a.hp||'-')}</div>
             <div style="font-size:11px;color:#0369A1;margin-top:4px;">Riwayat: ${a.riwayatProgram.map(escapeHtml).join(', ')} (${a.jumlahIkut}x)</div>
             ${a.hp ? `<button onclick="window.open('https://wa.me/${a.hp.replace(/\\D/g,'').replace(/^0/,'62')}','_blank')" style="width:100%;padding:8px;background:#25D366;color:white;border:none;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;margin-top:8px;">📲 WA</button>` : ''}
-        </div>`).join('') || '<p style="color:#6B7280;text-align:center;padding:20px;font-size:13px;">Belum ada Alumni — arsipkan Program dulu supaya jamaahnya muncul di sini</p>';
+        </div>`).join('');
+
+    if (paginationEl) {
+        let paginationHtml = '';
+        if (totalPages > 1) {
+            paginationHtml += `<button onclick="goToAlumniPage(1)" ${currentAlumniPage===1?'disabled':''}>«</button><button onclick="goToAlumniPage(${currentAlumniPage-1})" ${currentAlumniPage===1?'disabled':''}>‹</button>`;
+            for (let i = Math.max(1,currentAlumniPage-2); i <= Math.min(totalPages,currentAlumniPage+2); i++) {
+                paginationHtml += `<button onclick="goToAlumniPage(${i})" class="${i===currentAlumniPage?'active':''}">${i}</button>`;
+            }
+            paginationHtml += `<button onclick="goToAlumniPage(${currentAlumniPage+1})" ${currentAlumniPage===totalPages?'disabled':''}>›</button><button onclick="goToAlumniPage(${totalPages})" ${currentAlumniPage===totalPages?'disabled':''}>»</button>`;
+        }
+        paginationEl.innerHTML = paginationHtml;
+    }
+}
+
+function goToAlumniPage(page) {
+    currentAlumniPage = page;
+    renderAlumniList();
 }
 
 function renderArsipProgramList() {
@@ -17222,6 +17428,7 @@ async function saveNewProgram() {
 
 // ==================== CATATAN ====================
 let catatanList = [], editingCatatanIndex = null, currentDetailIndex = null;
+let currentCatatanPage = 1, perPageCatatan = 15;
 
 const CATATAN_WARNA = {
     default: { bg:'#f0fdf4', border:'#0D5C4A', dot:'#0D5C4A' },
@@ -17238,6 +17445,7 @@ function toggleCatatanFilterMenu() {
 
 function setCatatanFilter(val) {
     document.getElementById('catatanFilter').value = val;
+    currentCatatanPage = 1;
     // Update tampilan opsi
     ['semua','pin'].forEach(opt => {
         const el = document.getElementById('filterOpt_' + opt);
@@ -17306,6 +17514,8 @@ function renderCatatanList() {
             <div>${keyword ? 'Tidak ada catatan yang cocok dengan "' + keyword + '"' : 'Belum ada catatan'}</div>
             ${!keyword ? '<div style="font-size:13px;margin-top:8px;">Ketuk tombol ＋ untuk mulai menulis</div>' : ''}
         </div>`;
+        const paginationEl0 = document.getElementById('paginationContainerCatatan');
+        if (paginationEl0) paginationEl0.innerHTML = '';
         return;
     }
 
@@ -17329,8 +17539,14 @@ function renderCatatanList() {
         default:'#0D5C4A', merah:'#EF4444', kuning:'#F59E0B', biru:'#3B82F6', ungu:'#8B5CF6'
     };
 
-    let html = '';
-    list.forEach((item) => {
+    const perPage = perPageCatatan === 'all' ? list.length : parseInt(perPageCatatan);
+    const totalPages = Math.ceil(list.length / perPage);
+    if (currentCatatanPage > totalPages) currentCatatanPage = totalPages;
+    if (currentCatatanPage < 1) currentCatatanPage = 1;
+    let html = `<div style="margin-bottom:8px; font-size:0.8rem; color:var(--accent);">Total: ${list.length} catatan (halaman ${currentCatatanPage} dari ${totalPages})</div>`;
+    const start = (currentCatatanPage - 1) * perPage;
+    const pageList = list.slice(start, start + perPage);
+    pageList.forEach((item) => {
         const idx = item._idx;
         const bg = warnaBg[item.warna || 'default'] || warnaBg.default;
         const border = warnaBorder[item.warna || 'default'] || '#0D5C4A';
@@ -17355,6 +17571,24 @@ function renderCatatanList() {
         </div>`;
     });
     container.innerHTML = html;
+
+    const paginationEl = document.getElementById('paginationContainerCatatan');
+    if (paginationEl) {
+        let paginationHtml = '';
+        if (totalPages > 1) {
+            paginationHtml += `<button onclick="goToCatatanPage(1)" ${currentCatatanPage===1?'disabled':''}>«</button><button onclick="goToCatatanPage(${currentCatatanPage-1})" ${currentCatatanPage===1?'disabled':''}>‹</button>`;
+            for (let i = Math.max(1,currentCatatanPage-2); i <= Math.min(totalPages,currentCatatanPage+2); i++) {
+                paginationHtml += `<button onclick="goToCatatanPage(${i})" class="${i===currentCatatanPage?'active':''}">${i}</button>`;
+            }
+            paginationHtml += `<button onclick="goToCatatanPage(${currentCatatanPage+1})" ${currentCatatanPage===totalPages?'disabled':''}>›</button><button onclick="goToCatatanPage(${totalPages})" ${currentCatatanPage===totalPages?'disabled':''}>»</button>`;
+        }
+        paginationEl.innerHTML = paginationHtml;
+    }
+}
+
+function goToCatatanPage(page) {
+    currentCatatanPage = page;
+    renderCatatanList();
 }
 
 function openTambahCatatan() {
@@ -18105,7 +18339,7 @@ function exportFolderToExcel(folderId) {
 }
 
 // ==================== UPLOAD DOKUMEN ====================
-let dokumenJenisList = [], dokumenData = {}, db = null;
+let dokumenJenisList = [], dokumenData = {}, db = null, currentDokumenPage = 1, perPageDokumen = 5;
 // ==================== INDEXEDDB TERPUSAT ====================
 const DB_NAME = 'NavaraDB', DB_VERSION = 7, 
     STORE_NAME = 'dokumen', 
@@ -18326,11 +18560,18 @@ function renderDokumenList() {
     
     if(filtered.length === 0) { 
         container.innerHTML = '<div class="card-premium" style="margin:0;"><p class="text-center">Tidak ada jamaah</p></div>'; 
+        const paginationEl = document.getElementById('paginationContainerDokumen');
+        if (paginationEl) paginationEl.innerHTML = '';
         return; 
     } 
     
-    let html = ''; 
-    filtered.forEach(j => { 
+    const perPage = perPageDokumen === 'all' ? filtered.length : parseInt(perPageDokumen);
+    const totalPages = Math.ceil(filtered.length / perPage);
+    const start = (currentDokumenPage - 1) * perPage;
+    const pageData = filtered.slice(start, start + perPage);
+
+    let html = `<div style="margin-bottom:10px; font-size:0.8rem; color:var(--accent);">Total: ${filtered.length} jamaah (halaman ${currentDokumenPage} dari ${totalPages})</div>`; 
+    pageData.forEach(j => { 
         const status = getStatusKelengkapanDokumen(j.id); 
         const statusText = status.lengkap ? '✅ LENGKAP' : `⚠️ ${status.ada}/${status.total} dokumen`; 
         const statusClass = status.lengkap ? 'status-lengkap' : 'status-kurang'; 
@@ -18376,6 +18617,24 @@ function renderDokumenList() {
         html += `</div></div>`; 
     }); 
     container.innerHTML = html;
+
+    const paginationEl = document.getElementById('paginationContainerDokumen');
+    if (paginationEl) {
+        let paginationHtml = '';
+        if (totalPages > 1) {
+            paginationHtml += `<button onclick="goToDokumenPage(1)" ${currentDokumenPage===1?'disabled':''}>«</button><button onclick="goToDokumenPage(${currentDokumenPage-1})" ${currentDokumenPage===1?'disabled':''}>‹</button>`;
+            for (let i = Math.max(1,currentDokumenPage-2); i <= Math.min(totalPages,currentDokumenPage+2); i++) {
+                paginationHtml += `<button onclick="goToDokumenPage(${i})" class="${i===currentDokumenPage?'active':''}">${i}</button>`;
+            }
+            paginationHtml += `<button onclick="goToDokumenPage(${currentDokumenPage+1})" ${currentDokumenPage===totalPages?'disabled':''}>›</button><button onclick="goToDokumenPage(${totalPages})" ${currentDokumenPage===totalPages?'disabled':''}>»</button>`;
+        }
+        paginationEl.innerHTML = paginationHtml;
+    }
+}
+
+function goToDokumenPage(page) {
+    currentDokumenPage = page;
+    renderDokumenList();
 }
 
 function updateDokumenStats() { 
@@ -18386,7 +18645,7 @@ function updateDokumenStats() {
     document.getElementById('statKurangDokumen').innerText = total - lengkap; 
 }
 
-function filterDokumenList() { renderDokumenList(); }
+function filterDokumenList() { currentDokumenPage = 1; renderDokumenList(); }
 
 function getStatusKelengkapanDokumen(jamaahId) { 
     const docs = dokumenData[jamaahId] || {}; 
@@ -22358,6 +22617,7 @@ async function initPremium() {
 
     // Bersihkan field dinamis jamaah yang labelnya kebetulan dobel (misal "Status Proses" ditambah 2x manual)
     await bersihkanFieldDinamisLabelDobel();
+    await bersihkanFieldDinamisKitaLabelDobel();
 
     // Bersihkan otomatis data pembayaran/absensi/dll yang jamaahnya sudah terhapus tapi tertinggal
     // (misal karena app ditutup sebelum jendela Undo hapus jamaah selesai)
