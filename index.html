@@ -19633,17 +19633,54 @@ async function downloadFullZip() {
 // cari file manual dulu di folder Download. Isinya PERSIS SAMA dengan Download ZIP (fungsi bersama di atas).
 async function bagikanZip() {
     showToast('Mempersiapkan data...');
+    tampilkanProgresRestore('Membangun ZIP...');
     try {
         const content = await buildFullBackupZip();
         const date = new Date().toISOString().slice(0,10);
         const namaFile = `Navara_Full_Backup_${date}.zip`;
         const file = new File([content], namaFile, { type: 'application/zip' });
-        if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
-            await navigator.share({ files: [file], title: 'Backup Navara' });
-        } else {
+        tutupProgresRestore();
+
+        if (!(navigator.share && navigator.canShare && navigator.canShare({ files: [file] }))) {
             saveAs(content, namaFile);
             showToast('📥 Menu Bagikan tidak tersedia di perangkat ini — ZIP didownload biasa.');
+            return;
         }
+
+        // ZIP sudah jadi — TIDAK langsung panggil share() di sini, karena "izin" dari sentuhan tombol
+        // tadi mungkin sudah hangus (proses bangun ZIP di atas makan waktu). Tampilkan 1 tombol baru
+        // supaya navigator.share() dipanggil PERSIS sesaat setelah Bapak menyentuhnya — bukan setelah menunggu.
+        tampilkanTombolBagikanSiap(file);
+    } catch(e) {
+        tutupProgresRestore();
+        if (e.name !== 'AbortError') showToast('❌ Gagal membagikan ZIP: ' + e.message);
+    }
+}
+
+function tampilkanTombolBagikanSiap(file) {
+    let modal = document.getElementById('bagikanSiapModal');
+    if (!modal) {
+        modal = document.createElement('div');
+        modal.id = 'bagikanSiapModal';
+        modal.className = 'modal';
+        document.body.appendChild(modal);
+    }
+    window.__fileZipSiapDibagikan = file;
+    modal.innerHTML = `<div class="modal-content" style="text-align:center;">
+        <div style="font-size:32px;margin-bottom:8px;">✅</div>
+        <h3 style="color:#0D5C4A;">ZIP Siap Dibagikan</h3>
+        <p style="font-size:12px;color:#666;margin-bottom:16px;">File sudah selesai dibuat (${(file.size/1024/1024).toFixed(1)} MB). Tap tombol di bawah untuk memilih ke mana dibagikan.</p>
+        <button onclick="lanjutkanBagikanZip()" style="width:100%;padding:14px;background:#8B5CF6;color:white;border:none;border-radius:10px;font-size:15px;font-weight:700;cursor:pointer;margin-bottom:8px;">📤 Bagikan Sekarang</button>
+        <button onclick="document.getElementById('bagikanSiapModal').style.display='none'" class="btn btn-secondary">Batal</button>
+    </div>`;
+    modal.style.display = 'flex';
+}
+
+async function lanjutkanBagikanZip() {
+    const file = window.__fileZipSiapDibagikan;
+    document.getElementById('bagikanSiapModal').style.display = 'none';
+    try {
+        await navigator.share({ files: [file], title: 'Backup Navara' });
     } catch(e) {
         if (e.name !== 'AbortError') showToast('❌ Gagal membagikan ZIP: ' + e.message);
     }
@@ -19836,6 +19873,8 @@ function restoreFromJson(input) {
 }
 
 // Indikator progres selama Restore ZIP — supaya Bapak tahu prosesnya masih jalan, bukan macet diam-diam
+let _waktuMulaiProgresRestore = null, _timerProgresRestore = null;
+
 function tampilkanProgresRestore(pesan) {
     let overlay = document.getElementById('progresRestoreOverlay');
     if (!overlay) {
@@ -19845,17 +19884,32 @@ function tampilkanProgresRestore(pesan) {
         overlay.innerHTML = `<div style="background:white;border-radius:16px;padding:24px;max-width:300px;text-align:center;">
             <div style="font-size:32px;margin-bottom:12px;">⏳</div>
             <div id="progresRestoreTeks" style="font-size:14px;color:#333;font-weight:600;"></div>
+            <div id="progresRestoreDetik" style="font-size:12px;color:#0D5C4A;font-weight:700;margin-top:6px;"></div>
             <div style="font-size:11px;color:#888;margin-top:8px;">Jangan tutup aplikasi selama proses berjalan</div>
         </div>`;
         document.body.appendChild(overlay);
     }
     document.getElementById('progresRestoreTeks').textContent = pesan;
     overlay.style.display = 'flex';
+
+    // Stopwatch — supaya kelihatan proses masih hidup, meski tidak bisa dipastikan berapa total lamanya
+    if (!_waktuMulaiProgresRestore) {
+        _waktuMulaiProgresRestore = Date.now();
+        _timerProgresRestore = setInterval(() => {
+            const detikEl = document.getElementById('progresRestoreDetik');
+            if (!detikEl) return;
+            const detik = Math.floor((Date.now() - _waktuMulaiProgresRestore) / 1000);
+            detikEl.textContent = `⏱️ Sudah berjalan ${detik} detik`;
+        }, 1000);
+    }
 }
 
 function tutupProgresRestore() {
     const overlay = document.getElementById('progresRestoreOverlay');
     if (overlay) overlay.style.display = 'none';
+    clearInterval(_timerProgresRestore);
+    _timerProgresRestore = null;
+    _waktuMulaiProgresRestore = null;
 }
 
 function restoreFromZip(input) { 
@@ -20087,7 +20141,7 @@ function restoreFromZip(input) {
                     const folderBaru = `dokumen/${j.id}_${j.nama_lengkap.replace(/[^a-z0-9]/gi, '_')}/`;
                     const folderLama = `dokumen/${j.nama_lengkap.replace(/[^a-z0-9]/gi, '_')}/`;
                     const fileJamaahIni = petaFolderDokumen.get(folderBaru) || petaFolderDokumen.get(folderLama) || [];
-                    tampilkanProgresRestore(`Memulihkan dokumen...\n${jamaahList.indexOf(j) + 1} dari ${jamaahList.length} jamaah`);
+                    tampilkanProgresRestore(`Memulihkan dokumen...\n${jamaahList.indexOf(j) + 1} dari ${jamaahList.length} jamaah (${Math.round((jamaahList.indexOf(j) + 1) / jamaahList.length * 100)}%)`);
                     for (const jenis of dokumenJenisList) {
                         // Cari SEMUA file yang cocok untuk jenis dokumen ini — format baru bisa lebih dari 1 foto
                         // (jenisId.jpg / jenisId_1.jpg / jenisId_2.jpg dst), format lama pakai nama jenis dokumen.
@@ -20123,7 +20177,7 @@ function restoreFromZip(input) {
                 const fotoFolder = zip.folder('foto_profil');
                 if (fotoFolder) {
                     for (const j of jamaahList) {
-                        tampilkanProgresRestore(`Memulihkan foto profil...\n${jamaahList.indexOf(j) + 1} dari ${jamaahList.length} jamaah`);
+                        tampilkanProgresRestore(`Memulihkan foto profil...\n${jamaahList.indexOf(j) + 1} dari ${jamaahList.length} jamaah (${Math.round((jamaahList.indexOf(j) + 1) / jamaahList.length * 100)}%)`);
                         const fotoJpg = zip.file(`foto_profil/${j.id}.jpg`);
                         const fotoPng = zip.file(`foto_profil/${j.id}.png`);
                         const fotoFile = fotoJpg || fotoPng;
