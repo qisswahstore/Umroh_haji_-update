@@ -3744,6 +3744,9 @@
             <div style="font-size:11px;color:#888;margin-bottom:8px;">⬇️ ZIP = lengkap termasuk foto &amp; dokumen | 📤 JSON = data teks saja, bisa dibagikan</div>
             <div class="row" style="margin-bottom:6px;">
                 <button class="btn btn-primary btn-small" onclick="downloadFullZip()" style="flex:1;font-size:12px;"><i class="fas fa-download"></i> Download ZIP</button>
+                <button class="btn btn-small" onclick="bagikanZip()" style="flex:1;background:#8B5CF6;color:white;font-size:12px;"><i class="fas fa-share-alt"></i> Bagikan ZIP</button>
+            </div>
+            <div class="row" style="margin-bottom:6px;">
                 <button class="btn btn-small" onclick="bagikanFullZip()" style="flex:1;background:#3B82F6;color:white;font-size:12px;"><i class="fas fa-share-alt"></i> Bagikan JSON</button>
             </div>
             <div class="row">
@@ -19551,73 +19554,99 @@ function copyJsonBackup() {
     }
 }
 
+// Membangun ZIP backup lengkap (dipakai bersama oleh Download ZIP dan Bagikan ZIP — supaya isinya selalu
+// identik, tidak ada risiko salah satu ketinggalan update kalau nanti ada data baru ditambahkan).
+async function buildFullBackupZip() {
+    const zip = new JSZip();
+    // Muat data segar Jadwal Manasik langsung dari penyimpanan — supaya tetap lengkap
+    // walau halaman Manasik & Absensi belum sempat dibuka di sesi ini
+    const jadwalManasikSegar = await idbGet(STORE_ABSENSI, 'jadwal_manasik') || [];
+    // Data utama
+    zip.file('program.json', JSON.stringify(programList, null, 2));
+    zip.file('jamaah.json', JSON.stringify({ data: _allJamaahData, fields: dynamicFieldsJamaah }, null, 2)); 
+    zip.file('kas.json', JSON.stringify(_allKasData, null, 2)); 
+    zip.file('pembayaran.json', JSON.stringify(_allPaymentData, null, 2)); 
+    zip.file('multi_event.json', JSON.stringify(_allMasterData, null, 2)); 
+    zip.file('catatan.json', JSON.stringify(catatanList, null, 2)); 
+    zip.file('jamaah_kita.json', JSON.stringify({ data: _allJamaahKitaData, fields: dynamicFieldsJamaahKita }, null, 2));
+    zip.file('folder.json', JSON.stringify(_allFolderData, null, 2));
+    zip.file('absensi.json', JSON.stringify(_allAbsensiData, null, 2));
+    zip.file('dokumen_jenis.json', JSON.stringify(dokumenJenisList, null, 2));
+    zip.file('konfigurasi.json', JSON.stringify(konfigurasiPro, null, 2));
+    zip.file('pengeluaran.json', JSON.stringify(_allPengeluaranData, null, 2));
+    zip.file('prospek.json', JSON.stringify(_allProspekData, null, 2));
+    zip.file('jadwal_manasik.json', JSON.stringify(jadwalManasikSegar, null, 2));
+    const agendaKantorSegar = await idbGet(STORE_CATATAN, 'agenda_kantor_list') || [];
+    zip.file('agenda_kantor.json', JSON.stringify(agendaKantorSegar, null, 2));
+    // Data lain yang tersimpan di localStorage (bukan IndexedDB) — template surat, jenis layanan, pengingat WA, dll
+    const pengaturanLokal = {
+        template_surat_kustom: localStorage.getItem('navara_template_surat_kustom') || '',
+        template_surat_kustom_judul: localStorage.getItem('navara_template_surat_kustom_judul') || '',
+        jenis_layanan: JSON.parse(localStorage.getItem('navara_jenis_layanan') || 'null'),
+        scheduled_reminders: JSON.parse(localStorage.getItem('navara_scheduled_reminders') || 'null'),
+        onproses_print_fields: JSON.parse(localStorage.getItem('navara_onproses_print_fields') || 'null'),
+        nametag_fields: JSON.parse(localStorage.getItem('navara_nametag_fields') || 'null'),
+        absensi_columns: JSON.parse(localStorage.getItem('navara_absensi_columns') || 'null'),
+    };
+    zip.file('pengaturan_lokal.json', JSON.stringify(pengaturanLokal, null, 2));
+    catatBackupTerakhir();
+    // Dokumen — SEMUA Program, bukan cuma yang sedang aktif
+    const dokumenFolder = zip.folder('dokumen'); 
+    for (const j of _allJamaahData) { 
+        const docs = dokumenData[j.id] || {}; 
+        const jamaahFolder = dokumenFolder.folder(j.id + '_' + j.nama_lengkap.replace(/[^a-z0-9]/gi, '_')); 
+        for (const jenis of dokumenJenisList) { 
+            const isiDokumen = docs[jenis.id]; 
+            const daftarFoto = Array.isArray(isiDokumen) ? isiDokumen : (isiDokumen ? [isiDokumen] : []);
+            daftarFoto.forEach((data, idx) => {
+                if (typeof data === 'string' && data && data.startsWith('data:')) {
+                    const ext = data.startsWith('data:image/png') ? 'png' : 'jpg';
+                    const namaFile = daftarFoto.length > 1 ? `${jenis.id}_${idx+1}.${ext}` : `${jenis.id}.${ext}`;
+                    jamaahFolder.file(namaFile, data.split(',')[1], { base64: true }); 
+                }
+            });
+        } 
+    }
+    // Foto profil — SEMUA Program, bukan cuma yang sedang aktif
+    const fotoFolder = zip.folder('foto_profil');
+    for (const j of _allJamaahData) {
+        const foto = await idbGet(STORE_FOTO, 'foto_' + j.id);
+        if (typeof foto === 'string' && foto.startsWith('data:')) {
+            const ext = foto.startsWith('data:image/png') ? 'png' : 'jpg';
+            fotoFolder.file(`${j.id}.${ext}`, foto.split(',')[1], { base64: true });
+        }
+    } 
+    return await zip.generateAsync({ type: 'blob' });
+}
+
 async function downloadFullZip() { 
     showToast('Mempersiapkan data...'); 
     try { 
-        const zip = new JSZip(); 
-        // Muat data segar Jadwal Manasik langsung dari penyimpanan — supaya tetap lengkap
-        // walau halaman Manasik & Absensi belum sempat dibuka di sesi ini
-        const jadwalManasikSegar = await idbGet(STORE_ABSENSI, 'jadwal_manasik') || [];
-        // Data utama
-        zip.file('program.json', JSON.stringify(programList, null, 2));
-        zip.file('jamaah.json', JSON.stringify({ data: _allJamaahData, fields: dynamicFieldsJamaah }, null, 2)); 
-        zip.file('kas.json', JSON.stringify(_allKasData, null, 2)); 
-        zip.file('pembayaran.json', JSON.stringify(_allPaymentData, null, 2)); 
-        zip.file('multi_event.json', JSON.stringify(_allMasterData, null, 2)); 
-        zip.file('catatan.json', JSON.stringify(catatanList, null, 2)); 
-        zip.file('jamaah_kita.json', JSON.stringify({ data: _allJamaahKitaData, fields: dynamicFieldsJamaahKita }, null, 2));
-        zip.file('folder.json', JSON.stringify(_allFolderData, null, 2));
-        zip.file('absensi.json', JSON.stringify(_allAbsensiData, null, 2));
-        zip.file('dokumen_jenis.json', JSON.stringify(dokumenJenisList, null, 2));
-        zip.file('konfigurasi.json', JSON.stringify(konfigurasiPro, null, 2));
-        zip.file('pengeluaran.json', JSON.stringify(_allPengeluaranData, null, 2));
-        zip.file('prospek.json', JSON.stringify(_allProspekData, null, 2));
-        zip.file('jadwal_manasik.json', JSON.stringify(jadwalManasikSegar, null, 2));
-        const agendaKantorSegar = await idbGet(STORE_CATATAN, 'agenda_kantor_list') || [];
-        zip.file('agenda_kantor.json', JSON.stringify(agendaKantorSegar, null, 2));
-        // Data lain yang tersimpan di localStorage (bukan IndexedDB) — template surat, jenis layanan, pengingat WA, dll
-        const pengaturanLokal = {
-            template_surat_kustom: localStorage.getItem('navara_template_surat_kustom') || '',
-            template_surat_kustom_judul: localStorage.getItem('navara_template_surat_kustom_judul') || '',
-            jenis_layanan: JSON.parse(localStorage.getItem('navara_jenis_layanan') || 'null'),
-            scheduled_reminders: JSON.parse(localStorage.getItem('navara_scheduled_reminders') || 'null'),
-            onproses_print_fields: JSON.parse(localStorage.getItem('navara_onproses_print_fields') || 'null'),
-            nametag_fields: JSON.parse(localStorage.getItem('navara_nametag_fields') || 'null'),
-            absensi_columns: JSON.parse(localStorage.getItem('navara_absensi_columns') || 'null'),
-        };
-        zip.file('pengaturan_lokal.json', JSON.stringify(pengaturanLokal, null, 2));
-        catatBackupTerakhir();
-        // Dokumen — SEMUA Program, bukan cuma yang sedang aktif
-        const dokumenFolder = zip.folder('dokumen'); 
-        for (const j of _allJamaahData) { 
-            const docs = dokumenData[j.id] || {}; 
-            const jamaahFolder = dokumenFolder.folder(j.id + '_' + j.nama_lengkap.replace(/[^a-z0-9]/gi, '_')); 
-            for (const jenis of dokumenJenisList) { 
-                const isiDokumen = docs[jenis.id]; 
-                const daftarFoto = Array.isArray(isiDokumen) ? isiDokumen : (isiDokumen ? [isiDokumen] : []);
-                daftarFoto.forEach((data, idx) => {
-                    if (typeof data === 'string' && data && data.startsWith('data:')) {
-                        const ext = data.startsWith('data:image/png') ? 'png' : 'jpg';
-                        const namaFile = daftarFoto.length > 1 ? `${jenis.id}_${idx+1}.${ext}` : `${jenis.id}.${ext}`;
-                        jamaahFolder.file(namaFile, data.split(',')[1], { base64: true }); 
-                    }
-                });
-            } 
-        }
-        // Foto profil — SEMUA Program, bukan cuma yang sedang aktif
-        const fotoFolder = zip.folder('foto_profil');
-        for (const j of _allJamaahData) {
-            const foto = await idbGet(STORE_FOTO, 'foto_' + j.id);
-            if (typeof foto === 'string' && foto.startsWith('data:')) {
-                const ext = foto.startsWith('data:image/png') ? 'png' : 'jpg';
-                fotoFolder.file(`${j.id}.${ext}`, foto.split(',')[1], { base64: true });
-            }
-        } 
-        const content = await zip.generateAsync({ type: 'blob' }); 
+        const content = await buildFullBackupZip();
         const date = new Date().toISOString().slice(0,10); 
         saveAs(content, `Navara_Full_Backup_${date}.zip`); 
         showToast('✅ Backup ZIP berhasil! Termasuk semua data.'); 
     } catch(e) { showToast('❌ Gagal membuat ZIP: ' + e.message); } 
+}
+
+// Bagikan ZIP langsung lewat menu Bagikan bawaan HP (Drive, WA, Email, dll) — supaya tidak perlu
+// cari file manual dulu di folder Download. Isinya PERSIS SAMA dengan Download ZIP (fungsi bersama di atas).
+async function bagikanZip() {
+    showToast('Mempersiapkan data...');
+    try {
+        const content = await buildFullBackupZip();
+        const date = new Date().toISOString().slice(0,10);
+        const namaFile = `Navara_Full_Backup_${date}.zip`;
+        const file = new File([content], namaFile, { type: 'application/zip' });
+        if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
+            await navigator.share({ files: [file], title: 'Backup Navara' });
+        } else {
+            saveAs(content, namaFile);
+            showToast('📥 Menu Bagikan tidak tersedia di perangkat ini — ZIP didownload biasa.');
+        }
+    } catch(e) {
+        if (e.name !== 'AbortError') showToast('❌ Gagal membagikan ZIP: ' + e.message);
+    }
 }
 
 function showRestoreJsonPasteModal() {
@@ -19806,11 +19835,35 @@ function restoreFromJson(input) {
     input.value = '';
 }
 
+// Indikator progres selama Restore ZIP — supaya Bapak tahu prosesnya masih jalan, bukan macet diam-diam
+function tampilkanProgresRestore(pesan) {
+    let overlay = document.getElementById('progresRestoreOverlay');
+    if (!overlay) {
+        overlay = document.createElement('div');
+        overlay.id = 'progresRestoreOverlay';
+        overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.75);z-index:99999;display:flex;align-items:center;justify-content:center;';
+        overlay.innerHTML = `<div style="background:white;border-radius:16px;padding:24px;max-width:300px;text-align:center;">
+            <div style="font-size:32px;margin-bottom:12px;">⏳</div>
+            <div id="progresRestoreTeks" style="font-size:14px;color:#333;font-weight:600;"></div>
+            <div style="font-size:11px;color:#888;margin-top:8px;">Jangan tutup aplikasi selama proses berjalan</div>
+        </div>`;
+        document.body.appendChild(overlay);
+    }
+    document.getElementById('progresRestoreTeks').textContent = pesan;
+    overlay.style.display = 'flex';
+}
+
+function tutupProgresRestore() {
+    const overlay = document.getElementById('progresRestoreOverlay');
+    if (overlay) overlay.style.display = 'none';
+}
+
 function restoreFromZip(input) { 
     const file = input.files[0]; 
     if (!file) return; 
     if (!confirm('Restore akan menimpa semua data yang ada. Lanjutkan?')) { input.value = ''; return; }
     showToast('Memulihkan data...'); 
+    tampilkanProgresRestore('Membaca file ZIP...');
     const reader = new FileReader(); 
     reader.onload = async function(e) { 
         try { 
@@ -20015,24 +20068,34 @@ function restoreFromZip(input) {
             const dokumenFolder = zip.folder('dokumen'); 
             if (dokumenFolder) { 
                 const allFiles = Object.keys(zip.files);
+                // Bangun peta folder -> daftar file SEKALI SAJA di awal — supaya tidak perlu memindai ulang
+                // SELURUH isi ZIP untuk tiap kombinasi jamaah x jenis dokumen (itu penyebab lambat/macet
+                // di perangkat yang lebih lemah, terutama kalau jamaahnya sudah ratusan).
+                const petaFolderDokumen = new Map();
+                allFiles.forEach(path => {
+                    if (!path.startsWith('dokumen/')) return;
+                    const bagian = path.split('/');
+                    if (bagian.length < 3) return;
+                    const namaFile = bagian[bagian.length - 1];
+                    if (!/\.(jpg|png)$/i.test(namaFile)) return;
+                    const folderPath = bagian.slice(0, 2).join('/') + '/';
+                    if (!petaFolderDokumen.has(folderPath)) petaFolderDokumen.set(folderPath, []);
+                    petaFolderDokumen.get(folderPath).push({ path, namaBase: namaFile.replace(/\.(jpg|png)$/i, '') });
+                });
                 for (const j of jamaahList) {
                     // Coba format baru (id_nama) atau format lama (nama saja)
-                    const prefixBaru = `dokumen/${j.id}_`;
-                    const prefixLama = `dokumen/${j.nama_lengkap.replace(/[^a-z0-9]/gi, '_')}/`;
+                    const folderBaru = `dokumen/${j.id}_${j.nama_lengkap.replace(/[^a-z0-9]/gi, '_')}/`;
+                    const folderLama = `dokumen/${j.nama_lengkap.replace(/[^a-z0-9]/gi, '_')}/`;
+                    const fileJamaahIni = petaFolderDokumen.get(folderBaru) || petaFolderDokumen.get(folderLama) || [];
+                    tampilkanProgresRestore(`Memulihkan dokumen...\n${jamaahList.indexOf(j) + 1} dari ${jamaahList.length} jamaah`);
                     for (const jenis of dokumenJenisList) {
                         // Cari SEMUA file yang cocok untuk jenis dokumen ini — format baru bisa lebih dari 1 foto
                         // (jenisId.jpg / jenisId_1.jpg / jenisId_2.jpg dst), format lama pakai nama jenis dokumen.
-                        const folderBaru = `dokumen/${j.id}_${j.nama_lengkap.replace(/[^a-z0-9]/gi, '_')}/`;
-                        const folderLama = `dokumen/${j.nama_lengkap.replace(/[^a-z0-9]/gi, '_')}/`;
-                        const filesCocok = allFiles.filter(path => {
-                            if (!path.startsWith(folderBaru) && !path.startsWith(folderLama)) return false;
-                            const namaFile = path.split('/').pop();
-                            const namaBase = namaFile.replace(/\.(jpg|png)$/i, '');
-                            if (!/\.(jpg|png)$/i.test(namaFile)) return false;
-                            if (namaBase === jenis.id || namaBase === jenis.nama) return true;
-                            if (namaBase.startsWith(jenis.id + '_') && /^\d+$/.test(namaBase.slice(jenis.id.length + 1))) return true;
+                        const filesCocok = fileJamaahIni.filter(f => {
+                            if (f.namaBase === jenis.id || f.namaBase === jenis.nama) return true;
+                            if (f.namaBase.startsWith(jenis.id + '_') && /^\d+$/.test(f.namaBase.slice(jenis.id.length + 1))) return true;
                             return false;
-                        }).sort();
+                        }).sort((a,b) => a.path.localeCompare(b.path)).map(f => f.path);
                         const daftarFoto = [];
                         for (const path of filesCocok) {
                             const fileInZip = zip.file(path);
@@ -20060,6 +20123,7 @@ function restoreFromZip(input) {
                 const fotoFolder = zip.folder('foto_profil');
                 if (fotoFolder) {
                     for (const j of jamaahList) {
+                        tampilkanProgresRestore(`Memulihkan foto profil...\n${jamaahList.indexOf(j) + 1} dari ${jamaahList.length} jamaah`);
                         const fotoJpg = zip.file(`foto_profil/${j.id}.jpg`);
                         const fotoPng = zip.file(`foto_profil/${j.id}.png`);
                         const fotoFile = fotoJpg || fotoPng;
@@ -20073,9 +20137,10 @@ function restoreFromZip(input) {
                 }
             } 
 
+            tampilkanProgresRestore('✅ Berhasil! Memuat ulang...');
             showToast('✅ Restore berhasil! Memuat ulang...'); 
             setTimeout(() => location.reload(), 2000); 
-        } catch(err) { showToast('❌ Gagal restore: ' + err.message); } 
+        } catch(err) { tutupProgresRestore(); showToast('❌ Gagal restore: ' + err.message); } 
     }; 
     reader.readAsArrayBuffer(file); 
     input.value = ''; 
