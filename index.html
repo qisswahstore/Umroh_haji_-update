@@ -2136,7 +2136,7 @@
             <button onclick="openQuickBayar()" style="flex:1;padding:9px 6px;background:#10B981;color:white;border:none;border-radius:10px;font-size:11px;font-weight:700;cursor:pointer;">
                 💳 Bayar
             </button>
-            <button onclick="shareAllJamaahToWA()" style="flex:1;padding:9px 6px;background:#25d366;color:white;border:none;border-radius:10px;font-size:11px;font-weight:700;cursor:pointer;">
+            <button onclick="shareAllJamaahKitaToWA()" style="flex:1;padding:9px 6px;background:#25d366;color:white;border:none;border-radius:10px;font-size:11px;font-weight:700;cursor:pointer;">
                 📲 WA All
             </button>
         </div>
@@ -2747,7 +2747,6 @@
         </div>
         <div class="sort-buttons"><span style="font-size:12px; color:var(--gray);">Jumlah per halaman:</span><select id="perPageJamaah" onchange="changePerPage()"><option value="10">10</option><option value="20">20</option><option value="50">50</option><option value="100">100</option><option value="all">Semua</option></select></div>
         <div id="jamaahListContainer"></div><div id="paginationContainer" class="pagination"></div>
-        <button class="btn btn-wa" onclick="shareAllJamaahToWA()"><i class="fab fa-whatsapp"></i> SHARE SEMUA JAMAAH KE WA</button>
         <div class="row" style="margin-top:20px;"><button class="btn btn-small mt-2" onclick="downloadTemplateExcel()" style="flex:1;background:#1D6F42;color:white;">⬇️ Download Template Excel</button><button class="btn btn-small mt-2" onclick="document.getElementById('importExcelFile2').click()" style="flex:1;background:#F59E0B;color:white;">⬆️ Import Excel</button></div>
         <input type="file" id="importExcelFile2" accept=".xlsx,.xls" style="display:none" onchange="importJamaahFromExcel(this)">
     </div>
@@ -11770,21 +11769,6 @@ function closeJamaahModal(){
     editingJamaahId=null; 
 }
 
-function shareAllJamaahToWA(){ 
-    if(jamaahList.length===0) return showToast('Tidak ada database!'); 
-    let text=`*📋 DAFTAR JAMAAH*\n\n *Total: ${jamaahList.length} Jamaah*\n\n\n`; 
-    jamaahList.forEach((j,i)=>{ 
-        text+=`${i+1}. *${j.nama_lengkap}*\n`; 
-        for(const field of dynamicFieldsJamaah){ 
-            const val=j.additional_fields?.[field.name]||''; 
-            if(val) text+=`   ${field.label}: ${val}\n`; 
-        } 
-        text+=`\n`; 
-    }); 
-    text+=`\n#${getNamaInstansiUtama()}`; 
-    window.open(`https://wa.me/?text=${encodeURIComponent(text)}`); 
-}
-
 function downloadTemplateExcel() {
     const fieldsTampil = getDynamicFieldsJamaahTampil();
     // Header = Nama Lengkap + semua field dinamis (sesuai Jenis Program aktif — Umroh tidak ikut field khusus Haji)
@@ -14535,18 +14519,70 @@ function confirmDeleteJamaahKitaById(id) {
 
 function shareAllJamaahKitaToWA() {
     if (jamaahKitaList.length === 0) return showToast('Tidak ada data!');
-    let msg = "📋 *SEMUA JAMAAH ON PROSES*\n\n━━━━━━━━━━━━━━━━━━\n";
-    msg += `📊 *Total: ${jamaahKitaList.length} Jamaah*\n\n`;
-    jamaahKitaList.forEach((jk, i) => {
-        msg += `${i+1}. *${jk.nama_lengkap}*\n`;
-        dynamicFieldsJamaahKita.forEach(field => {
-            const val = jk.additional_fields?.[field.name] || "";
-            if (val && field.name !== "whatsapp") msg += `   ${field.icon || '📌'} ${field.label}: ${val}\n`;
+
+    // Cuma ambil field yang dicentang di Kelola Field (aturan sama seperti Cetak Label) — bukan semua field mentah
+    const printFieldNames = getOnProsesPrintFields();
+    const fieldsTerpilih = dynamicFieldsJamaahKita.filter(f => printFieldNames.includes(f.name) && f.name !== 'whatsapp');
+
+    const entriesText = jamaahKitaList.map((jk, i) => {
+        let t = `${i+1}. *${jk.nama_lengkap}*\n`;
+        fieldsTerpilih.forEach(field => {
+            const val = jk.additional_fields?.[field.name] || '';
+            if (val) t += `   ${field.icon || '📌'} ${field.label}: ${val}\n`;
         });
-        msg += "\n";
+        return t + '\n';
     });
-    msg += `━━━━━━━━━━━━━━━━━━\n_${getNamaInstansiUtama()}_`;
-    window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, '_blank');
+
+    const header = `📋 *SEMUA JAMAAH ON PROSES*\n━━━━━━━━━━━━━━━━━━\n📊 *Total: ${jamaahKitaList.length} Jamaah*\n\n`;
+    const footer = `\n━━━━━━━━━━━━━━━━━━\n_${getNamaInstansiUtama()}_`;
+
+    // Batas aman per pesan WA — data digabung terus, begitu mendekati batas, dipotong jadi pesan baru
+    const BATAS_AMAN_KARAKTER = 3000;
+    const bagian = [];
+    let current = '';
+    entriesText.forEach(entry => {
+        if (current.length > 0 && (current.length + entry.length) > BATAS_AMAN_KARAKTER) {
+            bagian.push(current);
+            current = '';
+        }
+        current += entry;
+    });
+    if (current) bagian.push(current);
+
+    if (bagian.length <= 1) {
+        const teksLengkap = header + (bagian[0] || '') + footer;
+        window.open(`https://wa.me/?text=${encodeURIComponent(teksLengkap)}`, '_blank');
+        return;
+    }
+
+    openPilihBagianWAModal(bagian, header, footer);
+}
+
+function openPilihBagianWAModal(bagian, header, footer) {
+    let modal = document.getElementById('pilihBagianWAModal');
+    if (!modal) {
+        modal = document.createElement('div');
+        modal.id = 'pilihBagianWAModal';
+        modal.className = 'modal';
+        document.body.appendChild(modal);
+    }
+    window.__bagianWAData = { bagian, header, footer };
+    const tombolBagian = bagian.map((b, i) =>
+        `<button onclick="kirimBagianWA(${i})" style="width:100%;padding:12px;background:#25D366;color:white;border:none;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;margin-bottom:8px;">📲 Kirim Bagian ${i+1} dari ${bagian.length}</button>`
+    ).join('');
+    modal.innerHTML = `<div class="modal-content">
+        <h3 style="color:#0D5C4A;">Kirim ke WhatsApp</h3>
+        <p style="font-size:12px;color:#666;margin-bottom:12px;">Data terlalu banyak untuk 1 pesan — otomatis dipecah jadi ${bagian.length} bagian. Kirim satu per satu (tiap tombol membuka WA terpisah).</p>
+        ${tombolBagian}
+        <button onclick="document.getElementById('pilihBagianWAModal').style.display='none'" class="btn btn-secondary mt-2">Tutup</button>
+    </div>`;
+    modal.style.display = 'flex';
+}
+
+function kirimBagianWA(idx) {
+    const { bagian, header, footer } = window.__bagianWAData;
+    const teks = `${header}*— Bagian ${idx + 1} dari ${bagian.length} —*\n\n${bagian[idx]}${footer}`;
+    window.open(`https://wa.me/?text=${encodeURIComponent(teks)}`, '_blank');
 }
 
 function cetakLabelJamaahKita() {
