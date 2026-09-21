@@ -151,6 +151,24 @@
             from { opacity: 0.4; transform: translateY(16px) scale(0.98); }
             to { opacity: 1; transform: translateY(0) scale(1); }
         }
+        @keyframes berdenyutAktif {
+            0% { box-shadow: 0 0 0 0 currentColor; opacity: 1; }
+            70% { box-shadow: 0 0 0 6px transparent; opacity: 0.85; }
+            100% { box-shadow: 0 0 0 0 transparent; opacity: 1; }
+        }
+        .titik-program-aktif { animation: berdenyutAktif 1.6s ease-in-out infinite; }
+        @keyframes berdenyutKartu {
+            0% { box-shadow: 0 0 0 0 rgba(239,68,68,0.35); }
+            70% { box-shadow: 0 0 0 8px rgba(239,68,68,0); }
+            100% { box-shadow: 0 0 0 0 rgba(239,68,68,0); }
+        }
+        .kartu-berdenyut { animation: berdenyutKartu 2s ease-in-out infinite; }
+        @keyframes berdenyutKartuKuning {
+            0% { box-shadow: 0 0 0 0 rgba(245,158,11,0.35); }
+            70% { box-shadow: 0 0 0 8px rgba(245,158,11,0); }
+            100% { box-shadow: 0 0 0 0 rgba(245,158,11,0); }
+        }
+        .kartu-berdenyut-kuning { animation: berdenyutKartuKuning 2s ease-in-out infinite; }
         @keyframes flashUpdate {
             0% { background-color: #FDE68A; }
             100% { background-color: transparent; }
@@ -2035,7 +2053,7 @@
         </div>
         <div class="program-picker-bar" onclick="openProgramPickerModal()" style="margin-top:12px;background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.25);border-radius:12px;padding:10px 12px;display:flex;align-items:center;justify-content:space-between;gap:8px;cursor:pointer;">
             <div style="display:flex;align-items:center;gap:10px;overflow:hidden;">
-                <div id="programPickerDot" style="width:8px;height:8px;border-radius:50%;background:#4ADE80;flex-shrink:0;box-shadow:0 0 0 3px rgba(74,222,128,.25);"></div>
+                <div id="programPickerDot" class="titik-program-aktif" style="width:8px;height:8px;border-radius:50%;background:#4ADE80;flex-shrink:0;box-shadow:0 0 0 3px rgba(74,222,128,.25);"></div>
                 <div style="overflow:hidden;">
                     <div style="font-size:9px;text-transform:uppercase;letter-spacing:.06em;opacity:.75;font-weight:600;color:#fff;">Program Aktif</div>
                     <div id="programPickerName" style="font-size:14px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:#fff;">Memuat...</div>
@@ -2102,7 +2120,7 @@
         </div>
 
         <!-- Peringatan Backup -->
-        <div id="homeBackupWarningCard" style="display:none;background:#FEE2E2;border:1px solid #EF4444;border-radius:14px;padding:12px 14px;margin-bottom:12px;">
+        <div id="homeBackupWarningCard" class="kartu-berdenyut" style="display:none;background:#FEE2E2;border:1px solid #EF4444;border-radius:14px;padding:12px 14px;margin-bottom:12px;">
             <div style="display:flex;justify-content:space-between;align-items:center;">
                 <div style="font-weight:700;font-size:13px;color:#991B1B;">💾 <span id="homeBackupWarningText">Belum pernah backup</span></div>
                 <button onclick="showPage('cloudstorage')" style="background:#EF4444;color:#fff;border:none;border-radius:8px;padding:6px 12px;font-size:11px;font-weight:700;cursor:pointer;">Backup Sekarang</button>
@@ -3744,7 +3762,6 @@
             <div style="font-size:11px;color:#888;margin-bottom:8px;">⬇️ ZIP = lengkap termasuk foto &amp; dokumen | 📤 JSON = data teks saja, bisa dibagikan</div>
             <div class="row" style="margin-bottom:6px;">
                 <button class="btn btn-primary btn-small" onclick="downloadFullZip()" style="flex:1;font-size:12px;"><i class="fas fa-download"></i> Download ZIP</button>
-                <button class="btn btn-small" onclick="bagikanZip()" style="flex:1;background:#8B5CF6;color:white;font-size:12px;"><i class="fas fa-share-alt"></i> Bagikan ZIP</button>
             </div>
             <div class="row" style="margin-bottom:6px;">
                 <button class="btn btn-small" onclick="bagikanFullZip()" style="flex:1;background:#3B82F6;color:white;font-size:12px;"><i class="fas fa-share-alt"></i> Bagikan JSON</button>
@@ -9310,7 +9327,7 @@ function renderAgendaKantorList() {
         return `<div style="background:#F8FAFC;border-radius:12px;padding:12px;margin-bottom:10px;">
             <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px;">
                 <div style="font-weight:700;color:#0D5C4A;font-size:14px;">${escapeHtml(a.pembahasan)}</div>
-                <span style="font-size:10px;font-weight:700;padding:3px 8px;border-radius:20px;background:${status.bg};color:${status.color};white-space:nowrap;">${status.label}</span>
+                <span class="${status.label.includes('Hari Ini') ? 'kartu-berdenyut' : ''}" style="font-size:10px;font-weight:700;padding:3px 8px;border-radius:20px;background:${status.bg};color:${status.color};white-space:nowrap;">${status.label}</span>
             </div>
             <div style="font-size:12px;color:#555;margin-top:4px;">🗓️ ${tglText}${a.waktu ? ' · ' + a.waktu + ' WIB' : ''}</div>
             ${a.penanggung_jawab ? `<div style="font-size:12px;color:#555;margin-top:2px;">👤 ${escapeHtml(a.penanggung_jawab)}</div>` : ''}
@@ -14805,7 +14822,7 @@ function renderJamaahKitaFieldsList() {
 
     // Notifikasi field baru
     if (fieldBaru.length > 0) {
-        html += `<div style="background:#fef3c7;border:1.5px solid #f59e0b;border-radius:10px;padding:12px;margin-bottom:12px;">
+        html += `<div class="kartu-berdenyut-kuning" style="background:#fef3c7;border:1.5px solid #f59e0b;border-radius:10px;padding:12px;margin-bottom:12px;">
             <div style="font-weight:bold;color:#92400e;margin-bottom:6px;">🔔 ${fieldBaru.length} Field Baru dari Database Jamaah</div>
             <div style="font-size:12px;color:#78350f;margin-bottom:8px;">Pilih yang ingin ditambahkan ke On Proses:</div>
             ${fieldBaru.map(f => `
@@ -16609,6 +16626,7 @@ let currentProgramId = null;
 
 const PROGRAM_WARNA = {
     haji: '#7DD3FC',
+    haji_reguler: '#7DD3FC',
     umroh: '#4ADE80',
     lainnya: '#D1D5DB'
 };
@@ -16814,6 +16832,7 @@ function renderProgramPickerBar() {
     if(dotEl) {
         const color = PROGRAM_WARNA[p.jenis] || PROGRAM_WARNA.lainnya;
         dotEl.style.background = color;
+        dotEl.style.color = color;
         dotEl.style.boxShadow = '0 0 0 3px ' + color + '40';
     }
 }
@@ -16838,9 +16857,9 @@ function renderProgramListInModal() {
         html += `
         <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
             <div onclick="selectProgram('${p.id}')" style="flex:1;display:flex;align-items:center;gap:10px;padding:12px 10px;border-radius:10px;cursor:pointer;background:${active ? '#F0FBF6' : '#fff'};border:1px solid ${active ? '#0D5C4A' : '#eee'};">
-                <span style="width:10px;height:10px;border-radius:50%;background:${color};flex-shrink:0;"></span>
+                <span class="${active ? 'titik-program-aktif' : ''}" style="width:10px;height:10px;border-radius:50%;background:${color};color:${color};flex-shrink:0;"></span>
                 <div style="flex:1;overflow:hidden;">
-                    <div style="font-size:14px;font-weight:${active ? '700' : '500'};">${PROGRAM_ICON[p.jenis]||'📁'} ${escapeHtml(p.nama)}</div>
+                    <div style="font-size:14px;font-weight:${active ? '700' : '500'};">${PROGRAM_ICON[p.jenis]||'📁'} ${escapeHtml(p.nama)} ${active ? '<span style="font-size:9px;font-weight:700;color:#0D5C4A;background:#DCFCE7;padding:2px 6px;border-radius:20px;margin-left:4px;">AKTIF</span>' : ''}</div>
                     <div style="font-size:10px;color:#6B7280;">${jumlahJamaah} jamaah</div>
                 </div>
                 ${active ? '<span style="color:#0D5C4A;font-weight:700;">✓</span>' : ''}
@@ -19627,63 +19646,6 @@ async function downloadFullZip() {
         saveAs(content, `Navara_Full_Backup_${date}.zip`); 
         showToast('✅ Backup ZIP berhasil! Termasuk semua data.'); 
     } catch(e) { showToast('❌ Gagal membuat ZIP: ' + e.message); } 
-}
-
-// Bagikan ZIP langsung lewat menu Bagikan bawaan HP (Drive, WA, Email, dll) — supaya tidak perlu
-// cari file manual dulu di folder Download. Isinya PERSIS SAMA dengan Download ZIP (fungsi bersama di atas).
-async function bagikanZip() {
-    showToast('Mempersiapkan data...');
-    tampilkanProgresRestore('Membangun ZIP...');
-    try {
-        const content = await buildFullBackupZip();
-        const date = new Date().toISOString().slice(0,10);
-        const namaFile = `Navara_Full_Backup_${date}.zip`;
-        const file = new File([content], namaFile, { type: 'application/zip' });
-        tutupProgresRestore();
-
-        if (!(navigator.share && navigator.canShare && navigator.canShare({ files: [file] }))) {
-            saveAs(content, namaFile);
-            showToast('📥 Menu Bagikan tidak tersedia di perangkat ini — ZIP didownload biasa.');
-            return;
-        }
-
-        // ZIP sudah jadi — TIDAK langsung panggil share() di sini, karena "izin" dari sentuhan tombol
-        // tadi mungkin sudah hangus (proses bangun ZIP di atas makan waktu). Tampilkan 1 tombol baru
-        // supaya navigator.share() dipanggil PERSIS sesaat setelah Bapak menyentuhnya — bukan setelah menunggu.
-        tampilkanTombolBagikanSiap(file);
-    } catch(e) {
-        tutupProgresRestore();
-        if (e.name !== 'AbortError') showToast('❌ Gagal membagikan ZIP: ' + e.message);
-    }
-}
-
-function tampilkanTombolBagikanSiap(file) {
-    let modal = document.getElementById('bagikanSiapModal');
-    if (!modal) {
-        modal = document.createElement('div');
-        modal.id = 'bagikanSiapModal';
-        modal.className = 'modal';
-        document.body.appendChild(modal);
-    }
-    window.__fileZipSiapDibagikan = file;
-    modal.innerHTML = `<div class="modal-content" style="text-align:center;">
-        <div style="font-size:32px;margin-bottom:8px;">✅</div>
-        <h3 style="color:#0D5C4A;">ZIP Siap Dibagikan</h3>
-        <p style="font-size:12px;color:#666;margin-bottom:16px;">File sudah selesai dibuat (${(file.size/1024/1024).toFixed(1)} MB). Tap tombol di bawah untuk memilih ke mana dibagikan.</p>
-        <button onclick="lanjutkanBagikanZip()" style="width:100%;padding:14px;background:#8B5CF6;color:white;border:none;border-radius:10px;font-size:15px;font-weight:700;cursor:pointer;margin-bottom:8px;">📤 Bagikan Sekarang</button>
-        <button onclick="document.getElementById('bagikanSiapModal').style.display='none'" class="btn btn-secondary">Batal</button>
-    </div>`;
-    modal.style.display = 'flex';
-}
-
-async function lanjutkanBagikanZip() {
-    const file = window.__fileZipSiapDibagikan;
-    document.getElementById('bagikanSiapModal').style.display = 'none';
-    try {
-        await navigator.share({ files: [file], title: 'Backup Navara' });
-    } catch(e) {
-        if (e.name !== 'AbortError') showToast('❌ Gagal membagikan ZIP: ' + e.message);
-    }
 }
 
 function showRestoreJsonPasteModal() {
