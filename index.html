@@ -2842,6 +2842,8 @@
             <div class="dynamic-field"><label>Tanggal Selesai <span style="color:red;">*</span></label><input type="date" id="catatanTanggalSelesai"></div>
         </div>
         <div style="font-size:11px;color:#888;margin:-6px 0 10px;">Kalau cuma 1 hari, isi tanggal mulai &amp; selesai sama.</div>
+        <div class="dynamic-field"><label>Jam (opsional)</label><input type="time" id="catatanTanggalJam"></div>
+        <div style="font-size:11px;color:#888;margin:-6px 0 10px;">Isi kalau kegiatan 1 hari dengan jam jelas (Manasik, Tamu). Kosongkan kalau kegiatan berhari-hari (Ke Luar Negeri, Raker).</div>
         <div class="dynamic-field"><label>Keterangan</label><textarea id="catatanTanggalKeterangan" rows="2" placeholder="Opsional"></textarea></div>
         <button class="btn btn-primary mt-2" onclick="simpanCatatanTanggal()">Simpan</button>
         <button onclick="document.getElementById('catatanTanggalModal').style.display='none'" class="btn btn-secondary mt-2">Batal</button>
@@ -6475,10 +6477,10 @@ function tambahTipePaket() {
     showToast(`✅ Tipe "${nama}" ditambahkan`);
 }
 
-function hapusTipePaket(idx) {
+async function hapusTipePaket(idx) {
     const list = getTipePaket();
     const nama = list[idx];
-    if(!confirm(`Hapus tipe "${nama}"?`)) return;
+    if(!await konfirmasi(`Hapus tipe "${nama}"?`)) return;
     list.splice(idx, 1);
     saveTipePaket(list);
     renderTipePaketList();
@@ -7797,7 +7799,7 @@ async function simpanPengeluaran() {
 }
 
 async function hapusPengeluaran(id) {
-    if(!confirm('Hapus pengeluaran ini?')) return;
+    if(!(await konfirmasiHapus('Data pengeluaran ini akan dihapus.', 'Hapus Pengeluaran?'))) return;
     pengeluaranList = pengeluaranList.filter(p => p.id !== id);
     await savePengeluaran();
     renderPengeluaranList();
@@ -8360,8 +8362,8 @@ function updateLAPreview() {
     preview.textContent = '✅ Aktif: ' + types.map(t => t.n).join(', ');
 }
 
-function resetEstimasiToDefault() { 
-    if(confirm('Reset semua data estimasi ke nilai default?')) { 
+async function resetEstimasiToDefault() { 
+    if(await konfirmasi('Reset semua data estimasi ke nilai default?')) { 
         document.getElementById('lokasiPaket').value="Program 9 HARI"; 
         document.getElementById('totJam').value="21"; 
         document.getElementById('jamGratis').value="1"; 
@@ -8481,8 +8483,8 @@ function editTransaksi(id) {
     showToast('Transaksi diperbarui');
 }
 
-function confirmHapusTransaksi(id) {
-    if(confirm('Hapus transaksi ini?')) {
+async function confirmHapusTransaksi(id) {
+    if(await konfirmasiHapus('Transaksi kas ini akan dihapus.', 'Hapus Transaksi?')) {
         dataKas = dataKas.filter(i => i.id !== id);
         saveKasData();
         renderKasTable();
@@ -8604,9 +8606,9 @@ function exportKasExcel() {
     },100); 
 }
 
-function confirmResetKas() { 
+async function confirmResetKas() { 
     if(!cekIzinAdmin('bolehReset')) return showToast('🔒 Anda tidak punya izin mereset data');
-    if(confirm('Kosongkan semua transaksi kas? Data akan hilang!')) { 
+    if(await konfirmasiHapus(`Semua ${dataKas.length} transaksi kas akan dihapus permanen.`, 'Kosongkan Buku Kas?', 'Kosongkan')) { 
         dataKas=[]; 
         saveKasData(); 
         const hasilWA=document.getElementById('hasilWA'); 
@@ -9485,6 +9487,63 @@ function openTambahAgendaModal(id) {
     modal.style.display = 'flex';
 }
 
+// Kotak konfirmasi buatan Navara sendiri — pengganti confirm() bawaan browser, yang selalu menampilkan
+// alamat situs ("xxx.github.io menyatakan") dan tidak bisa diberi gaya. Mengembalikan Promise<boolean>:
+// true kalau tombol utama ditekan, false kalau Batal / area luar ditekan.
+function tanyaKonfirmasi({ judul = 'Konfirmasi', pesan = '', daftar = [], ikon = '⚠️', tombolYa = 'Ya', tombolTidak = 'Batal', warnaYa = 'var(--primary)' } = {}) {
+    return new Promise(resolve => {
+        const lama = document.getElementById('konfirmasiNavaraOverlay');
+        if (lama) lama.remove();
+        const overlay = document.createElement('div');
+        overlay.id = 'konfirmasiNavaraOverlay';
+        overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:10050;display:flex;align-items:center;justify-content:center;padding:20px;';
+        overlay.innerHTML = `<div style="background:var(--card-bg, #fff);border-radius:18px;padding:22px 20px 16px;width:100%;max-width:360px;box-shadow:0 10px 40px rgba(0,0,0,0.25);">
+            <div style="text-align:center;font-size:34px;line-height:1;margin-bottom:8px;">${ikon}</div>
+            <div style="text-align:center;font-weight:800;font-size:16px;color:var(--primary);margin-bottom:8px;">${escapeHtml(judul)}</div>
+            ${pesan ? `<div style="text-align:center;font-size:13px;color:#555;line-height:1.5;white-space:pre-line;">${escapeHtml(pesan)}</div>` : ''}
+            ${daftar.length ? `<div style="background:#FEF3C7;border-radius:10px;padding:10px 12px;margin-top:12px;">${daftar.map(d => `<div style="font-size:13px;color:#92400E;font-weight:600;padding:2px 0;">• ${escapeHtml(d)}</div>`).join('')}</div>` : ''}
+            <div style="display:flex;gap:10px;margin-top:18px;">
+                <button data-jawab="0" style="flex:1;padding:12px;border:none;border-radius:12px;background:#E2E8F0;color:#333;font-weight:700;font-size:14px;cursor:pointer;">${escapeHtml(tombolTidak)}</button>
+                <button data-jawab="1" style="flex:1;padding:12px;border:none;border-radius:12px;background:${warnaYa};color:white;font-weight:700;font-size:14px;cursor:pointer;">${escapeHtml(tombolYa)}</button>
+            </div>
+        </div>`;
+        const selesai = (jawab) => { overlay.remove(); resolve(jawab); };
+        overlay.addEventListener('click', e => {
+            if (e.target === overlay) return selesai(false);
+            const btn = e.target.closest('button[data-jawab]');
+            if (btn) selesai(btn.dataset.jawab === '1');
+        });
+        document.body.appendChild(overlay);
+    });
+}
+
+// Pengganti umum confirm(pesan): kalimat sampai tanda tanya pertama jadi judul, sisanya jadi keterangan.
+// Gaya dipilih otomatis dari awal pesan — "Hapus/Kosongkan" merah, "Reset" oranye, lainnya netral.
+function konfirmasi(pesan) {
+    const teks = String(pesan || '').replace(/^⚠️\s*/, '');
+    const posTanya = teks.indexOf('?');
+    const judul = posTanya !== -1 ? teks.slice(0, posTanya + 1) : teks;
+    const sisa = posTanya !== -1 ? teks.slice(posTanya + 1).trim() : '';
+    const hapus = /^(hapus|kosongkan)/i.test(teks);
+    const reset = /^reset/i.test(teks);
+    return tanyaKonfirmasi({
+        judul, pesan: sisa,
+        ikon: hapus ? '🗑️' : (reset ? '⚙️' : '❔'),
+        tombolYa: hapus ? 'Hapus' : (reset ? 'Reset' : 'Ya'),
+        warnaYa: hapus ? '#DC2626' : (reset ? '#F59E0B' : 'var(--primary)'),
+    });
+}
+
+// Versi khusus untuk tindakan yang MENIMPA data (Restore) — ikon peringatan, tombol oranye.
+function konfirmasiTimpa(pesan, daftar = [], judul = 'Timpa Semua Data?') {
+    return tanyaKonfirmasi({ judul, pesan, daftar, ikon: '♻️', tombolYa: 'Ya, Timpa', tombolTidak: 'Batal', warnaYa: '#F59E0B' });
+}
+
+// Versi khusus untuk menghapus data — tombol merah "Hapus", ikon tong sampah.
+function konfirmasiHapus(pesan, judul = 'Hapus Data?', tombolYa = 'Hapus') {
+    return tanyaKonfirmasi({ judul, pesan, ikon: '🗑️', tombolYa, tombolTidak: 'Batal', warnaYa: '#DC2626' });
+}
+
 async function simpanAgendaKantor() {
     const pembahasan = document.getElementById('agendaPembahasan').value.trim();
     const tanggal = document.getElementById('agendaTanggal').value;
@@ -9496,7 +9555,15 @@ async function simpanAgendaKantor() {
         const bentrok = cekBentrokPejabat(pejabatIdDicek, tanggal);
         if (bentrok.length > 0) {
             const p = pejabatList.find(x => x.id === Number(pejabatIdDicek));
-            const lanjut = confirm(`⚠️ ${p.nama} sudah ada kegiatan di tanggal ini:\n\n${bentrok.map(b => '- ' + b).join('\n')}\n\nTetap simpan Agenda ini?`);
+            const lanjut = await tanyaKonfirmasi({
+                judul: 'Jadwal Bentrok',
+                pesan: `${p.nama} sudah ada kegiatan di tanggal ini:`,
+                daftar: bentrok,
+                ikon: '📅',
+                tombolYa: 'Tetap Simpan',
+                tombolTidak: 'Ganti Tanggal',
+                warnaYa: '#F59E0B',
+            });
             if (!lanjut) return;
         }
     }
@@ -9522,8 +9589,8 @@ async function simpanAgendaKantor() {
     showToast(editingId ? 'Agenda diupdate' : 'Agenda ditambahkan');
 }
 
-function hapusAgendaKantor(id) {
-    if (!confirm('Hapus Agenda ini?')) return;
+async function hapusAgendaKantor(id) {
+    if (!await konfirmasi('Hapus Agenda ini?')) return;
     agendaKantorList = agendaKantorList.filter(a => a.id !== id);
     saveAgendaKantorData();
     showToast('Agenda dihapus');
@@ -9590,8 +9657,8 @@ async function simpanPejabat() {
     showToast('Pejabat ditambahkan');
 }
 
-function hapusPejabat(id) {
-    if (!confirm('Hapus Pejabat ini beserta seluruh jadwalnya?')) return;
+async function hapusPejabat(id) {
+    if (!await konfirmasi('Hapus Pejabat ini beserta seluruh jadwalnya?')) return;
     pejabatList = pejabatList.filter(p => p.id !== id);
     if (pejabatDipilihId === id) { pejabatDipilihId = null; document.getElementById('kalenderPejabatDetailCard').style.display = 'none'; }
     savePejabatData();
@@ -9635,7 +9702,7 @@ function expandJadwalPejabatUntukBulan(pejabat, tahun, bulan) {
         });
         (pejabat.catatanTanggal || []).forEach(ct => {
             if (tglStr >= ct.tglMulai && tglStr <= ct.tglSelesai) {
-                hasil.push({ tanggal: tglStr, jamMulai: '', jamSelesai: '', judul: ct.judul, jenis: ct.jenis, keterangan: ct.keterangan, sumber: 'catatan', id: ct.id });
+                hasil.push({ tanggal: tglStr, jamMulai: ct.jam || '', jamSelesai: '', judul: ct.judul, jenis: ct.jenis, keterangan: ct.keterangan, sumber: 'catatan', id: ct.id });
             }
         });
     }
@@ -9712,7 +9779,7 @@ async function simpanJadwalRutin() {
 
 async function hapusJadwalRutin(idx) {
     const p = pejabatList.find(x => x.id === pejabatDipilihId);
-    if (!p || !confirm('Hapus jadwal rutin ini?')) return;
+    if (!p || !await konfirmasi('Hapus jadwal rutin ini?')) return;
     p.jadwalRutin.splice(idx, 1);
     await savePejabatData();
     renderDaftarJadwalRutin();
@@ -9728,10 +9795,11 @@ function openTambahCatatanTanggalModal(id) {
         document.getElementById('catatanTanggalJenis').value = ct.jenis;
         document.getElementById('catatanTanggalMulai').value = ct.tglMulai;
         document.getElementById('catatanTanggalSelesai').value = ct.tglSelesai;
+        document.getElementById('catatanTanggalJam').value = ct.jam || '';
         document.getElementById('catatanTanggalKeterangan').value = ct.keterangan || '';
     } else {
         document.getElementById('catatanTanggalModalTitle').textContent = 'Tambah Catatan Tanggal';
-        ['catatanTanggalJudul','catatanTanggalMulai','catatanTanggalSelesai','catatanTanggalKeterangan'].forEach(x => document.getElementById(x).value = '');
+        ['catatanTanggalJudul','catatanTanggalMulai','catatanTanggalSelesai','catatanTanggalJam','catatanTanggalKeterangan'].forEach(x => document.getElementById(x).value = '');
         document.getElementById('catatanTanggalJenis').value = 'pengajian';
     }
     document.getElementById('catatanTanggalModal').style.display = 'flex';
@@ -9747,7 +9815,7 @@ async function simpanCatatanTanggal() {
     if (!tglMulai || !tglSelesai) return showToast('Tanggal mulai & selesai wajib diisi!');
     if (tglSelesai < tglMulai) return showToast('Tanggal selesai tidak boleh sebelum tanggal mulai!');
 
-    const data = { judul, tglMulai, tglSelesai, jenis: document.getElementById('catatanTanggalJenis').value, keterangan: document.getElementById('catatanTanggalKeterangan').value.trim() };
+    const data = { judul, tglMulai, tglSelesai, jam: document.getElementById('catatanTanggalJam').value, jenis: document.getElementById('catatanTanggalJenis').value, keterangan: document.getElementById('catatanTanggalKeterangan').value.trim() };
     if (!p.catatanTanggal) p.catatanTanggal = [];
     const editingId = document.getElementById('catatanTanggalEditingId').value;
     if (editingId) {
@@ -9763,7 +9831,7 @@ async function simpanCatatanTanggal() {
 
 async function hapusCatatanTanggal(id) {
     const p = pejabatList.find(x => x.id === pejabatDipilihId);
-    if (!p || !confirm('Hapus catatan ini?')) return;
+    if (!p || !await konfirmasi('Hapus catatan ini?')) return;
     p.catatanTanggal = (p.catatanTanggal || []).filter(x => x.id !== id);
     await savePejabatData();
     showToast('Catatan dihapus');
@@ -9777,7 +9845,7 @@ function cekBentrokPejabat(pejabatId, tanggalStr) {
     const hariMinggu = new Date(tanggalStr + 'T00:00:00').getDay();
     const hasil = [];
     (p.jadwalRutin || []).forEach(jr => { if (Number(jr.hari) === hariMinggu) hasil.push(jr.kegiatan + (jr.jamMulai ? ' (' + jr.jamMulai + (jr.jamSelesai ? '–' + jr.jamSelesai : '') + ')' : '')); });
-    (p.catatanTanggal || []).forEach(ct => { if (tanggalStr >= ct.tglMulai && tanggalStr <= ct.tglSelesai) hasil.push(ct.judul); });
+    (p.catatanTanggal || []).forEach(ct => { if (tanggalStr >= ct.tglMulai && tanggalStr <= ct.tglSelesai) hasil.push(ct.judul + (ct.jam ? ' (' + ct.jam + ')' : '')); });
     return hasil;
 }
 
@@ -10361,7 +10429,7 @@ async function pilihSesi(sesiId) {
 }
 
 async function hapusSesi(sesiId) {
-    if (!confirm('Hapus sesi ini? Data absensi akan hilang!')) return;
+    if (!await konfirmasi('Hapus sesi ini? Data absensi akan hilang!')) return;
     absensiList = absensiList.filter(s => s.id !== sesiId);
     if (sesiAktifId === sesiId) sesiAktifId = null;
     await saveAbsensiData();
@@ -10373,7 +10441,7 @@ async function hapusSesi(sesiId) {
 }
 
 async function tutupSesiAktif() {
-    if (!confirm('Tutup sesi aktif? Bisa dibuka lagi lewat Pilih Sesi.')) return;
+    if (!await konfirmasi('Tutup sesi aktif? Bisa dibuka lagi lewat Pilih Sesi.')) return;
     sesiAktifId = null;
     await saveAbsensiData();
     renderSesiAktifInfo();
@@ -10474,7 +10542,7 @@ async function tandaiHadir() {
 }
 
 async function batalkanHadir(jamaahId) {
-    if (!confirm('Batalkan kehadiran jamaah ini?')) return;
+    if (!await konfirmasi('Batalkan kehadiran jamaah ini?')) return;
     const sesi = getSesiAktif();
     if (!sesi) return;
     sesi.absensi = sesi.absensi.filter(a => a.jamaahId !== jamaahId);
@@ -11263,8 +11331,8 @@ function saveAbsensiColumns() {
     showToast('✅ Pengaturan Rekap Absensi berhasil disimpan!');
 }
 
-function resetAbsensiColumns() {
-    if (confirm('Reset ke pengaturan default?')) {
+async function resetAbsensiColumns() {
+    if (await konfirmasi('Reset ke pengaturan default?')) {
         localStorage.removeItem('navara_absensi_columns');
         openCustomizeAbsensiModal();
         showToast('✅ Pengaturan direset ke default!');
@@ -11684,7 +11752,7 @@ async function simpanFotoProfil(jamaahId) {
 }
 
 async function konfirmasiHapusFoto(jamaahId) {
-    if (!confirm('Hapus foto profil?')) return;
+    if (!(await konfirmasiHapus('Foto profil jamaah ini akan dihapus.', 'Hapus Foto Profil?'))) return;
     await idbDelete(STORE_FOTO, 'foto_' + jamaahId);
     window._currentFotoData = null;
     document.getElementById('fotoPreviewImg').style.display = 'none';
@@ -11865,9 +11933,10 @@ async function migrasiKonsolidasiStatusProsesHaji() {
     if (adaPerubahan) await saveJamaahData();
 }
 
-function confirmDeleteJamaahById(id){ 
+async function confirmDeleteJamaahById(id){ 
     if(cekProgramArsip()) return;
-    if(confirm('Hapus database ini?')){ 
+    const namaDihapus = jamaahList.find(j=>j.id==id)?.nama_lengkap || 'jamaah ini';
+    if(await konfirmasiHapus(`Data "${namaDihapus}" akan dihapus. Masih bisa dibatalkan beberapa detik setelahnya.`, 'Hapus Jamaah?')){ 
         const index=jamaahList.findIndex(j=>j.id==id); 
         if(index!==-1){ 
             const namaJamaah = jamaahList[index].nama_lengkap;
@@ -12336,12 +12405,16 @@ function downloadTemplateExcel() {
 function exportJamaahToExcel(){ 
     if(jamaahList.length===0) return showToast('Tidak ada data!'); 
     const fieldsTampil = getDynamicFieldsJamaahTampil();
-    const headers=['No','Nama Lengkap','Tanggal Input']; 
+    // Urutan kolom SAMA PERSIS dengan Download Template (Nama Lengkap lalu field dinamis), supaya file
+    // Template dan Export bisa dibandingkan berdampingan / disalin-tempel tanpa kolom bergeser.
+    // Kolom informasi tambahan (Tanggal Input, Keluarga) ditaruh di paling belakang — Import mengabaikannya.
+    const headers=['Nama Lengkap']; 
     for(const f of fieldsTampil) headers.push(f.label); 
-    headers.push('Keluarga');
+    headers.push('Tanggal Input', 'Keluarga');
     const rows=jamaahList.map((j,i)=>{ 
-        const row=[i+1,j.nama_lengkap,j.created_at||'-']; 
+        const row=[j.nama_lengkap]; 
         for(const f of fieldsTampil) row.push(j.additional_fields?.[f.name]||''); 
+        row.push(j.created_at||'-');
         const keluargaText = (j.hubungan_keluarga || []).map(r => {
             const target = jamaahList.find(x => x.id === r.jamaahId);
             return target ? `${target.nama_lengkap} (${r.jenis})` : '';
@@ -12356,7 +12429,7 @@ function exportJamaahToExcel(){
     const kolomNomorHP = [];
     fieldsTampil.forEach((f, idx) => {
         const isNomorHP = f.type === 'tel' || f.name === 'whatsapp' || f.name.includes('telepon') || f.name.includes('hp');
-        if (isNomorHP) kolomNomorHP.push(3 + idx); // 3 = jumlah kolom tetap (No, Nama, Tanggal) sebelum field dinamis
+        if (isNomorHP) kolomNomorHP.push(1 + idx); // 1 = kolom Nama Lengkap sebelum field dinamis
     });
     kolomNomorHP.forEach(colIdx => {
         for (let r = 1; r <= rows.length; r++) { // baris 0 = header
@@ -14316,8 +14389,8 @@ function addDynamicFieldJamaah(){
     showToast('Field ditambahkan'); 
 }
 
-function confirmDeleteDynamicField(idx){ 
-    if(confirm(`Hapus field "${dynamicFieldsJamaah[idx].label}"?`)){ 
+async function confirmDeleteDynamicField(idx){ 
+    if(await konfirmasi(`Hapus field "${dynamicFieldsJamaah[idx].label}"?`)){ 
         dynamicFieldsJamaah.splice(idx,1); 
         saveDynamicFieldsJamaah(); 
         renderFieldsList(); 
@@ -14398,7 +14471,7 @@ function importJamaahFromExcel(input){
     const file=input.files[0]; 
     if(!file) return; 
     const reader=new FileReader(); 
-    reader.onload=function(e){ 
+    reader.onload=async function(e){ 
         const data=new Uint8Array(e.target.result); 
         const workbook=XLSX.read(data,{type:'array',cellDates:true}); 
         const sheet=workbook.Sheets[workbook.SheetNames[0]]; 
@@ -14429,7 +14502,7 @@ function importJamaahFromExcel(input){
             return; 
         }
         const progNama = getCurrentProgram()?.nama || '-';
-        if(!confirm(`Import ${validCount} jamaah ke Program:\n📁 ${progNama}\n\nLanjutkan?`)){ 
+        if(!(await tanyaKonfirmasi({ judul: 'Import Jamaah?', pesan: `${validCount} jamaah akan ditambahkan ke Program:`, daftar: [`📁 ${progNama}`], ikon: '📥', tombolYa: 'Import' }))){ 
             input.value=''; 
             return; 
         }
@@ -14929,10 +15002,10 @@ function pilihSemuaOnProses() {
     document.querySelectorAll('#jamaahKitaListContainer input[type=checkbox]').forEach(cb => cb.checked = true);
 }
 
-function hapusPilihanOnProses() {
+async function hapusPilihanOnProses() {
     const checked = document.querySelectorAll('#jamaahKitaListContainer input[type=checkbox]:checked');
     if (checked.length === 0) return showToast('Pilih jamaah yang mau dihapus dulu!');
-    if (!confirm(`Hapus ${checked.length} jamaah dari On Proses?`)) return;
+    if (!(await konfirmasiHapus(`${checked.length} jamaah terpilih akan dihapus dari On Proses. Data di Database Jamaah tidak ikut terhapus.`, 'Hapus dari On Proses?'))) return;
     const ids = Array.from(checked).map(cb => parseInt(cb.value));
     jamaahKitaList = jamaahKitaList.filter(j => !ids.includes(j.id));
     saveJamaahKitaData();
@@ -14998,8 +15071,9 @@ function sendBatchWA() {
     clearJamaahKitaSelection();
 }
 
-function confirmDeleteJamaahKitaById(id) {
-    if (confirm('Hapus jamaah ini dari daftar On Proses?')) {
+async function confirmDeleteJamaahKitaById(id) {
+    const namaKita = jamaahKitaList.find(j => j.id === id)?.nama_lengkap || 'jamaah ini';
+    if (await konfirmasiHapus(`"${namaKita}" akan dihapus dari daftar On Proses. Data di Database Jamaah tidak ikut terhapus.`, 'Hapus dari On Proses?')) {
         jamaahKitaList = jamaahKitaList.filter(j => j.id !== id);
         selectedJamaahKitaIds = selectedJamaahKitaIds.filter(i => i !== id);
         saveJamaahKitaData();
@@ -15491,10 +15565,10 @@ function addJamaahKitaDynamicField() {
     showToast('Field ditambahkan!');
 }
 
-function confirmDeleteJamaahKitaDynamicField(idx) {
+async function confirmDeleteJamaahKitaDynamicField(idx) {
     const field = dynamicFieldsJamaahKita[idx];
     if (field.name === "whatsapp") return showToast('Field WhatsApp tidak bisa dihapus!');
-    if (confirm(`Hapus field "${field.label}"? Data yang sudah diisi akan ikut hilang.`)) {
+    if (await konfirmasi(`Hapus field "${field.label}"? Data yang sudah diisi akan ikut hilang.`)) {
         jamaahKitaList.forEach(jk => { if (jk.additional_fields && jk.additional_fields[field.name]) delete jk.additional_fields[field.name]; });
         dynamicFieldsJamaahKita.splice(idx, 1);
         saveDynamicFieldsJamaahKita();
@@ -15506,10 +15580,10 @@ function confirmDeleteJamaahKitaDynamicField(idx) {
     }
 }
 
-function confirmDeleteAllJamaahKita() {
+async function confirmDeleteAllJamaahKita() {
     if(!cekIzinAdmin('bolehHapus')) return showToast('🔒 Anda tidak punya izin menghapus data');
     if (jamaahKitaList.length === 0) return showToast('Tidak ada data Jamaah on proses!');
-    if (confirm(`PERINGATAN: Semua ${jamaahKitaList.length} data Jamaah on proses akan dihapus PERMANEN! Lanjutkan?`)) {
+    if (await konfirmasiHapus(`SEMUA ${jamaahKitaList.length} data Jamaah on proses akan dihapus PERMANEN.`, 'Hapus Semua On Proses?', 'Hapus Semua')) {
         jamaahKitaList = [];
         selectedJamaahKitaIds = [];
         saveJamaahKitaData();
@@ -17000,8 +17074,10 @@ function closeRiwayatModal() {
     document.getElementById('riwayatModal').classList.remove('show'); 
 }
 
-function deletePaymentTransaction(trxId) { 
-    if (confirm('Hapus transaksi ini?')) { 
+async function deletePaymentTransaction(trxId) { 
+    const trxDihapus = paymentTransaksiList.find(t => t.id == trxId);
+    const infoTrx = trxDihapus ? `Pembayaran Rp ${(trxDihapus.nominal||0).toLocaleString('id-ID')} atas nama ${trxDihapus.nama_jamaah||'-'} akan dihapus.` : 'Transaksi pembayaran ini akan dihapus.';
+    if (await konfirmasiHapus(infoTrx, 'Hapus Pembayaran?')) { 
         const trx = paymentTransaksiList.find(t => t.id == trxId);
         paymentTransaksiList = paymentTransaksiList.filter(t => t.id != trxId); 
         savePaymentData(); 
@@ -18234,8 +18310,8 @@ function editFromDetail() {
     editCatatan(currentDetailIndex);
 }
 
-function deleteFromDetail() {
-    if(confirm('Hapus catatan ini?')) {
+async function deleteFromDetail() {
+    if(await konfirmasi('Hapus catatan ini?')) {
         catatanList.splice(currentDetailIndex, 1);
         saveCatatanData();
         closeDetailModal();
@@ -18481,10 +18557,10 @@ function pilihSemuaFolderList(folderId) {
     document.querySelectorAll('#folderJamaahList input[type=checkbox]').forEach(cb => cb.checked = true);
 }
 
-function hapusPilihanFolder(folderId) {
+async function hapusPilihanFolder(folderId) {
     const checked = document.querySelectorAll('#folderJamaahList input[type=checkbox]:checked');
     if (checked.length === 0) return showToast('Pilih jamaah yang mau dihapus dulu!');
-    if (!confirm(`Hapus ${checked.length} jamaah dari folder ini?`)) return;
+    if (!await konfirmasi(`Hapus ${checked.length} jamaah dari folder ini?`)) return;
     const ids = Array.from(checked).map(cb => parseInt(cb.value));
     const folder = folderList.find(f => f.id == folderId);
     if (!folder) return;
@@ -18545,8 +18621,8 @@ function addJamaahToFolderMulti(folderId) {
     }
 }
 
-function removeJamaahFromFolder(folderId, jamaahId) { 
-    if(confirm('Hapus jamaah dari folder ini?')) { 
+async function removeJamaahFromFolder(folderId, jamaahId) { 
+    if(await konfirmasi('Hapus jamaah dari folder ini?')) { 
         const folder = folderList.find(f => f.id == folderId); 
         if(folder) { 
             folder.jamaahIds = folder.jamaahIds.filter(id => id != jamaahId); 
@@ -18568,8 +18644,8 @@ function editFolder(folderId) {
     } 
 }
 
-function confirmDeleteFolder(folderId) { 
-    if(confirm('Hapus folder ini? Data jamaah di dalam folder tidak akan hilang.')) { 
+async function confirmDeleteFolder(folderId) { 
+    if(await konfirmasi('Hapus folder ini? Data jamaah di dalam folder tidak akan hilang.')) { 
         folderList = folderList.filter(f => f.id != folderId); 
         saveFolderData(); 
         showToast('Folder dihapus'); 
@@ -18640,8 +18716,8 @@ function editFolderField(folderId, index) {
     showToast('Field diupdate');
 }
 
-function deleteFolderField(folderId, index) {
-    if(!confirm('Hapus field ini?')) return;
+async function deleteFolderField(folderId, index) {
+    if(!await konfirmasi('Hapus field ini?')) return;
     const folder = folderList.find(f => f.id == folderId);
     if(!folder) return;
     folder.fields.splice(index, 1);
@@ -18887,7 +18963,7 @@ function openIndexedDB() {
 // dengan build baru, data MENTAH (langsung dari IndexedDB, bukan dari memori) disalin dulu sebelum
 // proses migrasi apapun berjalan — supaya kalau ada kesalahan di update, data lama masih bisa dipulihkan.
 // Dokumen & foto tidak ikut disalin (ukurannya besar, dan tidak pernah disentuh proses migrasi).
-const NAVARA_BUILD = '2026.09.21-8';
+const NAVARA_BUILD = '2026.09.21-14';
 const MAKS_SNAPSHOT = 3;
 
 function daftarKunciSnapshot() {
@@ -18964,7 +19040,7 @@ async function pulihkanSnapshot(idx) {
     const s = daftar[idx];
     if (!s) return showToast('Cadangan tidak ditemukan');
     const tgl = new Date(s.waktu).toLocaleString('id-ID');
-    if (!confirm(`Pulihkan data ke kondisi ${tgl} (${s.jumlahJamaah} jamaah)?\n\nData teks saat ini akan diganti. Dokumen & foto tidak terpengaruh.\nKondisi sekarang akan dicadangkan dulu, jadi masih bisa dibatalkan.`)) return;
+    if (!(await tanyaKonfirmasi({ judul: 'Pulihkan Cadangan?', pesan: `Data teks akan dikembalikan ke kondisi ${tgl} (${s.jumlahJamaah} jamaah).`, daftar: ['Data teks saat ini akan diganti', 'Dokumen & foto tidak terpengaruh', 'Kondisi sekarang dicadangkan dulu, jadi masih bisa dibatalkan'], ikon: '🛡️', tombolYa: 'Pulihkan', warnaYa: '#F59E0B' }))) return;
     try {
         await buatSnapshotData('Otomatis sebelum dipulihkan');
         for (const k of Object.keys(s.isi)) {
@@ -19448,7 +19524,7 @@ async function confirmDeleteFoto(jamaahId, jenisId, idx, jenisNama) {
     const msg = total === 1 
         ? `Hapus satu-satunya foto ${jenisNama}?` 
         : `Hapus foto ${idx+1} dari ${total} foto ${jenisNama}?`;
-    if(!confirm(msg)) return;
+    if(!(await konfirmasiHapus(msg, 'Hapus Foto Dokumen?'))) return;
     arr.splice(idx, 1);
     if(arr.length === 0) delete dokumenData[jamaahId][jenisId];
     await saveAllDokumenToIndexedDB(jamaahId);
@@ -19805,7 +19881,7 @@ async function simpanEditJenisModal(idx) {
 }
 
 async function confirmDeleteDokumenField(idx) { 
-    if(confirm(`Hapus jenis dokumen "${dokumenJenisList[idx].nama}"? Data dokumen yang sudah diupload akan ikut terhapus.`)) { 
+    if(await konfirmasi(`Hapus jenis dokumen "${dokumenJenisList[idx].nama}"? Data dokumen yang sudah diupload akan ikut terhapus.`)) { 
         const idToDelete = dokumenJenisList[idx].id; 
         dokumenJenisList.splice(idx,1); 
         for(const jamaahId in dokumenData) { if(dokumenData[jamaahId][idToDelete]) delete dokumenData[jamaahId][idToDelete]; } 
@@ -20262,7 +20338,7 @@ function showRestoreJsonPasteModal() {
 async function processRestoreJsonText() {
     const text = document.getElementById('restoreJsonPasteText')?.value.trim();
     if(!text) return showToast('Tempel teks JSON dulu!');
-    if (!confirm('Restore akan menimpa semua data yang ada (kecuali foto & dokumen). Lanjutkan?')) return;
+    if (!(await konfirmasiTimpa('Semua data akan ditimpa dengan isi cadangan JSON ini.', ['Foto & dokumen tidak ikut berubah']))) return;
     showToast('⏳ Memulihkan data...');
     try {
         const backup = JSON.parse(text);
@@ -20405,10 +20481,10 @@ async function applyRestoreBackupData(backup) {
     }
 }
 
-function restoreFromJson(input) {
+async function restoreFromJson(input) {
     const file = input.files[0];
     if (!file) return;
-    if (!confirm('Restore JSON akan menimpa semua data yang ada (kecuali foto & dokumen). Lanjutkan?')) { input.value = ''; return; }
+    if (!(await konfirmasiTimpa('Semua data akan ditimpa dengan isi file JSON ini.', ['Foto & dokumen tidak ikut berubah']))) { input.value = ''; return; }
     showToast('⏳ Memulihkan data...');
     const reader = new FileReader();
     reader.onload = async function(e) {
@@ -20465,10 +20541,10 @@ function tutupProgresRestore() {
     _waktuMulaiProgresRestore = null;
 }
 
-function restoreFromZip(input) { 
+async function restoreFromZip(input) { 
     const file = input.files[0]; 
     if (!file) return; 
-    if (!confirm('Restore akan menimpa semua data yang ada. Lanjutkan?')) { input.value = ''; return; }
+    if (!(await konfirmasiTimpa('Semua data akan ditimpa dengan isi file ZIP ini, termasuk foto & dokumen.', ['Pastikan file ZIP yang dipilih sudah benar']))) { input.value = ''; return; }
     showToast('Memulihkan data...'); 
     tampilkanProgresRestore('Membaca file ZIP...');
     const reader = new FileReader(); 
@@ -21152,8 +21228,8 @@ function saveNameTagFields() {
     showToast('✅ Pengaturan Name Tag berhasil disimpan!');
 }
 
-function resetNameTagFields() {
-    if (confirm('Reset ke pengaturan default?')) {
+async function resetNameTagFields() {
+    if (await konfirmasi('Reset ke pengaturan default?')) {
         localStorage.removeItem('navara_nametag_fields');
         openCustomizeNameTagModal();
         showToast('✅ Pengaturan direset ke default!');
@@ -21398,8 +21474,8 @@ function renderScheduledReminders() {
     container.innerHTML = html; 
 }
 
-function hapusPengingat(id) { 
-    if(confirm('Hapus pengingat ini?')) { 
+async function hapusPengingat(id) { 
+    if(await konfirmasi('Hapus pengingat ini?')) { 
         scheduledReminders = scheduledReminders.filter(r => r.id !== id); 
         saveScheduledReminders(); 
         showToast('Pengingat dihapus'); 
@@ -21409,8 +21485,8 @@ function hapusPengingat(id) {
 // ==================== RESET ALL DATA ====================
 async function confirmResetAllData() { 
     if(!cekIzinAdmin('bolehReset')) return showToast('🔒 Anda tidak punya izin mereset data');
-    if(!confirm('⚠️ RESET SEMUA DATA?\n\nSEMUA data akan dihapus permanen:\n- Jamaah & dokumen\n- Kas & pembayaran\n- On Proses & Folder\n- Konfigurasi instansi\n- Absensi\n- Foto profil\n- Catatan\n- Pengeluaran (Cuan Plan)\n\nAplikasi kembali seperti pertama kali diinstall!\n\nCatatan: Lisensi & Device ID TETAP tersimpan.\n\nLanjutkan?')) return;
-    if(!confirm('Yakin? Tindakan ini TIDAK BISA dibatalkan!')) return;
+    if(!(await tanyaKonfirmasi({ judul: 'Reset Semua Data?', pesan: 'Aplikasi akan kembali seperti pertama kali dipasang. Yang dihapus permanen:', daftar: ['Jamaah & dokumen', 'Kas & pembayaran', 'On Proses & Folder', 'Konfigurasi instansi', 'Absensi, foto profil, catatan', 'Pengeluaran (Cuan Plan)'], ikon: '⚠️', tombolYa: 'Lanjut', warnaYa: '#DC2626' }))) return;
+    if(!(await konfirmasiHapus('Tindakan ini TIDAK BISA dibatalkan. Lisensi & Device ID tetap tersimpan.', 'Yakin Reset?', 'Ya, Reset Semua'))) return;
 
     // Selamatkan lisensi & device ID sebelum reset
     const savedLicense = localStorage.getItem('navara_license');
@@ -22273,8 +22349,8 @@ function editMasterData(id) {
     document.getElementById('masterFormTitle').scrollIntoView({ behavior: 'smooth' });
 }
 
-function confirmDeleteMasterData(id) {
-    if(confirm('Hapus data ini?')) {
+async function confirmDeleteMasterData(id) {
+    if(await konfirmasi('Hapus data ini?')) {
         masterDataList = masterDataList.filter(d => d.id != id);
         saveMasterDataToLocal();
         renderMasterTable();
@@ -22282,11 +22358,11 @@ function confirmDeleteMasterData(id) {
     }
 }
 
-function confirmDeleteAllMasterData() {
+async function confirmDeleteAllMasterData() {
     if(!cekIzinAdmin('bolehHapus')) return showToast('🔒 Anda tidak punya izin menghapus data');
     if(masterDataList.length === 0) { showToast('Tidak ada data!'); return; }
     const progNama = getCurrentProgram()?.nama || '-';
-    if(confirm(`⚠️ Hapus SEMUA ${masterDataList.length} data di Program "${progNama}"?\n(Program lain tidak terpengaruh)`)) {
+    if(await konfirmasi(`⚠️ Hapus SEMUA ${masterDataList.length} data di Program "${progNama}"?\n(Program lain tidak terpengaruh)`)) {
         masterDataList = [];
         saveMasterDataToLocal();
         renderMasterTable();
@@ -22334,11 +22410,11 @@ function executePindahMode() {
     showToast(msg);
 }
 
-function deleteSelectedMasterData() {
+async function deleteSelectedMasterData() {
     if(!cekIzinAdmin('bolehHapus')) return showToast('🔒 Anda tidak punya izin menghapus data');
     const selected = document.querySelectorAll('.master-checkbox:checked');
     if(selected.length === 0) { showToast('Pilih data dulu!'); return; }
-    if(confirm(`Hapus ${selected.length} data?`)) {
+    if(await konfirmasi(`Hapus ${selected.length} data?`)) {
         const idsToDelete = [];
         selected.forEach(cb => {
             const row = cb.closest('tr');
@@ -22661,8 +22737,8 @@ function addMasterDynamicField() {
     showToast('Field ditambahkan');
 }
 
-function confirmDeleteMasterField(idx) {
-    if(confirm(`Hapus field "${masterDynamicFields[idx].label}"?`)) {
+async function confirmDeleteMasterField(idx) {
+    if(await konfirmasi(`Hapus field "${masterDynamicFields[idx].label}"?`)) {
         masterDynamicFields.splice(idx,1);
         saveMasterDataToLocal();
         renderMasterFieldsList();
@@ -22703,8 +22779,8 @@ function addMasterItem() {
     showToast('Item ditambahkan');
 }
 
-function confirmDeleteMasterItem(idx) {
-    if(confirm(`Hapus "${masterItemList[idx]}"?`)) {
+async function confirmDeleteMasterItem(idx) {
+    if(await konfirmasi(`Hapus "${masterItemList[idx]}"?`)) {
         masterItemList.splice(idx,1);
         saveMasterDataToLocal();
         renderMasterItemList();
@@ -22848,8 +22924,8 @@ function addNewMode() {
     showToast(`Mode "${newMode}" ditambahkan`);
 }
 
-function deleteModeFromList(mode) {
-    if(confirm(`Hapus mode "${mode}"?`)) {
+async function deleteModeFromList(mode) {
+    if(await konfirmasi(`Hapus mode "${mode}"?`)) {
         availableModes = availableModes.filter(m => m !== mode);
         activeModes = activeModes.filter(m => m !== mode);
         saveModesToStorage();
@@ -23063,7 +23139,7 @@ async function saveKonfigurasiPro() {
     updateHeaderFromConfig();
 }
 
-function resetKonfigurasiPro() {
+async function resetKonfigurasiPro() {
     if(!cekIzinAdmin('bolehReset')) return showToast('🔒 Anda tidak punya izin mereset data');
     const peringatan = '⚠️ Ini akan menghapus:\n\n' +
         '• Data Instansi 1 & 2, TTD, watermark\n' +
@@ -23071,7 +23147,7 @@ function resetKonfigurasiPro() {
         '• Template WhatsApp\n\n' +
         'Data Estimasi, Konsorsium, Kalimat Sapaan, dan lainnya yang terkait Program TIDAK ikut terhapus.\n\n' +
         'Lanjutkan Reset?';
-    if(confirm(peringatan)) {
+    if(await tanyaKonfirmasi({ judul: 'Reset Konfigurasi?', pesan: 'Yang akan dikembalikan ke bawaan:', daftar: ['Data Instansi 1 & 2, TTD, watermark', 'Pengaturan Laporan (Header PDF, Tanda Tangan)', 'Template WhatsApp'], ikon: '⚙️', tombolYa: 'Reset', warnaYa: '#DC2626' })) {
         // Simpan dulu semua data per-Program (Estimasi, Konsorsium, Kalimat Sapaan, Tipe Paket, dll) —
         // ini TIDAK boleh ikut ter-reset, cuma pengaturan branding/laporan di bawah ini yang di-default-kan ulang.
         const perProgramAman = konfigurasiPro.per_program || {};
@@ -23536,7 +23612,11 @@ function cetakDariPreview() {
             try {
                 window.print();
             } catch(e) {
-                alert('Gagal membuka dialog cetak: ' + e.message);
+                const kotakGagal = document.createElement('div');
+                kotakGagal.id = 'pesanGagalCetak';
+                kotakGagal.style.cssText = 'position:fixed;left:16px;right:16px;bottom:16px;background:#FEE2E2;color:#991B1B;border-radius:12px;padding:12px 14px;font-family:Arial,sans-serif;font-size:13px;line-height:1.5;box-shadow:0 4px 16px rgba(0,0,0,0.2);z-index:9999;';
+                kotakGagal.textContent = '⚠️ Dialog cetak tidak bisa dibuka otomatis. Silakan cetak lewat menu browser (⋮ → Cetak / Bagikan).';
+                document.body.appendChild(kotakGagal);
             }
         }
         
