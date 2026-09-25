@@ -2749,8 +2749,102 @@
         <div class="dynamic-field"><label>PIC</label><input type="text" id="agendaPenanggungJawab" placeholder="Opsional"></div>
         <div class="dynamic-field"><label>Lokasi</label><input type="text" id="agendaLokasi" placeholder="Contoh: Ruang Rapat / Online"></div>
         <div class="dynamic-field"><label>Catatan / Hasil Rapat</label><textarea id="agendaCatatanHasil" rows="3" placeholder="Diisi setelah rapat berlangsung (opsional)"></textarea></div>
+        <div id="agendaCekPejabatWrapper" class="dynamic-field" style="display:none;">
+            <label>Cek Ketersediaan Pejabat (opsional)</label>
+            <select id="agendaCekPejabatId"><option value="">-- Tidak perlu dicek --</option></select>
+        </div>
         <button class="btn btn-primary mt-2" onclick="simpanAgendaKantor()">Simpan</button>
         <button onclick="document.getElementById('agendaKantorModal').style.display='none'" class="btn btn-secondary mt-2">Batal</button>
+    </div>
+</div>
+
+<!-- ==================== KALENDER PEJABAT (opsional, global) ==================== -->
+<div id="page-kalender-pejabat" class="page">
+    <div class="header-premium header-premium-small"><div class="back-header"><i class="fas fa-arrow-left" onclick="showPage('home')"></i><h2>Kalender Pejabat</h2><div style="width:30px;"></div></div></div>
+    <div class="card-premium">
+        <div style="font-size:11px;color:#888;margin-bottom:10px;">Catat jadwal rutin &amp; kegiatan pejabat/atasan (opsional) — bisa dipakai untuk cek ketersediaan sebelum bikin Agenda Kantor, dan bisa dicetak untuk keperluan internal maupun promosi.</div>
+        <div id="daftarPejabatContainer" style="margin-bottom:10px;"></div>
+        <button class="btn btn-utility btn-small" onclick="openTambahPejabatModal()"><i class="fas fa-plus-circle"></i> Tambah Pejabat</button>
+    </div>
+
+    <div id="kalenderPejabatDetailCard" class="card-premium" style="display:none;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+            <div id="namaPejabatDipilih" style="font-weight:700;color:var(--primary);font-size:15px;"></div>
+            <span onclick="tutupDetailPejabat()" style="cursor:pointer;color:#888;font-size:18px;">✕</span>
+        </div>
+        <div style="display:flex;align-items:center;justify-content:space-between;background:#F8FAFC;border-radius:10px;padding:8px 12px;margin-bottom:12px;">
+            <button onclick="gantiBulanPejabat(-1)" style="border:none;background:none;color:var(--primary);font-size:18px;cursor:pointer;padding:4px 10px;"><i class="fas fa-chevron-left"></i></button>
+            <div id="labelBulanPejabat" style="font-weight:700;color:var(--primary);font-size:14px;"></div>
+            <button onclick="gantiBulanPejabat(1)" style="border:none;background:none;color:var(--primary);font-size:18px;cursor:pointer;padding:4px 10px;"><i class="fas fa-chevron-right"></i></button>
+        </div>
+        <div class="row" style="margin-bottom:8px;">
+            <button class="btn btn-utility btn-small" style="flex:1;" onclick="openTambahJadwalRutinModal()"><i class="fas fa-repeat"></i> Jadwal Rutin</button>
+            <button class="btn btn-utility btn-small" style="flex:1;" onclick="openTambahCatatanTanggalModal()"><i class="fas fa-calendar-plus"></i> Catatan Tanggal</button>
+        </div>
+        <div class="row" style="margin-bottom:10px;">
+            <button onclick="cetakKalenderPejabat('internal')" style="flex:1;padding:8px;background:var(--orange);color:white;border:none;border-radius:8px;font-size:12px;cursor:pointer;">🖨️ Cetak Internal</button>
+            <button onclick="cetakKalenderPejabat('promosi')" style="flex:1;padding:8px;background:#8B5CF6;color:white;border:none;border-radius:8px;font-size:12px;cursor:pointer;">✨ Cetak Promosi</button>
+        </div>
+        <div id="kalenderPejabatListContainer"></div>
+    </div>
+</div>
+
+<!-- MODAL TAMBAH PEJABAT -->
+<div id="pejabatModal" class="modal">
+    <div class="modal-content">
+        <h3 style="color:var(--primary);">Tambah Pejabat</h3>
+        <div class="dynamic-field"><label>Nama <span style="color:red;">*</span></label><input type="text" id="pejabatNama" placeholder="Contoh: KH. Mauhib"></div>
+        <div class="dynamic-field"><label>Jabatan</label><input type="text" id="pejabatJabatan" placeholder="Contoh: Rektor / Pengasuh (opsional)"></div>
+        <button class="btn btn-primary mt-2" onclick="simpanPejabat()">Simpan</button>
+        <button onclick="document.getElementById('pejabatModal').style.display='none'" class="btn btn-secondary mt-2">Batal</button>
+    </div>
+</div>
+
+<!-- MODAL JADWAL RUTIN MINGGUAN -->
+<div id="jadwalRutinModal" class="modal">
+    <div class="modal-content">
+        <h3 style="color:var(--primary);">Jadwal Rutin Mingguan</h3>
+        <div style="font-size:11px;color:#888;margin-bottom:10px;">Berulang otomatis setiap minggu, tidak perlu diisi ulang tiap bulan.</div>
+        <div class="dynamic-field"><label>Hari <span style="color:red;">*</span></label>
+            <select id="rutinHari">
+                <option value="1">Senin</option><option value="2">Selasa</option><option value="3">Rabu</option>
+                <option value="4">Kamis</option><option value="5">Jumat</option><option value="6">Sabtu</option><option value="0">Minggu</option>
+            </select>
+        </div>
+        <div class="row">
+            <div class="dynamic-field"><label>Jam Mulai</label><input type="time" id="rutinJamMulai"></div>
+            <div class="dynamic-field"><label>Jam Selesai</label><input type="time" id="rutinJamSelesai"></div>
+        </div>
+        <div class="dynamic-field"><label>Kegiatan <span style="color:red;">*</span></label><input type="text" id="rutinKegiatan" placeholder="Contoh: Pengajian Rutin"></div>
+        <button class="btn btn-primary mt-2" onclick="simpanJadwalRutin()">Simpan</button>
+        <button onclick="document.getElementById('jadwalRutinModal').style.display='none'" class="btn btn-secondary mt-2">Batal</button>
+        <div id="daftarJadwalRutinContainer" style="margin-top:14px;"></div>
+    </div>
+</div>
+
+<!-- MODAL CATATAN TANGGAL SPESIFIK -->
+<div id="catatanTanggalModal" class="modal">
+    <div class="modal-content">
+        <h3 id="catatanTanggalModalTitle" style="color:var(--primary);">Catatan Tanggal</h3>
+        <input type="hidden" id="catatanTanggalEditingId">
+        <div class="dynamic-field"><label>Judul Kegiatan <span style="color:red;">*</span></label><input type="text" id="catatanTanggalJudul" placeholder="Contoh: Ke Luar Negeri"></div>
+        <div class="dynamic-field"><label>Jenis Kegiatan</label>
+            <select id="catatanTanggalJenis">
+                <option value="pengajian">📿 Pengajian</option>
+                <option value="manasik">🕋 Manasik</option>
+                <option value="perjalanan">✈️ Kunjungan / Perjalanan</option>
+                <option value="tamu">🤝 Tamu</option>
+                <option value="lainnya">📌 Lainnya</option>
+            </select>
+        </div>
+        <div class="row">
+            <div class="dynamic-field"><label>Tanggal Mulai <span style="color:red;">*</span></label><input type="date" id="catatanTanggalMulai"></div>
+            <div class="dynamic-field"><label>Tanggal Selesai <span style="color:red;">*</span></label><input type="date" id="catatanTanggalSelesai"></div>
+        </div>
+        <div style="font-size:11px;color:#888;margin:-6px 0 10px;">Kalau cuma 1 hari, isi tanggal mulai &amp; selesai sama.</div>
+        <div class="dynamic-field"><label>Keterangan</label><textarea id="catatanTanggalKeterangan" rows="2" placeholder="Opsional"></textarea></div>
+        <button class="btn btn-primary mt-2" onclick="simpanCatatanTanggal()">Simpan</button>
+        <button onclick="document.getElementById('catatanTanggalModal').style.display='none'" class="btn btn-secondary mt-2">Batal</button>
     </div>
 </div>
 <div id="page-jamaah" class="page">
@@ -4247,6 +4341,7 @@ function internalShowPage(pageId) {
     if (pageId === 'arsipprogram') { if(typeof renderArsipProgramList === 'function') renderArsipProgramList(); }
     if (pageId === 'itinerary') { if(typeof renderItineraryList === 'function') renderItineraryList(); }
     if (pageId === 'agenda-kantor') { if(typeof loadAgendaKantorData === 'function') loadAgendaKantorData(); }
+    if (pageId === 'kalender-pejabat') { if(typeof loadPejabatData === 'function') loadPejabatData(); }
     if (pageId === 'jamaah') { if(window.loadJamaahData) window.loadJamaahData().then(() => { if(window.renderJamaahListWithPagination) window.renderJamaahListWithPagination(); }); else if(window.renderJamaahListWithPagination) window.renderJamaahListWithPagination(); }
     if (pageId === 'jamaahkita') {
         const c = document.getElementById('jamaahKitaListContainer');
@@ -4775,6 +4870,7 @@ const menuItemsPremium = [
     { id: 'jamaahkita', icon: '<i class="fas fa-hourglass-half"></i>', label: 'Jamaah on proses', badge: 'Proses' }, 
     { id: 'catatan', icon: '<i class="fas fa-note-sticky"></i>', label: 'Catatan', badge: 'Notes' }, 
     { id: 'agenda-kantor', icon: '<i class="fas fa-calendar-check"></i>', label: 'Agenda Kantor', badge: 'Rapat' }, 
+    { id: 'kalender-pejabat', icon: '<i class="fas fa-user-tie"></i>', label: 'Kalender Pejabat', badge: 'Jadwal' }, 
     { id: 'zakat', icon: '<i class="fas fa-hand-holding-dollar"></i>', label: 'Zakat', badge: 'Kalkulator' }, 
     { id: 'pembayaran', icon: '<i class="fas fa-receipt"></i>', label: 'Pembayaran', badge: 'Tagihan' }, 
     { id: 'datamaster', icon: '<i class="fas fa-calendar-days"></i>', label: 'Multi Event', badge: 'Event' }, 
@@ -9360,6 +9456,17 @@ function renderAgendaKantorList() {
 function openTambahAgendaModal(id) {
     const modal = document.getElementById('agendaKantorModal');
     document.getElementById('agendaKantorEditingId').value = id || '';
+    const wrapper = document.getElementById('agendaCekPejabatWrapper');
+    const selectPejabat = document.getElementById('agendaCekPejabatId');
+    if (wrapper && selectPejabat) {
+        if (pejabatList && pejabatList.length > 0) {
+            wrapper.style.display = 'block';
+            selectPejabat.innerHTML = '<option value="">-- Tidak perlu dicek --</option>' + pejabatList.map(p => `<option value="${p.id}">${escapeHtml(p.nama)}</option>`).join('');
+        } else {
+            wrapper.style.display = 'none';
+            selectPejabat.innerHTML = '<option value="">-- Tidak perlu dicek --</option>';
+        }
+    }
     if (id) {
         const a = agendaKantorList.find(x => x.id === id);
         document.getElementById('agendaKantorModalTitle').textContent = 'Edit Agenda';
@@ -9383,6 +9490,16 @@ async function simpanAgendaKantor() {
     const tanggal = document.getElementById('agendaTanggal').value;
     if (!pembahasan) return showToast('Pembahasan wajib diisi!');
     if (!tanggal) return showToast('Tanggal wajib diisi!');
+
+    const pejabatIdDicek = document.getElementById('agendaCekPejabatId')?.value;
+    if (pejabatIdDicek) {
+        const bentrok = cekBentrokPejabat(pejabatIdDicek, tanggal);
+        if (bentrok.length > 0) {
+            const p = pejabatList.find(x => x.id === Number(pejabatIdDicek));
+            const lanjut = confirm(`⚠️ ${p.nama} sudah ada kegiatan di tanggal ini:\n\n${bentrok.map(b => '- ' + b).join('\n')}\n\nTetap simpan Agenda ini?`);
+            if (!lanjut) return;
+        }
+    }
 
     const data = {
         pembahasan,
@@ -9410,6 +9527,360 @@ function hapusAgendaKantor(id) {
     agendaKantorList = agendaKantorList.filter(a => a.id !== id);
     saveAgendaKantorData();
     showToast('Agenda dihapus');
+}
+
+// ==================== KALENDER PEJABAT (opsional, global — kosong = seperti tidak pernah ada fitur ini) ====================
+let pejabatList = [];
+let pejabatDipilihId = null;
+let bulanPejabatDilihat = new Date();
+const JENIS_KEGIATAN_PEJABAT = {
+    pengajian: { label: 'Pengajian', icon: '📿' },
+    manasik: { label: 'Manasik', icon: '🕋' },
+    perjalanan: { label: 'Kunjungan / Perjalanan', icon: '✈️' },
+    tamu: { label: 'Tamu', icon: '🤝' },
+    lainnya: { label: 'Lainnya', icon: '📌' },
+};
+const NAMA_HARI_PEJABAT = ['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'];
+
+async function loadPejabatData() {
+    try { pejabatList = (await idbGet(STORE_CATATAN, 'pejabat_list')) || []; } catch(e) { pejabatList = []; }
+    renderDaftarPejabat();
+    if (pejabatDipilihId && !pejabatList.some(p => p.id === pejabatDipilihId)) {
+        pejabatDipilihId = null;
+        const card = document.getElementById('kalenderPejabatDetailCard'); if (card) card.style.display = 'none';
+    }
+    if (pejabatDipilihId) renderKalenderPejabat();
+}
+
+async function savePejabatData() {
+    try { await idbSet(STORE_CATATAN, 'pejabat_list', pejabatList); } catch(e) {}
+    renderDaftarPejabat();
+    if (pejabatDipilihId) renderKalenderPejabat();
+}
+
+function renderDaftarPejabat() {
+    const container = document.getElementById('daftarPejabatContainer');
+    if (!container) return;
+    if (pejabatList.length === 0) {
+        container.innerHTML = '<p style="color:#6B7280;text-align:center;padding:14px;font-size:13px;">Belum ada Pejabat dicatat. Fitur ini opsional — kosongkan saja kalau tidak perlu.</p>';
+        return;
+    }
+    container.innerHTML = pejabatList.map(p => `
+        <div onclick="pilihPejabat(${p.id})" style="display:flex;align-items:center;justify-content:space-between;gap:8px;padding:12px;border-radius:10px;margin-bottom:6px;cursor:pointer;background:${p.id===pejabatDipilihId?'#F0FBF6':'#F8FAFC'};border:1px solid ${p.id===pejabatDipilihId?'var(--primary)':'#eee'};">
+            <div>
+                <div style="font-weight:700;font-size:14px;">👤 ${escapeHtml(p.nama)}</div>
+                ${p.jabatan ? `<div style="font-size:11px;color:#666;">${escapeHtml(p.jabatan)}</div>` : ''}
+            </div>
+            <span onclick="event.stopPropagation(); hapusPejabat(${p.id})" style="color:#DC2626;font-size:16px;cursor:pointer;padding:4px;">🗑️</span>
+        </div>`).join('');
+}
+
+function openTambahPejabatModal() {
+    document.getElementById('pejabatNama').value = '';
+    document.getElementById('pejabatJabatan').value = '';
+    document.getElementById('pejabatModal').style.display = 'flex';
+}
+
+async function simpanPejabat() {
+    const nama = document.getElementById('pejabatNama').value.trim();
+    if (!nama) return showToast('Nama wajib diisi!');
+    pejabatList.push({ id: Date.now(), nama, jabatan: document.getElementById('pejabatJabatan').value.trim(), jadwalRutin: [], catatanTanggal: [] });
+    await savePejabatData();
+    document.getElementById('pejabatModal').style.display = 'none';
+    showToast('Pejabat ditambahkan');
+}
+
+function hapusPejabat(id) {
+    if (!confirm('Hapus Pejabat ini beserta seluruh jadwalnya?')) return;
+    pejabatList = pejabatList.filter(p => p.id !== id);
+    if (pejabatDipilihId === id) { pejabatDipilihId = null; document.getElementById('kalenderPejabatDetailCard').style.display = 'none'; }
+    savePejabatData();
+    showToast('Pejabat dihapus');
+}
+
+function pilihPejabat(id) {
+    pejabatDipilihId = id;
+    bulanPejabatDilihat = new Date();
+    renderDaftarPejabat();
+    document.getElementById('kalenderPejabatDetailCard').style.display = 'block';
+    const p = pejabatList.find(x => x.id === id);
+    document.getElementById('namaPejabatDipilih').textContent = '👤 ' + p.nama + (p.jabatan ? ' — ' + p.jabatan : '');
+    renderKalenderPejabat();
+}
+
+function tutupDetailPejabat() {
+    pejabatDipilihId = null;
+    document.getElementById('kalenderPejabatDetailCard').style.display = 'none';
+    renderDaftarPejabat();
+}
+
+function gantiBulanPejabat(delta) {
+    bulanPejabatDilihat.setMonth(bulanPejabatDilihat.getMonth() + delta);
+    renderKalenderPejabat();
+}
+
+// Ubah jadwal rutin (berulang tiap minggu) + catatan tanggal spesifik jadi daftar kejadian per-tanggal
+// untuk 1 bulan tertentu — dipakai bersama oleh tampilan layar, Cetak Internal, dan Cetak Promosi,
+// supaya isinya selalu konsisten di ketiga tempat.
+function expandJadwalPejabatUntukBulan(pejabat, tahun, bulan) {
+    const hasil = [];
+    const jumlahHari = new Date(tahun, bulan + 1, 0).getDate();
+    for (let d = 1; d <= jumlahHari; d++) {
+        const tglStr = `${tahun}-${String(bulan + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+        const hariMinggu = new Date(tahun, bulan, d).getDay();
+        (pejabat.jadwalRutin || []).forEach(jr => {
+            if (Number(jr.hari) === hariMinggu) {
+                hasil.push({ tanggal: tglStr, jamMulai: jr.jamMulai || '', jamSelesai: jr.jamSelesai || '', judul: jr.kegiatan, jenis: 'rutin', sumber: 'rutin' });
+            }
+        });
+        (pejabat.catatanTanggal || []).forEach(ct => {
+            if (tglStr >= ct.tglMulai && tglStr <= ct.tglSelesai) {
+                hasil.push({ tanggal: tglStr, jamMulai: '', jamSelesai: '', judul: ct.judul, jenis: ct.jenis, keterangan: ct.keterangan, sumber: 'catatan', id: ct.id });
+            }
+        });
+    }
+    hasil.sort((a, b) => (a.tanggal + (a.jamMulai || '')).localeCompare(b.tanggal + (b.jamMulai || '')));
+    return hasil;
+}
+
+function renderKalenderPejabat() {
+    const p = pejabatList.find(x => x.id === pejabatDipilihId);
+    if (!p) return;
+    const labelEl = document.getElementById('labelBulanPejabat');
+    if (labelEl) labelEl.textContent = bulanPejabatDilihat.toLocaleDateString('id-ID', { month: 'long', year: 'numeric' });
+    const container = document.getElementById('kalenderPejabatListContainer');
+    if (!container) return;
+    const kejadian = expandJadwalPejabatUntukBulan(p, bulanPejabatDilihat.getFullYear(), bulanPejabatDilihat.getMonth());
+
+    if (kejadian.length === 0) {
+        container.innerHTML = '<p style="color:#6B7280;text-align:center;padding:20px;font-size:13px;">Belum ada jadwal di bulan ini.</p>';
+        return;
+    }
+    container.innerHTML = kejadian.map(k => {
+        const tglText = new Date(k.tanggal + 'T00:00:00').toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+        const jenisInfo = k.sumber === 'rutin' ? { label: 'Rutin Mingguan', icon: '🔁' } : (JENIS_KEGIATAN_PEJABAT[k.jenis] || JENIS_KEGIATAN_PEJABAT.lainnya);
+        return `<div style="background:#F8FAFC;border-radius:12px;padding:12px;margin-bottom:8px;">
+            <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px;">
+                <div style="font-weight:700;color:var(--primary);font-size:14px;">${jenisInfo.icon} ${escapeHtml(k.judul)}</div>
+                ${k.sumber === 'catatan' ? `<span onclick="hapusCatatanTanggal(${k.id})" style="color:#DC2626;font-size:14px;cursor:pointer;">🗑️</span>` : ''}
+            </div>
+            <div style="font-size:12px;color:#555;margin-top:4px;">🗓️ ${tglText}${k.jamMulai ? ' · ' + k.jamMulai + (k.jamSelesai ? '–' + k.jamSelesai : '') + ' WIB' : ''}</div>
+            ${k.keterangan ? `<div style="font-size:12px;color:#333;margin-top:4px;">${escapeHtml(k.keterangan)}</div>` : ''}
+        </div>`;
+    }).join('');
+}
+
+function openTambahJadwalRutinModal() {
+    document.getElementById('rutinHari').value = '1';
+    document.getElementById('rutinJamMulai').value = '';
+    document.getElementById('rutinJamSelesai').value = '';
+    document.getElementById('rutinKegiatan').value = '';
+    renderDaftarJadwalRutin();
+    document.getElementById('jadwalRutinModal').style.display = 'flex';
+}
+
+function renderDaftarJadwalRutin() {
+    const p = pejabatList.find(x => x.id === pejabatDipilihId);
+    const container = document.getElementById('daftarJadwalRutinContainer');
+    if (!p || !container) return;
+    const list = p.jadwalRutin || [];
+    if (list.length === 0) { container.innerHTML = '<div style="font-size:12px;color:#888;text-align:center;">Belum ada jadwal rutin</div>'; return; }
+    container.innerHTML = list.map((jr, idx) => `
+        <div style="display:flex;justify-content:space-between;align-items:center;background:#F8FAFC;border-radius:8px;padding:8px 10px;margin-bottom:6px;font-size:12px;">
+            <div><b>${NAMA_HARI_PEJABAT[jr.hari]}</b> ${jr.jamMulai || ''}${jr.jamSelesai ? '–' + jr.jamSelesai : ''} — ${escapeHtml(jr.kegiatan)}</div>
+            <span onclick="hapusJadwalRutin(${idx})" style="color:#DC2626;cursor:pointer;">🗑️</span>
+        </div>`).join('');
+}
+
+async function simpanJadwalRutin() {
+    const p = pejabatList.find(x => x.id === pejabatDipilihId);
+    if (!p) return;
+    const kegiatan = document.getElementById('rutinKegiatan').value.trim();
+    if (!kegiatan) return showToast('Kegiatan wajib diisi!');
+    if (!p.jadwalRutin) p.jadwalRutin = [];
+    p.jadwalRutin.push({
+        hari: Number(document.getElementById('rutinHari').value),
+        jamMulai: document.getElementById('rutinJamMulai').value,
+        jamSelesai: document.getElementById('rutinJamSelesai').value,
+        kegiatan,
+    });
+    await savePejabatData();
+    document.getElementById('rutinKegiatan').value = '';
+    renderDaftarJadwalRutin();
+    showToast('Jadwal rutin ditambahkan');
+}
+
+async function hapusJadwalRutin(idx) {
+    const p = pejabatList.find(x => x.id === pejabatDipilihId);
+    if (!p || !confirm('Hapus jadwal rutin ini?')) return;
+    p.jadwalRutin.splice(idx, 1);
+    await savePejabatData();
+    renderDaftarJadwalRutin();
+}
+
+function openTambahCatatanTanggalModal(id) {
+    document.getElementById('catatanTanggalEditingId').value = id || '';
+    const p = pejabatList.find(x => x.id === pejabatDipilihId);
+    if (id && p) {
+        const ct = (p.catatanTanggal || []).find(x => x.id === id);
+        document.getElementById('catatanTanggalModalTitle').textContent = 'Edit Catatan Tanggal';
+        document.getElementById('catatanTanggalJudul').value = ct.judul;
+        document.getElementById('catatanTanggalJenis').value = ct.jenis;
+        document.getElementById('catatanTanggalMulai').value = ct.tglMulai;
+        document.getElementById('catatanTanggalSelesai').value = ct.tglSelesai;
+        document.getElementById('catatanTanggalKeterangan').value = ct.keterangan || '';
+    } else {
+        document.getElementById('catatanTanggalModalTitle').textContent = 'Tambah Catatan Tanggal';
+        ['catatanTanggalJudul','catatanTanggalMulai','catatanTanggalSelesai','catatanTanggalKeterangan'].forEach(x => document.getElementById(x).value = '');
+        document.getElementById('catatanTanggalJenis').value = 'pengajian';
+    }
+    document.getElementById('catatanTanggalModal').style.display = 'flex';
+}
+
+async function simpanCatatanTanggal() {
+    const p = pejabatList.find(x => x.id === pejabatDipilihId);
+    if (!p) return;
+    const judul = document.getElementById('catatanTanggalJudul').value.trim();
+    const tglMulai = document.getElementById('catatanTanggalMulai').value;
+    const tglSelesai = document.getElementById('catatanTanggalSelesai').value;
+    if (!judul) return showToast('Judul wajib diisi!');
+    if (!tglMulai || !tglSelesai) return showToast('Tanggal mulai & selesai wajib diisi!');
+    if (tglSelesai < tglMulai) return showToast('Tanggal selesai tidak boleh sebelum tanggal mulai!');
+
+    const data = { judul, tglMulai, tglSelesai, jenis: document.getElementById('catatanTanggalJenis').value, keterangan: document.getElementById('catatanTanggalKeterangan').value.trim() };
+    if (!p.catatanTanggal) p.catatanTanggal = [];
+    const editingId = document.getElementById('catatanTanggalEditingId').value;
+    if (editingId) {
+        const idx = p.catatanTanggal.findIndex(x => x.id === Number(editingId));
+        if (idx !== -1) p.catatanTanggal[idx] = { ...p.catatanTanggal[idx], ...data };
+    } else {
+        p.catatanTanggal.push({ id: Date.now(), ...data });
+    }
+    await savePejabatData();
+    document.getElementById('catatanTanggalModal').style.display = 'none';
+    showToast(editingId ? 'Catatan diupdate' : 'Catatan ditambahkan');
+}
+
+async function hapusCatatanTanggal(id) {
+    const p = pejabatList.find(x => x.id === pejabatDipilihId);
+    if (!p || !confirm('Hapus catatan ini?')) return;
+    p.catatanTanggal = (p.catatanTanggal || []).filter(x => x.id !== id);
+    await savePejabatData();
+    showToast('Catatan dihapus');
+}
+
+// Cek apakah pejabat tertentu punya kegiatan lain di tanggal tertentu (dari jadwal rutin ATAU catatan
+// tanggal) — dipakai Agenda Kantor sebelum menyimpan agenda baru, supaya tidak bentrok tanpa sadar.
+function cekBentrokPejabat(pejabatId, tanggalStr) {
+    const p = pejabatList.find(x => x.id === Number(pejabatId));
+    if (!p || !tanggalStr) return [];
+    const hariMinggu = new Date(tanggalStr + 'T00:00:00').getDay();
+    const hasil = [];
+    (p.jadwalRutin || []).forEach(jr => { if (Number(jr.hari) === hariMinggu) hasil.push(jr.kegiatan + (jr.jamMulai ? ' (' + jr.jamMulai + (jr.jamSelesai ? '–' + jr.jamSelesai : '') + ')' : '')); });
+    (p.catatanTanggal || []).forEach(ct => { if (tanggalStr >= ct.tglMulai && tanggalStr <= ct.tglSelesai) hasil.push(ct.judul); });
+    return hasil;
+}
+
+async function cetakKalenderPejabat(mode) {
+    const p = pejabatList.find(x => x.id === pejabatDipilihId);
+    if (!p) return;
+    const kejadian = expandJadwalPejabatUntukBulan(p, bulanPejabatDilihat.getFullYear(), bulanPejabatDilihat.getMonth());
+    if (kejadian.length === 0) return showToast('Belum ada jadwal di bulan ini untuk dicetak!');
+    const cfg = getKonfigurasiProData();
+    const tgl = formatTanggalLengkap();
+    const namaBulan = bulanPejabatDilihat.toLocaleDateString('id-ID', { month: 'long', year: 'numeric' });
+    const html = mode === 'promosi'
+        ? buildHtmlKalenderPejabatPromosi(p, kejadian, cfg, namaBulan, tgl)
+        : buildHtmlKalenderPejabatInternal(p, kejadian, cfg, namaBulan, tgl);
+    const win = window.open('', '_blank');
+    if (!win) return showToast('Izinkan popup untuk cetak!');
+    win.document.write(applyPrintTheme(html)); injectWatermarkToPrintWin(win); win.document.close();
+}
+
+function buildHtmlKalenderPejabatInternal(p, kejadian, cfg, namaBulan, tgl) {
+    const headerHtml = buildPrintHeader(cfg, tgl);
+    const baris = kejadian.map((k, idx) => {
+        const jenisInfo = k.sumber === 'rutin' ? { label: 'Rutin Mingguan', icon: '🔁' } : (JENIS_KEGIATAN_PEJABAT[k.jenis] || JENIS_KEGIATAN_PEJABAT.lainnya);
+        const tglText = new Date(k.tanggal + 'T00:00:00').toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+        return `<tr>
+            <td style="padding:8px;border-bottom:1px solid #eee;text-align:center;">${idx + 1}</td>
+            <td style="padding:8px;border-bottom:1px solid #eee;">${tglText}${k.jamMulai ? '<br><span style="color:#888;font-size:11px;">' + k.jamMulai + (k.jamSelesai ? '–' + k.jamSelesai : '') + ' WIB</span>' : ''}</td>
+            <td style="padding:8px;border-bottom:1px solid #eee;">${jenisInfo.icon} ${escapeHtml(k.judul)}</td>
+            <td style="padding:8px;border-bottom:1px solid #eee;">${escapeHtml(jenisInfo.label)}</td>
+        </tr>`;
+    }).join('');
+    return `<!DOCTYPE html><html><head><meta charset="utf-8"><title>Kalender ${escapeHtml(p.nama)}</title>
+    <style>
+        *{margin:0;padding:0;box-sizing:border-box;}body{font-family:Arial,sans-serif;background:#f0f0f0;padding:20px;}
+        .box{background:white;max-width:800px;margin:0 auto;border-radius:16px;padding:24px;box-shadow:0 2px 16px rgba(0,0,0,0.1);}
+        h2{color:var(--primary);font-size:18px;margin-bottom:2px;}
+        table{width:100%;border-collapse:collapse;margin-top:10px;font-size:12px;}
+        th{background:#0D5C4A;color:white;padding:8px;text-align:left;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+        .no-print{text-align:center;margin-top:20px;}
+        .no-print button{padding:12px 32px;margin:0 8px;border:none;border-radius:10px;font-size:14px;font-weight:bold;cursor:pointer;}
+        @media print{ body{background:white;padding:0;} .box{box-shadow:none;border-radius:0;max-width:100%;width:210mm;padding:12mm 16mm;} .no-print{display:none;} }
+    </style></head><body>
+    <div class="box">
+        ${headerHtml}
+        <h2>JADWAL ${escapeHtml(p.nama.toUpperCase())}</h2>
+        <div style="font-size:12px;color:#888;margin-bottom:8px;">${escapeHtml(p.jabatan || '')} · Bulan: ${namaBulan} · Dicetak: ${tgl}</div>
+        <table>
+            <tr><th>No</th><th>Tanggal & Waktu</th><th>Kegiatan</th><th>Jenis</th></tr>
+            ${baris}
+        </table>
+    </div>
+    <div class="no-print"><button onclick="window.print()" style="background:#0D5C4A;color:white;">🖨️ CETAK</button><button onclick="window.close()" style="background:#e2e8f0;color:#333;">✕ TUTUP</button></div>
+    </body></html>`;
+}
+
+// Gaya lebih menarik (kartu, warna tema, logo) — untuk dicetak/diposting sebagai bahan promosi/branding.
+function buildHtmlKalenderPejabatPromosi(p, kejadian, cfg, namaBulan, tgl) {
+    const [wr, wg, wb] = (typeof getWarnaTemaRGB === 'function') ? getWarnaTemaRGB() : [13, 92, 74];
+    const warnaTema = `rgb(${wr},${wg},${wb})`;
+    const logo = cfg?.instansi1?.logo ? `<img src="${cfg.instansi1.logo}" style="width:56px;height:56px;border-radius:12px;object-fit:cover;background:white;padding:4px;">` : '';
+    const kartu = kejadian.map(k => {
+        const jenisInfo = k.sumber === 'rutin' ? { label: 'Rutin Mingguan', icon: '🔁' } : (JENIS_KEGIATAN_PEJABAT[k.jenis] || JENIS_KEGIATAN_PEJABAT.lainnya);
+        const tglObj = new Date(k.tanggal + 'T00:00:00');
+        return `<div style="display:flex;gap:14px;background:white;border-radius:14px;padding:14px;margin-bottom:12px;box-shadow:0 2px 10px rgba(0,0,0,0.06);">
+            <div style="flex-shrink:0;width:56px;text-align:center;background:${warnaTema};color:white;border-radius:10px;padding:8px 4px;">
+                <div style="font-size:20px;font-weight:800;line-height:1;">${tglObj.getDate()}</div>
+                <div style="font-size:10px;text-transform:uppercase;">${tglObj.toLocaleDateString('id-ID', { month: 'short' })}</div>
+            </div>
+            <div style="flex:1;">
+                <div style="font-weight:700;font-size:15px;color:#1a1a1a;">${jenisInfo.icon} ${escapeHtml(k.judul)}</div>
+                <div style="font-size:11px;color:#888;margin-top:2px;">${tglObj.toLocaleDateString('id-ID', { weekday: 'long' })}${k.jamMulai ? ' · ' + k.jamMulai + (k.jamSelesai ? '–' + k.jamSelesai : '') + ' WIB' : ''}</div>
+                ${k.keterangan ? `<div style="font-size:12px;color:#555;margin-top:4px;">${escapeHtml(k.keterangan)}</div>` : ''}
+            </div>
+        </div>`;
+    }).join('');
+    return `<!DOCTYPE html><html><head><meta charset="utf-8"><title>Jadwal ${escapeHtml(p.nama)}</title>
+    <style>
+        *{margin:0;padding:0;box-sizing:border-box;}
+        body{font-family:'Segoe UI',Arial,sans-serif;background:#f0f0f0;padding:20px;}
+        .box{background:white;max-width:800px;margin:0 auto;border-radius:20px;padding:0 0 24px;box-shadow:0 4px 24px rgba(0,0,0,0.12);overflow:hidden;}
+        .kop{background:${warnaTema};color:white;padding:24px;display:flex;align-items:center;gap:14px;}
+        .isi{padding:20px 24px;}
+        .judul-utama{font-size:22px;font-weight:800;margin-bottom:2px;}
+        .no-print{text-align:center;margin-top:20px;}
+        .no-print button{padding:12px 32px;margin:0 8px;border:none;border-radius:10px;font-size:14px;font-weight:bold;cursor:pointer;}
+        @media print{ body{background:white;padding:0;} .box{box-shadow:none;border-radius:0;max-width:100%;width:210mm;} .no-print{display:none;} }
+    </style></head><body>
+    <div class="box">
+        <div class="kop">
+            ${logo}
+            <div>
+                <div class="judul-utama">${escapeHtml(p.nama)}</div>
+                <div style="font-size:13px;opacity:0.9;">${escapeHtml(p.jabatan || '')}</div>
+                <div style="font-size:12px;opacity:0.8;margin-top:4px;">📅 Jadwal Kegiatan ${namaBulan}</div>
+            </div>
+        </div>
+        <div class="isi">
+            ${kartu}
+            <div style="text-align:center;font-size:11px;color:#aaa;margin-top:10px;">${escapeHtml(getNamaInstansiUtama())}</div>
+        </div>
+    </div>
+    <div class="no-print"><button onclick="window.print()" style="background:${warnaTema};color:white;">🖨️ CETAK</button><button onclick="window.close()" style="background:#e2e8f0;color:#333;">✕ TUTUP</button></div>
+    </body></html>`;
 }
 
 function getAgendaKantorBulanDilihat() {
@@ -18416,7 +18887,7 @@ function openIndexedDB() {
 // dengan build baru, data MENTAH (langsung dari IndexedDB, bukan dari memori) disalin dulu sebelum
 // proses migrasi apapun berjalan — supaya kalau ada kesalahan di update, data lama masih bisa dipulihkan.
 // Dokumen & foto tidak ikut disalin (ukurannya besar, dan tidak pernah disentuh proses migrasi).
-const NAVARA_BUILD = '2026.09.21-7';
+const NAVARA_BUILD = '2026.09.21-8';
 const MAKS_SNAPSHOT = 3;
 
 function daftarKunciSnapshot() {
