@@ -9858,96 +9858,189 @@ async function cetakKalenderPejabat(mode) {
     const tgl = formatTanggalLengkap();
     const namaBulan = bulanPejabatDilihat.toLocaleDateString('id-ID', { month: 'long', year: 'numeric' });
     const html = mode === 'promosi'
-        ? buildHtmlKalenderPejabatPromosi(p, kejadian, cfg, namaBulan, tgl)
+        ? buildHtmlKalenderPejabatPromosi(p, kejadian, cfg, namaBulan, tgl, bulanPejabatDilihat.getFullYear(), bulanPejabatDilihat.getMonth())
         : buildHtmlKalenderPejabatInternal(p, kejadian, cfg, namaBulan, tgl);
     const win = window.open('', '_blank');
     if (!win) return showToast('Izinkan popup untuk cetak!');
     win.document.write(applyPrintTheme(html)); injectWatermarkToPrintWin(win); win.document.close();
 }
 
+// Kelompokkan kejadian per tanggal: { '2026-09-03': [k1, k2, k3], ... } — urutan tanggal & jam tetap terjaga
+function kelompokkanKejadianPerTanggal(kejadian) {
+    const grup = {};
+    kejadian.forEach(k => { (grup[k.tanggal] = grup[k.tanggal] || []).push(k); });
+    return grup;
+}
+
+function infoJenisKejadian(k) {
+    return k.sumber === 'rutin' ? { label: 'Rutin Mingguan', icon: '🔁' } : (JENIS_KEGIATAN_PEJABAT[k.jenis] || JENIS_KEGIATAN_PEJABAT.lainnya);
+}
+
+function teksJamKejadian(k) {
+    return k.jamMulai ? k.jamMulai + (k.jamSelesai ? '–' + k.jamSelesai : '') : '';
+}
+
+// ---------- CETAK INTERNAL: daftar dikelompokkan per tanggal (arsip kantor) ----------
 function buildHtmlKalenderPejabatInternal(p, kejadian, cfg, namaBulan, tgl) {
     const headerHtml = buildPrintHeader(cfg, tgl);
-    const baris = kejadian.map((k, idx) => {
-        const jenisInfo = k.sumber === 'rutin' ? { label: 'Rutin Mingguan', icon: '🔁' } : (JENIS_KEGIATAN_PEJABAT[k.jenis] || JENIS_KEGIATAN_PEJABAT.lainnya);
-        const tglText = new Date(k.tanggal + 'T00:00:00').toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
-        return `<tr>
-            <td style="padding:8px;border-bottom:1px solid #eee;text-align:center;">${idx + 1}</td>
-            <td style="padding:8px;border-bottom:1px solid #eee;">${tglText}${k.jamMulai ? '<br><span style="color:#888;font-size:11px;">' + k.jamMulai + (k.jamSelesai ? '–' + k.jamSelesai : '') + ' WIB</span>' : ''}</td>
-            <td style="padding:8px;border-bottom:1px solid #eee;">${jenisInfo.icon} ${escapeHtml(k.judul)}</td>
-            <td style="padding:8px;border-bottom:1px solid #eee;">${escapeHtml(jenisInfo.label)}</td>
-        </tr>`;
+    const grup = kelompokkanKejadianPerTanggal(kejadian);
+    const jumlahHari = Object.keys(grup).length;
+    const isiTabel = Object.keys(grup).map(tanggal => {
+        const daftar = grup[tanggal];
+        const tglObj = new Date(tanggal + 'T00:00:00');
+        const selTanggal = `<td rowspan="${daftar.length}" class="sel-tgl">
+            <div class="tgl-angka">${tglObj.getDate()}</div>
+            <div class="tgl-hari">${tglObj.toLocaleDateString('id-ID', { weekday: 'long' })}</div></td>`;
+        return `<tbody class="grup-hari">${daftar.map((k, i) => {
+            const jenis = infoJenisKejadian(k);
+            return `<tr>${i === 0 ? selTanggal : ''}
+                <td class="sel-jam">${teksJamKejadian(k) || '<span style="color:#aaa;">—</span>'}</td>
+                <td><b>${escapeHtml(k.judul)}</b>${k.keterangan ? `<div class="ket">${escapeHtml(k.keterangan)}</div>` : ''}</td>
+                <td class="sel-jenis">${jenis.icon} ${escapeHtml(jenis.label)}</td></tr>`;
+        }).join('')}</tbody>`;
     }).join('');
-    return `<!DOCTYPE html><html><head><meta charset="utf-8"><title>Kalender ${escapeHtml(p.nama)}</title>
+    return `<!DOCTYPE html><html><head><meta charset="utf-8"><title>Jadwal ${escapeHtml(p.nama)} — ${namaBulan}</title>
     <style>
-        *{margin:0;padding:0;box-sizing:border-box;}body{font-family:Arial,sans-serif;background:#f0f0f0;padding:20px;}
+        *{margin:0;padding:0;box-sizing:border-box;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+        body{font-family:Arial,sans-serif;background:#f0f0f0;padding:20px;color:#222;}
         .box{background:white;max-width:800px;margin:0 auto;border-radius:16px;padding:24px;box-shadow:0 2px 16px rgba(0,0,0,0.1);}
-        h2{color:var(--primary);font-size:18px;margin-bottom:2px;}
-        table{width:100%;border-collapse:collapse;margin-top:10px;font-size:12px;}
-        th{background:#0D5C4A;color:white;padding:8px;text-align:left;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+        .judul{display:flex;justify-content:space-between;align-items:flex-end;border-bottom:2px solid #0D5C4A;padding-bottom:8px;margin:6px 0 10px;}
+        .judul h2{color:#0D5C4A;font-size:17px;}
+        .judul .sub{font-size:11px;color:#666;text-align:right;}
+        table{width:100%;border-collapse:collapse;font-size:11.5px;}
+        thead th{background:#0D5C4A;color:white;padding:7px 8px;text-align:left;font-size:11px;}
+        thead{display:table-header-group;}
+        td{padding:6px 8px;border-bottom:1px solid #eee;vertical-align:top;}
+        tbody.grup-hari{break-inside:avoid;page-break-inside:avoid;}
+        tbody.grup-hari tr:last-child td{border-bottom:1.5px solid #cfd8d5;}
+        .sel-tgl{width:78px;background:#F1F7F5;text-align:center;vertical-align:middle;border-right:1px solid #e3ebe8;}
+        .tgl-angka{font-size:20px;font-weight:800;color:#0D5C4A;line-height:1;}
+        .tgl-hari{font-size:10px;color:#555;margin-top:2px;}
+        .sel-jam{width:92px;white-space:nowrap;color:#333;}
+        .sel-jenis{width:130px;color:#555;font-size:10.5px;}
+        .ket{font-size:10.5px;color:#666;margin-top:2px;}
         .no-print{text-align:center;margin-top:20px;}
         .no-print button{padding:12px 32px;margin:0 8px;border:none;border-radius:10px;font-size:14px;font-weight:bold;cursor:pointer;}
-        @media print{ body{background:white;padding:0;} .box{box-shadow:none;border-radius:0;max-width:100%;width:210mm;padding:12mm 16mm;} .no-print{display:none;} }
+        @page{size:A4 portrait;margin:12mm 12mm;}
+        @media print{ body{background:white;padding:0;} .box{box-shadow:none;border-radius:0;max-width:100%;padding:0;} .no-print{display:none;} }
     </style></head><body>
     <div class="box">
         ${headerHtml}
-        <h2>JADWAL ${escapeHtml(p.nama.toUpperCase())}</h2>
-        <div style="font-size:12px;color:#888;margin-bottom:8px;">${escapeHtml(p.jabatan || '')} · Bulan: ${namaBulan} · Dicetak: ${tgl}</div>
+        <div class="judul">
+            <div><h2>JADWAL KEGIATAN ${escapeHtml(p.nama.toUpperCase())}</h2><div style="font-size:11px;color:#666;">${escapeHtml(p.jabatan || '')}</div></div>
+            <div class="sub"><b>${namaBulan}</b><br>${kejadian.length} kegiatan · ${jumlahHari} hari</div>
+        </div>
         <table>
-            <tr><th>No</th><th>Tanggal & Waktu</th><th>Kegiatan</th><th>Jenis</th></tr>
-            ${baris}
+            <thead><tr><th>Tanggal</th><th>Waktu (WIB)</th><th>Kegiatan</th><th>Jenis</th></tr></thead>
+            ${isiTabel}
         </table>
+        <div style="font-size:10px;color:#999;margin-top:10px;">Dicetak: ${tgl}</div>
     </div>
     <div class="no-print"><button onclick="window.print()" style="background:#0D5C4A;color:white;">🖨️ CETAK</button><button onclick="window.close()" style="background:#e2e8f0;color:#333;">✕ TUTUP</button></div>
     </body></html>`;
 }
 
-// Gaya lebih menarik (kartu, warna tema, logo) — untuk dicetak/diposting sebagai bahan promosi/branding.
-function buildHtmlKalenderPejabatPromosi(p, kejadian, cfg, namaBulan, tgl) {
+// ---------- CETAK PROMOSI: kalender bulanan 1 halaman A4 (untuk diposting) ----------
+// Sekilas pandang langsung terlihat betapa padat jadwalnya — tujuan utama cetakan ini.
+function buildHtmlKalenderPejabatPromosi(p, kejadian, cfg, namaBulan, tgl, tahun, bulan) {
     const [wr, wg, wb] = (typeof getWarnaTemaRGB === 'function') ? getWarnaTemaRGB() : [13, 92, 74];
-    const warnaTema = `rgb(${wr},${wg},${wb})`;
-    const logo = cfg?.instansi1?.logo ? `<img src="${cfg.instansi1.logo}" style="width:56px;height:56px;border-radius:12px;object-fit:cover;background:white;padding:4px;">` : '';
-    const kartu = kejadian.map(k => {
-        const jenisInfo = k.sumber === 'rutin' ? { label: 'Rutin Mingguan', icon: '🔁' } : (JENIS_KEGIATAN_PEJABAT[k.jenis] || JENIS_KEGIATAN_PEJABAT.lainnya);
-        const tglObj = new Date(k.tanggal + 'T00:00:00');
-        return `<div style="display:flex;gap:14px;background:white;border-radius:14px;padding:14px;margin-bottom:12px;box-shadow:0 2px 10px rgba(0,0,0,0.06);">
-            <div style="flex-shrink:0;width:56px;text-align:center;background:${warnaTema};color:white;border-radius:10px;padding:8px 4px;">
-                <div style="font-size:20px;font-weight:800;line-height:1;">${tglObj.getDate()}</div>
-                <div style="font-size:10px;text-transform:uppercase;">${tglObj.toLocaleDateString('id-ID', { month: 'short' })}</div>
-            </div>
-            <div style="flex:1;">
-                <div style="font-weight:700;font-size:15px;color:#1a1a1a;">${jenisInfo.icon} ${escapeHtml(k.judul)}</div>
-                <div style="font-size:11px;color:#888;margin-top:2px;">${tglObj.toLocaleDateString('id-ID', { weekday: 'long' })}${k.jamMulai ? ' · ' + k.jamMulai + (k.jamSelesai ? '–' + k.jamSelesai : '') + ' WIB' : ''}</div>
-                ${k.keterangan ? `<div style="font-size:12px;color:#555;margin-top:4px;">${escapeHtml(k.keterangan)}</div>` : ''}
-            </div>
-        </div>`;
+    const tema = `rgb(${wr},${wg},${wb})`;
+    const temaMuda = `rgba(${wr},${wg},${wb},0.10)`;
+    const WARNA_JENIS = { rutin: tema, pengajian: '#0891B2', manasik: '#B45309', perjalanan: '#1D4ED8', tamu: '#7E22CE', lainnya: '#475569' };
+    const logo = cfg?.instansi1?.logo ? `<img src="${cfg.instansi1.logo}" class="logo">` : '';
+    const grup = kelompokkanKejadianPerTanggal(kejadian);
+    const jumlahHariAktif = Object.keys(grup).length;
+
+    const hariPertama = new Date(tahun, bulan, 1).getDay();       // 0=Minggu
+    const geser = (hariPertama + 6) % 7;                           // kalender dimulai Senin
+    const jumlahHari = new Date(tahun, bulan + 1, 0).getDate();
+    const jumlahSel = Math.ceil((geser + jumlahHari) / 7) * 7;
+    const jumlahBaris = jumlahSel / 7;
+    const MAKS_PER_SEL = jumlahBaris >= 6 ? 3 : 4; // bulan 6 minggu → kotak lebih pendek
+
+    let sel = '';
+    for (let i = 0; i < jumlahSel; i++) {
+        const d = i - geser + 1;
+        if (d < 1 || d > jumlahHari) { sel += '<div class="sel kosong"></div>'; continue; }
+        const tanggal = `${tahun}-${String(bulan + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+        const daftar = grup[tanggal] || [];
+        const minggu = (i % 7) === 6;
+        const tampil = daftar.slice(0, MAKS_PER_SEL).map(k => {
+            const warna = WARNA_JENIS[k.sumber === 'rutin' ? 'rutin' : k.jenis] || WARNA_JENIS.lainnya;
+            const jam = k.jamMulai ? `<span class="jam">${k.jamMulai}</span>` : '';
+            return `<div class="chip" style="border-left-color:${warna};">${jam}<span class="jdl">${escapeHtml(k.judul)}</span></div>`;
+        }).join('');
+        const lebih = daftar.length > MAKS_PER_SEL ? `<div class="lebih">+${daftar.length - MAKS_PER_SEL} lainnya</div>` : '';
+        sel += `<div class="sel${daftar.length ? ' ada' : ''}"><div class="angka${minggu ? ' merah' : ''}">${d}</div>${tampil}${lebih}</div>`;
+    }
+
+    const jenisDipakai = [...new Set(kejadian.map(k => k.sumber === 'rutin' ? 'rutin' : (k.jenis || 'lainnya')))];
+    const legenda = jenisDipakai.map(j => {
+        const label = j === 'rutin' ? 'Rutin Mingguan' : (JENIS_KEGIATAN_PEJABAT[j] || JENIS_KEGIATAN_PEJABAT.lainnya).label;
+        return `<span class="leg"><i style="background:${WARNA_JENIS[j] || WARNA_JENIS.lainnya};"></i>${escapeHtml(label)}</span>`;
     }).join('');
-    return `<!DOCTYPE html><html><head><meta charset="utf-8"><title>Jadwal ${escapeHtml(p.nama)}</title>
+
+    return `<!DOCTYPE html><html><head><meta charset="utf-8"><title>Jadwal ${escapeHtml(p.nama)} — ${namaBulan}</title>
     <style>
-        *{margin:0;padding:0;box-sizing:border-box;}
-        body{font-family:'Segoe UI',Arial,sans-serif;background:#f0f0f0;padding:20px;}
-        .box{background:white;max-width:800px;margin:0 auto;border-radius:20px;padding:0 0 24px;box-shadow:0 4px 24px rgba(0,0,0,0.12);overflow:hidden;}
-        .kop{background:${warnaTema};color:white;padding:24px;display:flex;align-items:center;gap:14px;}
-        .isi{padding:20px 24px;}
-        .judul-utama{font-size:22px;font-weight:800;margin-bottom:2px;}
-        .no-print{text-align:center;margin-top:20px;}
+        *{margin:0;padding:0;box-sizing:border-box;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+        body{font-family:'Segoe UI',Arial,sans-serif;background:#eef1f4;padding:16px;color:#1f2937;}
+        .halaman{background:white;width:210mm;height:297mm;overflow:hidden;margin:0 auto;display:flex;flex-direction:column;box-shadow:0 4px 24px rgba(0,0,0,0.12);}
+        .kop{background:${tema};color:white;padding:14mm 12mm 9mm;display:flex;align-items:center;gap:5mm;}
+        .logo{width:18mm;height:18mm;object-fit:contain;background:white;border-radius:4mm;padding:1.5mm;flex-shrink:0;}
+        .nama{font-size:22pt;font-weight:800;letter-spacing:0.3px;line-height:1.1;}
+        .jabatan{font-size:11pt;opacity:0.92;margin-top:1mm;}
+        .bulan{margin-left:auto;text-align:right;flex-shrink:0;}
+        .bulan .b1{font-size:9pt;opacity:0.85;text-transform:uppercase;letter-spacing:1.5px;}
+        .bulan .b2{font-size:17pt;font-weight:800;}
+        .statistik{display:flex;gap:4mm;padding:4mm 12mm;background:${temaMuda};}
+        .stat{flex:1;text-align:center;}
+        .stat b{display:block;font-size:17pt;color:${tema};line-height:1.1;}
+        .stat span{font-size:8.5pt;color:#555;}
+        .kalender{flex:1;min-height:0;display:flex;flex-direction:column;padding:4mm 12mm 0;}
+        .hari{display:grid;grid-template-columns:repeat(7,1fr);gap:1.2mm;margin-bottom:1.2mm;}
+        .hari div{text-align:center;font-size:8.5pt;font-weight:700;color:${tema};padding:1.2mm 0;text-transform:uppercase;letter-spacing:0.5px;}
+        .hari div:last-child{color:#DC2626;}
+        .grid{flex:1;min-height:0;display:grid;grid-template-columns:repeat(7,1fr);grid-template-rows:repeat(${jumlahBaris},minmax(0,1fr));gap:1.2mm;}
+        .sel{border:0.3mm solid #e5e7eb;border-radius:2mm;padding:1.2mm;overflow:hidden;min-height:0;background:#fff;}
+        .sel.ada{background:#fbfdfc;border-color:${temaMuda};}
+        .sel.kosong{background:#f8fafc;border-style:dashed;}
+        .angka{font-size:11pt;font-weight:800;color:#374151;margin-bottom:0.8mm;}
+        .angka.merah{color:#DC2626;}
+        .chip{font-size:7.4pt;line-height:1.25;background:#f3f4f6;border-left:0.9mm solid;border-radius:0.8mm;padding:0.6mm 1.1mm;margin-bottom:0.8mm;font-weight:700;}
+        .chip .jdl{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;word-break:break-word;}
+        .chip .jam{display:block;font-weight:400;font-size:6.6pt;color:#6b7280;}
+        .lebih{font-size:6.3pt;color:#6b7280;font-style:italic;}
+        .kaki{padding:4mm 12mm 8mm;display:flex;justify-content:space-between;align-items:center;gap:4mm;flex-wrap:wrap;}
+        .legenda{display:flex;flex-wrap:wrap;gap:1.5mm 4mm;}
+        .leg{font-size:8pt;color:#374151;display:inline-flex;align-items:center;gap:1.2mm;}
+        .leg i{width:3mm;height:3mm;border-radius:0.8mm;display:inline-block;}
+        .instansi{font-size:8.5pt;color:#6b7280;font-weight:600;}
+        .no-print{text-align:center;margin-top:14px;}
         .no-print button{padding:12px 32px;margin:0 8px;border:none;border-radius:10px;font-size:14px;font-weight:bold;cursor:pointer;}
-        @media print{ body{background:white;padding:0;} .box{box-shadow:none;border-radius:0;max-width:100%;width:210mm;} .no-print{display:none;} }
+        @page{size:A4 portrait;margin:0;}
+        @media print{ body{background:white;padding:0;} .halaman{box-shadow:none;page-break-after:avoid;} .no-print{display:none;} }
     </style></head><body>
-    <div class="box">
+    <div class="halaman">
         <div class="kop">
             ${logo}
-            <div>
-                <div class="judul-utama">${escapeHtml(p.nama)}</div>
-                <div style="font-size:13px;opacity:0.9;">${escapeHtml(p.jabatan || '')}</div>
-                <div style="font-size:12px;opacity:0.8;margin-top:4px;">📅 Jadwal Kegiatan ${namaBulan}</div>
-            </div>
+            <div><div class="nama">${escapeHtml(p.nama)}</div>${p.jabatan ? `<div class="jabatan">${escapeHtml(p.jabatan)}</div>` : ''}</div>
+            <div class="bulan"><div class="b1">Jadwal Kegiatan</div><div class="b2">${namaBulan}</div></div>
         </div>
-        <div class="isi">
-            ${kartu}
-            <div style="text-align:center;font-size:11px;color:#aaa;margin-top:10px;">${escapeHtml(getNamaInstansiUtama())}</div>
+        <div class="statistik">
+            <div class="stat"><b>${kejadian.length}</b><span>Kegiatan</span></div>
+            <div class="stat"><b>${jumlahHariAktif}</b><span>Hari Aktif</span></div>
+            <div class="stat"><b>${kejadian.filter(k => k.sumber !== 'rutin').length}</b><span>Agenda Khusus</span></div>
+        </div>
+        <div class="kalender">
+            <div class="hari"><div>Sen</div><div>Sel</div><div>Rab</div><div>Kam</div><div>Jum</div><div>Sab</div><div>Min</div></div>
+            <div class="grid">${sel}</div>
+        </div>
+        <div class="kaki">
+            <div class="legenda">${legenda}</div>
+            <div class="instansi">${escapeHtml(getNamaInstansiUtama())}</div>
         </div>
     </div>
-    <div class="no-print"><button onclick="window.print()" style="background:${warnaTema};color:white;">🖨️ CETAK</button><button onclick="window.close()" style="background:#e2e8f0;color:#333;">✕ TUTUP</button></div>
+    <div class="no-print"><button onclick="window.print()" style="background:${tema};color:white;">🖨️ CETAK</button><button onclick="window.close()" style="background:#e2e8f0;color:#333;">✕ TUTUP</button></div>
     </body></html>`;
 }
 
@@ -18963,7 +19056,7 @@ function openIndexedDB() {
 // dengan build baru, data MENTAH (langsung dari IndexedDB, bukan dari memori) disalin dulu sebelum
 // proses migrasi apapun berjalan — supaya kalau ada kesalahan di update, data lama masih bisa dipulihkan.
 // Dokumen & foto tidak ikut disalin (ukurannya besar, dan tidak pernah disentuh proses migrasi).
-const NAVARA_BUILD = '2026.09.21-14';
+const NAVARA_BUILD = '2026.09.21-15';
 const MAKS_SNAPSHOT = 3;
 
 function daftarKunciSnapshot() {
