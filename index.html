@@ -69,6 +69,20 @@
         .semua-menu-grid { display: grid; margin: 0 12px; }
         .daftar-menu-judul { font-size: 12px; font-weight: 800; letter-spacing: 1px; color: #4b5563; text-transform: uppercase; margin: 18px 20px 8px; }
         body.dark-mode .daftar-menu-judul { color: #9ca3af; }
+        /* Buku Pinjaman */
+        .pinjaman-ringkas-baris { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+        .pinjaman-ringkas-kotak { background: var(--primary-muda); border-radius: 12px; padding: 10px 12px; display: flex; flex-direction: column; gap: 2px; }
+        .pinjaman-ringkas-kotak span { font-size: 11.5px; color: #4b5563; font-weight: 600; }
+        .pinjaman-ringkas-kotak b { font-size: 16px; color: #1f2933; }
+        .pinjaman-orang { display: flex; justify-content: space-between; align-items: center; gap: 10px; background: var(--card-bg); border-radius: 14px; padding: 12px 14px; margin-bottom: 8px; border: 1.5px solid transparent; box-shadow: 0 1px 3px rgba(15,23,42,0.05); cursor: pointer; }
+        .pinjaman-orang.dipilih { border-color: var(--primary); }
+        .pinjaman-subjudul { font-size: 12px; font-weight: 800; letter-spacing: 1px; text-transform: uppercase; color: #4b5563; margin: 16px 0 6px; }
+        .pinjaman-trx { border-top: 1px solid rgba(0,0,0,0.06); padding: 10px 0; font-size: 13.5px; }
+        .pinjaman-status { font-size: 11px; font-weight: 700; border-radius: 20px; padding: 2px 8px; }
+        .pinjaman-bukti { font-size: 11px; font-weight: 600; border: none; background: #EEF2FF; color: #3730A3; border-radius: 20px; padding: 3px 8px; cursor: pointer; font-family: inherit; }
+        .pinjaman-bukti.kosong { background: #FEF3C7; color: #92400E; cursor: default; }
+        body.dark-mode .pinjaman-ringkas-kotak b { color: #e5e7eb; }
+        body.dark-mode .pinjaman-ringkas-kotak span, body.dark-mode .pinjaman-subjudul { color: #9ca3af; }
         .lencana-menu { position: absolute; top: 0; right: calc(50% - 34px); width: 24px; height: 24px; border-radius: 50%; border: 2px solid #fff; color: #fff; font-size: 15px; font-weight: 800; line-height: 1; display: flex; align-items: center; justify-content: center; cursor: pointer; padding: 0; }
         
         /* Print Media Query - Optimasi untuk cetak */
@@ -131,6 +145,7 @@
         body.dark-mode .rekap-card,
         body.dark-mode .semua-menu-grid.mode-keterangan .menu-tile,
         body.dark-mode .daftar-menu-cari,
+        body.dark-mode .pinjaman-orang,
         body.dark-mode #menuGridPremium.mode-keterangan .menu-tile,
         body.dark-mode .tiket-card,
         body.dark-mode .reminder-card,
@@ -261,6 +276,10 @@
             background: rgba(255,255,255,0.25);
             color: white;
         }
+        /* Penanda Mode Admin: lencana kuning dengan titik berdenyut + garis kuning diam di atas layar */
+        .admin-toggle-link.aktif, .admin-toggle-link.aktif:hover { background: #FCD34D; color: #78350F; font-weight: 800; }
+        .titik-admin { display: inline-block; width: 7px; height: 7px; border-radius: 50%; background: #B45309; color: #B45309; margin-right: 6px; vertical-align: middle; animation: berdenyutAktif 1.6s ease-in-out infinite; }
+        body.admin-mode::before { content: ''; position: fixed; top: 0; left: 0; right: 0; height: 3px; background: #F59E0B; z-index: 100000; pointer-events: none; }
         
         .logo-area {
             display: flex;
@@ -2804,6 +2823,65 @@
         <button onclick="document.getElementById('pengecualianModal').style.display='none'" class="btn btn-secondary mt-2">Batal</button>
     </div>
 </div>
+
+<!-- ==================== BUKU PINJAMAN ==================== -->
+<div id="page-pinjaman" class="page">
+    <div class="header-premium header-premium-small"><div class="back-header"><i class="fas fa-arrow-left" onclick="showPage('home')"></i><h2>Buku Pinjaman</h2><div style="width:30px;"></div></div></div>
+    <div class="container" style="padding:0 16px 28px;">
+        <div class="card-premium" style="margin:14px 0 12px;">
+            <div style="font-size:11px;color:#888;margin-bottom:10px;">Catatan dana yang ditalangi untuk atasan / staf, dari uang kantor atau uang pribadi, beserta pengembaliannya.</div>
+            <div id="pinjamanRingkasan"></div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px;">
+                <button type="button" class="btn btn-small" style="background:var(--primary);color:#fff;margin:0;" onclick="bukaFormPinjaman('pinjam')">+ Pinjaman</button>
+                <button type="button" class="btn btn-small" style="background:#15803d;color:#fff;margin:0;" onclick="bukaFormPinjaman('kembali')">+ Pengembalian</button>
+            </div>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin:4px 4px 8px;">
+            <b style="font-size:14px;">Peminjam</b>
+            <select id="pinjamanFilter" onchange="renderPinjaman()" aria-label="Tampilkan" style="width:auto;flex:0 0 auto;margin:0;padding:6px 10px;border-radius:10px;border:1.5px solid #e2e8f0;font-size:12px;background:var(--input-bg);color:var(--text);">
+                <option value="belum">Yang belum lunas</option><option value="semua">Semua peminjam</option>
+            </select>
+        </div>
+        <div id="pinjamanDaftarOrang"></div>
+        <div id="pinjamanDetail" class="card-premium" style="display:none;margin:12px 0 0;"></div>
+    </div>
+</div>
+
+<!-- MODAL CATAT PINJAMAN / PENGEMBALIAN -->
+<div id="pinjamanModal" class="modal">
+    <div class="modal-content">
+        <h3 id="pinjamanModalJudul" style="color:var(--primary);">Catat Pinjaman</h3>
+        <input type="hidden" id="pinjamanJenis"><input type="hidden" id="pinjamanEditId">
+        <div class="dynamic-field"><label for="pinjamanNama">Nama <span style="color:red;">*</span></label>
+            <input type="text" id="pinjamanNama" list="pinjamanDaftarNama" placeholder="Ketik nama atau pilih dari daftar" oninput="perbaruiInfoSisaPinjaman()"><datalist id="pinjamanDaftarNama"></datalist></div>
+        <div class="row">
+            <div class="dynamic-field"><label for="pinjamanTanggal">Tanggal <span style="color:red;">*</span></label><input type="date" id="pinjamanTanggal"></div>
+            <div class="dynamic-field"><label for="pinjamanNominal">Nominal (Rp) <span style="color:red;">*</span></label><input type="text" inputmode="numeric" id="pinjamanNominal" placeholder="0" oninput="formatInputNominalPinjaman(this)"></div>
+        </div>
+        <div class="dynamic-field"><label id="pinjamanLabelSumber" for="pinjamanSumber">Sumber dana</label>
+            <select id="pinjamanSumber" onchange="perbaruiInfoSisaPinjaman()"><option value="kantor">🏢 Uang Kantor</option><option value="pribadi">👤 Uang Pribadi</option></select></div>
+        <div id="pinjamanSisaInfo" style="font-size:12px;font-weight:600;color:#15803d;margin:-4px 0 10px;"></div>
+        <div class="dynamic-field"><label id="pinjamanLabelKeperluan" for="pinjamanKeperluan">Keperluan</label><input type="text" id="pinjamanKeperluan"></div>
+        <div class="dynamic-field"><label for="pinjamanFotoInput">Bukti (foto nota / transfer)</label>
+            <input type="file" id="pinjamanFotoInput" accept="image/*" multiple onchange="tambahFotoPinjaman(this)">
+            <div id="pinjamanFotoPratinjau" style="display:flex;gap:10px;flex-wrap:wrap;margin-top:8px;"></div>
+            <div style="font-size:11px;color:#888;margin-top:4px;">Opsional, tapi sangat membantu sebagai pengingat.</div></div>
+        <button class="btn btn-primary mt-2" onclick="simpanTransaksiPinjaman()">Simpan</button>
+        <button class="btn btn-secondary mt-2" onclick="tutupModalPinjaman()">Batal</button>
+    </div>
+</div>
+
+<!-- MODAL EDIT DATA PEMINJAM -->
+<div id="pinjamanOrangModal" class="modal">
+    <div class="modal-content">
+        <h3 style="color:var(--primary);">Data Peminjam</h3>
+        <input type="hidden" id="pinjamanOrangId">
+        <div class="dynamic-field"><label for="pinjamanOrangNama">Nama <span style="color:red;">*</span></label><input type="text" id="pinjamanOrangNama"></div>
+        <div class="dynamic-field"><label for="pinjamanOrangHp">No. WhatsApp (opsional)</label><input type="tel" id="pinjamanOrangHp" placeholder="Untuk Kirim Rincian langsung ke nomornya"></div>
+        <button class="btn btn-primary mt-2" onclick="simpanOrangPinjaman()">Simpan</button>
+        <button onclick="document.getElementById('pinjamanOrangModal').style.display='none'" class="btn btn-secondary mt-2">Batal</button>
+    </div>
+</div>
 <div id="page-jamaah" class="page">
     <div class="header-premium header-premium-small"><div class="back-header"><i class="fas fa-arrow-left" onclick="showPage('home')"></i><h2>Database Jamaah</h2><div style="width:30px;"></div></div></div>
     <div class="card-premium">
@@ -3422,8 +3500,8 @@
         <div class="card-premium">
             <b style="font-size:15px;">Tampilan di Home</b>
             <div style="display:flex;gap:8px;margin-top:10px;">
+                <button type="button" id="aturTampilKet" class="pilih-tampilan" onclick="pilihTampilanMenu('keterangan')">Dengan keterangan<small>3 kolom · bawaan</small></button>
                 <button type="button" id="aturTampilRingkas" class="pilih-tampilan" onclick="pilihTampilanMenu('ringkas')">Ringkas<small>4 kolom, nama saja</small></button>
-                <button type="button" id="aturTampilKet" class="pilih-tampilan" onclick="pilihTampilanMenu('keterangan')">Dengan keterangan<small>3 kolom, ada penjelasan</small></button>
             </div>
         </div>
         <div class="card-premium">
@@ -4322,6 +4400,7 @@ function internalShowPage(pageId) {
     if (pageId === 'kalender-pejabat') { if(typeof loadPejabatData === 'function') loadPejabatData(); }
     if (pageId === 'atur-menu') { if(typeof bukaAturMenu === 'function') bukaAturMenu(); }
     if (pageId === 'fitur') { if(typeof bukaSemuaMenu === 'function') bukaSemuaMenu(); }
+    if (pageId === 'pinjaman') { if(typeof loadPinjamanData === 'function') loadPinjamanData(); }
     if (pageId === 'jamaah') { if(window.loadJamaahData) window.loadJamaahData().then(() => { if(window.renderJamaahListWithPagination) window.renderJamaahListWithPagination(); }); else if(window.renderJamaahListWithPagination) window.renderJamaahListWithPagination(); }
     if (pageId === 'jamaahkita') {
         const c = document.getElementById('jamaahKitaListContainer');
@@ -5036,7 +5115,7 @@ function simpanPeranList(list) {
 
 // Modul yang bisa dikunci per Peran (10 menu utama). "home" dan "setting" SENGAJA tidak termasuk —
 // itu berisi pengaturan akun pribadi (ganti PIN, dark mode) yang harus tetap bisa diakses siapa saja yang login.
-const MODUL_BISA_DIKUNCI = ['estimasi','kas','jamaah','jamaahkita','catatan','zakat','pembayaran','datamaster','konfigurasi','fitur'];
+const MODUL_BISA_DIKUNCI = ['estimasi','kas','jamaah','jamaahkita','catatan','zakat','pembayaran','datamaster','konfigurasi','fitur','pinjaman'];
 
 // Admin Utama & admin tanpa Peran (atau Peran yang belum diatur modulnya) = akses semua modul.
 // Ini menjaga supaya siapapun yang sudah ada SEBELUM fitur ini tidak mendadak kehilangan akses.
@@ -5293,7 +5372,7 @@ function renderKelolaPeranModal(modalEl) {
 function openTambahPeranForm(peranId) {
     const list = getPeranList();
     const p = peranId ? list.find(x => x.id === peranId) : null;
-    const modulLabel = { estimasi:'Cuan Plan', kas:'Uang Kas', jamaah:'Database Jamaah', jamaahkita:'Jamaah on Proses', catatan:'Catatan', zakat:'Zakat', pembayaran:'Pembayaran', datamaster:'Multi Event', konfigurasi:'Konfigurasi', fitur:'Menu Lengkap' };
+    const modulLabel = { estimasi:'Cuan Plan', kas:'Uang Kas', jamaah:'Database Jamaah', jamaahkita:'Jamaah on Proses', catatan:'Catatan', zakat:'Zakat', pembayaran:'Pembayaran', datamaster:'Multi Event', konfigurasi:'Konfigurasi', pinjaman:'Buku Pinjaman', fitur:'Menu Lengkap' };
     const modulAllowed = p?.modulAllowed || MODUL_BISA_DIKUNCI.slice(); // Peran baru: default semua modul dicentang, tinggal di-uncek yang tidak perlu
     const modulCheckboxes = MODUL_BISA_DIKUNCI.map(mid => `
         <label style="display:flex;align-items:center;gap:8px;font-size:12px;margin-bottom:5px;cursor:pointer;">
@@ -5402,6 +5481,7 @@ const FITUR_LENGKAP = [
     { id: "scanqr", label: "Manasik & Absensi", ket: "Jadwal, presensi & cek data jamaah", kelompok: "kantor", aksi: "showPage('scanqr')", halaman: "scanqr", icon: "<i class=\"fas fa-qrcode\"></i>" },
     { id: "suratresmi", label: "Surat Resmi", ket: "Buat surat otomatis dari data jamaah", kelompok: "kantor", aksi: "showPage('suratresmi')", halaman: "suratresmi", icon: "<i class=\"fas fa-file-signature\"></i>" },
     { id: "cetaklabel", label: "Cetak Label", ket: "Name tag / stiker koper", kelompok: "jamaah", aksi: "showPage('cetaklabel')", halaman: "cetaklabel", icon: "<i class=\"fas fa-tag\"></i>" },
+    { id: "pinjaman", label: "Buku Pinjaman", ket: "Catat talangan & pengembalian", kelompok: "keuangan", aksi: "showPage('pinjaman')", halaman: "pinjaman", icon: "<i class=\"fas fa-file-invoice-dollar\"></i>" },
     { id: "cloudstorage", label: "Cloud Storage", ket: "Backup & Restore data", kelompok: "pengaturan", aksi: "showPage('cloudstorage')", halaman: "cloudstorage", icon: "<i class=\"fas fa-cloud\"></i>" },
     { id: "dashboard", label: "Dashboard", ket: "Grafik statistik data", kelompok: "laporan", aksi: "showPage('dashboard')", halaman: "dashboard", icon: "<i class=\"fas fa-chart-line\"></i>" },
     { id: "openBandingkanProgramModal", label: "Bandingkan Program", ket: "Performa semua Program sekaligus", kelompok: "laporan", aksi: "openBandingkanProgramModal()", halaman: null, icon: "<i class=\"fas fa-chart-column\"></i>" },
@@ -5440,7 +5520,8 @@ function getMenuHomeTerpilih() {
     return menuHomeBawaan().filter(id => localStorage.getItem(`menu_${id}_visible`) !== 'false');
 }
 
-function getMenuTampilan() { return localStorage.getItem(MENU_TAMPILAN_KUNCI) === 'keterangan' ? 'keterangan' : 'ringkas'; }
+// Bawaan: 3 kolom dengan keterangan. 4 kolom ringkas hanya kalau pengguna memilihnya di Atur Menu.
+function getMenuTampilan() { return localStorage.getItem(MENU_TAMPILAN_KUNCI) === 'ringkas' ? 'ringkas' : 'keterangan'; }
 
 // Aturan yang TETAP berlaku apa pun pilihan pengguna: izin Peran staf, dan Cuan Plan tidak untuk Haji Reguler
 function bolehTampilMenu(item, hajiReg) {
@@ -5473,8 +5554,7 @@ function renderMenuPremium() {
     // "Menu Lengkap" selalu ada di posisi terakhir, tidak bisa dikeluarkan (kecuali staf tanpa izin "Menu Lengkap")
     if (cekIzinModul('fitur')) html += htmlTileMenu({ aksi: "showPage('fitur')", icon: '<i class="fas fa-th-large"></i>', label: 'Menu Lengkap', ketSingkat: 'Fitur lainnya' }, { denganKet });
     container.innerHTML = html; 
-    if(isAdminModePremium) document.body.classList.add('admin-mode'); 
-    else document.body.classList.remove('admin-mode'); 
+    perbaruiPenandaAdmin();
     // Kunci juga item bottom nav yang sesuai (Estimasi/Kas/Jamaah) sesuai izin Peran staf yang login
     ['estimasi','kas','jamaah'].forEach(pid => {
         const navEl = document.querySelector(`.nav-item-premium[data-page="${pid}"]`);
@@ -5516,7 +5596,7 @@ function bukaSemuaMenu() {
 }
 
 // ---------- Halaman Atur Menu ----------
-let aturMenuDraf = [], aturMenuDipilih = null, aturMenuTampilanDraf = 'ringkas';
+let aturMenuDraf = [], aturMenuDipilih = null, aturMenuTampilanDraf = 'keterangan';
 
 function bukaAturMenu() {
     aturMenuDraf = [...getMenuHomeTerpilih()];
@@ -5527,7 +5607,7 @@ function bukaAturMenu() {
 }
 
 function pilihTampilanMenu(mode) {
-    aturMenuTampilanDraf = mode === 'keterangan' ? 'keterangan' : 'ringkas';
+    aturMenuTampilanDraf = mode === 'ringkas' ? 'ringkas' : 'keterangan';
     renderAturMenu();
 }
 
@@ -5593,7 +5673,7 @@ function masukkanMenuHome(id) {
 
 function kembalikanMenuBawaan() {
     aturMenuDraf = menuHomeBawaan();
-    aturMenuTampilanDraf = 'ringkas';
+    aturMenuTampilanDraf = 'keterangan';
     aturMenuDipilih = null;
     document.getElementById('aturMenuPesan').textContent = 'Susunan & tampilan bawaan dipasang. Tekan Simpan untuk menerapkan.';
     renderAturMenu();
@@ -5605,6 +5685,17 @@ function simpanAturMenu() {
     renderMenuPremium();
     showToast('Menu Utama disimpan');
     showPage('home');
+}
+
+// Tanda Mode Admin supaya tidak lupa dimatikan: tombol di header berubah jadi lencana kuning "Admin Aktif"
+// dengan titik berdenyut, dan ada garis kuning tipis di atas layar di halaman mana pun.
+function perbaruiPenandaAdmin() {
+    document.body.classList.toggle('admin-mode', !!isAdminModePremium);
+    const tombol = document.getElementById('adminModeToggleBtn');
+    if (!tombol) return;
+    tombol.classList.toggle('aktif', !!isAdminModePremium);
+    tombol.setAttribute('aria-pressed', isAdminModePremium ? 'true' : 'false');
+    tombol.innerHTML = isAdminModePremium ? '<span class="titik-admin"></span>Admin Aktif' : '<i class="fas fa-shield-alt"></i> Mode Admin';
 }
 
 function toggleAdminMode() { 
@@ -10224,6 +10315,415 @@ function infoBerhalanganAgenda(a) {
     if (!p) return null;
     const { bentrok } = cekBentrokPejabat(p.id, a.tanggal, a.waktu);
     return bentrok.length ? { nama: p.nama, daftar: bentrok } : null;
+}
+
+// ==================== BUKU PINJAMAN (global, bukan per Program) ====================
+// Mencatat dana yang DITALANGI untuk orang lain (atasan, staf) — dari uang kantor atau uang pribadi —
+// beserta pengembaliannya. Sisa hutang & status dihitung otomatis: pengembalian melunasi pinjaman
+// TERLAMA dulu (per sumber dana). Foto bukti disimpan terpisah per transaksi (kunci
+// 'pinjaman_bukti_<id>') supaya data utama tetap ringan walau fotonya banyak.
+let pinjamanData = { orang: [], transaksi: [] };
+let pinjamanOrangDipilih = null;
+let pinjamanFotoDraf = [];
+const SUMBER_DANA_PINJAMAN = { kantor: 'Uang Kantor', pribadi: 'Uang Pribadi' };
+
+function tanggalLokalHariIni() {
+    const d = new Date();
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+}
+
+async function loadPinjamanData() {
+    try {
+        const d = await idbGet(STORE_CATATAN, 'pinjaman_data');
+        pinjamanData = (d && Array.isArray(d.orang) && Array.isArray(d.transaksi)) ? d : { orang: [], transaksi: [] };
+    } catch (e) { pinjamanData = { orang: [], transaksi: [] }; }
+    if (pinjamanOrangDipilih && !pinjamanData.orang.some(o => o.id === pinjamanOrangDipilih)) pinjamanOrangDipilih = null;
+    renderPinjaman();
+}
+
+async function simpanPinjamanData() {
+    try { await idbSet(STORE_CATATAN, 'pinjaman_data', pinjamanData); }
+    catch (e) { showToast('❌ Gagal menyimpan: ' + e.message); }
+    renderPinjaman();
+}
+
+function urutTrxPinjaman(a, b) { return (a.tanggal + '|' + a.id).localeCompare(b.tanggal + '|' + b.id); }
+
+// Hitung sisa setiap pinjaman seorang peminjam. Pengembalian dialokasikan ke pinjaman terlama dulu,
+// terpisah untuk Uang Kantor dan Uang Pribadi (supaya keduanya tidak tercampur).
+function hitungPinjamanOrang(orangId) {
+    const trx = pinjamanData.transaksi.filter(t => t.orangId === orangId);
+    const hasil = { pinjaman: [], kembali: [], sisa: { kantor: 0, pribadi: 0 } };
+    ['kantor', 'pribadi'].forEach(sumber => {
+        const daftar = trx.filter(t => t.jenis === 'pinjam' && t.sumber === sumber).sort(urutTrxPinjaman).map(t => ({ ...t, sisa: t.nominal }));
+        let dana = trx.filter(t => t.jenis === 'kembali' && t.sumber === sumber).reduce((n, t) => n + t.nominal, 0);
+        daftar.forEach(p => { const bayar = Math.min(p.sisa, dana); p.sisa -= bayar; dana -= bayar; });
+        hasil.sisa[sumber] = daftar.reduce((n, p) => n + p.sisa, 0);
+        hasil.pinjaman.push(...daftar);
+    });
+    hasil.pinjaman.sort(urutTrxPinjaman);
+    hasil.kembali = trx.filter(t => t.jenis === 'kembali').sort(urutTrxPinjaman);
+    hasil.totalSisa = hasil.sisa.kantor + hasil.sisa.pribadi;
+    return hasil;
+}
+
+function statusPinjaman(p) { return p.sisa <= 0 ? 'lunas' : (p.sisa < p.nominal ? 'sebagian' : 'belum'); }
+
+function umurHariPinjaman(tgl) {
+    const [y, m, d] = tgl.split('-').map(Number);
+    const [y2, m2, d2] = tanggalLokalHariIni().split('-').map(Number);
+    return Math.max(0, Math.round((Date.UTC(y2, m2 - 1, d2) - Date.UTC(y, m - 1, d)) / 86400000));
+}
+
+function teksUmurPinjaman(tgl) {
+    const h = umurHariPinjaman(tgl);
+    if (h === 0) return 'hari ini';
+    if (h < 7) return h + ' hari';
+    if (h < 30) return Math.floor(h / 7) + ' minggu';
+    if (h < 365) return Math.floor(h / 30) + ' bulan';
+    return Math.floor(h / 365) + ' tahun';
+}
+
+function tglPendekPinjaman(tgl) {
+    return new Date(tgl + 'T00:00:00').toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' });
+}
+
+// ---------- Tampilan halaman ----------
+function renderPinjaman() {
+    const ringkas = document.getElementById('pinjamanRingkasan');
+    const daftar = document.getElementById('pinjamanDaftarOrang');
+    if (!ringkas || !daftar) return;
+    const orang = pinjamanData.orang.map(o => ({ ...o, h: hitungPinjamanOrang(o.id) }));
+    const totK = orang.reduce((n, o) => n + o.h.sisa.kantor, 0);
+    const totP = orang.reduce((n, o) => n + o.h.sisa.pribadi, 0);
+    ringkas.innerHTML = `
+        <div class="pinjaman-ringkas-baris">
+            <div class="pinjaman-ringkas-kotak"><span>🏢 Uang Kantor di luar</span><b>${formatRupiah(totK)}</b></div>
+            <div class="pinjaman-ringkas-kotak"><span>👤 Uang Pribadi di luar</span><b>${formatRupiah(totP)}</b></div>
+        </div>
+        <div style="font-size:12px;color:#555;margin-top:8px;text-align:center;">Total belum kembali: <b style="color:#b42318;">${formatRupiah(totK + totP)}</b></div>`;
+
+    const filter = document.getElementById('pinjamanFilter')?.value || 'belum';
+    const tampil = orang.filter(o => filter === 'semua' || o.h.totalSisa > 0).sort((a, b) => b.h.totalSisa - a.h.totalSisa || a.nama.localeCompare(b.nama));
+    daftar.innerHTML = tampil.length ? tampil.map(o => {
+        const tertua = o.h.pinjaman.find(p => p.sisa > 0);
+        const rincian = [o.h.sisa.kantor ? `Kantor ${formatRupiah(o.h.sisa.kantor)}` : '', o.h.sisa.pribadi ? `Pribadi ${formatRupiah(o.h.sisa.pribadi)}` : ''].filter(Boolean).join(' · ');
+        return `<div class="pinjaman-orang${o.id === pinjamanOrangDipilih ? ' dipilih' : ''}" role="button" tabindex="0" onclick="pilihOrangPinjaman(${o.id})">
+            <div style="min-width:0;">
+                <div style="font-weight:700;font-size:15px;">👤 ${escapeHtml(o.nama)}</div>
+                <div style="font-size:12px;color:#5b6470;margin-top:2px;">${o.h.totalSisa > 0 ? `${rincian}${tertua ? ` · tertua ${teksUmurPinjaman(tertua.tanggal)}` : ''}` : '✅ Semua sudah kembali'}</div>
+            </div>
+            <div style="font-weight:800;font-size:15px;color:${o.h.totalSisa > 0 ? '#b42318' : '#15803d'};white-space:nowrap;">${formatRupiah(o.h.totalSisa)}</div>
+        </div>`;
+    }).join('') : `<div style="text-align:center;color:#6b7280;padding:24px 10px;font-size:13px;">${pinjamanData.orang.length ? 'Tidak ada pinjaman yang belum kembali. 🎉' : 'Belum ada catatan. Tekan "+ Pinjaman" untuk mulai mencatat.'}</div>`;
+    renderDetailPinjaman();
+}
+
+function pilihOrangPinjaman(id) {
+    pinjamanOrangDipilih = pinjamanOrangDipilih === id ? null : id;
+    renderPinjaman();
+    if (pinjamanOrangDipilih) setTimeout(() => document.getElementById('pinjamanDetail')?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 50);
+}
+
+function renderDetailPinjaman() {
+    const wadah = document.getElementById('pinjamanDetail');
+    if (!wadah) return;
+    const o = pinjamanData.orang.find(x => x.id === pinjamanOrangDipilih);
+    if (!o) { wadah.style.display = 'none'; wadah.innerHTML = ''; return; }
+    const h = hitungPinjamanOrang(o.id);
+    const LABEL = { belum: ['Belum kembali', '#FEE2E2', '#991B1B'], sebagian: ['Sebagian', '#FEF3C7', '#92400E'], lunas: ['Lunas', '#DCFCE7', '#166534'] };
+    const aksiTrx = t => `<span onclick="event.stopPropagation(); bukaFormPinjaman('${t.jenis}', { editId: ${t.id} })" style="cursor:pointer;padding:2px 4px;">✏️</span><span onclick="event.stopPropagation(); hapusTransaksiPinjaman(${t.id})" style="cursor:pointer;padding:2px 4px;color:#DC2626;">🗑️</span>`;
+    const tandaBukti = t => t.bukti > 0
+        ? `<button type="button" class="pinjaman-bukti" onclick="lihatBuktiPinjaman(${t.id})">📎 ${t.bukti} bukti</button>`
+        : `<span class="pinjaman-bukti kosong">⚠️ belum ada bukti</span>`;
+    const barisPinjam = h.pinjaman.slice().reverse().map(p => {
+        const st = statusPinjaman(p); const [lbl, bg, fg] = LABEL[st];
+        return `<div class="pinjaman-trx">
+            <div style="display:flex;justify-content:space-between;gap:8px;align-items:flex-start;">
+                <div style="min-width:0;">
+                    <div style="font-weight:700;">${escapeHtml(p.keperluan || 'Pinjaman')}</div>
+                    <div style="font-size:12px;color:#5b6470;margin-top:2px;">${tglPendekPinjaman(p.tanggal)} · ${SUMBER_DANA_PINJAMAN[p.sumber]}${st !== 'lunas' ? ` · sudah ${teksUmurPinjaman(p.tanggal)}` : ''}</div>
+                </div>
+                <div style="text-align:right;flex-shrink:0;">
+                    <div style="font-weight:800;">${formatRupiah(p.nominal)}</div>
+                    ${st === 'sebagian' ? `<div style="font-size:11px;color:#92400E;">sisa ${formatRupiah(p.sisa)}</div>` : ''}
+                </div>
+            </div>
+            <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;margin-top:8px;">
+                <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;"><span class="pinjaman-status" style="background:${bg};color:${fg};">${lbl}</span>${tandaBukti(p)}</div>
+                <div style="white-space:nowrap;">${aksiTrx(p)}</div>
+            </div>
+        </div>`;
+    }).join('') || '<div style="font-size:12px;color:#888;padding:8px 0;">Belum ada pinjaman.</div>';
+    const barisKembali = h.kembali.slice().reverse().map(k => `<div class="pinjaman-trx">
+            <div style="display:flex;justify-content:space-between;gap:8px;">
+                <div style="min-width:0;"><div style="font-weight:700;color:#15803d;">↩️ Pengembalian</div>
+                    <div style="font-size:12px;color:#5b6470;margin-top:2px;">${tglPendekPinjaman(k.tanggal)} · ke ${SUMBER_DANA_PINJAMAN[k.sumber]}${k.keperluan ? ' · ' + escapeHtml(k.keperluan) : ''}</div></div>
+                <div style="font-weight:800;color:#15803d;white-space:nowrap;">${formatRupiah(k.nominal)}</div>
+            </div>
+            <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;margin-top:8px;"><div>${tandaBukti(k)}</div><div style="white-space:nowrap;">${aksiTrx(k)}</div></div>
+        </div>`).join('') || '<div style="font-size:12px;color:#888;padding:8px 0;">Belum ada pengembalian.</div>';
+
+    wadah.style.display = 'block';
+    wadah.innerHTML = `
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;">
+            <div style="min-width:0;"><div style="font-weight:800;font-size:16px;color:var(--primary);">👤 ${escapeHtml(o.nama)}</div>
+                ${o.hp ? `<div style="font-size:12px;color:#5b6470;">📱 ${escapeHtml(o.hp)}</div>` : ''}</div>
+            <div style="display:flex;gap:4px;flex-shrink:0;">
+                <span onclick="bukaFormOrangPinjaman(${o.id})" style="cursor:pointer;padding:4px;">✏️</span>
+                <span onclick="hapusOrangPinjaman(${o.id})" style="cursor:pointer;padding:4px;color:#DC2626;">🗑️</span>
+                <span onclick="pilihOrangPinjaman(${o.id})" style="cursor:pointer;padding:4px;color:#888;">✕</span>
+            </div>
+        </div>
+        <div class="pinjaman-ringkas-baris" style="margin-top:10px;">
+            <div class="pinjaman-ringkas-kotak"><span>Sisa Uang Kantor</span><b>${formatRupiah(h.sisa.kantor)}</b></div>
+            <div class="pinjaman-ringkas-kotak"><span>Sisa Uang Pribadi</span><b>${formatRupiah(h.sisa.pribadi)}</b></div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px;">
+            <button type="button" class="btn btn-small" style="background:var(--primary);color:#fff;margin:0;" onclick="bukaFormPinjaman('pinjam', { orangId: ${o.id} })">+ Pinjaman</button>
+            <button type="button" class="btn btn-small" style="background:#15803d;color:#fff;margin:0;" onclick="bukaFormPinjaman('kembali', { orangId: ${o.id} })">+ Pengembalian</button>
+            <button type="button" class="btn btn-small" style="background:#25D366;color:#fff;margin:0;" onclick="bagikanPinjamanWA(${o.id})">📲 Kirim Rincian</button>
+            <button type="button" class="btn btn-small" style="background:var(--orange);color:#fff;margin:0;" onclick="cetakPinjaman(${o.id})">🖨️ Cetak</button>
+        </div>
+        <div class="pinjaman-subjudul">Pinjaman</div>${barisPinjam}
+        <div class="pinjaman-subjudul">Riwayat Pengembalian</div>${barisKembali}`;
+}
+
+// ---------- Formulir pinjaman / pengembalian ----------
+function isiDaftarNamaPinjaman() {
+    const dl = document.getElementById('pinjamanDaftarNama');
+    if (dl) dl.innerHTML = pinjamanData.orang.map(o => `<option value="${escapeHtml(o.nama)}"></option>`).join('');
+}
+
+function cariOrangPinjamanByNama(nama) {
+    const n = (nama || '').trim().toLowerCase();
+    return pinjamanData.orang.find(o => o.nama.trim().toLowerCase() === n);
+}
+
+function bukaFormPinjaman(jenis, { orangId = null, editId = null } = {}) {
+    const t = editId ? pinjamanData.transaksi.find(x => x.id === editId) : null;
+    const kembali = jenis === 'kembali';
+    document.getElementById('pinjamanJenis').value = jenis;
+    document.getElementById('pinjamanEditId').value = t ? t.id : '';
+    document.getElementById('pinjamanModalJudul').textContent = (t ? 'Edit ' : 'Catat ') + (kembali ? 'Pengembalian' : 'Pinjaman');
+    document.getElementById('pinjamanLabelSumber').textContent = kembali ? 'Mengembalikan pinjaman dari' : 'Sumber dana';
+    document.getElementById('pinjamanLabelKeperluan').textContent = kembali ? 'Catatan (opsional)' : 'Keperluan';
+    document.getElementById('pinjamanKeperluan').placeholder = kembali ? 'Contoh: transfer BCA, tunai' : 'Contoh: Bayar listrik rumah';
+    const orang = pinjamanData.orang.find(o => o.id === (t ? t.orangId : orangId));
+    document.getElementById('pinjamanNama').value = orang ? orang.nama : '';
+    document.getElementById('pinjamanTanggal').value = t ? t.tanggal : tanggalLokalHariIni();
+    document.getElementById('pinjamanNominal').value = t ? formatAngka(t.nominal) : '';
+    document.getElementById('pinjamanKeperluan').value = t ? (t.keperluan || '') : '';
+    let sumber = t ? t.sumber : 'kantor';
+    if (!t && kembali && orang) { const h = hitungPinjamanOrang(orang.id); sumber = h.pinjaman.find(p => p.sisa > 0)?.sumber || 'kantor'; }
+    document.getElementById('pinjamanSumber').value = sumber;
+    document.getElementById('pinjamanFotoInput').value = '';
+    pinjamanFotoDraf = [];
+    renderFotoDrafPinjaman();
+    if (t && t.bukti > 0) idbGet(STORE_CATATAN, 'pinjaman_bukti_' + t.id).then(arr => { pinjamanFotoDraf = Array.isArray(arr) ? arr : []; renderFotoDrafPinjaman(); }).catch(() => {});
+    isiDaftarNamaPinjaman();
+    perbaruiInfoSisaPinjaman();
+    document.getElementById('pinjamanModal').style.display = 'flex';
+}
+
+function tutupModalPinjaman() { document.getElementById('pinjamanModal').style.display = 'none'; pinjamanFotoDraf = []; }
+
+function formatInputNominalPinjaman(el) {
+    const angka = el.value.replace(/\D/g, '');
+    el.value = angka ? formatAngka(parseInt(angka, 10)) : '';
+}
+
+// Untuk pengembalian: tampilkan sisa hutang dari sumber yang dipilih, supaya tidak salah ketik nominal
+function sisaPinjamanTanpaTrx(orangId, sumber, kecualiId) {
+    const cadangan = pinjamanData.transaksi;
+    pinjamanData.transaksi = cadangan.filter(t => t.id !== kecualiId);
+    try { return hitungPinjamanOrang(orangId).sisa[sumber]; }
+    finally { pinjamanData.transaksi = cadangan; }
+}
+
+function perbaruiInfoSisaPinjaman() {
+    const info = document.getElementById('pinjamanSisaInfo');
+    if (!info) return;
+    if (document.getElementById('pinjamanJenis').value !== 'kembali') { info.textContent = ''; return; }
+    const o = cariOrangPinjamanByNama(document.getElementById('pinjamanNama').value);
+    const sumber = document.getElementById('pinjamanSumber').value;
+    const editId = Number(document.getElementById('pinjamanEditId').value) || null;
+    info.textContent = o ? `Sisa hutang ${o.nama} dari ${SUMBER_DANA_PINJAMAN[sumber]}: ${formatRupiah(sisaPinjamanTanpaTrx(o.id, sumber, editId))}` : '';
+}
+
+async function tambahFotoPinjaman(input) {
+    const files = Array.from(input.files || []);
+    for (const f of files) {
+        try {
+            const kecil = await kompresGambar(f, 1280, 0.7);
+            const dataUrl = await new Promise((res, rej) => { const r = new FileReader(); r.onload = () => res(r.result); r.onerror = rej; r.readAsDataURL(kecil); });
+            pinjamanFotoDraf.push(dataUrl);
+        } catch (e) { showToast('❌ Foto gagal dibaca'); }
+    }
+    input.value = '';
+    renderFotoDrafPinjaman();
+}
+
+function renderFotoDrafPinjaman() {
+    const w = document.getElementById('pinjamanFotoPratinjau');
+    if (!w) return;
+    w.innerHTML = pinjamanFotoDraf.map((src, i) => `<div style="position:relative;">
+        <img src="${src}" alt="Bukti ${i + 1}" style="width:64px;height:64px;object-fit:cover;border-radius:10px;border:1px solid #e5e7eb;">
+        <button type="button" onclick="pinjamanFotoDraf.splice(${i},1); renderFotoDrafPinjaman();" aria-label="Hapus foto" style="position:absolute;top:-6px;right:-6px;width:22px;height:22px;border-radius:50%;border:2px solid #fff;background:#dc2626;color:#fff;font-size:13px;line-height:1;padding:0;cursor:pointer;">×</button>
+    </div>`).join('');
+}
+
+async function simpanTransaksiPinjaman() {
+    const jenis = document.getElementById('pinjamanJenis').value;
+    const editId = Number(document.getElementById('pinjamanEditId').value) || null;
+    const nama = document.getElementById('pinjamanNama').value.trim();
+    const tanggal = document.getElementById('pinjamanTanggal').value;
+    const nominal = parseInt(document.getElementById('pinjamanNominal').value.replace(/\D/g, ''), 10) || 0;
+    const sumber = document.getElementById('pinjamanSumber').value;
+    const keperluan = document.getElementById('pinjamanKeperluan').value.trim();
+    if (!nama) return showToast('Nama wajib diisi!');
+    if (!tanggal) return showToast('Tanggal wajib diisi!');
+    if (nominal <= 0) return showToast('Nominal wajib diisi!');
+    if (jenis === 'pinjam' && !keperluan) return showToast('Keperluan wajib diisi!');
+
+    let orang = cariOrangPinjamanByNama(nama);
+    if (jenis === 'kembali') {
+        if (!orang) return showToast(`${nama} belum punya catatan pinjaman`);
+        // Sisa dihitung tanpa transaksi yang sedang diedit, supaya batasnya tepat
+        const sisa = sisaPinjamanTanpaTrx(orang.id, sumber, editId);
+        if (nominal > sisa) return showToast(`Melebihi sisa hutang dari ${SUMBER_DANA_PINJAMAN[sumber]} (${formatRupiah(sisa)})`);
+    }
+    if (!orang) { orang = { id: Date.now(), nama, hp: '' }; pinjamanData.orang.push(orang); }
+
+    const id = editId || Date.now() + 1;
+    const data = { id, orangId: orang.id, jenis, tanggal, nominal, sumber, keperluan, bukti: pinjamanFotoDraf.length };
+    const idx = pinjamanData.transaksi.findIndex(t => t.id === id);
+    if (idx !== -1) pinjamanData.transaksi[idx] = { ...pinjamanData.transaksi[idx], ...data };
+    else pinjamanData.transaksi.push(data);
+    try {
+        if (pinjamanFotoDraf.length) await idbSet(STORE_CATATAN, 'pinjaman_bukti_' + id, pinjamanFotoDraf.slice());
+        else await idbDelete(STORE_CATATAN, 'pinjaman_bukti_' + id);
+    } catch (e) { showToast('⚠️ Foto bukti gagal disimpan: ' + e.message); }
+    pinjamanOrangDipilih = orang.id;
+    tutupModalPinjaman();
+    await simpanPinjamanData();
+    showToast((editId ? 'Diperbarui' : (jenis === 'kembali' ? 'Pengembalian dicatat' : 'Pinjaman dicatat')) + (data.bukti ? '' : ' · belum ada bukti'));
+}
+
+async function hapusTransaksiPinjaman(id) {
+    const t = pinjamanData.transaksi.find(x => x.id === id);
+    if (!t) return;
+    const ok = await konfirmasiHapus(`${t.jenis === 'kembali' ? 'Pengembalian' : 'Pinjaman'} ${formatRupiah(t.nominal)} tanggal ${tglPendekPinjaman(t.tanggal)} akan dihapus beserta foto buktinya.`, 'Hapus Catatan?');
+    if (!ok) return;
+    pinjamanData.transaksi = pinjamanData.transaksi.filter(x => x.id !== id);
+    try { await idbDelete(STORE_CATATAN, 'pinjaman_bukti_' + id); } catch (e) {}
+    await simpanPinjamanData();
+    showToast('Catatan dihapus');
+}
+
+// ---------- Data peminjam (nama & nomor WA) ----------
+function bukaFormOrangPinjaman(id) {
+    const o = pinjamanData.orang.find(x => x.id === id);
+    if (!o) return;
+    document.getElementById('pinjamanOrangId').value = o.id;
+    document.getElementById('pinjamanOrangNama').value = o.nama;
+    document.getElementById('pinjamanOrangHp').value = o.hp || '';
+    document.getElementById('pinjamanOrangModal').style.display = 'flex';
+}
+
+async function simpanOrangPinjaman() {
+    const o = pinjamanData.orang.find(x => x.id === Number(document.getElementById('pinjamanOrangId').value));
+    if (!o) return;
+    const nama = document.getElementById('pinjamanOrangNama').value.trim();
+    if (!nama) return showToast('Nama wajib diisi!');
+    const lain = cariOrangPinjamanByNama(nama);
+    if (lain && lain.id !== o.id) return showToast('Nama itu sudah ada di daftar');
+    o.nama = nama;
+    o.hp = document.getElementById('pinjamanOrangHp').value.trim();
+    document.getElementById('pinjamanOrangModal').style.display = 'none';
+    await simpanPinjamanData();
+    showToast('Data peminjam diperbarui');
+}
+
+async function hapusOrangPinjaman(id) {
+    const o = pinjamanData.orang.find(x => x.id === id);
+    if (!o) return;
+    const trx = pinjamanData.transaksi.filter(t => t.orangId === id);
+    const ok = await konfirmasiHapus(`${o.nama} beserta ${trx.length} catatan pinjaman & pengembaliannya akan dihapus permanen.`, 'Hapus Peminjam?');
+    if (!ok) return;
+    for (const t of trx) { try { await idbDelete(STORE_CATATAN, 'pinjaman_bukti_' + t.id); } catch (e) {} }
+    pinjamanData.transaksi = pinjamanData.transaksi.filter(t => t.orangId !== id);
+    pinjamanData.orang = pinjamanData.orang.filter(x => x.id !== id);
+    pinjamanOrangDipilih = null;
+    await simpanPinjamanData();
+    showToast('Peminjam dihapus');
+}
+
+// ---------- Lihat foto bukti ----------
+async function lihatBuktiPinjaman(id) {
+    let arr = [];
+    try { arr = (await idbGet(STORE_CATATAN, 'pinjaman_bukti_' + id)) || []; } catch (e) {}
+    if (!arr.length) return showToast('Foto bukti tidak ditemukan');
+    const ov = document.createElement('div');
+    ov.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.9);z-index:10060;overflow-y:auto;padding:56px 12px 20px;display:flex;flex-direction:column;gap:12px;align-items:center;';
+    ov.innerHTML = `<button type="button" aria-label="Tutup" style="position:fixed;top:12px;right:12px;width:40px;height:40px;border-radius:50%;border:none;background:rgba(255,255,255,0.2);color:#fff;font-size:22px;cursor:pointer;">✕</button>`
+        + arr.map((src, i) => `<img src="${src}" alt="Bukti ${i + 1}" style="max-width:100%;border-radius:10px;">`).join('');
+    ov.addEventListener('click', e => { if (e.target === ov || e.target.tagName === 'BUTTON') ov.remove(); });
+    document.body.appendChild(ov);
+}
+
+// ---------- Kirim rincian ke WA & Cetak ----------
+function bagikanPinjamanWA(id) {
+    const o = pinjamanData.orang.find(x => x.id === id);
+    if (!o) return;
+    const h = hitungPinjamanOrang(id);
+    const belum = h.pinjaman.filter(p => p.sisa > 0);
+    if (!belum.length) return showToast(`Tidak ada pinjaman ${o.nama} yang belum kembali`);
+    let teks = `Assalamu'alaikum ${o.nama},\nberikut rincian dana yang masih belum kembali per ${tglPendekPinjaman(tanggalLokalHariIni())}:\n\n`;
+    belum.forEach((p, i) => {
+        teks += `${i + 1}. ${tglPendekPinjaman(p.tanggal)} — ${p.keperluan || 'Pinjaman'}\n   ${formatRupiah(p.nominal)}${p.sisa < p.nominal ? ` (sisa ${formatRupiah(p.sisa)})` : ''}\n`;
+    });
+    teks += `\n*Total: ${formatRupiah(h.totalSisa)}*`;
+    if (h.sisa.kantor && h.sisa.pribadi) teks += `\n(Uang kantor ${formatRupiah(h.sisa.kantor)}, uang pribadi ${formatRupiah(h.sisa.pribadi)})`;
+    teks += `\n\nTerima kasih 🙏`;
+    let hp = (o.hp || '').replace(/\D/g, '');
+    if (hp.startsWith('0')) hp = '62' + hp.slice(1);
+    window.open(`https://wa.me/${hp}?text=${encodeURIComponent(teks)}`, '_blank');
+}
+
+function cetakPinjaman(id) {
+    const o = pinjamanData.orang.find(x => x.id === id);
+    if (!o) return;
+    const h = hitungPinjamanOrang(id);
+    const tgl = formatTanggalLengkap(new Date());
+    const LBL = { belum: 'Belum kembali', sebagian: 'Sebagian', lunas: 'Lunas' };
+    const sel = 'padding:6px 8px;border-bottom:1px solid #e5e7eb;vertical-align:top;';
+    const baris = h.pinjaman.map((p, i) => `<tr>
+        <td style="${sel}">${i + 1}</td><td style="${sel}">${tglPendekPinjaman(p.tanggal)}</td>
+        <td style="${sel}">${escapeHtml(p.keperluan || '-')}</td><td style="${sel}">${SUMBER_DANA_PINJAMAN[p.sumber]}</td>
+        <td style="${sel}text-align:right;">${formatRupiah(p.nominal)}</td><td style="${sel}text-align:right;">${formatRupiah(p.sisa)}</td>
+        <td style="${sel}">${LBL[statusPinjaman(p)]}${p.bukti ? '' : ' · <i>tanpa bukti</i>'}</td></tr>`).join('');
+    const barisK = h.kembali.map((k, i) => `<tr>
+        <td style="${sel}">${i + 1}</td><td style="${sel}">${tglPendekPinjaman(k.tanggal)}</td>
+        <td style="${sel}">${SUMBER_DANA_PINJAMAN[k.sumber]}</td><td style="${sel}">${escapeHtml(k.keperluan || '-')}</td>
+        <td style="${sel}text-align:right;">${formatRupiah(k.nominal)}</td></tr>`).join('');
+    const th = 'background:#0D5C4A;color:#fff;padding:7px 8px;text-align:left;font-size:11px;-webkit-print-color-adjust:exact;print-color-adjust:exact;';
+    const html = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>Rincian Pinjaman ${escapeHtml(o.nama)}</title>
+        <style>*{margin:0;padding:0;box-sizing:border-box;} body{font-family:Arial,sans-serif;padding:20px;color:#222;background:#f0f0f0;}
+        .box{background:#fff;max-width:800px;margin:0 auto;padding:24px;border-radius:14px;} table{width:100%;border-collapse:collapse;font-size:11.5px;margin-top:8px;}
+        h2{color:#0D5C4A;font-size:17px;margin:10px 0 2px;} h3{font-size:13px;margin:16px 0 0;color:#0D5C4A;}
+        .ring{display:flex;gap:10px;margin-top:10px;} .ring div{flex:1;border:1px solid #e5e7eb;border-radius:10px;padding:8px 10px;font-size:11px;color:#555;} .ring b{display:block;font-size:14px;color:#222;}
+        tr{break-inside:avoid;} @page{size:A4;margin:12mm;} @media print{body{background:#fff;padding:0;} .box{padding:0;} .np{display:none;}}
+        .np{text-align:center;margin-top:16px;} .np button{padding:10px 24px;border:none;border-radius:8px;background:#0D5C4A;color:#fff;font-weight:bold;cursor:pointer;}</style></head><body>
+        <div class="box">${buildPrintHeader(getKonfigurasiProData(), tgl)}
+        <h2>RINCIAN PINJAMAN — ${escapeHtml(o.nama.toUpperCase())}</h2><div style="font-size:11px;color:#666;">Per ${tgl}</div>
+        <div class="ring"><div>Sisa Uang Kantor<b>${formatRupiah(h.sisa.kantor)}</b></div><div>Sisa Uang Pribadi<b>${formatRupiah(h.sisa.pribadi)}</b></div><div>Total belum kembali<b style="color:#b42318;">${formatRupiah(h.totalSisa)}</b></div></div>
+        <h3>Pinjaman</h3><table><tr><th style="${th}">No</th><th style="${th}">Tanggal</th><th style="${th}">Keperluan</th><th style="${th}">Sumber</th><th style="${th}text-align:right;">Nominal</th><th style="${th}text-align:right;">Sisa</th><th style="${th}">Status</th></tr>${baris || `<tr><td colspan="7" style="${sel}">-</td></tr>`}</table>
+        <h3>Riwayat Pengembalian</h3><table><tr><th style="${th}">No</th><th style="${th}">Tanggal</th><th style="${th}">Ke</th><th style="${th}">Catatan</th><th style="${th}text-align:right;">Nominal</th></tr>${barisK || `<tr><td colspan="5" style="${sel}">-</td></tr>`}</table>
+        </div><div class="np"><button onclick="window.print()">🖨️ CETAK</button></div></body></html>`;
+    const win = window.open('', '_blank');
+    if (!win) return showToast('Izinkan popup untuk cetak!');
+    win.document.write(applyPrintTheme(html)); injectWatermarkToPrintWin(win); win.document.close();
 }
 
 async function cetakKalenderPejabat(mode) {
@@ -19445,7 +19945,7 @@ function openIndexedDB() {
 // dengan build baru, data MENTAH (langsung dari IndexedDB, bukan dari memori) disalin dulu sebelum
 // proses migrasi apapun berjalan — supaya kalau ada kesalahan di update, data lama masih bisa dipulihkan.
 // Dokumen & foto tidak ikut disalin (ukurannya besar, dan tidak pernah disentuh proses migrasi).
-const NAVARA_BUILD = '2026.09.21-20';
+const NAVARA_BUILD = '2026.09.21-22';
 const MAKS_SNAPSHOT = 3;
 
 function daftarKunciSnapshot() {
@@ -19459,7 +19959,7 @@ function daftarKunciSnapshot() {
         [STORE_FOLDER, 'folder_list'], [STORE_PENGELUARAN, 'pengeluaran_data'],
         [STORE_ABSENSI, 'absensi_sesi'], [STORE_ABSENSI, 'jadwal_manasik'],
         [STORE_PROSPEK, 'prospek_list'],
-        [STORE_CATATAN, 'catatan_list'], [STORE_CATATAN, 'agenda_kantor_list'], [STORE_CATATAN, 'pejabat_list'],
+        [STORE_CATATAN, 'catatan_list'], [STORE_CATATAN, 'agenda_kantor_list'], [STORE_CATATAN, 'pejabat_list'], [STORE_CATATAN, 'pinjaman_data'],
     ];
 }
 
@@ -20665,6 +21165,7 @@ async function bagikanFullZip() {
                 jadwal_manasik: (await idbGet(STORE_ABSENSI, 'jadwal_manasik')) || [],
                 agenda_kantor: (await idbGet(STORE_CATATAN, 'agenda_kantor_list')) || [],
                 kalender_pejabat: (await idbGet(STORE_CATATAN, 'pejabat_list')) || [],
+                buku_pinjaman: (await idbGet(STORE_CATATAN, 'pinjaman_data')) || null,
                 pengaturan_lokal: {
                     template_surat_kustom: localStorage.getItem('navara_template_surat_kustom') || '',
                     template_surat_kustom_judul: localStorage.getItem('navara_template_surat_kustom_judul') || '',
@@ -20751,6 +21252,17 @@ async function buildFullBackupZip() {
     zip.file('agenda_kantor.json', JSON.stringify(agendaKantorSegar, null, 2));
     const kalenderPejabatSegar = await idbGet(STORE_CATATAN, 'pejabat_list') || [];
     zip.file('kalender_pejabat.json', JSON.stringify(kalenderPejabatSegar, null, 2));
+    // Buku Pinjaman + foto buktinya (bukti_pinjaman/<idTransaksi>_<urutan>.jpg)
+    const bukuPinjamanSegar = await idbGet(STORE_CATATAN, 'pinjaman_data') || { orang: [], transaksi: [] };
+    zip.file('buku_pinjaman.json', JSON.stringify(bukuPinjamanSegar, null, 2));
+    const buktiFolder = zip.folder('bukti_pinjaman');
+    for (const t of (bukuPinjamanSegar.transaksi || [])) {
+        if (!t.bukti) continue;
+        const foto = await idbGet(STORE_CATATAN, 'pinjaman_bukti_' + t.id) || [];
+        foto.forEach((dataUrl, i) => {
+            if (typeof dataUrl === 'string' && dataUrl.startsWith('data:')) buktiFolder.file(`${t.id}_${i + 1}.jpg`, dataUrl.split(',')[1], { base64: true });
+        });
+    }
     // Data lain yang tersimpan di localStorage (bukan IndexedDB) — template surat, jenis layanan, pengingat WA, dll
     const pengaturanLokal = {
         template_surat_kustom: localStorage.getItem('navara_template_surat_kustom') || '',
@@ -20917,6 +21429,11 @@ async function applyRestoreBackupData(backup) {
     if (backup.agenda_kantor) {
         agendaKantorList = backup.agenda_kantor || [];
         await idbSet(STORE_CATATAN, 'agenda_kantor_list', agendaKantorList);
+    }
+    if (backup.buku_pinjaman && Array.isArray(backup.buku_pinjaman.orang)) {
+        // Cadangan JSON tidak memuat foto bukti — foto yang sudah ada di HP ini tetap dipakai
+        pinjamanData = backup.buku_pinjaman;
+        await idbSet(STORE_CATATAN, 'pinjaman_data', pinjamanData);
     }
     if (backup.kalender_pejabat) {
         pejabatList = backup.kalender_pejabat || [];
@@ -21188,6 +21705,24 @@ async function restoreFromZip(input) {
             if (agendaKantorFile) {
                 agendaKantorList = JSON.parse(await agendaKantorFile.async('string'));
                 await idbSet(STORE_CATATAN, 'agenda_kantor_list', agendaKantorList);
+            }
+            // Restore Buku Pinjaman + foto buktinya
+            const bukuPinjamanFile = zip.file('buku_pinjaman.json');
+            if (bukuPinjamanFile) {
+                pinjamanData = JSON.parse(await bukuPinjamanFile.async('string'));
+                await idbSet(STORE_CATATAN, 'pinjaman_data', pinjamanData);
+                const fotoPerTrx = {};
+                for (const path of Object.keys(zip.files)) {
+                    const m = path.match(/^bukti_pinjaman\/(\d+)_(\d+)\.jpg$/);
+                    if (!m) continue;
+                    (fotoPerTrx[m[1]] = fotoPerTrx[m[1]] || []).push({ urut: Number(m[2]), path });
+                }
+                for (const [idTrx, daftarFoto] of Object.entries(fotoPerTrx)) {
+                    daftarFoto.sort((a, b) => a.urut - b.urut);
+                    const arr = [];
+                    for (const f of daftarFoto) arr.push('data:image/jpeg;base64,' + await zip.file(f.path).async('base64'));
+                    await idbSet(STORE_CATATAN, 'pinjaman_bukti_' + idTrx, arr);
+                }
             }
             // Restore Kalender Pejabat — data global
             const kalenderPejabatFile = zip.file('kalender_pejabat.json');
