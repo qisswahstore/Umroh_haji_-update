@@ -42,7 +42,34 @@
             --gray: #64748B;
             --gray-light: #F1F5F9;
             --card-bg: #FFFFFF;
+            --primary-muda: rgba(13, 92, 74, 0.11);
         }
+        /* Menu Utama ringkas 4 kolom: ikon dalam lingkaran warna muda dari tema + nama menu */
+        #menuGridPremium.menu-grid-premium, .semua-menu-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 4px 2px; }
+        .menu-tile { border: none; background: transparent; font-family: inherit; display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 6px 2px; min-height: 88px; cursor: pointer; position: relative; -webkit-tap-highlight-color: transparent; }
+        .menu-tile-ikon { width: 54px; height: 54px; border-radius: 17px; background: var(--primary-muda); color: var(--primary); display: flex; align-items: center; justify-content: center; font-size: 22px; transition: transform 0.15s ease; }
+        .menu-tile:active .menu-tile-ikon { transform: scale(0.93); }
+        .menu-tile-label { font-size: 11.5px; font-weight: 600; text-align: center; line-height: 1.25; color: #1f2933; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; word-break: break-word; }
+        body.dark-mode .menu-tile-label { color: #e5e7eb; }
+        .atur-menu-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 4px 2px; margin-top: 8px; }
+        .atur-menu-grid .menu-tile-ikon { width: 50px; height: 50px; border-radius: 15px; font-size: 20px; }
+        .atur-menu-grid .menu-tile.dipilih .menu-tile-ikon { outline: 2.5px solid var(--primary); outline-offset: 2px; }
+        .atur-menu-grid.lainnya .menu-tile-ikon { background: #f3f4f6; color: #6b7280; }
+        /* Tampilan "Dengan keterangan": 3 kolom berbentuk kartu */
+        #menuGridPremium.mode-keterangan, .semua-menu-grid.mode-keterangan { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+        #menuGridPremium.mode-keterangan .menu-tile, .semua-menu-grid.mode-keterangan .menu-tile { background: var(--card-bg); border-radius: 18px; padding: 14px 6px 12px; min-height: 124px; border: 1px solid rgba(0,0,0,0.05); box-shadow: 0 2px 8px rgba(0,0,0,0.03); }
+        .menu-tile-ket { font-size: 10.5px; color: var(--gray); text-align: center; line-height: 1.3; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+        .pilih-tampilan { flex: 1; border: 1.5px solid #e5e7eb; background: #fff; border-radius: 12px; padding: 10px 8px; font-family: inherit; font-size: 13px; font-weight: 700; color: #374151; cursor: pointer; display: flex; flex-direction: column; gap: 2px; align-items: center; }
+        .pilih-tampilan small { font-size: 11px; font-weight: 500; color: #6b7280; }
+        .pilih-tampilan.aktif { border-color: var(--primary); background: var(--primary-muda); color: var(--primary); }
+        /* Halaman Menu Lengkap: kotak per kelompok (hanya menu yang belum ada di Home) */
+        .daftar-menu-cari { display: flex; align-items: center; gap: 10px; background: var(--card-bg); border-radius: 14px; padding: 0 14px; height: 50px; box-shadow: 0 4px 14px rgba(15,23,42,0.06); margin: 14px 16px 6px; }
+        .daftar-menu-cari i { color: #6b7280; }
+        .daftar-menu-cari input { border: none; outline: none; background: transparent; flex: 1; font-family: inherit; font-size: 14px; color: inherit; height: 100%; }
+        .semua-menu-grid { display: grid; margin: 0 12px; }
+        .daftar-menu-judul { font-size: 12px; font-weight: 800; letter-spacing: 1px; color: #4b5563; text-transform: uppercase; margin: 18px 20px 8px; }
+        body.dark-mode .daftar-menu-judul { color: #9ca3af; }
+        .lencana-menu { position: absolute; top: 0; right: calc(50% - 34px); width: 24px; height: 24px; border-radius: 50%; border: 2px solid #fff; color: #fff; font-size: 15px; font-weight: 800; line-height: 1; display: flex; align-items: center; justify-content: center; cursor: pointer; padding: 0; }
         
         /* Print Media Query - Optimasi untuk cetak */
         @media print {
@@ -102,7 +129,9 @@
         body.dark-mode .catatan-card,
         body.dark-mode .payment-jamaah-card,
         body.dark-mode .rekap-card,
-        body.dark-mode .fitur-card,
+        body.dark-mode .semua-menu-grid.mode-keterangan .menu-tile,
+        body.dark-mode .daftar-menu-cari,
+        body.dark-mode #menuGridPremium.mode-keterangan .menu-tile,
         body.dark-mode .tiket-card,
         body.dark-mode .reminder-card,
         body.dark-mode .modal-content,
@@ -124,10 +153,6 @@
         }
         body.dark-mode .btn-primary {
             background: var(--primary);
-        }
-        body.dark-mode .menu-card-premium {
-            background: #2A2A3A;
-            border-color: #3D3D4D;
         }
         
         /* Page Transitions */
@@ -394,57 +419,6 @@
             grid-template-columns: repeat(3, 1fr);
             gap: 14px;
             margin-bottom: 24px;
-        }
-        .menu-card-premium {
-            background: white;
-            border-radius: 24px;
-            padding: 18px 10px 14px;
-            text-align: center;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            border: 1px solid rgba(13, 92, 74, 0.08);
-            box-shadow: 0 2px 8px rgba(0,0,0,0.02);
-        }
-        .menu-card-premium:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 12px 20px rgba(13, 92, 74, 0.1);
-        }
-        .menu-card-premium:active {
-            transform: scale(0.97);
-        }
-        .menu-icon {
-            font-size: 32px;
-            margin-bottom: 8px;
-            color: var(--primary);
-        }
-        .menu-label {
-            font-weight: 700;
-            font-size: 0.7rem;
-            color: var(--primary);
-            margin-bottom: 6px;
-        }
-        .menu-badge {
-            font-size: 0.6rem;
-            color: var(--gray);
-            background: var(--gray-light);
-            display: inline-block;
-            padding: 2px 8px;
-            border-radius: 20px;
-        }
-        .admin-mode .menu-card-premium {
-            border: 1.5px dashed var(--accent);
-            position: relative;
-        }
-        .edit-badge {
-            position: absolute;
-            top: 6px;
-            right: 10px;
-            background: var(--accent);
-            color: white;
-            font-size: 8px;
-            padding: 2px 6px;
-            border-radius: 20px;
-            font-weight: bold;
         }
         
         .bottom-nav-premium {
@@ -734,20 +708,6 @@
         .color-opt.active {
             border-color: var(--dark);
             box-shadow: 0 0 0 2px var(--primary);
-        }
-        .menu-setting-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 12px 0;
-            border-bottom: 1px solid var(--gray-light);
-        }
-        .menu-setting-item:last-child {
-            border-bottom: none;
-        }
-        .menu-setting-item span {
-            font-size: 0.85rem;
-            font-weight: 500;
         }
         
         .modal {
@@ -1503,41 +1463,6 @@
             margin-left: 4px;
         }
         
-        .fitur-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 14px;
-            margin-top: 16px;
-        }
-        .fitur-card {
-            background: white;
-            border-radius: 20px;
-            padding: 20px;
-            text-align: center;
-            cursor: pointer;
-            border: 1px solid rgba(13,92,74,0.1);
-            transition: all 0.2s;
-        }
-        .fitur-card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 16px rgba(0,0,0,0.1);
-        }
-        .fitur-icon {
-            font-size: 40px;
-            margin-bottom: 10px;
-            color: var(--primary);
-        }
-        .fitur-title {
-            font-weight: 700;
-            font-size: 0.9rem;
-            color: var(--primary);
-            margin-bottom: 6px;
-        }
-        .fitur-desc {
-            font-size: 0.7rem;
-            color: var(--gray);
-        }
-        
         .folder-card {
             background: white;
             border-radius: 20px;
@@ -2161,7 +2086,10 @@
     </div>
 
     <div class="menu-container">
-        <div class="section-title"><span><i class="fas fa-th-large"></i> Menu Utama</span></div>
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;">
+            <div class="section-title"><span><i class="fas fa-th-large"></i> Menu Utama</span></div>
+            <button type="button" onclick="showPage('atur-menu')" style="border:none;background:transparent;color:var(--primary);font-family:inherit;font-size:13px;font-weight:700;padding:8px 2px;cursor:pointer;">Atur menu</button>
+        </div>
         <div class="menu-grid-premium" id="menuGridPremium"></div>
     </div>
 </div>
@@ -3473,30 +3401,51 @@
 
 <!-- HALAMAN FITUR LENGKAP -->
 <div id="page-fitur" class="page">
-    <div class="header-premium header-premium-small"><div class="back-header"><i class="fas fa-arrow-left" onclick="showPage('home')"></i><h2> Fitur Lengkap</h2><div style="width:30px;"></div></div></div>
+    <div class="header-premium header-premium-small"><div class="back-header"><i class="fas fa-arrow-left" onclick="showPage('home')"></i><h2>Menu Lengkap</h2><div style="width:30px;"></div></div></div>
     <div class="container">
-        <div class="fitur-grid">
-           <div class="fitur-card" onclick="showPage('uploaddokumen')"><div class="fitur-icon"><i class="fas fa-file-arrow-up"></i></div><div class="fitur-title">Upload Dokumen</div><div class="fitur-desc">Simpan KTP, Paspor, Foto</div></div>
-            <div class="fitur-card" onclick="showPage('foldervirtual')"><div class="fitur-icon"><i class="fas fa-folder-open"></i></div><div class="fitur-title">Folder Virtual</div><div class="fitur-desc">Pisah per rombongan</div></div>
-            <div class="fitur-card" onclick="showPage('pengingatwa')"><div class="fitur-icon"><i class="fab fa-whatsapp"></i></div><div class="fitur-title">Pengingat WA</div><div class="fitur-desc">Kirim pengingat otomatis</div></div>
-            <div class="fitur-card" onclick="showPage('etikettiket')"><div class="fitur-icon"><i class="fas fa-ticket"></i></div><div class="fitur-title">Kartu ID & QR Jamaah</div><div class="fitur-desc">Kartu identitas untuk presensi</div></div>
-            <div class="fitur-card" onclick="showPage('scanqr')"><div class="fitur-icon" style="font-size:40px;"><i class="fas fa-qrcode"></i></div><div class="fitur-title">Manasik & Absensi</div><div class="fitur-desc">Jadwal, presensi & cek data jamaah</div></div>
-            <div class="fitur-card" onclick="showPage('suratresmi')"><div class="fitur-icon" style="font-size:40px;"><i class="fas fa-file-signature"></i></div><div class="fitur-title">Surat Resmi</div><div class="fitur-desc">Buat surat otomatis dari data jamaah</div></div>
-            <div class="fitur-card" onclick="showPage('cetaklabel')"><div class="fitur-icon"><i class="fas fa-tag"></i></div><div class="fitur-title">Cetak Label</div><div class="fitur-desc">Name tag / stiker koper</div></div>
-            <div class="fitur-card" onclick="showPage('cloudstorage')"><div class="fitur-icon"><i class="fas fa-cloud"></i></div><div class="fitur-title">Cloud Storage</div><div class="fitur-desc">Backup & Restore data</div></div>
-            <div class="fitur-card" onclick="showPage('dashboard')"><div class="fitur-icon"><i class="fas fa-chart-line"></i></div><div class="fitur-title">Dashboard</div><div class="fitur-desc">Grafik statistik data</div></div>
-            <div class="fitur-card" onclick="openBandingkanProgramModal()"><div class="fitur-icon"><i class="fas fa-chart-column"></i></div><div class="fitur-title">Bandingkan Program</div><div class="fitur-desc">Performa semua Program sekaligus</div></div>
-            <div class="fitur-card" onclick="openDashboardTrenModal()"><div class="fitur-icon"><i class="fas fa-arrow-trend-up"></i></div><div class="fitur-title">Dashboard Tren</div><div class="fitur-desc">Perbandingan antar tahun</div></div>
-            <div class="fitur-card" onclick="cetakLaporanPenutupanMusim()"><div class="fitur-icon"><i class="fas fa-book"></i></div><div class="fitur-title">Laporan Penutupan Musim</div><div class="fitur-desc">Gabungan semua laporan akhir</div></div>
-            <div class="fitur-card" onclick="showPage('itinerary')"><div class="fitur-icon"><i class="fas fa-route"></i></div><div class="fitur-title">Itinerary</div><div class="fitur-desc">Jadwal harian perjalanan</div></div>
-            <div class="fitur-card" onclick="showPage('arsipprogram')"><div class="fitur-icon"><i class="fas fa-box-archive"></i></div><div class="fitur-title">Program Arsip</div><div class="fitur-desc">Program lama, read-only</div></div>
-            <div class="fitur-card" onclick="showPage('alumni')"><div class="fitur-icon"><i class="fas fa-graduation-cap"></i></div><div class="fitur-title">Database Alumni</div><div class="fitur-desc">Jamaah lama untuk remarketing</div></div>
-            <div class="fitur-card" onclick="showPage('layanantambahan')"><div class="fitur-icon"><i class="fas fa-kaaba"></i></div><div class="fitur-title">Layanan Tambahan</div><div class="fitur-desc">Badal Haji, Dam, dll</div></div>
-            <div class="fitur-card" onclick="cetakRekapTahunanGabungan()"><div class="fitur-icon"><i class="fas fa-file-invoice"></i></div><div class="fitur-title">Rekap Tahunan</div><div class="fitur-desc">Total omzet semua keberangkatan</div></div>
-            <div class="fitur-card" onclick="openKalenderProgramModal()"><div class="fitur-icon"><i class="fas fa-calendar-days"></i></div><div class="fitur-title">Kalender Program</div><div class="fitur-desc">Semua jadwal keberangkatan</div></div>
-            <div class="fitur-card" onclick="openProyeksiKasModal()"><div class="fitur-icon"><i class="fas fa-sack-dollar"></i></div><div class="fitur-title">Proyeksi Kas</div><div class="fitur-desc">Estimasi dana yang masih masuk</div></div>
-            <div class="fitur-card" onclick="showPage('kalkulatorriyal')"><div class="fitur-icon"><i class="fas fa-right-left"></i></div><div class="fitur-title">Tukar Riyal</div><div class="fitur-desc">Hitung kembalian tukar SAR</div></div>
-            <div class="fitur-card" onclick="showPage('evaluasihotelmaskapai')"><div class="fitur-icon"><i class="fas fa-star-half-stroke"></i></div><div class="fitur-title">Evaluasi Hotel & Maskapai</div><div class="fitur-desc">Catatan penilaian tiap musim</div></div>
+        <div class="daftar-menu-cari">
+            <i class="fas fa-search"></i>
+            <input type="text" id="cariSemuaMenu" placeholder="Cari menu… (contoh: riyal, alumni)" aria-label="Cari menu" oninput="renderSemuaMenu()">
+        </div>
+        <div id="semuaMenuDaftar" style="padding-bottom:28px;"></div>
+    </div>
+</div>
+
+<!-- ==================== ATUR MENU UTAMA ==================== -->
+<div id="page-atur-menu" class="page">
+    <div class="header-premium header-premium-small"><div class="back-header"><i class="fas fa-arrow-left" onclick="showPage('home')"></i><h2>Atur Menu Utama</h2><div style="width:30px;"></div></div></div>
+    <div class="container">
+        <div class="card-premium" style="font-size:12.5px;color:#374151;line-height:1.55;">
+            Ketuk <b>−</b> untuk mengeluarkan menu dari Home, ketuk <b>+</b> untuk memasukkannya. Menu yang dikeluarkan otomatis pindah ke <b>Menu Lengkap</b>.
+            Untuk mengubah urutan, ketuk menu di bagian "Tampil di Home", lalu pakai tombol <b>◀ ▶</b>.
+        </div>
+        <div class="card-premium">
+            <b style="font-size:15px;">Tampilan di Home</b>
+            <div style="display:flex;gap:8px;margin-top:10px;">
+                <button type="button" id="aturTampilRingkas" class="pilih-tampilan" onclick="pilihTampilanMenu('ringkas')">Ringkas<small>4 kolom, nama saja</small></button>
+                <button type="button" id="aturTampilKet" class="pilih-tampilan" onclick="pilihTampilanMenu('keterangan')">Dengan keterangan<small>3 kolom, ada penjelasan</small></button>
+            </div>
+        </div>
+        <div class="card-premium">
+            <div style="display:flex;justify-content:space-between;align-items:baseline;">
+                <b style="font-size:15px;">Tampil di Home</b>
+                <span id="aturMenuJumlah" style="font-size:12px;font-weight:700;color:var(--primary);"></span>
+            </div>
+            <div id="aturMenuHome" class="atur-menu-grid"></div>
+            <div id="aturMenuGeser" style="display:none;align-items:center;justify-content:space-between;gap:8px;margin-top:10px;background:var(--primary-muda);border-radius:12px;padding:8px;">
+                <button type="button" onclick="geserMenuHome(-1)" style="border:none;background:#fff;color:var(--primary);font-weight:700;border-radius:10px;padding:10px 12px;cursor:pointer;">◀ Kiri</button>
+                <span id="aturMenuDipilihNama" style="font-size:12.5px;font-weight:700;color:var(--primary);text-align:center;"></span>
+                <button type="button" onclick="geserMenuHome(1)" style="border:none;background:#fff;color:var(--primary);font-weight:700;border-radius:10px;padding:10px 12px;cursor:pointer;">Kanan ▶</button>
+            </div>
+            <div id="aturMenuPesan" style="font-size:12px;font-weight:600;color:#b45309;margin-top:8px;"></div>
+        </div>
+        <div class="card-premium">
+            <b style="font-size:15px;">Menu lainnya</b>
+            <div id="aturMenuLainnya" class="atur-menu-grid lainnya"></div>
+        </div>
+        <div style="display:flex;gap:10px;margin-bottom:24px;">
+            <button type="button" class="btn btn-secondary" style="flex:1;" onclick="kembalikanMenuBawaan()">Kembalikan ke bawaan</button>
+            <button type="button" class="btn btn-primary" style="flex:1;" onclick="simpanAturMenu()">Simpan</button>
         </div>
     </div>
 </div>
@@ -4371,6 +4320,8 @@ function internalShowPage(pageId) {
     if (pageId === 'itinerary') { if(typeof renderItineraryList === 'function') renderItineraryList(); }
     if (pageId === 'agenda-kantor') { if(typeof loadAgendaKantorData === 'function') loadAgendaKantorData(); }
     if (pageId === 'kalender-pejabat') { if(typeof loadPejabatData === 'function') loadPejabatData(); }
+    if (pageId === 'atur-menu') { if(typeof bukaAturMenu === 'function') bukaAturMenu(); }
+    if (pageId === 'fitur') { if(typeof bukaSemuaMenu === 'function') bukaSemuaMenu(); }
     if (pageId === 'jamaah') { if(window.loadJamaahData) window.loadJamaahData().then(() => { if(window.renderJamaahListWithPagination) window.renderJamaahListWithPagination(); }); else if(window.renderJamaahListWithPagination) window.renderJamaahListWithPagination(); }
     if (pageId === 'jamaahkita') {
         const c = document.getElementById('jamaahKitaListContainer');
@@ -4893,18 +4844,17 @@ function initDarkMode() {
 
 // Menu Grid
 const menuItemsPremium = [
-    { id: 'estimasi', icon: '<i class="fas fa-chart-pie"></i>', label: 'Cuan Plan', badge: 'Estimasi' }, 
-    { id: 'kas', icon: '<i class="fas fa-wallet"></i>', label: 'Uang Kas', badge: 'Kas' }, 
-    { id: 'jamaah', icon: '<i class="fas fa-database"></i>', label: 'Database', badge: 'Jamaah' }, 
-    { id: 'jamaahkita', icon: '<i class="fas fa-hourglass-half"></i>', label: 'Jamaah on proses', badge: 'Proses' }, 
-    { id: 'catatan', icon: '<i class="fas fa-note-sticky"></i>', label: 'Catatan', badge: 'Notes' }, 
-    { id: 'agenda-kantor', icon: '<i class="fas fa-calendar-check"></i>', label: 'Agenda Kantor', badge: 'Rapat' }, 
-    { id: 'kalender-pejabat', icon: '<i class="fas fa-user-tie"></i>', label: 'Kalender Pejabat', badge: 'Jadwal' }, 
-    { id: 'zakat', icon: '<i class="fas fa-hand-holding-dollar"></i>', label: 'Zakat', badge: 'Kalkulator' }, 
-    { id: 'pembayaran', icon: '<i class="fas fa-receipt"></i>', label: 'Pembayaran', badge: 'Tagihan' }, 
-    { id: 'datamaster', icon: '<i class="fas fa-calendar-days"></i>', label: 'Multi Event', badge: 'Event' }, 
-    { id: 'konfigurasi', icon: '<i class="fas fa-gear"></i>', label: 'Konfigurasi', badge: 'Setting' }, 
-    { id: 'fitur', icon: '<i class="fas fa-rocket"></i>', label: 'LENGKAP', badge: 'Fitur' }
+    { id: 'estimasi', icon: '<i class="fas fa-chart-pie"></i>', label: 'Cuan Plan', badge: 'Estimasi', ket: 'Estimasi biaya & keuntungan paket', kelompok: 'keuangan' },
+    { id: 'kas', icon: '<i class="fas fa-wallet"></i>', label: 'Uang Kas', badge: 'Kas', ket: 'Buku kas masuk & keluar', kelompok: 'keuangan' },
+    { id: 'jamaah', icon: '<i class="fas fa-database"></i>', label: 'Database', badge: 'Jamaah', ket: 'Data lengkap semua jamaah', kelompok: 'jamaah' },
+    { id: 'jamaahkita', icon: '<i class="fas fa-hourglass-half"></i>', label: 'Jamaah on proses', badge: 'Proses', ket: 'Jamaah yang sedang diurus berkasnya', kelompok: 'jamaah' },
+    { id: 'catatan', icon: '<i class="fas fa-note-sticky"></i>', label: 'Catatan', badge: 'Notes', ket: 'Catatan kantor & pribadi', kelompok: 'kantor' },
+    { id: 'agenda-kantor', icon: '<i class="fas fa-calendar-check"></i>', label: 'Agenda Kantor', badge: 'Rapat', ket: 'Jadwal rapat & hasilnya', kelompok: 'kantor' },
+    { id: 'kalender-pejabat', icon: '<i class="fas fa-user-tie"></i>', label: 'Kalender Pejabat', badge: 'Jadwal', ket: 'Jadwal pimpinan & cetak promosi', kelompok: 'kantor' },
+    { id: 'zakat', icon: '<i class="fas fa-hand-holding-dollar"></i>', label: 'Zakat', badge: 'Kalkulator', ket: 'Kalkulator zakat', kelompok: 'keuangan' },
+    { id: 'pembayaran', icon: '<i class="fas fa-receipt"></i>', label: 'Pembayaran', badge: 'Tagihan', ket: 'Tagihan & cicilan jamaah', kelompok: 'keuangan' },
+    { id: 'datamaster', icon: '<i class="fas fa-calendar-days"></i>', label: 'Multi Event', badge: 'Event', ket: 'Data peserta berbagai kegiatan', kelompok: 'kantor' },
+    { id: 'konfigurasi', icon: '<i class="fas fa-gear"></i>', label: 'Konfigurasi', badge: 'Setting', ket: 'Data instansi, tanda tangan & laporan', kelompok: 'pengaturan' }
 ];
 
 let isAdminModePremium = false;
@@ -5343,7 +5293,7 @@ function renderKelolaPeranModal(modalEl) {
 function openTambahPeranForm(peranId) {
     const list = getPeranList();
     const p = peranId ? list.find(x => x.id === peranId) : null;
-    const modulLabel = { estimasi:'Cuan Plan', kas:'Uang Kas', jamaah:'Database Jamaah', jamaahkita:'Jamaah on Proses', catatan:'Catatan', zakat:'Zakat', pembayaran:'Pembayaran', datamaster:'Multi Event', konfigurasi:'Konfigurasi', fitur:'Fitur Lengkap' };
+    const modulLabel = { estimasi:'Cuan Plan', kas:'Uang Kas', jamaah:'Database Jamaah', jamaahkita:'Jamaah on Proses', catatan:'Catatan', zakat:'Zakat', pembayaran:'Pembayaran', datamaster:'Multi Event', konfigurasi:'Konfigurasi', fitur:'Menu Lengkap' };
     const modulAllowed = p?.modulAllowed || MODUL_BISA_DIKUNCI.slice(); // Peran baru: default semua modul dicentang, tinggal di-uncek yang tidak perlu
     const modulCheckboxes = MODUL_BISA_DIKUNCI.map(mid => `
         <label style="display:flex;align-items:center;gap:8px;font-size:12px;margin-bottom:5px;cursor:pointer;">
@@ -5433,21 +5383,95 @@ function renderRiwayatAktivitas() {
         </div>`).join('');
 }
 
+// ==================== MENU (satu sumber data untuk Home, Menu Lengkap, dan Atur Menu) ====================
+// menuItemsPremium = Menu Utama bawaan; FITUR_LENGKAP = fitur tambahan. Keduanya dibaca oleh Home,
+// halaman Menu Lengkap, dan Atur Menu — jadi menambah fitur baru cukup di SATU tempat di bawah ini.
+const KELOMPOK_MENU = [
+    { id: 'jamaah', judul: 'Jamaah' },
+    { id: 'keuangan', judul: 'Keuangan' },
+    { id: 'kantor', judul: 'Kantor & Kegiatan' },
+    { id: 'perjalanan', judul: 'Perjalanan' },
+    { id: 'laporan', judul: 'Laporan & Arsip' },
+    { id: 'pengaturan', judul: 'Pengaturan & Data' },
+];
+const FITUR_LENGKAP = [
+    { id: "uploaddokumen", label: "Upload Dokumen", ket: "Simpan KTP, Paspor, Foto", kelompok: "jamaah", aksi: "showPage('uploaddokumen')", halaman: "uploaddokumen", icon: "<i class=\"fas fa-file-arrow-up\"></i>" },
+    { id: "foldervirtual", label: "Folder Virtual", ket: "Pisah per rombongan", kelompok: "jamaah", aksi: "showPage('foldervirtual')", halaman: "foldervirtual", icon: "<i class=\"fas fa-folder-open\"></i>" },
+    { id: "pengingatwa", label: "Pengingat WA", ket: "Kirim pengingat otomatis", kelompok: "kantor", aksi: "showPage('pengingatwa')", halaman: "pengingatwa", icon: "<i class=\"fab fa-whatsapp\"></i>" },
+    { id: "etikettiket", label: "Kartu ID & QR Jamaah", ket: "Kartu identitas untuk presensi", kelompok: "jamaah", aksi: "showPage('etikettiket')", halaman: "etikettiket", icon: "<i class=\"fas fa-ticket\"></i>" },
+    { id: "scanqr", label: "Manasik & Absensi", ket: "Jadwal, presensi & cek data jamaah", kelompok: "kantor", aksi: "showPage('scanqr')", halaman: "scanqr", icon: "<i class=\"fas fa-qrcode\"></i>" },
+    { id: "suratresmi", label: "Surat Resmi", ket: "Buat surat otomatis dari data jamaah", kelompok: "kantor", aksi: "showPage('suratresmi')", halaman: "suratresmi", icon: "<i class=\"fas fa-file-signature\"></i>" },
+    { id: "cetaklabel", label: "Cetak Label", ket: "Name tag / stiker koper", kelompok: "jamaah", aksi: "showPage('cetaklabel')", halaman: "cetaklabel", icon: "<i class=\"fas fa-tag\"></i>" },
+    { id: "cloudstorage", label: "Cloud Storage", ket: "Backup & Restore data", kelompok: "pengaturan", aksi: "showPage('cloudstorage')", halaman: "cloudstorage", icon: "<i class=\"fas fa-cloud\"></i>" },
+    { id: "dashboard", label: "Dashboard", ket: "Grafik statistik data", kelompok: "laporan", aksi: "showPage('dashboard')", halaman: "dashboard", icon: "<i class=\"fas fa-chart-line\"></i>" },
+    { id: "openBandingkanProgramModal", label: "Bandingkan Program", ket: "Performa semua Program sekaligus", kelompok: "laporan", aksi: "openBandingkanProgramModal()", halaman: null, icon: "<i class=\"fas fa-chart-column\"></i>" },
+    { id: "openDashboardTrenModal", label: "Dashboard Tren", ket: "Perbandingan antar tahun", kelompok: "laporan", aksi: "openDashboardTrenModal()", halaman: null, icon: "<i class=\"fas fa-arrow-trend-up\"></i>" },
+    { id: "cetakLaporanPenutupanMusim", label: "Laporan Penutupan Musim", ket: "Gabungan semua laporan akhir", kelompok: "laporan", aksi: "cetakLaporanPenutupanMusim()", halaman: null, icon: "<i class=\"fas fa-book\"></i>" },
+    { id: "itinerary", label: "Itinerary", ket: "Jadwal harian perjalanan", kelompok: "perjalanan", aksi: "showPage('itinerary')", halaman: "itinerary", icon: "<i class=\"fas fa-route\"></i>" },
+    { id: "arsipprogram", label: "Program Arsip", ket: "Program lama, read-only", kelompok: "laporan", aksi: "showPage('arsipprogram')", halaman: "arsipprogram", icon: "<i class=\"fas fa-box-archive\"></i>" },
+    { id: "alumni", label: "Database Alumni", ket: "Jamaah lama untuk remarketing", kelompok: "jamaah", aksi: "showPage('alumni')", halaman: "alumni", icon: "<i class=\"fas fa-graduation-cap\"></i>" },
+    { id: "layanantambahan", label: "Layanan Tambahan", ket: "Badal Haji, Dam, dll", kelompok: "jamaah", aksi: "showPage('layanantambahan')", halaman: "layanantambahan", icon: "<i class=\"fas fa-kaaba\"></i>" },
+    { id: "cetakRekapTahunanGabungan", label: "Rekap Tahunan", ket: "Total omzet semua keberangkatan", kelompok: "keuangan", aksi: "cetakRekapTahunanGabungan()", halaman: null, icon: "<i class=\"fas fa-file-invoice\"></i>" },
+    { id: "openKalenderProgramModal", label: "Kalender Program", ket: "Semua jadwal keberangkatan", kelompok: "perjalanan", aksi: "openKalenderProgramModal()", halaman: null, icon: "<i class=\"fas fa-calendar-days\"></i>" },
+    { id: "openProyeksiKasModal", label: "Proyeksi Kas", ket: "Estimasi dana yang masih masuk", kelompok: "keuangan", aksi: "openProyeksiKasModal()", halaman: null, icon: "<i class=\"fas fa-sack-dollar\"></i>" },
+    { id: "kalkulatorriyal", label: "Tukar Riyal", ket: "Hitung kembalian tukar SAR", kelompok: "keuangan", aksi: "showPage('kalkulatorriyal')", halaman: "kalkulatorriyal", icon: "<i class=\"fas fa-right-left\"></i>" },
+    { id: "evaluasihotelmaskapai", label: "Evaluasi Hotel & Maskapai", ket: "Catatan penilaian tiap musim", kelompok: "perjalanan", aksi: "showPage('evaluasihotelmaskapai')", halaman: "evaluasihotelmaskapai", icon: "<i class=\"fas fa-star-half-stroke\"></i>" },
+];
+
+const MENU_HOME_KUNCI = 'navara_menu_home';
+const MENU_TAMPILAN_KUNCI = 'navara_menu_tampilan';
+const MAKS_MENU_HOME = 11;
+
+function menuHomeBawaan() { return menuItemsPremium.map(m => m.id); }
+
+function daftarSemuaMenuNavara() {
+    return [
+        ...menuItemsPremium.map(m => ({ id: m.id, icon: m.icon, label: m.label, ket: m.ket, ketSingkat: m.badge, kelompok: m.kelompok, aksi: `showPage('${m.id}')`, halaman: m.id })),
+        ...FITUR_LENGKAP.map(f => ({ ...f, ketSingkat: f.ket, dariLengkap: true })),
+    ];
+}
+
+function getMenuHomeTerpilih() {
+    try {
+        const tersimpan = JSON.parse(localStorage.getItem(MENU_HOME_KUNCI) || 'null');
+        if (Array.isArray(tersimpan)) return tersimpan;
+    } catch (e) {}
+    // Belum pernah diatur: pakai bawaan, dan hormati pilihan lama "sembunyikan menu" dari pengaturan sebelumnya
+    return menuHomeBawaan().filter(id => localStorage.getItem(`menu_${id}_visible`) !== 'false');
+}
+
+function getMenuTampilan() { return localStorage.getItem(MENU_TAMPILAN_KUNCI) === 'keterangan' ? 'keterangan' : 'ringkas'; }
+
+// Aturan yang TETAP berlaku apa pun pilihan pengguna: izin Peran staf, dan Cuan Plan tidak untuk Haji Reguler
+function bolehTampilMenu(item, hajiReg) {
+    if (hajiReg && item.id === 'estimasi') return false;
+    if (item.halaman && !cekIzinModul(item.halaman)) return false;
+    // Fitur dari halaman Lengkap ikut izin "Menu Lengkap" — supaya staf yang dilarang tidak bisa
+    // menembus larangan itu dengan memasukkan fiturnya ke Home lewat Atur Menu
+    if (item.dariLengkap && !cekIzinModul('fitur')) return false;
+    return true;
+}
+
+function htmlTileMenu(item, { tambahan = '', kelas = '', aksiKlik = null, denganKet = false } = {}) {
+    return `<div class="menu-tile ${kelas}" role="button" tabindex="0" onclick="${escapeHtml(aksiKlik || item.aksi)}">
+        <span class="menu-tile-ikon">${item.icon}</span>
+        <span class="menu-tile-label">${escapeHtml(item.label)}</span>${denganKet && item.ketSingkat ? `<span class="menu-tile-ket">${escapeHtml(item.ketSingkat)}</span>` : ''}${tambahan}
+    </div>`;
+}
+
 function renderMenuPremium() { 
     const container = document.getElementById('menuGridPremium'); 
     if(!container) return; 
     const hajiReg = isHajiReguler();
-    let html = ''; 
-    for(let i=0;i<menuItemsPremium.length;i++) { 
-        const menu = menuItemsPremium[i]; 
-        if(hajiReg && menu.id === 'estimasi') continue; // Cuan Plan tidak relevan untuk Haji Reguler
-        if(!cekIzinModul(menu.id)) continue; // Staf tanpa izin Peran tidak melihat menu ini sama sekali
-        const isVisible = localStorage.getItem(`menu_${menu.id}_visible`) !== 'false'; 
-        if(isVisible || isAdminModePremium) 
-            html += `<div class="menu-card-premium" onclick="showPage('${menu.id}')">${isAdminModePremium ? '<div class="edit-badge">✏️</div>' : ''}<div class="menu-icon">${menu.icon}</div><div class="menu-label">${menu.label}</div><div class="menu-badge">${menu.badge}</div></div>`; 
-        else 
-            html += `<div class="menu-card-premium" style="opacity:0.3; cursor:default;" onclick="return false;"><div class="menu-icon">${menu.icon}</div><div class="menu-label">${menu.label}</div><div class="menu-badge">${menu.badge}</div></div>`; 
-    } 
+    const denganKet = getMenuTampilan() === 'keterangan';
+    container.classList.toggle('mode-keterangan', denganKet);
+    const semua = daftarSemuaMenuNavara();
+    let html = getMenuHomeTerpilih()
+        .map(id => semua.find(x => x.id === id))
+        .filter(x => x && bolehTampilMenu(x, hajiReg))
+        .map(item => htmlTileMenu(item, { denganKet })).join('');
+    // "Menu Lengkap" selalu ada di posisi terakhir, tidak bisa dikeluarkan (kecuali staf tanpa izin "Menu Lengkap")
+    if (cekIzinModul('fitur')) html += htmlTileMenu({ aksi: "showPage('fitur')", icon: '<i class="fas fa-th-large"></i>', label: 'Menu Lengkap', ketSingkat: 'Fitur lainnya' }, { denganKet });
     container.innerHTML = html; 
     if(isAdminModePremium) document.body.classList.add('admin-mode'); 
     else document.body.classList.remove('admin-mode'); 
@@ -5456,6 +5480,131 @@ function renderMenuPremium() {
         const navEl = document.querySelector(`.nav-item-premium[data-page="${pid}"]`);
         if(navEl) navEl.style.display = cekIzinModul(pid) ? '' : 'none';
     });
+}
+
+// ---------- Halaman Menu Lengkap: hanya menu yang belum ada di Home, per kelompok + pencarian ----------
+function renderSemuaMenu() {
+    const wadah = document.getElementById('semuaMenuDaftar');
+    if (!wadah) return;
+    const hajiReg = isHajiReguler();
+    const kata = (document.getElementById('cariSemuaMenu')?.value || '').trim().toLowerCase();
+    // Hanya menu yang BELUM tampil di Home — supaya tidak ada menu yang muncul dua kali.
+    // Menu yang dikeluarkan dari Home lewat Atur Menu otomatis pindah ke sini.
+    const diHome = getMenuHomeTerpilih();
+    const cocok = daftarSemuaMenuNavara()
+        .filter(x => bolehTampilMenu(x, hajiReg))
+        .filter(x => !diHome.includes(x.id))
+        .filter(x => !kata || (x.label + ' ' + (x.ket || '')).toLowerCase().includes(kata));
+    if (cocok.length === 0) {
+        wadah.innerHTML = `<div style="text-align:center;color:#6b7280;padding:30px 10px;font-size:13px;">${kata ? `Menu "${escapeHtml(kata)}" tidak ditemukan di Menu Lengkap.` : 'Semua menu sudah tampil di Home.'}</div>`;
+        return;
+    }
+    const denganKet = getMenuTampilan() === 'keterangan';
+    // Kotak sama persis dengan Menu Utama di Home, dan ikut pilihan tampilan (ringkas / dengan keterangan)
+    wadah.innerHTML = KELOMPOK_MENU.map(k => {
+        const isi = cocok.filter(x => x.kelompok === k.id);
+        if (!isi.length) return '';
+        return `<div class="daftar-menu-judul">${escapeHtml(k.judul)}</div>
+            <div class="semua-menu-grid${denganKet ? ' mode-keterangan' : ''}">${isi.map(item => htmlTileMenu({ ...item, ketSingkat: item.ket || item.ketSingkat }, { denganKet })).join('')}</div>`;
+    }).join('');
+}
+
+function bukaSemuaMenu() {
+    const cari = document.getElementById('cariSemuaMenu');
+    if (cari) cari.value = '';
+    renderSemuaMenu();
+}
+
+// ---------- Halaman Atur Menu ----------
+let aturMenuDraf = [], aturMenuDipilih = null, aturMenuTampilanDraf = 'ringkas';
+
+function bukaAturMenu() {
+    aturMenuDraf = [...getMenuHomeTerpilih()];
+    aturMenuTampilanDraf = getMenuTampilan();
+    aturMenuDipilih = null;
+    document.getElementById('aturMenuPesan').textContent = '';
+    renderAturMenu();
+}
+
+function pilihTampilanMenu(mode) {
+    aturMenuTampilanDraf = mode === 'keterangan' ? 'keterangan' : 'ringkas';
+    renderAturMenu();
+}
+
+function renderAturMenu() {
+    const hajiReg = isHajiReguler();
+    const semuaAda = daftarSemuaMenuNavara();
+    const semua = semuaAda.filter(x => bolehTampilMenu(x, hajiReg));
+    // Buang pilihan yang tidak dikenal lagi (misal fitur yang sudah dihapus dari aplikasi)
+    aturMenuDraf = aturMenuDraf.filter(id => semuaAda.some(x => x.id === id));
+    const diHome = aturMenuDraf.map(id => semua.find(x => x.id === id)).filter(Boolean);
+    const lainnya = semua.filter(x => !aturMenuDraf.includes(x.id));
+
+    document.getElementById('aturTampilRingkas').classList.toggle('aktif', aturMenuTampilanDraf === 'ringkas');
+    document.getElementById('aturTampilKet').classList.toggle('aktif', aturMenuTampilanDraf === 'keterangan');
+    document.getElementById('aturMenuJumlah').textContent = `${aturMenuDraf.length} dari ${MAKS_MENU_HOME} menu`;
+    document.getElementById('aturMenuHome').innerHTML = diHome.length
+        ? diHome.map(item => htmlTileMenu(item, {
+            tambahan: `<button type="button" class="lencana-menu" style="background:#dc2626;" aria-label="Keluarkan ${escapeHtml(item.label)}" onclick="event.stopPropagation(); keluarkanMenuHome('${jsArg(item.id)}')">−</button>`,
+            kelas: item.id === aturMenuDipilih ? 'dipilih' : '',
+            aksiKlik: `pilihMenuUntukGeser('${jsArg(item.id)}')` })).join('')
+        : '<div style="grid-column:1/-1;font-size:12px;color:#888;text-align:center;padding:12px;">Belum ada menu. Home hanya menampilkan "Menu Lengkap".</div>';
+    document.getElementById('aturMenuLainnya').innerHTML = lainnya.map(item => htmlTileMenu(item, {
+        tambahan: `<button type="button" class="lencana-menu" style="background:var(--primary);" aria-label="Masukkan ${escapeHtml(item.label)}" onclick="event.stopPropagation(); masukkanMenuHome('${jsArg(item.id)}')">+</button>`,
+        aksiKlik: `masukkanMenuHome('${jsArg(item.id)}')` })).join('')
+        || '<div style="grid-column:1/-1;font-size:12px;color:#888;text-align:center;padding:12px;">Semua menu sudah tampil di Home.</div>';
+
+    const geser = document.getElementById('aturMenuGeser');
+    const dipilih = diHome.find(x => x.id === aturMenuDipilih);
+    geser.style.display = dipilih ? 'flex' : 'none';
+    if (dipilih) document.getElementById('aturMenuDipilihNama').textContent = dipilih.label;
+}
+
+function pilihMenuUntukGeser(id) {
+    aturMenuDipilih = aturMenuDipilih === id ? null : id;
+    renderAturMenu();
+}
+
+function geserMenuHome(arah) {
+    const i = aturMenuDraf.indexOf(aturMenuDipilih);
+    const j = i + arah;
+    if (i === -1 || j < 0 || j >= aturMenuDraf.length) return;
+    [aturMenuDraf[i], aturMenuDraf[j]] = [aturMenuDraf[j], aturMenuDraf[i]];
+    renderAturMenu();
+}
+
+function keluarkanMenuHome(id) {
+    aturMenuDraf = aturMenuDraf.filter(x => x !== id);
+    if (aturMenuDipilih === id) aturMenuDipilih = null;
+    document.getElementById('aturMenuPesan').textContent = '';
+    renderAturMenu();
+}
+
+function masukkanMenuHome(id) {
+    if (aturMenuDraf.includes(id)) return;
+    if (aturMenuDraf.length >= MAKS_MENU_HOME) {
+        document.getElementById('aturMenuPesan').textContent = `Home sudah penuh (${MAKS_MENU_HOME} menu). Keluarkan satu menu dulu.`;
+        return;
+    }
+    aturMenuDraf.push(id);
+    document.getElementById('aturMenuPesan').textContent = '';
+    renderAturMenu();
+}
+
+function kembalikanMenuBawaan() {
+    aturMenuDraf = menuHomeBawaan();
+    aturMenuTampilanDraf = 'ringkas';
+    aturMenuDipilih = null;
+    document.getElementById('aturMenuPesan').textContent = 'Susunan & tampilan bawaan dipasang. Tekan Simpan untuk menerapkan.';
+    renderAturMenu();
+}
+
+function simpanAturMenu() {
+    localStorage.setItem(MENU_HOME_KUNCI, JSON.stringify(aturMenuDraf));
+    localStorage.setItem(MENU_TAMPILAN_KUNCI, aturMenuTampilanDraf);
+    renderMenuPremium();
+    showToast('Menu Utama disimpan');
+    showPage('home');
 }
 
 function toggleAdminMode() { 
@@ -5484,19 +5633,8 @@ function toggleAdminMode() {
 function renderMenuSettingsPremium() { 
     const container = document.getElementById('menuSettingsContainer'); 
     if(!container) return; 
-    let html = ''; 
-    for(const menu of menuItemsPremium) { 
-        const isVisible = localStorage.getItem(`menu_${menu.id}_visible`) !== 'false'; 
-        html += `<div class="menu-setting-item"><span>${menu.icon} ${menu.label}</span><label class="switch"><input type="checkbox" id="menu_${menu.id}" ${isVisible ? 'checked' : ''} onchange="toggleMenuVisibilityPremium('${menu.id}')"><span class="slider"></span></label></div>`; 
-    } 
-    container.innerHTML = html; 
-}
-
-function toggleMenuVisibilityPremium(menuId) { 
-    const isChecked = document.getElementById(`menu_${menuId}`).checked; 
-    localStorage.setItem(`menu_${menuId}_visible`, isChecked); 
-    renderMenuPremium(); 
-    showToast(`${menuId} ${isChecked ? 'ditampilkan' : 'disembunyikan'}`); 
+    container.innerHTML = `<div style="font-size:12.5px;color:#555;margin-bottom:10px;line-height:1.5;">Pilih menu yang tampil di Home dan urutannya. Menu yang tidak dipilih ada di Menu Lengkap.</div>
+        <button type="button" class="btn btn-primary btn-small" onclick="showPage('atur-menu')"><i class="fas fa-th-large"></i> Atur Menu Utama</button>`;
 }
 
 const themesPremium = [ 
@@ -5522,6 +5660,7 @@ function applyPrintTheme(htmlString) {
 
 function applyThemePremium(primary) { 
     document.documentElement.style.setProperty('--primary', primary); 
+    try { const hx = primary.replace('#',''); document.documentElement.style.setProperty('--primary-muda', `rgba(${parseInt(hx.slice(0,2),16)},${parseInt(hx.slice(2,4),16)},${parseInt(hx.slice(4,6),16)},0.11)`); } catch(e) {}
     document.querySelector('meta[name="theme-color"]')?.setAttribute('content', primary); 
     document.documentElement.style.setProperty('--primary-dark', primary); 
     document.querySelectorAll('.header-premium').forEach(h=>h.style.background=`linear-gradient(135deg, ${primary} 0%, #0A3D31 100%)`); 
@@ -19306,7 +19445,7 @@ function openIndexedDB() {
 // dengan build baru, data MENTAH (langsung dari IndexedDB, bukan dari memori) disalin dulu sebelum
 // proses migrasi apapun berjalan — supaya kalau ada kesalahan di update, data lama masih bisa dipulihkan.
 // Dokumen & foto tidak ikut disalin (ukurannya besar, dan tidak pernah disentuh proses migrasi).
-const NAVARA_BUILD = '2026.09.21-16';
+const NAVARA_BUILD = '2026.09.21-20';
 const MAKS_SNAPSHOT = 3;
 
 function daftarKunciSnapshot() {
@@ -20534,6 +20673,8 @@ async function bagikanFullZip() {
                     onproses_print_fields: JSON.parse(localStorage.getItem('navara_onproses_print_fields') || 'null'),
                     nametag_fields: JSON.parse(localStorage.getItem('navara_nametag_fields') || 'null'),
                     absensi_columns: JSON.parse(localStorage.getItem('navara_absensi_columns') || 'null'),
+                    menu_home: JSON.parse(localStorage.getItem('navara_menu_home') || 'null'),
+                    menu_tampilan: localStorage.getItem('navara_menu_tampilan') || null,
                 }
             };
             catatBackupTerakhir();
@@ -20619,6 +20760,8 @@ async function buildFullBackupZip() {
         onproses_print_fields: JSON.parse(localStorage.getItem('navara_onproses_print_fields') || 'null'),
         nametag_fields: JSON.parse(localStorage.getItem('navara_nametag_fields') || 'null'),
         absensi_columns: JSON.parse(localStorage.getItem('navara_absensi_columns') || 'null'),
+        menu_home: JSON.parse(localStorage.getItem('navara_menu_home') || 'null'),
+        menu_tampilan: localStorage.getItem('navara_menu_tampilan') || null,
     };
     zip.file('pengaturan_lokal.json', JSON.stringify(pengaturanLokal, null, 2));
     catatBackupTerakhir();
@@ -20788,6 +20931,8 @@ async function applyRestoreBackupData(backup) {
         if (pl.onproses_print_fields) localStorage.setItem('navara_onproses_print_fields', JSON.stringify(pl.onproses_print_fields));
         if (pl.nametag_fields) localStorage.setItem('navara_nametag_fields', JSON.stringify(pl.nametag_fields));
         if (pl.absensi_columns) localStorage.setItem('navara_absensi_columns', JSON.stringify(pl.absensi_columns));
+        if (pl.menu_home) localStorage.setItem('navara_menu_home', JSON.stringify(pl.menu_home));
+        if (pl.menu_tampilan) localStorage.setItem('navara_menu_tampilan', pl.menu_tampilan);
     }
     if (backup.kas) { 
         if (isMultiProgramBackup) {
@@ -21062,6 +21207,8 @@ async function restoreFromZip(input) {
                 if (pl.onproses_print_fields) localStorage.setItem('navara_onproses_print_fields', JSON.stringify(pl.onproses_print_fields));
                 if (pl.nametag_fields) localStorage.setItem('navara_nametag_fields', JSON.stringify(pl.nametag_fields));
                 if (pl.absensi_columns) localStorage.setItem('navara_absensi_columns', JSON.stringify(pl.absensi_columns));
+                if (pl.menu_home) localStorage.setItem('navara_menu_home', JSON.stringify(pl.menu_home));
+                if (pl.menu_tampilan) localStorage.setItem('navara_menu_tampilan', pl.menu_tampilan);
             }
 
             // Restore Prospek (Calon Jamaah)
