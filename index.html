@@ -2088,6 +2088,10 @@
             <div style="font-weight:700;font-size:13px;color:#92400E;margin-bottom:6px;">📅 <span id="homeCicilanWarningTitle">Cicilan Perlu Perhatian</span></div>
             <div id="homeCicilanWarningList" style="font-size:12px;color:#92400E;line-height:1.7;"></div>
         </div>
+        <div id="homePinjamanCicilanCard" onclick="showPage('pinjaman')" style="display:none;background:#FFF7ED;border:1px solid #FB923C;border-radius:14px;padding:12px 14px;margin-bottom:12px;cursor:pointer;">
+            <div style="font-weight:700;font-size:13px;color:#9A3412;margin-bottom:6px;">📒 <span id="homePinjamanCicilanTitle">Cicilan Pinjaman Perlu Perhatian</span></div>
+            <div id="homePinjamanCicilanList" style="font-size:12px;color:#9A3412;line-height:1.7;"></div>
+        </div>
         </div>
 
         <!-- Quick Action -->
@@ -2615,7 +2619,10 @@
     <div class="header-premium header-premium-small"><div class="back-header"><i class="fas fa-arrow-left" onclick="showPage('home')"></i><h2>Layanan Tambahan</h2><div style="width:30px;"></div></div></div>
     <div class="card-premium">
         <div style="font-size:11px;color:#888;margin-bottom:12px;">Badal Haji, Dam, dan layanan tambahan lain — data mengikuti Program aktif saat ini.</div>
-        <button class="btn btn-primary" onclick="openTambahLayananModal()"><i class="fas fa-plus-circle"></i> Tambah Transaksi</button>
+        <div style="display:flex;gap:8px;">
+            <button class="btn btn-primary" style="flex:2;margin:0;" onclick="openTambahLayananModal()"><i class="fas fa-plus-circle"></i> Tambah Transaksi</button>
+            <button class="btn btn-secondary" style="flex:1;margin:0;" onclick="bukaKelolaJenisLayanan()">⚙️ Jenis</button>
+        </div>
         <div id="layananTambahanRingkasan" style="background:linear-gradient(135deg,var(--primary),#0a3d31);border-radius:14px;padding:14px;color:white;margin-top:14px;">
             <div style="display:flex;justify-content:space-between;"><span style="opacity:0.8;font-size:13px;">Total Profit Layanan Tambahan</span><span id="layananTotalProfit" style="font-weight:900;">Rp 0</span></div>
         </div>
@@ -2835,6 +2842,13 @@
                 <button type="button" class="btn btn-small" style="background:var(--primary);color:#fff;margin:0;" onclick="bukaFormPinjaman('pinjam')">+ Pinjaman</button>
                 <button type="button" class="btn btn-small" style="background:#15803d;color:#fff;margin:0;" onclick="bukaFormPinjaman('kembali')">+ Pengembalian</button>
             </div>
+            <div style="display:flex;align-items:center;justify-content:center;gap:6px;margin-top:10px;font-size:12px;color:#555;">
+                <label for="pinjamanHariPengingat">Ingatkan cicilan</label>
+                <select id="pinjamanHariPengingat" onchange="aturHariPengingatCicilan(this.value)" style="width:auto;margin:0;padding:4px 8px;border-radius:8px;border:1.5px solid #e2e8f0;font-size:12px;background:var(--input-bg);color:var(--text);">
+                    <option value="1">1</option><option value="3">3</option><option value="5">5</option><option value="7">7</option>
+                </select>
+                <span>hari sebelum jatuh tempo</span>
+            </div>
         </div>
         <div style="display:flex;justify-content:space-between;align-items:center;margin:4px 4px 8px;">
             <b style="font-size:14px;">Peminjam</b>
@@ -2856,12 +2870,26 @@
             <input type="text" id="pinjamanNama" list="pinjamanDaftarNama" placeholder="Ketik nama atau pilih dari daftar" oninput="perbaruiInfoSisaPinjaman()"><datalist id="pinjamanDaftarNama"></datalist></div>
         <div class="row">
             <div class="dynamic-field"><label for="pinjamanTanggal">Tanggal <span style="color:red;">*</span></label><input type="date" id="pinjamanTanggal"></div>
-            <div class="dynamic-field"><label for="pinjamanNominal">Nominal (Rp) <span style="color:red;">*</span></label><input type="text" inputmode="numeric" id="pinjamanNominal" placeholder="0" oninput="formatInputNominalPinjaman(this)"></div>
+            <div class="dynamic-field"><label for="pinjamanNominal">Nominal (Rp) <span style="color:red;">*</span></label><input type="text" inputmode="numeric" id="pinjamanNominal" placeholder="0" oninput="formatInputNominalPinjaman(this); if (document.getElementById('pinjamanDicicil')?.checked) hitungCicilanOtomatis();"></div>
         </div>
         <div class="dynamic-field"><label id="pinjamanLabelSumber" for="pinjamanSumber">Sumber dana</label>
             <select id="pinjamanSumber" onchange="perbaruiInfoSisaPinjaman()"><option value="kantor">🏢 Uang Kantor</option><option value="pribadi">👤 Uang Pribadi</option></select></div>
         <div id="pinjamanSisaInfo" style="font-size:12px;font-weight:600;color:#15803d;margin:-4px 0 10px;"></div>
         <div class="dynamic-field"><label id="pinjamanLabelKeperluan" for="pinjamanKeperluan">Keperluan</label><input type="text" id="pinjamanKeperluan"></div>
+        <div id="pinjamanCicilanWrap" style="background:#F8FAFC;border-radius:12px;padding:10px 12px;margin-bottom:12px;">
+            <label style="display:flex;align-items:center;gap:8px;font-weight:700;font-size:14px;cursor:pointer;"><input type="checkbox" id="pinjamanDicicil" onchange="toggleCicilanPinjaman()" style="width:18px;height:18px;"> Dibayar dengan cicilan</label>
+            <div id="pinjamanCicilanDetail" style="display:none;margin-top:10px;">
+                <div class="row">
+                    <div class="dynamic-field"><label for="pinjamanTenor">Tenor (bulan)</label><input type="number" id="pinjamanTenor" min="2" max="60" value="12" inputmode="numeric" oninput="hitungCicilanOtomatis()"></div>
+                    <div class="dynamic-field"><label for="pinjamanPerBulan">Cicilan / bulan (Rp)</label><input type="text" inputmode="numeric" id="pinjamanPerBulan" oninput="formatInputNominalPinjaman(this); perBulanDiubahManual = true; perbaruiInfoCicilan();"></div>
+                </div>
+                <div class="row">
+                    <div class="dynamic-field"><label for="pinjamanTglTempo">Jatuh tempo tiap tanggal</label><input type="number" id="pinjamanTglTempo" min="1" max="31" value="25" inputmode="numeric"></div>
+                    <div class="dynamic-field"><label for="pinjamanMulai">Mulai bulan</label><input type="month" id="pinjamanMulai" onchange="perbaruiInfoCicilan()"></div>
+                </div>
+                <div id="pinjamanCicilanInfo" style="font-size:12px;font-weight:600;color:#155e75;"></div>
+            </div>
+        </div>
         <div class="dynamic-field"><label for="pinjamanFotoInput">Bukti (foto nota / transfer)</label>
             <input type="file" id="pinjamanFotoInput" accept="image/*" multiple onchange="tambahFotoPinjaman(this)">
             <div id="pinjamanFotoPratinjau" style="display:flex;gap:10px;flex-wrap:wrap;margin-top:8px;"></div>
@@ -3339,8 +3367,7 @@
             <div class="config-row"><label>Template Laporan Kas</label><textarea id="cfg_wa_laporan" rows="3" placeholder=" *LAPORAN KAS KANTOR*\n\n Saldo: [saldo]\n Pemasukan: [masuk]\n Pengeluaran: [keluar]\n\nTerima kasih."></textarea><div class="template-variables">Variabel: <code>[saldo]</code> <code>[masuk]</code> <code>[keluar]</code></div></div>
         </div>
         <div class="row"><button class="btn btn-primary" onclick="saveKonfigurasiPro()" style="flex:2;"><i class="fas fa-save"></i> SIMPAN KONFIGURASI</button><button class="btn btn-danger" onclick="resetKonfigurasiPro()" style="flex:1;"><i class="fas fa-undo-alt"></i> Reset</button></div>
-        <div class="row mt-2"><button class="btn btn-blue btn-small" onclick="exportKonfigurasiPro()" style="flex:1;"><i class="fas fa-download"></i> Export</button><button class="btn btn-orange btn-small" onclick="document.getElementById('importConfigFile').click()" style="flex:1;"><i class="fas fa-upload"></i> Import</button></div>
-        <input type="file" id="importConfigFile" accept=".json" style="display:none" onchange="importKonfigurasiPro(this)">
+        <div style="text-align:center;margin-top:12px;"><a href="#" onclick="showPage('cloudstorage');return false;" style="font-size:12px;font-weight:700;color:var(--primary);">💾 Backup, restore &amp; salin pengaturan ada di Backup &amp; Restore →</a></div>
     </div>
 </div>
 
@@ -3898,7 +3925,7 @@
 
 <!-- CLOUD STORAGE PAGE -->
 <div id="page-cloudstorage" class="page">
-    <div class="header-premium header-premium-small"><div class="back-header"><i class="fas fa-arrow-left" onclick="showPage('fitur')"></i><h2> Cloud Storage</h2><div style="width:30px;"></div></div></div>
+    <div class="header-premium header-premium-small"><div class="back-header"><i class="fas fa-arrow-left" onclick="showPage('fitur')"></i><h2> Backup &amp; Restore</h2><div style="width:30px;"></div></div></div>
     <div class="container">
         <div class="card-premium">
             <div class="section-title"><span> PENYIMPANAN INTERNAL</span></div>
@@ -3909,23 +3936,23 @@
         </div>
         
         <div class="card-premium">
-            <div class="section-title"><span> BACKUP LOKAL</span></div>
-            <div style="font-size:11px;color:#888;margin-bottom:8px;">⬇️ ZIP = lengkap termasuk foto &amp; dokumen | 📤 JSON = data teks saja, bisa dibagikan</div>
-            <div class="row" style="margin-bottom:6px;">
+            <div class="section-title"><span> BACKUP</span></div>
+            <div style="font-size:11px;color:#888;margin-bottom:8px;">⬇️ ZIP = lengkap termasuk foto &amp; dokumen · 📤 JSON = data teks saja, bisa dibagikan</div>
+            <div class="row" style="margin-bottom:8px;">
                 <button class="btn btn-primary btn-small" onclick="downloadFullZip()" style="flex:1;font-size:12px;"><i class="fas fa-download"></i> Download ZIP</button>
-            </div>
-            <div class="row" style="margin-bottom:6px;">
                 <button class="btn btn-small" onclick="bagikanFullZip()" style="flex:1;background:#3B82F6;color:white;font-size:12px;"><i class="fas fa-share-alt"></i> Bagikan JSON</button>
             </div>
-            <div class="row">
-                <button class="btn btn-orange btn-small" onclick="document.getElementById('restoreZipFileInput').click()" style="flex:1;font-size:12px;"><i class="fas fa-upload"></i> Restore ZIP</button>
-                <button class="btn btn-small" onclick="document.getElementById('restoreJsonFileInput').click()" style="flex:1;background:#8B5CF6;color:white;font-size:12px;"><i class="fas fa-upload"></i> Restore JSON</button>
+            <button class="btn btn-small" onclick="exportKonfigurasiPro()" style="width:100%;margin:0;background:#E2E8F0;color:#333;font-size:12px;"><i class="fas fa-sliders-h"></i> Salin Pengaturan Saja (tanpa data jamaah)</button>
+        </div>
+
+        <div class="card-premium">
+            <div class="section-title"><span> RESTORE</span></div>
+            <div style="font-size:11px;color:#888;margin-bottom:8px;">Pilih file cadangan Navara — ZIP, JSON, atau file pengaturan. Jenisnya dikenali otomatis.</div>
+            <button class="btn btn-orange btn-small" onclick="document.getElementById('restoreFileInput').click()" style="width:100%;margin:0;font-size:13px;"><i class="fas fa-upload"></i> Restore dari File</button>
+            <div style="text-align:center;margin-top:8px;">
+                <a href="#" onclick="showRestoreJsonPasteModal();return false;" style="font-size:11px;color:#8B5CF6;text-decoration:underline;">File tidak bisa dipilih? Tempel isinya di sini</a>
             </div>
-            <div style="text-align:center;margin-top:6px;">
-                <a href="#" onclick="showRestoreJsonPasteModal();return false;" style="font-size:11px;color:#8B5CF6;text-decoration:underline;">Upload gagal? Tempel teks JSON manual</a>
-            </div>
-            <input type="file" id="restoreZipFileInput" accept=".zip" style="display:none" onchange="restoreFromZip(this)">
-            <input type="file" id="restoreJsonFileInput" accept=".json" style="display:none" onchange="restoreFromJson(this)">
+            <input type="file" id="restoreFileInput" style="display:none" onchange="restoreDariFile(this)">
         </div>
 
         <div class="card-premium">
@@ -4772,6 +4799,7 @@ function updateHomeDashboardExtra(totalJamaah, lunasCount, totalPiutang) {
                 cicilanCard.style.display = 'none';
             }
         }
+        perbaruiKartuCicilanPinjaman();
         updateHomeSummaryBar();
     } catch(e) { console.log('Dashboard extra error:', e); }
 }
@@ -5049,16 +5077,23 @@ async function verifikasiPINLayarKunci() {
 }
 
 async function promptKodePemulihan() {
-    const kode = prompt('Masukkan Kode Pemulihan:');
-    if(!kode) return;
-    const hashInput = await hashPIN(kode.trim().toUpperCase());
-    if(hashInput !== konfigurasiPro.admin_recovery_hash) return showToast('❌ Kode Pemulihan salah!');
-    const pinBaru = prompt('Kode benar! Masukkan PIN BARU untuk ' + currentAdminNama + ':');
-    if(!pinBaru || pinBaru.length < 4) return showToast('PIN minimal 4 digit!');
+    const isi = await mintaFormulir({
+        judul: 'Reset PIN', ikon: '🔑', tombolYa: 'Reset PIN',
+        pesan: `Untuk: ${currentAdminNama}`,
+        kolom: [
+            { id: 'kode', label: 'Kode Pemulihan', placeholder: 'Kode dari pemilik' },
+            { id: 'pin', label: 'PIN Baru', tipe: 'sandi', placeholder: 'Minimal 4 digit' },
+            { id: 'pin2', label: 'Ulangi PIN Baru', tipe: 'sandi' },
+        ],
+        periksa: v => !v.kode ? 'Kode Pemulihan wajib diisi' : (v.pin.length < 4 ? 'PIN minimal 4 digit' : (v.pin !== v.pin2 ? 'PIN yang diulang tidak sama' : null)),
+    });
+    if (!isi) return;
+    const hashInput = await hashPIN(isi.kode.trim().toUpperCase());
+    if (hashInput !== konfigurasiPro.admin_recovery_hash) return showToast('❌ Kode Pemulihan salah!');
     const list = getAdminList();
     const a = list.find(x => x.nama === currentAdminNama);
-    if(a) {
-        a.pinHash = await hashPIN(pinBaru);
+    if (a) {
+        a.pinHash = await hashPIN(isi.pin);
         simpanAdminList(list);
         document.getElementById('lockScreenOverlay').style.display = 'none';
         catatWaktuAktifTerakhir();
@@ -5147,11 +5182,11 @@ function simpanAdminList(list) {
     idbSet(STORE_KONFIGURASI, 'konfigurasi_pro', konfigurasiPro);
 }
 
-function gantiNamaAdmin() {
+async function gantiNamaAdmin() {
     const list = getAdminList();
     if(list.length === 0) {
         // Multi-Admin belum pernah diaktifkan — persis perilaku lama, ketik bebas tanpa PIN
-        const nama = prompt('Nama Anda saat ini (untuk jejak aktivitas):', currentAdminNama);
+        const nama = await mintaIsian({ judul: 'Nama Anda', pesan: 'Dipakai untuk jejak aktivitas.', nilai: currentAdminNama, ikon: '👤' });
         if(nama && nama.trim()) {
             currentAdminNama = nama.trim();
             localStorage.setItem('navara_current_admin_nama', currentAdminNama);
@@ -5482,7 +5517,7 @@ const FITUR_LENGKAP = [
     { id: "suratresmi", label: "Surat Resmi", ket: "Buat surat otomatis dari data jamaah", kelompok: "kantor", aksi: "showPage('suratresmi')", halaman: "suratresmi", icon: "<i class=\"fas fa-file-signature\"></i>" },
     { id: "cetaklabel", label: "Cetak Label", ket: "Name tag / stiker koper", kelompok: "jamaah", aksi: "showPage('cetaklabel')", halaman: "cetaklabel", icon: "<i class=\"fas fa-tag\"></i>" },
     { id: "pinjaman", label: "Buku Pinjaman", ket: "Catat talangan & pengembalian", kelompok: "keuangan", aksi: "showPage('pinjaman')", halaman: "pinjaman", icon: "<i class=\"fas fa-file-invoice-dollar\"></i>" },
-    { id: "cloudstorage", label: "Cloud Storage", ket: "Backup & Restore data", kelompok: "pengaturan", aksi: "showPage('cloudstorage')", halaman: "cloudstorage", icon: "<i class=\"fas fa-cloud\"></i>" },
+    { id: "cloudstorage", label: "Backup & Restore", ket: "Cadangkan, pulihkan & salin pengaturan", kelompok: "pengaturan", aksi: "showPage('cloudstorage')", halaman: "cloudstorage", icon: "<i class=\"fas fa-cloud\"></i>" },
     { id: "dashboard", label: "Dashboard", ket: "Grafik statistik data", kelompok: "laporan", aksi: "showPage('dashboard')", halaman: "dashboard", icon: "<i class=\"fas fa-chart-line\"></i>" },
     { id: "openBandingkanProgramModal", label: "Bandingkan Program", ket: "Performa semua Program sekaligus", kelompok: "laporan", aksi: "openBandingkanProgramModal()", halaman: null, icon: "<i class=\"fas fa-chart-column\"></i>" },
     { id: "openDashboardTrenModal", label: "Dashboard Tren", ket: "Perbandingan antar tahun", kelompok: "laporan", aksi: "openDashboardTrenModal()", halaman: null, icon: "<i class=\"fas fa-arrow-trend-up\"></i>" },
@@ -6114,7 +6149,7 @@ function saveEstimasiData() {
 let _homeSummaryExpanded = false;
 
 function updateHomeSummaryBar() {
-    const cardIds = ['homeProgramSetupCard', 'homeChecklistCard', 'homeBackupWarningCard', 'homePasporWarningCard', 'homeMeningitisWarningCard', 'homeBufferWarningCard', 'homeCicilanWarningCard'];
+    const cardIds = ['homeProgramSetupCard', 'homeChecklistCard', 'homeBackupWarningCard', 'homePasporWarningCard', 'homeMeningitisWarningCard', 'homeBufferWarningCard', 'homeCicilanWarningCard', 'homePinjamanCicilanCard'];
     const aktif = cardIds.filter(id => {
         const el = document.getElementById(id);
         return el && el.style.display !== 'none';
@@ -8726,15 +8761,20 @@ function tambahTransaksi() {
     showToast('Transaksi ditambahkan'); 
 }
 
-function editTransaksi(id) {
+async function editTransaksi(id) {
     const item = dataKas.find(x => x.id === id);
     if(!item) return;
-    const ket = prompt('Keterangan:', item.ket);
-    if(ket === null) return;
-    const nom = prompt('Nominal:', item.nom);
-    if(nom === null) return;
-    item.ket = ket;
-    item.nom = parseInt(nom) || 0;
+    const isi = await mintaFormulir({
+        judul: 'Edit Transaksi', ikon: '💰',
+        kolom: [
+            { id: 'ket', label: 'Keterangan', nilai: item.ket },
+            { id: 'nom', label: 'Nominal (Rp)', tipe: 'angka', nilai: item.nom },
+        ],
+        periksa: v => v.nom > 0 ? null : 'Nominal wajib diisi',
+    });
+    if (!isi) return;
+    item.ket = isi.ket;
+    item.nom = isi.nom;
     saveKasData();
     renderKasTable();
     showToast('Transaksi diperbarui');
@@ -9753,7 +9793,7 @@ function openTambahAgendaModal(id) {
 // Kotak konfirmasi buatan Navara sendiri — pengganti confirm() bawaan browser, yang selalu menampilkan
 // alamat situs ("xxx.github.io menyatakan") dan tidak bisa diberi gaya. Mengembalikan Promise<boolean>:
 // true kalau tombol utama ditekan, false kalau Batal / area luar ditekan.
-function tanyaKonfirmasi({ judul = 'Konfirmasi', pesan = '', daftar = [], ikon = '⚠️', tombolYa = 'Ya', tombolTidak = 'Batal', warnaYa = 'var(--primary)' } = {}) {
+function tanyaKonfirmasi({ judul = 'Konfirmasi', pesan = '', daftar = [], ikon = '⚠️', tombolYa = 'Ya', tombolTidak = 'Batal', warnaYa = 'var(--primary)', tombolLain = null } = {}) {
     return new Promise(resolve => {
         const lama = document.getElementById('konfirmasiNavaraOverlay');
         if (lama) lama.remove();
@@ -9765,7 +9805,8 @@ function tanyaKonfirmasi({ judul = 'Konfirmasi', pesan = '', daftar = [], ikon =
             <div style="text-align:center;font-weight:800;font-size:16px;color:var(--primary);margin-bottom:8px;">${escapeHtml(judul)}</div>
             ${pesan ? `<div style="text-align:center;font-size:13px;color:#555;line-height:1.5;white-space:pre-line;">${escapeHtml(pesan)}</div>` : ''}
             ${daftar.length ? `<div style="background:#FEF3C7;border-radius:10px;padding:10px 12px;margin-top:12px;">${daftar.map(d => `<div style="font-size:13px;color:#92400E;font-weight:600;padding:2px 0;">• ${escapeHtml(d)}</div>`).join('')}</div>` : ''}
-            <div style="display:flex;gap:10px;margin-top:18px;">
+            ${tombolLain ? `<button data-lain="1" style="width:100%;margin-top:14px;padding:11px;border:1.5px solid var(--primary);border-radius:12px;background:transparent;color:var(--primary);font-weight:700;font-size:13.5px;cursor:pointer;">${escapeHtml(tombolLain.teks)}</button>` : ''}
+            <div style="display:flex;gap:10px;margin-top:${tombolLain ? '10px' : '18px'};">
                 <button data-jawab="0" style="flex:1;padding:12px;border:none;border-radius:12px;background:#E2E8F0;color:#333;font-weight:700;font-size:14px;cursor:pointer;">${escapeHtml(tombolTidak)}</button>
                 <button data-jawab="1" style="flex:1;padding:12px;border:none;border-radius:12px;background:${warnaYa};color:white;font-weight:700;font-size:14px;cursor:pointer;">${escapeHtml(tombolYa)}</button>
             </div>
@@ -9773,6 +9814,7 @@ function tanyaKonfirmasi({ judul = 'Konfirmasi', pesan = '', daftar = [], ikon =
         const selesai = (jawab) => { overlay.remove(); resolve(jawab); };
         overlay.addEventListener('click', e => {
             if (e.target === overlay) return selesai(false);
+            if (e.target.closest('button[data-lain]') && tombolLain) { tombolLain.aksi(); return; }
             const btn = e.target.closest('button[data-jawab]');
             if (btn) selesai(btn.dataset.jawab === '1');
         });
@@ -9798,8 +9840,92 @@ function konfirmasi(pesan) {
 }
 
 // Versi khusus untuk tindakan yang MENIMPA data (Restore) — ikon peringatan, tombol oranye.
-function konfirmasiTimpa(pesan, daftar = [], judul = 'Timpa Semua Data?') {
-    return tanyaKonfirmasi({ judul, pesan, daftar, ikon: '♻️', tombolYa: 'Ya, Timpa', tombolTidak: 'Batal', warnaYa: '#F59E0B' });
+// Dipakai oleh ketiga Restore (ZIP, file JSON, teks JSON). Sebelum menimpa, data teks yang sedang berjalan
+// OTOMATIS dicadangkan (bisa dipulihkan di Backup & Restore → Cadangan Otomatis). Foto & dokumen tidak ikut
+// cadangan otomatis, jadi ditawarkan tombol Download ZIP dulu.
+async function konfirmasiTimpa(pesan, daftar = [], judul = 'Timpa Semua Data?') {
+    const ok = await tanyaKonfirmasi({ judul, pesan, ikon: '♻️', tombolYa: 'Ya, Timpa', tombolTidak: 'Batal', warnaYa: '#F59E0B',
+        daftar: [...daftar, 'Data teks saat ini dicadangkan otomatis dulu (bisa dipulihkan di Backup & Restore)', 'Foto & dokumen tidak ikut cadangan otomatis — Download ZIP dulu kalau perlu'],
+        tombolLain: { teks: '⬇️ Download ZIP data sekarang dulu', aksi: () => downloadFullZip() } });
+    if (ok) {
+        try { await buatSnapshotData('Otomatis sebelum restore'); }
+        catch (e) { showToast('⚠️ Cadangan otomatis gagal dibuat: ' + e.message); }
+    }
+    return ok;
+}
+
+// Formulir buatan Navara — pengganti prompt() bawaan browser (yang menampilkan alamat situs dan hanya
+// bisa 1 isian per kotak). Bisa beberapa kolom sekaligus. Jenis kolom: 'teks', 'angka' (papan angka +
+// titik ribuan, hasilnya berupa angka), 'sandi' (PIN), 'panjang' (teks beberapa baris).
+// Mengembalikan Promise<objek nilai | null>. `periksa(nilai)` boleh mengembalikan pesan salah → kotak tetap terbuka.
+// Lapisan 100001: di atas layar kunci (99999), supaya Lupa PIN pun tetap bisa diisi.
+function mintaFormulir({ judul = 'Isi', pesan = '', ikon = '✏️', kolom = [], tombolYa = 'Simpan', periksa = null } = {}) {
+    return new Promise(resolve => {
+        const lama = document.getElementById('formulirNavaraOverlay');
+        if (lama) lama.remove();
+        const overlay = document.createElement('div');
+        overlay.id = 'formulirNavaraOverlay';
+        overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:100001;display:flex;align-items:center;justify-content:center;padding:20px;';
+        const gaya = 'width:100%;box-sizing:border-box;padding:12px;border:1.5px solid #e2e8f0;border-radius:12px;font-size:15px;font-family:inherit;background:#fff;color:#1f2933;';
+        const htmlKolom = kolom.map(k => {
+            const id = 'formNavara_' + k.id;
+            const label = k.label ? `<label for="${id}" style="display:block;font-size:13px;font-weight:700;color:#374151;margin:10px 0 5px;">${escapeHtml(k.label)}</label>` : '';
+            const aria = k.label ? '' : ` aria-label="${escapeHtml(judul)}"`;
+            if (k.tipe === 'panjang') return `${label}<textarea id="${id}" rows="${k.baris || 4}" placeholder="${escapeHtml(k.placeholder || '')}"${aria} style="${gaya}resize:vertical;">${escapeHtml(k.nilai ?? '')}</textarea>`;
+            const tipe = k.tipe === 'sandi' ? 'password' : 'text';
+            const mode = (k.tipe === 'angka' || k.tipe === 'sandi') ? ' inputmode="numeric"' : '';
+            const nilai = k.tipe === 'angka' && k.nilai !== undefined && k.nilai !== '' ? formatAngka(Number(k.nilai) || 0) : (k.nilai ?? '');
+            const format = k.tipe === 'angka' ? ` oninput="const d=this.value.replace(/\\D/g,''); this.value=d?formatAngka(parseInt(d,10)):'';"` : '';
+            return `${label}<input type="${tipe}" id="${id}"${mode}${format}${aria} value="${escapeHtml(String(nilai))}" placeholder="${escapeHtml(k.placeholder || '')}" style="${gaya}">`;
+        }).join('');
+        overlay.innerHTML = `<div style="background:var(--card-bg, #fff);border-radius:18px;padding:22px 20px 16px;width:100%;max-width:380px;max-height:90vh;overflow-y:auto;box-shadow:0 10px 40px rgba(0,0,0,0.25);">
+            <div style="text-align:center;font-size:30px;line-height:1;margin-bottom:8px;">${ikon}</div>
+            <div style="text-align:center;font-weight:800;font-size:16px;color:var(--primary);margin-bottom:6px;">${escapeHtml(judul)}</div>
+            ${pesan ? `<div style="text-align:center;font-size:12.5px;color:#555;line-height:1.5;margin-bottom:4px;white-space:pre-line;">${escapeHtml(pesan)}</div>` : ''}
+            ${htmlKolom}
+            <div id="formNavaraSalah" role="alert" style="font-size:12.5px;font-weight:600;color:#b42318;min-height:0;margin-top:8px;"></div>
+            <div style="display:flex;gap:10px;margin-top:10px;">
+                <button type="button" data-jawab="0" style="flex:1;padding:12px;border:none;border-radius:12px;background:#E2E8F0;color:#333;font-weight:700;font-size:14px;cursor:pointer;">Batal</button>
+                <button type="button" data-jawab="1" style="flex:1;padding:12px;border:none;border-radius:12px;background:var(--primary);color:white;font-weight:700;font-size:14px;cursor:pointer;">${escapeHtml(tombolYa)}</button>
+            </div>
+        </div>`;
+        const bacaNilai = () => Object.fromEntries(kolom.map(k => {
+            const v = overlay.querySelector('#formNavara_' + k.id).value;
+            return [k.id, k.tipe === 'angka' ? (parseInt(v.replace(/\D/g, ''), 10) || 0) : (k.tipe === 'sandi' ? v : v.trim())];
+        }));
+        const tutup = (hasil) => { overlay.remove(); resolve(hasil); };
+        const kirim = () => {
+            const nilai = bacaNilai();
+            const salah = periksa ? periksa(nilai) : null;
+            if (salah) { overlay.querySelector('#formNavaraSalah').textContent = salah; return; }
+            tutup(nilai);
+        };
+        overlay.addEventListener('click', e => {
+            if (e.target === overlay) return tutup(null);
+            const btn = e.target.closest('button[data-jawab]');
+            if (btn) (btn.dataset.jawab === '1' ? kirim() : tutup(null));
+        });
+        overlay.addEventListener('keydown', e => {
+            if (e.key === 'Escape') tutup(null);
+            if (e.key === 'Enter' && e.target.tagName === 'INPUT') { e.preventDefault(); kirim(); }
+        });
+        document.body.appendChild(overlay);
+        // Isian 1 baris: isi disorot (praktis untuk diganti). Kotak pesan beberapa baris: kursor di AKHIR teks,
+        // supaya isi awal (misal sapaan "Assalamu'alaikum [nama],") tidak terhapus begitu mulai mengetik.
+        setTimeout(() => {
+            const pertama = overlay.querySelector('input, textarea');
+            if (!pertama) return;
+            pertama.focus();
+            if (pertama.tagName === 'TEXTAREA') { const n = pertama.value.length; pertama.setSelectionRange(n, n); }
+            else if (pertama.select) pertama.select();
+        }, 50);
+    });
+}
+
+// Satu isian teks saja. Mengembalikan teks yang diisi, atau null kalau dibatalkan / kosong.
+async function mintaIsian({ judul = 'Isi', pesan = '', nilai = '', placeholder = '', tombolYa = 'Simpan', ikon = '✏️' } = {}) {
+    const hasil = await mintaFormulir({ judul, pesan, ikon, tombolYa, kolom: [{ id: 'isi', nilai, placeholder }] });
+    return hasil && hasil.isi ? hasil.isi : null;
 }
 
 // Versi khusus untuk menghapus data — tombol merah "Hapus", ikon tong sampah.
@@ -10345,6 +10471,8 @@ async function simpanPinjamanData() {
     try { await idbSet(STORE_CATATAN, 'pinjaman_data', pinjamanData); }
     catch (e) { showToast('❌ Gagal menyimpan: ' + e.message); }
     renderPinjaman();
+    perbaruiKartuCicilanPinjaman();
+    updateHomeSummaryBar();
 }
 
 function urutTrxPinjaman(a, b) { return (a.tanggal + '|' + a.id).localeCompare(b.tanggal + '|' + b.id); }
@@ -10365,6 +10493,200 @@ function hitungPinjamanOrang(orangId) {
     hasil.kembali = trx.filter(t => t.jenis === 'kembali').sort(urutTrxPinjaman);
     hasil.totalSisa = hasil.sisa.kantor + hasil.sisa.pribadi;
     return hasil;
+}
+
+// ---------- Cicilan ----------
+// Pinjaman boleh dibayar cicilan: tenor N bulan, cicilan per bulan, jatuh tempo tiap tanggal tertentu.
+// Pembayaran tetap dicatat lewat "+ Pengembalian" (dibayar sendiri, bukan potong gaji); jadwal &
+// statusnya dihitung dari berapa yang sudah terbayar untuk pinjaman itu.
+const PENGINGAT_CICILAN_KUNCI = 'navara_pengingat_cicilan_hari';
+function hariPengingatCicilan() { const n = parseInt(localStorage.getItem(PENGINGAT_CICILAN_KUNCI), 10); return [1, 3, 5, 7].includes(n) ? n : 3; }
+function aturHariPengingatCicilan(n) { localStorage.setItem(PENGINGAT_CICILAN_KUNCI, String(n)); renderPinjaman(); perbaruiKartuCicilanPinjaman(); updateHomeSummaryBar(); }
+
+function selisihHariDariHariIni(tgl) {
+    const [y, m, d] = tgl.split('-').map(Number);
+    const [y2, m2, d2] = tanggalLokalHariIni().split('-').map(Number);
+    return Math.round((Date.UTC(y, m - 1, d) - Date.UTC(y2, m2 - 1, d2)) / 86400000);
+}
+
+// Jadwal lengkap satu pinjaman bercicilan (p = hasil hitungPinjamanOrang, sudah punya .sisa)
+function jadwalCicilanPinjaman(p) {
+    const c = p.cicilan;
+    if (!c || !c.tenor) return [];
+    const [yMulai, mMulai] = c.mulai.split('-').map(Number);
+    let terbayar = p.nominal - p.sisa, kumulatif = 0;
+    const hari = hariPengingatCicilan();
+    return Array.from({ length: c.tenor }, (_, i) => {
+        const nominal = i < c.tenor - 1 ? c.perBulan : p.nominal - c.perBulan * (c.tenor - 1);
+        const y = yMulai + Math.floor((mMulai - 1 + i) / 12), m = (mMulai - 1 + i) % 12 + 1;
+        const hariTerakhir = new Date(y, m, 0).getDate();
+        const tanggal = `${y}-${String(m).padStart(2, '0')}-${String(Math.min(c.tglJatuhTempo, hariTerakhir)).padStart(2, '0')}`;
+        kumulatif += nominal;
+        const lunas = terbayar >= kumulatif;
+        const kurang = lunas ? 0 : Math.min(nominal, kumulatif - terbayar);
+        const selisih = selisihHariDariHariIni(tanggal);
+        let status = 'lunas';
+        if (!lunas) status = selisih < 0 ? 'telat' : (selisih === 0 ? 'hariIni' : (selisih <= hari ? 'segera' : 'nanti'));
+        return { ke: i + 1, tanggal, nominal, kurang, status, selisih };
+    });
+}
+
+function ringkasCicilanPinjaman(p) {
+    const jadwal = jadwalCicilanPinjaman(p);
+    return { jadwal, lunas: jadwal.filter(x => x.status === 'lunas').length, berikut: jadwal.find(x => x.status !== 'lunas'),
+             telat: jadwal.filter(x => x.status === 'telat'), perhatian: jadwal.filter(x => ['telat', 'hariIni', 'segera'].includes(x.status)) };
+}
+
+function labelStatusCicilan(x) {
+    if (x.status === 'lunas') return ['✅ Lunas', '#166534'];
+    if (x.status === 'telat') return [`🔴 Telat ${-x.selisih} hari`, '#991B1B'];
+    if (x.status === 'hariIni') return ['🟡 Jatuh tempo hari ini', '#92400E'];
+    if (x.status === 'segera') return [`🟠 ${x.selisih} hari lagi`, '#9A3412'];
+    return ['⚪ Akan datang', '#6b7280'];
+}
+
+// Semua cicilan yang perlu perhatian (telat / hari ini / dalam N hari), dari semua peminjam
+function daftarCicilanPerluPerhatian() {
+    const hasil = [];
+    pinjamanData.orang.forEach(o => {
+        hitungPinjamanOrang(o.id).pinjaman.filter(p => p.cicilan && p.sisa > 0).forEach(p => {
+            ringkasCicilanPinjaman(p).perhatian.forEach(x => hasil.push({ orang: o, pinjaman: p, cicilan: x }));
+        });
+    });
+    const urut = { telat: 0, hariIni: 1, segera: 2 };
+    return hasil.sort((a, b) => urut[a.cicilan.status] - urut[b.cicilan.status] || a.cicilan.selisih - b.cicilan.selisih);
+}
+
+// Kartu di Home — HANYA untuk yang berizin Buku Pinjaman (supaya hutang atasan tidak terlihat staf)
+function perbaruiKartuCicilanPinjaman() {
+    const kartu = document.getElementById('homePinjamanCicilanCard');
+    if (!kartu) return;
+    const daftar = cekIzinModul('pinjaman') ? daftarCicilanPerluPerhatian() : [];
+    if (!daftar.length) { kartu.style.display = 'none'; return; }
+    kartu.style.display = 'block';
+    document.getElementById('homePinjamanCicilanTitle').textContent = `${daftar.length} Cicilan Pinjaman Perlu Perhatian`;
+    document.getElementById('homePinjamanCicilanList').innerHTML = daftar.slice(0, 5).map(d => {
+        const [lbl] = labelStatusCicilan(d.cicilan);
+        return `${lbl.split(' ')[0]} ${escapeHtml(d.orang.nama)} — cicilan ke-${d.cicilan.ke} ${formatRupiah(d.cicilan.kurang)}, ${lbl.split(' ').slice(1).join(' ').toLowerCase()}`;
+    }).join('<br>') + (daftar.length > 5 ? `<br>… dan ${daftar.length - 5} lainnya` : '');
+}
+
+async function muatPinjamanUntukHome() {
+    if (!cekIzinModul('pinjaman')) return;
+    try {
+        const d = await idbGet(STORE_CATATAN, 'pinjaman_data');
+        if (d && Array.isArray(d.orang) && Array.isArray(d.transaksi)) pinjamanData = d;
+    } catch (e) {}
+    perbaruiKartuCicilanPinjaman();
+    updateHomeSummaryBar();
+}
+
+function ingatkanCicilanWA(orangId, pinjamanId) {
+    const o = pinjamanData.orang.find(x => x.id === orangId);
+    const p = o && hitungPinjamanOrang(orangId).pinjaman.find(x => x.id === pinjamanId);
+    if (!p) return;
+    const r = ringkasCicilanPinjaman(p);
+    const x = r.telat[0] || r.berikut;
+    if (!x) return showToast('Semua cicilan sudah lunas');
+    const tgl = new Date(x.tanggal + 'T00:00:00').toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+    let teks = `Assalamu'alaikum ${o.nama},\nmengingatkan cicilan ke-${x.ke} dari ${p.cicilan.tenor} untuk "${p.keperluan || 'pinjaman'}":\n\n`;
+    teks += `💰 ${formatRupiah(x.kurang)}\n📅 Jatuh tempo: ${tgl}${x.status === 'telat' ? ` (sudah lewat ${-x.selisih} hari)` : ''}\n`;
+    if (r.telat.length > 1) teks += `\nMasih ada ${r.telat.length} cicilan yang terlambat.`;
+    teks += `\nSisa pinjaman: ${formatRupiah(p.sisa)}\n\nTerima kasih 🙏`;
+    let hp = (o.hp || '').replace(/\D/g, '');
+    if (hp.startsWith('0')) hp = '62' + hp.slice(1);
+    window.open(`https://wa.me/${hp}?text=${encodeURIComponent(teks)}`, '_blank');
+}
+
+function toggleJadwalCicilan(id) {
+    const el = document.getElementById('jadwalCicilan_' + id);
+    if (el) el.style.display = el.style.display === 'none' ? 'block' : 'none';
+}
+
+// ---------- Formulir cicilan ----------
+let perBulanDiubahManual = false;
+function toggleCicilanPinjaman() {
+    const aktif = document.getElementById('pinjamanDicicil').checked;
+    document.getElementById('pinjamanCicilanDetail').style.display = aktif ? 'block' : 'none';
+    if (aktif) {
+        if (!document.getElementById('pinjamanMulai').value) {
+            const t = document.getElementById('pinjamanTanggal').value || tanggalLokalHariIni();
+            const [y, m] = t.split('-').map(Number);
+            document.getElementById('pinjamanMulai').value = m === 12 ? `${y + 1}-01` : `${y}-${String(m + 1).padStart(2, '0')}`;
+        }
+        hitungCicilanOtomatis();
+    }
+}
+
+function hitungCicilanOtomatis() {
+    const nominal = parseInt(document.getElementById('pinjamanNominal').value.replace(/\D/g, ''), 10) || 0;
+    const tenor = parseInt(document.getElementById('pinjamanTenor').value, 10) || 0;
+    if (!perBulanDiubahManual && nominal > 0 && tenor > 0) {
+        document.getElementById('pinjamanPerBulan').value = formatAngka(Math.ceil(nominal / tenor / 1000) * 1000);
+    }
+    perbaruiInfoCicilan();
+}
+
+function perbaruiInfoCicilan() {
+    const info = document.getElementById('pinjamanCicilanInfo');
+    if (!info || !document.getElementById('pinjamanDicicil').checked) return;
+    const nominal = parseInt(document.getElementById('pinjamanNominal').value.replace(/\D/g, ''), 10) || 0;
+    const tenor = parseInt(document.getElementById('pinjamanTenor').value, 10) || 0;
+    const perBulan = parseInt(document.getElementById('pinjamanPerBulan').value.replace(/\D/g, ''), 10) || 0;
+    const terakhir = nominal - perBulan * (tenor - 1);
+    const mulai = document.getElementById('pinjamanMulai').value;
+    if (!nominal || tenor < 2 || !perBulan) { info.textContent = ''; return; }
+    if (terakhir <= 0) { info.innerHTML = '<span style="color:#b42318;">⚠️ Cicilan per bulan terlalu besar untuk tenor ini</span>'; return; }
+    let selesai = '';
+    if (mulai) { const [y, m] = mulai.split('-').map(Number); selesai = new Date(y, m - 1 + tenor - 1, 1).toLocaleDateString('id-ID', { month: 'long', year: 'numeric' }); }
+    info.textContent = `${tenor - 1}× ${formatRupiah(perBulan)} + terakhir ${formatRupiah(terakhir)}${selesai ? ` · lunas ${selesai}` : ''}`;
+}
+
+function bacaFormCicilan(nominal) {
+    if (!document.getElementById('pinjamanDicicil').checked) return { cicilan: null };
+    const tenor = parseInt(document.getElementById('pinjamanTenor').value, 10) || 0;
+    const perBulan = parseInt(document.getElementById('pinjamanPerBulan').value.replace(/\D/g, ''), 10) || 0;
+    const tglJatuhTempo = parseInt(document.getElementById('pinjamanTglTempo').value, 10) || 0;
+    const mulai = document.getElementById('pinjamanMulai').value;
+    if (tenor < 2 || tenor > 60) return { galat: 'Tenor cicilan 2 sampai 60 bulan' };
+    if (perBulan <= 0) return { galat: 'Cicilan per bulan wajib diisi' };
+    if (perBulan * (tenor - 1) >= nominal) return { galat: 'Cicilan per bulan terlalu besar untuk tenor ini' };
+    if (tglJatuhTempo < 1 || tglJatuhTempo > 31) return { galat: 'Tanggal jatuh tempo 1 sampai 31' };
+    if (!mulai) return { galat: 'Bulan mulai cicilan wajib diisi' };
+    return { cicilan: { tenor, perBulan, tglJatuhTempo, mulai } };
+}
+
+function isiFormCicilan(t) {
+    const c = t && t.cicilan;
+    perBulanDiubahManual = !!c;
+    document.getElementById('pinjamanDicicil').checked = !!c;
+    document.getElementById('pinjamanTenor').value = c ? c.tenor : 12;
+    document.getElementById('pinjamanPerBulan').value = c ? formatAngka(c.perBulan) : '';
+    document.getElementById('pinjamanTglTempo').value = c ? c.tglJatuhTempo : 25;
+    document.getElementById('pinjamanMulai').value = c ? c.mulai : '';
+    document.getElementById('pinjamanCicilanDetail').style.display = c ? 'block' : 'none';
+    document.getElementById('pinjamanCicilanWrap').style.display = document.getElementById('pinjamanJenis').value === 'pinjam' ? 'block' : 'none';
+    perbaruiInfoCicilan();
+}
+
+function htmlCicilanPinjaman(orangId, p) {
+    if (!p.cicilan) return '';
+    const r = ringkasCicilanPinjaman(p);
+    const berikut = r.telat[0] || r.berikut;
+    let ringkas = `📅 Cicilan ${r.lunas}/${p.cicilan.tenor} lunas`;
+    if (berikut) { const [lbl, warna] = labelStatusCicilan(berikut); ringkas += ` · ke-${berikut.ke} ${formatRupiah(berikut.kurang)} <span style="color:${warna};font-weight:700;">${lbl}</span>`; }
+    const jadwal = r.jadwal.map(x => {
+        const [lbl, warna] = labelStatusCicilan(x);
+        return `<div style="display:flex;justify-content:space-between;gap:8px;padding:5px 0;border-bottom:1px dashed #e5e7eb;font-size:12px;"><span>Ke-${x.ke} · ${tglPendekPinjaman(x.tanggal)}</span><span>${formatRupiah(x.status === 'lunas' ? x.nominal : x.kurang)} · <span style="color:${warna};font-weight:600;">${lbl}</span></span></div>`;
+    }).join('');
+    return `<div style="background:#F8FAFC;border-radius:10px;padding:8px 10px;margin-top:8px;font-size:12.5px;">
+        <div>${ringkas}</div>
+        <div style="display:flex;gap:6px;margin-top:6px;flex-wrap:wrap;">
+            <button type="button" class="pinjaman-bukti" onclick="toggleJadwalCicilan(${p.id})">📋 Jadwal</button>
+            ${berikut ? `<button type="button" class="pinjaman-bukti" style="background:#DCFCE7;color:#166534;" onclick="ingatkanCicilanWA(${orangId}, ${p.id})">🔔 Ingatkan via WA</button>` : ''}
+        </div>
+        <div id="jadwalCicilan_${p.id}" style="display:none;margin-top:6px;">${jadwal}</div>
+    </div>`;
 }
 
 function statusPinjaman(p) { return p.sisa <= 0 ? 'lunas' : (p.sisa < p.nominal ? 'sebagian' : 'belum'); }
@@ -10403,15 +10725,18 @@ function renderPinjaman() {
         </div>
         <div style="font-size:12px;color:#555;margin-top:8px;text-align:center;">Total belum kembali: <b style="color:#b42318;">${formatRupiah(totK + totP)}</b></div>`;
 
+    const pilihanHari = document.getElementById('pinjamanHariPengingat');
+    if (pilihanHari) pilihanHari.value = String(hariPengingatCicilan());
     const filter = document.getElementById('pinjamanFilter')?.value || 'belum';
     const tampil = orang.filter(o => filter === 'semua' || o.h.totalSisa > 0).sort((a, b) => b.h.totalSisa - a.h.totalSisa || a.nama.localeCompare(b.nama));
     daftar.innerHTML = tampil.length ? tampil.map(o => {
-        const tertua = o.h.pinjaman.find(p => p.sisa > 0);
+        const tertua = o.h.pinjaman.find(p => p.sisa > 0 && !p.cicilan); // pinjaman cicilan diukur dari cicilan telat, bukan umurnya
+        const cicilanTelat = o.h.pinjaman.filter(p => p.cicilan && p.sisa > 0).reduce((n, p) => n + ringkasCicilanPinjaman(p).telat.length, 0);
         const rincian = [o.h.sisa.kantor ? `Kantor ${formatRupiah(o.h.sisa.kantor)}` : '', o.h.sisa.pribadi ? `Pribadi ${formatRupiah(o.h.sisa.pribadi)}` : ''].filter(Boolean).join(' · ');
         return `<div class="pinjaman-orang${o.id === pinjamanOrangDipilih ? ' dipilih' : ''}" role="button" tabindex="0" onclick="pilihOrangPinjaman(${o.id})">
             <div style="min-width:0;">
                 <div style="font-weight:700;font-size:15px;">👤 ${escapeHtml(o.nama)}</div>
-                <div style="font-size:12px;color:#5b6470;margin-top:2px;">${o.h.totalSisa > 0 ? `${rincian}${tertua ? ` · tertua ${teksUmurPinjaman(tertua.tanggal)}` : ''}` : '✅ Semua sudah kembali'}</div>
+                <div style="font-size:12px;color:#5b6470;margin-top:2px;">${o.h.totalSisa > 0 ? `${rincian}${tertua ? ` · tertua ${teksUmurPinjaman(tertua.tanggal)}` : ''}` : '✅ Semua sudah kembali'}${cicilanTelat ? ` · <b style="color:#b42318;">🔴 ${cicilanTelat} cicilan telat</b>` : ''}</div>
             </div>
             <div style="font-weight:800;font-size:15px;color:${o.h.totalSisa > 0 ? '#b42318' : '#15803d'};white-space:nowrap;">${formatRupiah(o.h.totalSisa)}</div>
         </div>`;
@@ -10442,13 +10767,14 @@ function renderDetailPinjaman() {
             <div style="display:flex;justify-content:space-between;gap:8px;align-items:flex-start;">
                 <div style="min-width:0;">
                     <div style="font-weight:700;">${escapeHtml(p.keperluan || 'Pinjaman')}</div>
-                    <div style="font-size:12px;color:#5b6470;margin-top:2px;">${tglPendekPinjaman(p.tanggal)} · ${SUMBER_DANA_PINJAMAN[p.sumber]}${st !== 'lunas' ? ` · sudah ${teksUmurPinjaman(p.tanggal)}` : ''}</div>
+                    <div style="font-size:12px;color:#5b6470;margin-top:2px;">${tglPendekPinjaman(p.tanggal)} · ${SUMBER_DANA_PINJAMAN[p.sumber]}${st !== 'lunas' && !p.cicilan ? ` · sudah ${teksUmurPinjaman(p.tanggal)}` : ''}</div>
                 </div>
                 <div style="text-align:right;flex-shrink:0;">
                     <div style="font-weight:800;">${formatRupiah(p.nominal)}</div>
                     ${st === 'sebagian' ? `<div style="font-size:11px;color:#92400E;">sisa ${formatRupiah(p.sisa)}</div>` : ''}
                 </div>
             </div>
+            ${htmlCicilanPinjaman(o.id, p)}
             <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;margin-top:8px;">
                 <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;"><span class="pinjaman-status" style="background:${bg};color:${fg};">${lbl}</span>${tandaBukti(p)}</div>
                 <div style="white-space:nowrap;">${aksiTrx(p)}</div>
@@ -10517,6 +10843,7 @@ function bukaFormPinjaman(jenis, { orangId = null, editId = null } = {}) {
     let sumber = t ? t.sumber : 'kantor';
     if (!t && kembali && orang) { const h = hitungPinjamanOrang(orang.id); sumber = h.pinjaman.find(p => p.sisa > 0)?.sumber || 'kantor'; }
     document.getElementById('pinjamanSumber').value = sumber;
+    isiFormCicilan(t);
     document.getElementById('pinjamanFotoInput').value = '';
     pinjamanFotoDraf = [];
     renderFotoDrafPinjaman();
@@ -10585,6 +10912,8 @@ async function simpanTransaksiPinjaman() {
     if (!tanggal) return showToast('Tanggal wajib diisi!');
     if (nominal <= 0) return showToast('Nominal wajib diisi!');
     if (jenis === 'pinjam' && !keperluan) return showToast('Keperluan wajib diisi!');
+    const hasilCicilan = jenis === 'pinjam' ? bacaFormCicilan(nominal) : { cicilan: null };
+    if (hasilCicilan.galat) return showToast(hasilCicilan.galat);
 
     let orang = cariOrangPinjamanByNama(nama);
     if (jenis === 'kembali') {
@@ -10596,7 +10925,7 @@ async function simpanTransaksiPinjaman() {
     if (!orang) { orang = { id: Date.now(), nama, hp: '' }; pinjamanData.orang.push(orang); }
 
     const id = editId || Date.now() + 1;
-    const data = { id, orangId: orang.id, jenis, tanggal, nominal, sumber, keperluan, bukti: pinjamanFotoDraf.length };
+    const data = { id, orangId: orang.id, jenis, tanggal, nominal, sumber, keperluan, bukti: pinjamanFotoDraf.length, cicilan: hasilCicilan.cicilan };
     const idx = pinjamanData.transaksi.findIndex(t => t.id === id);
     if (idx !== -1) pinjamanData.transaksi[idx] = { ...pinjamanData.transaksi[idx], ...data };
     else pinjamanData.transaksi.push(data);
@@ -10700,7 +11029,7 @@ function cetakPinjaman(id) {
     const sel = 'padding:6px 8px;border-bottom:1px solid #e5e7eb;vertical-align:top;';
     const baris = h.pinjaman.map((p, i) => `<tr>
         <td style="${sel}">${i + 1}</td><td style="${sel}">${tglPendekPinjaman(p.tanggal)}</td>
-        <td style="${sel}">${escapeHtml(p.keperluan || '-')}</td><td style="${sel}">${SUMBER_DANA_PINJAMAN[p.sumber]}</td>
+        <td style="${sel}">${escapeHtml(p.keperluan || '-')}${p.cicilan ? `<br><small style="color:#555;">Cicilan ${ringkasCicilanPinjaman(p).lunas}/${p.cicilan.tenor} lunas · ${formatRupiah(p.cicilan.perBulan)}/bulan</small>` : ''}</td><td style="${sel}">${SUMBER_DANA_PINJAMAN[p.sumber]}</td>
         <td style="${sel}text-align:right;">${formatRupiah(p.nominal)}</td><td style="${sel}text-align:right;">${formatRupiah(p.sisa)}</td>
         <td style="${sel}">${LBL[statusPinjaman(p)]}${p.bukti ? '' : ' · <i>tanpa bukti</i>'}</td></tr>`).join('');
     const barisK = h.kembali.map((k, i) => `<tr>
@@ -18602,6 +18931,84 @@ function simpanLayananTambahanKeStorage() {
     idbSet(STORE_KONFIGURASI, 'konfigurasi_pro', konfigurasiPro);
 }
 
+// Jenis bawaan punya aturan khusus di kode (Dam wajib ke jamaah, Badal Haji punya kolom "Nama yang
+// Dibadalkan"), jadi tidak boleh diubah namanya atau dihapus.
+const JENIS_LAYANAN_BAWAAN = ['Badal Haji', 'Dam'];
+
+function simpanDaftarJenisLayanan(list) { localStorage.setItem('navara_jenis_layanan', JSON.stringify(list)); }
+
+// Hitung pemakaian jenis di SEMUA Program (bukan hanya Program aktif)
+function hitungPemakaianJenisLayanan(jenis) {
+    return Object.values(konfigurasiPro.per_program || {}).reduce((n, slot) => n + (slot.layanan_tambahan || []).filter(x => x.jenis === jenis).length, 0);
+}
+
+async function tambahJenisLayananBaru() {
+    const nama = await mintaIsian({ judul: 'Jenis Layanan Baru', placeholder: 'Contoh: Kurban, Aqiqah', tombolYa: 'Tambah', ikon: '🕋' });
+    if (!nama) return null;
+    const list = getJenisLayananTambahan();
+    const sudahAda = list.find(j => j.toLowerCase() === nama.toLowerCase());
+    if (sudahAda) { showToast(`Jenis "${sudahAda}" sudah ada`); return sudahAda; }
+    list.push(nama);
+    simpanDaftarJenisLayanan(list);
+    return nama;
+}
+
+function bukaKelolaJenisLayanan() {
+    let modal = document.getElementById('kelolaJenisLayananModal');
+    if (!modal) {
+        modal = document.createElement('div');
+        modal.id = 'kelolaJenisLayananModal';
+        modal.className = 'modal';
+        document.body.appendChild(modal);
+    }
+    const list = getJenisLayananTambahan();
+    modal.innerHTML = `<div class="modal-content" style="max-width:420px;">
+        <h3 style="color:var(--primary);margin-bottom:4px;">⚙️ Kelola Jenis Layanan</h3>
+        <div style="font-size:12px;color:#666;margin-bottom:12px;">Menghapus jenis hanya mengeluarkannya dari pilihan. Catatan lama yang memakai jenis itu tetap tersimpan utuh.</div>
+        ${list.map(j => {
+            const bawaan = JENIS_LAYANAN_BAWAAN.includes(j);
+            const dipakai = hitungPemakaianJenisLayanan(j);
+            return `<div style="display:flex;justify-content:space-between;align-items:center;gap:8px;background:#F8FAFC;border-radius:10px;padding:10px 12px;margin-bottom:6px;">
+                <div style="min-width:0;"><div style="font-weight:700;">${escapeHtml(j)}${bawaan ? ' <span style="font-size:10px;font-weight:700;color:#6b7280;background:#e5e7eb;border-radius:20px;padding:1px 7px;">bawaan</span>' : ''}</div>
+                    <div style="font-size:11px;color:#6b7280;">${dipakai ? `dipakai di ${dipakai} catatan` : 'belum dipakai'}</div></div>
+                ${bawaan ? '<span style="font-size:11px;color:#9ca3af;">🔒</span>' : `<div style="display:flex;gap:4px;flex-shrink:0;">
+                    <span role="button" tabindex="0" aria-label="Ubah nama ${escapeHtml(j)}" onclick="ubahNamaJenisLayanan('${jsArg(j)}')" style="cursor:pointer;padding:4px;">✏️</span>
+                    <span role="button" tabindex="0" aria-label="Hapus ${escapeHtml(j)}" onclick="hapusJenisLayanan('${jsArg(j)}')" style="cursor:pointer;padding:4px;color:#DC2626;">🗑️</span></div>`}
+            </div>`;
+        }).join('')}
+        <button class="btn btn-utility btn-small mt-2" onclick="tambahJenisLayananBaru().then(n => { if (n) bukaKelolaJenisLayanan(); })"><i class="fas fa-plus-circle"></i> Tambah Jenis</button>
+        <button class="btn btn-secondary mt-2" onclick="document.getElementById('kelolaJenisLayananModal').style.display='none'">Tutup</button>
+    </div>`;
+    modal.style.display = 'flex';
+}
+
+async function ubahNamaJenisLayanan(lama) {
+    if (JENIS_LAYANAN_BAWAAN.includes(lama)) return;
+    const baru = await mintaIsian({ judul: 'Ubah Nama Jenis', nilai: lama, pesan: 'Catatan lama yang memakai jenis ini ikut berganti nama, di semua Program.', tombolYa: 'Simpan' });
+    if (!baru || baru === lama) return;
+    const list = getJenisLayananTambahan();
+    if (list.some(j => j !== lama && j.toLowerCase() === baru.toLowerCase())) return showToast(`Jenis "${baru}" sudah ada`);
+    simpanDaftarJenisLayanan(list.map(j => j === lama ? baru : j));
+    let diubah = 0;
+    Object.values(konfigurasiPro.per_program || {}).forEach(slot => (slot.layanan_tambahan || []).forEach(x => { if (x.jenis === lama) { x.jenis = baru; diubah++; } }));
+    if (diubah) simpanLayananTambahanKeStorage();
+    bukaKelolaJenisLayanan();
+    if (typeof renderLayananTambahanList === 'function') renderLayananTambahanList();
+    showToast(`Nama jenis diubah${diubah ? ` · ${diubah} catatan ikut diperbarui` : ''}`);
+}
+
+async function hapusJenisLayanan(jenis) {
+    if (JENIS_LAYANAN_BAWAAN.includes(jenis)) return;
+    const dipakai = hitungPemakaianJenisLayanan(jenis);
+    const ok = await konfirmasiHapus(dipakai
+        ? `"${jenis}" dikeluarkan dari pilihan. ${dipakai} catatan lama yang memakainya tetap tersimpan dan tetap tampil.`
+        : `"${jenis}" akan dihapus dari pilihan.`, 'Hapus Jenis Layanan?');
+    if (!ok) return;
+    simpanDaftarJenisLayanan(getJenisLayananTambahan().filter(j => j !== jenis));
+    bukaKelolaJenisLayanan();
+    showToast('Jenis layanan dihapus dari pilihan');
+}
+
 function jenisWajibJamaah(jenis) {
     return jenis === 'Dam'; // aturan khusus: Dam wajib terhubung ke Jamaah, jenis lain (termasuk baru nanti) opsional
 }
@@ -18625,7 +19032,8 @@ function openTambahLayananModal(id) {
         <input type="hidden" id="layananEditId" value="${l?l.id:''}">
         <div class="input-group"><label>Jenis Layanan</label>
             <select id="layananJenis" onchange="updateFormLayananSesuaiJenis()">
-                ${jenisList.map(j => `<option value="${j}" ${l?.jenis===j?'selected':''}>${j}</option>`).join('')}
+                ${jenisList.map(j => `<option value="${escapeHtml(j)}" ${l?.jenis===j?'selected':''}>${escapeHtml(j)}</option>`).join('')}
+                ${l && !jenisList.includes(l.jenis) ? `<option value="${escapeHtml(l.jenis)}" selected>${escapeHtml(l.jenis)} (tidak dipakai lagi)</option>` : ''}
                 <option value="__baru__">+ Jenis Baru...</option>
             </select>
         </div>
@@ -18651,19 +19059,25 @@ function openTambahLayananModal(id) {
     updateFormLayananSesuaiJenis();
 }
 
-function updateFormLayananSesuaiJenis() {
-    const jenis = document.getElementById('layananJenis').value;
+let jenisLayananTerakhir = '';
+async function updateFormLayananSesuaiJenis() {
+    const pilihan = document.getElementById('layananJenis');
+    const jenis = pilihan.value;
     if(jenis === '__baru__') {
-        const namaBaru = prompt('Nama Jenis Layanan baru:');
-        if(namaBaru && namaBaru.trim()) {
-            const list = getJenisLayananTambahan();
-            list.push(namaBaru.trim());
-            localStorage.setItem('navara_jenis_layanan', JSON.stringify(list));
-            openTambahLayananModal(document.getElementById('layananEditId').value || null);
-            setTimeout(() => { document.getElementById('layananJenis').value = namaBaru.trim(); updateFormLayananSesuaiJenis(); }, 50);
+        const namaBaru = await tambahJenisLayananBaru();
+        if (namaBaru) {
+            const editId = Number(document.getElementById('layananEditId').value) || null;
+            openTambahLayananModal(editId);
+            document.getElementById('layananJenis').value = namaBaru;
+            updateFormLayananSesuaiJenis();
+        } else {
+            // Dibatalkan: kembalikan ke pilihan sebelumnya supaya tidak tersimpan sebagai jenis "+ Jenis Baru..."
+            pilihan.value = jenisLayananTerakhir && [...pilihan.options].some(o => o.value === jenisLayananTerakhir) ? jenisLayananTerakhir : pilihan.options[0].value;
+            updateFormLayananSesuaiJenis();
         }
         return;
     }
+    jenisLayananTerakhir = jenis;
     const wajib = jenisWajibJamaah(jenis);
     document.getElementById('layananJamaahLabel').textContent = 'Kaitkan ke Jamaah' + (wajib ? ' (WAJIB)' : ' (opsional)');
     document.getElementById('layananDibadalkanWrap').style.display = jenis === 'Badal Haji' ? 'block' : 'none';
@@ -18674,6 +19088,7 @@ async function simpanLayananTambahan() {
     const jenis = document.getElementById('layananJenis').value;
     const pemesan = document.getElementById('layananPemesan').value.trim();
     const jamaahId = document.getElementById('layananJamaahId').value;
+    if(!jenis || jenis === '__baru__') return showToast('Pilih jenis layanan dulu!');
     if(!pemesan) return showToast('Nama Pemesan wajib diisi!');
     if(jenisWajibJamaah(jenis) && !jamaahId) return showToast(`⚠️ ${jenis} wajib dikaitkan ke Jamaah!`);
 
@@ -19615,15 +20030,16 @@ async function removeJamaahFromFolder(folderId, jamaahId) {
     } 
 }
 
-function editFolder(folderId) { 
-    const folder = folderList.find(f => f.id == folderId); 
-    if(!folder) return; 
-    const newName = prompt('Masukkan nama folder baru:', folder.nama); 
-    if(newName && newName.trim()) { 
-        folder.nama = newName.trim(); 
-        saveFolderData(); 
-        showToast('Folder diupdate'); 
-    } 
+async function editFolder(folderId) {
+    const folder = folderList.find(f => f.id == folderId);
+    if(!folder) return;
+    const newName = await mintaIsian({ judul: 'Ubah Nama Folder', nilai: folder.nama, ikon: '📁' });
+    if (newName) {
+        folder.nama = newName;
+        saveFolderData();
+        if (typeof renderFolderList === 'function') renderFolderList();
+        showToast('Folder diupdate');
+    }
 }
 
 async function confirmDeleteFolder(folderId) { 
@@ -19684,15 +20100,20 @@ function addFolderField(folderId) {
     showToast('Field berhasil ditambahkan');
 }
 
-function editFolderField(folderId, index) {
+async function editFolderField(folderId, index) {
     const folder = folderList.find(f => f.id == folderId);
     if(!folder || !folder.fields[index]) return;
     const fd = folder.fields[index];
-    const newLabel = prompt('Nama field:', fd.label);
-    if(!newLabel) return;
-    const newValue = prompt('Isi/nilai field:', fd.value);
-    if(newValue === null) return;
-    folder.fields[index] = { label: newLabel.trim(), value: newValue.trim() };
+    const isi = await mintaFormulir({
+        judul: 'Edit Field', ikon: '📝',
+        kolom: [
+            { id: 'label', label: 'Nama field', nilai: fd.label },
+            { id: 'value', label: 'Isi / nilai', nilai: fd.value },
+        ],
+        periksa: v => v.label ? null : 'Nama field wajib diisi',
+    });
+    if (!isi) return;
+    folder.fields[index] = { label: isi.label, value: isi.value };
     saveFolderData();
     openFolderDetail(folderId);
     showToast('Field diupdate');
@@ -19945,7 +20366,7 @@ function openIndexedDB() {
 // dengan build baru, data MENTAH (langsung dari IndexedDB, bukan dari memori) disalin dulu sebelum
 // proses migrasi apapun berjalan — supaya kalau ada kesalahan di update, data lama masih bisa dipulihkan.
 // Dokumen & foto tidak ikut disalin (ukurannya besar, dan tidak pernah disentuh proses migrasi).
-const NAVARA_BUILD = '2026.09.21-22';
+const NAVARA_BUILD = '2026.09.21-27';
 const MAKS_SNAPSHOT = 3;
 
 function daftarKunciSnapshot() {
@@ -21176,6 +21597,7 @@ async function bagikanFullZip() {
                     absensi_columns: JSON.parse(localStorage.getItem('navara_absensi_columns') || 'null'),
                     menu_home: JSON.parse(localStorage.getItem('navara_menu_home') || 'null'),
                     menu_tampilan: localStorage.getItem('navara_menu_tampilan') || null,
+                    pengingat_cicilan_hari: localStorage.getItem('navara_pengingat_cicilan_hari') || null,
                 }
             };
             catatBackupTerakhir();
@@ -21274,6 +21696,7 @@ async function buildFullBackupZip() {
         absensi_columns: JSON.parse(localStorage.getItem('navara_absensi_columns') || 'null'),
         menu_home: JSON.parse(localStorage.getItem('navara_menu_home') || 'null'),
         menu_tampilan: localStorage.getItem('navara_menu_tampilan') || null,
+        pengingat_cicilan_hari: localStorage.getItem('navara_pengingat_cicilan_hari') || null,
     };
     zip.file('pengaturan_lokal.json', JSON.stringify(pengaturanLokal, null, 2));
     catatBackupTerakhir();
@@ -21339,6 +21762,13 @@ function showRestoreJsonPasteModal() {
 async function processRestoreJsonText() {
     const text = document.getElementById('restoreJsonPasteText')?.value.trim();
     if(!text) return showToast('Tempel teks JSON dulu!');
+    const jenisTeks = kenaliJenisCadangan(text);
+    if (jenisTeks === 'pengaturan') {
+        await pulihkanPengaturanDariTeks(text, null);
+        const m = document.getElementById('restoreJsonPasteModal'); if (m) m.style.display = 'none';
+        return;
+    }
+    if (jenisTeks !== 'data') return showToast('❌ Teks ini bukan cadangan Navara');
     if (!(await konfirmasiTimpa('Semua data akan ditimpa dengan isi cadangan JSON ini.', ['Foto & dokumen tidak ikut berubah']))) return;
     showToast('⏳ Memulihkan data...');
     try {
@@ -21450,6 +21880,7 @@ async function applyRestoreBackupData(backup) {
         if (pl.absensi_columns) localStorage.setItem('navara_absensi_columns', JSON.stringify(pl.absensi_columns));
         if (pl.menu_home) localStorage.setItem('navara_menu_home', JSON.stringify(pl.menu_home));
         if (pl.menu_tampilan) localStorage.setItem('navara_menu_tampilan', pl.menu_tampilan);
+        if (pl.pengingat_cicilan_hari) localStorage.setItem('navara_pengingat_cicilan_hari', pl.pengingat_cicilan_hari);
     }
     if (backup.kas) { 
         if (isMultiProgramBackup) {
@@ -21744,6 +22175,7 @@ async function restoreFromZip(input) {
                 if (pl.absensi_columns) localStorage.setItem('navara_absensi_columns', JSON.stringify(pl.absensi_columns));
                 if (pl.menu_home) localStorage.setItem('navara_menu_home', JSON.stringify(pl.menu_home));
                 if (pl.menu_tampilan) localStorage.setItem('navara_menu_tampilan', pl.menu_tampilan);
+                if (pl.pengingat_cicilan_hari) localStorage.setItem('navara_pengingat_cicilan_hari', pl.pengingat_cicilan_hari);
             }
 
             // Restore Prospek (Calon Jamaah)
@@ -23353,12 +23785,18 @@ function clearBatchSelection() {
     updateBatchBar();
 }
 
-function runBatchWA() {
+async function runBatchWA() {
     const selected = document.querySelectorAll('.master-checkbox:checked');
     const hasWA = Array.from(selected).some(cb => cb.getAttribute('data-wa') && cb.getAttribute('data-wa') !== '');
     if (!hasWA) { showToast("⚠️ Tidak ada nomor WhatsApp!"); return; }
-    const template = prompt("Ketik pesan WA (Gunakan [nama]):", "Assalamu'alaikum [nama]...");
-    if (!template) return;
+    const isi = await mintaFormulir({
+        judul: 'Kirim WA Massal', ikon: '📱', tombolYa: 'Kirim',
+        pesan: `Untuk ${selected.length} kontak terpilih.\nTulis [nama] untuk menyisipkan nama masing-masing.`,
+        kolom: [{ id: 'pesan', label: 'Isi pesan', tipe: 'panjang', nilai: "Assalamu'alaikum [nama]," }],
+        periksa: v => v.pesan ? null : 'Isi pesan wajib diisi',
+    });
+    if (!isi) return;
+    const template = isi.pesan;
     selected.forEach((cb, index) => {
         const nama = cb.getAttribute('data-nama');
         let wa = cb.getAttribute('data-wa');
@@ -24206,30 +24644,67 @@ async function resetKonfigurasiPro() {
     }
 }
 
+// "Salin Pengaturan Saja": hanya pengaturan umum (instansi, logo, TTD, laporan, template WA).
+// Data per-Program (Estimasi, Tipe Paket, Layanan Tambahan) TIDAK ikut — supaya saat dipulihkan,
+// catatan per-Program yang lebih baru tidak tertimpa. File diberi penanda jenis supaya dikenali Restore.
 function exportKonfigurasiPro() {
-    const blob = new Blob([JSON.stringify(konfigurasiPro, null, 2)], { type: 'application/json' });
+    const pengaturan = { ...konfigurasiPro };
+    delete pengaturan.per_program;
+    const isi = { jenis_file: 'navara_pengaturan', dibuat: new Date().toISOString(), pengaturan };
+    const blob = new Blob([JSON.stringify(isi, null, 2)], { type: 'application/json' });
     const a = document.createElement('a');
     a.href = URL.createObjectURL(blob);
-    a.download = `navara_konfigurasi_${new Date().toISOString().split('T')[0]}.json`;
+    a.download = `navara_pengaturan_${tanggalLokalHariIni()}.json`;
     a.click();
-    showToast('📁 Konfigurasi diexport');
+    showToast('📁 Pengaturan disalin ke file');
 }
 
-function importKonfigurasiPro(input) {
-    const file = input.files[0];
-    if(!file) return;
-    const reader = new FileReader();
-    reader.onload = (e) => {
-        try {
-            const imported = JSON.parse(e.target.result);
-            konfigurasiPro = { ...konfigurasiPro, ...imported };
-            localStorage.setItem('navara_konfigurasi_pro', JSON.stringify(konfigurasiPro));
-            loadKonfigurasiPro();
-            showToast('✅ Konfigurasi diimport!');
-        } catch(err) { showToast('File tidak valid!'); }
-        input.value = '';
-    };
-    reader.readAsText(file);
+// Kenali isi file/teks cadangan: 'data' (cadangan lengkap), 'pengaturan', atau null (bukan milik Navara)
+function kenaliJenisCadangan(teks) {
+    let obj;
+    try { obj = JSON.parse(teks); } catch (e) { return null; }
+    if (!obj || typeof obj !== 'object') return null;
+    if (obj.jenis_file === 'navara_pengaturan') return 'pengaturan';
+    if (obj.app === 'Navara' || Array.isArray(obj.program) || obj.jamaah) return 'data';
+    if (obj.instansi1 || obj.laporan || obj.per_program || obj.watermark) return 'pengaturan'; // file export lama (tanpa penanda)
+    return null;
+}
+
+// SATU PINTU restore: ZIP → pulihkan semua; JSON cadangan → pulihkan data; file pengaturan → ganti pengaturan saja
+async function restoreDariFile(input) {
+    const file = input.files && input.files[0];
+    if (!file) return;
+    try {
+        const kepala = new Uint8Array(await file.slice(0, 2).arrayBuffer());
+        if (kepala[0] === 0x50 && kepala[1] === 0x4B) return restoreFromZip(input); // "PK" = file ZIP
+        const teks = await file.text();
+        const jenis = kenaliJenisCadangan(teks);
+        if (jenis === 'data') return restoreFromJson(input);
+        if (jenis === 'pengaturan') return pulihkanPengaturanDariTeks(teks, input);
+        showToast('❌ File ini bukan file cadangan Navara');
+    } catch (e) { showToast('❌ Gagal membaca file: ' + e.message); }
+    input.value = '';
+}
+
+async function pulihkanPengaturanDariTeks(teks, input) {
+    const obj = JSON.parse(teks);
+    const pengaturan = { ...(obj.jenis_file === 'navara_pengaturan' ? obj.pengaturan : obj) };
+    delete pengaturan.per_program; // file lama bisa membawa data per-Program — jangan sampai menimpa catatan terbaru
+    const ok = await tanyaKonfirmasi({
+        judul: 'Ganti Pengaturan?', ikon: '⚙️', tombolYa: 'Ganti Pengaturan', warnaYa: '#F59E0B',
+        pesan: 'File ini berisi pengaturan saja.',
+        daftar: ['Yang diganti: data instansi, logo, tanda tangan, laporan, template WA', 'Data jamaah, kas, pembayaran & data per-Program TIDAK tersentuh', 'Pengaturan saat ini dicadangkan otomatis dulu'],
+    });
+    if (!ok) { if (input) input.value = ''; return; }
+    try { await buatSnapshotData('Otomatis sebelum ganti pengaturan'); } catch (e) {}
+    konfigurasiPro = { ...konfigurasiPro, ...pengaturan };
+    // Simpan ke KEDUA penyimpanan: pengaturan dimuat dari penyimpanan utama dulu, jadi kalau hanya
+    // disimpan ke salah satu, hasilnya akan tertimpa pengaturan lama saat dimuat ulang.
+    localStorage.setItem('navara_konfigurasi_pro', JSON.stringify(konfigurasiPro));
+    await idbSet(STORE_KONFIGURASI, 'konfigurasi_pro', konfigurasiPro);
+    await loadKonfigurasiPro();
+    if (input) input.value = '';
+    showToast('✅ Pengaturan diganti');
 }
 
 function previewLogo(input, previewId) {
@@ -24391,6 +24866,7 @@ async function initPremium() {
     if(adminSwitch) adminSwitch.checked = isAdminModePremium;
     
     renderMenuPremium();
+    muatPinjamanUntukHome(); // kartu cicilan pinjaman di Home (tidak ditunggu, supaya pembukaan tetap cepat)
     renderMenuSettingsPremium();
     renderColorOptionsPremium();
     loadThemePremium();
