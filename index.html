@@ -156,6 +156,11 @@
             color: #E2E2E2;
             border-color: #3D3D4D;
         }
+        body.dark-mode .home-ringkasan-card { background: #2A2A3A !important; }
+        body.dark-mode .home-ringkasan-card .hr-judul { color: #E2E2E2 !important; }
+        body.dark-mode .home-ringkasan-card .hr-hijau { color: #34D399 !important; }
+        body.dark-mode .home-ringkasan-card .hr-garis,
+        body.dark-mode .home-ringkasan-card .hr-track { background: #3D3D4D !important; }
         body.dark-mode .header-premium {
             background: linear-gradient(135deg, #1a5d4a 0%, #0d3d31 100%);
         }
@@ -2010,38 +2015,43 @@
             <span style="color:rgba(255,255,255,.7);font-size:12px;">Cari jamaah di semua Program...</span>
         </div>
     </div>
-    <div class="stats-row">
-        <div class="stat-mini-card"><i class="fas fa-coins"></i><div class="stat-label">Total Kas</div><div class="stat-number" id="homeStatKas">Rp 0</div></div>
-        <div class="stat-mini-card" onclick="bukaJamaahDenganFilter('semua')" style="cursor:pointer;"><i class="fas fa-users"></i><div class="stat-label">Jamaah</div><div class="stat-number" id="homeStatJamaah">0</div></div>
-        <div class="stat-mini-card" onclick="bukaJamaahDenganFilter('belum_lunas')" style="cursor:pointer;"><i class="fas fa-money-bill-wave"></i><div class="stat-label">Total Tagihan</div><div class="stat-number" id="homeStatPiutang">Rp 0</div></div>
-        <div class="stat-mini-card" onclick="bukaJamaahDenganFilter('lunas')" style="cursor:pointer;"><i class="fas fa-user-check"></i><div class="stat-label">Jamaah Lunas</div><div class="stat-number" id="homeStatLunas">0</div></div>
+    <div class="stats-row" style="margin-bottom:12px;">
+        <div class="home-ringkasan-card" style="flex:1 1 100%;min-width:100%;background:white;border-radius:20px;padding:14px 16px;box-shadow:0 4px 12px rgba(0,0,0,0.05);">
+            <div style="display:flex;gap:12px;">
+                <div style="flex:1;min-width:0;">
+                    <div style="font-size:11px;color:#888;font-weight:600;"><i class="fas fa-coins" style="color:var(--primary);margin-right:4px;"></i>Total Kas</div>
+                    <div id="homeStatKas" class="hr-hijau" style="font-size:18px;font-weight:800;color:var(--primary);margin-top:3px;word-break:break-word;">Rp 0</div>
+                </div>
+                <div onclick="bukaJamaahDenganFilter('belum_lunas')" style="flex:1;min-width:0;cursor:pointer;border-left:1px solid #eef2f1;padding-left:12px;">
+                    <div style="font-size:11px;color:#888;font-weight:600;"><i class="fas fa-money-bill-wave" style="color:#ef4444;margin-right:4px;"></i>Total Tagihan</div>
+                    <div id="homeStatPiutang" style="font-size:18px;font-weight:800;color:#ef4444;margin-top:3px;word-break:break-word;">Rp 0</div>
+                    <div id="homePiutangLabel" style="font-size:10px;color:#888;margin-top:1px;"></div>
+                </div>
+            </div>
+            <div class="hr-garis" style="height:1px;background:#eef2f1;margin:12px 0;"></div>
+            <div onclick="bukaJamaahDenganFilter('lunas')" style="cursor:pointer;">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+                    <div class="hr-judul" style="font-weight:700;font-size:12px;color:#1a1a1a;">✅ Pelunasan Jamaah</div>
+                    <div id="homeLunasCount" class="hr-hijau" style="font-size:12px;font-weight:700;color:var(--primary);">0 / 0</div>
+                </div>
+                <div class="hr-track" style="background:#e8f5f0;border-radius:100px;height:8px;overflow:hidden;">
+                    <div id="homeLunasBar" style="height:100%;width:0%;background:linear-gradient(90deg,var(--primary),#10B981);border-radius:100px;transition:width 0.6s ease;"></div>
+                </div>
+            </div>
+            <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;margin-top:6px;">
+                <div id="homeLunasLabel" style="font-size:11px;color:#888;">Memuat data...</div>
+                <div onclick="bukaJamaahDenganFilter('semua')" class="hr-hijau" style="font-size:11px;font-weight:700;color:var(--primary);cursor:pointer;white-space:nowrap;">Lihat semua jamaah ›</div>
+            </div>
+        </div>
     </div>
     <!-- Dashboard Info Cards -->
     <div id="homeDashboardExtra" style="padding:0 16px;">
 
-        <!-- Progress Lunas + Piutang + Countdown dalam 1 card compact -->
-        <div style="background:white;border-radius:14px;padding:12px 14px;margin-bottom:10px;box-shadow:0 2px 8px rgba(0,0,0,0.06);">
-            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
-                <div style="font-weight:700;font-size:12px;color:#1a1a1a;">✅ Pelunasan Jamaah</div>
-                <div id="homeLunasCount" style="font-size:12px;font-weight:700;color:var(--primary);">0 / 0</div>
-            </div>
-            <div style="background:#e8f5f0;border-radius:100px;height:8px;overflow:hidden;">
-                <div id="homeLunasBar" style="height:100%;width:0%;background:linear-gradient(90deg,var(--primary),#10B981);border-radius:100px;transition:width 0.6s ease;"></div>
-            </div>
-            <div id="homeLunasLabel" style="font-size:11px;color:#888;margin-top:4px;">Memuat data...</div>
-        </div>
-
-        <!-- Piutang + Countdown -->
-        <div style="display:flex;gap:8px;margin-bottom:10px;">
-            <div style="flex:1;background:white;border-radius:14px;padding:10px 12px;box-shadow:0 2px 8px rgba(0,0,0,0.06);">
-                <div style="font-size:10px;color:#888;margin-bottom:2px;">💰 Total Tagihan</div>
-                <div id="homePiutangBesar" style="font-size:14px;font-weight:800;color:#ef4444;">Rp 0</div>
-                <div id="homePiutangLabel" style="font-size:10px;color:#888;margin-top:1px;">dari jamaah</div>
-            </div>
-            <div id="homeCountdownCard" style="flex:1;background:linear-gradient(135deg,var(--primary),#0a3d31);border-radius:14px;padding:10px 12px;box-shadow:0 2px 8px rgba(13,92,74,0.25);display:none;">
-                <div id="homeCountdownJenis" style="font-size:10px;color:rgba(255,255,255,0.7);margin-bottom:2px;">🕋 Haji</div>
-                <div id="homeCountdownHari" style="font-size:18px;font-weight:900;color:white;line-height:1;">-</div>
-                <div style="font-size:10px;color:rgba(255,255,255,0.7);margin-top:2px;">hari lagi</div>
+        <!-- Hitung mundur keberangkatan (strip ringkas) -->
+        <div id="homeCountdownCard" style="background:linear-gradient(135deg,var(--primary),#0a3d31);border-radius:14px;padding:10px 14px;margin-bottom:10px;box-shadow:0 2px 8px rgba(13,92,74,0.25);display:none;">
+            <div style="display:flex;justify-content:space-between;align-items:center;">
+                <div id="homeCountdownJenis" style="font-size:13px;font-weight:700;color:white;">🕋 Haji</div>
+                <div style="color:white;"><span id="homeCountdownHari" style="font-size:20px;font-weight:900;">-</span> <span style="font-size:11px;color:rgba(255,255,255,0.75);">hari lagi</span></div>
             </div>
         </div>
 
@@ -2205,7 +2215,7 @@
             <div class="input-group"><label>Hotel Madinah</label><input type="text" id="namaHotelMadinah" placeholder="Contoh: Hotel Al-Eiman" oninput="saveEstimasiData()"></div>
         </div>
         <div class="input-group"><label>Maskapai</label><input type="text" id="namaMaskapai" placeholder="Contoh: Saudia Airlines" oninput="saveEstimasiData()"></div>
-        <div class="row"><div class="input-group"><label>Total Pax</label><input type="number" id="totJam" value="21" oninput="saveEstimasiData()"></div><div class="input-group"><label>Gratis</label><input type="number" id="jamGratis" value="1" oninput="saveEstimasiData()"></div><div class="input-group"><label>Jumlah TL</label><input type="number" id="numTL" value="1" oninput="saveEstimasiData()"></div></div>
+        <div class="row"><div class="input-group"><label>Total Pax</label><input type="number" id="totJam" value="21" oninput="saveEstimasiData()"></div><div class="input-group"><label>FOC</label><input type="number" id="jamGratis" value="1" oninput="saveEstimasiData()"></div><div class="input-group"><label>TL</label><input type="number" id="numTL" value="1" oninput="saveEstimasiData()"></div></div>
         <div class="section-title"><span>KOMPONEN BIAYA</span></div>
         <div class="input-group"><label>Tiket</label><input type="text" id="cTiket" class="money-input" inputmode="numeric" value="15.450.000" oninput="saveEstimasiData()"></div>
         <div style="margin:6px 0 12px 0;">
@@ -2291,7 +2301,7 @@
         </div>
         <button class="btn btn-primary" onclick="hitungUmroh()"><i class="fas fa-calculator"></i> HITUNG ESTIMASI</button>
         <button class="btn btn-orange mt-2" onclick="resetEstimasiToDefault()"><i class="fas fa-undo-alt"></i> RESET KE DEFAULT</button>
-        <button class="mt-2" onclick="openSimulasiKebijakanGratisModal()" style="width:100%;padding:11px;background:#0369A1;color:white;border:none;border-radius:10px;font-size:14px;font-weight:bold;cursor:pointer;">🧮 Simulasi Kebijakan Gratis Mitra</button>
+        <button class="mt-2" onclick="openSimulasiKebijakanGratisModal()" style="width:100%;padding:11px;background:#0369A1;color:white;border:none;border-radius:10px;font-size:14px;font-weight:bold;cursor:pointer;">🧮 Simulasi FOC Mitra</button>
     </div>
     <div id="hasilEstimasi" class="res-card" style="display:none;"></div>
     </div><!-- end cuanTabEstimasi -->
@@ -2299,7 +2309,7 @@
     <!-- TAB REKAP AKTUAL -->
     <div id="cuanTabRekap" style="display:none;padding:16px;">
         <div style="background:white;border-radius:16px;padding:16px;margin-bottom:14px;box-shadow:0 2px 8px rgba(0,0,0,0.06);">
-            <div style="font-weight:700;font-size:15px;color:var(--primary);margin-bottom:4px;">📋 Rekap Profit Aktual</div>
+            <div style="font-weight:700;font-size:15px;color:var(--primary);margin-bottom:4px;">📋 Rekap Laba Sementara</div>
             <div style="font-size:12px;color:#888;">Berdasarkan data jamaah yang sudah diinput</div>
         </div>
         <div id="rekapAktualContent">
@@ -2311,7 +2321,7 @@
         <button onclick="hitungRekapAktual()"
             style="width:100%;padding:14px;background:var(--primary);color:white;border:none;
             border-radius:14px;font-size:15px;font-weight:700;cursor:pointer;margin-bottom:10px;">
-            🔄 Hitung Rekap Aktual
+            🔄 Hitung Rekap
         </button>
     </div>
 
@@ -2369,23 +2379,23 @@
                 <span id="ringkasanPengeluaran" style="font-weight:700;">Rp 0</span>
             </div>
             <div style="display:flex;justify-content:space-between;padding:8px 0 0;">
-                <span style="font-weight:700;font-size:14px;">PROFIT RILL</span>
+                <span style="font-weight:700;font-size:14px;">LABA BERSIH (Realisasi)</span>
                 <span id="ringkasanProfit" style="font-weight:900;font-size:18px;color:#2ecc71;">Rp 0</span>
             </div>
         </div>
 
         <!-- List Pengeluaran -->
         <div style="background:white;border-radius:16px;padding:16px;box-shadow:0 2px 8px rgba(0,0,0,0.06);">
-            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
-                <div style="font-weight:700;font-size:14px;color:var(--primary);">📋 Daftar Pengeluaran</div>
-                <div style="display:flex;gap:6px;">
+            <div style="margin-bottom:12px;">
+                <div style="font-weight:700;font-size:14px;color:var(--primary);margin-bottom:8px;">📋 Daftar Pengeluaran</div>
+                <div style="display:flex;gap:8px;">
                     <button onclick="cetakPengeluaran()"
-                        style="padding:6px 10px;background:var(--primary);color:white;border:none;border-radius:8px;font-size:11px;cursor:pointer;">
-                        🖨️ Cetak
+                        style="flex:1;padding:9px 8px;background:var(--primary);color:white;border:none;border-radius:10px;font-size:12px;font-weight:700;cursor:pointer;">
+                        🖨️ Cetak Pengeluaran
                     </button>
                     <button onclick="cetakLaporanGabungan('semua')"
-                        style="padding:6px 10px;background:#1d4ed8;color:white;border:none;border-radius:8px;font-size:11px;cursor:pointer;">
-                        📄 Lengkap
+                        style="flex:1;padding:9px 8px;background:#1d4ed8;color:white;border:none;border-radius:10px;font-size:12px;font-weight:700;cursor:pointer;">
+                        📄 Cetak Lengkap
                     </button>
                 </div>
             </div>
@@ -2419,8 +2429,8 @@
             <div class="input-group"><label>Maskapai</label><input type="text" id="konNamaMaskapai" placeholder="Contoh: Saudia Airlines" oninput="saveKonsorsiumEstimasiData()"></div>
             <div class="row">
                 <div class="input-group"><label>Total Pax</label><input type="number" id="konTotJam" value="45" oninput="saveKonsorsiumEstimasiData()"></div>
-                <div class="input-group"><label>Gratis</label><input type="number" id="konJamGratis" value="1" oninput="saveKonsorsiumEstimasiData()"></div>
-                <div class="input-group"><label>Jumlah TL</label><input type="number" id="konNumTL" value="1" oninput="saveKonsorsiumEstimasiData()"></div>
+                <div class="input-group"><label>FOC</label><input type="number" id="konJamGratis" value="1" oninput="saveKonsorsiumEstimasiData()"></div>
+                <div class="input-group"><label>TL</label><input type="number" id="konNumTL" value="1" oninput="saveKonsorsiumEstimasiData()"></div>
             </div>
 
             <div class="section-title" style="margin-top:15px;"><span>KOMPONEN BIAYA</span></div>
@@ -2870,7 +2880,7 @@
             <input type="text" id="pinjamanNama" list="pinjamanDaftarNama" placeholder="Ketik nama atau pilih dari daftar" oninput="perbaruiInfoSisaPinjaman()"><datalist id="pinjamanDaftarNama"></datalist></div>
         <div class="row">
             <div class="dynamic-field"><label for="pinjamanTanggal">Tanggal <span style="color:red;">*</span></label><input type="date" id="pinjamanTanggal"></div>
-            <div class="dynamic-field"><label for="pinjamanNominal">Nominal (Rp) <span style="color:red;">*</span></label><input type="text" inputmode="numeric" id="pinjamanNominal" placeholder="0" oninput="formatInputNominalPinjaman(this); if (document.getElementById('pinjamanDicicil')?.checked) hitungCicilanOtomatis();"></div>
+            <div class="dynamic-field"><label for="pinjamanNominal">Nominal (Rp) <span style="color:red;">*</span></label><input type="text" inputmode="numeric" id="pinjamanNominal" placeholder="0" oninput="formatInputNominalPinjaman(this); if (document.getElementById('pinjamanDicicil')?.checked) { perBulanDiubahManual = false; hitungCicilanOtomatis(); }"></div>
         </div>
         <div class="dynamic-field"><label id="pinjamanLabelSumber" for="pinjamanSumber">Sumber dana</label>
             <select id="pinjamanSumber" onchange="perbaruiInfoSisaPinjaman()"><option value="kantor">🏢 Uang Kantor</option><option value="pribadi">👤 Uang Pribadi</option></select></div>
@@ -2880,7 +2890,7 @@
             <label style="display:flex;align-items:center;gap:8px;font-weight:700;font-size:14px;cursor:pointer;"><input type="checkbox" id="pinjamanDicicil" onchange="toggleCicilanPinjaman()" style="width:18px;height:18px;"> Dibayar dengan cicilan</label>
             <div id="pinjamanCicilanDetail" style="display:none;margin-top:10px;">
                 <div class="row">
-                    <div class="dynamic-field"><label for="pinjamanTenor">Tenor (bulan)</label><input type="number" id="pinjamanTenor" min="2" max="60" value="12" inputmode="numeric" oninput="hitungCicilanOtomatis()"></div>
+                    <div class="dynamic-field"><label for="pinjamanTenor">Tenor (bulan)</label><input type="number" id="pinjamanTenor" min="2" max="60" value="12" inputmode="numeric" oninput="perBulanDiubahManual = false; hitungCicilanOtomatis()"></div>
                     <div class="dynamic-field"><label for="pinjamanPerBulan">Cicilan / bulan (Rp)</label><input type="text" inputmode="numeric" id="pinjamanPerBulan" oninput="formatInputNominalPinjaman(this); perBulanDiubahManual = true; perbaruiInfoCicilan();"></div>
                 </div>
                 <div class="row">
@@ -3252,14 +3262,14 @@
                 <button onclick="tambahTipePaket()" style="padding:10px 16px;background:var(--primary);color:white;border:none;border-radius:8px;font-size:13px;cursor:pointer;white-space:nowrap;">+ Tambah</button>
             </div>
         </div>
-        <div class="config-section"><h3><i class="fas fa-handshake"></i> Kebijakan Gratis Mitra</h3>
-            <div style="font-size:12px;color:#888;margin-bottom:10px;">Aturan berapa jamaah yang harus dibawa Mitra/Agen supaya dia dapat 1 kursi gratis. Bisa beda tiap Program/musim.</div>
+        <div class="config-section"><h3><i class="fas fa-handshake"></i> Kebijakan FOC Mitra</h3>
+            <div style="font-size:12px;color:#888;margin-bottom:10px;">Aturan berapa jamaah yang harus dibawa Mitra/Agen supaya dia dapat 1 kursi FOC. Bisa beda tiap Program/musim.</div>
             <div style="display:flex;align-items:center;gap:8px;">
                 <span style="font-size:13px;">Setiap</span>
                 <input type="text" id="cfg_mitra_setiap" inputmode="numeric" placeholder="15" style="width:70px;padding:10px;border-radius:8px;border:1.5px solid #ddd;font-size:14px;text-align:center;background:var(--input-bg);color:var(--text);">
                 <span style="font-size:13px;">orang → dapat</span>
                 <input type="text" id="cfg_mitra_dapat" inputmode="numeric" placeholder="1" style="width:60px;padding:10px;border-radius:8px;border:1.5px solid #ddd;font-size:14px;text-align:center;background:var(--input-bg);color:var(--text);">
-                <span style="font-size:13px;">gratis</span>
+                <span style="font-size:13px;">FOC</span>
             </div>
         </div>
         <div class="config-section"><h3><i class="fas fa-plane-departure"></i> Info Keberangkatan</h3>
@@ -4599,9 +4609,8 @@ function updateHomeStats() {
     const totalKas = kasData.reduce((s,i) => s + (i.tipe === 'masuk' ? i.nom : -i.nom), 0);
     document.getElementById('homeStatKas').innerHTML = 'Rp ' + totalKas.toLocaleString('id-ID');
     
-    // Total Jamaah
+    // Data Jamaah (jumlahnya tampil sebagai penyebut pada "Pelunasan Jamaah")
     const jamaahData = jamaahList;
-    document.getElementById('homeStatJamaah').innerHTML = jamaahData.length;
     
     // Hitung Total Piutang dan Jamaah Lunas
     const paymentData = paymentTransaksiList;
@@ -4623,7 +4632,6 @@ function updateHomeStats() {
     
     // Update tampilan
     document.getElementById('homeStatPiutang').innerHTML = 'Rp ' + formatAngka(totalPiutang);
-    document.getElementById('homeStatLunas').innerHTML = lunasCount;
 
     // Update dashboard extra
     updateHomeDashboardExtra(jamaahData.length, lunasCount, totalPiutang);
@@ -4645,13 +4653,11 @@ function updateHomeDashboardExtra(totalJamaah, lunasCount, totalPiutang) {
             else labelEl.textContent = `Masih ${sisa} jamaah belum lunas`;
         }
 
-        // Piutang besar
-        const piutangEl = document.getElementById('homePiutangBesar');
+        // Keterangan di bawah Total Tagihan (kosong kalau semua sudah lunas — kabar lunas sudah ada di bar Pelunasan)
         const piutangLabel = document.getElementById('homePiutangLabel');
-        if(piutangEl) piutangEl.textContent = 'Rp ' + formatAngka(totalPiutang);
         if(piutangLabel) {
             const sisaJamaah = totalJamaah - lunasCount;
-            piutangLabel.textContent = sisaJamaah > 0 ? `dari ${sisaJamaah} jamaah` : 'semua lunas';
+            piutangLabel.textContent = sisaJamaah > 0 ? `dari ${sisaJamaah} jamaah` : '';
         }
 
         // Countdown keberangkatan
@@ -5774,7 +5780,20 @@ const themesPremium = [
 // Menyesuaikan warna hijau baku di HTML cetak (invoice/tiket/label/dll) ke warna tema yang sedang
 // dipilih user. Kalau temanya masih hijau default, HTML dikembalikan apa adanya (tidak diapa-apakan) —
 // jadi untuk mayoritas user yang tidak ganti tema, fungsi ini sama sekali tidak mengubah apa pun.
+// AUTO ZOOM pratinjau cetak di HP. Halaman cetak dirancang selebar kertas A4 (±860px); tanpa pengaturan
+// ini, browser HP kadang menampilkannya dalam ukuran asli — terpotong di kanan ("nyangkut di pojok").
+// Lebar tampilan dikunci 860px → browser LANGSUNG mengecilkannya pas selebar layar sejak awal dibuka,
+// tetap bisa diperbesar dengan dua jari. Kalau isi halaman ternyata lebih lebar, lebar tampilan ikut
+// disesuaikan. Tidak memengaruhi hasil cetak di kertas; di laptop/komputer pengaturan ini diabaikan browser.
+// text-size-adjust: cegah browser HP memperbesar sebagian paragraf sendiri, supaya proporsi pratinjau sama dengan kertas.
+const AUTO_ZOOM_CETAK = `<meta name="viewport" content="width=860, user-scalable=yes"><style>html{-webkit-text-size-adjust:100%;text-size-adjust:100%;}</style><script>window.addEventListener('load',function(){var w=document.documentElement.scrollWidth;if(w>870){var m=document.querySelector('meta[name=viewport]');if(m)m.setAttribute('content','width='+w+', user-scalable=yes');}});<\/script>`;
+function pasangAutoZoomCetak(html) {
+    if (/name=["']viewport["']/i.test(html)) return html;
+    return html.replace(/<head([^>]*)>/i, m => m + AUTO_ZOOM_CETAK);
+}
+
 function applyPrintTheme(htmlString) {
+    htmlString = pasangAutoZoomCetak(htmlString);
     try {
         const themeColor = localStorage.getItem('premium_theme_primary');
         if (!themeColor || themeColor.toUpperCase() === '#0D5C4A') return htmlString;
@@ -6419,7 +6438,7 @@ function hitungUmroh() {
                 <span class="highlight">${f(jual)}</span>
                 ${cp(f(jual),'Harga Brosur')}
             </div>
-            <p style="font-size:10px;margin-top:5px;">*Berdasarkan ${nJam-nFoc} jamaah bayar dan ${nFoc} gratis</p>
+            <p style="font-size:10px;margin-top:5px;">*Berdasarkan ${nJam-nFoc} jamaah bayar dan ${nFoc} FOC</p>
         </div>`;
     } else {
         hargaBrosurRows = `<div style="border-top:2px solid var(--accent);margin-top:10px;padding-top:10px;">
@@ -6432,7 +6451,7 @@ function hitungUmroh() {
                     ${cp(f(t.jual),'Harga '+t.nama)}
                 </div>
             </div>`).join('')}
-            <p style="font-size:10px;margin-top:6px;text-align:center;color:#888;">*Berdasarkan ${nJam-nFoc} jamaah bayar dan ${nFoc} gratis</p>
+            <p style="font-size:10px;margin-top:6px;text-align:center;color:#888;">*Berdasarkan ${nJam-nFoc} jamaah bayar dan ${nFoc} FOC</p>
         </div>`;
     }
     let hasil=document.getElementById('hasilEstimasi');
@@ -6567,7 +6586,7 @@ async function cetakEstimasiPDFInternal() {
             <div><strong>Paket &nbsp;&nbsp;:</strong> ${lastCalculatedPaket}</div>
             ${(est.namaHotelMakkah || est.namaHotelMadinah) ? `<div><strong>Hotel &nbsp;&nbsp;:</strong> ${[est.namaHotelMakkah ? est.namaHotelMakkah + ' (Makkah)' : '', est.namaHotelMadinah ? est.namaHotelMadinah + ' (Madinah)' : ''].filter(x=>x).join(', ')}</div>` : ''}
             ${est.namaMaskapai ? `<div><strong>Maskapai:</strong> ${est.namaMaskapai}</div>` : ''}
-            <div><strong>Jamaah :</strong> ${nJam} orang (${nFoc} gratis, ${nTL} TL)</div>
+            <div><strong>Jamaah :</strong> ${nJam} orang (${nFoc} FOC, ${nTL} TL)</div>
             ${tglBerangkat ? `<div><strong>Tgl Keberangkatan:</strong> ${tglBerangkat}</div>` : ''}
             <div><strong>Dicetak :</strong> ${tgl}</div>
         </div>
@@ -6661,7 +6680,7 @@ async function shareEstimasiInternalPDF() {
             tulisBarisInfo('Hotel: ', hotelTxt);
         }
         if (est.namaMaskapai) tulisBarisInfo('Maskapai: ', est.namaMaskapai);
-        tulisBarisInfo('Jamaah: ', `${nJam} orang (${nFoc} gratis, ${nTL} TL)`);
+        tulisBarisInfo('Jamaah: ', `${nJam} orang (${nFoc} FOC, ${nTL} TL)`);
         if (tglBerangkat) tulisBarisInfo('Tgl Keberangkatan: ', tglBerangkat);
         tulisBarisInfo('Dicetak: ', tgl);
         yInfo += 3;
@@ -7036,7 +7055,7 @@ function hitungKonsorsiumEstimasi() {
     const nJam = parseInt(document.getElementById('konTotJam').value) || 0;
     const nFoc = parseInt(document.getElementById('konJamGratis').value) || 0;
     const nTL = parseInt(document.getElementById('konNumTL').value) || 0;
-    if(nJam <= nFoc) return showToast('Total Pax harus lebih besar dari jumlah Gratis!');
+    if(nJam <= nFoc) return showToast('Total Pax harus lebih besar dari jumlah FOC!');
 
     const subBase = pr(document.getElementById('konCTiket').value) + pr(document.getElementById('konCAsuransi').value) + pr(document.getElementById('konCHandling').value) + pr(document.getElementById('konCPIC').value) + pr(document.getElementById('konCAlat').value) + pr(document.getElementById('konCAplikasi').value) + pr(document.getElementById('konCLain').value);
     const laVal = pr(document.getElementById('konCLAquad').value); // Quad jadi basis Modal & Harga Brosur utama, sama seperti Estimasi asli
@@ -7061,7 +7080,7 @@ function hitungKonsorsiumEstimasi() {
     document.getElementById('konHasilProfitKotor').textContent = f(profitKotor);
     document.getElementById('konHasilProfitBersih').textContent = f(profitBersih);
     document.getElementById('konHasilBrosur').textContent = f(hargaBrosur);
-    document.getElementById('konHasilKeterangan').textContent = `*Berdasarkan ${nJam-nFoc} jamaah bayar dan ${nFoc} gratis (basis kamar Quad)`;
+    document.getElementById('konHasilKeterangan').textContent = `*Berdasarkan ${nJam-nFoc} jamaah bayar dan ${nFoc} FOC (basis kamar Quad)`;
     document.getElementById('konsorsiumHasilCard').style.display = 'block';
 
     // Simpan per-Program
@@ -7123,7 +7142,7 @@ function loadKonsorsiumEstimasiUI() {
     document.getElementById('konHasilProfitKotor').textContent = f(profitKotor);
     document.getElementById('konHasilProfitBersih').textContent = f(profitBersih);
     document.getElementById('konHasilBrosur').textContent = f(konsorsiumLastBrosur);
-    document.getElementById('konHasilKeterangan').textContent = `*Berdasarkan ${nJam-nFoc} jamaah bayar dan ${nFoc} gratis`;
+    document.getElementById('konHasilKeterangan').textContent = `*Berdasarkan ${nJam-nFoc} jamaah bayar dan ${nFoc} FOC`;
     document.getElementById('konsorsiumHasilCard').style.display = 'block';
 }
 
@@ -7311,7 +7330,7 @@ function renderSatuKartuKonsorsiumInfo(id) {
     } else {
         const adaRugi = ring.totalProfit < 0;
         const barisTipe = ring.tipeData.map(x => {
-            const keteranganGratis = x.gratisDiSini > 0 ? ` <span style="color:#F59E0B;font-weight:700;">(${x.gratisDiSini} gratis)</span>` : '';
+            const keteranganGratis = x.gratisDiSini > 0 ? ` <span style="color:#F59E0B;font-weight:700;">(${x.gratisDiSini} FOC)</span>` : '';
             return `<div style="display:flex;justify-content:space-between;font-size:11px;color:#444;padding:3px 0;border-bottom:1px dashed #e2e8f0;">
                 <span>${x.label} (${x.jumlah} org${keteranganGratis}): Modal Efektif ${f(x.modal)}</span>
                 <span style="font-weight:700;">→ ${f(x.harga)}</span>
@@ -7320,7 +7339,7 @@ function renderSatuKartuKonsorsiumInfo(id) {
 
         infoEl.innerHTML = `
             <div style="background:#F8FAFC;border-radius:8px;padding:10px 12px;margin-bottom:8px;">
-                <div style="font-size:10px;color:#888;font-weight:700;text-transform:uppercase;margin-bottom:4px;">💵 Tagihan per Tipe Kamar${ring.totalGratisTerpakai > 0 ? ` (${ring.totalGratisTerpakai} orang gratis)` : ''}</div>
+                <div style="font-size:10px;color:#888;font-weight:700;text-transform:uppercase;margin-bottom:4px;">💵 Tagihan per Tipe Kamar${ring.totalGratisTerpakai > 0 ? ` (${ring.totalGratisTerpakai} orang FOC)` : ''}</div>
                 ${ring.bufferB2B > 0 ? `<div style="font-size:10px;color:#0369A1;margin-bottom:6px;">+ Buffer Rp ${ring.bufferB2B.toLocaleString('id-ID')}/orang sudah termasuk di Harga (tidak dihitung Profit)</div>` : ''}
                 ${barisTipe}
             </div>
@@ -7383,7 +7402,7 @@ function renderKonsorsiumList() {
                 </div>
                 <div id="konsorsiumTotalOrang_${t.id}" style="font-size:11px;color:var(--primary);font-weight:600;margin-top:4px;">Total: ${(t.jumlah||0)} orang</div>
             </div>
-            <div class="dynamic-field"><label>Gratis dari Travel Ini <span style="color:#6B7280;font-weight:400;">— opsional, kalau Travel ini minta kursi gratis (beda dari Gratis B2C di atas)</span></label><input type="text" inputmode="numeric" value="${t.gratisTravel || ''}" placeholder="0" oninput="updateKonsorsiumTravel(${t.id}, 'gratisTravel', this.value)"></div>
+            <div class="dynamic-field"><label>FOC dari Travel Ini <span style="color:#6B7280;font-weight:400;">— opsional, kalau Travel ini minta kursi FOC (beda dari FOC B2C di atas)</span></label><input type="text" inputmode="numeric" value="${t.gratisTravel || ''}" placeholder="0" oninput="updateKonsorsiumTravel(${t.id}, 'gratisTravel', this.value)"></div>
             <div style="background:#EFF6FF;border-radius:10px;padding:10px;margin:10px 0;">
                 <div style="display:flex;align-items:center;gap:6px;margin-bottom:8px;">
                     <span style="background:#1E40AF;color:white;font-size:9px;font-weight:700;padding:2px 7px;border-radius:10px;">B2B</span>
@@ -7457,7 +7476,7 @@ function cetakTagihanTravelPartner(id) {
 
     const rowsHtml = ring.tipeData.map(x => `
         <tr>
-            <td style="padding:8px;border-bottom:1px solid #eee;">${escapeHtml(x.label)}${x.gratisDiSini > 0 ? ` <span style="color:#0D9488;">(${x.gratisDiSini} gratis)</span>` : ''}</td>
+            <td style="padding:8px;border-bottom:1px solid #eee;">${escapeHtml(x.label)}${x.gratisDiSini > 0 ? ` <span style="color:#0D9488;">(${x.gratisDiSini} FOC)</span>` : ''}</td>
             <td style="padding:8px;border-bottom:1px solid #eee;text-align:center;">${x.jumlah}</td>
             <td style="padding:8px;border-bottom:1px solid #eee;text-align:right;">${f(x.harga)}</td>
             <td style="padding:8px;border-bottom:1px solid #eee;text-align:right;">${f(x.tagihanTipe)}</td>
@@ -7627,7 +7646,7 @@ function salinRingkasanTravel(id) {
     const namaKBIH = getNamaInstansiUtama();
     let teks = `*RINCIAN KONSORSIUM — ${t.nama || 'Travel Partner'}*\n${namaKBIH}\n\n`;
     ring.tipeData.forEach(x => {
-        teks += `${x.label} (${x.jumlah} org${x.gratisDiSini > 0 ? ', ' + x.gratisDiSini + ' gratis' : ''}): Rp ${Math.round(x.harga).toLocaleString('id-ID')}/orang\n`;
+        teks += `${x.label} (${x.jumlah} org${x.gratisDiSini > 0 ? ', ' + x.gratisDiSini + ' FOC' : ''}): Rp ${Math.round(x.harga).toLocaleString('id-ID')}/orang\n`;
     });
     teks += `\nTotal Tagihan: Rp ${Math.round(ring.totalTagihan).toLocaleString('id-ID')}\n`;
     teks += `Total Modal Efektif: Rp ${Math.round(ring.totalModal).toLocaleString('id-ID')}\n`;
@@ -7946,7 +7965,7 @@ function cetakLaporanKonsorsium() {
     const rowsHtml = data.rows.map(r => `
         <tr>
             <td style="padding:8px;border-bottom:1px solid #eee;">${escapeHtml(r.nama)}</td>
-            <td style="padding:8px;border-bottom:1px solid #eee;">${escapeHtml(r.tipe)}${r.gratisDiSini > 0 ? ` <span style="color:#F59E0B;font-size:11px;">(${r.gratisDiSini} gratis)</span>` : ''}</td>
+            <td style="padding:8px;border-bottom:1px solid #eee;">${escapeHtml(r.tipe)}${r.gratisDiSini > 0 ? ` <span style="color:#F59E0B;font-size:11px;">(${r.gratisDiSini} FOC)</span>` : ''}</td>
             <td style="padding:8px;border-bottom:1px solid #eee;text-align:center;">${r.jumlah}</td>
             <td style="padding:8px;border-bottom:1px solid #eee;text-align:right;color:#888;">${f(r.modal)}</td>
             <td style="padding:8px;border-bottom:1px solid #eee;text-align:right;">${f(r.harga)}</td>
@@ -8215,8 +8234,10 @@ function cetakLaporanGabungan(mode = 'semua') {
     const tgl = new Date().toLocaleDateString('id-ID',{day:'numeric',month:'long',year:'numeric'});
 
     // Clone & bersihkan tombol dari rekap
+    // Rekap selalu dihitung ulang dulu: angkanya terbaru dan tidak ikut tercetak teks petunjuk "Klik tombol di bawah..."
+    if((mode === 'semua' || mode === 'rekap') && jamaahList.length > 0) hitungRekapAktual();
     const rekapEl = document.getElementById('rekapAktualContent');
-    const rekapAda = rekapEl && rekapEl.innerText.trim().length > 10;
+    const rekapAda = jamaahList.length > 0 && rekapEl && rekapEl.innerText.trim().length > 10;
     let rekapHTML = '';
     if(rekapAda) {
         const clone = rekapEl.cloneNode(true);
@@ -8237,7 +8258,7 @@ function cetakLaporanGabungan(mode = 'semua') {
     }
 
     if(mode === 'pengeluaran' && !pengeluaranAda) return showToast('Belum ada pengeluaran!');
-    if(mode === 'rekap' && !rekapAda) return showToast('Hitung rekap dulu!');
+    if(mode === 'rekap' && !rekapAda) return showToast('Belum ada data jamaah untuk direkap!');
     if(mode === 'semua' && !rekapAda && !pengeluaranAda) return showToast('Tidak ada data untuk dicetak!');
 
     const win = window.open('','_blank');
@@ -8260,6 +8281,11 @@ function cetakLaporanGabungan(mode = 'semua') {
             .section-title{font-weight:bold;font-size:14px;color:#0D5C4A;
                 border-bottom:1.5px solid #0D5C4A;padding-bottom:6px;margin:16px 0 12px;}
             .divider{border:none;border-top:1px dashed #ccc;margin:20px 0;}
+            /* Kartu TOTAL KESELURUHAN: di layar latarnya hijau gelap + tulisan putih; di kertas dibuat terang supaya terbaca */
+            .kartu-total-rekap{background:#F0FDF4 !important;color:#1a1a1a !important;border:1px solid #0D5C4A;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+            .kartu-total-rekap div{border-bottom-color:#d1d5db !important;}
+            .kartu-total-rekap span{opacity:1 !important;}
+            .kartu-total-rekap [style*="2ecc71"]{color:#15803d !important;}
             @media print{.topbar{display:none;}}
         </style>
     </head><body>
@@ -8268,12 +8294,12 @@ function cetakLaporanGabungan(mode = 'semua') {
             <button onclick="window.close()">✕ Tutup</button>
         </div>
         <div class="header">
-            <h1>LAPORAN KEUANGAN${mode === 'semua' ? ' LENGKAP' : mode === 'rekap' ? ' — REKAP PROFIT' : ' — PENGELUARAN'}</h1>
+            <h1>LAPORAN KEUANGAN${mode === 'semua' ? ' LENGKAP' : mode === 'rekap' ? ' — REKAP LABA SEMENTARA' : ' — PENGELUARAN'}</h1>
             <p>${namaKBIH}</p>
             <p style="font-weight:600;color:#0D5C4A;">📁 Program: ${escapeHtml(getCurrentProgram()?.nama || '-')}</p>
             <p>Dicetak: ${tgl}</p>
         </div>
-        ${showRekap ? `<div class="section-title">📋 Rekap Profit Aktual</div>${rekapHTML}` : ''}
+        ${showRekap ? `<div class="section-title">📋 Rekap Laba Sementara</div>${rekapHTML}` : ''}
         ${showRekap && showPengeluaran ? '<hr class="divider">' : ''}
         ${showPengeluaran ? `<div class="section-title">💸 Rincian Pengeluaran</div>${pengeluaranHTML}<div style="margin-top:12px;">${ringkasanHTML}</div>` : ''}
     </body></html>`; win.document.write(applyPrintTheme(__printHtml2));
@@ -8398,7 +8424,7 @@ function hitungRekapAktual() {
                 <span style="font-size:13px;">${f(d.totalModal)}</span>
             </div>
             <div style="display:flex;justify-content:space-between;padding:5px 0;">
-                <span style="font-size:13px;font-weight:700;color:${profit>=0?'#10B981':'#ef4444'}">Profit Aktual</span>
+                <span style="font-size:13px;font-weight:700;color:${profit>=0?'#10B981':'#ef4444'}">Laba Sementara</span>
                 <span style="font-size:13px;font-weight:700;color:${profit>=0?'#10B981':'#ef4444'}">${f(profit)}</span>
             </div>` : ''}` : ''}
             ${d.tanpaHarga?.length > 0 ? `
@@ -8410,7 +8436,7 @@ function hitungRekapAktual() {
 
     // Grand Total
     const grandProfit = grandOmzet - grandModal;
-    html += `<div style="background:linear-gradient(135deg,var(--primary),#0a3d31);border-radius:14px;padding:16px;margin-bottom:10px;color:white;">
+    html += `<div class="kartu-total-rekap" style="background:linear-gradient(135deg,var(--primary),#0a3d31);border-radius:14px;padding:16px;margin-bottom:10px;color:white;">
         <div style="font-weight:700;font-size:15px;margin-bottom:10px;">💰 TOTAL KESELURUHAN</div>
         <div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid rgba(255,255,255,0.2);">
             <span style="font-size:13px;opacity:0.8;">Total Kontrak/Omzet</span>
@@ -8429,7 +8455,7 @@ function hitungRekapAktual() {
             <span style="font-size:13px;">${f(grandModal)}</span>
         </div>` : ''}
         <div style="display:flex;justify-content:space-between;padding:8px 0 0;">
-            <span style="font-size:15px;font-weight:700;">PROFIT AKTUAL</span>
+            <span style="font-size:15px;font-weight:700;">LABA SEMENTARA</span>
             <span style="font-size:18px;font-weight:900;color:${grandProfit>=0?'#2ecc71':'#ef4444'};">${f(grandProfit)}</span>
         </div>
         <div style="font-size:11px;opacity:0.6;margin-top:6px;text-align:right;">
@@ -8584,7 +8610,7 @@ function shareRekapAktual() {
     const namaKBIH = getNamaInstansiUtama();
     const tgl = new Date().toLocaleDateString('id-ID');
     const garis = '─'.repeat(28);
-    let text = `📊 *REKAP PROFIT AKTUAL*\n*${namaKBIH}*\n📁 Program: ${getCurrentProgram()?.nama || '-'}\n${tgl}\n${garis}\n`;
+    let text = `📊 *REKAP LABA SEMENTARA*\n*${namaKBIH}*\n📁 Program: ${getCurrentProgram()?.nama || '-'}\n${tgl}\n${garis}\n`;
     // Ambil angka dari card tipe
     const cards = content.querySelectorAll('div[style*="border-radius:14px"]');
     cards.forEach(card => {
@@ -10622,7 +10648,11 @@ function hitungCicilanOtomatis() {
     const nominal = parseInt(document.getElementById('pinjamanNominal').value.replace(/\D/g, ''), 10) || 0;
     const tenor = parseInt(document.getElementById('pinjamanTenor').value, 10) || 0;
     if (!perBulanDiubahManual && nominal > 0 && tenor > 0) {
-        document.getElementById('pinjamanPerBulan').value = formatAngka(Math.ceil(nominal / tenor / 1000) * 1000);
+        // Dibulatkan ke ribuan supaya enak; kalau pembulatan itu membuat cicilan kebesaran
+        // (pinjaman kecil, tenor panjang), pakai pembulatan ke rupiah.
+        let perBulan = Math.ceil(nominal / tenor / 1000) * 1000;
+        if (perBulan * (tenor - 1) >= nominal) perBulan = Math.ceil(nominal / tenor);
+        document.getElementById('pinjamanPerBulan').value = formatAngka(perBulan);
     }
     perbaruiInfoCicilan();
 }
@@ -10636,7 +10666,7 @@ function perbaruiInfoCicilan() {
     const terakhir = nominal - perBulan * (tenor - 1);
     const mulai = document.getElementById('pinjamanMulai').value;
     if (!nominal || tenor < 2 || !perBulan) { info.textContent = ''; return; }
-    if (terakhir <= 0) { info.innerHTML = '<span style="color:#b42318;">⚠️ Cicilan per bulan terlalu besar untuk tenor ini</span>'; return; }
+    if (terakhir <= 0) { info.innerHTML = '<span style="color:#b42318;">⚠️ Cicilan per bulan terlalu besar untuk tenor ini — kurangi angkanya, atau ketik ulang tenor supaya dihitung otomatis</span>'; return; }
     let selesai = '';
     if (mulai) { const [y, m] = mulai.split('-').map(Number); selesai = new Date(y, m - 1 + tenor - 1, 1).toLocaleDateString('id-ID', { month: 'long', year: 'numeric' }); }
     info.textContent = `${tenor - 1}× ${formatRupiah(perBulan)} + terakhir ${formatRupiah(terakhir)}${selesai ? ` · lunas ${selesai}` : ''}`;
@@ -14505,7 +14535,7 @@ function renderRekapKomisiMitraModal(modalEl) {
         if(eligibleGratis > 0 && est) {
             const biayaGratis = eligibleGratis * est.harga; // Harga Jual "hilang" per kursi gratis (Modal tetap keluar, tidak ada yang bayar)
             perbandingan = `<div style="background:#FEF3C7;border-radius:8px;padding:8px 10px;margin-top:6px;font-size:11px;color:#92400E;">
-                ⚠️ Eligible ${eligibleGratis} Gratis Berangkat — kalau diberikan, Harga Jual "hilang" ≈ ${f(biayaGratis)}. Bandingkan dengan total Komisi Cash: ${f(d.komisi)}
+                ⚠️ Eligible ${eligibleGratis} FOC Berangkat — kalau diberikan, Harga Jual "hilang" ≈ ${f(biayaGratis)}. Bandingkan dengan total Komisi Cash: ${f(d.komisi)}
             </div>`;
         }
         return `<div style="background:#F8FAFC;border-radius:10px;padding:12px;margin-bottom:10px;">
@@ -14513,7 +14543,7 @@ function renderRekapKomisiMitraModal(modalEl) {
                 <div style="font-weight:700;font-size:14px;color:#7C3AED;">🤝 ${escapeHtml(nama)}</div>
                 <button onclick="catatKomisiSebagaiPengeluaran('${jsArg(nama)}', ${d.komisi})" style="background:#7C3AED;color:white;border:none;border-radius:20px;padding:5px 12px;font-size:11px;font-weight:700;cursor:pointer;">💸 Catat Pengeluaran</button>
             </div>
-            <div style="font-size:12px;color:#555;margin-top:4px;">${d.jumlah} jamaah dibawa${eligibleGratis > 0 ? ` — 🎉 Eligible ${eligibleGratis} Gratis` : ''}</div>
+            <div style="font-size:12px;color:#555;margin-top:4px;">${d.jumlah} jamaah dibawa${eligibleGratis > 0 ? ` — 🎉 Eligible ${eligibleGratis} FOC` : ''}</div>
             <div style="font-size:12px;color:#166534;font-weight:700;margin-top:2px;">Total Komisi Cash: ${f(d.komisi)}</div>
             ${perbandingan}
         </div>`;
@@ -14521,10 +14551,10 @@ function renderRekapKomisiMitraModal(modalEl) {
 
     modalEl.innerHTML = `<div class="modal-content" style="max-width:460px;">
         <h3 style="color:var(--primary);margin-bottom:4px;">🤝 Rekap Komisi Mitra</h3>
-        <div style="font-size:11px;color:#888;margin-bottom:4px;">${escapeHtml(getCurrentProgram()?.nama || '-')} — Kebijakan saat ini: setiap ${kebijakan.setiap} orang dapat ${kebijakan.dapat} gratis</div>
+        <div style="font-size:11px;color:#888;margin-bottom:4px;">${escapeHtml(getCurrentProgram()?.nama || '-')} — Kebijakan saat ini: setiap ${kebijakan.setiap} orang dapat ${kebijakan.dapat} FOC</div>
         ${!est ? '<div style="background:#FEE2E2;color:#991B1B;border-radius:8px;padding:8px;font-size:11px;margin-bottom:10px;">⚠️ Hitung Estimasi Program dulu supaya perbandingan biaya bisa tampil.</div>' : ''}
         <div style="max-height:340px;overflow-y:auto;margin-bottom:10px;">${htmlMitra || '<p style="color:#6B7280;text-align:center;padding:20px;">Belum ada jamaah yang punya data Mitra Referensi</p>'}</div>
-        <button onclick="openSimulasiKebijakanGratisModal()" style="width:100%;padding:11px;background:#0369A1;color:white;border:none;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;margin-bottom:8px;">🧮 Simulasi Kebijakan Gratis</button>
+        <button onclick="openSimulasiKebijakanGratisModal()" style="width:100%;padding:11px;background:#0369A1;color:white;border:none;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;margin-bottom:8px;">🧮 Simulasi FOC Mitra</button>
         <button onclick="document.getElementById('rekapKomisiMitraModal').style.display='none'" style="width:100%;padding:11px;background:#e2e8f0;color:#333;border:none;border-radius:10px;font-size:13px;cursor:pointer;">Tutup</button>
     </div>`;
 }
@@ -14582,7 +14612,7 @@ function renderSimulasiGratisModal(setiap, dapat) {
     }
 
     modalEl.innerHTML = `<div class="modal-content" style="max-width:440px;">
-        <h3 style="color:var(--primary);margin-bottom:4px;">🧮 Simulasi Kebijakan Gratis</h3>
+        <h3 style="color:var(--primary);margin-bottom:4px;">🧮 Simulasi FOC Mitra</h3>
         <div style="font-size:11px;color:#888;margin-bottom:12px;">Coba beberapa rasio sebelum sepakat dengan Mitra — pakai Modal & Harga dari Estimasi Program saat ini.</div>
         <div style="max-height:400px;overflow-y:auto;">${htmlHasil}</div>
         <div class="row" style="margin-top:10px;">
@@ -14646,7 +14676,7 @@ function cetakSimulasiGratis() {
         <td style="padding:8px;border-bottom:1px solid #eee;text-align:right;">${f(d.estimasiTotalMusim)}</td>
     </tr>`).join('');
 
-    let html = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>Simulasi Kebijakan Gratis</title>
+    let html = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>Simulasi FOC Mitra</title>
     <style>body{font-family:Arial,sans-serif;padding:20px;color:#222;background:#f0f0f0;} h1{color:#0D5C4A;font-size:18px;margin-bottom:2px;}
     table{width:100%;border-collapse:collapse;margin-top:14px;font-size:12px;}
     th{background:#0D5C4A;color:#fff;padding:8px;text-align:left;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
@@ -14654,11 +14684,11 @@ function cetakSimulasiGratis() {
     @page{size:A4 portrait;margin:10mm 12mm;}
     @media print{ *{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important;} html{width:210mm;} body{background:white;padding:0;margin:0;width:210mm;} .no-print{display:none!important;} }
     </style></head><body>
-    <h1>🧮 SIMULASI KEBIJAKAN GRATIS MITRA</h1>
+    <h1>🧮 SIMULASI FOC MITRA</h1>
     <p style="font-size:12px;color:#666;">${escapeHtml(namaInstansi)} — Program: ${escapeHtml(namaProgram)} — Dicetak: ${new Date().toLocaleDateString('id-ID')}</p>
-    <table><thead><tr><th>Rasio</th><th>Status</th><th>Profit Normal</th><th>Profit dgn Gratis</th><th>% dari Normal</th><th>Estimasi Dampak 1 Musim*</th></tr></thead><tbody>${rowsHtml}</tbody></table>
+    <table><thead><tr><th>Rasio</th><th>Status</th><th>Profit Normal</th><th>Profit dgn FOC</th><th>% dari Normal</th><th>Estimasi Dampak 1 Musim*</th></tr></thead><tbody>${rowsHtml}</tbody></table>
     <div class="kesimpulan"><b>📌 Kesimpulan:</b> ${escapeHtml(kesimpulan)}</div>
-    <p style="font-size:11px;color:#888;margin-top:10px;">Rasio "X : Y" artinya: tiap X orang, Y orang dapat gratis. ✅ = rasio paling murah hati ke Mitra yang masih aman digunakan.<br>*Estimasi dampak 1 musim dihitung dari jumlah jamaah Program aktif saat ini (${jamaahList.length} orang) ÷ rasio — bukan jaminan, cuma perkiraan kasar.</p>
+    <p style="font-size:11px;color:#888;margin-top:10px;">Rasio "X : Y" artinya: tiap X orang, Y orang dapat FOC. ✅ = rasio paling murah hati ke Mitra yang masih aman digunakan.<br>*Estimasi dampak 1 musim dihitung dari jumlah jamaah Program aktif saat ini (${jamaahList.length} orang) ÷ rasio — bukan jaminan, cuma perkiraan kasar.</p>
     `;
     html = applyPrintTheme(html);
     tampilkanJendelaCetak(html);
@@ -14678,7 +14708,7 @@ async function shareSimulasiGratisPDF() {
         await applyPDFConfig(doc, { landscape: false });
 
         doc.setFontSize(16); doc.setTextColor(wr,wg,wb);
-        doc.text('SIMULASI KEBIJAKAN GRATIS MITRA', 105, 65, { align: 'center' });
+        doc.text('SIMULASI FOC MITRA', 105, 65, { align: 'center' });
         doc.setFontSize(9); doc.setTextColor(150,150,150);
         doc.text(namaInstansi + ' — Program: ' + namaProgram, 105, 71, { align: 'center' });
 
@@ -14692,7 +14722,7 @@ async function shareSimulasiGratisPDF() {
         ]);
         doc.autoTable({
             startY: 78,
-            head: [['Rasio', 'Status', 'Profit Normal', 'Profit+Gratis', '% Normal', 'Estimasi 1 Musim']],
+            head: [['Rasio', 'Status', 'Profit Normal', 'Profit+FOC', '% Normal', 'Estimasi 1 Musim']],
             body: tableData,
             theme: 'striped',
             headStyles: { fillColor: [wr,wg,wb] },
@@ -14712,14 +14742,14 @@ async function shareSimulasiGratisPDF() {
         doc.text(kesimpulanLines, 14, y + 6);
         y += 6 + (kesimpulanLines.length * 5) + 6;
         doc.setFontSize(7); doc.setTextColor(140,140,140);
-        doc.text('Rasio "X : Y" = tiap X orang, Y orang dapat gratis. ✓ = rasio paling murah hati ke Mitra yang masih aman.', 14, y);
+        doc.text('Rasio "X : Y" = tiap X orang, Y orang dapat FOC. ✓ = rasio paling murah hati ke Mitra yang masih aman.', 14, y);
         doc.text(`Estimasi 1 Musim dihitung dari jumlah jamaah Program aktif (${jamaahList.length} orang) — perkiraan kasar, bukan jaminan.`, 14, y + 4);
 
-        const namaFile = `Simulasi_Kebijakan_Gratis_${new Date().toLocaleDateString('id-ID').replace(/\//g,'-')}.pdf`;
+        const namaFile = `Simulasi_FOC_Mitra_${new Date().toLocaleDateString('id-ID').replace(/\//g,'-')}.pdf`;
         const blob = doc.output('blob');
         const file = new File([blob], namaFile, { type: 'application/pdf' });
         if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
-            await navigator.share({ files: [file], title: 'Simulasi Kebijakan Gratis' });
+            await navigator.share({ files: [file], title: 'Simulasi FOC Mitra' });
         } else {
             doc.save(namaFile);
             showToast('📥 PDF didownload');
@@ -14804,6 +14834,7 @@ function openAntrianFollowUpModal() {
 // ==================== LAPORAN PENUTUPAN MUSIM ====================
 function cetakLaporanPenutupanMusim() {
     const f = n => 'Rp ' + Math.round(n).toLocaleString('id-ID');
+    const fKurang = n => (Math.round(n) > 0 ? '-' : '') + f(n); // tanda minus hanya kalau nilainya > 0, supaya tidak tampil "-Rp 0"
     const namaKBIH = getNamaInstansiUtama();
     const progNama = getCurrentProgram()?.nama || '-';
     const tgl = formatTanggalLengkap();
@@ -14821,12 +14852,12 @@ function cetakLaporanPenutupanMusim() {
     if(est) {
         const totalModalAktual = est.modal * jamaahRelevan.length;
         const profitAktual = totalKontrak - totalModalAktual;
-        sectionRekap = `<div class="lap-section"><h2>📋 Rekap Profit Aktual</h2>
+        sectionRekap = `<div class="lap-section"><h2>📋 Proyeksi Laba</h2>
             <table class="lap-table"><tr><td>Total Jamaah</td><td>${jamaahRelevan.length}</td></tr>
             <tr><td>Total Kontrak</td><td>${f(totalKontrak)}</td></tr>
             <tr><td>Sudah Dibayar</td><td>${f(totalDibayarJamaah)}</td></tr>
             <tr><td>Total Modal (estimasi)</td><td>${f(totalModalAktual)}</td></tr>
-            <tr class="lap-total"><td>PROFIT AKTUAL (Kontrak − Modal Estimasi)</td><td>${f(profitAktual)}</td></tr></table></div>`;
+            <tr class="lap-total"><td>PROYEKSI LABA (Kontrak − Modal Estimasi)</td><td>${f(profitAktual)}</td></tr></table></div>`;
     } else if(isHajiReguler()) {
         // Haji Reguler dengan Komponen — pecah per Jenis (Bimbingan, Touring/Ziarah, dst)
         const komponenList = ensureKomponenHaji();
@@ -14847,7 +14878,7 @@ function cetakLaporanPenutupanMusim() {
             <table class="lap-table"><thead><tr><th>Jenis</th><th>Target</th><th>Sudah Dibayar</th><th>Sisa</th></tr></thead><tbody>${rowsKomponen}</tbody></table>
             <table class="lap-table"><tr class="lap-total"><td>TOTAL TERKUMPUL</td><td>${f(totalDibayarSemua)}</td></tr>
             <tr class="lap-total" style="color:${(totalTargetSemua-totalDibayarSemua)>0?'#DC2626':'#166534'};"><td>TOTAL SISA</td><td>${f(totalTargetSemua - totalDibayarSemua)}</td></tr></table>
-            <p class="lap-note">Program ini tidak memakai Estimasi/Modal (khas Haji Reguler) — angka di atas BUKAN Profit, lihat Profit sungguhan di "PROFIT RIIL" dan "Layanan Tambahan" di bawah.</p></div>`;
+            <p class="lap-note">Program ini tidak memakai Estimasi/Modal (khas Haji Reguler) — angka di atas BUKAN Laba, lihat "LABA BERSIH (Realisasi)" dan "Layanan Tambahan" di bawah.</p></div>`;
     } else {
         // Fallback untuk Program tanpa Estimasi yang BUKAN Haji Reguler (edge case jarang terjadi)
         sectionRekap = `<div class="lap-section"><h2>📋 Rekap Biaya Terkumpul</h2>
@@ -14857,12 +14888,12 @@ function cetakLaporanPenutupanMusim() {
             <p class="lap-note">Program ini tidak memakai Estimasi/Modal — angka di atas BUKAN Profit.</p></div>`;
     }
 
-    // 1b. Pengeluaran Sungguhan + PROFIT RIIL (bottom-line paling akurat) — Haji Reguler baca dari KAS, Umroh/Haji Khusus tetap baca dari Pengeluaran (Cuan Plan)
+    // 1b. Realisasi Pengeluaran + LABA BERSIH (Realisasi) — Haji Reguler baca dari KAS, Umroh/Haji Khusus tetap baca dari Pengeluaran (Cuan Plan)
     let totalPengeluaran = 0, rowsPengeluaran = '';
     if(isHajiReguler()) {
         const kasKeluar = dataKas.filter(k => k.tipe === 'keluar' && k.program_id === currentProgramId);
         totalPengeluaran = kasKeluar.reduce((s,k) => s + (parseInt(k.nom)||0), 0);
-        rowsPengeluaran = kasKeluar.map(k => `<tr><td>${escapeHtml(k.ket)} <span style="color:#888;font-size:11px;">(${k.tgl})</span></td><td>-${f(k.nom)}</td></tr>`).join('');
+        rowsPengeluaran = kasKeluar.map(k => `<tr><td>${escapeHtml(k.ket)} <span style="color:#888;font-size:11px;">(${k.tgl})</span></td><td>${fKurang(k.nom)}</td></tr>`).join('');
     } else {
         const pengeluaranPerKategori = {};
         pengeluaranList.forEach(p => {
@@ -14870,16 +14901,16 @@ function cetakLaporanPenutupanMusim() {
             pengeluaranPerKategori[kat] = (pengeluaranPerKategori[kat] || 0) + (parseInt(p.nominal)||0);
             totalPengeluaran += (parseInt(p.nominal)||0);
         });
-        rowsPengeluaran = Object.keys(pengeluaranPerKategori).map(k => `<tr><td>${escapeHtml(k)}</td><td>-${f(pengeluaranPerKategori[k])}</td></tr>`).join('');
+        rowsPengeluaran = Object.keys(pengeluaranPerKategori).map(k => `<tr><td>${escapeHtml(k)}</td><td>${fKurang(pengeluaranPerKategori[k])}</td></tr>`).join('');
     }
     const profitRiil = totalDibayarJamaah - totalPengeluaran;
-    let sectionPengeluaran = `<div class="lap-section"><h2>💸 Pengeluaran Sungguhan${isHajiReguler() ? ' (dari Kas)' : ''}</h2>
+    let sectionPengeluaran = `<div class="lap-section"><h2>💸 Realisasi Pengeluaran${isHajiReguler() ? ' (dari Kas)' : ''}</h2>
         <table class="lap-table">${rowsPengeluaran || '<tr><td colspan="2" style="color:#888;">Belum ada Pengeluaran tercatat</td></tr>'}
-        <tr class="lap-total"><td>TOTAL PENGELUARAN</td><td>-${f(totalPengeluaran)}</td></tr></table>
+        <tr class="lap-total"><td>TOTAL PENGELUARAN</td><td>${fKurang(totalPengeluaran)}</td></tr></table>
         <table class="lap-table" style="margin-top:10px;">
         <tr><td>Total Pemasukan Jamaah (Sudah Dibayar)</td><td>${f(totalDibayarJamaah)}</td></tr>
-        <tr><td>Total Pengeluaran</td><td>-${f(totalPengeluaran)}</td></tr>
-        <tr class="lap-total" style="color:${profitRiil<0?'#DC2626':'#166534'};"><td>PROFIT RIIL (bottom-line sungguhan)</td><td>${f(profitRiil)}</td></tr></table></div>`;
+        <tr><td>Total Pengeluaran</td><td>${fKurang(totalPengeluaran)}</td></tr>
+        <tr class="lap-total" style="color:${profitRiil<0?'#DC2626':'#166534'};"><td>LABA BERSIH (Realisasi)</td><td>${f(profitRiil)}</td></tr></table></div>`;
 
     // 2. Analisis Buffer B2C
     let sectionBufferB2C = '';
@@ -16903,7 +16934,8 @@ async function confirmDeleteAllJamaahKita() {
     }
 }
 
-loadJamaahKitaData();
+// (Panggilan loadJamaahKitaData() di sini dihapus: terlalu dini — STORE_JAMAAH_KITA baru dideklarasikan jauh di bawah sehingga selalu error.
+//  Pemuatan data yang benar sudah dilakukan di rangkaian startup, setelah database terbuka dan Program dimuat.)
 // ==================== ZAKAT ====================
 let sumberHartaList=[], lastZakatText='';
 
@@ -18209,7 +18241,7 @@ function renderJadwalCicilanModal(jamaahId, modalEl) {
 
     modalEl.innerHTML = `<div class="modal-content" style="max-width:420px;">
         <h3 style="color:var(--primary);margin-bottom:4px;">📅 Jadwal Cicilan</h3>
-        <div style="font-size:12px;color:#888;margin-bottom:12px;">${escapeHtml(j.nama_lengkap)} — status otomatis mengikuti data Pembayaran sungguhan</div>
+        <div style="font-size:12px;color:#888;margin-bottom:12px;">${escapeHtml(j.nama_lengkap)} — status otomatis mengikuti data Pembayaran</div>
         <div id="cicilanPeringatanTotal" style="${peringatanTotal ? '' : 'display:none;'}background:#FEF3C7;border:1px solid #F59E0B;border-radius:8px;padding:8px 10px;font-size:11px;color:#92400E;margin-bottom:10px;">${peringatanTotal}</div>
         <div id="cicilanRowsContainer" style="max-height:320px;overflow-y:auto;">${rows || '<p style="color:#6B7280;text-align:center;padding:14px;font-size:12px;">Belum ada Termin</p>'}</div>
         <button onclick="tambahTerminCicilan('${jamaahId}')" style="width:100%;padding:10px;background:#E0F2FE;color:#0369A1;border:none;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;margin-top:8px;">+ Tambah Termin</button>
@@ -20366,7 +20398,7 @@ function openIndexedDB() {
 // dengan build baru, data MENTAH (langsung dari IndexedDB, bukan dari memori) disalin dulu sebelum
 // proses migrasi apapun berjalan — supaya kalau ada kesalahan di update, data lama masih bisa dipulihkan.
 // Dokumen & foto tidak ikut disalin (ukurannya besar, dan tidak pernah disentuh proses migrasi).
-const NAVARA_BUILD = '2026.09.21-27';
+const NAVARA_BUILD = '2026.10.01-37';
 const MAKS_SNAPSHOT = 3;
 
 function daftarKunciSnapshot() {
@@ -20433,9 +20465,89 @@ async function renderDaftarSnapshot() {
                 <div style="font-weight:700;color:var(--primary);">${tgl}</div>
                 <div style="color:#666;">${escapeHtml(s.alasan)} · ${s.jumlahJamaah} jamaah</div>
             </div>
-            <button onclick="pulihkanSnapshot(${i})" style="background:#F59E0B;color:#fff;border:none;border-radius:8px;padding:6px 10px;font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap;">Pulihkan</button>
+            <div style="display:flex;gap:6px;">
+                <button onclick="lihatSnapshot(${i})" style="background:#E0F2FE;color:#0369A1;border:none;border-radius:8px;padding:6px 10px;font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap;">👁️ Lihat</button>
+                <button onclick="pulihkanSnapshot(${i})" style="background:#F59E0B;color:#fff;border:none;border-radius:8px;padding:6px 10px;font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap;">Pulihkan</button>
+            </div>
         </div>`;
     }).join('');
+}
+
+// ==================== LIHAT CADANGAN (hanya-baca) ====================
+// Membuka isi Cadangan Otomatis untuk dibandingkan dengan data sekarang. TIDAK mengubah data apa pun
+// (tidak ada idbSet / idbDelete / location.reload di fungsi ini).
+const RINGKASAN_SNAPSHOT = [
+    { label: 'Program',            kunci: STORE_PROGRAM + '|program_list' },
+    { label: 'Jamaah',             kunci: STORE_JAMAAH + '|jamaah_list',        nama: true },
+    { label: 'Jamaah on proses',   kunci: STORE_JAMAAH_KITA + '|kita_list',     nama: true },
+    { label: 'Pembayaran',         kunci: STORE_PEMBAYARAN + '|pembayaran_list' },
+    { label: 'Kas',                kunci: STORE_KAS + '|kas_data' },
+    { label: 'Pengeluaran',        kunci: STORE_PENGELUARAN + '|pengeluaran_data' },
+    { label: 'Catatan',            kunci: STORE_CATATAN + '|catatan_list' },
+    { label: 'Agenda Kantor',      kunci: STORE_CATATAN + '|agenda_kantor_list' },
+    { label: 'Kalender Pejabat',   kunci: STORE_CATATAN + '|pejabat_list' },
+    { label: 'Buku Pinjaman (transaksi)', kunci: STORE_CATATAN + '|pinjaman_data', transaksi: true },
+    { label: 'Prospek',            kunci: STORE_PROSPEK + '|prospek_list' },
+];
+
+function daftarDariIsi(nilai, cfg) {
+    if (cfg.transaksi) return (nilai && Array.isArray(nilai.transaksi)) ? nilai.transaksi : [];
+    return Array.isArray(nilai) ? nilai : [];
+}
+
+async function lihatSnapshot(idx) {
+    const daftar = (await idbGet(STORE_MASTER, 'snapshot_pra_update')) || [];
+    const snap = daftar[idx];
+    if (!snap) return showToast('Cadangan tidak ditemukan');
+
+    let baris = '', blokNama = '';
+    for (const cfg of RINGKASAN_SNAPSHOT) {
+        const [store, key] = cfg.kunci.split('|');
+        const lamaList = daftarDariIsi(snap.isi ? snap.isi[cfg.kunci] : null, cfg);
+        const kiniList = daftarDariIsi(await idbGet(store, key), cfg);
+        const selisih = kiniList.length - lamaList.length;
+        const tanda = selisih === 0 ? '<span style="color:#16A34A;">sama</span>'
+            : `<span style="color:${selisih < 0 ? '#DC2626' : '#D97706'};font-weight:700;">${selisih > 0 ? '+' : ''}${selisih}</span>`;
+        baris += `<tr><td style="padding:7px 4px;border-bottom:1px solid #eef2f1;">${escapeHtml(cfg.label)}</td>
+            <td style="padding:7px 4px;border-bottom:1px solid #eef2f1;text-align:right;">${lamaList.length}</td>
+            <td style="padding:7px 4px;border-bottom:1px solid #eef2f1;text-align:right;">${kiniList.length}</td>
+            <td style="padding:7px 4px;border-bottom:1px solid #eef2f1;text-align:right;">${tanda}</td></tr>`;
+
+        if (cfg.nama) {
+            const idKini = new Set(kiniList.map(x => String(x.id)));
+            const idLama = new Set(lamaList.map(x => String(x.id)));
+            const hilang = lamaList.filter(x => !idKini.has(String(x.id)));
+            const baru = kiniList.filter(x => !idLama.has(String(x.id)));
+            const tampil = (arr) => arr.slice(0, 40).map(x => escapeHtml(x.nama_lengkap || '(tanpa nama)')).join(', ') + (arr.length > 40 ? ` … dan ${arr.length - 40} lainnya` : '');
+            if (hilang.length || baru.length) {
+                blokNama += `<div style="margin-top:10px;font-weight:700;font-size:12px;color:var(--primary);">${escapeHtml(cfg.label)}</div>`;
+                if (hilang.length) blokNama += `<div style="font-size:11px;background:#FEE2E2;border-radius:8px;padding:8px;margin-top:4px;color:#991B1B;"><b>Ada di cadangan, tidak ada sekarang (${hilang.length}):</b><br>${tampil(hilang)}</div>`;
+                if (baru.length) blokNama += `<div style="font-size:11px;background:#FEF3C7;border-radius:8px;padding:8px;margin-top:4px;color:#92400E;"><b>Baru sejak cadangan (${baru.length}):</b><br>${tampil(baru)}</div>`;
+            }
+        }
+    }
+    if (!blokNama) blokNama = '<div style="font-size:12px;color:#166534;background:#F0FDF4;border-radius:8px;padding:10px;margin-top:10px;">✅ Daftar nama Jamaah dan Jamaah on proses sama persis dengan cadangan ini.</div>';
+
+    const tgl = new Date(snap.waktu).toLocaleString('id-ID', { day:'numeric', month:'long', year:'numeric', hour:'2-digit', minute:'2-digit' });
+    let modal = document.getElementById('lihatSnapshotModal');
+    if (!modal) {
+        modal = document.createElement('div');
+        modal.id = 'lihatSnapshotModal';
+        modal.className = 'modal';
+        document.body.appendChild(modal);
+    }
+    modal.innerHTML = `<div class="modal-content" style="max-width:440px;">
+        <h3 style="color:var(--primary);margin-bottom:4px;">👁️ Isi Cadangan</h3>
+        <div style="font-size:12px;color:#666;margin-bottom:10px;">${tgl} · ${escapeHtml(snap.alasan || '')}<br>Hanya untuk dilihat — tidak mengubah data sedikit pun.</div>
+        <table style="width:100%;border-collapse:collapse;font-size:12px;">
+            <thead><tr style="color:#888;font-size:11px;"><th style="text-align:left;padding:4px;">Data</th><th style="text-align:right;padding:4px;">Cadangan</th><th style="text-align:right;padding:4px;">Sekarang</th><th style="text-align:right;padding:4px;">Selisih</th></tr></thead>
+            <tbody>${baris}</tbody>
+        </table>
+        ${blokNama}
+        <div style="font-size:10px;color:#888;margin-top:10px;">Foto dan dokumen tidak ikut cadangan otomatis, jadi tidak ditampilkan.</div>
+        <button onclick="document.getElementById('lihatSnapshotModal').style.display='none'" style="width:100%;padding:11px;background:#e2e8f0;color:#333;border:none;border-radius:10px;font-size:13px;cursor:pointer;margin-top:12px;">Tutup</button>
+    </div>`;
+    modal.style.display = 'flex';
 }
 
 async function pulihkanSnapshot(idx) {
