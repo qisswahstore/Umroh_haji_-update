@@ -156,6 +156,11 @@
             color: #E2E2E2;
             border-color: #3D3D4D;
         }
+        body.bukan-pemilik .khusus-pemilik { display: none !important; }
+        .khusus-staf { display: none !important; }
+        body.bukan-pemilik .khusus-staf { display: inline-block !important; }
+        body.dark-mode #homeAksesSementaraCard { background: #3B3220 !important; border-color: #B45309 !important; }
+        body.dark-mode #homeAksesSementaraCard div { color: #FCD34D !important; }
         body.dark-mode .home-ringkasan-card { background: #2A2A3A !important; }
         body.dark-mode .home-ringkasan-card .hr-judul { color: #E2E2E2 !important; }
         body.dark-mode .home-ringkasan-card .hr-hijau { color: #34D399 !important; }
@@ -1996,6 +2001,7 @@
                 <button id="darkModeToggle" class="dark-mode-toggle">🌙</button>
                 <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px;">
                     <a href="#" id="adminModeToggleBtn" class="admin-toggle-link" onclick="event.preventDefault(); toggleAdminMode();"><i class="fas fa-shield-alt"></i> Mode Admin</a>
+                    <a href="#" id="mintaAksesBtn" class="admin-toggle-link khusus-staf" onclick="event.preventDefault(); bukaFormMintaAkses();">🔓 Minta Akses</a>
                     <a href="#" id="perpanjangBtn" onclick="showPage('lisensi');return false;" style="display:none;font-size:11px;color:#f59e0b;font-weight:bold;text-decoration:none;">⏰ Perpanjang</a>
                 </div>
             </div>
@@ -2055,6 +2061,18 @@
             </div>
         </div>
 
+        <!-- Akses sementara yang sedang dipinjam staf -->
+        <div id="homeAksesSementaraCard" style="display:none;background:#FEF3C7;border:1px solid #F59E0B;border-radius:14px;padding:10px 14px;margin-bottom:10px;">
+            <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;">
+                <div style="min-width:0;">
+                    <div style="font-size:12px;font-weight:800;color:#92400E;">🔓 Akses sementara aktif</div>
+                    <div id="homeAksesSementaraIsi" style="font-size:11px;color:#78350F;margin-top:2px;"></div>
+                    <div id="homeAksesSementaraWaktu" style="font-size:11px;color:#92400E;font-weight:700;margin-top:2px;"></div>
+                </div>
+                <button onclick="akhiriAksesSementaraSaya()" style="flex-shrink:0;padding:6px 12px;background:#F59E0B;color:#fff;border:none;border-radius:8px;font-size:11px;font-weight:700;cursor:pointer;">Selesai</button>
+            </div>
+        </div>
+
         <!-- Checklist Program Baru (belum lengkap setup-nya) -->
         <!-- Widget Ringkasan "Kerjaan Hari Ini" -->
         <div id="homeSummaryBar" onclick="toggleHomeSummaryDetail()" style="display:none;background:#F8FAFC;border:1px solid #cbd5e1;border-radius:14px;padding:12px 14px;margin-bottom:12px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;">
@@ -2074,7 +2092,7 @@
         </div>
 
         <!-- Peringatan Backup -->
-        <div id="homeBackupWarningCard" class="kartu-berdenyut" style="display:none;background:#FEE2E2;border:1px solid #EF4444;border-radius:14px;padding:12px 14px;margin-bottom:12px;">
+        <div id="homeBackupWarningCard" class="kartu-berdenyut khusus-pemilik" style="display:none;background:#FEE2E2;border:1px solid #EF4444;border-radius:14px;padding:12px 14px;margin-bottom:12px;">
             <div style="display:flex;justify-content:space-between;align-items:center;">
                 <div style="font-weight:700;font-size:13px;color:#991B1B;">💾 <span id="homeBackupWarningText">Belum pernah backup</span></div>
                 <button onclick="showPage('cloudstorage')" style="background:#EF4444;color:#fff;border:none;border-radius:8px;padding:6px 12px;font-size:11px;font-weight:700;cursor:pointer;">Backup Sekarang</button>
@@ -3377,7 +3395,7 @@
             <div class="config-row"><label>Template Laporan Kas</label><textarea id="cfg_wa_laporan" rows="3" placeholder=" *LAPORAN KAS KANTOR*\n\n Saldo: [saldo]\n Pemasukan: [masuk]\n Pengeluaran: [keluar]\n\nTerima kasih."></textarea><div class="template-variables">Variabel: <code>[saldo]</code> <code>[masuk]</code> <code>[keluar]</code></div></div>
         </div>
         <div class="row"><button class="btn btn-primary" onclick="saveKonfigurasiPro()" style="flex:2;"><i class="fas fa-save"></i> SIMPAN KONFIGURASI</button><button class="btn btn-danger" onclick="resetKonfigurasiPro()" style="flex:1;"><i class="fas fa-undo-alt"></i> Reset</button></div>
-        <div style="text-align:center;margin-top:12px;"><a href="#" onclick="showPage('cloudstorage');return false;" style="font-size:12px;font-weight:700;color:var(--primary);">💾 Backup, restore &amp; salin pengaturan ada di Backup &amp; Restore →</a></div>
+        <div class="khusus-pemilik" style="text-align:center;margin-top:12px;"><a href="#" onclick="showPage('cloudstorage');return false;" style="font-size:12px;font-weight:700;color:var(--primary);">💾 Backup, restore &amp; salin pengaturan ada di Backup &amp; Restore →</a></div>
     </div>
 </div>
 
@@ -5160,7 +5178,38 @@ const MODUL_BISA_DIKUNCI = ['estimasi','kas','jamaah','jamaahkita','catatan','za
 
 // Admin Utama & admin tanpa Peran (atau Peran yang belum diatur modulnya) = akses semua modul.
 // Ini menjaga supaya siapapun yang sudah ada SEBELUM fitur ini tidak mendadak kehilangan akses.
-function cekIzinModul(pageId) {
+// Halaman yang TIDAK PERNAH bisa diberikan lewat Peran (dan tidak bisa dipinjamkan): hanya Admin Utama
+// atau admin lama yang belum dipasangi Peran (akses penuh, seperti aturan sebelumnya).
+const MODUL_HANYA_PEMILIK = ['cloudstorage'];
+
+function adalahAdminPenuh() {
+    if (currentAdminIsPemilik) return true;
+    const admin = getAdminList().find(a => a.nama === currentAdminNama);
+    if (!admin || !admin.peranId) return true;
+    return !getPeranList().find(p => p.id === admin.peranId);
+}
+
+// Izin per fitur di Menu Lengkap. Peran baru memakai daftar centang (peran.fiturAllowed). Peran lama yang belum
+// punya daftar itu mengikuti izin "Menu Lengkap" seperti dulu (semua fitur atau tidak sama sekali).
+function cekIzinFiturDasar(id) {
+    if (currentAdminIsPemilik) return true;
+    if (id === 'cloudstorage') return adalahAdminPenuh();
+    const admin = getAdminList().find(a => a.nama === currentAdminNama);
+    if (!admin || !admin.peranId) return true;
+    const peran = getPeranList().find(p => p.id === admin.peranId);
+    if (!peran) return true;
+    if (id === 'pinjaman') return cekIzinModul('pinjaman') && cekIzinModul('fitur'); // Buku Pinjaman punya izin sendiri
+    if (Array.isArray(peran.fiturAllowed)) return peran.fiturAllowed.includes(id);
+    return !peran.modulAllowed || peran.modulAllowed.includes('fitur');
+}
+
+function cekIzinModulDasar(pageId) {
+    if (MODUL_HANYA_PEMILIK.includes(pageId)) return adalahAdminPenuh();
+    // Halaman fitur di Menu Lengkap: ikut izin per fitur (Buku Pinjaman punya izin modul sendiri di bawah)
+    try {
+        const fiturItem = pageId !== 'pinjaman' ? FITUR_LENGKAP.find(f => f.halaman === pageId) : null;
+        if (fiturItem && !cekIzinFitur(fiturItem.id)) return false;
+    } catch (e) { /* FITUR_LENGKAP belum siap (sangat awal saat startup) — abaikan, dicek lagi saat dipakai */ }
     if (!MODUL_BISA_DIKUNCI.includes(pageId)) return true; // halaman di luar daftar (home, setting, dll) selalu boleh
     if (currentAdminIsPemilik) return true;
     const admin = getAdminList().find(a => a.nama === currentAdminNama);
@@ -5173,13 +5222,345 @@ function cekIzinModul(pageId) {
 // Admin Utama SELALU penuh (tidak bisa dibatasi). Admin biasa yang belum dipasangkan Peran
 // juga dianggap akses penuh — supaya admin yang sudah ada sebelum fitur ini tidak mendadak
 // terkunci. Pembatasan hanya berlaku kalau Admin Utama secara sadar memasangkan sebuah Peran.
-function cekIzinAdmin(key) {
+function cekIzinAdminDasar(key) {
     if (currentAdminIsPemilik) return true;
     const admin = getAdminList().find(a => a.nama === currentAdminNama);
     if (!admin || !admin.peranId) return true;
     const peran = getPeranList().find(p => p.id === admin.peranId);
     if (!peran) return true;
     return !!peran[key];
+}
+
+// ==================== AKSES SEMENTARA (pinjam izin dengan batas waktu) ====================
+// Staf berperan boleh meminta izin TAMBAHAN untuk waktu terbatas. Yang menyetujui HANYA Admin Utama
+// (PIN-nya diketik di perangkat ini). Peran asli staf tidak berubah; izin pinjaman hangus sendiri saat waktunya habis.
+const LABEL_MODUL = { estimasi:'Cuan Plan', kas:'Uang Kas', jamaah:'Database Jamaah', jamaahkita:'Jamaah on Proses', catatan:'Catatan', zakat:'Zakat', pembayaran:'Pembayaran', datamaster:'Multi Event', konfigurasi:'Konfigurasi', pinjaman:'Buku Pinjaman', fitur:'Menu Lengkap' };
+// Yang BOLEH dipinjamkan. Konfigurasi, Buku Pinjaman, dan Backup & Restore tidak pernah bisa dipinjamkan.
+const MODUL_BISA_DIPINJAM = ['estimasi','kas','jamaah','jamaahkita','catatan','zakat','pembayaran','datamaster'];
+const KUNCI_WAKTU_TERAKHIR = 'navara_waktu_terakhir';
+let _waktuTerakhirDisimpan = 0;
+let _permintaanAksesTertunda = null;
+let _aksesSalahPIN = 0;
+const _aksesPeringatanDikirim = {};
+
+function getAksesSementaraList() { return Array.isArray(konfigurasiPro.akses_sementara) ? konfigurasiPro.akses_sementara : []; }
+function simpanAksesSementaraList(list) {
+    konfigurasiPro.akses_sementara = list.slice(0, 100);
+    localStorage.setItem('navara_konfigurasi_pro', JSON.stringify(konfigurasiPro));
+    idbSet(STORE_KONFIGURASI, 'konfigurasi_pro', konfigurasiPro);
+}
+
+// Jam yang dipercaya: kalau jam perangkat tiba-tiba MUNDUR (cara memperpanjang akses), semua akses sementara langsung hangus.
+function waktuAmanSekarang() {
+    const now = Date.now();
+    const last = Number(localStorage.getItem(KUNCI_WAKTU_TERAKHIR) || 0);
+    if (last && now + 120000 < last) {
+        localStorage.setItem(KUNCI_WAKTU_TERAKHIR, String(now)); _waktuTerakhirDisimpan = now;
+        hanguskanSemuaAksesSementara('Jam perangkat dimundurkan');
+        return now;
+    }
+    if (now - _waktuTerakhirDisimpan > 15000) { localStorage.setItem(KUNCI_WAKTU_TERAKHIR, String(Math.max(now, last))); _waktuTerakhirDisimpan = now; }
+    return now;
+}
+
+function hanguskanSemuaAksesSementara(alasan) {
+    const now = Date.now();
+    const list = getAksesSementaraList();
+    let berubah = false;
+    list.forEach(g => { if (!g.dicabut && !g.selesai && Date.parse(g.sampai) > now) { g.dicabut = true; g.alasanCabut = alasan; g.dicabutOleh = 'sistem'; berubah = true; } });
+    if (berubah) simpanAksesSementaraList(list);
+}
+
+function aksesSementaraAktif(nama) {
+    const now = waktuAmanSekarang();
+    const n = nama || currentAdminNama;
+    return getAksesSementaraList().filter(g => !g.dicabut && g.admin === n && now < Date.parse(g.sampai));
+}
+
+// jenis: 'modul' | 'fitur' | 'hapus'. Backup & Restore, Konfigurasi, dan Buku Pinjaman tidak pernah lolos di sini.
+function cekIzinSementara(jenis, id) {
+    try {
+        if (adalahAdminPenuh()) return false;
+        const aktif = aksesSementaraAktif();
+        if (!aktif.length) return false;
+        if (jenis === 'hapus') return aktif.some(g => g.bolehHapus);
+        if (jenis === 'fitur') return !FITUR_TIDAK_BISA_DICENTANG.includes(id) && aktif.some(g => (g.fitur || []).includes(id));
+        if (jenis === 'modul') {
+            if (id === 'fitur') return aktif.some(g => (g.fitur || []).length > 0);
+            return MODUL_BISA_DIPINJAM.includes(id) && aktif.some(g => (g.modul || []).includes(id));
+        }
+    } catch (e) { /* belum siap saat startup awal — anggap tidak ada akses sementara */ }
+    return false;
+}
+
+function cekIzinModul(pageId) { return cekIzinModulDasar(pageId) || cekIzinSementara('modul', pageId); }
+function cekIzinFitur(id) { return cekIzinFiturDasar(id) || cekIzinSementara('fitur', id); }
+function cekIzinAdmin(key) { return cekIzinAdminDasar(key) || (key === 'bolehHapus' && cekIzinSementara('hapus')); }
+
+function ringkasanIsiAkses(g) {
+    const labelFitur = id => (FITUR_LENGKAP.find(f => f.id === id) || {}).label || id;
+    return [...(g.modul || []).map(m => LABEL_MODUL[m] || m), ...(g.fitur || []).map(labelFitur)];
+}
+function formatJamAkses(t) { return new Date(t).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }); }
+function formatSisaAkses(ms) {
+    const menit = Math.max(1, Math.ceil(ms / 60000));
+    return menit >= 60 ? `${Math.floor(menit / 60)} j ${menit % 60} m` : `${menit} m`;
+}
+
+// ---------- Banner di Home untuk staf yang sedang meminjam ----------
+function perbaruiBannerAksesSementara() {
+    const el = document.getElementById('homeAksesSementaraCard');
+    if (!el) return;
+    const aktif = adalahAdminPenuh() ? [] : aksesSementaraAktif();
+    if (!aktif.length) { el.style.display = 'none'; return; }
+    const sampai = Math.max(...aktif.map(g => Date.parse(g.sampai)));
+    const isi = [...new Set(aktif.flatMap(ringkasanIsiAkses))];
+    el.style.display = 'block';
+    document.getElementById('homeAksesSementaraIsi').textContent = isi.join(', ');
+    document.getElementById('homeAksesSementaraWaktu').textContent = `sampai ${formatJamAkses(sampai)} · sisa ${formatSisaAkses(sampai - Date.now())}`;
+}
+
+function segarkanTampilanSetelahAksesBerubah() {
+    renderMenuPremium();
+    if (typeof renderSemuaMenu === 'function') renderSemuaMenu();
+    perbaruiBannerAksesSementara();
+    // Kalau halaman yang sedang dibuka tidak lagi diizinkan, kembali ke Home
+    const aktifId = (document.querySelector('.page.active')?.id || '').replace(/^page-/, '');
+    if (aktifId && aktifId !== 'home' && !cekIzinModul(aktifId)) internalShowPage('home');
+}
+
+// Dipanggil tiap 30 detik: tandai yang habis, kirim peringatan 5 menit, dan cabut akses dari layar
+function prosesAksesSementara() {
+    try {
+        const now = waktuAmanSekarang();
+        const list = getAksesSementaraList();
+        let berubah = false, milikSaya = false;
+        list.forEach(g => {
+            if (g.dicabut || g.selesai) return;
+            const sampai = Date.parse(g.sampai);
+            if (now >= sampai) {
+                g.selesai = true; berubah = true;
+                if (g.admin === currentAdminNama) milikSaya = true;
+                catatAktivitas('🔒', `Akses sementara ${g.admin} berakhir (${ringkasanIsiAkses(g).join(', ')})`);
+            } else if (g.admin === currentAdminNama && sampai - now <= 5 * 60000 && !_aksesPeringatanDikirim[g.id]) {
+                _aksesPeringatanDikirim[g.id] = true;
+                showToast('⏳ Akses sementara tinggal sekitar 5 menit. Selesaikan pekerjaan Anda.');
+            }
+        });
+        if (berubah) simpanAksesSementaraList(list);
+        if (milikSaya) { showToast('🔒 Akses sementara berakhir. Kembali ke akses semula.'); segarkanTampilanSetelahAksesBerubah(); }
+        else perbaruiBannerAksesSementara();
+    } catch (e) { /* abaikan */ }
+}
+setInterval(prosesAksesSementara, 30000);
+document.addEventListener('visibilitychange', () => { if (!document.hidden) prosesAksesSementara(); });
+
+function akhiriAksesSementaraSaya() {
+    konfirmasiBertema('Akhiri akses sementara?', 'Anda akan kembali ke akses semula sekarang juga.', () => {
+        const list = getAksesSementaraList();
+        list.forEach(g => { if (!g.dicabut && !g.selesai && g.admin === currentAdminNama) { g.dicabut = true; g.dicabutOleh = currentAdminNama; g.alasanCabut = 'Diakhiri sendiri oleh pemohon'; } });
+        simpanAksesSementaraList(list);
+        catatAktivitas('🔒', `Akses sementara ${currentAdminNama} diakhiri sendiri`);
+        segarkanTampilanSetelahAksesBerubah();
+    });
+}
+
+// ---------- Peran yang dipinjam → daftar modul & fitur yang jelas (dibekukan saat disetujui) ----------
+function resolvePeranUntukPinjam(peranId) {
+    const p = getPeranList().find(x => x.id === peranId);
+    if (!p) return { modul: [], fitur: [], nama: '' };
+    const modul = (p.modulAllowed || MODUL_BISA_DIPINJAM).filter(m => MODUL_BISA_DIPINJAM.includes(m));
+    let fitur = [];
+    if (Array.isArray(p.fiturAllowed)) fitur = p.fiturAllowed.filter(id => !FITUR_TIDAK_BISA_DICENTANG.includes(id));
+    else if (!p.modulAllowed || p.modulAllowed.includes('fitur')) fitur = FITUR_LENGKAP.filter(f => !FITUR_TIDAK_BISA_DICENTANG.includes(f.id)).map(f => f.id);
+    return { modul, fitur, nama: p.nama };
+}
+
+function bukaModalAkses(id) {
+    let modal = document.getElementById(id);
+    if (!modal) { modal = document.createElement('div'); modal.id = id; modal.className = 'modal'; document.body.appendChild(modal); }
+    return modal;
+}
+
+// ---------- Langkah 1: formulir permintaan (sisi staf) ----------
+function bukaFormMintaAkses() {
+    if (adalahAdminPenuh()) return showToast('Akun Anda sudah punya akses penuh');
+    const modulBisa = MODUL_BISA_DIPINJAM.filter(m => !cekIzinModulDasar(m));
+    const fiturBisa = FITUR_LENGKAP.filter(f => !FITUR_TIDAK_BISA_DICENTANG.includes(f.id) && !cekIzinFiturDasar(f.id));
+    const adaSaya = getAdminList().find(a => a.nama === currentAdminNama);
+    const peranLain = getPeranList().filter(p => !adaSaya || p.id !== adaSaya.peranId);
+    if (!modulBisa.length && !fiturBisa.length) return showToast('Tidak ada lagi yang bisa dipinjam');
+
+    const cbModul = modulBisa.map(m => `<label style="display:flex;align-items:center;gap:8px;font-size:12px;margin-bottom:5px;cursor:pointer;"><input type="checkbox" class="aksesModulCb" value="${m}" style="width:16px;height:16px;"> ${escapeHtml(LABEL_MODUL[m])}</label>`).join('');
+    const cbFitur = KELOMPOK_MENU.map(k => {
+        const items = fiturBisa.filter(f => f.kelompok === k.id);
+        if (!items.length) return '';
+        return `<div style="font-size:11px;font-weight:700;color:var(--primary);margin:6px 0 3px;">${escapeHtml(k.judul)}</div>` + items.map(f => `<label style="display:flex;align-items:center;gap:8px;font-size:12px;margin-bottom:4px;cursor:pointer;"><input type="checkbox" class="aksesFiturCb" value="${escapeHtml(f.id)}" style="width:16px;height:16px;"> ${escapeHtml(f.label)}${FITUR_SENSITIF.includes(f.id) ? ' 🔒' : ''}</label>`).join('');
+    }).join('');
+    const opsiPeran = peranLain.map(p => `<option value="${p.id}">${escapeHtml(p.nama)}</option>`).join('');
+    const d = new Date(); d.setHours(23, 59, 0, 0);
+    const menitSampaiMalam = Math.floor((d.getTime() - Date.now()) / 60000);
+    const namaAdmin = getAdminList().filter(a => a.nama !== currentAdminNama).map(a => `<option value="${escapeHtml(a.nama)}">`).join('');
+
+    const modal = bukaModalAkses('mintaAksesModal');
+    modal.innerHTML = `<div class="modal-content" style="max-width:420px;">
+        <h3 style="color:var(--primary);margin-bottom:4px;">🔓 Minta Akses Sementara</h3>
+        <div style="font-size:11px;color:#888;margin-bottom:10px;">Izin ini tambahan, berlaku sebentar, lalu kembali sendiri. Yang menyetujui hanya Admin Utama.</div>
+        <div style="display:flex;gap:6px;margin-bottom:8px;">
+            <button type="button" id="aksesModePilih" onclick="ubahModeMintaAkses('pilih')" style="flex:1;padding:8px;font-size:12px;font-weight:700;border-radius:8px;border:1.5px solid var(--primary);background:var(--primary);color:#fff;cursor:pointer;">Pilih sendiri</button>
+            <button type="button" id="aksesModePeran" onclick="ubahModeMintaAkses('peran')" ${peranLain.length ? '' : 'disabled'} style="flex:1;padding:8px;font-size:12px;font-weight:700;border-radius:8px;border:1.5px solid var(--primary);background:#fff;color:var(--primary);cursor:pointer;${peranLain.length ? '' : 'opacity:.4;'}">Pinjam Peran</button>
+        </div>
+        <input type="hidden" id="aksesModeNilai" value="pilih">
+        <div id="aksesAreaPilih">
+            ${modulBisa.length ? `<div style="font-size:11px;font-weight:700;color:#555;margin-bottom:4px;">Halaman:</div><div style="background:#fff;border-radius:8px;padding:8px;border:1px solid #e2e8f0;margin-bottom:8px;">${cbModul}</div>` : ''}
+            ${fiturBisa.length ? `<div style="font-size:11px;font-weight:700;color:#555;margin-bottom:2px;">Fitur Menu Lengkap:</div><div style="font-size:10px;color:#888;margin-bottom:4px;">🔒 = memperlihatkan laba/omzet</div><div style="max-height:200px;overflow-y:auto;background:#fff;border-radius:8px;padding:8px;border:1px solid #e2e8f0;">${cbFitur}</div>` : ''}
+        </div>
+        <div id="aksesAreaPeran" style="display:none;">
+            <div style="font-size:11px;font-weight:700;color:#555;margin-bottom:4px;">Pinjam semua izin dari Peran:</div>
+            <select id="aksesPeranPilih" style="width:100%;padding:10px;border-radius:8px;border:1px solid #cbd5e1;">${opsiPeran}</select>
+            <div style="font-size:10px;color:#888;margin-top:4px;">Konfigurasi, Buku Pinjaman, dan Backup &amp; Restore tidak ikut terpinjam.</div>
+        </div>
+        <div class="input-group" style="margin-top:10px;"><label>Berapa lama?</label>
+            <select id="mintaAksesDurasi"><option value="60">1 jam</option><option value="120" selected>2 jam</option><option value="240">4 jam</option>${menitSampaiMalam >= 30 ? '<option value="hariini">Sampai akhir hari ini</option>' : ''}</select></div>
+        <div class="input-group"><label>Alasan (wajib)</label><input type="text" id="mintaAksesAlasan" placeholder="Contoh: revisi data pembayaran jamaah"></div>
+        <div class="input-group"><label>Atas permintaan siapa? (boleh dikosongkan)</label><input type="text" id="mintaAksesAtas" list="mintaAksesDaftarNama" placeholder="Nama staf yang meminta bantuan"><datalist id="mintaAksesDaftarNama">${namaAdmin}</datalist></div>
+        <button onclick="kirimPermintaanAkses()" style="width:100%;padding:11px;background:#7C3AED;color:white;border:none;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;margin-top:4px;">Lanjut: minta persetujuan Admin Utama</button>
+        <button onclick="document.getElementById('mintaAksesModal').style.display='none'" style="width:100%;padding:11px;background:#e2e8f0;color:#333;border:none;border-radius:10px;font-size:13px;cursor:pointer;margin-top:8px;">Batal</button>
+    </div>`;
+    modal.style.display = 'flex';
+}
+
+function ubahModeMintaAkses(mode) {
+    document.getElementById('aksesModeNilai').value = mode;
+    document.getElementById('aksesAreaPilih').style.display = mode === 'pilih' ? 'block' : 'none';
+    document.getElementById('aksesAreaPeran').style.display = mode === 'peran' ? 'block' : 'none';
+    const aktif = document.getElementById(mode === 'pilih' ? 'aksesModePilih' : 'aksesModePeran');
+    const lain = document.getElementById(mode === 'pilih' ? 'aksesModePeran' : 'aksesModePilih');
+    aktif.style.background = 'var(--primary)'; aktif.style.color = '#fff';
+    lain.style.background = '#fff'; lain.style.color = 'var(--primary)';
+}
+
+function kirimPermintaanAkses() {
+    const mode = document.getElementById('aksesModeNilai').value;
+    let modul = [], fitur = [], peranNama = '';
+    if (mode === 'peran') {
+        const r = resolvePeranUntukPinjam(document.getElementById('aksesPeranPilih').value);
+        modul = r.modul; fitur = r.fitur; peranNama = r.nama;
+    } else {
+        modul = Array.from(document.querySelectorAll('.aksesModulCb:checked')).map(c => c.value);
+        fitur = Array.from(document.querySelectorAll('.aksesFiturCb:checked')).map(c => c.value);
+    }
+    if (!modul.length && !fitur.length) return showToast('Pilih dulu yang ingin dipinjam');
+    const alasan = document.getElementById('mintaAksesAlasan').value.trim();
+    if (alasan.length < 5) return showToast('Alasan wajib diisi (minimal 5 huruf)');
+    _permintaanAksesTertunda = {
+        admin: currentAdminNama, modul, fitur, peranNama,
+        durKode: document.getElementById('mintaAksesDurasi').value,
+        alasan, atasPermintaan: document.getElementById('mintaAksesAtas').value.trim(),
+    };
+    document.getElementById('mintaAksesModal').style.display = 'none';
+    bukaPersetujuanAkses();
+}
+
+// ---------- Langkah 2: persetujuan Admin Utama (PIN diketik langsung di perangkat ini) ----------
+function bukaPersetujuanAkses() {
+    const req = _permintaanAksesTertunda;
+    if (!req) return;
+    if (!getAdminList().some(a => a.isPemilik && a.pinHash)) return showToast('Belum ada Admin Utama ber-PIN. Atur dulu di Kelola Admin.');
+    const durTeks = req.durKode === 'hariini' ? 'sampai akhir hari ini' : `${Number(req.durKode) / 60} jam`;
+    const isi = [...req.modul.map(m => LABEL_MODUL[m] || m), ...req.fitur.map(id => (FITUR_LENGKAP.find(f => f.id === id) || {}).label || id)];
+    _aksesSalahPIN = 0;
+    const modal = bukaModalAkses('persetujuanAksesModal');
+    modal.innerHTML = `<div class="modal-content" style="max-width:400px;">
+        <h3 style="color:var(--primary);margin-bottom:4px;">🔐 Persetujuan Admin Utama</h3>
+        <div style="background:#F8FAFC;border-radius:10px;padding:10px 12px;font-size:12px;line-height:1.6;margin-bottom:10px;">
+            <b>Pemohon:</b> ${escapeHtml(req.admin)}<br>
+            <b>Meminjam:</b> ${escapeHtml(isi.join(', '))}${req.peranNama ? ` <span style="color:#888;">(Peran ${escapeHtml(req.peranNama)})</span>` : ''}<br>
+            <b>Lama:</b> ${durTeks}<br>
+            <b>Alasan:</b> ${escapeHtml(req.alasan)}${req.atasPermintaan ? `<br><b>Atas permintaan:</b> ${escapeHtml(req.atasPermintaan)}` : ''}
+        </div>
+        <label style="display:flex;align-items:center;gap:8px;font-size:12px;margin-bottom:10px;cursor:pointer;"><input type="checkbox" id="aksesBolehHapus" style="width:16px;height:16px;flex-shrink:0;"> <span>Izinkan juga <b>menghapus data</b> (biarkan kosong kalau tidak perlu)</span></label>
+        <div class="input-group"><label>PIN Admin Utama</label><input type="password" inputmode="numeric" maxlength="8" id="aksesPinInput" placeholder="PIN" autocomplete="off"></div>
+        <button onclick="setujuiAksesSementara()" style="width:100%;padding:11px;background:#166534;color:white;border:none;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;">Setujui</button>
+        <button onclick="_permintaanAksesTertunda=null;document.getElementById('persetujuanAksesModal').style.display='none'" style="width:100%;padding:11px;background:#e2e8f0;color:#333;border:none;border-radius:10px;font-size:13px;cursor:pointer;margin-top:8px;">Tolak / Batal</button>
+    </div>`;
+    modal.style.display = 'flex';
+    setTimeout(() => { const i = document.getElementById('aksesPinInput'); if (i) i.focus(); }, 100);
+}
+
+async function setujuiAksesSementara() {
+    const req = _permintaanAksesTertunda;
+    if (!req) return;
+    if (Date.now() < Number(localStorage.getItem('navara_akses_kunci_sampai') || 0)) return showToast('🔒 Terlalu banyak PIN salah. Coba lagi beberapa menit lagi.');
+    const pin = document.getElementById('aksesPinInput').value;
+    if (!pin) return showToast('Masukkan PIN Admin Utama dulu!');
+    const hash = await hashPIN(pin);
+    const pemilik = getAdminList().find(a => a.isPemilik && a.pinHash === hash);
+    if (!pemilik) {
+        _aksesSalahPIN++;
+        if (_aksesSalahPIN >= 5) {
+            localStorage.setItem('navara_akses_kunci_sampai', String(Date.now() + 5 * 60000));
+            _aksesSalahPIN = 0; _permintaanAksesTertunda = null;
+            document.getElementById('persetujuanAksesModal').style.display = 'none';
+            return showToast('🔒 PIN salah 5 kali. Persetujuan dikunci 5 menit.');
+        }
+        return showToast(`❌ PIN Admin Utama salah (${_aksesSalahPIN}/5)`);
+    }
+    _aksesSalahPIN = 0;
+    const now = waktuAmanSekarang();
+    let sampai;
+    if (req.durKode === 'hariini') { const d = new Date(now); d.setHours(23, 59, 0, 0); sampai = d.getTime(); }
+    else sampai = now + Number(req.durKode) * 60000;
+    sampai = Math.min(sampai, now + 24 * 3600000);
+    if (sampai - now < 5 * 60000) return showToast('Waktu yang tersisa terlalu singkat. Pilih durasi lain.');
+    const bolehHapus = !!document.getElementById('aksesBolehHapus').checked;
+    const g = {
+        id: 'as_' + now, admin: req.admin, mulai: new Date(now).toISOString(), sampai: new Date(sampai).toISOString(),
+        modul: req.modul, fitur: req.fitur, peranNama: req.peranNama || '', bolehHapus,
+        alasan: req.alasan, atasPermintaan: req.atasPermintaan || '', disetujuiOleh: pemilik.nama, dicabut: false,
+    };
+    catatAktivitas('🔓', `Akses sementara untuk ${req.admin}: ${ringkasanIsiAkses(g).join(', ')} sampai ${formatJamAkses(sampai)}${bolehHapus ? ' (boleh hapus data)' : ''} — alasan: ${req.alasan}${req.atasPermintaan ? ` — atas permintaan ${req.atasPermintaan}` : ''} — disetujui ${pemilik.nama}`);
+    const list = getAksesSementaraList(); list.unshift(g); simpanAksesSementaraList(list);
+    _permintaanAksesTertunda = null;
+    document.getElementById('persetujuanAksesModal').style.display = 'none';
+    segarkanTampilanSetelahAksesBerubah();
+    showToast(`✅ Akses sementara aktif sampai ${formatJamAkses(sampai)}`);
+}
+
+// ---------- Admin Utama: lihat yang aktif & riwayat, bisa dicabut ----------
+function bukaAksesSementaraModal() {
+    if (!currentAdminIsPemilik) return showToast('🔒 Hanya Admin Utama');
+    const now = waktuAmanSekarang();
+    const list = getAksesSementaraList();
+    const aktif = list.filter(g => !g.dicabut && !g.selesai && now < Date.parse(g.sampai));
+    const riwayat = list.filter(g => !aktif.includes(g)).slice(0, 15);
+    const baris = (g, bisaCabut) => `<div style="background:#F8FAFC;border-radius:10px;padding:10px 12px;margin-bottom:8px;font-size:12px;">
+        <div style="font-weight:700;">👤 ${escapeHtml(g.admin)} ${bisaCabut ? `<span style="color:#B45309;font-weight:600;">· sampai ${formatJamAkses(Date.parse(g.sampai))}</span>` : `<span style="color:#888;font-weight:600;">· ${g.dicabut ? 'dicabut' + (g.dicabutOleh ? ' oleh ' + escapeHtml(g.dicabutOleh) : '') : 'berakhir'}</span>`}</div>
+        <div style="color:#555;margin-top:2px;">${escapeHtml(ringkasanIsiAkses(g).join(', ') || '-')}${g.bolehHapus ? ' · boleh hapus' : ''}</div>
+        <div style="color:#888;font-size:11px;margin-top:2px;">${escapeHtml(g.alasan || '')}${g.atasPermintaan ? ' · atas permintaan ' + escapeHtml(g.atasPermintaan) : ''} · disetujui ${escapeHtml(g.disetujuiOleh || '-')}</div>
+        ${bisaCabut ? `<button onclick="cabutAksesSementara('${g.id}')" style="margin-top:6px;padding:6px 12px;background:#DC2626;color:#fff;border:none;border-radius:8px;font-size:11px;font-weight:700;cursor:pointer;">Cabut sekarang</button>` : ''}
+    </div>`;
+    const modal = bukaModalAkses('aksesSementaraModal');
+    modal.innerHTML = `<div class="modal-content" style="max-width:420px;">
+        <h3 style="color:var(--primary);margin-bottom:8px;">🔓 Akses Sementara</h3>
+        <div style="font-size:12px;font-weight:700;margin-bottom:6px;">Sedang aktif (${aktif.length})</div>
+        ${aktif.length ? aktif.map(g => baris(g, true)).join('') : '<div style="font-size:12px;color:#888;margin-bottom:8px;">Tidak ada.</div>'}
+        <div style="font-size:12px;font-weight:700;margin:10px 0 6px;">Riwayat terakhir</div>
+        ${riwayat.length ? riwayat.map(g => baris(g, false)).join('') : '<div style="font-size:12px;color:#888;">Belum ada.</div>'}
+        <button onclick="document.getElementById('aksesSementaraModal').style.display='none'" style="width:100%;padding:11px;background:#e2e8f0;color:#333;border:none;border-radius:10px;font-size:13px;cursor:pointer;margin-top:8px;">Tutup</button>
+    </div>`;
+    modal.style.display = 'flex';
+}
+
+function cabutAksesSementara(id) {
+    if (!currentAdminIsPemilik) return showToast('🔒 Hanya Admin Utama');
+    const list = getAksesSementaraList();
+    const g = list.find(x => x.id === id);
+    if (!g || g.dicabut || g.selesai) return;
+    g.dicabut = true; g.dicabutOleh = currentAdminNama; g.alasanCabut = 'Dicabut Admin Utama';
+    simpanAksesSementaraList(list);
+    catatAktivitas('🔒', `Akses sementara ${g.admin} dicabut oleh ${currentAdminNama}`);
+    bukaAksesSementaraModal();
 }
 
 function simpanAdminList(list) {
@@ -5294,6 +5675,7 @@ function renderKelolaAdminModal(modalEl) {
             <button onclick="openTambahAdminForm()" style="flex:1;padding:11px;background:#7C3AED;color:white;border:none;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;">+ Tambah Admin</button>
             <button onclick="openKelolaPeranModal()" style="flex:1;padding:11px;background:var(--primary);color:white;border:none;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;"><i class="fas fa-user-tag"></i> Kelola Peran</button>
         </div>
+        <button onclick="bukaAksesSementaraModal()" style="width:100%;padding:11px;background:#F59E0B;color:white;border:none;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;margin-top:8px;">🔓 Akses Sementara (aktif &amp; riwayat)</button>
         <div id="tambahAdminFormArea"></div>
         <button onclick="document.getElementById('kelolaAdminModal').style.display='none'" style="width:100%;padding:11px;background:#e2e8f0;color:#333;border:none;border-radius:10px;font-size:13px;cursor:pointer;margin-top:10px;">Tutup</button>
     </div>`;
@@ -5396,7 +5778,7 @@ function renderKelolaPeranModal(modalEl) {
             </div>
             <div style="font-size:11px;color:#888;margin-top:4px;">
                 ${p.bolehHapus ? '✓ Boleh hapus data' : '✕ Tidak boleh hapus data'} · ${p.bolehReset ? '✓ Boleh reset data' : '✕ Tidak boleh reset data'}<br>
-                <i class="fas fa-table-cells"></i> ${p.modulAllowed ? `${p.modulAllowed.length} dari ${MODUL_BISA_DIKUNCI.length} halaman` : 'Semua halaman (belum diatur)'}
+                <i class="fas fa-table-cells"></i> ${p.modulAllowed ? `${p.modulAllowed.length} dari ${MODUL_BISA_DIKUNCI.length} halaman` : 'Semua halaman (belum diatur)'}${Array.isArray(p.fiturAllowed) ? ` · Menu Lengkap: ${p.fiturAllowed.length} fitur` : ''}
             </div>
         </div>`).join('');
 
@@ -5415,7 +5797,14 @@ function openTambahPeranForm(peranId) {
     const p = peranId ? list.find(x => x.id === peranId) : null;
     const modulLabel = { estimasi:'Cuan Plan', kas:'Uang Kas', jamaah:'Database Jamaah', jamaahkita:'Jamaah on Proses', catatan:'Catatan', zakat:'Zakat', pembayaran:'Pembayaran', datamaster:'Multi Event', konfigurasi:'Konfigurasi', pinjaman:'Buku Pinjaman', fitur:'Menu Lengkap' };
     const modulAllowed = p?.modulAllowed || MODUL_BISA_DIKUNCI.slice(); // Peran baru: default semua modul dicentang, tinggal di-uncek yang tidak perlu
-    const modulCheckboxes = MODUL_BISA_DIKUNCI.map(mid => `
+    // Fitur Menu Lengkap: Peran baru mulai KOSONG (izin sekecil mungkin). Peran lama tanpa daftar fitur: tampilkan sesuai perilaku lamanya.
+    const idFiturBisaDicentang = FITUR_LENGKAP.filter(f => !FITUR_TIDAK_BISA_DICENTANG.includes(f.id)).map(f => f.id);
+    let fiturAktif = [];
+    if (p) {
+        if (Array.isArray(p.fiturAllowed)) fiturAktif = p.fiturAllowed;
+        else if (!p.modulAllowed || p.modulAllowed.includes('fitur')) fiturAktif = idFiturBisaDicentang.slice();
+    }
+    const modulCheckboxes = MODUL_BISA_DIKUNCI.filter(mid => mid !== 'fitur').map(mid => `
         <label style="display:flex;align-items:center;gap:8px;font-size:12px;margin-bottom:5px;cursor:pointer;">
             <input type="checkbox" class="peranModulCb" value="${mid}" ${modulAllowed.includes(mid) ? 'checked' : ''} style="width:16px;height:16px;"> ${modulLabel[mid]}
         </label>`).join('');
@@ -5427,8 +5816,35 @@ function openTambahPeranForm(peranId) {
             <label style="display:flex;align-items:center;gap:8px;font-size:13px;margin-bottom:10px;cursor:pointer;"><input type="checkbox" id="peranFormReset" ${p?.bolehReset ? 'checked' : ''} style="width:18px;height:18px;"> Boleh mereset data</label>
             <div style="font-size:11px;font-weight:700;color:#555;margin-bottom:6px;">Halaman yang boleh dibuka:</div>
             <div style="max-height:160px;overflow-y:auto;background:white;border-radius:8px;padding:8px;border:1px solid #e2e8f0;">${modulCheckboxes}</div>
+            <div style="font-size:11px;font-weight:700;color:#555;margin:10px 0 2px;">Menu Lengkap — fitur yang boleh dipakai:</div>
+            <div style="font-size:10px;color:#888;margin-bottom:6px;">🔒 = memperlihatkan laba/omzet. Buku Pinjaman diatur di daftar halaman di atas. Backup &amp; Restore hanya untuk Admin Utama.</div>
+            <div style="display:flex;gap:6px;margin-bottom:6px;">
+                <button type="button" onclick="pilihFiturPeran('aman')" style="flex:1;padding:6px;font-size:11px;border:1px solid #cbd5e1;background:#fff;border-radius:6px;cursor:pointer;">Pilih semua (tanpa 🔒)</button>
+                <button type="button" onclick="pilihFiturPeran('kosong')" style="flex:1;padding:6px;font-size:11px;border:1px solid #cbd5e1;background:#fff;border-radius:6px;cursor:pointer;">Kosongkan</button>
+            </div>
+            <div style="max-height:220px;overflow-y:auto;background:white;border-radius:8px;padding:8px;border:1px solid #e2e8f0;">${htmlCentangFiturPeran(fiturAktif)}</div>
             <button onclick="simpanPeranBaru()" style="width:100%;padding:10px;background:#166534;color:white;border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;margin-top:8px;">Simpan</button>
         </div>`;
+}
+
+// Fitur Menu Lengkap yang TIDAK muncul di daftar centang Peran: Buku Pinjaman (izin modul sendiri) dan Backup & Restore (hanya Admin Utama)
+const FITUR_TIDAK_BISA_DICENTANG = ['pinjaman', 'cloudstorage'];
+// Fitur yang memperlihatkan laba/omzet — ditandai 🔒 dan tidak ikut "Pilih semua"
+const FITUR_SENSITIF = ['cetakLaporanPenutupanMusim', 'cetakRekapTahunanGabungan', 'openProyeksiKasModal', 'openBandingkanProgramModal', 'openDashboardTrenModal'];
+
+function htmlCentangFiturPeran(aktif) {
+    return KELOMPOK_MENU.map(k => {
+        const items = FITUR_LENGKAP.filter(f => f.kelompok === k.id && !FITUR_TIDAK_BISA_DICENTANG.includes(f.id));
+        if (!items.length) return '';
+        return `<div style="font-size:11px;font-weight:700;color:var(--primary);margin:6px 0 3px;">${escapeHtml(k.judul)}</div>` + items.map(f => `
+            <label style="display:flex;align-items:center;gap:8px;font-size:12px;margin-bottom:4px;cursor:pointer;">
+                <input type="checkbox" class="peranFiturCb" value="${escapeHtml(f.id)}" ${aktif.includes(f.id) ? 'checked' : ''} style="width:16px;height:16px;"> ${escapeHtml(f.label)}${FITUR_SENSITIF.includes(f.id) ? ' 🔒' : ''}
+            </label>`).join('');
+    }).join('');
+}
+
+function pilihFiturPeran(mode) {
+    document.querySelectorAll('.peranFiturCb').forEach(cb => { cb.checked = (mode === 'aman') && !FITUR_SENSITIF.includes(cb.value); });
 }
 
 function simpanPeranBaru() {
@@ -5437,15 +5853,18 @@ function simpanPeranBaru() {
     const bolehHapus = document.getElementById('peranFormHapus').checked;
     const bolehReset = document.getElementById('peranFormReset').checked;
     const modulAllowed = Array.from(document.querySelectorAll('.peranModulCb:checked')).map(cb => cb.value);
+    const fiturAllowed = Array.from(document.querySelectorAll('.peranFiturCb:checked')).map(cb => cb.value);
+    // Izin "Menu Lengkap" otomatis menyala kalau ada minimal satu fitur dicentang
+    if (fiturAllowed.length > 0 && !modulAllowed.includes('fitur')) modulAllowed.push('fitur');
     if(!nama) return showToast('Nama Peran wajib diisi!');
     let list = getPeranList();
     if(peranId) {
         const p = list.find(x => x.id === peranId);
         if(!p) return;
-        p.nama = nama; p.bolehHapus = bolehHapus; p.bolehReset = bolehReset; p.modulAllowed = modulAllowed;
+        p.nama = nama; p.bolehHapus = bolehHapus; p.bolehReset = bolehReset; p.modulAllowed = modulAllowed; p.fiturAllowed = fiturAllowed;
     } else {
         if(list.find(x => x.nama === nama)) return showToast('Nama Peran itu sudah dipakai!');
-        list.push({ id: 'peran_' + Date.now(), nama, bolehHapus, bolehReset, modulAllowed });
+        list.push({ id: 'peran_' + Date.now(), nama, bolehHapus, bolehReset, modulAllowed, fiturAllowed });
     }
     simpanPeranList(list);
     renderKelolaPeranModal();
@@ -5470,8 +5889,9 @@ function catatAktivitas(icon, teks) {
     try {
         const slot = ensureProgramConfigSlot();
         if(!slot.aktivitas_log) slot.aktivitas_log = [];
+        const tandaPinjam = (typeof adalahAdminPenuh === 'function' && !adalahAdminPenuh() && aksesSementaraAktif().length && !/^Akses sementara/.test(teks)) ? ' · [akses sementara]' : '';
         slot.aktivitas_log.unshift({
-            icon, teks,
+            icon, teks: teks + tandaPinjam,
             admin: currentAdminNama,
             waktu: new Date().toLocaleString('id-ID', { day:'2-digit', month:'long', year:'numeric', hour:'2-digit', minute:'2-digit' })
         });
@@ -5570,7 +5990,7 @@ function bolehTampilMenu(item, hajiReg) {
     if (item.halaman && !cekIzinModul(item.halaman)) return false;
     // Fitur dari halaman Lengkap ikut izin "Menu Lengkap" — supaya staf yang dilarang tidak bisa
     // menembus larangan itu dengan memasukkan fiturnya ke Home lewat Atur Menu
-    if (item.dariLengkap && !cekIzinModul('fitur')) return false;
+    if (item.dariLengkap && !cekIzinFitur(item.id)) return false;
     return true;
 }
 
@@ -5595,6 +6015,8 @@ function renderMenuPremium() {
     // "Menu Lengkap" selalu ada di posisi terakhir, tidak bisa dikeluarkan (kecuali staf tanpa izin "Menu Lengkap")
     if (cekIzinModul('fitur')) html += htmlTileMenu({ aksi: "showPage('fitur')", icon: '<i class="fas fa-th-large"></i>', label: 'Menu Lengkap', ketSingkat: 'Fitur lainnya' }, { denganKet });
     container.innerHTML = html; 
+    document.body.classList.toggle('bukan-pemilik', !adalahAdminPenuh());
+    perbaruiBannerAksesSementara();
     perbaruiPenandaAdmin();
     // Kunci juga item bottom nav yang sesuai (Estimasi/Kas/Jamaah) sesuai izin Peran staf yang login
     ['estimasi','kas','jamaah'].forEach(pid => {
@@ -13827,6 +14249,7 @@ function getTotalHargaPaketUntukProgram(jamaah, programId) {
 }
 
 function openBandingkanProgramModal() {
+    if(!cekIzinFitur('openBandingkanProgramModal')) return showToast('🔒 Anda tidak punya izin membuka fitur ini');
     let modal = document.getElementById('bandingkanProgramModal');
     if(!modal) {
         modal = document.createElement('div');
@@ -13877,6 +14300,7 @@ function openBandingkanProgramModal() {
 
 // ==================== REKAP TAHUNAN GABUNGAN ====================
 function cetakRekapTahunanGabungan() {
+    if(!cekIzinFitur('cetakRekapTahunanGabungan')) return showToast('🔒 Anda tidak punya izin membuka fitur ini');
     let totalKontrak = 0, totalDibayar = 0, totalJamaah = 0, totalKasMasuk = 0, totalKasKeluar = 0, totalPengeluaran = 0;
     const perProgram = programList.map(p => {
         const jList = _allJamaahData.filter(j => j.program_id === p.id);
@@ -14150,6 +14574,7 @@ function cetakManifestRooming() {
 
 // ==================== KALENDER GABUNGAN SEMUA PROGRAM ====================
 function openKalenderProgramModal() {
+    if(!cekIzinFitur('openKalenderProgramModal')) return showToast('🔒 Anda tidak punya izin membuka fitur ini');
     let modal = document.getElementById('kalenderProgramModal');
     if(!modal) {
         modal = document.createElement('div');
@@ -14191,6 +14616,7 @@ function openKalenderProgramModal() {
 
 // ==================== PROYEKSI ARUS KAS ====================
 function openProyeksiKasModal() {
+    if(!cekIzinFitur('openProyeksiKasModal')) return showToast('🔒 Anda tidak punya izin membuka fitur ini');
     let modal = document.getElementById('proyeksiKasModal');
     if(!modal) {
         modal = document.createElement('div');
@@ -14833,6 +15259,7 @@ function openAntrianFollowUpModal() {
 // ==================== DASHBOARD TREN TAHUNAN ====================
 // ==================== LAPORAN PENUTUPAN MUSIM ====================
 function cetakLaporanPenutupanMusim() {
+    if(!cekIzinFitur('cetakLaporanPenutupanMusim')) return showToast('🔒 Anda tidak punya izin membuka fitur ini');
     const f = n => 'Rp ' + Math.round(n).toLocaleString('id-ID');
     const fKurang = n => (Math.round(n) > 0 ? '-' : '') + f(n); // tanda minus hanya kalau nilainya > 0, supaya tidak tampil "-Rp 0"
     const namaKBIH = getNamaInstansiUtama();
@@ -15327,6 +15754,7 @@ function cetakItinerary(mode) {
 }
 
 function openDashboardTrenModal() {
+    if(!cekIzinFitur('openDashboardTrenModal')) return showToast('🔒 Anda tidak punya izin membuka fitur ini');
     let modal = document.getElementById('dashboardTrenModal');
     if(!modal) {
         modal = document.createElement('div');
@@ -20398,7 +20826,7 @@ function openIndexedDB() {
 // dengan build baru, data MENTAH (langsung dari IndexedDB, bukan dari memori) disalin dulu sebelum
 // proses migrasi apapun berjalan — supaya kalau ada kesalahan di update, data lama masih bisa dipulihkan.
 // Dokumen & foto tidak ikut disalin (ukurannya besar, dan tidak pernah disentuh proses migrasi).
-const NAVARA_BUILD = '2026.10.01-37';
+const NAVARA_BUILD = '2026.10.02-39';
 const MAKS_SNAPSHOT = 3;
 
 function daftarKunciSnapshot() {
@@ -20496,6 +20924,7 @@ function daftarDariIsi(nilai, cfg) {
 }
 
 async function lihatSnapshot(idx) {
+    if(!adalahAdminPenuh()) return showToast('🔒 Hanya Admin Utama yang bisa melihat cadangan');
     const daftar = (await idbGet(STORE_MASTER, 'snapshot_pra_update')) || [];
     const snap = daftar[idx];
     if (!snap) return showToast('Cadangan tidak ditemukan');
@@ -20551,6 +20980,7 @@ async function lihatSnapshot(idx) {
 }
 
 async function pulihkanSnapshot(idx) {
+    if(!cekIzinAdmin('bolehReset') || !adalahAdminPenuh()) return showToast('🔒 Hanya Admin Utama yang bisa memulihkan data');
     const daftar = (await idbGet(STORE_MASTER, 'snapshot_pra_update')) || [];
     const s = daftar[idx];
     if (!s) return showToast('Cadangan tidak ditemukan');
@@ -21852,6 +22282,7 @@ async function downloadFullZip() {
 }
 
 function showRestoreJsonPasteModal() {
+    if(!cekIzinAdmin('bolehReset') || !adalahAdminPenuh()) return showToast('🔒 Hanya Admin Utama yang bisa memulihkan data');
     let modal = document.getElementById('restoreJsonPasteModal');
     if(!modal) {
         modal = document.createElement('div');
@@ -22037,6 +22468,7 @@ async function applyRestoreBackupData(backup) {
 }
 
 async function restoreFromJson(input) {
+    if(!cekIzinAdmin('bolehReset') || !adalahAdminPenuh()) return showToast('🔒 Hanya Admin Utama yang bisa memulihkan data');
     const file = input.files[0];
     if (!file) return;
     if (!(await konfirmasiTimpa('Semua data akan ditimpa dengan isi file JSON ini.', ['Foto & dokumen tidak ikut berubah']))) { input.value = ''; return; }
@@ -22097,6 +22529,7 @@ function tutupProgresRestore() {
 }
 
 async function restoreFromZip(input) { 
+    if(!cekIzinAdmin('bolehReset') || !adalahAdminPenuh()) return showToast('🔒 Hanya Admin Utama yang bisa memulihkan data');
     const file = input.files[0]; 
     if (!file) return; 
     if (!(await konfirmasiTimpa('Semua data akan ditimpa dengan isi file ZIP ini, termasuk foto & dokumen.', ['Pastikan file ZIP yang dipilih sudah benar']))) { input.value = ''; return; }
@@ -24784,6 +25217,7 @@ function kenaliJenisCadangan(teks) {
 
 // SATU PINTU restore: ZIP → pulihkan semua; JSON cadangan → pulihkan data; file pengaturan → ganti pengaturan saja
 async function restoreDariFile(input) {
+    if(!cekIzinAdmin('bolehReset') || !adalahAdminPenuh()) return showToast('🔒 Hanya Admin Utama yang bisa memulihkan data');
     const file = input.files && input.files[0];
     if (!file) return;
     try {
