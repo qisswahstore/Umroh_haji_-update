@@ -2889,6 +2889,28 @@
     </div>
 </div>
 
+<!-- SALDO KANTOR -->
+<div id="page-saldokantor" class="page">
+    <div class="header-premium header-premium-small"><div class="back-header"><i class="fas fa-arrow-left" onclick="showPage('home')"></i><h2>Saldo Kantor</h2><div style="width:30px;"></div></div></div>
+    <div class="container" style="padding:0 16px 28px;">
+        <div style="font-size:11px;color:#888;margin:14px 4px 10px;">Uang kantor yang dipegang, dipisah per entitas. Ketuk sebuah rekening untuk melihat riwayatnya.</div>
+        <div id="saldoRingkasan"></div>
+        <div style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px;margin:4px 0 12px;">
+            <button type="button" onclick="bukaFormMutasiSaldo(1)" style="padding:10px 2px;border:none;border-radius:10px;font-size:12px;font-weight:700;background:#DCFCE7;color:#15803d;cursor:pointer;">+ Masuk</button>
+            <button type="button" onclick="bukaFormMutasiSaldo(-1)" style="padding:10px 2px;border:none;border-radius:10px;font-size:12px;font-weight:700;background:#FEE2E2;color:#B91C1C;cursor:pointer;">+ Keluar</button>
+            <button type="button" onclick="bukaFormPindahSaldo()" style="padding:10px 2px;border:none;border-radius:10px;font-size:12px;font-weight:700;background:#E0F2FE;color:#0369A1;cursor:pointer;">Pindah</button>
+            <button type="button" onclick="bukaFormCocokkanSaldo()" style="padding:10px 2px;border:none;border-radius:10px;font-size:12px;font-weight:700;background:#FEF3C7;color:#B45309;cursor:pointer;">Cocokkan</button>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin:-4px 0 12px;">
+            <button type="button" onclick="bukaFormPinjamSaldo()" style="padding:10px 4px;border:none;border-radius:10px;font-size:12px;font-weight:700;background:#EDE9FE;color:#6D28D9;cursor:pointer;">🤝 Pinjam / Talangan</button>
+            <button type="button" onclick="bukaFormKembaliSaldo()" style="padding:10px 4px;border:none;border-radius:10px;font-size:12px;font-weight:700;background:#DCFCE7;color:#15803d;cursor:pointer;">↩ Pengembalian</button>
+        </div>
+        <div id="saldoUtang" class="card-premium" style="display:none;margin:0 0 12px;"></div>
+        <div id="saldoDetailPihak" class="card-premium" style="display:none;margin:0 0 12px;"></div>
+        <div id="saldoDetail" class="card-premium" style="display:none;margin:0;"></div>
+    </div>
+</div>
+
 <!-- MODAL CATAT PINJAMAN / PENGEMBALIAN -->
 <div id="pinjamanModal" class="modal">
     <div class="modal-content">
@@ -3623,6 +3645,7 @@
         <div class="row mt-2">
             <button class="btn btn-teal btn-small" onclick="cetakLaporanTukarRiyal()" style="flex:1"><i class="fas fa-print"></i> CETAK</button>
             <button class="btn btn-accent btn-small" onclick="shareTukarRiyalPDF()" style="flex:1"><i class="fas fa-share-nodes"></i> BAGIKAN</button>
+            <button class="btn btn-small" onclick="shareTukarRiyalWA()" style="flex:1;background:#25D366;color:white;"><i class="fab fa-whatsapp"></i> WA</button>
         </div>
     </div>
 </div>
@@ -4422,7 +4445,7 @@ function internalShowPage(pageId) {
     // Jaring pengaman: kalaupun ada yang coba masuk lewat jalan lain (bukan klik menu), tetap diblok
     // kalau Peran staf yang sedang login tidak diizinkan buka modul ini.
     if(!cekIzinModul(pageId)) {
-        showToast('🔒 Tidak punya izin. Gunakan tombol 🔓 Minta Akses di Home.');
+        showToast(MODUL_HANYA_PEMILIK.includes(pageId) ? '🔒 Halaman ini hanya untuk Admin Utama.' : '🔒 Tidak punya izin. Gunakan tombol 🔓 Minta Akses di Home.');
         if(pageId !== 'home') internalShowPage('home');
         return;
     }
@@ -4456,6 +4479,7 @@ function internalShowPage(pageId) {
     if (pageId === 'atur-menu') { if(typeof bukaAturMenu === 'function') bukaAturMenu(); }
     if (pageId === 'fitur') { if(typeof bukaSemuaMenu === 'function') bukaSemuaMenu(); }
     if (pageId === 'pinjaman') { if(typeof loadPinjamanData === 'function') loadPinjamanData(); }
+    if (pageId === 'saldokantor') { if(typeof loadSaldoKantor === 'function') loadSaldoKantor(); }
     if (pageId === 'jamaah') { if(window.loadJamaahData) window.loadJamaahData().then(() => { if(window.renderJamaahListWithPagination) window.renderJamaahListWithPagination(); }); else if(window.renderJamaahListWithPagination) window.renderJamaahListWithPagination(); }
     if (pageId === 'jamaahkita') {
         const c = document.getElementById('jamaahKitaListContainer');
@@ -5217,7 +5241,7 @@ const MODUL_BISA_DIKUNCI = ['estimasi','kas','jamaah','jamaahkita','catatan','za
 // Ini menjaga supaya siapapun yang sudah ada SEBELUM fitur ini tidak mendadak kehilangan akses.
 // Halaman yang TIDAK PERNAH bisa diberikan lewat Peran (dan tidak bisa dipinjamkan): hanya Admin Utama
 // atau admin lama yang belum dipasangi Peran (akses penuh, seperti aturan sebelumnya).
-const MODUL_HANYA_PEMILIK = ['cloudstorage'];
+const MODUL_HANYA_PEMILIK = ['cloudstorage', 'saldokantor'];
 
 function adalahAdminPenuh() {
     if (currentAdminIsPemilik) return true;
@@ -5230,7 +5254,7 @@ function adalahAdminPenuh() {
 // punya daftar itu mengikuti izin "Menu Lengkap" seperti dulu (semua fitur atau tidak sama sekali).
 function cekIzinFiturDasar(id) {
     if (currentAdminIsPemilik) return true;
-    if (id === 'cloudstorage') return adalahAdminPenuh();
+    if (MODUL_HANYA_PEMILIK.includes(id)) return adalahAdminPenuh();
     const admin = getAdminList().find(a => a.nama === currentAdminNama);
     if (!admin || !admin.peranId) return true;
     const peran = getPeranList().find(p => p.id === admin.peranId);
@@ -5868,7 +5892,7 @@ function openTambahPeranForm(peranId) {
 }
 
 // Fitur Menu Lengkap yang TIDAK muncul di daftar centang Peran: Buku Pinjaman (izin modul sendiri) dan Backup & Restore (hanya Admin Utama)
-const FITUR_TIDAK_BISA_DICENTANG = ['pinjaman', 'cloudstorage'];
+const FITUR_TIDAK_BISA_DICENTANG = ['pinjaman', 'cloudstorage', 'saldokantor'];
 // Fitur yang memperlihatkan laba/omzet — ditandai 🔒 dan tidak ikut "Pilih semua"
 const FITUR_SENSITIF = ['cetakLaporanPenutupanMusim', 'cetakRekapTahunanGabungan', 'openProyeksiKasModal', 'openBandingkanProgramModal', 'openDashboardTrenModal'];
 
@@ -5983,6 +6007,7 @@ const FITUR_LENGKAP = [
     { id: "suratresmi", label: "Surat Resmi", ket: "Buat surat otomatis dari data jamaah", kelompok: "kantor", aksi: "showPage('suratresmi')", halaman: "suratresmi", icon: "<i class=\"fas fa-file-signature\"></i>" },
     { id: "cetaklabel", label: "Cetak Label", ket: "Name tag / stiker koper", kelompok: "jamaah", aksi: "showPage('cetaklabel')", halaman: "cetaklabel", icon: "<i class=\"fas fa-tag\"></i>" },
     { id: "pinjaman", label: "Buku Pinjaman", ket: "Catat talangan & pengembalian", kelompok: "keuangan", aksi: "showPage('pinjaman')", halaman: "pinjaman", icon: "<i class=\"fas fa-file-invoice-dollar\"></i>" },
+    { id: "saldokantor", label: "Saldo Kantor", ket: "Saldo rekening & kas per entitas", kelompok: "keuangan", aksi: "showPage('saldokantor')", halaman: "saldokantor", icon: "<i class=\"fas fa-building-columns\"></i>" },
     { id: "cloudstorage", label: "Backup & Restore", ket: "Cadangkan, pulihkan & salin pengaturan", kelompok: "pengaturan", aksi: "showPage('cloudstorage')", halaman: "cloudstorage", icon: "<i class=\"fas fa-cloud\"></i>" },
     { id: "dashboard", label: "Dashboard", ket: "Grafik statistik data", kelompok: "laporan", aksi: "showPage('dashboard')", halaman: "dashboard", icon: "<i class=\"fas fa-chart-line\"></i>" },
     { id: "openBandingkanProgramModal", label: "Bandingkan Program", ket: "Performa semua Program sekaligus", kelompok: "laporan", aksi: "openBandingkanProgramModal()", halaman: null, icon: "<i class=\"fas fa-chart-column\"></i>" },
@@ -8769,6 +8794,7 @@ function cetakLaporanGabungan(mode = 'semua') {
 }
 
 function hitungRekapAktual() {
+    window._rekapAktualData = null; // diisi ulang di bawah; dipakai pesan WhatsApp supaya tidak bergantung pada tampilan
     const container = document.getElementById('rekapAktualContent');
     if(!container) return;
 
@@ -8887,6 +8913,15 @@ function hitungRekapAktual() {
 
     // Grand Total
     const grandProfit = grandOmzet - grandModal;
+    window._rekapAktualData = {
+        tipe: Object.keys(tipeData).map(nama => { const d = tipeData[nama]; return {
+            nama, totalJamaah: d.jamaah.length + (d.tanpaHarga?.length || 0), nBayar: d.jamaah.length,
+            kontrak: d.totalKontrak || d.totalOmzet, dibayar: d.totalOmzet, piutang: d.totalPiutang || 0,
+            modal: d.totalModal, profit: d.totalOmzet - d.totalModal, tanpaHarga: d.tanpaHarga?.length || 0 }; }),
+        grand: { kontrak: grandKontrak, dibayar: grandOmzet, piutang: grandPiutang, modalJamaahBayar, modalFocTL,
+                 nFoc: estRingkas?.foc || 0, nTL: estRingkas?.tl || 0, modal: grandModal, profit: grandProfit },
+        tanpaTipe: tanpaTipe.slice(), hargaBawah: hargaBawahStandar.length
+    };
     html += `<div class="kartu-total-rekap" style="background:linear-gradient(135deg,var(--primary),#0a3d31);border-radius:14px;padding:16px;margin-bottom:10px;color:white;">
         <div style="font-weight:700;font-size:15px;margin-bottom:10px;">💰 TOTAL KESELURUHAN</div>
         <div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid rgba(255,255,255,0.2);">
@@ -9063,26 +9098,34 @@ function cetakRekapAktual() {
 }
 
 function shareRekapAktual() {
-    const content = document.getElementById('rekapAktualContent');
-    if(!content || !content.innerHTML.trim()) return showToast('Hitung rekap dulu!');
-    const cfg = getKonfigurasiProData();
+    // Dihitung ulang dulu supaya angkanya selalu terbaru dan tidak perlu menekan "Hitung Rekap" lebih dulu
+    if (jamaahList.length > 0) hitungRekapAktual();
+    const data = window._rekapAktualData;
+    if (!data || !data.tipe.length) return showToast('Belum ada data jamaah untuk direkap!');
+    const f = n => (Math.round(n) < 0 ? '-' : '') + 'Rp ' + Math.abs(Math.round(n)).toLocaleString('id-ID');
     const namaKBIH = getNamaInstansiUtama();
     const tgl = new Date().toLocaleDateString('id-ID');
     const garis = '─'.repeat(28);
     let text = `📊 *REKAP LABA SEMENTARA*\n*${namaKBIH}*\n📁 Program: ${getCurrentProgram()?.nama || '-'}\n${tgl}\n${garis}\n`;
-    // Ambil angka dari card tipe
-    const cards = content.querySelectorAll('div[style*="border-radius:14px"]');
-    cards.forEach(card => {
-        const title = card.querySelector('[style*="color:#0D5C4A"]')?.textContent?.trim();
-        if(!title) return;
-        text += `\n🛏️ *${title}*\n`;
-        card.querySelectorAll('[style*="space-between"]').forEach(row => {
-            const spans = row.querySelectorAll('span');
-            if(spans.length >= 2) text += `${spans[0].textContent.trim()}: ${spans[1].textContent.trim()}\n`;
-        });
+    data.tipe.forEach(t => {
+        text += `\n🛏️ *${t.nama} (${t.totalJamaah} jamaah)*\n`;
+        if (t.nBayar > 0) {
+            text += `Total Kontrak: ${f(t.kontrak)}\nSudah Dibayar (${t.nBayar} jamaah): ${f(t.dibayar)}\n`;
+            if (t.piutang > 0) text += `Piutang/Sisa: -${f(t.piutang)}\n`;
+            if (t.modal > 0) text += `Total Modal: ${f(t.modal)}\n*Laba Sementara: ${f(t.profit)}*\n`;
+        }
+        if (t.tanpaHarga > 0) text += `⚠️ ${t.tanpaHarga} jamaah belum ada data pembayaran\n`;
     });
-    text += `\n${garis}\n_Navara App_`;
-    window.open(`https://wa.me/?text=${encodeURIComponent(text)}`,'_blank');
+    const g = data.grand;
+    text += `\n💰 *TOTAL KESELURUHAN*\nTotal Kontrak/Omzet: ${f(g.kontrak)}\nSudah Dibayar: ${f(g.dibayar)}\n`;
+    if (g.piutang > 0) text += `Piutang/Sisa: -${f(g.piutang)}\n`;
+    if (g.modalFocTL > 0) text += `Modal jamaah bayar: ${f(g.modalJamaahBayar)}\nModal FOC (${g.nFoc}) dan TL (${g.nTL}): ${f(g.modalFocTL)}\n`;
+    if (g.modal > 0) text += `Total Modal (estimasi): ${f(g.modal)}\n*LABA SEMENTARA: ${f(g.profit)}*\n`;
+    if (data.hargaBawah > 0) text += `\n⚠️ ${data.hargaBawah} jamaah harga paketnya di bawah modal`;
+    if (data.tanpaTipe.length > 0) text += `\n⚠️ ${data.tanpaTipe.length} jamaah belum ada tipe paket (tidak dihitung): ${data.tanpaTipe.join(', ')}`;
+    // Penutup mengikuti pengaturan: pengguna berlisensi memakai nama instansinya sendiri; versi gratis tetap "Navara App"
+    text += `\n${garis}\n_${isLicensed() ? namaKBIH : 'Navara App'}_`;
+    window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
 }
 
 function updateModeLA() {
@@ -10943,6 +10986,697 @@ function tanggalLokalHariIni() {
     return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
 }
 
+// ==================== SALDO KANTOR (tahap 1) ====================
+// Uang kantor yang dipegang, DIPISAH per entitas (instansi 1 & 2 dari Konfigurasi). Tiap entitas punya banyak rekening bank + kas tunai.
+// Hanya Admin Utama / admin tanpa Peran: tidak bisa dicentang di Peran dan tidak bisa dipinjamkan lewat Akses Sementara.
+let saldoKantorData = { rekening: [], mutasi: [], antarEntitas: [], kategori: { masuk: [], keluar: [] } };
+let saldoRekDipilih = null;
+const KATEGORI_SALDO_MASUK = ['Setoran jamaah', 'Dari mitra / pihak lain', 'Pengembalian', 'Lain-lain'];
+const KATEGORI_SALDO_KELUAR = ['Maskapai', 'Hotel', 'Visa & perlengkapan', 'Operasional', 'Gaji & honor', 'Komisi mitra', 'Biaya bank', 'Lain-lain'];
+
+function bolehSaldoKantor() {
+    if (!adalahAdminPenuh()) { showToast('🔒 Saldo Kantor hanya untuk Admin Utama'); return false; }
+    return true;
+}
+function idSaldo() { return 's_' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6); }
+function rupiahSaldo(n) { const r = Math.round(n); return (r < 0 ? '-' : '') + 'Rp ' + Math.abs(r).toLocaleString('id-ID'); }
+function hariIniISO() { const d = new Date(); return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); }
+function tglSaldoTampil(iso) { try { return new Date(iso + 'T00:00:00').toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' }); } catch (e) { return iso; } }
+
+// Entitas mengikuti Konfigurasi (nama bisa diganti kapan saja; rekening menyimpan id entitasnya, bukan namanya)
+function getEntitasSaldo() {
+    const cfg = getKonfigurasiProData();
+    const hasil = [{ id: 'e1', nama: cfg.instansi1?.nama || 'Entitas 1' }];
+    if (cfg.instansi2 && cfg.instansi2.nama) hasil.push({ id: 'e2', nama: cfg.instansi2.nama === hasil[0].nama ? cfg.instansi2.nama + ' (2)' : cfg.instansi2.nama });
+    return hasil;
+}
+function namaEntitasSaldo(id) { return (getEntitasSaldo().find(e => e.id === id) || { nama: id }).nama; }
+function rekeningAktifSaldo(entitasId) {
+    return saldoKantorData.rekening.filter(r => r.aktif !== false && (!entitasId || r.entitas === entitasId))
+        .sort((a, b) => (a.jenis === b.jenis ? (a.nama || '').localeCompare(b.nama || '') : (a.jenis === 'tunai' ? -1 : 1)));
+}
+function hitungSaldoRekening(rid) { return saldoKantorData.mutasi.filter(m => m.rekId === rid).reduce((a, m) => a + m.arah * m.nominal, 0); }
+function hitungSaldoEntitas(eid) { return rekeningAktifSaldo(eid).reduce((a, r) => a + hitungSaldoRekening(r.id), 0); }
+function labelRekeningSaldo(r) { return r.jenis === 'tunai' ? (r.nama || 'Kas tunai') : (r.nama || 'Bank') + (r.noAkhir ? ' ····' + r.noAkhir : ''); }
+function urutMutasiSaldo(a, b) { return (a.tanggal + '|' + a.waktuBuat + '|' + a.id).localeCompare(b.tanggal + '|' + b.waktuBuat + '|' + b.id); }
+
+async function loadSaldoKantor() {
+    await muatSaldoSenyap();
+    await muatPinjamanDataSenyap();
+    if (saldoRekDipilih && !saldoKantorData.rekening.some(r => r.id === saldoRekDipilih)) saldoRekDipilih = null;
+    renderSaldoKantor();
+}
+async function simpanSaldoKantor() {
+    try { await idbSet(STORE_CATATAN, 'saldo_kantor', saldoKantorData); }
+    catch (e) { showToast('❌ Gagal menyimpan: ' + e.message); }
+    renderSaldoKantor();
+}
+
+function renderSaldoKantor() {
+    normalSaldo(saldoKantorData);
+    const wadah = document.getElementById('saldoRingkasan');
+    if (!wadah) return;
+    wadah.innerHTML = getEntitasSaldo().map(e => {
+        const reks = rekeningAktifSaldo(e.id);
+        const total = hitungSaldoEntitas(e.id);
+        const pos = posisiAntarEntitas(e.id), lainE = entitasLain(e.id), dip = dipinjamOrangEntitas(e.id);
+        const baris2 = [];
+        if (lainE && pos.piutang > 0) baris2.push(['Piutang ke ' + lainE.nama, pos.piutang, '#B45309']);
+        if (lainE && pos.utang > 0) baris2.push(['Utang ke ' + lainE.nama, pos.utang, '#B91C1C']);
+        if (dip > 0) baris2.push(['Sedang dipinjam orang', dip, '#B45309']);
+        const infoExtra = baris2.length ? `<div style="font-size:11.5px;margin:0 0 6px;">${baris2.map(([t, v, w]) => `<div style="display:flex;justify-content:space-between;color:${w};"><span>${escapeHtml(t)}</span><span>${rupiahSaldo(v)}</span></div>`).join('')}<div style="display:flex;justify-content:space-between;font-weight:600;border-top:0.5px dashed #e2e8f0;margin-top:3px;padding-top:3px;"><span>Jumlah termasuk piutang</span><span>${rupiahSaldo(total + pos.piutang - pos.utang + dip)}</span></div></div>` : '';
+        const baris = reks.map(r => {
+            const s = hitungSaldoRekening(r.id);
+            const aktif = r.id === saldoRekDipilih;
+            return `<div onclick="pilihRekeningSaldo('${r.id}')" style="display:flex;justify-content:space-between;align-items:center;padding:9px 6px;border-bottom:0.5px solid #eef2f1;cursor:pointer;${aktif ? 'background:#F0FDF4;border-radius:8px;' : ''}">
+                <div style="min-width:0;"><span style="font-weight:600;">${escapeHtml(r.jenis === 'tunai' ? (r.nama || 'Kas tunai') : (r.nama || 'Bank'))}</span><span style="color:#888;font-size:11px;">${r.jenis === 'tunai' ? ' · yang dibawa' : (r.noAkhir ? ' · ····' + escapeHtml(r.noAkhir) : '')}</span></div>
+                <span style="font-weight:600;color:${s < 0 ? '#DC2626' : '#222'};white-space:nowrap;">${rupiahSaldo(s)}</span></div>`;
+        }).join('');
+        return `<div class="card-premium" style="margin:0 0 12px;">
+            <div style="display:flex;justify-content:space-between;align-items:baseline;gap:8px;margin-bottom:6px;">
+                <div style="font-weight:700;font-size:14px;min-width:0;">${escapeHtml(e.nama)}</div>
+                <div style="text-align:right;"><div style="font-size:10.5px;color:#888;">Total entitas</div><div style="font-weight:700;font-size:16px;color:${total < 0 ? '#DC2626' : '#15803d'};">${rupiahSaldo(total)}</div></div>
+            </div>
+            ${infoExtra}<div style="font-size:12px;border-top:0.5px solid #eef2f1;">${baris || '<div style="padding:10px 0;color:#888;">Belum ada rekening. Tambahkan kas tunai atau rekening bank.</div>'}</div>
+            <button type="button" onclick="bukaFormRekeningSaldo('', '${e.id}')" style="margin-top:8px;width:100%;padding:9px;border:1.5px dashed #cbd5e1;background:#fff;border-radius:10px;font-size:12px;font-weight:600;color:#475569;cursor:pointer;">+ Tambah rekening / kas tunai</button>
+        </div>`;
+    }).join('') + `<div style="font-size:11px;color:#888;text-align:center;margin:-2px 0 10px;">Dua entitas tidak dijumlahkan menjadi satu total.</div>`;
+    renderUtangPiutangSaldo();
+    renderDetailPihakSaldo();
+    renderDetailSaldo();
+}
+
+function pilihRekeningSaldo(id) { saldoRekDipilih = (saldoRekDipilih === id) ? null : id; renderSaldoKantor(); }
+
+function renderDetailSaldo() {
+    const kotak = document.getElementById('saldoDetail');
+    if (!kotak) return;
+    const r = saldoKantorData.rekening.find(x => x.id === saldoRekDipilih);
+    if (!r) { kotak.style.display = 'none'; kotak.innerHTML = ''; return; }
+    const daftar = saldoKantorData.mutasi.filter(m => m.rekId === r.id).sort(urutMutasiSaldo);
+    let berjalan = 0;
+    const baris = daftar.map(m => { berjalan += m.arah * m.nominal; return { m, sesudah: berjalan }; }).reverse();
+    const labelMutasi = m => {
+        const lp = labelPihakMutasi(m); if (lp) return lp;
+        if (m.jenis === 'saldo_awal') return 'Saldo awal';
+        if (m.jenis === 'penyesuaian') return 'Penyesuaian saldo';
+        if (m.jenis === 'pindah') {
+            const lawan = saldoKantorData.mutasi.find(x => x.pairId === m.pairId && x.id !== m.id);
+            const lr = lawan ? saldoKantorData.rekening.find(z => z.id === lawan.rekId) : null;
+            return (m.arah < 0 ? 'Pindah ke ' : 'Pindah dari ') + (lr ? escapeHtml(labelRekeningSaldo(lr)) : '?');
+        }
+        return escapeHtml(m.kategori || (m.arah > 0 ? 'Masuk' : 'Keluar'));
+    };
+    kotak.style.display = 'block';
+    kotak.innerHTML = `<div style="display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:4px;">
+            <div style="min-width:0;"><b style="font-size:14px;">${escapeHtml(labelRekeningSaldo(r))}</b><div style="font-size:11px;color:#888;">${escapeHtml(namaEntitasSaldo(r.entitas))}</div></div>
+            <button type="button" onclick="bukaFormRekeningSaldo('${r.id}')" style="border:none;background:#F1F5F9;border-radius:8px;padding:6px 10px;font-size:11px;font-weight:600;cursor:pointer;">Edit rekening</button>
+        </div>
+        <div style="font-size:12px;color:#888;">Saldo sekarang</div>
+        <div style="font-weight:800;font-size:20px;color:${berjalan < 0 ? '#DC2626' : '#15803d'};margin-bottom:8px;">${rupiahSaldo(berjalan)}</div>
+        ${baris.map(({ m, sesudah }) => `<div style="padding:8px 0;border-top:0.5px solid #eef2f1;font-size:12px;">
+            <div style="display:flex;justify-content:space-between;gap:8px;">
+                <div style="min-width:0;"><b>${labelMutasi(m)}</b><div style="color:#888;font-size:11px;">${tglSaldoTampil(m.tanggal)}${m.ket ? ' · ' + escapeHtml(m.ket) : ''}</div></div>
+                <div style="text-align:right;white-space:nowrap;"><div style="font-weight:700;color:${m.arah > 0 ? '#15803d' : '#DC2626'};">${m.arah > 0 ? '+' : '-'}${rupiahSaldo(m.nominal)}</div><div style="color:#888;font-size:10.5px;">Saldo ${rupiahSaldo(sesudah)}</div></div>
+            </div>
+            ${m.diedit ? `<div style="font-size:10.5px;color:#B45309;margin-top:2px;">✏️ diedit oleh ${escapeHtml(m.riwayatEdit[m.riwayatEdit.length - 1].oleh)} · ${escapeHtml(m.riwayatEdit[m.riwayatEdit.length - 1].waktu)}</div>
+              <details style="font-size:10.5px;color:#888;"><summary style="cursor:pointer;">Lihat nilai sebelumnya</summary>${m.riwayatEdit.map(x => `<div style="margin-top:2px;">${escapeHtml(x.waktu)} · ${escapeHtml(x.oleh)}: ${rupiahSaldo(x.sebelum.nominal)} · ${tglSaldoTampil(x.sebelum.tanggal)}${x.sebelum.ket ? ' · ' + escapeHtml(x.sebelum.ket) : ''}</div>`).join('')}</details>` : ''}
+            <div style="margin-top:4px;display:flex;gap:6px;">
+                <button type="button" onclick="bukaEditMutasiSaldo('${m.id}')" style="border:none;background:#F1F5F9;border-radius:6px;padding:4px 10px;font-size:11px;cursor:pointer;">Edit</button>
+                ${m.jenis === 'saldo_awal' ? '' : `<button type="button" onclick="hapusMutasiSaldo('${m.id}')" style="border:none;background:#FEE2E2;color:#B91C1C;border-radius:6px;padding:4px 10px;font-size:11px;cursor:pointer;">Hapus</button>`}
+            </div></div>`).join('')}`;
+}
+
+// ---------- Rekening ----------
+function bukaFormRekeningSaldo(id, entitasId) {
+    if (!bolehSaldoKantor()) return;
+    const r = id ? saldoKantorData.rekening.find(x => x.id === id) : null;
+    const modal = bukaModalAkses('rekeningSaldoModal');
+    const ents = getEntitasSaldo();
+    const saldoSekarang = r ? hitungSaldoRekening(r.id) : 0;
+    modal.innerHTML = `<div class="modal-content" style="max-width:400px;">
+        <h3 style="color:var(--primary);margin-bottom:8px;">${r ? 'Edit' : 'Tambah'} Rekening / Kas</h3>
+        <div class="input-group"><label>Entitas</label><select id="rekSaldoEntitas" ${r ? 'disabled' : ''}>${ents.map(e => `<option value="${e.id}" ${(r ? r.entitas : entitasId) === e.id ? 'selected' : ''}>${escapeHtml(e.nama)}</option>`).join('')}</select></div>
+        <div class="input-group"><label>Jenis</label><select id="rekSaldoJenis" ${r ? 'disabled' : ''}><option value="bank" ${r?.jenis !== 'tunai' ? 'selected' : ''}>Rekening bank / e-wallet</option><option value="tunai" ${r?.jenis === 'tunai' ? 'selected' : ''}>Kas tunai (yang dibawa)</option></select></div>
+        <div class="input-group"><label>Nama</label><input type="text" id="rekSaldoNama" value="${escapeHtml(r?.nama || '')}" placeholder="Contoh: BSI, BCA, Kas tunai"></div>
+        <div class="input-group"><label>4 digit terakhir nomor rekening (opsional)</label><input type="text" id="rekSaldoNoAkhir" inputmode="numeric" maxlength="4" value="${escapeHtml(r?.noAkhir || '')}" placeholder="4521"></div>
+        ${r ? '' : `<div class="input-group"><label>Saldo awal (Rp)</label><input type="text" id="rekSaldoAwal" class="money-input" inputmode="numeric" placeholder="0" oninput="formatMoneyInput(this)"></div>
+        <div class="input-group"><label>Tanggal saldo awal</label><input type="date" id="rekSaldoTglAwal" value="${hariIniISO()}"></div>`}
+        <button onclick="simpanRekeningSaldo('${id || ''}')" style="width:100%;padding:11px;background:var(--primary);color:white;border:none;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;">Simpan</button>
+        ${r ? `<button onclick="sembunyikanRekeningSaldo('${r.id}')" ${Math.round(saldoSekarang) === 0 ? '' : 'disabled'} style="width:100%;padding:10px;background:#FEE2E2;color:#B91C1C;border:none;border-radius:10px;font-size:12px;cursor:pointer;margin-top:8px;${Math.round(saldoSekarang) === 0 ? '' : 'opacity:.45;'}">Sembunyikan rekening ${Math.round(saldoSekarang) === 0 ? '' : '(hanya bila saldo Rp 0)'}</button>` : ''}
+        <button onclick="document.getElementById('rekeningSaldoModal').style.display='none'" style="width:100%;padding:10px;background:#e2e8f0;color:#333;border:none;border-radius:10px;font-size:13px;cursor:pointer;margin-top:8px;">Batal</button>
+    </div>`;
+    modal.style.display = 'flex';
+}
+function simpanRekeningSaldo(id) {
+    if (!bolehSaldoKantor()) return;
+    const nama = document.getElementById('rekSaldoNama').value.trim();
+    const noAkhir = (document.getElementById('rekSaldoNoAkhir').value || '').replace(/\D/g, '').slice(-4);
+    if (!nama) return showToast('Nama wajib diisi!');
+    if (id) {
+        const r = saldoKantorData.rekening.find(x => x.id === id); if (!r) return;
+        r.nama = nama; r.noAkhir = noAkhir;
+        catatAktivitas('🏦', `Saldo Kantor: rekening ${labelRekeningSaldo(r)} (${namaEntitasSaldo(r.entitas)}) diubah`);
+    } else {
+        const entitas = document.getElementById('rekSaldoEntitas').value, jenis = document.getElementById('rekSaldoJenis').value;
+        const awal = parseRupiah(document.getElementById('rekSaldoAwal').value || '0');
+        const tgl = document.getElementById('rekSaldoTglAwal').value || hariIniISO();
+        const r = { id: idSaldo(), entitas, jenis, nama, noAkhir: jenis === 'tunai' ? '' : noAkhir, aktif: true, dibuat: new Date().toISOString() };
+        saldoKantorData.rekening.push(r);
+        if (awal > 0) saldoKantorData.mutasi.push({ id: idSaldo(), rekId: r.id, tanggal: tgl, waktuBuat: Date.now(), jenis: 'saldo_awal', arah: 1, nominal: awal, kategori: '', ket: 'Saldo awal', oleh: currentAdminNama || '-' });
+        saldoRekDipilih = r.id;
+        catatAktivitas('🏦', `Saldo Kantor: rekening ${labelRekeningSaldo(r)} (${namaEntitasSaldo(entitas)}) ditambahkan, saldo awal ${rupiahSaldo(awal)}`);
+    }
+    document.getElementById('rekeningSaldoModal').style.display = 'none';
+    simpanSaldoKantor(); showToast('✅ Rekening tersimpan');
+}
+function sembunyikanRekeningSaldo(id) {
+    if (!bolehSaldoKantor()) return;
+    const r = saldoKantorData.rekening.find(x => x.id === id); if (!r) return;
+    if (Math.round(hitungSaldoRekening(id)) !== 0) return showToast('Saldo harus Rp 0 dulu');
+    r.aktif = false; if (saldoRekDipilih === id) saldoRekDipilih = null;
+    catatAktivitas('🏦', `Saldo Kantor: rekening ${labelRekeningSaldo(r)} disembunyikan`);
+    document.getElementById('rekeningSaldoModal').style.display = 'none';
+    simpanSaldoKantor();
+}
+
+// ---------- Catat masuk / keluar ----------
+function opsiRekeningSaldo(terpilih) {
+    return getEntitasSaldo().map(e => {
+        const reks = rekeningAktifSaldo(e.id);
+        if (!reks.length) return '';
+        return `<optgroup label="${escapeHtml(e.nama)}">${reks.map(r => `<option value="${r.id}" ${r.id === terpilih ? 'selected' : ''}>${escapeHtml(labelRekeningSaldo(r))} — ${rupiahSaldo(hitungSaldoRekening(r.id))}</option>`).join('')}</optgroup>`;
+    }).join('');
+}
+function bukaFormMutasiSaldo(arah) {
+    if (!bolehSaldoKantor()) return;
+    if (!rekeningAktifSaldo().length) return showToast('Tambahkan rekening dulu');
+    const kat = daftarKategoriSaldo(arah);
+    const modal = bukaModalAkses('mutasiSaldoModal');
+    modal.innerHTML = `<div class="modal-content" style="max-width:400px;">
+        <h3 style="color:${arah > 0 ? '#15803d' : '#B91C1C'};margin-bottom:8px;">${arah > 0 ? '+ Uang Masuk' : '+ Uang Keluar'}</h3>
+        <div class="input-group"><label>Rekening / kas</label><select id="mutSaldoRek">${opsiRekeningSaldo(saldoRekDipilih)}</select></div>
+        <div class="input-group"><label>Tanggal</label><input type="date" id="mutSaldoTgl" value="${hariIniISO()}"></div>
+        <div class="input-group"><label>Nominal (Rp)</label><input type="text" id="mutSaldoNominal" class="money-input" inputmode="numeric" placeholder="0" oninput="formatMoneyInput(this)"></div>
+        <div class="input-group"><label>Kategori</label><select id="mutSaldoKat">${kat.map(k => `<option>${escapeHtml(k)}</option>`).join('')}</select></div>
+        <div class="input-group"><label>Atau kategori baru (opsional)</label><input type="text" id="mutSaldoKatBaru" placeholder="Ketik untuk menambah kategori sendiri"></div>
+        <div class="input-group"><label>Keterangan</label><input type="text" id="mutSaldoKet" placeholder="Contoh: DP hotel Madinah"></div>
+        <button onclick="simpanMutasiSaldo(${arah})" style="width:100%;padding:11px;background:${arah > 0 ? '#15803d' : '#B91C1C'};color:white;border:none;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;">Simpan</button>
+        <button onclick="document.getElementById('mutasiSaldoModal').style.display='none'" style="width:100%;padding:10px;background:#e2e8f0;color:#333;border:none;border-radius:10px;font-size:13px;cursor:pointer;margin-top:8px;">Batal</button>
+    </div>`;
+    modal.style.display = 'flex';
+}
+function simpanMutasiSaldo(arah) {
+    if (!bolehSaldoKantor()) return;
+    const rekId = document.getElementById('mutSaldoRek').value;
+    const nominal = parseRupiah(document.getElementById('mutSaldoNominal').value || '0');
+    const tgl = document.getElementById('mutSaldoTgl').value;
+    if (!rekId || !saldoKantorData.rekening.some(r => r.id === rekId)) return showToast('Pilih rekening dulu!');
+    if (nominal <= 0) return showToast('Isi nominal dulu!');
+    if (!tgl) return showToast('Isi tanggal dulu!');
+    const r = saldoKantorData.rekening.find(x => x.id === rekId);
+    const m = { id: idSaldo(), rekId, tanggal: tgl, waktuBuat: Date.now(), jenis: arah > 0 ? 'masuk' : 'keluar', arah: arah > 0 ? 1 : -1, nominal,
+        kategori: catatKategoriBaru(arah, document.getElementById('mutSaldoKatBaru').value) || document.getElementById('mutSaldoKat').value, ket: (document.getElementById('mutSaldoKet').value || '').trim(), oleh: currentAdminNama || '-' };
+    saldoKantorData.mutasi.push(m);
+    saldoRekDipilih = rekId;
+    catatAktivitas('🏦', `Saldo Kantor: ${arah > 0 ? 'masuk' : 'keluar'} ${rupiahSaldo(nominal)} di ${labelRekeningSaldo(r)} (${namaEntitasSaldo(r.entitas)}) — ${m.kategori}${m.ket ? ': ' + m.ket : ''}`);
+    document.getElementById('mutasiSaldoModal').style.display = 'none';
+    simpanSaldoKantor(); showToast('✅ Tersimpan');
+}
+
+// ---------- Pindah antar rekening DALAM SATU entitas (antar entitas sengaja tidak bisa di sini) ----------
+function bukaFormPindahSaldo() {
+    if (!bolehSaldoKantor()) return;
+    if (rekeningAktifSaldo().length < 2) return showToast('Perlu minimal dua rekening / kas dalam satu entitas');
+    const modal = bukaModalAkses('pindahSaldoModal');
+    modal.innerHTML = `<div class="modal-content" style="max-width:400px;">
+        <h3 style="color:#0369A1;margin-bottom:4px;">⇄ Pindah Saldo</h3>
+        <div style="font-size:11px;color:#888;margin-bottom:8px;">Hanya antar rekening dalam entitas yang sama. Uang antar entitas (PT ⇄ KBIH) bukan perpindahan biasa, jadi tidak dicatat di sini.</div>
+        <div class="input-group"><label>Dari</label><select id="pindahDari" onchange="perbaruiPilihanPindahKe()">${opsiRekeningSaldo(saldoRekDipilih)}</select></div>
+        <div class="input-group"><label>Ke (entitas yang sama)</label><select id="pindahKe"></select></div>
+        <div class="input-group"><label>Tanggal</label><input type="date" id="pindahTgl" value="${hariIniISO()}"></div>
+        <div class="input-group"><label>Nominal (Rp)</label><input type="text" id="pindahNominal" class="money-input" inputmode="numeric" placeholder="0" oninput="formatMoneyInput(this)"></div>
+        <div class="input-group"><label>Keterangan</label><input type="text" id="pindahKet" placeholder="Contoh: tarik tunai"></div>
+        <button onclick="simpanPindahSaldo()" style="width:100%;padding:11px;background:#0369A1;color:white;border:none;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;">Simpan</button>
+        <button onclick="document.getElementById('pindahSaldoModal').style.display='none'" style="width:100%;padding:10px;background:#e2e8f0;color:#333;border:none;border-radius:10px;font-size:13px;cursor:pointer;margin-top:8px;">Batal</button>
+    </div>`;
+    modal.style.display = 'flex';
+    perbaruiPilihanPindahKe();
+}
+function perbaruiPilihanPindahKe() {
+    const dari = saldoKantorData.rekening.find(r => r.id === document.getElementById('pindahDari').value);
+    const ke = document.getElementById('pindahKe');
+    if (!dari) { ke.innerHTML = ''; return; }
+    const lain = rekeningAktifSaldo(dari.entitas).filter(r => r.id !== dari.id);
+    ke.innerHTML = lain.length ? lain.map(r => `<option value="${r.id}">${escapeHtml(labelRekeningSaldo(r))} — ${rupiahSaldo(hitungSaldoRekening(r.id))}</option>`).join('') : '<option value="">(tidak ada rekening lain di entitas ini)</option>';
+}
+function simpanPindahSaldo() {
+    if (!bolehSaldoKantor()) return;
+    const dari = saldoKantorData.rekening.find(r => r.id === document.getElementById('pindahDari').value);
+    const ke = saldoKantorData.rekening.find(r => r.id === document.getElementById('pindahKe').value);
+    const nominal = parseRupiah(document.getElementById('pindahNominal').value || '0');
+    const tgl = document.getElementById('pindahTgl').value;
+    if (!dari || !ke) return showToast('Pilih rekening asal dan tujuan!');
+    if (dari.id === ke.id) return showToast('Rekening asal dan tujuan harus berbeda!');
+    if (dari.entitas !== ke.entitas) return showToast('🔒 Antar entitas tidak bisa lewat Pindah Saldo');
+    if (nominal <= 0) return showToast('Isi nominal dulu!');
+    if (!tgl) return showToast('Isi tanggal dulu!');
+    const ket = (document.getElementById('pindahKet').value || '').trim();
+    const pairId = idSaldo(), waktu = Date.now(), oleh = currentAdminNama || '-';
+    saldoKantorData.mutasi.push(
+        { id: idSaldo(), rekId: dari.id, tanggal: tgl, waktuBuat: waktu, jenis: 'pindah', arah: -1, nominal, pairId, kategori: '', ket, oleh },
+        { id: idSaldo(), rekId: ke.id, tanggal: tgl, waktuBuat: waktu, jenis: 'pindah', arah: 1, nominal, pairId, kategori: '', ket, oleh });
+    saldoRekDipilih = dari.id;
+    catatAktivitas('🏦', `Saldo Kantor: pindah ${rupiahSaldo(nominal)} dari ${labelRekeningSaldo(dari)} ke ${labelRekeningSaldo(ke)} (${namaEntitasSaldo(dari.entitas)})${ket ? ' — ' + ket : ''}`);
+    document.getElementById('pindahSaldoModal').style.display = 'none';
+    simpanSaldoKantor(); showToast('✅ Perpindahan tersimpan');
+}
+
+// ---------- Cocokkan saldo (rekonsiliasi) ----------
+function bukaFormCocokkanSaldo() {
+    if (!bolehSaldoKantor()) return;
+    if (!rekeningAktifSaldo().length) return showToast('Tambahkan rekening dulu');
+    const modal = bukaModalAkses('cocokkanSaldoModal');
+    modal.innerHTML = `<div class="modal-content" style="max-width:400px;">
+        <h3 style="color:#B45309;margin-bottom:4px;">✔ Cocokkan Saldo</h3>
+        <div style="font-size:11px;color:#888;margin-bottom:8px;">Hitung uang sebenarnya (atau lihat saldo bank), lalu ketik di bawah. Kalau berbeda dari catatan, selisihnya dicatat sebagai penyesuaian.</div>
+        <div class="input-group"><label>Rekening / kas</label><select id="cocokRek" onchange="perbaruiPratinjauCocok()">${opsiRekeningSaldo(saldoRekDipilih)}</select></div>
+        <div class="input-group"><label>Saldo sebenarnya (Rp)</label><input type="text" id="cocokSebenarnya" class="money-input" inputmode="numeric" placeholder="0" oninput="formatMoneyInput(this); perbaruiPratinjauCocok();"></div>
+        <div id="cocokPratinjau" style="background:#FFFBEB;border-radius:10px;padding:10px 12px;font-size:12px;margin:6px 0 10px;"></div>
+        <button onclick="simpanCocokkanSaldo()" style="width:100%;padding:11px;background:#B45309;color:white;border:none;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;">Catat penyesuaian</button>
+        <button onclick="document.getElementById('cocokkanSaldoModal').style.display='none'" style="width:100%;padding:10px;background:#e2e8f0;color:#333;border:none;border-radius:10px;font-size:13px;cursor:pointer;margin-top:8px;">Batal</button>
+    </div>`;
+    modal.style.display = 'flex';
+    perbaruiPratinjauCocok();
+}
+function perbaruiPratinjauCocok() {
+    const el = document.getElementById('cocokPratinjau'); if (!el) return;
+    const rid = document.getElementById('cocokRek').value;
+    const catatan = hitungSaldoRekening(rid);
+    const teks = document.getElementById('cocokSebenarnya').value;
+    if (!teks) { el.innerHTML = `Saldo di catatan: <b>${rupiahSaldo(catatan)}</b>`; return; }
+    const selisih = parseRupiah(teks) - catatan;
+    el.innerHTML = `Saldo di catatan: <b>${rupiahSaldo(catatan)}</b><br>Selisih: <b style="color:${selisih === 0 ? '#15803d' : '#B91C1C'};">${selisih === 0 ? 'Cocok ✅' : (selisih > 0 ? '+' : '-') + rupiahSaldo(Math.abs(selisih))}</b>`;
+}
+function simpanCocokkanSaldo() {
+    if (!bolehSaldoKantor()) return;
+    const rid = document.getElementById('cocokRek').value;
+    const r = saldoKantorData.rekening.find(x => x.id === rid);
+    const teks = document.getElementById('cocokSebenarnya').value;
+    if (!r) return showToast('Pilih rekening dulu!');
+    if (!teks) return showToast('Isi saldo sebenarnya dulu!');
+    const catatan = hitungSaldoRekening(rid), sebenarnya = parseRupiah(teks), selisih = sebenarnya - catatan;
+    if (selisih === 0) { document.getElementById('cocokkanSaldoModal').style.display = 'none'; return showToast('Saldo sudah cocok ✅'); }
+    saldoKantorData.mutasi.push({ id: idSaldo(), rekId: rid, tanggal: hariIniISO(), waktuBuat: Date.now(), jenis: 'penyesuaian', arah: selisih > 0 ? 1 : -1, nominal: Math.abs(selisih), kategori: '',
+        ket: `Catatan ${rupiahSaldo(catatan)}, sebenarnya ${rupiahSaldo(sebenarnya)}`, oleh: currentAdminNama || '-' });
+    saldoRekDipilih = rid;
+    catatAktivitas('🏦', `Saldo Kantor: penyesuaian ${selisih > 0 ? '+' : '-'}${rupiahSaldo(Math.abs(selisih))} di ${labelRekeningSaldo(r)} (${namaEntitasSaldo(r.entitas)}): catatan ${rupiahSaldo(catatan)}, sebenarnya ${rupiahSaldo(sebenarnya)}`);
+    document.getElementById('cocokkanSaldoModal').style.display = 'none';
+    simpanSaldoKantor(); showToast('✅ Penyesuaian dicatat');
+}
+
+// ---------- Edit & hapus mutasi (nilai lama tersimpan, siapa & kapan tercatat) ----------
+function bukaEditMutasiSaldo(id) {
+    if (!bolehSaldoKantor()) return;
+    const m = saldoKantorData.mutasi.find(x => x.id === id); if (!m) return;
+    const adaKategori = m.jenis === 'masuk' || m.jenis === 'keluar' || m.jenis === 'bayar_antar';
+    const kat = daftarKategoriSaldo(m.arah);
+    const modal = bukaModalAkses('editMutasiSaldoModal');
+    modal.innerHTML = `<div class="modal-content" style="max-width:400px;">
+        <h3 style="color:var(--primary);margin-bottom:2px;">✏️ Edit Catatan</h3>
+        <div style="font-size:11px;color:#888;margin-bottom:8px;">Dibuat oleh ${escapeHtml(m.oleh || '-')}. Nilai sebelum diedit tetap tersimpan.${(m.jenis === 'pindah' || m.eventId || m.pinjamanTrxId) ? ' Perubahan ikut diterapkan ke catatan terkait (sisi lawan / Buku Pinjaman).' : ''}</div>
+        <div class="input-group"><label>Tanggal</label><input type="date" id="editMutTgl" value="${m.tanggal}"></div>
+        <div class="input-group"><label>Nominal (Rp)</label><input type="text" id="editMutNominal" class="money-input" inputmode="numeric" value="${m.nominal.toLocaleString('id-ID')}" oninput="formatMoneyInput(this)"></div>
+        ${adaKategori ? `<div class="input-group"><label>Kategori</label><select id="editMutKat">${kat.map(k => `<option ${k === m.kategori ? 'selected' : ''}>${escapeHtml(k)}</option>`).join('')}</select></div>` : ''}
+        <div class="input-group"><label>Keterangan</label><input type="text" id="editMutKet" value="${escapeHtml(m.ket || '')}"></div>
+        <button onclick="simpanEditMutasiSaldo('${m.id}')" style="width:100%;padding:11px;background:var(--primary);color:white;border:none;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;">Simpan perubahan</button>
+        <button onclick="document.getElementById('editMutasiSaldoModal').style.display='none'" style="width:100%;padding:10px;background:#e2e8f0;color:#333;border:none;border-radius:10px;font-size:13px;cursor:pointer;margin-top:8px;">Batal</button>
+    </div>`;
+    modal.style.display = 'flex';
+}
+async function simpanEditMutasiSaldo(id) {
+    if (!bolehSaldoKantor()) return;
+    const m = saldoKantorData.mutasi.find(x => x.id === id); if (!m) return;
+    const nominal = parseRupiah(document.getElementById('editMutNominal').value || '0');
+    const tgl = document.getElementById('editMutTgl').value;
+    const ket = (document.getElementById('editMutKet').value || '').trim();
+    const katEl = document.getElementById('editMutKat');
+    const kategori = katEl ? katEl.value : m.kategori;
+    if (nominal <= 0) return showToast('Isi nominal dulu!');
+    if (!tgl) return showToast('Isi tanggal dulu!');
+    if (nominal === m.nominal && tgl === m.tanggal && ket === (m.ket || '') && kategori === m.kategori) return showToast('Tidak ada perubahan');
+    const sebelum = { nominal: m.nominal, tanggal: m.tanggal, ket: m.ket || '', kategori: m.kategori || '' };
+    const waktu = new Date().toLocaleDateString('id-ID') + ' ' + new Date().toLocaleTimeString('id-ID');
+    const oleh = currentAdminNama || '-';
+    if (m.pinjamanTrxId) {
+        await muatPinjamanDataSenyap();
+        const t = pinjamanData.transaksi.find(x => x.id === m.pinjamanTrxId);
+        if (t && t.jenis === 'kembali') { const sisa = sisaPinjamanTanpaTrx(t.orangId, 'kantor', t.id); if (nominal > sisa) return showToast('Melebihi sisa hutang (' + rupiahSaldo(sisa) + ')'); }
+        if (t) { t.nominal = nominal; t.tanggal = tgl; t.keperluan = ket || t.keperluan; await simpanPinjamanData(); }
+    }
+    if (m.eventId) { const ev = antarSaldo().find(e => e.id === m.eventId); if (ev) { ev.nominal = nominal; ev.tanggal = tgl; ev.ket = ket; } }
+    const sisi = m.jenis === 'pindah' ? saldoKantorData.mutasi.filter(x => x.pairId === m.pairId)
+        : (m.eventId ? saldoKantorData.mutasi.filter(x => x.eventId === m.eventId) : [m]);
+    sisi.forEach(x => {
+        x.riwayatEdit = [...(x.riwayatEdit || []), { waktu, oleh, sebelum: { nominal: x.nominal, tanggal: x.tanggal, ket: x.ket || '', kategori: x.kategori || '' } }].slice(-10);
+        x.nominal = nominal; x.tanggal = tgl; x.ket = ket; if (x.jenis === 'masuk' || x.jenis === 'keluar' || x.jenis === 'bayar_antar') x.kategori = kategori; x.diedit = true;
+    });
+    const r = saldoKantorData.rekening.find(z => z.id === m.rekId);
+    catatAktivitas('✏️', `Saldo Kantor diedit (${r ? labelRekeningSaldo(r) : '?'}): ${rupiahSaldo(sebelum.nominal)} menjadi ${rupiahSaldo(nominal)}${sebelum.tanggal !== tgl ? ', tanggal ' + tglSaldoTampil(sebelum.tanggal) + ' menjadi ' + tglSaldoTampil(tgl) : ''}`);
+    document.getElementById('editMutasiSaldoModal').style.display = 'none';
+    simpanSaldoKantor(); showToast('✅ Perubahan tersimpan');
+}
+function hapusMutasiSaldo(id) {
+    if (!bolehSaldoKantor()) return;
+    normalSaldo(saldoKantorData);
+    const m = saldoKantorData.mutasi.find(x => x.id === id); if (!m || m.jenis === 'saldo_awal') return;
+    const r = saldoKantorData.rekening.find(z => z.id === m.rekId);
+    const adaKembaliTersisa = m.jenis === 'pinjam_orang' && pinjamanData.transaksi.some(t => t.jenis === 'kembali' && t.orangId === (m.pihak || {}).orangId);
+    const pesan = m.eventId ? 'Seluruh catatan pinjaman ini (kedua sisi) akan ikut dihapus.'
+        : (m.pinjamanTrxId ? 'Catatan terkait di Buku Pinjaman juga akan dihapus.' + (adaKembaliTersisa ? ' Pengembalian yang sudah tercatat untuk orang ini tidak ikut terhapus — periksa lagi di Buku Pinjaman.' : '')
+        : (m.jenis === 'pindah' ? 'Kedua sisi perpindahan (asal dan tujuan) akan ikut terhapus.' : 'Catatan ini akan dihapus dan saldo dihitung ulang.'));
+    konfirmasiBertema('Hapus catatan ini?', pesan, async () => {
+        const hapus = m.eventId ? saldoKantorData.mutasi.filter(x => x.eventId === m.eventId).map(x => x.id)
+            : (m.jenis === 'pindah' ? saldoKantorData.mutasi.filter(x => x.pairId === m.pairId).map(x => x.id) : [m.id]);
+        if (m.eventId) saldoKantorData.antarEntitas = antarSaldo().filter(e => e.id !== m.eventId);
+        if (m.pinjamanTrxId) {
+            await muatPinjamanDataSenyap();
+            pinjamanData.transaksi = pinjamanData.transaksi.filter(x => x.id !== m.pinjamanTrxId);
+            try { await idbDelete(STORE_CATATAN, 'pinjaman_bukti_' + m.pinjamanTrxId); } catch (e) {}
+            await simpanPinjamanData();
+        }
+        saldoKantorData.mutasi = saldoKantorData.mutasi.filter(x => !hapus.includes(x.id));
+        catatAktivitas('🏦', `Saldo Kantor: catatan ${rupiahSaldo(m.nominal)} (${m.jenis}) di ${r ? labelRekeningSaldo(r) : '?'} dihapus`);
+        await simpanSaldoKantor(); showToast('🗑️ Dihapus');
+    });
+}
+
+// ==================== SALDO KANTOR (tahap 2): pinjam, talangan, pengembalian ====================
+// Dinamis: pihaknya bisa entitas lain ATAU siapa pun (orang diketik langsung). Pinjaman ke ORANG tersimpan di Buku Pinjaman
+// (satu-satunya catatan pinjaman orang, lengkap dengan cicilan & pengingat) dan tertaut ke mutasi saldo. Antar ENTITAS dicatat di Saldo Kantor.
+function normalSaldo(d) {
+    d = d && typeof d === 'object' ? d : {};
+    d.rekening = Array.isArray(d.rekening) ? d.rekening : [];
+    d.mutasi = Array.isArray(d.mutasi) ? d.mutasi : [];
+    d.antarEntitas = Array.isArray(d.antarEntitas) ? d.antarEntitas : [];
+    d.kategori = d.kategori && typeof d.kategori === 'object' ? d.kategori : {};
+    d.kategori.masuk = Array.isArray(d.kategori.masuk) ? d.kategori.masuk : [];
+    d.kategori.keluar = Array.isArray(d.kategori.keluar) ? d.kategori.keluar : [];
+    return d;
+}
+async function muatPinjamanDataSenyap() {
+    try { const d = await idbGet(STORE_CATATAN, 'pinjaman_data'); pinjamanData = (d && Array.isArray(d.orang) && Array.isArray(d.transaksi)) ? d : { orang: [], transaksi: [] }; }
+    catch (e) { pinjamanData = { orang: [], transaksi: [] }; }
+}
+async function muatSaldoSenyap() {
+    try { const d = await idbGet(STORE_CATATAN, 'saldo_kantor'); saldoKantorData = normalSaldo(d && Array.isArray(d.rekening) ? d : null); }
+    catch (e) { saldoKantorData = normalSaldo(null); }
+}
+function daftarKategoriSaldo(arah) {
+    normalSaldo(saldoKantorData);
+    const dasar = arah > 0 ? KATEGORI_SALDO_MASUK : KATEGORI_SALDO_KELUAR;
+    const khusus = (saldoKantorData.kategori && saldoKantorData.kategori[arah > 0 ? 'masuk' : 'keluar']) || [];
+    return [...dasar, ...khusus.filter(k => !dasar.includes(k))];
+}
+function catatKategoriBaru(arah, nama) {
+    normalSaldo(saldoKantorData);
+    const n = (nama || '').trim(); if (!n) return '';
+    const kunci = arah > 0 ? 'masuk' : 'keluar';
+    if (!daftarKategoriSaldo(arah).some(k => k.toLowerCase() === n.toLowerCase())) saldoKantorData.kategori[kunci].push(n);
+    return daftarKategoriSaldo(arah).find(k => k.toLowerCase() === n.toLowerCase()) || n;
+}
+
+// ---------- Posisi utang-piutang antar entitas ----------
+function entitasLain(eid) { return getEntitasSaldo().find(e => e.id !== eid) || null; }
+// Positif = entitas lain berutang kepada eid; negatif = eid berutang kepada entitas lain
+function antarSaldo() { return saldoKantorData.antarEntitas || (saldoKantorData.antarEntitas = []); }
+function netAntarEntitas(eid) {
+    normalSaldo(saldoKantorData);
+    let net = 0;
+    antarSaldo().forEach(ev => {
+        if (ev.jenis === 'pinjam') net += (ev.dari === eid ? 1 : (ev.ke === eid ? -1 : 0)) * ev.nominal;
+        else net += (ev.dari === eid ? 1 : (ev.ke === eid ? -1 : 0)) * ev.nominal; // kembali: dari = yang membayar kembali
+    });
+    return net;
+}
+function posisiAntarEntitas(eid) { const n = netAntarEntitas(eid); return { piutang: n > 0 ? n : 0, utang: n < 0 ? -n : 0 }; }
+function hutangEntitasKe(pembayar) { return posisiAntarEntitas(pembayar).utang; }
+
+// ---------- Pinjaman ke orang (via Buku Pinjaman) ----------
+function sisaOrangDariKantor(orangId) { return hitungPinjamanOrang(orangId).sisa.kantor; }
+function daftarOrangBerutang() {
+    return pinjamanData.orang.map(o => ({ orang: o, sisa: sisaOrangDariKantor(o.id) })).filter(x => x.sisa > 0)
+        .sort((a, b) => a.orang.nama.localeCompare(b.orang.nama));
+}
+function dipinjamOrangEntitas(eid) {
+    const rekIds = new Set(saldoKantorData.rekening.filter(r => r.entitas === eid).map(r => r.id));
+    let total = 0;
+    pinjamanData.orang.forEach(o => { hitungPinjamanOrang(o.id).pinjaman.forEach(p => { if (p.sumber === 'kantor' && p.saldoRekId && rekIds.has(p.saldoRekId)) total += p.sisa; }); });
+    return total;
+}
+function idPinjamanBaru() { let id = Date.now() + 1; while (pinjamanData.transaksi.some(t => t.id === id)) id++; return id; }
+function labelPihakMutasi(m) {
+    const p = m.pihak || {};
+    const nama = p.tipe === 'entitas' ? namaEntitasSaldo(p.id) : (p.nama || '?');
+    if (m.jenis === 'pinjam_antar') return (m.arah < 0 ? 'Pinjaman ke ' : 'Pinjaman dari ') + escapeHtml(nama);
+    if (m.jenis === 'bayar_antar') return 'Dibayarkan untuk ' + escapeHtml(nama) + (m.kategori ? ' · ' + escapeHtml(m.kategori) : '');
+    if (m.jenis === 'kembali_antar') return (m.arah < 0 ? 'Pengembalian ke ' : 'Pengembalian dari ') + escapeHtml(nama);
+    if (m.jenis === 'pinjam_orang') return 'Pinjaman ke ' + escapeHtml(nama);
+    if (m.jenis === 'kembali_orang') return 'Pengembalian dari ' + escapeHtml(nama);
+    return null;
+}
+
+// ---------- Formulir: Pinjam / Talangan ----------
+function bukaFormPinjamSaldo() {
+    if (!bolehSaldoKantor()) return;
+    if (!rekeningAktifSaldo().length) return showToast('Tambahkan rekening dulu');
+    const adaDua = getEntitasSaldo().length > 1;
+    const modal = bukaModalAkses('pinjamSaldoModal');
+    modal.innerHTML = `<div class="modal-content" style="max-width:420px;">
+        <h3 style="color:#7C3AED;margin-bottom:4px;">🤝 Pinjam / Talangan</h3>
+        <div style="font-size:11px;color:#888;margin-bottom:8px;">Uang keluar yang nanti dikembalikan: dipinjam entitas lain, atau ditalangi untuk atasan, staf, jamaah, mitra, dan siapa pun.</div>
+        <div class="input-group"><label>Uang diambil dari</label><select id="pjDari" onchange="perbaruiFormPinjamSaldo()">${opsiRekeningSaldo(saldoRekDipilih)}</select></div>
+        <div class="input-group"><label>Untuk siapa?</label><select id="pjJenisPihak" onchange="perbaruiFormPinjamSaldo()">${adaDua ? '<option value="entitas">Entitas lain</option>' : ''}<option value="orang">Orang / pihak lain (atasan, staf, jamaah, mitra, dll)</option></select></div>
+        <div id="pjAreaEntitas">
+            <div style="font-size:12px;margin:-4px 0 8px;">Untuk entitas: <b id="pjNamaDebitur"></b></div>
+            <div class="input-group"><label>Bentuknya</label><select id="pjMode" onchange="perbaruiFormPinjamSaldo()"><option value="transfer">Uang dipindah ke rekening entitas itu</option><option value="langsung">Dibayarkan langsung ke pihak luar atas nama entitas itu (listrik, tiket, dll)</option></select></div>
+            <div class="input-group" id="pjAreaTransfer"><label>Masuk ke rekening</label><select id="pjKe"></select></div>
+            <div id="pjAreaLangsung"><div class="input-group"><label>Kategori</label><select id="pjKat">${daftarKategoriSaldo(-1).map(k => `<option>${escapeHtml(k)}</option>`).join('')}</select></div>
+                <div class="input-group"><label>Atau kategori baru (opsional)</label><input type="text" id="pjKatBaru" placeholder="Contoh: Listrik kantor"></div></div>
+        </div>
+        <div id="pjAreaOrang" style="display:none;"><div class="input-group"><label>Nama</label><input type="text" id="pjNama" list="pjDaftarNama" placeholder="Ketik nama atau pilih dari daftar"><datalist id="pjDaftarNama">${pinjamanData.orang.map(o => `<option value="${escapeHtml(o.nama)}">`).join('')}</datalist></div></div>
+        <div class="input-group"><label>Tanggal</label><input type="date" id="pjTgl" value="${hariIniISO()}"></div>
+        <div class="input-group"><label>Nominal (Rp)</label><input type="text" id="pjNominal" class="money-input" inputmode="numeric" placeholder="0" oninput="formatMoneyInput(this)"></div>
+        <div class="input-group"><label>Keterangan</label><input type="text" id="pjKet" placeholder="Contoh: bayar listrik PT, tiket pesawat, setor ke atasan"></div>
+        <button onclick="simpanPinjamSaldo()" style="width:100%;padding:11px;background:#7C3AED;color:white;border:none;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;">Simpan</button>
+        <button onclick="document.getElementById('pinjamSaldoModal').style.display='none'" style="width:100%;padding:10px;background:#e2e8f0;color:#333;border:none;border-radius:10px;font-size:13px;cursor:pointer;margin-top:8px;">Batal</button>
+    </div>`;
+    modal.style.display = 'flex';
+    perbaruiFormPinjamSaldo();
+}
+function perbaruiFormPinjamSaldo() {
+    const dari = saldoKantorData.rekening.find(r => r.id === document.getElementById('pjDari').value);
+    const jenis = document.getElementById('pjJenisPihak').value;
+    document.getElementById('pjAreaEntitas').style.display = jenis === 'entitas' ? 'block' : 'none';
+    document.getElementById('pjAreaOrang').style.display = jenis === 'orang' ? 'block' : 'none';
+    if (jenis !== 'entitas' || !dari) return;
+    const deb = entitasLain(dari.entitas);
+    document.getElementById('pjNamaDebitur').textContent = deb ? deb.nama : '-';
+    const mode = document.getElementById('pjMode').value;
+    document.getElementById('pjAreaTransfer').style.display = mode === 'transfer' ? 'block' : 'none';
+    document.getElementById('pjAreaLangsung').style.display = mode === 'langsung' ? 'block' : 'none';
+    const tujuan = deb ? rekeningAktifSaldo(deb.id) : [];
+    document.getElementById('pjKe').innerHTML = tujuan.length ? tujuan.map(r => `<option value="${r.id}">${escapeHtml(labelRekeningSaldo(r))} — ${rupiahSaldo(hitungSaldoRekening(r.id))}</option>`).join('') : '<option value="">(entitas itu belum punya rekening)</option>';
+}
+async function simpanPinjamSaldo() {
+    normalSaldo(saldoKantorData);
+    if (!bolehSaldoKantor()) return;
+    const dari = saldoKantorData.rekening.find(r => r.id === document.getElementById('pjDari').value);
+    const jenis = document.getElementById('pjJenisPihak').value;
+    const nominal = parseRupiah(document.getElementById('pjNominal').value || '0');
+    const tgl = document.getElementById('pjTgl').value;
+    const ket = (document.getElementById('pjKet').value || '').trim();
+    if (!dari) return showToast('Pilih rekening asal dulu!');
+    if (nominal <= 0) return showToast('Isi nominal dulu!');
+    if (!tgl) return showToast('Isi tanggal dulu!');
+    const oleh = currentAdminNama || '-', waktu = Date.now();
+    if (jenis === 'entitas') {
+        const deb = entitasLain(dari.entitas); if (!deb) return showToast('Entitas lain belum diatur di Konfigurasi');
+        const mode = document.getElementById('pjMode').value;
+        const ev = { id: idSaldo(), tanggal: tgl, jenis: 'pinjam', dari: dari.entitas, ke: deb.id, nominal, mode, ket, oleh, mutasiIds: [] };
+        if (mode === 'transfer') {
+            const ke = saldoKantorData.rekening.find(r => r.id === document.getElementById('pjKe').value);
+            if (!ke || ke.entitas !== deb.id) return showToast('Pilih rekening tujuan di ' + deb.nama + '!');
+            const m1 = { id: idSaldo(), rekId: dari.id, tanggal: tgl, waktuBuat: waktu, jenis: 'pinjam_antar', arah: -1, nominal, kategori: '', ket, oleh, eventId: ev.id, pihak: { tipe: 'entitas', id: deb.id } };
+            const m2 = { id: idSaldo(), rekId: ke.id, tanggal: tgl, waktuBuat: waktu, jenis: 'pinjam_antar', arah: 1, nominal, kategori: '', ket, oleh, eventId: ev.id, pihak: { tipe: 'entitas', id: dari.entitas } };
+            ev.mutasiIds = [m1.id, m2.id]; saldoKantorData.mutasi.push(m1, m2);
+        } else {
+            let kategori = document.getElementById('pjKat').value;
+            const baru = catatKategoriBaru(-1, document.getElementById('pjKatBaru').value); if (baru) kategori = baru;
+            const m1 = { id: idSaldo(), rekId: dari.id, tanggal: tgl, waktuBuat: waktu, jenis: 'bayar_antar', arah: -1, nominal, kategori, ket, oleh, eventId: ev.id, pihak: { tipe: 'entitas', id: deb.id } };
+            ev.mutasiIds = [m1.id]; saldoKantorData.mutasi.push(m1);
+        }
+        antarSaldo().push(ev);
+        catatAktivitas('🤝', `Saldo Kantor: ${namaEntitasSaldo(dari.entitas)} ${mode === 'transfer' ? 'meminjamkan' : 'membayarkan'} ${rupiahSaldo(nominal)} untuk ${deb.nama}${ket ? ' — ' + ket : ''}`);
+    } else {
+        const nama = (document.getElementById('pjNama').value || '').trim();
+        if (!nama) return showToast('Nama wajib diisi!');
+        await muatPinjamanDataSenyap();
+        let orang = cariOrangPinjamanByNama(nama);
+        if (!orang) { orang = { id: Date.now(), nama, hp: '' }; pinjamanData.orang.push(orang); }
+        const trxId = idPinjamanBaru(), mId = idSaldo();
+        pinjamanData.transaksi.push({ id: trxId, orangId: orang.id, jenis: 'pinjam', tanggal: tgl, nominal, sumber: 'kantor', keperluan: ket || 'Talangan dari Saldo Kantor', bukti: 0, cicilan: null, saldoMutasiId: mId, saldoRekId: dari.id });
+        saldoKantorData.mutasi.push({ id: mId, rekId: dari.id, tanggal: tgl, waktuBuat: waktu, jenis: 'pinjam_orang', arah: -1, nominal, kategori: '', ket, oleh, pinjamanTrxId: trxId, pihak: { tipe: 'orang', orangId: orang.id, nama: orang.nama } });
+        catatAktivitas('🤝', `Saldo Kantor: ${rupiahSaldo(nominal)} dipinjamkan/ditalangi untuk ${orang.nama} dari ${labelRekeningSaldo(dari)} (${namaEntitasSaldo(dari.entitas)})${ket ? ' — ' + ket : ''}`);
+        await simpanPinjamanData();
+    }
+    saldoRekDipilih = dari.id;
+    document.getElementById('pinjamSaldoModal').style.display = 'none';
+    await simpanSaldoKantor(); showToast('✅ Tersimpan');
+}
+
+// ---------- Formulir: Pengembalian ----------
+function bukaFormKembaliSaldo() {
+    if (!bolehSaldoKantor()) return;
+    const opsi = [];
+    getEntitasSaldo().forEach(p => { const h = hutangEntitasKe(p.id); const q = entitasLain(p.id); if (h > 0 && q) opsi.push({ v: 'ent:' + p.id, t: `${p.nama} mengembalikan ke ${q.nama} — sisa ${rupiahSaldo(h)}`, sisa: h }); });
+    daftarOrangBerutang().forEach(x => opsi.push({ v: 'org:' + x.orang.id, t: `${x.orang.nama} — sisa ${rupiahSaldo(x.sisa)}`, sisa: x.sisa }));
+    if (!opsi.length) return showToast('Belum ada pinjaman yang perlu dikembalikan');
+    const modal = bukaModalAkses('kembaliSaldoModal');
+    window._opsiKembali = opsi;
+    modal.innerHTML = `<div class="modal-content" style="max-width:420px;">
+        <h3 style="color:#15803d;margin-bottom:4px;">↩ Pengembalian</h3>
+        <div class="input-group"><label>Siapa yang mengembalikan</label><select id="kbPihak" onchange="perbaruiFormKembaliSaldo(true)">${opsi.map(o => `<option value="${escapeHtml(o.v)}">${escapeHtml(o.t)}</option>`).join('')}</select></div>
+        <div class="input-group" id="kbAreaDari"><label id="kbLabelDari">Dari rekening</label><select id="kbDari"></select></div>
+        <div class="input-group"><label id="kbLabelKe">Masuk ke rekening</label><select id="kbKe"></select></div>
+        <div class="input-group"><label>Tanggal</label><input type="date" id="kbTgl" value="${hariIniISO()}"></div>
+        <div class="input-group"><label>Nominal (Rp) — boleh dicicil</label><input type="text" id="kbNominal" class="money-input" inputmode="numeric" placeholder="0" oninput="formatMoneyInput(this)"></div>
+        <div class="input-group"><label>Keterangan</label><input type="text" id="kbKet" placeholder="Contoh: dikembalikan tunai"></div>
+        <button onclick="simpanKembaliSaldo()" style="width:100%;padding:11px;background:#15803d;color:white;border:none;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;">Simpan</button>
+        <button onclick="document.getElementById('kembaliSaldoModal').style.display='none'" style="width:100%;padding:10px;background:#e2e8f0;color:#333;border:none;border-radius:10px;font-size:13px;cursor:pointer;margin-top:8px;">Batal</button>
+    </div>`;
+    modal.style.display = 'flex';
+    perbaruiFormKembaliSaldo(true);
+}
+function perbaruiFormKembaliSaldo(isiNominal) {
+    const nilai = document.getElementById('kbPihak').value;
+    const opsi = (window._opsiKembali || []).find(o => o.v === nilai);
+    const opsiRek = (eid) => { const reks = eid ? rekeningAktifSaldo(eid) : rekeningAktifSaldo(); return reks.map(r => `<option value="${r.id}">${escapeHtml(labelRekeningSaldo(r))}${eid ? '' : ' (' + escapeHtml(namaEntitasSaldo(r.entitas)) + ')'} — ${rupiahSaldo(hitungSaldoRekening(r.id))}</option>`).join('') || '<option value="">(belum ada rekening)</option>'; };
+    if (nilai.startsWith('ent:')) {
+        const pem = nilai.slice(4), pen = (entitasLain(pem) || {}).id;
+        document.getElementById('kbAreaDari').style.display = 'block';
+        document.getElementById('kbLabelDari').textContent = 'Dibayar dari rekening ' + namaEntitasSaldo(pem);
+        document.getElementById('kbLabelKe').textContent = 'Masuk ke rekening ' + namaEntitasSaldo(pen);
+        document.getElementById('kbDari').innerHTML = opsiRek(pem); document.getElementById('kbKe').innerHTML = opsiRek(pen);
+    } else {
+        document.getElementById('kbAreaDari').style.display = 'none';
+        document.getElementById('kbLabelKe').textContent = 'Masuk ke rekening';
+        document.getElementById('kbKe').innerHTML = opsiRek(null);
+        const sebelumnya = pinjamanData.transaksi.filter(t => t.orangId === Number(nilai.slice(4)) && t.saldoRekId).pop();
+        if (sebelumnya) document.getElementById('kbKe').value = sebelumnya.saldoRekId;
+    }
+    if (isiNominal && opsi) document.getElementById('kbNominal').value = opsi.sisa.toLocaleString('id-ID');
+}
+async function simpanKembaliSaldo() {
+    normalSaldo(saldoKantorData);
+    if (!bolehSaldoKantor()) return;
+    const nilai = document.getElementById('kbPihak').value;
+    const nominal = parseRupiah(document.getElementById('kbNominal').value || '0');
+    const tgl = document.getElementById('kbTgl').value;
+    const ket = (document.getElementById('kbKet').value || '').trim();
+    if (nominal <= 0) return showToast('Isi nominal dulu!');
+    if (!tgl) return showToast('Isi tanggal dulu!');
+    const oleh = currentAdminNama || '-', waktu = Date.now();
+    const ke = saldoKantorData.rekening.find(r => r.id === document.getElementById('kbKe').value);
+    if (!ke) return showToast('Pilih rekening penerima dulu!');
+    if (nilai.startsWith('ent:')) {
+        const pem = nilai.slice(4), pen = (entitasLain(pem) || {}).id;
+        const dari = saldoKantorData.rekening.find(r => r.id === document.getElementById('kbDari').value);
+        if (!dari || dari.entitas !== pem) return showToast('Pilih rekening pembayar di ' + namaEntitasSaldo(pem) + '!');
+        if (ke.entitas !== pen) return showToast('Pilih rekening penerima di ' + namaEntitasSaldo(pen) + '!');
+        const sisa = hutangEntitasKe(pem);
+        if (nominal > sisa) return showToast('Melebihi sisa utang (' + rupiahSaldo(sisa) + ')');
+        const ev = { id: idSaldo(), tanggal: tgl, jenis: 'kembali', dari: pem, ke: pen, nominal, mode: 'kembali', ket, oleh, mutasiIds: [] };
+        const m1 = { id: idSaldo(), rekId: dari.id, tanggal: tgl, waktuBuat: waktu, jenis: 'kembali_antar', arah: -1, nominal, kategori: '', ket, oleh, eventId: ev.id, pihak: { tipe: 'entitas', id: pen } };
+        const m2 = { id: idSaldo(), rekId: ke.id, tanggal: tgl, waktuBuat: waktu, jenis: 'kembali_antar', arah: 1, nominal, kategori: '', ket, oleh, eventId: ev.id, pihak: { tipe: 'entitas', id: pem } };
+        ev.mutasiIds = [m1.id, m2.id]; saldoKantorData.mutasi.push(m1, m2); antarSaldo().push(ev);
+        catatAktivitas('↩', `Saldo Kantor: ${namaEntitasSaldo(pem)} mengembalikan ${rupiahSaldo(nominal)} ke ${namaEntitasSaldo(pen)}${ket ? ' — ' + ket : ''}`);
+    } else {
+        await muatPinjamanDataSenyap();
+        const orang = pinjamanData.orang.find(o => o.id === Number(nilai.slice(4)));
+        if (!orang) return showToast('Peminjam tidak ditemukan');
+        const sisa = sisaOrangDariKantor(orang.id);
+        if (nominal > sisa) return showToast('Melebihi sisa hutang (' + rupiahSaldo(sisa) + ')');
+        const trxId = idPinjamanBaru(), mId = idSaldo();
+        pinjamanData.transaksi.push({ id: trxId, orangId: orang.id, jenis: 'kembali', tanggal: tgl, nominal, sumber: 'kantor', keperluan: ket, bukti: 0, cicilan: null, saldoMutasiId: mId, saldoRekId: ke.id });
+        saldoKantorData.mutasi.push({ id: mId, rekId: ke.id, tanggal: tgl, waktuBuat: waktu, jenis: 'kembali_orang', arah: 1, nominal, kategori: '', ket, oleh, pinjamanTrxId: trxId, pihak: { tipe: 'orang', orangId: orang.id, nama: orang.nama } });
+        catatAktivitas('↩', `Saldo Kantor: ${orang.nama} mengembalikan ${rupiahSaldo(nominal)} ke ${labelRekeningSaldo(ke)} (${namaEntitasSaldo(ke.entitas)})${ket ? ' — ' + ket : ''}`);
+        await simpanPinjamanData();
+    }
+    saldoRekDipilih = ke.id;
+    document.getElementById('kembaliSaldoModal').style.display = 'none';
+    await simpanSaldoKantor(); showToast('✅ Pengembalian dicatat');
+}
+
+// ---------- Kotak Utang-piutang ----------
+let saldoPihakDipilih = null;
+function renderUtangPiutangSaldo() {
+    const kotak = document.getElementById('saldoUtang'); if (!kotak) return;
+    const baris = [];
+    const ents = getEntitasSaldo();
+    if (ents.length > 1 && antarSaldo().length) {
+        const net = netAntarEntitas(ents[0].id);
+        const teks = net === 0 ? `${escapeHtml(ents[0].nama)} ⇄ ${escapeHtml(ents[1].nama)}: lunas` : (net > 0 ? `${escapeHtml(ents[1].nama)} berutang ke ${escapeHtml(ents[0].nama)}` : `${escapeHtml(ents[0].nama)} berutang ke ${escapeHtml(ents[1].nama)}`);
+        baris.push(`<div onclick="pilihPihakSaldo('ent')" style="display:flex;justify-content:space-between;gap:8px;padding:9px 6px;border-bottom:0.5px solid #eef2f1;cursor:pointer;"><span style="min-width:0;">${teks}</span><b style="white-space:nowrap;color:${net === 0 ? '#15803d' : '#B45309'};">${rupiahSaldo(Math.abs(net))}</b></div>`);
+    }
+    daftarOrangBerutang().filter(x => pinjamanData.transaksi.some(t => t.orangId === x.orang.id && t.saldoRekId)).forEach(x => {
+        baris.push(`<div onclick="pilihPihakSaldo('org:${x.orang.id}')" style="display:flex;justify-content:space-between;gap:8px;padding:9px 6px;border-bottom:0.5px solid #eef2f1;cursor:pointer;"><span style="min-width:0;">${escapeHtml(x.orang.nama)} <span style="color:#888;font-size:11px;">· dipinjam</span></span><b style="white-space:nowrap;color:#B45309;">${rupiahSaldo(x.sisa)}</b></div>`);
+    });
+    if (!baris.length) { kotak.style.display = 'none'; kotak.innerHTML = ''; return; }
+    kotak.style.display = 'block';
+    kotak.innerHTML = `<div style="font-weight:700;font-size:14px;margin-bottom:4px;">Utang-piutang</div><div style="font-size:11px;color:#888;margin-bottom:6px;">Ketuk untuk melihat rincian.</div><div style="font-size:12px;border-top:0.5px solid #eef2f1;">${baris.join('')}</div>`;
+}
+function pilihPihakSaldo(kode) {
+    if (kode.startsWith('org:')) { pinjamanOrangDipilih = Number(kode.slice(4)); showPage('pinjaman'); return; }
+    saldoPihakDipilih = saldoPihakDipilih === kode ? null : kode; renderDetailPihakSaldo();
+}
+function renderDetailPihakSaldo() {
+    normalSaldo(saldoKantorData);
+    const kotak = document.getElementById('saldoDetailPihak'); if (!kotak) return;
+    const ents = getEntitasSaldo();
+    if (saldoPihakDipilih !== 'ent' || ents.length < 2) { kotak.style.display = 'none'; kotak.innerHTML = ''; return; }
+    const e1 = ents[0].id, daftar = antarSaldo().slice().sort((a, b) => (a.tanggal + a.id).localeCompare(b.tanggal + b.id));
+    let net = 0;
+    const baris = daftar.map(ev => { const tanda = ev.dari === e1 ? 1 : -1; net += tanda * ev.nominal; return { ev, net }; }).reverse();
+    const judulEv = ev => ev.jenis === 'pinjam' ? `${escapeHtml(namaEntitasSaldo(ev.dari))} ${ev.mode === 'transfer' ? 'meminjamkan ke' : 'membayarkan untuk'} ${escapeHtml(namaEntitasSaldo(ev.ke))}` : `${escapeHtml(namaEntitasSaldo(ev.dari))} mengembalikan ke ${escapeHtml(namaEntitasSaldo(ev.ke))}`;
+    kotak.style.display = 'block';
+    kotak.innerHTML = `<b style="font-size:14px;">${escapeHtml(ents[0].nama)} ⇄ ${escapeHtml(ents[1].nama)}</b>
+        <div style="font-size:12px;color:#888;margin:2px 0 8px;">Utang-piutang antar entitas, urut dari yang terbaru.</div>
+        ${baris.map(({ ev, net: n }) => `<div style="padding:8px 0;border-top:0.5px solid #eef2f1;font-size:12px;">
+            <div style="display:flex;justify-content:space-between;gap:10px;align-items:flex-start;"><div style="min-width:0;flex:1;"><b>${judulEv(ev)}</b><div style="color:#888;font-size:11px;">${tglSaldoTampil(ev.tanggal)}${ev.ket ? ' · ' + escapeHtml(ev.ket) : ''}</div><div style="color:#B45309;font-size:11px;margin-top:2px;">${n === 0 ? 'Lunas' : 'Sisa ' + rupiahSaldo(Math.abs(n)) + ' · ' + escapeHtml(n > 0 ? ents[1].nama : ents[0].nama) + ' berutang'}</div></div>
+            <div style="text-align:right;white-space:nowrap;flex-shrink:0;"><b>${rupiahSaldo(ev.nominal)}</b></div></div>
+            <div style="margin-top:4px;display:flex;gap:6px;"><button type="button" onclick="bukaEditMutasiSaldo('${ev.mutasiIds[0]}')" style="border:none;background:#F1F5F9;border-radius:6px;padding:4px 10px;font-size:11px;cursor:pointer;">Edit</button>
+            <button type="button" onclick="hapusMutasiSaldo('${ev.mutasiIds[0]}')" style="border:none;background:#FEE2E2;color:#B91C1C;border-radius:6px;padding:4px 10px;font-size:11px;cursor:pointer;">Hapus</button></div></div>`).join('')}`;
+}
+
+// ---------- Hapus & sinkron dengan Buku Pinjaman ----------
+async function hapusMutasiTerkaitPinjaman(trxIds) {
+    await muatSaldoSenyap();
+    const ada = saldoKantorData.mutasi.filter(m => trxIds.includes(m.pinjamanTrxId));
+    if (!ada.length) return false;
+    saldoKantorData.mutasi = saldoKantorData.mutasi.filter(m => !trxIds.includes(m.pinjamanTrxId));
+    await idbSet(STORE_CATATAN, 'saldo_kantor', saldoKantorData);
+    return true;
+}
+async function sinkronMutasiDariPinjaman(trx) {
+    await muatSaldoSenyap();
+    const m = saldoKantorData.mutasi.find(x => x.pinjamanTrxId === trx.id);
+    if (!m) return false;
+    m.nominal = trx.nominal; m.tanggal = trx.tanggal;
+    await idbSet(STORE_CATATAN, 'saldo_kantor', saldoKantorData);
+    return true;
+}
+
 async function loadPinjamanData() {
     try {
         const d = await idbGet(STORE_CATATAN, 'pinjaman_data');
@@ -11404,6 +12138,8 @@ async function simpanTransaksiPinjaman() {
     const hasilCicilan = jenis === 'pinjam' ? bacaFormCicilan(nominal) : { cicilan: null };
     if (hasilCicilan.galat) return showToast(hasilCicilan.galat);
 
+    const trxLama = editId ? pinjamanData.transaksi.find(t => t.id === editId) : null;
+    if (trxLama && trxLama.saldoMutasiId && !adalahAdminPenuh()) return showToast('🔒 Catatan ini terhubung ke Saldo Kantor — hanya Admin Utama yang bisa mengubahnya');
     let orang = cariOrangPinjamanByNama(nama);
     if (jenis === 'kembali') {
         if (!orang) return showToast(`${nama} belum punya catatan pinjaman`);
@@ -11425,14 +12161,17 @@ async function simpanTransaksiPinjaman() {
     pinjamanOrangDipilih = orang.id;
     tutupModalPinjaman();
     await simpanPinjamanData();
+    if (trxLama && trxLama.saldoMutasiId) await sinkronMutasiDariPinjaman(pinjamanData.transaksi.find(t => t.id === id));
     showToast((editId ? 'Diperbarui' : (jenis === 'kembali' ? 'Pengembalian dicatat' : 'Pinjaman dicatat')) + (data.bukti ? '' : ' · belum ada bukti'));
 }
 
 async function hapusTransaksiPinjaman(id) {
     const t = pinjamanData.transaksi.find(x => x.id === id);
     if (!t) return;
-    const ok = await konfirmasiHapus(`${t.jenis === 'kembali' ? 'Pengembalian' : 'Pinjaman'} ${formatRupiah(t.nominal)} tanggal ${tglPendekPinjaman(t.tanggal)} akan dihapus beserta foto buktinya.`, 'Hapus Catatan?');
+    if (t.saldoMutasiId && !adalahAdminPenuh()) return showToast('🔒 Catatan ini terhubung ke Saldo Kantor — hanya Admin Utama yang bisa menghapusnya');
+    const ok = await konfirmasiHapus(`${t.jenis === 'kembali' ? 'Pengembalian' : 'Pinjaman'} ${formatRupiah(t.nominal)} tanggal ${tglPendekPinjaman(t.tanggal)} akan dihapus beserta foto buktinya.${t.saldoMutasiId ? ' Catatan di Saldo Kantor juga ikut terhapus.' : ''}`, 'Hapus Catatan?');
     if (!ok) return;
+    if (t.saldoMutasiId) await hapusMutasiTerkaitPinjaman([id]);
     pinjamanData.transaksi = pinjamanData.transaksi.filter(x => x.id !== id);
     try { await idbDelete(STORE_CATATAN, 'pinjaman_bukti_' + id); } catch (e) {}
     await simpanPinjamanData();
@@ -11467,8 +12206,11 @@ async function hapusOrangPinjaman(id) {
     const o = pinjamanData.orang.find(x => x.id === id);
     if (!o) return;
     const trx = pinjamanData.transaksi.filter(t => t.orangId === id);
-    const ok = await konfirmasiHapus(`${o.nama} beserta ${trx.length} catatan pinjaman & pengembaliannya akan dihapus permanen.`, 'Hapus Peminjam?');
+    const tertaut = trx.filter(t => t.saldoMutasiId);
+    if (tertaut.length && !adalahAdminPenuh()) return showToast('🔒 Ada catatan yang terhubung ke Saldo Kantor — hanya Admin Utama yang bisa menghapus peminjam ini');
+    const ok = await konfirmasiHapus(`${o.nama} beserta ${trx.length} catatan pinjaman & pengembaliannya akan dihapus permanen.${tertaut.length ? ' Catatan terkait di Saldo Kantor juga ikut terhapus.' : ''}`, 'Hapus Peminjam?');
     if (!ok) return;
+    if (tertaut.length) await hapusMutasiTerkaitPinjaman(tertaut.map(t => t.id));
     for (const t of trx) { try { await idbDelete(STORE_CATATAN, 'pinjaman_bukti_' + t.id); } catch (e) {} }
     pinjamanData.transaksi = pinjamanData.transaksi.filter(t => t.orangId !== id);
     pinjamanData.orang = pinjamanData.orang.filter(x => x.id !== id);
@@ -13660,7 +14402,6 @@ function renderHasilCariHubunganJamaah() {
     if (hasil.length === 0) { container.innerHTML = '<div style="padding:10px;color:#888;font-size:13px;">Tidak ditemukan</div>'; return; }
     container.innerHTML = hasil.map(x => `<div onclick="pilihHubunganTargetJamaah(${x.id},'${jsArg(x.nama_lengkap)}')" style="padding:10px;border-bottom:1px solid #eee;cursor:pointer;font-size:14px;">${escapeHtml(x.nama_lengkap)}</div>`).join('');
 }
-
 function pilihHubunganTargetJamaah(id, nama) {
     document.getElementById('hubunganTargetJamaahId').value = id;
     document.getElementById('hubunganCariJamaah').value = nama;
@@ -17974,94 +18715,154 @@ function hapusTransaksiRiyal(id) {
     });
 }
 
-function cetakLaporanTukarRiyal() {
-    const list = getRiwayatTukarRiyal();
-    if (list.length === 0) return showToast('Belum ada transaksi untuk dicetak!');
-    const cfg = getKonfigurasiProData();
-    const namaInstansi = getNamaInstansiUtama();
-    const totalUang = list.reduce((a,t) => a + t.uang, 0);
-    const totalRiyal = list.reduce((a,t) => a + t.riyal, 0);
-    const totalKembalian = list.reduce((a,t) => a + t.kembalian, 0);
-    const rowsHtml = list.slice().reverse().map((t,i) => `<tr>
-        <td style="padding:6px 8px;border-bottom:1px solid #eee;">${i+1}</td>
-        <td style="padding:6px 8px;border-bottom:1px solid #eee;">${escapeHtml(t.tanggalTampil)}</td>
-        <td style="padding:6px 8px;border-bottom:1px solid #eee;">${escapeHtml(t.keterangan || '-')}${t.diedit ? ' <i style="color:#B45309;">(diedit)</i>' : ''}</td>
-        <td style="padding:6px 8px;border-bottom:1px solid #eee;text-align:right;">Rp ${t.uang.toLocaleString('id-ID')}</td>
-        <td style="padding:6px 8px;border-bottom:1px solid #eee;text-align:right;">${t.kurs.toLocaleString('id-ID')}</td>
-        <td style="padding:6px 8px;border-bottom:1px solid #eee;text-align:right;">${t.riyal.toLocaleString('id-ID')} SAR</td>
-        <td style="padding:6px 8px;border-bottom:1px solid #eee;text-align:right;">Rp ${t.kembalian.toLocaleString('id-ID')}</td>
-        <td style="padding:6px 8px;border-bottom:1px solid #eee;">${escapeHtml(t.admin)}</td>
-    </tr>`).join('');
-
-    let html = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>Laporan Tukar Riyal</title>
-    <style>body{font-family:Arial,sans-serif;padding:20px;color:#222;background:#f0f0f0;} h1{color:#0D5C4A;font-size:18px;margin-bottom:2px;}
-    table{width:100%;border-collapse:collapse;margin-top:14px;font-size:11px;}
-    th{background:#0D5C4A;color:#fff;padding:8px;text-align:left;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
-    .ringkasan{display:flex;gap:10px;margin-top:14px;flex-wrap:wrap;}
-    .ringkasan div{background:white;border-radius:10px;padding:10px 14px;flex:1;min-width:140px;}
-    @page{size:A4 portrait;margin:10mm 12mm;}
-    @media print{ *{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important;} html{width:210mm;} body{background:white;padding:0;margin:0;width:210mm;} .no-print{display:none!important;} }
-    </style></head><body>
-    <h1>💱 LAPORAN TUKAR RIYAL</h1>
-    <p style="font-size:12px;color:#666;">${escapeHtml(namaInstansi)} — Dicetak: ${new Date().toLocaleDateString('id-ID')}</p>
-    <div class="ringkasan">
-        <div><div style="font-size:11px;color:#888;">Total Transaksi</div><b>${list.length}</b></div>
-        <div><div style="font-size:11px;color:#888;">Total Rupiah Masuk</div><b>Rp ${totalUang.toLocaleString('id-ID')}</b></div>
-        <div><div style="font-size:11px;color:#888;">Total Riyal Keluar</div><b>${totalRiyal.toLocaleString('id-ID')} SAR</b></div>
-        <div><div style="font-size:11px;color:#888;">Total Kembalian</div><b>Rp ${totalKembalian.toLocaleString('id-ID')}</b></div>
-    </div>
-    <table><thead><tr><th>No</th><th>Tanggal</th><th>Ket.</th><th>Uang Masuk</th><th>Kurs</th><th>Riyal</th><th>Kembalian</th><th>Admin</th></tr></thead><tbody>${rowsHtml}</tbody></table>
-    `;
-    html = applyPrintTheme(html);
-    tampilkanJendelaCetak(html);
+// ---------- Ringkasan angka laporan Tukar Riyal (dipakai Cetak, PDF, dan WhatsApp) ----------
+function ringkasLaporanTukarRiyal(list) {
+    return {
+        jumlah: list.length,
+        uang: list.reduce((a,t) => a + t.uang, 0),
+        riyal: list.reduce((a,t) => a + t.riyal, 0),
+        kembalian: list.reduce((a,t) => a + t.kembalian, 0)
+    };
 }
 
+async function cetakLaporanTukarRiyal() {
+    const list = getRiwayatTukarRiyal();
+    if (list.length === 0) return showToast('Belum ada transaksi untuk dicetak!');
+    const f = n => 'Rp ' + Math.round(n).toLocaleString('id-ID');
+    const cfg = getKonfigurasiProData();
+    const tgl = formatTanggalLengkap();
+    const r = ringkasLaporanTukarRiyal(list);
+    const rowsHtml = list.slice().reverse().map((t,i) => `<tr>
+        <td class="ctr">${i+1}</td>
+        <td>${escapeHtml(t.tanggalTampil)}</td>
+        <td>${escapeHtml(t.keterangan || '-')}${t.diedit ? ' <i class="edit">(diedit)</i>' : ''}</td>
+        <td class="num">${f(t.uang)}</td>
+        <td class="num">${t.kurs.toLocaleString('id-ID')}</td>
+        <td class="num">${t.riyal.toLocaleString('id-ID')} SAR</td>
+        <td class="num">${f(t.kembalian)}</td>
+        <td>${escapeHtml(t.admin)}</td>
+    </tr>`).join('');
+    const headerHtml = buildPrintHeader(cfg, tgl);
+    const ttdHtml = buildPrintTandaTangan(cfg, tgl, true, true);
+    const qrHtml = await buildPrintQR(cfg, `Laporan Tukar Riyal: ${r.jumlah} transaksi\nTotal Riyal Keluar: ${r.riyal.toLocaleString('id-ID')} SAR\nTanggal: ${tgl}`);
+
+    let html = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>Laporan Tukar Riyal</title>
+    <style>
+    *{box-sizing:border-box;}
+    body{font-family:Arial,sans-serif;padding:20px;color:#222;background:#fff;margin:0;}
+    h1{color:#0D5C4A;font-size:18px;margin:0 0 2px;} .sub{font-size:12px;color:#666;margin:0 0 12px;}
+    /* Ringkasan: label dan angka sama-sama rata kiri dalam satu kotak (tidak lagi terdorong/bergeser) */
+    .ringkasan{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px;margin-bottom:14px;}
+    .ringkasan > div{background:#f8f8f8;border-radius:8px;padding:8px 12px;}
+    .ringkasan .lbl{font-size:10.5px;color:#888;margin-bottom:2px;} .ringkasan .val{font-size:14px;font-weight:bold;color:#222;}
+    table{width:100%;border-collapse:collapse;font-size:11px;}
+    th{background:#0D5C4A;color:#fff;padding:8px;text-align:left;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+    td{padding:6px 8px;border-bottom:1px solid #eee;}
+    /* Kolom angka: judul kolom DAN isinya sama-sama rata kanan supaya sejajar */
+    th.num,td.num{text-align:right;white-space:nowrap;} th.ctr,td.ctr{text-align:center;}
+    thead{display:table-header-group;} tfoot{display:table-row-group;} tr{page-break-inside:avoid;}
+    tfoot td{font-weight:bold;background:#f0f7f4;border-top:2px solid #0D5C4A;border-bottom:none;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+    .edit{color:#B45309;font-size:10px;}
+    /* Layar HP sempit (pratinjau sebelum cetak): rapatkan tabel supaya semua kolom, termasuk Admin, terlihat tanpa geser */
+    @media screen and (max-width:600px){ body{padding:12px;} table{font-size:9.5px;} th,td{padding:5px 3px;} .ringkasan .val{font-size:13px;} }
+    @media screen and (max-width:380px){ body{padding:8px;} table{font-size:9px;} th,td{padding:4px 2px;} }
+    @page{size:A4 portrait;margin:10mm 12mm;}
+    @media print{ *{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important;} body{padding:0;} .no-print{display:none!important;} }
+    </style></head><body>
+    ${headerHtml}
+    <h1>💱 LAPORAN TUKAR RIYAL</h1>
+    <p class="sub">Dicetak: ${tgl}</p>
+    <div class="ringkasan">
+        <div><div class="lbl">Total Transaksi</div><div class="val">${r.jumlah}</div></div>
+        <div><div class="lbl">Total Rupiah Masuk</div><div class="val">${f(r.uang)}</div></div>
+        <div><div class="lbl">Total Riyal Keluar</div><div class="val">${r.riyal.toLocaleString('id-ID')} SAR</div></div>
+        <div><div class="lbl">Total Kembalian</div><div class="val">${f(r.kembalian)}</div></div>
+    </div>
+    <table><thead><tr><th class="ctr">No</th><th>Tanggal</th><th>Ket.</th><th class="num">Uang Masuk</th><th class="num">Kurs</th><th class="num">Riyal</th><th class="num">Kembalian</th><th>Admin</th></tr></thead>
+    <tbody>${rowsHtml}</tbody>
+    <tfoot><tr><td colspan="3">TOTAL (${r.jumlah} transaksi)</td><td class="num">${f(r.uang)}</td><td></td><td class="num">${r.riyal.toLocaleString('id-ID')} SAR</td><td class="num">${f(r.kembalian)}</td><td></td></tr></tfoot></table>
+    ${ttdHtml}${qrHtml}
+    `;
+    const win = tampilkanJendelaCetak(html);
+    injectWatermarkToPrintWin(win);
+}
+
+// ---------- Bagikan PDF: memakai komponen bersama yang sama dengan Cuan Plan, Kas, dan Invoice ----------
+// (kop bulat mengikuti warna tema, kotak info, tabel rapi, TTD/QR/watermark mengikuti pengaturan)
 async function shareTukarRiyalPDF() {
     const list = getRiwayatTukarRiyal();
     if (list.length === 0) return showToast('Belum ada transaksi untuk dibagikan!');
     showToast('Menyiapkan...');
     try {
+        const f = n => 'Rp ' + Math.round(n).toLocaleString('id-ID');
+        const cfg = getKonfigurasiProData();
         const namaInstansi = getNamaInstansiUtama();
+        const tgl = formatTanggalLengkap();
         const {jsPDF} = window.jspdf;
         const [wr, wg, wb] = getWarnaTemaRGB();
         const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
-        await applyPDFConfig(doc, { landscape: false });
+        const PW = 210, PH = 297;
+        await applyPDFConfig(doc, { landscape: false, skipHeader: true, skipWatermark: true, skipQR: true });
+        const r = ringkasLaporanTukarRiyal(list);
 
-        const tglCetak = formatTanggalLengkap();
-        const totalUang = list.reduce((a,t) => a + t.uang, 0);
-        const totalRiyal = list.reduce((a,t) => a + t.riyal, 0);
-        const totalKembalian = list.reduce((a,t) => a + t.kembalian, 0);
+        let y = await gambarHeaderRoundedPDF(doc, cfg, PW);
+        doc.setFontSize(15); doc.setTextColor(wr,wg,wb); doc.setFont('helvetica','bold');
+        doc.text('LAPORAN TUKAR RIYAL', 14, y); y += 6;
+        doc.setFontSize(9); doc.setTextColor(120,120,120); doc.setFont('helvetica','normal');
+        doc.text(`${namaInstansi} — Dicetak: ${tgl}`, 14, y); y += 7;
 
-        doc.setFontSize(16); doc.setTextColor(wr,wg,wb);
-        doc.text('LAPORAN TUKAR RIYAL', 105, 65, { align: 'center' });
-        doc.setFontSize(9); doc.setTextColor(150,150,150);
-        doc.text(namaInstansi + ' — Dicetak: ' + tglCetak, 105, 71, { align: 'center' });
+        // Kotak ringkasan: label tebal di kiri, angka tepat di sebelahnya (rata kiri semua)
+        const barisInfo = [
+            ['Total Transaksi: ', String(r.jumlah)],
+            ['Total Rupiah Masuk: ', f(r.uang)],
+            ['Total Riyal Keluar: ', r.riyal.toLocaleString('id-ID') + ' SAR'],
+            ['Total Kembalian: ', f(r.kembalian)]
+        ];
+        gambarKotakInfoPDF(doc, 14, y, PW-28, barisInfo.length * 5 + 6);
+        y += 6; doc.setFontSize(9); doc.setTextColor(70,70,70);
+        barisInfo.forEach(([label, isi]) => {
+            doc.setFont('helvetica','bold'); doc.text(label, 18, y);
+            const lebar = doc.getTextWidth(label);
+            doc.setFont('helvetica','normal'); doc.text(isi, 18 + lebar, y);
+            y += 5;
+        });
+        y += 4;
 
         const tableData = list.slice().reverse().map((t,i) => [
             i+1, t.tanggalTampil, (t.keterangan || '-') + (t.diedit ? ' (diedit)' : ''),
-            'Rp ' + t.uang.toLocaleString('id-ID'),
-            t.kurs.toLocaleString('id-ID'),
-            t.riyal.toLocaleString('id-ID') + ' SAR',
-            'Rp ' + t.kembalian.toLocaleString('id-ID'),
-            t.admin
+            f(t.uang), t.kurs.toLocaleString('id-ID'), t.riyal.toLocaleString('id-ID') + ' SAR', f(t.kembalian), t.admin
         ]);
+        tableData.push(['', 'TOTAL', `${r.jumlah} transaksi`, f(r.uang), '', r.riyal.toLocaleString('id-ID') + ' SAR', f(r.kembalian), '']);
+        const kolomAngka = [3, 4, 5, 6];
         doc.autoTable({
-            startY: 78,
+            startY: y,
             head: [['No','Tanggal','Ket.','Uang Masuk','Kurs','Riyal','Kembalian','Admin']],
             body: tableData,
             theme: 'striped',
             headStyles: { fillColor: [wr,wg,wb] },
-            styles: { fontSize: 7, lineWidth: 0.1 },
-            columnStyles: { 0: { cellWidth: 8, halign: 'center' } }
+            styles: { fontSize: 8, lineWidth: 0.1 },
+            columnStyles: { 0: { cellWidth: 8, halign: 'center' } },
+            didParseCell: (h) => {
+                // Judul kolom angka ikut rata kanan supaya sejajar dengan angkanya
+                if (kolomAngka.includes(h.column.index)) h.cell.styles.halign = 'right';
+                if (h.section === 'body' && h.row.index === tableData.length - 1) { h.cell.styles.fontStyle = 'bold'; h.cell.styles.fillColor = [240,247,244]; }
+            }
         });
 
-        let y = doc.lastAutoTable.finalY + 10;
-        doc.setFontSize(10); doc.setTextColor(0,0,0); doc.setFont('helvetica','normal');
-        doc.text('Total Transaksi: ' + list.length, 14, y);
-        doc.text('Total Rupiah Masuk: Rp ' + totalUang.toLocaleString('id-ID'), 14, y+7);
-        doc.text('Total Riyal Keluar: ' + totalRiyal.toLocaleString('id-ID') + ' SAR', 14, y+14);
-        doc.setTextColor(wr,wg,wb); doc.setFont('helvetica','bold');
-        doc.text('Total Kembalian: Rp ' + totalKembalian.toLocaleString('id-ID'), 14, y+21);
+        y = doc.lastAutoTable.finalY + 10;
+        // TTD & QR dijaga tidak bertabrakan dengan tabel: kalau sisa halaman sempit, pindah ke halaman baru
+        const butuhTTD = (cfg.settings?.show_pimpinan === true) ? 50 : 0;
+        if (y + butuhTTD > PH - 45) { doc.addPage(); y = 20; }
+        y = gambarTandaTanganPDF(doc, cfg, tgl, y, PW, true);
+        const total = doc.getNumberOfPages();
+        doc.setPage(total);
+        await gambarQRDokumenPDF(doc, cfg, `Laporan Tukar Riyal: ${r.jumlah} transaksi\nTotal Riyal Keluar: ${r.riyal.toLocaleString('id-ID')} SAR\nTanggal: ${tgl}`, PW, PH);
+        // Watermark di SETIAP halaman (digambar paling akhir), plus nomor halaman bila lebih dari satu
+        for (let i = 1; i <= total; i++) {
+            doc.setPage(i);
+            gambarWatermarkPDF(doc, cfg, PW, PH);
+            if (total > 1) { doc.setFontSize(8); doc.setTextColor(150,150,150); doc.setFont('helvetica','normal'); doc.text(`Halaman ${i} dari ${total}`, PW/2, PH - 8, { align: 'center' }); }
+        }
 
         const namaFile = `Laporan_Tukar_Riyal_${new Date().toLocaleDateString('id-ID').replace(/\//g,'-')}.pdf`;
         const blob = doc.output('blob');
@@ -18075,6 +18876,30 @@ async function shareTukarRiyalPDF() {
     } catch(e) {
         if (e.name !== 'AbortError') showToast('Gagal: ' + e.message);
     }
+}
+
+// ---------- Bagikan lewat WhatsApp (teks ringkas; yang terbaru lebih dulu, dipotong rapi kalau terlalu panjang) ----------
+function shareTukarRiyalWA() {
+    const list = getRiwayatTukarRiyal();
+    if (list.length === 0) return showToast('Belum ada transaksi untuk dibagikan!');
+    const f = n => 'Rp ' + Math.round(n).toLocaleString('id-ID');
+    const namaInstansi = getNamaInstansiUtama();
+    const tgl = new Date().toLocaleDateString('id-ID');
+    const garis = '─'.repeat(28);
+    const r = ringkasLaporanTukarRiyal(list);
+    const kepala = `💱 *LAPORAN TUKAR RIYAL*\n*${namaInstansi}*\n${tgl}\n${garis}\nTotal Transaksi: ${r.jumlah}\nTotal Rupiah Masuk: ${f(r.uang)}\nTotal Riyal Keluar: *${r.riyal.toLocaleString('id-ID')} SAR*\nTotal Kembalian: ${f(r.kembalian)}\n${garis}\n`;
+    // Penutup mengikuti pengaturan: berlisensi memakai nama instansinya sendiri; versi gratis tetap "Navara App"
+    const penutup = `\n${garis}\n_${isLicensed() ? namaInstansi : 'Navara App'}_`;
+    const BATAS = 3000; // sama dengan batas aman pesan WA di fitur lain
+    const baris = list.map((t, i) => `${i+1}. ${t.tanggalTampil} · ${t.keterangan || '-'}${t.diedit ? ' (diedit)' : ''}\n   ${f(t.uang)} @${t.kurs.toLocaleString('id-ID')} → *${t.riyal.toLocaleString('id-ID')} SAR* (kembali ${f(t.kembalian)})`);
+    let isi = '', dipakai = 0;
+    for (const b of baris) {
+        if ((kepala.length + isi.length + b.length + penutup.length + 90) > BATAS) break;
+        isi += b + '\n'; dipakai++;
+    }
+    const sisa = baris.length - dipakai;
+    const catatan = sisa > 0 ? `\n_…${sisa} transaksi terdahulu tidak ditampilkan. Gunakan tombol Bagikan (PDF) untuk laporan lengkap._` : '';
+    window.open(`https://wa.me/?text=${encodeURIComponent(kepala + isi + catatan + penutup)}`, '_blank');
 }
 
 function hitungZakat(){ 
@@ -21099,7 +21924,7 @@ function openIndexedDB() {
 // dengan build baru, data MENTAH (langsung dari IndexedDB, bukan dari memori) disalin dulu sebelum
 // proses migrasi apapun berjalan — supaya kalau ada kesalahan di update, data lama masih bisa dipulihkan.
 // Dokumen & foto tidak ikut disalin (ukurannya besar, dan tidak pernah disentuh proses migrasi).
-const NAVARA_BUILD = '2026.10.02-47';
+const NAVARA_BUILD = '2026.10.02-51';
 const MAKS_SNAPSHOT = 3;
 
 function daftarKunciSnapshot() {
@@ -21113,7 +21938,7 @@ function daftarKunciSnapshot() {
         [STORE_FOLDER, 'folder_list'], [STORE_PENGELUARAN, 'pengeluaran_data'],
         [STORE_ABSENSI, 'absensi_sesi'], [STORE_ABSENSI, 'jadwal_manasik'],
         [STORE_PROSPEK, 'prospek_list'],
-        [STORE_CATATAN, 'catatan_list'], [STORE_CATATAN, 'agenda_kantor_list'], [STORE_CATATAN, 'pejabat_list'], [STORE_CATATAN, 'pinjaman_data'],
+        [STORE_CATATAN, 'catatan_list'], [STORE_CATATAN, 'agenda_kantor_list'], [STORE_CATATAN, 'pejabat_list'], [STORE_CATATAN, 'pinjaman_data'], [STORE_CATATAN, 'saldo_kantor'],
     ];
 }
 
@@ -21188,11 +22013,13 @@ const RINGKASAN_SNAPSHOT = [
     { label: 'Agenda Kantor',      kunci: STORE_CATATAN + '|agenda_kantor_list' },
     { label: 'Kalender Pejabat',   kunci: STORE_CATATAN + '|pejabat_list' },
     { label: 'Buku Pinjaman (transaksi)', kunci: STORE_CATATAN + '|pinjaman_data', transaksi: true },
+    { label: 'Saldo Kantor (catatan mutasi)', kunci: STORE_CATATAN + '|saldo_kantor', saldo: true },
     { label: 'Prospek',            kunci: STORE_PROSPEK + '|prospek_list' },
 ];
 
 function daftarDariIsi(nilai, cfg) {
     if (cfg.transaksi) return (nilai && Array.isArray(nilai.transaksi)) ? nilai.transaksi : [];
+    if (cfg.saldo) return (nilai && Array.isArray(nilai.mutasi)) ? nilai.mutasi : [];
     return Array.isArray(nilai) ? nilai : [];
 }
 
@@ -22402,6 +23229,7 @@ async function bagikanFullZip() {
                 agenda_kantor: (await idbGet(STORE_CATATAN, 'agenda_kantor_list')) || [],
                 kalender_pejabat: (await idbGet(STORE_CATATAN, 'pejabat_list')) || [],
                 buku_pinjaman: (await idbGet(STORE_CATATAN, 'pinjaman_data')) || null,
+                saldo_kantor: (await idbGet(STORE_CATATAN, 'saldo_kantor')) || null,
                 pengaturan_lokal: {
                     template_surat_kustom: localStorage.getItem('navara_template_surat_kustom') || '',
                     template_surat_kustom_judul: localStorage.getItem('navara_template_surat_kustom_judul') || '',
@@ -22492,6 +23320,7 @@ async function buildFullBackupZip() {
     // Buku Pinjaman + foto buktinya (bukti_pinjaman/<idTransaksi>_<urutan>.jpg)
     const bukuPinjamanSegar = await idbGet(STORE_CATATAN, 'pinjaman_data') || { orang: [], transaksi: [] };
     zip.file('buku_pinjaman.json', JSON.stringify(bukuPinjamanSegar, null, 2));
+    zip.file('saldo_kantor.json', JSON.stringify((await idbGet(STORE_CATATAN, 'saldo_kantor')) || { rekening: [], mutasi: [] }, null, 2));
     const buktiFolder = zip.folder('bukti_pinjaman');
     for (const t of (bukuPinjamanSegar.transaksi || [])) {
         if (!t.bukti) continue;
@@ -22680,6 +23509,10 @@ async function applyRestoreBackupData(backup) {
         // Cadangan JSON tidak memuat foto bukti — foto yang sudah ada di HP ini tetap dipakai
         pinjamanData = backup.buku_pinjaman;
         await idbSet(STORE_CATATAN, 'pinjaman_data', pinjamanData);
+    }
+    if (backup.saldo_kantor && Array.isArray(backup.saldo_kantor.rekening) && Array.isArray(backup.saldo_kantor.mutasi)) {
+        saldoKantorData = normalSaldo(backup.saldo_kantor);
+        await idbSet(STORE_CATATAN, 'saldo_kantor', saldoKantorData);
     }
     if (backup.kalender_pejabat) {
         pejabatList = backup.kalender_pejabat || [];
@@ -22954,6 +23787,14 @@ async function restoreFromZip(input) {
             if (agendaKantorFile) {
                 agendaKantorList = JSON.parse(await agendaKantorFile.async('string'));
                 await idbSet(STORE_CATATAN, 'agenda_kantor_list', agendaKantorList);
+            }
+            // Restore Saldo Kantor
+            const saldoKantorFile = zip.file('saldo_kantor.json');
+            if (saldoKantorFile) {
+                try {
+                    const dSaldo = JSON.parse(await saldoKantorFile.async('string'));
+                    if (dSaldo && Array.isArray(dSaldo.rekening) && Array.isArray(dSaldo.mutasi)) { saldoKantorData = normalSaldo(dSaldo); await idbSet(STORE_CATATAN, 'saldo_kantor', saldoKantorData); }
+                } catch (e) { /* berkas saldo rusak: lewati, bagian lain tetap dipulihkan */ }
             }
             // Restore Buku Pinjaman + foto buktinya
             const bukuPinjamanFile = zip.file('buku_pinjaman.json');
@@ -26042,3 +26883,4 @@ function cetakDariPreviewAlternatif() {
 
 </body>
     </html>
+
