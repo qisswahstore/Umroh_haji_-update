@@ -15334,6 +15334,26 @@ function openAntrianFollowUpModal() {
 
 // ==================== DASHBOARD TREN TAHUNAN ====================
 // ==================== LAPORAN PENUTUPAN MUSIM ====================
+// Tanda tangan Laporan Penutupan Musim: dua kolom (Pimpinan & Bendahara) SELALU tampil, tidak bergantung pada saklar
+// "Pimpinan & Jabatan". Nama, jabatan, kota, dan gambar TTD diambil dari Konfigurasi kalau sudah diisi; kalau belum, titik-titik.
+function bangunTTDLaporan(cfg, tglCetak) {
+    const hajiReg = isHajiReguler();
+    const pakaiInstansi2 = hajiReg && cfg.instansi2?.aktif && cfg.instansi2?.nama;
+    const kunci = pakaiInstansi2 ? 'instansi2' : 'instansi1';
+    const inst = (pakaiInstansi2 ? cfg.instansi2 : cfg.instansi1) || {};
+    const bendahara = cfg.bendahara || {};
+    const lokasiTgl = inst.kota ? `${inst.kota}, ${tglCetak}` : tglCetak;
+    let gambarPimpinan = '', gambarBendahara = '';
+    try { gambarPimpinan = getTTDPimpinan(kunci) || ''; gambarBendahara = getTTDPimpinan('bendahara') || ''; } catch (e) {}
+    const ruang = g => g ? `<img src="${g}" style="height:44px;object-fit:contain;display:block;margin:2px auto;">` : '<div style="height:48px;"></div>';
+    const kolom = (sapaan, gambar, nama, jabatan) => `<div style="text-align:center;flex:1;">
+        <div style="font-size:11px;color:#555;">${sapaan}</div>${ruang(gambar)}
+        <div style="border-top:1px solid #333;padding-top:4px;font-size:12px;font-weight:bold;">${nama ? escapeHtml(nama) : '(.....................)'}</div>
+        <div style="font-size:11px;color:#666;">${escapeHtml(jabatan)}</div></div>`;
+    return `<div style="font-size:11px;color:#555;text-align:right;margin-bottom:4px;">${escapeHtml(lokasiTgl)}</div>
+        <div style="display:flex;gap:24px;">${kolom('Mengetahui,', gambarPimpinan, inst.pimpinan, inst.jabatan || 'Pimpinan')}${kolom('Dibuat oleh,', gambarBendahara, bendahara.nama, 'Bendahara')}</div>`;
+}
+
 function cetakLaporanPenutupanMusim() {
     if(!cekIzinFitur('cetakLaporanPenutupanMusim')) return showToast('🔒 Tidak punya izin. Gunakan tombol 🔓 Minta Akses di Home.');
     const f = n => (Math.round(n) < 0 ? '-' : '') + 'Rp ' + Math.abs(Math.round(n)).toLocaleString('id-ID');
@@ -15354,7 +15374,10 @@ function cetakLaporanPenutupanMusim() {
     const modalEst = est ? hitungTotalModalEstimasi(jamaahRelevan) : null;
 
     let sectionRekap = '';
-    if(est) {
+    if(est && jamaahRelevan.length === 0) {
+        sectionRekap = `<div class="lap-section"><h2>📋 Proyeksi Laba</h2>
+            <p class="lap-note">Belum ada jamaah dengan harga paket, jadi Proyeksi Laba belum bisa dihitung.</p></div>`;
+    } else if(est) {
         const totalModalAktual = modalEst ? modalEst.total : est.modal * jamaahRelevan.length;
         const profitAktual = totalKontrak - totalModalAktual;
         sectionRekap = `<div class="lap-section"><h2>📋 Proyeksi Laba</h2>
@@ -15535,8 +15558,11 @@ function cetakLaporanPenutupanMusim() {
     const blok3 = `<div class="lap-section"><h2>${est ? '3' : '2'}. Realisasi</h2>
         <table class="lap-table"><tr><td>Uang Masuk dari Jamaah (Sudah Dibayar)</td><td>${f(totalDibayarJamaah)}</td></tr>
         <tr><td>Realisasi Pengeluaran</td><td>${fKurang(totalPengeluaran)}</td></tr>
-        <tr class="lap-total" style="color:${profitRiil < 0 ? '#DC2626' : '#166534'};"><td>LABA BERSIH (Realisasi)</td><td>${f(profitRiil)}</td></tr></table></div>`;
-    if (est) {
+        <tr class="lap-total" style="color:${profitRiil < 0 ? '#DC2626' : '#166534'};"><td>LABA BERSIH (Realisasi)</td><td>${f(profitRiil)}</td></tr></table>${(jamaahRelevan.length > 0 && totalPengeluaran === 0) ? '<p class="lap-note">Belum ada pengeluaran tercatat, jadi Laba Bersih dan Selisih belum mencerminkan biaya yang sebenarnya.</p>' : ''}</div>`;
+    if (est && jamaahRelevan.length === 0) {
+        blok2 = `<div class="lap-section"><h2>2. Proyeksi (dari Cuan Plan)</h2><p class="lap-note">Belum ada jamaah dengan harga paket, jadi Proyeksi Laba belum bisa dihitung.</p></div>`;
+        blok4 = `<div class="lap-section"><h2>4. Selisih dari Rencana</h2><p class="lap-note">Selisih belum bisa dihitung karena belum ada jamaah dengan harga paket.</p></div>`;
+    } else if (est) {
         const totalModalDepan = modalEst ? modalEst.total : est.modal * jamaahRelevan.length;
         const proyeksiDepan = totalKontrak - totalModalDepan;
         const efekBelum = totalDibayarJamaah - totalKontrak;
@@ -15564,17 +15590,12 @@ function cetakLaporanPenutupanMusim() {
 
     const cfgDepan = getKonfigurasiProData();
     const kopHtml = buildPrintHeader(cfgDepan, tgl);
-    let ttdHtml = buildPrintTandaTangan(cfgDepan, tgl, true, true);
-    if (!ttdHtml) {
-        const kolomTTD = (judul) => `<div style="text-align:center;flex:1;"><div style="font-size:12px;color:#555;">${judul}</div><div style="height:60px;"></div><div style="border-top:1px solid #333;padding-top:6px;font-size:13px;">(.....................)</div></div>`;
-        ttdHtml = `<div style="display:flex;gap:24px;margin-top:36px;">${kolomTTD('Pimpinan')}${kolomTTD('Bendahara')}</div>`;
-    }
-    const halamanDepan = `<div class="lap-depan">${kopHtml}
+    const ttdHtml = bangunTTDLaporan(cfgDepan, tgl);
+    const halamanDepan = `<div class="lap-depan"><div class="kop-wrap">${kopHtml}</div>
         <h1>📕 LAPORAN PENUTUPAN MUSIM</h1>
         <p>Program: ${escapeHtml(progNama)} — Dicetak: ${tgl}</p>
         ${blok1}${blok2}${blok3}${blok4}
-        <div style="margin-top:28px;">${ttdHtml}</div>
-        <p class="lap-note" style="text-align:center;margin-top:18px;">Rincian lengkap ada di halaman berikutnya.</p></div>`;
+        <div class="ttd-blok" style="margin-top:12px;">${ttdHtml}</div></div>`;
 
     const html = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>Laporan Penutupan Musim</title>
     <style>body{font-family:Arial,sans-serif;padding:24px;color:#222;} h1{color:#0D5C4A;font-size:20px;margin-bottom:2px;}
@@ -15583,7 +15604,18 @@ function cetakLaporanPenutupanMusim() {
     .lap-table td, .lap-table th{padding:7px 4px;border-bottom:1px solid #eee;} .lap-table th{background:#0D5C4A;color:#fff;text-align:left;}
     .lap-table td:last-child, .lap-table th:last-child{text-align:right;white-space:nowrap;}
     .lap-total td{font-weight:800;background:#F0FDF4;} .lap-note{font-size:11px;color:#888;margin-top:6px;}
-    .lap-depan{page-break-after:always;} .lap-halaman2 h1{margin-top:0;}
+    @page{size:A4;margin:10mm;}
+    .lap-depan{page-break-after:always;break-after:page;font-size:12px;}
+    .lap-depan h1{font-size:17px;margin:5px 0 3px;} .lap-depan p{margin:2px 0;font-size:12px;}
+    .lap-depan .kop-wrap > div{padding:8px 16px !important;margin-bottom:8px !important;gap:12px !important;}
+    .lap-depan .kop-wrap img{width:48px !important;height:48px !important;}
+    .lap-depan .lap-section{margin-top:9px;page-break-inside:avoid;break-inside:avoid;}
+    .lap-depan .lap-section h2{font-size:13px;padding-bottom:3px;margin:0;}
+    .lap-depan .lap-table{font-size:12px;margin-top:3px;}
+    .lap-depan .lap-table td{padding:3.5px 4px;}
+    .lap-depan .lap-note{font-size:10px;margin-top:3px;}
+    .ttd-blok{page-break-inside:avoid;break-inside:avoid;}
+    .lap-halaman2 h1{margin-top:0;}
     @media print{ .no-print{display:none!important;} }
     </style></head><body>
     ${halamanDepan}
@@ -17807,7 +17839,7 @@ function simpanTransaksiRiyal() {
         id: Date.now(),
         tanggalTampil: new Date().toLocaleDateString('id-ID') + ' ' + new Date().toLocaleTimeString('id-ID'),
         timestamp: Date.now(),
-        kurs, uang, riyal, kembalian, keterangan,
+        kurs, uang, riyal, kembalian, keterangan, pecahan: pecahanRiyalDipilih,
         admin: (typeof currentAdminNama !== 'undefined' && currentAdminNama) ? currentAdminNama : '-'
     });
     if (list.length > 200) list.length = 200; // batasi 200 transaksi terakhir, sama seperti Riwayat Aktivitas
@@ -17835,9 +17867,102 @@ function renderRiwayatTukarRiyal() {
                     <span style="color:#888;">Kembalian: Rp ${t.kembalian.toLocaleString('id-ID')} · ${escapeHtml(t.tanggalTampil)}</span><br>
                     <span style="color:#888;">Oleh: ${escapeHtml(t.admin)}${t.keterangan ? ' · ' + escapeHtml(t.keterangan) : ''}</span>
                 </div>
-                <button onclick="hapusTransaksiRiyal(${t.id})" style="border:none;background:none;color:#DC2626;font-size:14px;cursor:pointer;flex-shrink:0;"><i class="fas fa-trash-alt"></i></button>
+                <div style="display:flex;gap:2px;flex-shrink:0;">
+                    ${bolehEditTransaksiRiyal(t) ? `<button onclick="bukaEditTransaksiRiyal(${t.id})" title="Edit" style="border:none;background:none;color:#0D5C4A;font-size:14px;cursor:pointer;padding:4px 6px;"><i class="fas fa-pen"></i></button>` : ''}
+                    <button onclick="hapusTransaksiRiyal(${t.id})" title="Hapus" style="border:none;background:none;color:#DC2626;font-size:14px;cursor:pointer;padding:4px 6px;"><i class="fas fa-trash-alt"></i></button>
+                </div>
             </div>
+            ${(t.diedit && (t.riwayatEdit || []).length) ? (() => { const e = t.riwayatEdit[t.riwayatEdit.length - 1]; return `
+            <div style="font-size:11px;color:#B45309;margin-top:4px;">✏️ diedit oleh ${escapeHtml(e.oleh)} · ${escapeHtml(e.waktu)}</div>
+            <details style="font-size:11px;color:#888;margin-top:2px;"><summary style="cursor:pointer;">Lihat nilai sebelumnya</summary>
+                ${t.riwayatEdit.map(x => `<div style="margin-top:3px;">${escapeHtml(x.waktu)} · ${escapeHtml(x.oleh)}: ${x.sebelum.riyal.toLocaleString('id-ID')} SAR ← Rp ${x.sebelum.uang.toLocaleString('id-ID')} (kurs ${x.sebelum.kurs.toLocaleString('id-ID')})${x.sebelum.keterangan ? ' · ' + escapeHtml(x.sebelum.keterangan) : ''}</div>`).join('')}
+            </details>`; })() : ''}
         </div>`).join('');
+}
+
+// ---------- Edit transaksi (dengan jejak: nilai sebelumnya tersimpan, siapa & kapan tercatat) ----------
+// Boleh edit: Admin Utama / admin tanpa Peran, yang berizin hapus, atau PEMBUAT transaksi itu sendiri.
+function bolehEditTransaksiRiyal(t) {
+    if (currentAdminIsPemilik || adalahAdminPenuh()) return true;
+    if (cekIzinAdmin('bolehHapus')) return true;
+    return !!t.admin && t.admin === currentAdminNama;
+}
+
+// Rumus yang SAMA dengan hitungTukarRiyal/simpanTransaksiRiyal
+function hitungHasilRiyal(kurs, uang, pecahan) {
+    const riyalMentah = Math.floor(uang / kurs);
+    const riyal = Math.floor(riyalMentah / pecahan) * pecahan;
+    return { riyalMentah, riyal, kembalian: uang - (riyal * kurs) };
+}
+
+// Transaksi lama belum mencatat pecahan: tebak dari hasilnya (pecahan terbesar yang menghasilkan Riyal yang sama)
+function inferPecahanRiyal(t) {
+    const mentah = Math.floor(t.uang / t.kurs);
+    for (const p of [10, 5, 1]) { if (Math.floor(mentah / p) * p === t.riyal) return p; }
+    return 1;
+}
+
+function bukaEditTransaksiRiyal(id) {
+    const t = getRiwayatTukarRiyal().find(x => x.id === id);
+    if (!t) return showToast('Transaksi tidak ditemukan');
+    if (!bolehEditTransaksiRiyal(t)) return showToast('🔒 Anda hanya bisa mengedit transaksi yang Anda buat sendiri');
+    const pecahan = t.pecahan || inferPecahanRiyal(t);
+    let modal = document.getElementById('editRiyalModal');
+    if (!modal) { modal = document.createElement('div'); modal.id = 'editRiyalModal'; modal.className = 'modal'; document.body.appendChild(modal); }
+    const opsiPecahan = [1, 5, 10].map(p => `<option value="${p}" ${p === pecahan ? 'selected' : ''}>${p}</option>`).join('');
+    modal.innerHTML = `<div class="modal-content" style="max-width:400px;">
+        <h3 style="color:var(--primary);margin-bottom:2px;">✏️ Edit Transaksi Tukar Riyal</h3>
+        <div style="font-size:11px;color:#888;margin-bottom:10px;">Dibuat ${escapeHtml(t.tanggalTampil)} oleh ${escapeHtml(t.admin)}. Nilai sebelum diedit tetap tersimpan dan bisa dilihat.</div>
+        <div class="input-group"><label>Kurs Jual (1 SAR = Rp)</label><input type="text" id="editRiyalKurs" class="money-input" inputmode="numeric" value="${t.kurs.toLocaleString('id-ID')}" oninput="formatMoneyInput(this); perbaruiHasilEditRiyal();"></div>
+        <div class="input-group"><label>Uang Diberikan Jamaah (Rp)</label><input type="text" id="editRiyalUang" class="money-input" inputmode="numeric" value="${t.uang.toLocaleString('id-ID')}" oninput="formatMoneyInput(this); perbaruiHasilEditRiyal();"></div>
+        <div class="input-group"><label>Pecahan Riyal Terkecil</label><select id="editRiyalPecahan" onchange="perbaruiHasilEditRiyal()">${opsiPecahan}</select></div>
+        <div class="input-group"><label>Atas Nama / Keterangan</label><input type="text" id="editRiyalKet" value="${escapeHtml(t.keterangan || '')}" placeholder="Contoh: Ahmad Fauzi"></div>
+        <div id="editRiyalHasil" style="background:#F0FDF4;border-radius:10px;padding:10px 12px;font-size:12px;margin:6px 0 10px;"></div>
+        <button onclick="simpanEditTransaksiRiyal(${t.id})" style="width:100%;padding:11px;background:var(--primary);color:white;border:none;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;">Simpan Perubahan</button>
+        <button onclick="document.getElementById('editRiyalModal').style.display='none'" style="width:100%;padding:11px;background:#e2e8f0;color:#333;border:none;border-radius:10px;font-size:13px;cursor:pointer;margin-top:8px;">Batal</button>
+    </div>`;
+    modal.style.display = 'flex';
+    window._editRiyalAsli = { id: t.id, riyal: t.riyal, kembalian: t.kembalian };
+    perbaruiHasilEditRiyal();
+}
+
+function perbaruiHasilEditRiyal() {
+    const pr = v => parseInt((v||'0').toString().replace(/\./g,'').replace(/[^0-9]/g,'')) || 0;
+    const el = document.getElementById('editRiyalHasil');
+    if (!el) return;
+    const kurs = pr(document.getElementById('editRiyalKurs').value), uang = pr(document.getElementById('editRiyalUang').value);
+    const pecahan = parseInt(document.getElementById('editRiyalPecahan').value) || 1;
+    if (kurs <= 0 || uang <= 0) { el.innerHTML = '<span style="color:#DC2626;">Isi kurs dan uang dulu.</span>'; return; }
+    const h = hitungHasilRiyal(kurs, uang, pecahan);
+    const asli = window._editRiyalAsli || {};
+    el.innerHTML = `<b>${h.riyal.toLocaleString('id-ID')} SAR</b> · Kembalian Rp ${h.kembalian.toLocaleString('id-ID')}<br>
+        <span style="color:#888;">Sebelumnya: ${(asli.riyal || 0).toLocaleString('id-ID')} SAR · Kembalian Rp ${(asli.kembalian || 0).toLocaleString('id-ID')}</span>`;
+}
+
+function simpanEditTransaksiRiyal(id) {
+    const pr = v => parseInt((v||'0').toString().replace(/\./g,'').replace(/[^0-9]/g,'')) || 0;
+    const list = getRiwayatTukarRiyal();
+    const t = list.find(x => x.id === id);
+    if (!t) return showToast('Transaksi tidak ditemukan');
+    if (!bolehEditTransaksiRiyal(t)) return showToast('🔒 Anda hanya bisa mengedit transaksi yang Anda buat sendiri');
+    const kurs = pr(document.getElementById('editRiyalKurs').value);
+    const uang = pr(document.getElementById('editRiyalUang').value);
+    const pecahan = parseInt(document.getElementById('editRiyalPecahan').value) || 1;
+    const ket = (document.getElementById('editRiyalKet').value || '').trim();
+    if (kurs <= 0 || uang <= 0) return showToast('Isi kurs dan uang dulu!');
+    const pecahanAwal = t.pecahan || inferPecahanRiyal(t);
+    if (kurs === t.kurs && uang === t.uang && pecahan === pecahanAwal && ket === (t.keterangan || '')) return showToast('Tidak ada perubahan');
+    const h = hitungHasilRiyal(kurs, uang, pecahan);
+    const sebelum = { kurs: t.kurs, uang: t.uang, riyal: t.riyal, kembalian: t.kembalian, keterangan: t.keterangan || '', pecahan: pecahanAwal };
+    const waktu = new Date().toLocaleDateString('id-ID') + ' ' + new Date().toLocaleTimeString('id-ID');
+    const oleh = (typeof currentAdminNama !== 'undefined' && currentAdminNama) ? currentAdminNama : '-';
+    t.riwayatEdit = [...(t.riwayatEdit || []), { waktu, oleh, sebelum }].slice(-10);
+    t.kurs = kurs; t.uang = uang; t.pecahan = pecahan; t.riyal = h.riyal; t.kembalian = h.kembalian; t.keterangan = ket; t.diedit = true;
+    simpanRiwayatTukarRiyalList(list);
+    catatAktivitas('✏️', `Tukar Riyal diedit: ${sebelum.riyal} SAR ← Rp ${sebelum.uang.toLocaleString('id-ID')} (kurs ${sebelum.kurs.toLocaleString('id-ID')}) menjadi ${t.riyal} SAR ← Rp ${t.uang.toLocaleString('id-ID')} (kurs ${t.kurs.toLocaleString('id-ID')})`);
+    document.getElementById('editRiyalModal').style.display = 'none';
+    renderRiwayatTukarRiyal();
+    showToast('✅ Perubahan tersimpan');
 }
 
 function hapusTransaksiRiyal(id) {
@@ -17860,7 +17985,7 @@ function cetakLaporanTukarRiyal() {
     const rowsHtml = list.slice().reverse().map((t,i) => `<tr>
         <td style="padding:6px 8px;border-bottom:1px solid #eee;">${i+1}</td>
         <td style="padding:6px 8px;border-bottom:1px solid #eee;">${escapeHtml(t.tanggalTampil)}</td>
-        <td style="padding:6px 8px;border-bottom:1px solid #eee;">${escapeHtml(t.keterangan || '-')}</td>
+        <td style="padding:6px 8px;border-bottom:1px solid #eee;">${escapeHtml(t.keterangan || '-')}${t.diedit ? ' <i style="color:#B45309;">(diedit)</i>' : ''}</td>
         <td style="padding:6px 8px;border-bottom:1px solid #eee;text-align:right;">Rp ${t.uang.toLocaleString('id-ID')}</td>
         <td style="padding:6px 8px;border-bottom:1px solid #eee;text-align:right;">${t.kurs.toLocaleString('id-ID')}</td>
         <td style="padding:6px 8px;border-bottom:1px solid #eee;text-align:right;">${t.riyal.toLocaleString('id-ID')} SAR</td>
@@ -17913,7 +18038,7 @@ async function shareTukarRiyalPDF() {
         doc.text(namaInstansi + ' — Dicetak: ' + tglCetak, 105, 71, { align: 'center' });
 
         const tableData = list.slice().reverse().map((t,i) => [
-            i+1, t.tanggalTampil, t.keterangan || '-',
+            i+1, t.tanggalTampil, (t.keterangan || '-') + (t.diedit ? ' (diedit)' : ''),
             'Rp ' + t.uang.toLocaleString('id-ID'),
             t.kurs.toLocaleString('id-ID'),
             t.riyal.toLocaleString('id-ID') + ' SAR',
@@ -20974,7 +21099,7 @@ function openIndexedDB() {
 // dengan build baru, data MENTAH (langsung dari IndexedDB, bukan dari memori) disalin dulu sebelum
 // proses migrasi apapun berjalan — supaya kalau ada kesalahan di update, data lama masih bisa dipulihkan.
 // Dokumen & foto tidak ikut disalin (ukurannya besar, dan tidak pernah disentuh proses migrasi).
-const NAVARA_BUILD = '2026.10.02-44';
+const NAVARA_BUILD = '2026.10.02-47';
 const MAKS_SNAPSHOT = 3;
 
 function daftarKunciSnapshot() {
