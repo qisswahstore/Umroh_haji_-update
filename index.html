@@ -4422,7 +4422,7 @@ function internalShowPage(pageId) {
     // Jaring pengaman: kalaupun ada yang coba masuk lewat jalan lain (bukan klik menu), tetap diblok
     // kalau Peran staf yang sedang login tidak diizinkan buka modul ini.
     if(!cekIzinModul(pageId)) {
-        showToast('🔒 Anda tidak punya izin membuka halaman ini');
+        showToast('🔒 Tidak punya izin. Gunakan tombol 🔓 Minta Akses di Home.');
         if(pageId !== 'home') internalShowPage('home');
         return;
     }
@@ -4999,6 +4999,40 @@ async function hashPIN(pin) {
     return Array.from(new Uint8Array(hashBuffer)).map(b => b.toString(16).padStart(2,'0')).join('');
 }
 
+// ==================== PENGUNCI PERCOBAAN PIN ====================
+// PIN salah 5 kali untuk satu akun -> akun itu tidak bisa dicoba lagi selama 5 menit (tebakan beruntun jadi tidak praktis).
+// Berlaku di: ganti admin, layar kunci, dan persetujuan Akses Sementara. Dikunci per akun, jadi staf lain tidak ikut terhalang.
+const PIN_MAKS_SALAH = 5;
+const PIN_DURASI_KUNCI_MENIT = 5;
+function _bacaKunciPIN() { try { return JSON.parse(localStorage.getItem('navara_pin_kunci') || '{}') || {}; } catch (e) { return {}; } }
+function _simpanKunciPIN(o) { try { localStorage.setItem('navara_pin_kunci', JSON.stringify(o)); } catch (e) {} }
+function pesanKunciPIN(nama) {
+    const d = _bacaKunciPIN()[nama];
+    const sisa = d && d.sampai ? d.sampai - Date.now() : 0;
+    return sisa > 0 ? `🔒 PIN ${nama} dikunci sementara. Coba lagi ${Math.ceil(sisa / 60000)} menit lagi.` : null;
+}
+function catatPINSalah(nama) {
+    const semua = _bacaKunciPIN();
+    const d = semua[nama] || { salah: 0, sampai: 0 };
+    if (d.sampai && Date.now() >= d.sampai) { d.salah = 0; d.sampai = 0; } // kunci lama sudah lewat: hitung dari awal
+    d.salah++;
+    let terkunci = false;
+    if (d.salah >= PIN_MAKS_SALAH) {
+        d.sampai = Date.now() + PIN_DURASI_KUNCI_MENIT * 60000; d.salah = 0; terkunci = true;
+        try { catatAktivitas('🔒', `PIN ${nama} salah ${PIN_MAKS_SALAH} kali berturut-turut — dikunci ${PIN_DURASI_KUNCI_MENIT} menit`); } catch (e) {}
+    }
+    semua[nama] = d; _simpanKunciPIN(semua);
+    return { salah: d.salah, terkunci };
+}
+function resetPINSalah(nama) {
+    const semua = _bacaKunciPIN();
+    if (semua[nama]) { delete semua[nama]; _simpanKunciPIN(semua); }
+}
+function pesanPINSalah(nama) {
+    const r = catatPINSalah(nama);
+    return r.terkunci ? `🔒 PIN salah ${PIN_MAKS_SALAH} kali. Dikunci ${PIN_DURASI_KUNCI_MENIT} menit.` : `❌ PIN salah! (${r.salah}/${PIN_MAKS_SALAH})`;
+}
+
 // ==================== KODE PEMULIHAN (jaring pengaman kalau PIN lupa — karena Single File, tidak ada server untuk "lupa password") ====================
 function buatKodePemulihanAcak() {
     const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; // hindari huruf/angka mirip (0/O, 1/I)
@@ -5094,8 +5128,11 @@ async function verifikasiPINLayarKunci() {
     const list = getAdminList();
     const a = list.find(x => x.nama === currentAdminNama);
     if(!a) { document.getElementById('lockScreenOverlay').style.display = 'none'; return; } // safety: kalau admin tidak ditemukan, jangan sampai buntu
+    const kunci = pesanKunciPIN(a.nama);
+    if(kunci) return showToast(kunci);
     const hashInput = await hashPIN(pin);
-    if(hashInput !== a.pinHash) { showToast('❌ PIN salah!'); return; }
+    if(hashInput !== a.pinHash) { showToast(pesanPINSalah(a.nama)); return; }
+    resetPINSalah(a.nama);
     document.getElementById('lockScreenOverlay').style.display = 'none';
     catatWaktuAktifTerakhir();
 }
@@ -5240,7 +5277,6 @@ const MODUL_BISA_DIPINJAM = ['estimasi','kas','jamaah','jamaahkita','catatan','z
 const KUNCI_WAKTU_TERAKHIR = 'navara_waktu_terakhir';
 let _waktuTerakhirDisimpan = 0;
 let _permintaanAksesTertunda = null;
-let _aksesSalahPIN = 0;
 const _aksesPeringatanDikirim = {};
 
 function getAksesSementaraList() { return Array.isArray(konfigurasiPro.akses_sementara) ? konfigurasiPro.akses_sementara : []; }
@@ -5469,7 +5505,6 @@ function bukaPersetujuanAkses() {
     if (!getAdminList().some(a => a.isPemilik && a.pinHash)) return showToast('Belum ada Admin Utama ber-PIN. Atur dulu di Kelola Admin.');
     const durTeks = req.durKode === 'hariini' ? 'sampai akhir hari ini' : `${Number(req.durKode) / 60} jam`;
     const isi = [...req.modul.map(m => LABEL_MODUL[m] || m), ...req.fitur.map(id => (FITUR_LENGKAP.find(f => f.id === id) || {}).label || id)];
-    _aksesSalahPIN = 0;
     const modal = bukaModalAkses('persetujuanAksesModal');
     modal.innerHTML = `<div class="modal-content" style="max-width:400px;">
         <h3 style="color:var(--primary);margin-bottom:4px;">🔐 Persetujuan Admin Utama</h3>
@@ -5491,22 +5526,24 @@ function bukaPersetujuanAkses() {
 async function setujuiAksesSementara() {
     const req = _permintaanAksesTertunda;
     if (!req) return;
-    if (Date.now() < Number(localStorage.getItem('navara_akses_kunci_sampai') || 0)) return showToast('🔒 Terlalu banyak PIN salah. Coba lagi beberapa menit lagi.');
+    const daftarPemilik = getAdminList().filter(a => a.isPemilik);
+    const kunci = daftarPemilik.map(a => pesanKunciPIN(a.nama)).find(Boolean);
+    if (kunci) return showToast(kunci);
     const pin = document.getElementById('aksesPinInput').value;
     if (!pin) return showToast('Masukkan PIN Admin Utama dulu!');
     const hash = await hashPIN(pin);
-    const pemilik = getAdminList().find(a => a.isPemilik && a.pinHash === hash);
+    const pemilik = daftarPemilik.find(a => a.pinHash === hash);
     if (!pemilik) {
-        _aksesSalahPIN++;
-        if (_aksesSalahPIN >= 5) {
-            localStorage.setItem('navara_akses_kunci_sampai', String(Date.now() + 5 * 60000));
-            _aksesSalahPIN = 0; _permintaanAksesTertunda = null;
+        let r = { salah: 0, terkunci: false };
+        daftarPemilik.forEach(a => { r = catatPINSalah(a.nama); }); // salah tebak dihitung ke akun Admin Utama
+        if (r.terkunci) {
+            _permintaanAksesTertunda = null;
             document.getElementById('persetujuanAksesModal').style.display = 'none';
-            return showToast('🔒 PIN salah 5 kali. Persetujuan dikunci 5 menit.');
+            return showToast(`🔒 PIN salah ${PIN_MAKS_SALAH} kali. Dikunci ${PIN_DURASI_KUNCI_MENIT} menit.`);
         }
-        return showToast(`❌ PIN Admin Utama salah (${_aksesSalahPIN}/5)`);
+        return showToast(`❌ PIN Admin Utama salah (${r.salah}/${PIN_MAKS_SALAH})`);
     }
-    _aksesSalahPIN = 0;
+    resetPINSalah(pemilik.nama);
     const now = waktuAmanSekarang();
     let sampai;
     if (req.durKode === 'hariini') { const d = new Date(now); d.setHours(23, 59, 0, 0); sampai = d.getTime(); }
@@ -5622,8 +5659,11 @@ async function verifikasiPINAdmin(nama) {
     const list = getAdminList();
     const a = list.find(x => x.nama === nama);
     if(!a) return showToast('Admin tidak ditemukan');
+    const kunci = pesanKunciPIN(a.nama);
+    if(kunci) return showToast(kunci);
     const hashInput = await hashPIN(pin);
-    if(hashInput !== a.pinHash) return showToast('❌ PIN salah!');
+    if(hashInput !== a.pinHash) return showToast(pesanPINSalah(a.nama));
+    resetPINSalah(a.nama);
     currentAdminNama = a.nama;
     currentAdminIsPemilik = !!a.isPemilik;
     localStorage.setItem('navara_current_admin_nama', currentAdminNama);
@@ -8771,25 +8811,8 @@ function hitungRekapAktual() {
             totalKontrak: 0, totalPiutang: 0, tanpaHarga: []
         };
 
-        // Modal per jamaah berdasarkan tipe kamar dari estimasi
-        let modalPerJamaah = 0;
-        if(est) {
-            const pr = v => parseInt((v||'0').toString().replace(/\./g,'').replace(/[^0-9]/g,''))||0;
-            const subBase = pr(est.cTiket)+pr(est.cAsuransi)+pr(est.cHandling)+pr(est.cPIC)+pr(est.cAlat)+pr(est.cAplikasi)+pr(est.cLain);
-            const laQuadVal = pr(est.cLAquad||est.cLA||'0');
-            let laVal;
-            if(est.modeLA === 'upgrade' && tipe !== 'Quad') {
-                // Mode Upgrade: nilai Triple/Double adalah SELISIH dari Quad, bukan harga penuh
-                const selisihMap = { 'Triple': pr(est.cLAtriple||'0'), 'Double': pr(est.cLAdouble||'0') };
-                const selisih = selisihMap[tipe];
-                laVal = selisih !== undefined ? laQuadVal + selisih : laQuadVal;
-            } else {
-                const laMap = { 'Quad': laQuadVal, 'Triple': pr(est.cLAtriple||'0'), 'Double': pr(est.cLAdouble||'0') };
-                laVal = laMap[tipe] !== undefined ? laMap[tipe] : laQuadVal;
-                if(laVal === 0 && tipe !== 'Quad') laVal = laQuadVal;
-            }
-            modalPerJamaah = subBase + laVal;
-        }
+        // Modal per jamaah berdasarkan tipe kamar dari estimasi (rumus bersama dengan Laporan Penutupan Musim)
+        const modalPerJamaah = est ? modalPerJamaahMenurutTipe(est, tipe) : 0;
 
         // Kalau belum ada data → catat terpisah
         if(belumIsiHarga) {
@@ -8856,6 +8879,12 @@ function hitungRekapAktual() {
         </div>`;
     });
 
+    // Modal FOC dan TL: mereka berangkat dan biayanya tetap keluar, walau tidak punya harga paket
+    const estRingkas = est ? hitungModalHargaEstimasiTerkini() : null;
+    const modalFocTL = estRingkas ? ((estRingkas.foc || 0) + (estRingkas.tl || 0)) * estRingkas.modal : 0;
+    const modalJamaahBayar = grandModal;
+    grandModal += modalFocTL;
+
     // Grand Total
     const grandProfit = grandOmzet - grandModal;
     html += `<div class="kartu-total-rekap" style="background:linear-gradient(135deg,var(--primary),#0a3d31);border-radius:14px;padding:16px;margin-bottom:10px;color:white;">
@@ -8871,6 +8900,14 @@ function hitungRekapAktual() {
         ${grandPiutang > 0 ? `<div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid rgba(255,255,255,0.2);">
             <span style="font-size:13px;opacity:0.8;">Piutang/Sisa</span>
             <span style="font-size:13px;font-weight:700;color:#f59e0b;">-${f(grandPiutang)}</span>
+        </div>` : ''}
+        ${modalFocTL > 0 ? `<div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid rgba(255,255,255,0.2);">
+            <span style="font-size:13px;opacity:0.8;">Modal jamaah bayar</span>
+            <span style="font-size:13px;">${f(modalJamaahBayar)}</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid rgba(255,255,255,0.2);">
+            <span style="font-size:13px;opacity:0.8;">Modal FOC (${estRingkas.foc || 0}) dan TL (${estRingkas.tl || 0})</span>
+            <span style="font-size:13px;">${f(modalFocTL)}</span>
         </div>` : ''}
         ${grandModal > 0 ? `<div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid rgba(255,255,255,0.2);">
             <span style="font-size:13px;opacity:0.8;">Total Modal (estimasi)</span>
@@ -14249,7 +14286,7 @@ function getTotalHargaPaketUntukProgram(jamaah, programId) {
 }
 
 function openBandingkanProgramModal() {
-    if(!cekIzinFitur('openBandingkanProgramModal')) return showToast('🔒 Anda tidak punya izin membuka fitur ini');
+    if(!cekIzinFitur('openBandingkanProgramModal')) return showToast('🔒 Tidak punya izin. Gunakan tombol 🔓 Minta Akses di Home.');
     let modal = document.getElementById('bandingkanProgramModal');
     if(!modal) {
         modal = document.createElement('div');
@@ -14300,7 +14337,7 @@ function openBandingkanProgramModal() {
 
 // ==================== REKAP TAHUNAN GABUNGAN ====================
 function cetakRekapTahunanGabungan() {
-    if(!cekIzinFitur('cetakRekapTahunanGabungan')) return showToast('🔒 Anda tidak punya izin membuka fitur ini');
+    if(!cekIzinFitur('cetakRekapTahunanGabungan')) return showToast('🔒 Tidak punya izin. Gunakan tombol 🔓 Minta Akses di Home.');
     let totalKontrak = 0, totalDibayar = 0, totalJamaah = 0, totalKasMasuk = 0, totalKasKeluar = 0, totalPengeluaran = 0;
     const perProgram = programList.map(p => {
         const jList = _allJamaahData.filter(j => j.program_id === p.id);
@@ -14574,7 +14611,7 @@ function cetakManifestRooming() {
 
 // ==================== KALENDER GABUNGAN SEMUA PROGRAM ====================
 function openKalenderProgramModal() {
-    if(!cekIzinFitur('openKalenderProgramModal')) return showToast('🔒 Anda tidak punya izin membuka fitur ini');
+    if(!cekIzinFitur('openKalenderProgramModal')) return showToast('🔒 Tidak punya izin. Gunakan tombol 🔓 Minta Akses di Home.');
     let modal = document.getElementById('kalenderProgramModal');
     if(!modal) {
         modal = document.createElement('div');
@@ -14616,7 +14653,7 @@ function openKalenderProgramModal() {
 
 // ==================== PROYEKSI ARUS KAS ====================
 function openProyeksiKasModal() {
-    if(!cekIzinFitur('openProyeksiKasModal')) return showToast('🔒 Anda tidak punya izin membuka fitur ini');
+    if(!cekIzinFitur('openProyeksiKasModal')) return showToast('🔒 Tidak punya izin. Gunakan tombol 🔓 Minta Akses di Home.');
     let modal = document.getElementById('proyeksiKasModal');
     if(!modal) {
         modal = document.createElement('div');
@@ -14904,7 +14941,46 @@ function hitungModalHargaEstimasiTerkini() {
     const profitKotor = sub * nJam * pPct;
     const jualBase = ((sub*nJam) + profitKotor) / (nJam - nFoc);
     const harga = jualBase + buffer;
-    return { modal: sub, harga, buffer };
+    return { modal: sub, harga, buffer, foc: nFoc, tl: nTL };
+}
+
+// Modal per jamaah menurut tipe kamar (Quad/Triple/Double) — SATU rumus yang dipakai tab Rekap DAN Laporan Penutupan Musim
+function modalPerJamaahMenurutTipe(est, tipe) {
+    if(!est) return 0;
+    const pr = v => parseInt((v||'0').toString().replace(/\./g,'').replace(/[^0-9]/g,''))||0;
+    const subBase = pr(est.cTiket)+pr(est.cAsuransi)+pr(est.cHandling)+pr(est.cPIC)+pr(est.cAlat)+pr(est.cAplikasi)+pr(est.cLain);
+    const laQuadVal = pr(est.cLAquad||est.cLA||'0');
+    let laVal;
+    if(est.modeLA === 'upgrade' && tipe !== 'Quad') {
+        // Mode Upgrade: nilai Triple/Double adalah SELISIH dari Quad, bukan harga penuh
+        const selisihMap = { 'Triple': pr(est.cLAtriple||'0'), 'Double': pr(est.cLAdouble||'0') };
+        const selisih = selisihMap[tipe];
+        laVal = selisih !== undefined ? laQuadVal + selisih : laQuadVal;
+    } else {
+        const laMap = { 'Quad': laQuadVal, 'Triple': pr(est.cLAtriple||'0'), 'Double': pr(est.cLAdouble||'0') };
+        laVal = laMap[tipe] !== undefined ? laMap[tipe] : laQuadVal;
+        if(laVal === 0 && tipe !== 'Quad') laVal = laQuadVal;
+    }
+    return subBase + laVal;
+}
+
+// Total modal estimasi = modal tiap jamaah yang membayar (menurut tipe kamarnya)
+//                      + modal peserta FOC + modal TL (jumlahnya dari Cuan Plan, memakai tarif Quad).
+// FOC dan TL tetap berangkat dan biayanya tetap keluar, walau tidak punya harga paket.
+function hitungTotalModalEstimasi(daftarJamaah) {
+    const raw = getEstimasiData ? getEstimasiData() : null;
+    const ringkas = hitungModalHargaEstimasiTerkini();
+    if(!raw || !ringkas) return null;
+    const modalQuad = modalPerJamaahMenurutTipe(raw, 'Quad');
+    let bayar = 0, tanpaTipe = 0;
+    daftarJamaah.forEach(j => {
+        const tipe = j.additional_fields?.tipe_paket || '';
+        if(!tipe) tanpaTipe++;
+        bayar += modalPerJamaahMenurutTipe(raw, tipe || 'Quad'); // belum ada tipe kamar: pakai tarif Quad
+    });
+    const nFoc = ringkas.foc || 0, nTL = ringkas.tl || 0;
+    const modalFoc = nFoc * modalQuad, modalTL = nTL * modalQuad;
+    return { bayar, nBayar: daftarJamaah.length, nFoc, nTL, modalFoc, modalTL, total: bayar + modalFoc + modalTL, tanpaTipe, modalQuad };
 }
 
 function hitungSimulasiRasioGratis(modal, harga, setiap, dapat) {
@@ -15259,8 +15335,8 @@ function openAntrianFollowUpModal() {
 // ==================== DASHBOARD TREN TAHUNAN ====================
 // ==================== LAPORAN PENUTUPAN MUSIM ====================
 function cetakLaporanPenutupanMusim() {
-    if(!cekIzinFitur('cetakLaporanPenutupanMusim')) return showToast('🔒 Anda tidak punya izin membuka fitur ini');
-    const f = n => 'Rp ' + Math.round(n).toLocaleString('id-ID');
+    if(!cekIzinFitur('cetakLaporanPenutupanMusim')) return showToast('🔒 Tidak punya izin. Gunakan tombol 🔓 Minta Akses di Home.');
+    const f = n => (Math.round(n) < 0 ? '-' : '') + 'Rp ' + Math.abs(Math.round(n)).toLocaleString('id-ID');
     const fKurang = n => (Math.round(n) > 0 ? '-' : '') + f(n); // tanda minus hanya kalau nilainya > 0, supaya tidak tampil "-Rp 0"
     const namaKBIH = getNamaInstansiUtama();
     const progNama = getCurrentProgram()?.nama || '-';
@@ -15274,17 +15350,20 @@ function cetakLaporanPenutupanMusim() {
         totalKontrak += getTotalHargaPaket(j);
         totalDibayarJamaah += paymentTransaksiList.filter(t => t.id_jamaah == j.id).reduce((s,t) => s + (parseInt(t.nominal)||0), 0);
     });
+    // Modal estimasi: jamaah bayar (menurut tipe kamar) + FOC + TL — satu hitungan untuk halaman depan DAN rincian
+    const modalEst = est ? hitungTotalModalEstimasi(jamaahRelevan) : null;
 
     let sectionRekap = '';
     if(est) {
-        const totalModalAktual = est.modal * jamaahRelevan.length;
+        const totalModalAktual = modalEst ? modalEst.total : est.modal * jamaahRelevan.length;
         const profitAktual = totalKontrak - totalModalAktual;
         sectionRekap = `<div class="lap-section"><h2>📋 Proyeksi Laba</h2>
             <table class="lap-table"><tr><td>Total Jamaah</td><td>${jamaahRelevan.length}</td></tr>
             <tr><td>Total Kontrak</td><td>${f(totalKontrak)}</td></tr>
             <tr><td>Sudah Dibayar</td><td>${f(totalDibayarJamaah)}</td></tr>
             <tr><td>Total Modal (estimasi)</td><td>${f(totalModalAktual)}</td></tr>
-            <tr class="lap-total"><td>PROYEKSI LABA (Kontrak − Modal Estimasi)</td><td>${f(profitAktual)}</td></tr></table></div>`;
+            <tr class="lap-total"><td>PROYEKSI LABA (Kontrak − Modal Estimasi)</td><td>${f(profitAktual)}</td></tr></table>
+            ${modalEst && (modalEst.nFoc + modalEst.nTL) > 0 ? `<p class="lap-note">Total Modal sudah termasuk modal ${modalEst.nFoc} peserta FOC dan ${modalEst.nTL} TL, karena biaya mereka tetap keluar.</p>` : ''}</div>`;
     } else if(isHajiReguler()) {
         // Haji Reguler dengan Komponen — pecah per Jenis (Bimbingan, Touring/Ziarah, dst)
         const komponenList = ensureKomponenHaji();
@@ -15432,18 +15511,87 @@ function cetakLaporanPenutupanMusim() {
             <table class="lap-table"><tr class="lap-total"><td>TOTAL PROFIT LAYANAN TAMBAHAN</td><td>${f(totalProfitLayanan)}</td></tr></table></div>`;
     }
 
+    // ===== HALAMAN DEPAN: kop, 1 Ringkasan Penjualan, 2 Proyeksi, 3 Realisasi, 4 Selisih, tanda tangan =====
+    // Semua angka memakai variabel YANG SAMA dengan halaman rincian (totalKontrak, totalDibayarJamaah, totalModalAktual,
+    // totalPengeluaran, profitAktual, profitRiil), jadi pasti cocok dengan rincian. Selisih dipecah secara matematis:
+    // (Laba Bersih Realisasi − Proyeksi Laba) = (Sudah Dibayar − Kontrak) + (Modal Estimasi − Pengeluaran)  → tepat, tanpa sisa pembulatan.
+    const fTanda = n => { const r = Math.round(n); return r > 0 ? '+' + f(r) : (r < 0 ? '-' + f(-r) : f(0)); };
+    const warnaTanda = n => Math.round(n) < 0 ? '#DC2626' : (Math.round(n) > 0 ? '#166534' : '#222');
+    const belumDibayar = totalKontrak - totalDibayarJamaah; // negatif = ada kelebihan bayar
+    const tanpaHarga = jamaahList.length - jamaahRelevan.length;
+    const cekPiutangDepan = cekPeringatanCicilanSemuaJamaah();
+    const piutangTermin = [...cekPiutangDepan.telat, ...cekPiutangDepan.hariIni, ...cekPiutangDepan.akanDatang].reduce((s2, x) => s2 + x.sisa, 0);
+    let catatanBelum = '';
+    if (tanpaHarga > 0) catatanBelum += `<p class="lap-note">Dihitung dari ${jamaahRelevan.length} jamaah yang sudah punya harga paket. ${tanpaHarga} jamaah lain belum punya harga paket sehingga tidak ikut dihitung.</p>`;
+    if (Math.round(piutangTermin) !== Math.round(belumDibayar) && belumDibayar > 0) catatanBelum += `<p class="lap-note">"Belum dibayar" di sini dihitung dari Total Kontrak dikurangi Sudah Dibayar. Piutang di halaman rincian dihitung dari jadwal cicilan (${f(piutangTermin)}); selisihnya adalah sisa yang tidak tercatat di jadwal cicilan.</p>`;
+
+    const blok1 = `<div class="lap-section"><h2>1. Ringkasan Penjualan</h2>
+        <table class="lap-table"><tr><td>Total Jamaah</td><td>${jamaahRelevan.length}</td></tr>
+        <tr><td>Total Kontrak</td><td>${f(totalKontrak)}</td></tr>
+        <tr><td>Sudah Dibayar</td><td>${f(totalDibayarJamaah)}</td></tr>
+        <tr class="lap-total"><td>${belumDibayar >= 0 ? 'Belum Dibayar (Kontrak − Sudah Dibayar)' : 'Kelebihan Bayar dari Kontrak'}</td><td>${f(Math.abs(belumDibayar))}</td></tr></table>${catatanBelum}</div>`;
+
+    let blok2 = '', blok4 = '';
+    const blok3 = `<div class="lap-section"><h2>${est ? '3' : '2'}. Realisasi</h2>
+        <table class="lap-table"><tr><td>Uang Masuk dari Jamaah (Sudah Dibayar)</td><td>${f(totalDibayarJamaah)}</td></tr>
+        <tr><td>Realisasi Pengeluaran</td><td>${fKurang(totalPengeluaran)}</td></tr>
+        <tr class="lap-total" style="color:${profitRiil < 0 ? '#DC2626' : '#166534'};"><td>LABA BERSIH (Realisasi)</td><td>${f(profitRiil)}</td></tr></table></div>`;
+    if (est) {
+        const totalModalDepan = modalEst ? modalEst.total : est.modal * jamaahRelevan.length;
+        const proyeksiDepan = totalKontrak - totalModalDepan;
+        const efekBelum = totalDibayarJamaah - totalKontrak;
+        const efekBiaya = totalModalDepan - totalPengeluaran;
+        const selisih = profitRiil - proyeksiDepan;
+        const adaFocTL = modalEst && (modalEst.nFoc + modalEst.nTL) > 0;
+        let catatanProyeksi = '';
+        if (modalEst && modalEst.tanpaTipe > 0) catatanProyeksi += `<p class="lap-note">${modalEst.tanpaTipe} jamaah belum punya tipe kamar, modalnya dihitung dengan tarif Quad.</p>`;
+        if (est.buffer > 0) catatanProyeksi += `<p class="lap-note">Proyeksi dihitung dari kontrak yang ada. Buffer diskon yang belum terpakai ikut menjadi laba (lihat Analisis Buffer).</p>`;
+        blok2 = `<div class="lap-section"><h2>2. Proyeksi (dari Cuan Plan)</h2>
+            <table class="lap-table"><tr><td>Total Kontrak</td><td>${f(totalKontrak)}</td></tr>
+            ${adaFocTL ? `<tr><td>Modal jamaah bayar (${modalEst.nBayar} orang)</td><td>${f(modalEst.bayar)}</td></tr>
+            <tr><td>Modal FOC (${modalEst.nFoc} orang)</td><td>${f(modalEst.modalFoc)}</td></tr>
+            <tr><td>Modal TL (${modalEst.nTL} orang)</td><td>${f(modalEst.modalTL)}</td></tr>` : ''}
+            <tr><td>Total Modal (estimasi)</td><td>${f(totalModalDepan)}</td></tr>
+            <tr class="lap-total"><td>PROYEKSI LABA (Kontrak − Modal Estimasi)</td><td>${f(proyeksiDepan)}</td></tr></table>${catatanProyeksi}</div>`;
+        blok4 = `<div class="lap-section"><h2>4. Selisih dari Rencana</h2>
+            <table class="lap-table"><tr><td>Belum dibayar jamaah (Sudah Dibayar − Kontrak)</td><td style="color:${warnaTanda(efekBelum)};">${fTanda(efekBelum)}</td></tr>
+            <tr><td>Pengeluaran dibanding modal estimasi (Modal − Pengeluaran)</td><td style="color:${warnaTanda(efekBiaya)};">${fTanda(efekBiaya)}</td></tr>
+            <tr class="lap-total" style="color:${warnaTanda(selisih)};"><td>SELISIH LABA (Realisasi − Proyeksi)</td><td>${fTanda(selisih)}</td></tr></table>
+            <p class="lap-note">Tanda minus berarti lebih rendah dari rencana, tanda plus berarti lebih tinggi. Dua baris pertama dijumlahkan menjadi Selisih Laba.</p></div>`;
+    } else {
+        blok4 = `<div class="lap-section"><p class="lap-note">Proyeksi Laba dan Selisih tidak ditampilkan karena program ini tidak memakai Estimasi/Modal (Cuan Plan).</p></div>`;
+    }
+
+    const cfgDepan = getKonfigurasiProData();
+    const kopHtml = buildPrintHeader(cfgDepan, tgl);
+    let ttdHtml = buildPrintTandaTangan(cfgDepan, tgl, true, true);
+    if (!ttdHtml) {
+        const kolomTTD = (judul) => `<div style="text-align:center;flex:1;"><div style="font-size:12px;color:#555;">${judul}</div><div style="height:60px;"></div><div style="border-top:1px solid #333;padding-top:6px;font-size:13px;">(.....................)</div></div>`;
+        ttdHtml = `<div style="display:flex;gap:24px;margin-top:36px;">${kolomTTD('Pimpinan')}${kolomTTD('Bendahara')}</div>`;
+    }
+    const halamanDepan = `<div class="lap-depan">${kopHtml}
+        <h1>📕 LAPORAN PENUTUPAN MUSIM</h1>
+        <p>Program: ${escapeHtml(progNama)} — Dicetak: ${tgl}</p>
+        ${blok1}${blok2}${blok3}${blok4}
+        <div style="margin-top:28px;">${ttdHtml}</div>
+        <p class="lap-note" style="text-align:center;margin-top:18px;">Rincian lengkap ada di halaman berikutnya.</p></div>`;
+
     const html = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>Laporan Penutupan Musim</title>
     <style>body{font-family:Arial,sans-serif;padding:24px;color:#222;} h1{color:#0D5C4A;font-size:20px;margin-bottom:2px;}
     .lap-section{margin-top:22px;} .lap-section h2{font-size:15px;color:#0D5C4A;border-bottom:2px solid #0D5C4A;padding-bottom:4px;}
     .lap-table{width:100%;border-collapse:collapse;margin-top:8px;font-size:13px;}
     .lap-table td, .lap-table th{padding:7px 4px;border-bottom:1px solid #eee;} .lap-table th{background:#0D5C4A;color:#fff;text-align:left;}
-    .lap-table td:last-child, .lap-table th:last-child{text-align:right;}
+    .lap-table td:last-child, .lap-table th:last-child{text-align:right;white-space:nowrap;}
     .lap-total td{font-weight:800;background:#F0FDF4;} .lap-note{font-size:11px;color:#888;margin-top:6px;}
+    .lap-depan{page-break-after:always;} .lap-halaman2 h1{margin-top:0;}
     @media print{ .no-print{display:none!important;} }
     </style></head><body>
-    <h1>📕 LAPORAN PENUTUPAN MUSIM</h1>
+    ${halamanDepan}
+    <div class="lap-halaman2">
+    <h1>📑 RINCIAN LAPORAN</h1>
     <p>${escapeHtml(namaKBIH)} — Program: ${escapeHtml(progNama)} — Dicetak: ${tgl}</p>
     ${sectionRekap}${sectionPengeluaran}${sectionBufferB2C}${sectionBufferB2B}${sectionMitra}${sectionPiutang}${sectionLayanan}
+    </div>
     `;
     tampilkanJendelaCetak(html);
 }
@@ -15754,7 +15902,7 @@ function cetakItinerary(mode) {
 }
 
 function openDashboardTrenModal() {
-    if(!cekIzinFitur('openDashboardTrenModal')) return showToast('🔒 Anda tidak punya izin membuka fitur ini');
+    if(!cekIzinFitur('openDashboardTrenModal')) return showToast('🔒 Tidak punya izin. Gunakan tombol 🔓 Minta Akses di Home.');
     let modal = document.getElementById('dashboardTrenModal');
     if(!modal) {
         modal = document.createElement('div');
@@ -20826,7 +20974,7 @@ function openIndexedDB() {
 // dengan build baru, data MENTAH (langsung dari IndexedDB, bukan dari memori) disalin dulu sebelum
 // proses migrasi apapun berjalan — supaya kalau ada kesalahan di update, data lama masih bisa dipulihkan.
 // Dokumen & foto tidak ikut disalin (ukurannya besar, dan tidak pernah disentuh proses migrasi).
-const NAVARA_BUILD = '2026.10.02-39';
+const NAVARA_BUILD = '2026.10.02-44';
 const MAKS_SNAPSHOT = 3;
 
 function daftarKunciSnapshot() {
