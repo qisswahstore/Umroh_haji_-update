@@ -2906,6 +2906,7 @@
             <button type="button" onclick="bukaFormPinjamSaldo()" style="padding:10px 4px;border:none;border-radius:10px;font-size:12px;font-weight:700;background:#EDE9FE;color:#6D28D9;cursor:pointer;">🤝 Pinjam / Talangan</button>
             <button type="button" onclick="bukaFormKembaliSaldo()" style="padding:10px 4px;border:none;border-radius:10px;font-size:12px;font-weight:700;background:#DCFCE7;color:#15803d;cursor:pointer;">↩ Pengembalian</button>
         </div>
+        <button type="button" onclick="bukaLaporanSaldo()" style="width:100%;padding:11px;border:none;border-radius:10px;font-size:13px;font-weight:700;background:var(--primary);color:#fff;cursor:pointer;margin:0 0 12px;">📄 Laporan (Cetak / PDF / WA)</button>
         <div id="saldoUtang" class="card-premium" style="display:none;margin:0 0 12px;"></div>
         <div id="saldoDetailPihak" class="card-premium" style="display:none;margin:0 0 12px;"></div>
         <div id="saldoDetail" class="card-premium" style="display:none;margin:0;"></div>
@@ -10995,7 +10996,7 @@ function tanggalLokalHariIni() {
 // ==================== SALDO KANTOR (tahap 1) ====================
 // Uang kantor yang dipegang, DIPISAH per entitas (instansi 1 & 2 dari Konfigurasi). Tiap entitas punya banyak rekening bank + kas tunai.
 // Hanya Admin Utama / admin tanpa Peran: tidak bisa dicentang di Peran dan tidak bisa dipinjamkan lewat Akses Sementara.
-let saldoKantorData = { rekening: [], mutasi: [], antarEntitas: [], kategori: { masuk: [], keluar: [] } };
+let saldoKantorData = { rekening: [], mutasi: [], antarEntitas: [], kategori: { masuk: [], keluar: [] }, laporanTerakhir: {} };
 let saldoRekDipilih = null;
 const KATEGORI_SALDO_MASUK = ['Setoran jamaah', 'Dari mitra / pihak lain', 'Pengembalian', 'Lain-lain'];
 const KATEGORI_SALDO_KELUAR = ['Maskapai', 'Hotel', 'Visa & perlengkapan', 'Operasional', 'Gaji & honor', 'Komisi mitra', 'Biaya bank', 'Lain-lain'];
@@ -11423,6 +11424,7 @@ function normalSaldo(d) {
     d.kategori = d.kategori && typeof d.kategori === 'object' ? d.kategori : {};
     d.kategori.masuk = Array.isArray(d.kategori.masuk) ? d.kategori.masuk : [];
     d.kategori.keluar = Array.isArray(d.kategori.keluar) ? d.kategori.keluar : [];
+    d.laporanTerakhir = d.laporanTerakhir && typeof d.laporanTerakhir === 'object' ? d.laporanTerakhir : {};
     return d;
 }
 async function muatPinjamanDataSenyap() {
@@ -11779,6 +11781,380 @@ async function tautkanPinjamanKeSaldo(trx, orang) {
     localStorage.setItem(KUNCI_REK_TERAKHIR, r.id);
     catatAktivitas('🤝', `Saldo Kantor: ${trx.jenis === 'kembali' ? 'pengembalian dari' : 'pinjaman ke'} ${orang.nama} ${rupiahSaldo(trx.nominal)} ${trx.jenis === 'kembali' ? 'masuk ke' : 'diambil dari'} ${labelRekeningSaldo(r)} (${namaEntitasSaldo(r.entitas)}) — dicatat dari Buku Pinjaman`);
     return true;
+}
+
+// ==================== LAPORAN SALDO KANTOR (tahap 3) ====================
+// Satu layar, pilih entitas & periode, pratinjau, lalu Cetak / Bagikan PDF / WA. Entitas TIDAK pernah dijumlahkan menjadi satu total.
+let laporanSaldoState = { ent: 'semua', periode: 'saatini', dari: '', sampai: '', rincian: false, rincianManual: false };
+const PERIODE_SALDO = [['saatini', 'Saat ini'], ['sejak', 'Sejak laporan terakhir'], ['hari', 'Hari ini'], ['7hari', '7 hari'], ['bulanini', 'Bulan ini'], ['bulanlalu', 'Bulan lalu'], ['tanggal', 'Pilih tanggal']];
+
+function isoDariTanggal(d) { return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); }
+function resolvePeriodeSaldo(st) {
+    const hari = hariIniISO(), d0 = new Date(hari + 'T00:00:00'), y = d0.getFullYear(), m = d0.getMonth(), t = d0.getDate();
+    switch (st.periode) {
+        case 'sejak': return { kode: 'sejak', label: 'Sejak laporan terakhir', sejak: true };
+        case 'hari': return { kode: 'hari', label: 'Hari ini', awal: hari, akhir: hari };
+        case '7hari': return { kode: '7hari', label: '7 hari terakhir', awal: isoDariTanggal(new Date(y, m, t - 6)), akhir: hari };
+        case 'bulanini': return { kode: 'bulanini', label: 'Bulan ini', awal: isoDariTanggal(new Date(y, m, 1)), akhir: hari };
+        case 'bulanlalu': return { kode: 'bulanlalu', label: 'Bulan lalu', awal: isoDariTanggal(new Date(y, m - 1, 1)), akhir: isoDariTanggal(new Date(y, m, 0)) };
+        case 'tanggal': {
+            const akhir = st.sampai || hari, awal = st.dari || '';
+            if (!awal) return { kode: 'tanggal', label: 'Posisi per ' + tglSaldoTampil(akhir), posisi: true, akhir };
+            return { kode: 'tanggal', label: 'Periode pilihan', awal: awal <= akhir ? awal : akhir, akhir: awal <= akhir ? akhir : awal };
+        }
+        default: return { kode: 'saatini', label: 'Saat ini', posisi: true, akhir: null };
+    }
+}
+
+// Selisih utang-piutang antar entitas per tanggal tertentu (null = sampai sekarang). Positif = entitas lain berutang kepada eid.
+function netAntarEntitasPer(eid, sampaiISO) {
+    let net = 0;
+    antarSaldo().forEach(ev => {
+        if (sampaiISO && ev.tanggal > sampaiISO) return;
+        net += (ev.dari === eid ? 1 : (ev.ke === eid ? -1 : 0)) * ev.nominal;
+    });
+    return net;
+}
+function dipinjamOrangRinci(eid) {
+    const rekIds = new Set(saldoKantorData.rekening.filter(r => r.entitas === eid).map(r => r.id));
+    const hasil = [];
+    pinjamanData.orang.forEach(o => {
+        const sisa = hitungPinjamanOrang(o.id).pinjaman.filter(p => p.sumber === 'kantor' && p.saldoRekId && rekIds.has(p.saldoRekId)).reduce((a, p) => a + p.sisa, 0);
+        if (sisa > 0) hasil.push({ nama: o.nama, sisa });
+    });
+    return hasil.sort((a, b) => a.nama.localeCompare(b.nama));
+}
+// Uraian mutasi dalam teks biasa (untuk tabel rincian dan WhatsApp)
+function teksMutasiSaldo(m) {
+    const p = m.pihak || {}, nama = p.tipe === 'entitas' ? namaEntitasSaldo(p.id) : (p.nama || '?');
+    if (m.jenis === 'saldo_awal') return 'Saldo awal rekening';
+    if (m.jenis === 'penyesuaian') return 'Penyesuaian saldo';
+    if (m.jenis === 'pindah') {
+        const lawan = saldoKantorData.mutasi.find(x => x.pairId === m.pairId && x.id !== m.id);
+        const lr = lawan ? saldoKantorData.rekening.find(z => z.id === lawan.rekId) : null;
+        return (m.arah < 0 ? 'Pindah ke ' : 'Pindah dari ') + (lr ? labelRekeningSaldo(lr) : '?');
+    }
+    if (m.jenis === 'pinjam_antar') return (m.arah < 0 ? 'Pinjaman ke ' : 'Pinjaman dari ') + nama;
+    if (m.jenis === 'bayar_antar') return 'Dibayarkan untuk ' + nama + (m.kategori ? ' (' + m.kategori + ')' : '');
+    if (m.jenis === 'kembali_antar') return (m.arah < 0 ? 'Pengembalian ke ' : 'Pengembalian dari ') + nama;
+    if (m.jenis === 'pinjam_orang') return 'Pinjaman ke ' + nama;
+    if (m.jenis === 'kembali_orang') return 'Pengembalian dari ' + nama;
+    return m.kategori || (m.arah > 0 ? 'Uang masuk' : 'Uang keluar');
+}
+
+// ---------- Mesin hitung laporan untuk SATU entitas ----------
+function hitungLaporanEntitasSaldo(eid, per) {
+    normalSaldo(saldoKantorData);
+    const ent = getEntitasSaldo().find(e => e.id === eid); if (!ent) return null;
+    const snap = per.sejak ? (saldoKantorData.laporanTerakhir || {})[eid] : null;
+    if (per.sejak && !snap) return { ent, per, tanpaAcuan: true };
+    const jumlah = (arr) => arr.reduce((a, m) => a + m.arah * m.nominal, 0);
+    const urut = (a, b) => (a.tanggal + '|' + (a.waktuBuat || 0) + '|' + a.id).localeCompare(b.tanggal + '|' + (b.waktuBuat || 0) + '|' + b.id);
+    const R = { awal: 0, masuk: 0, keluar: 0, pinjamKeluar: 0, pinjamMasuk: 0, pindahMasuk: 0, pindahKeluar: 0, penyesuaian: 0, saldoAwalBaru: 0, perubahanCatatan: 0, akhir: 0 };
+    const rekRows = [], semuaFlow = [];
+    saldoKantorData.rekening.filter(r => r.entitas === eid).forEach(r => {
+        const ms = saldoKantorData.mutasi.filter(m => m.rekId === r.id);
+        let awal = 0, akhir, flows = [], perub = 0;
+        if (per.posisi) { akhir = jumlah(per.akhir ? ms.filter(m => m.tanggal <= per.akhir) : ms); }
+        else if (per.sejak) {
+            awal = snap.saldo[r.id] || 0; flows = ms.filter(m => (m.waktuBuat || 0) > snap.waktu); akhir = jumlah(ms); perub = akhir - awal - jumlah(flows);
+        } else {
+            awal = jumlah(ms.filter(m => m.tanggal < per.awal)); flows = ms.filter(m => m.tanggal >= per.awal && m.tanggal <= per.akhir); akhir = jumlah(ms.filter(m => m.tanggal <= per.akhir));
+        }
+        if (!(r.aktif !== false || Math.round(awal) !== 0 || Math.round(akhir) !== 0 || flows.length)) return;
+        let masukR = 0, keluarR = 0;
+        flows.forEach(m => { if (m.arah > 0) masukR += m.nominal; else keluarR += m.nominal; });
+        if (perub > 0) masukR += perub; else if (perub < 0) keluarR += -perub;
+        rekRows.push({ id: r.id, label: labelRekeningSaldo(r), jenis: r.jenis, awal, masuk: masukR, keluar: keluarR, akhir, perubahan: perub });
+        flows.forEach(m => semuaFlow.push(m));
+        R.akhir += akhir; if (!per.posisi && !per.sejak) R.awal += awal;
+        flows.forEach(m => {
+            const n = m.nominal;
+            if (m.jenis === 'masuk') R.masuk += n;
+            else if (m.jenis === 'keluar') R.keluar += n;
+            else if (m.jenis === 'saldo_awal') R.saldoAwalBaru += n;
+            else if (m.jenis === 'penyesuaian') R.penyesuaian += m.arah * n;
+            else if (m.jenis === 'pindah') { if (m.arah > 0) R.pindahMasuk += n; else R.pindahKeluar += n; }
+            else { if (m.arah < 0) R.pinjamKeluar += n; else R.pinjamMasuk += n; }
+        });
+    });
+    if (per.sejak) R.awal = snap.total;
+    if (!per.posisi) {
+        const diharap = R.awal + R.masuk - R.keluar + R.saldoAwalBaru + R.penyesuaian + (R.pindahMasuk - R.pindahKeluar) - R.pinjamKeluar + R.pinjamMasuk;
+        R.perubahanCatatan = R.akhir - diharap; // 0 untuk periode tanggal; terisi bila catatan lama diedit/dihapus sejak laporan terakhir
+    }
+    const mutasi = [];
+    if (!per.posisi) {
+        let berjalan = R.awal + R.perubahanCatatan;
+        if (Math.round(R.perubahanCatatan) !== 0) mutasi.push({ tanggal: '', rek: '', uraian: 'Perubahan catatan lama (diedit/dihapus)', ket: '', masuk: R.perubahanCatatan > 0 ? R.perubahanCatatan : 0, keluar: R.perubahanCatatan < 0 ? -R.perubahanCatatan : 0, saldo: berjalan });
+        semuaFlow.sort(urut).forEach(m => {
+            berjalan += m.arah * m.nominal; const r = saldoKantorData.rekening.find(z => z.id === m.rekId);
+            mutasi.push({ tanggal: m.tanggal, rek: r ? labelRekeningSaldo(r) : '?', uraian: teksMutasiSaldo(m), ket: m.ket || '', masuk: m.arah > 0 ? m.nominal : 0, keluar: m.arah < 0 ? m.nominal : 0, saldo: berjalan });
+        });
+    }
+    const lain = entitasLain(eid), akhirUtang = (per.posisi && per.akhir) ? per.akhir : (per.posisi || per.sejak ? null : per.akhir);
+    const net = lain ? netAntarEntitasPer(eid, akhirUtang) : 0;
+    const orangPerHariIni = !per.posisi && !per.sejak ? per.akhir < hariIniISO() : (per.posisi && per.akhir && per.akhir < hariIniISO());
+    return { ent, per, snapWaktu: snap ? snap.waktu : null, rek: rekRows, ringkas: R, mutasi, lain, piutang: net > 0 ? net : 0, utang: net < 0 ? -net : 0,
+        orang: dipinjamOrangRinci(eid), orangPerHariIni, jumlahTermasukPiutang: R.akhir + (net > 0 ? net : 0) - (net < 0 ? -net : 0) + dipinjamOrangRinci(eid).reduce((a, x) => a + x.sisa, 0) };
+}
+async function susunLaporanSaldo(st) {
+    await muatSaldoSenyap(); await muatPinjamanDataSenyap();
+    const per = resolvePeriodeSaldo(st);
+    const ents = getEntitasSaldo().filter(e => st.ent === 'semua' || e.id === st.ent);
+    const daftar = (ents.length ? ents : getEntitasSaldo().slice(0, 1)).map(e => hitungLaporanEntitasSaldo(e.id, per)).filter(Boolean);
+    return { per, entitas: daftar, waktu: new Date() };
+}
+async function catatLaporanTerakhirSaldo(data) {
+    if (!['saatini', 'sejak'].includes(data.per.kode)) return; // hanya laporan "berjalan" yang menjadi acuan berikutnya
+    normalSaldo(saldoKantorData);
+    data.entitas.forEach(d => {
+        if (d.tanpaAcuan) return;
+        const saldo = {}; d.rek.forEach(r => { saldo[r.id] = r.akhir; });
+        saldoKantorData.laporanTerakhir[d.ent.id] = { waktu: Date.now(), saldo, total: d.ringkas.akhir };
+    });
+    await idbSet(STORE_CATATAN, 'saldo_kantor', saldoKantorData);
+}
+function teksWaktuLaporan(ms) { const d = new Date(ms); return d.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' }) + ', ' + d.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }); }
+function teksPeriodeLaporan(d) {
+    if (d.per.posisi) return d.per.akhir ? 'Posisi per ' + tglSaldoTampil(d.per.akhir) : 'Posisi saat ini';
+    if (d.per.sejak) return 'Sejak laporan terakhir (' + (d.snapWaktu ? teksWaktuLaporan(d.snapWaktu) : '-') + ')';
+    return d.per.awal === d.per.akhir ? tglSaldoTampil(d.per.awal) : tglSaldoTampil(d.per.awal) + ' sampai ' + tglSaldoTampil(d.per.akhir);
+}
+// Baris-baris ringkasan (dipakai pratinjau, cetak, PDF)
+function fTandaSaldo(n) { const r = Math.round(n); return (r > 0 ? '+' : '') + rupiahSaldo(r); }
+function barisRingkasLaporan(d) {
+    // [uraian, nilai, tebal, bertanda]  (bertanda = tampil dengan + / - supaya jelas menambah atau mengurangi)
+    const R = d.ringkas, b = [];
+    if (d.per.posisi) return b;
+    b.push(['Saldo awal', R.awal, false, false]);
+    if (R.masuk) b.push(['Uang masuk', R.masuk, false, true]);
+    if (R.keluar) b.push(['Uang keluar', -R.keluar, false, true]);
+    if (R.pinjamKeluar) b.push(['Pinjaman, talangan & pengembalian (keluar)', -R.pinjamKeluar, false, true]);
+    if (R.pinjamMasuk) b.push(['Pinjaman, talangan & pengembalian (masuk)', R.pinjamMasuk, false, true]);
+    if (R.pindahMasuk || R.pindahKeluar) b.push(['Perpindahan antar rekening (tidak mengubah total)', R.pindahMasuk - R.pindahKeluar, false, true]);
+    if (R.penyesuaian) b.push(['Penyesuaian saldo (cocokkan)', R.penyesuaian, false, true]);
+    if (R.saldoAwalBaru) b.push(['Saldo awal rekening baru', R.saldoAwalBaru, false, true]);
+    if (Math.round(R.perubahanCatatan) !== 0) b.push(['Perubahan catatan lama (diedit/dihapus)', R.perubahanCatatan, false, true]);
+    b.push(['Saldo akhir', R.akhir, true, false]);
+    return b;
+}
+function barisUtangLaporan(d) {
+    const b = [];
+    if (d.lain && d.piutang > 0) b.push([`Piutang ke ${d.lain.nama}`, d.piutang]);
+    if (d.lain && d.utang > 0) b.push([`Utang ke ${d.lain.nama}`, d.utang]);
+    d.orang.forEach(o => b.push([`Dipinjam: ${o.nama}`, o.sisa]));
+    return b;
+}
+
+// ---------- Layar: pilih entitas & periode, pratinjau ----------
+function chipLaporan(teks, aktif, aksi) {
+    return `<span onclick="${aksi}" style="display:inline-block;padding:7px 12px;border-radius:999px;border:1px solid ${aktif ? '#6D28D9' : '#cbd5e1'};background:${aktif ? '#EDE9FE' : '#fff'};color:${aktif ? '#5B21B6' : '#334155'};font-size:12px;font-weight:${aktif ? 700 : 500};cursor:pointer;margin:0 6px 6px 0;">${escapeHtml(teks)}</span>`;
+}
+async function bukaLaporanSaldo() {
+    if (!bolehSaldoKantor()) return;
+    laporanSaldoState = { ent: 'semua', periode: 'saatini', dari: '', sampai: '', rincian: false, rincianManual: false };
+    const modal = bukaModalAkses('laporanSaldoModal');
+    modal.innerHTML = `<div class="modal-content" style="max-width:440px;">
+        <h3 style="color:var(--primary);margin-bottom:4px;">📄 Laporan Saldo Kantor</h3>
+        <div style="font-size:11px;color:#888;margin-bottom:6px;">Entitas</div><div id="lsEnt"></div>
+        <div style="font-size:11px;color:#888;margin:6px 0 6px;">Periode</div><div id="lsPeriode"></div>
+        <div id="lsTanggal" style="display:none;gap:8px;margin-bottom:6px;"><div style="flex:1;"><div style="font-size:11px;color:#888;">Dari (boleh kosong)</div><input type="date" id="lsDari" onchange="aturLaporanSaldo('dari',this.value)"></div><div style="flex:1;"><div style="font-size:11px;color:#888;">Sampai</div><input type="date" id="lsSampai" onchange="aturLaporanSaldo('sampai',this.value)"></div></div>
+        <label style="display:flex;align-items:center;justify-content:space-between;font-size:12px;margin:4px 0 8px;cursor:pointer;"><span>Sertakan rincian mutasi</span><input type="checkbox" id="lsRincian" onchange="aturLaporanSaldo('rincian',this.checked)" style="width:18px;height:18px;"></label>
+        <div id="lsPratinjau" style="background:#F8FAFC;border-radius:12px;padding:10px 12px;font-size:12px;max-height:46vh;overflow-y:auto;margin-bottom:10px;">Memuat...</div>
+        <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;">
+            <button onclick="cetakLaporanSaldo()" style="padding:10px 2px;border:none;border-radius:10px;font-size:12px;font-weight:700;background:var(--primary);color:#fff;cursor:pointer;">Cetak</button>
+            <button onclick="shareLaporanSaldoPDF()" style="padding:10px 2px;border:none;border-radius:10px;font-size:12px;font-weight:700;background:#1d4ed8;color:#fff;cursor:pointer;">Bagikan PDF</button>
+            <button onclick="shareLaporanSaldoWA()" style="padding:10px 2px;border:none;border-radius:10px;font-size:12px;font-weight:700;background:#25D366;color:#fff;cursor:pointer;">WA</button>
+        </div>
+        <button onclick="document.getElementById('laporanSaldoModal').style.display='none'" style="width:100%;padding:10px;background:#e2e8f0;color:#333;border:none;border-radius:10px;font-size:13px;cursor:pointer;margin-top:8px;">Tutup</button>
+    </div>`;
+    modal.style.display = 'flex';
+    await perbaruiLaporanSaldo();
+}
+function aturLaporanSaldo(kunci, nilai) {
+    const s = laporanSaldoState;
+    if (kunci === 'rincian') { s.rincian = !!nilai; s.rincianManual = true; }
+    else if (kunci === 'periode') { s.periode = nilai; if (!s.rincianManual) s.rincian = nilai !== 'saatini'; }
+    else s[kunci] = nilai;
+    return perbaruiLaporanSaldo();
+}
+async function perbaruiLaporanSaldo() {
+    const s = laporanSaldoState; if (!document.getElementById('lsEnt')) return;
+    await muatSaldoSenyap();
+    const ents = getEntitasSaldo();
+    document.getElementById('lsEnt').innerHTML = ents.map(e => chipLaporan(e.nama, s.ent === e.id, `aturLaporanSaldo('ent','${e.id}')`)).join('') + (ents.length > 1 ? chipLaporan('Keduanya', s.ent === 'semua', "aturLaporanSaldo('ent','semua')") : '');
+    document.getElementById('lsPeriode').innerHTML = PERIODE_SALDO.map(([k, t]) => chipLaporan(t, s.periode === k, `aturLaporanSaldo('periode','${k}')`)).join('');
+    document.getElementById('lsTanggal').style.display = s.periode === 'tanggal' ? 'flex' : 'none';
+    const dari = document.getElementById('lsDari'), sampai = document.getElementById('lsSampai');
+    if (dari && dari.value !== s.dari) dari.value = s.dari; if (sampai) { if (!s.sampai) s.sampai = hariIniISO(); if (sampai.value !== s.sampai) sampai.value = s.sampai; }
+    document.getElementById('lsRincian').checked = s.rincian;
+    const data = await susunLaporanSaldo(s);
+    document.getElementById('lsPratinjau').innerHTML = htmlPratinjauLaporanSaldo(data);
+}
+function htmlPratinjauLaporanSaldo(data) {
+    const f = rupiahSaldo;
+    return data.entitas.map(d => {
+        if (d.tanpaAcuan) return `<div style="margin-bottom:12px;"><b>${escapeHtml(d.ent.nama)}</b><div style="color:#B45309;margin-top:4px;">Belum ada laporan sebelumnya untuk entitas ini. Cetak atau bagikan satu laporan "Saat ini" dulu, lalu pilihan ini bisa dipakai.</div></div>`;
+        const posisi = d.per.posisi;
+        const tabel = posisi
+            ? d.rek.map(r => `<div style="display:flex;justify-content:space-between;padding:3px 0;border-bottom:0.5px solid #e5e7eb;"><span>${escapeHtml(r.label)}</span><b>${f(r.akhir)}</b></div>`).join('')
+            : d.rek.map(r => `<div style="padding:4px 0;border-bottom:0.5px solid #e5e7eb;"><div style="display:flex;justify-content:space-between;gap:8px;"><span>${escapeHtml(r.label)}${r.perubahan ? '*' : ''}</span><b style="white-space:nowrap;">${f(r.akhir)}</b></div><div style="font-size:10.5px;color:#888;">Awal ${f(r.awal)} · Masuk ${f(r.masuk)} · Keluar ${f(r.keluar)}</div></div>`).join('');
+        const ringkas = barisRingkasLaporan(d).map(([t, v, tebal, tanda]) => `<div style="display:flex;justify-content:space-between;gap:8px;padding:2px 0;${tebal ? 'font-weight:700;border-top:1px solid #cbd5e1;margin-top:3px;padding-top:4px;' : ''}"><span>${escapeHtml(t)}</span><span style="white-space:nowrap;">${tanda ? fTandaSaldo(v) : f(v)}</span></div>`).join('');
+        const utang = barisUtangLaporan(d).map(([t, v]) => `<div style="display:flex;justify-content:space-between;gap:8px;color:#92400E;"><span>${escapeHtml(t)}</span><b style="white-space:nowrap;">${f(v)}</b></div>`).join('');
+        const rincian = (laporanSaldoState.rincian && !posisi && !d.mutasi.length) ? '<div style="margin-top:8px;font-size:11px;color:#888;">Tidak ada mutasi pada periode ini.</div>' : (laporanSaldoState.rincian && !posisi) ? `<div style="margin-top:8px;font-size:11px;color:#555;"><b>Rincian mutasi (${d.mutasi.length})</b>${d.mutasi.slice(0, 40).map(m => `<div style="display:flex;justify-content:space-between;gap:6px;border-bottom:0.5px solid #eee;padding:2px 0;"><span style="min-width:0;">${m.tanggal ? tglSaldoTampil(m.tanggal) + ' · ' : ''}${escapeHtml(m.uraian)}${m.ket ? ' · ' + escapeHtml(m.ket) : ''}</span><span style="white-space:nowrap;color:${m.masuk ? '#15803d' : '#B91C1C'};">${m.masuk ? '+' + f(m.masuk) : '-' + f(m.keluar)}</span></div>`).join('')}${d.mutasi.length > 40 ? `<div style="color:#888;">…dan ${d.mutasi.length - 40} lainnya (lengkap di Cetak / PDF)</div>` : ''}</div>` : '';
+        return `<div style="margin-bottom:14px;"><b style="font-size:13px;">${escapeHtml(d.ent.nama)}</b><div style="color:#888;font-size:11px;margin-bottom:6px;">${escapeHtml(teksPeriodeLaporan(d))}</div>
+            ${tabel}${d.rek.some(r => r.perubahan) ? '<div style="font-size:10.5px;color:#888;">* termasuk perubahan dari catatan lama yang diedit atau dihapus</div>' : ''}
+            ${posisi ? `<div style="display:flex;justify-content:space-between;font-weight:700;padding-top:4px;"><span>Total entitas</span><span>${f(d.ringkas.akhir)}</span></div>` : `<div style="margin-top:6px;">${ringkas}</div>`}
+            ${utang ? `<div style="margin-top:6px;">${utang}${d.orangPerHariIni ? '<div style="font-size:10.5px;color:#888;">Daftar orang yang meminjam adalah posisi hari ini.</div>' : ''}</div>` : ''}${rincian}</div>`;
+    }).join('') || '<div style="color:#888;">Belum ada rekening.</div>';
+}
+
+// ---------- Kop & TTD per entitas (PT atau KBIH), tidak bergantung jenis program yang sedang aktif ----------
+function cfgUntukEntitasSaldo(eid) {
+    const cfg = getKonfigurasiProData(), c = Object.assign({}, cfg);
+    if (eid === 'e2') c.instansi2 = Object.assign({}, cfg.instansi2 || {}, { aktif: true });
+    c.settings = Object.assign({}, cfg.settings || {}, { show_nama2: false }); // laporan satu entitas: kop hanya memuat nama entitas itu, tidak mencampur nama entitas lain
+    return c;
+}
+async function denganKopEntitas(eid, fn) {
+    const asli = window.isHajiReguler;
+    window.isHajiReguler = () => eid === 'e2';
+    try { return await fn(cfgUntukEntitasSaldo(eid)); } finally { window.isHajiReguler = asli; }
+}
+function adaDataLaporan(data) { return data.entitas.length && !data.entitas.every(d => d.tanpaAcuan); }
+
+// ---------- Cetak A4 ----------
+async function cetakLaporanSaldo() {
+    if (!bolehSaldoKantor()) return;
+    const data = await susunLaporanSaldo(laporanSaldoState);
+    if (!adaDataLaporan(data)) return showToast('Belum ada data untuk dicetak');
+    const f = rupiahSaldo, tgl = formatTanggalLengkap(), waktuTxt = teksWaktuLaporan(Date.now()), rincianOn = laporanSaldoState.rincian;
+    const css = `*{box-sizing:border-box;} body{font-family:Arial,sans-serif;padding:20px;color:#222;background:#fff;margin:0;}
+        h1{color:#0D5C4A;font-size:18px;margin:0 0 2px;} .sub{font-size:12px;color:#666;margin:0 0 12px;} h2{font-size:13px;color:#0D5C4A;margin:14px 0 4px;}
+        table{width:100%;border-collapse:collapse;font-size:11px;margin-bottom:6px;} th{background:#0D5C4A;color:#fff;padding:7px 8px;text-align:left;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+        td{padding:5px 8px;border-bottom:1px solid #eee;} th.num,td.num{text-align:right;white-space:nowrap;} thead{display:table-header-group;} tr{page-break-inside:avoid;}
+        tr.total td{font-weight:bold;background:#f0f7f4;border-top:2px solid #0D5C4A;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+        .utang td{color:#92400E;} .catatan{font-size:10px;color:#888;margin:2px 0 6px;}
+        @page{size:A4 portrait;margin:10mm 12mm;} @media print{ *{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important;} body{padding:0;} .no-print{display:none!important;} }`;
+    let isi = '';
+    for (let i = 0; i < data.entitas.length; i++) {
+        const d = data.entitas[i], terakhir = i === data.entitas.length - 1;
+        isi += await denganKopEntitas(d.ent.id, async (cfg) => {
+            const kop = buildPrintHeader(cfg, tgl);
+            if (d.tanpaAcuan) return `<div ${terakhir ? '' : 'style="page-break-after:always"'}>${kop}<h1>LAPORAN SALDO KANTOR</h1><p class="sub">${escapeHtml(d.ent.nama)}</p><p>Belum ada laporan sebelumnya untuk entitas ini, jadi "Sejak laporan terakhir" belum bisa dibuat.</p></div>`;
+            const ttd = buildPrintTandaTangan(cfg, tgl, true, true);
+            const qr = await buildPrintQR(cfg, `Laporan Saldo ${d.ent.nama}\n${teksPeriodeLaporan(d)}\nSaldo akhir: ${f(d.ringkas.akhir)}\nDicetak: ${waktuTxt}`);
+            const posisi = d.per.posisi, R = d.ringkas;
+            const jml = k => d.rek.reduce((a, r) => a + r[k], 0);
+            const tabelRek = posisi
+                ? `<table><thead><tr><th>Rekening / kas</th><th class="num">Saldo</th></tr></thead><tbody>${d.rek.map(r => `<tr><td>${escapeHtml(r.label)}</td><td class="num">${f(r.akhir)}</td></tr>`).join('')}</tbody><tfoot><tr class="total"><td>TOTAL ENTITAS</td><td class="num">${f(R.akhir)}</td></tr></tfoot></table>`
+                : `<table><thead><tr><th>Rekening / kas</th><th class="num">Saldo awal</th><th class="num">Masuk</th><th class="num">Keluar</th><th class="num">Saldo akhir</th></tr></thead><tbody>${d.rek.map(r => `<tr><td>${escapeHtml(r.label)}${r.perubahan ? ' *' : ''}</td><td class="num">${f(r.awal)}</td><td class="num">${f(r.masuk)}</td><td class="num">${f(r.keluar)}</td><td class="num">${f(r.akhir)}</td></tr>`).join('')}</tbody><tfoot><tr class="total"><td>TOTAL ENTITAS</td><td class="num">${f(R.awal)}</td><td class="num">${f(jml('masuk'))}</td><td class="num">${f(jml('keluar'))}</td><td class="num">${f(R.akhir)}</td></tr></tfoot></table>${d.rek.some(r => r.perubahan) ? '<div class="catatan">* termasuk perubahan dari catatan lama yang diedit atau dihapus sejak laporan terakhir</div>' : ''}<div class="catatan">Masuk dan Keluar per rekening sudah termasuk perpindahan antar rekening, pinjaman, dan pengembalian; pembagiannya ada pada ringkasan di bawah.</div>`;
+            const ringkas = posisi ? '' : `<h2>Ringkasan ${escapeHtml(d.ent.nama)}</h2><table><tbody>${barisRingkasLaporan(d).map(([t, v, tebal, tanda]) => `<tr class="${tebal ? 'total' : ''}"><td>${escapeHtml(t)}</td><td class="num">${tanda ? fTandaSaldo(v) : f(v)}</td></tr>`).join('')}</tbody></table>`;
+            const bu = barisUtangLaporan(d);
+            const utang = bu.length ? `<h2>Utang-piutang</h2><table class="utang"><tbody>${bu.map(([t, v]) => `<tr><td>${escapeHtml(t)}</td><td class="num">${f(v)}</td></tr>`).join('')}</tbody></table>${d.orangPerHariIni ? '<div class="catatan">Daftar orang yang meminjam adalah posisi hari ini, bukan per akhir periode.</div>' : ''}` : '';
+            const rincian = (rincianOn && !posisi && !d.mutasi.length) ? '<h2>Rincian mutasi</h2><div class="catatan">Tidak ada mutasi pada periode ini.</div>' : (rincianOn && !posisi) ? `<h2>Rincian mutasi</h2><table><thead><tr><th>Tanggal</th><th>Rekening</th><th>Uraian</th><th class="num">Masuk</th><th class="num">Keluar</th><th class="num">Saldo</th></tr></thead><tbody>${d.mutasi.map(m => `<tr><td>${m.tanggal ? tglSaldoTampil(m.tanggal) : ''}</td><td>${escapeHtml(m.rek)}</td><td>${escapeHtml(m.uraian)}${m.ket ? ' · ' + escapeHtml(m.ket) : ''}</td><td class="num">${m.masuk ? f(m.masuk) : ''}</td><td class="num">${m.keluar ? f(m.keluar) : ''}</td><td class="num">${f(m.saldo)}</td></tr>`).join('')}</tbody></table>` : '';
+            return `<div ${terakhir ? '' : 'style="page-break-after:always"'}>${kop}<h1>LAPORAN SALDO KANTOR</h1><p class="sub">${escapeHtml(d.ent.nama)} · ${escapeHtml(teksPeriodeLaporan(d))} · Dicetak: ${waktuTxt}</p>${tabelRek}${ringkas}${utang}${rincian}${ttd}${qr}</div>`;
+        });
+    }
+    const win = tampilkanJendelaCetak(`<!DOCTYPE html><html><head><meta charset="utf-8"><title>Laporan Saldo Kantor</title><style>${css}</style></head><body>${isi}`);
+    injectWatermarkToPrintWin(win);
+    await catatLaporanTerakhirSaldo(data);
+}
+
+// ---------- Bagikan PDF (komponen bersama yang sama dengan Cuan Plan, Kas, Tukar Riyal) ----------
+async function shareLaporanSaldoPDF() {
+    if (!bolehSaldoKantor()) return;
+    const data = await susunLaporanSaldo(laporanSaldoState);
+    if (!adaDataLaporan(data)) return showToast('Belum ada data untuk dibagikan');
+    showToast('Menyiapkan...');
+    try {
+        const f = rupiahSaldo, tgl = formatTanggalLengkap(), waktuTxt = teksWaktuLaporan(Date.now()), rincianOn = laporanSaldoState.rincian;
+        const { jsPDF } = window.jspdf; const [wr, wg, wb] = getWarnaTemaRGB();
+        const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+        const PW = 210, PH = 297; let mulai = true;
+        await applyPDFConfig(doc, { landscape: false, skipHeader: true, skipWatermark: true, skipQR: true });
+        const cfgDasar = getKonfigurasiProData();
+        for (const d of data.entitas) {
+            await denganKopEntitas(d.ent.id, async (cfg) => {
+                if (!mulai) doc.addPage(); mulai = false;
+                let y = await gambarHeaderRoundedPDF(doc, cfg, PW);
+                doc.setFontSize(15); doc.setTextColor(wr, wg, wb); doc.setFont('helvetica', 'bold'); doc.text('LAPORAN SALDO KANTOR', 14, y); y += 6;
+                doc.setFontSize(9); doc.setTextColor(120, 120, 120); doc.setFont('helvetica', 'normal'); doc.text(`${d.ent.nama} - ${teksPeriodeLaporan(d)}`, 14, y); y += 4.5; doc.text(`Dicetak: ${waktuTxt}`, 14, y); y += 6;
+                if (d.tanpaAcuan) { doc.setTextColor(70, 70, 70); doc.text('Belum ada laporan sebelumnya untuk entitas ini.', 14, y); return; }
+                const kanan = (n) => (h) => { if (n.includes(h.column.index)) h.cell.styles.halign = 'right'; };
+                const posisi = d.per.posisi, R = d.ringkas, jml = k => d.rek.reduce((a, r) => a + r[k], 0);
+                const bodyRek = posisi ? d.rek.map(r => [r.label, f(r.akhir)]).concat([['TOTAL ENTITAS', f(R.akhir)]])
+                    : d.rek.map(r => [r.label + (r.perubahan ? ' *' : ''), f(r.awal), f(r.masuk), f(r.keluar), f(r.akhir)]).concat([['TOTAL ENTITAS', f(R.awal), f(jml('masuk')), f(jml('keluar')), f(R.akhir)]]);
+                const gayaTotal = (n) => (h) => { if (h.section === 'body' && h.row.index === n - 1) { h.cell.styles.fontStyle = 'bold'; h.cell.styles.fillColor = [240, 247, 244]; } };
+                doc.autoTable({ startY: y, head: [posisi ? ['Rekening / kas', 'Saldo'] : ['Rekening / kas', 'Saldo awal', 'Masuk', 'Keluar', 'Saldo akhir']], body: bodyRek, theme: 'striped', headStyles: { fillColor: [wr, wg, wb] }, styles: { fontSize: 8.5, lineWidth: 0.1 },
+                    didParseCell: (h) => { kanan(posisi ? [1] : [1, 2, 3, 4])(h); gayaTotal(bodyRek.length)(h); } });
+                y = doc.lastAutoTable.finalY + 2;
+                if (!posisi) {
+                    if (d.rek.some(r => r.perubahan)) { doc.setFontSize(7.5); doc.setTextColor(120, 120, 120); doc.text('* termasuk perubahan dari catatan lama yang diedit atau dihapus sejak laporan terakhir', 14, y + 3); y += 5; }
+                    const br = barisRingkasLaporan(d).map(([t, v, tebal, tanda]) => [t, tanda ? fTandaSaldo(v) : f(v), tebal]);
+                    doc.autoTable({ startY: y + 3, head: [['Ringkasan', '']], body: br.map(b => [b[0], b[1]]), theme: 'plain', headStyles: { fillColor: [wr, wg, wb], textColor: 255 }, styles: { fontSize: 8.5 },
+                        didParseCell: (h) => { kanan([1])(h); if (h.section === 'body' && br[h.row.index] && br[h.row.index][2]) { h.cell.styles.fontStyle = 'bold'; h.cell.styles.fillColor = [240, 247, 244]; } } });
+                    y = doc.lastAutoTable.finalY + 2;
+                }
+                const bu = barisUtangLaporan(d);
+                if (bu.length) {
+                    doc.autoTable({ startY: y + 3, head: [['Utang-piutang', '']], body: bu.map(([t, v]) => [t, f(v)]), theme: 'plain', headStyles: { fillColor: [180, 83, 9], textColor: 255 }, styles: { fontSize: 8.5, textColor: [146, 64, 14] }, didParseCell: kanan([1]) });
+                    y = doc.lastAutoTable.finalY + 2;
+                    if (d.orangPerHariIni) { doc.setFontSize(7.5); doc.setTextColor(120, 120, 120); doc.text('Daftar orang yang meminjam adalah posisi hari ini, bukan per akhir periode.', 14, y + 3); y += 5; }
+                }
+                if (rincianOn && !posisi && d.mutasi.length) {
+                    doc.autoTable({ startY: y + 3, head: [['Tanggal', 'Rekening', 'Uraian', 'Masuk', 'Keluar', 'Saldo']], body: d.mutasi.map(m => [m.tanggal ? tglSaldoTampil(m.tanggal) : '', m.rek, m.uraian + (m.ket ? ' - ' + m.ket : ''), m.masuk ? f(m.masuk) : '', m.keluar ? f(m.keluar) : '', f(m.saldo)]),
+                        theme: 'striped', headStyles: { fillColor: [wr, wg, wb] }, styles: { fontSize: 7.5, lineWidth: 0.1 }, didParseCell: kanan([3, 4, 5]) });
+                    y = doc.lastAutoTable.finalY;
+                }
+                y += 10;
+                const butuhTTD = (cfg.settings?.show_pimpinan === true) ? 50 : 0;
+                if (y + butuhTTD > PH - 45) { doc.addPage(); y = 20; }
+                gambarTandaTanganPDF(doc, cfg, tgl, y, PW, true);
+                doc.setPage(doc.getNumberOfPages());
+                await gambarQRDokumenPDF(doc, cfg, `Laporan Saldo ${d.ent.nama}\n${teksPeriodeLaporan(d)}\nSaldo akhir: ${f(R.akhir)}\nDicetak: ${waktuTxt}`, PW, PH);
+            });
+        }
+        const total = doc.getNumberOfPages();
+        for (let i = 1; i <= total; i++) {
+            doc.setPage(i); gambarWatermarkPDF(doc, cfgDasar, PW, PH);
+            if (total > 1) { doc.setFontSize(8); doc.setTextColor(150, 150, 150); doc.setFont('helvetica', 'normal'); doc.text(`Halaman ${i} dari ${total}`, PW / 2, PH - 8, { align: 'center' }); }
+        }
+        const namaFile = `Laporan_Saldo_Kantor_${new Date().toLocaleDateString('id-ID').replace(/\//g, '-')}.pdf`;
+        const blob = doc.output('blob'), file = new File([blob], namaFile, { type: 'application/pdf' });
+        if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) await navigator.share({ files: [file], title: 'Laporan Saldo Kantor' });
+        else { doc.save(namaFile); showToast('📥 PDF didownload'); }
+        await catatLaporanTerakhirSaldo(data);
+    } catch (e) { if (e.name !== 'AbortError') showToast('Gagal: ' + e.message); }
+}
+
+// ---------- WhatsApp (teks ringkas) ----------
+function susunTeksWALaporanSaldo(data, rincianOn) {
+    const f = rupiahSaldo, garis = '─'.repeat(28), nama = getNamaInstansiUtama();
+    const bagian = data.entitas.map(d => {
+        if (d.tanpaAcuan) return `*${d.ent.nama}*\nBelum ada laporan sebelumnya untuk entitas ini.`;
+        let t = `*${d.ent.nama}*\n${teksPeriodeLaporan(d)}\n`;
+        if (d.per.posisi) t += d.rek.map(r => `${r.label}: ${f(r.akhir)}`).join('\n') + `\n*Total entitas: ${f(d.ringkas.akhir)}*`;
+        else {
+            t += d.rek.map(r => `${r.label}: ${f(r.awal)} → ${f(r.akhir)}`).join('\n') + '\n';
+            t += barisRingkasLaporan(d).map(([k, v, tebal, tanda]) => tebal ? `*${k}: ${f(v)}*` : `${k}: ${tanda ? fTandaSaldo(v) : f(v)}`).join('\n');
+            if (rincianOn && d.mutasi.length) t += '\n_Rincian:_\n' + d.mutasi.slice(0, 12).map(m => `• ${m.tanggal ? tglSaldoTampil(m.tanggal) + ' ' : ''}${m.uraian}${m.ket ? ' (' + m.ket + ')' : ''}: ${m.masuk ? '+' + f(m.masuk) : '-' + f(m.keluar)}`).join('\n') + (d.mutasi.length > 12 ? `\n_…${d.mutasi.length - 12} lainnya, lihat PDF_` : '');
+        }
+        const bu = barisUtangLaporan(d);
+        if (bu.length) t += '\n' + bu.map(([k, v]) => `${k}: ${f(v)}`).join('\n');
+        return t;
+    });
+    return `💰 *LAPORAN SALDO KANTOR*\n${teksWaktuLaporan(Date.now())}\n${garis}\n` + bagian.join(`\n${garis}\n`) + `\n${garis}\n_${isLicensed() ? nama : 'Navara App'}_`;
+}
+async function shareLaporanSaldoWA() {
+    if (!bolehSaldoKantor()) return;
+    const data = await susunLaporanSaldo(laporanSaldoState);
+    if (!adaDataLaporan(data)) return showToast('Belum ada data untuk dibagikan');
+    let teks = susunTeksWALaporanSaldo(data, laporanSaldoState.rincian);
+    if (teks.length > 3000) teks = susunTeksWALaporanSaldo(data, false); // terlalu panjang: tanpa rincian, ringkasnya tetap lengkap
+    window.open(`https://wa.me/?text=${encodeURIComponent(teks)}`, '_blank');
+    await catatLaporanTerakhirSaldo(data);
 }
 
 // ---------- Hapus & sinkron dengan Buku Pinjaman ----------
@@ -22051,7 +22427,7 @@ function openIndexedDB() {
 // dengan build baru, data MENTAH (langsung dari IndexedDB, bukan dari memori) disalin dulu sebelum
 // proses migrasi apapun berjalan — supaya kalau ada kesalahan di update, data lama masih bisa dipulihkan.
 // Dokumen & foto tidak ikut disalin (ukurannya besar, dan tidak pernah disentuh proses migrasi).
-const NAVARA_BUILD = '2026.10.03-54';
+const NAVARA_BUILD = '2026.10.03-55';
 const MAKS_SNAPSHOT = 3;
 
 function daftarKunciSnapshot() {
