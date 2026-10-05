@@ -4525,7 +4525,7 @@ function internalShowPage(pageId) {
         setTimeout(() => { if(window.renderPaymentDashboard) window.renderPaymentDashboard(); if(window.renderPaymentJamaahList) window.renderPaymentJamaahList(); if(window.populatePaymentJamaahDropdown) window.populatePaymentJamaahDropdown(); }, 50);
     }
     if (pageId === 'datamaster') { if(window.loadMasterData) window.loadMasterData().then(() => { if(window.renderDynamicModeSwitcher) window.renderDynamicModeSwitcher(); }); else if(window.renderDynamicModeSwitcher) window.renderDynamicModeSwitcher(); loadMasterJudul(); }
-    if (pageId === 'home') { updateLicenseBanner(); updateLicenseSummary(); updateHomeStats(); }
+    if (pageId === 'home') { updateLicenseBanner(); updateLicenseSummary(); updateHomeStats(); if (typeof jadwalkanCekKesehatan === 'function') setTimeout(jadwalkanCekKesehatan, 800); }
     if (pageId === 'lisensi') { renderLicenseStatus(); }
     if (pageId === 'googledrive') { initGoogleDrivePage(); }
     if (pageId === 'estimasi') {
@@ -12185,7 +12185,7 @@ async function shareLaporanSaldoWA() {
 // Hanya MEMBACA dan menandai kejanggalan (tidak memperbaiki apa pun). Pemeriksaan yang gagal ditulis "tidak dapat diperiksa", bukan lolos.
 // Tingkat: serius (kartu merah di Home) · perhatian (tanda di menu) · info (hanya di laporan).
 const KUNCI_CEK = 'cek_kesehatan';
-const AMBANG_CEK_BAWAAN = { pasporBulan: 6, meningitisBulan: 3, cadanganPerhatian: 7, cadanganSerius: 30, tumpuk: 5, hariBelumDitangani: 14, penyimpananPerhatian: 70, penyimpananSerius: 85 };
+const AMBANG_CEK_BAWAAN = { pasporBulan: 6, meningitisBulan: 3, cadanganPerhatian: 7, cadanganSerius: 30, tumpuk: 5, hariBelumDitangani: 14, penyimpananPerhatian: 70, penyimpananSerius: 85, hargaMinimum: 100000, rasioHarga: 2, minBandingHarga: 5 };
 // Kunci data yang SENGAJA tidak masuk cadangan teks (foto, bukti, data sementara, dan data pemeriksa ini sendiri)
 const AWALAN_KUNCI_DIKECUALIKAN = ['pinjaman_bukti_', 'foto_', 'sesi_aktif_id_'];
 const KUNCI_DIKECUALIKAN = ['snapshot_pra_update'];
@@ -12329,6 +12329,45 @@ const PEMERIKSA_KESEHATAN = [
         if (totalJamaah) out.push(T('jamaah.ringkas', 'Jamaah', 'info', `Jamaah: ${totalJamaah} orang di ${programAda.length} program`, `${tanpaTemuan} jamaah tanpa temuan, ${totalJamaah - tanpaTemuan} punya catatan di atas (${Math.round(tanpaTemuan / totalJamaah * 100)}% bersih).`, '', []));
         return out;
     } },
+    { id: 'jamaah.harga', kelompok: 'Jamaah', judul: 'Harga paket dan pembayaran', jalankan: async (ctx) => {
+        const out = [], A = cekKesehatanData.ambang, hari = new Date(ctx.sekarang.getFullYear(), ctx.sekarang.getMonth(), ctx.sekarang.getDate());
+        const hariISO = isoDariTanggal(hari), rp = (n) => rupiahSaldo(n);
+        // Pembayaran di masa depan (semua program)
+        const masaDepan = ctx.bayar.filter(t => { const d = parseTglCek(t.tanggal); return d && d > hari; }).map(t => `${t.nama_jamaah || '(jamaah ' + t.id_jamaah + ')'} · ${t.tanggal} · ${rp(t.nominal || 0)}`);
+        if (masaDepan.length) out.push(T('uang.pembayaran_masa_depan', 'Jamaah', 'perhatian', 'Pembayaran bertanggal di masa depan', 'Biasanya salah memilih tanggal atau tahun, dan memengaruhi laporan harian.', 'Perbaiki tanggal pembayarannya di menu Pembayaran.', masaDepan, { label: 'Buka Pembayaran', halaman: 'pembayaran' }));
+        const programUmum = ctx.program.filter(p => p.jenis !== 'haji_reguler' && ctx.jamaah.some(j => j.program_id === p.id));
+        const hajiReg = ctx.program.filter(p => p.jenis === 'haji_reguler' && ctx.jamaah.some(j => j.program_id === p.id));
+        let dilewati = 0;
+        for (const p of programUmum) {
+            const list = ctx.jamaah.filter(j => j.program_id === p.id), tag = ` — ${p.nama || 'Program'}`;
+            const berharga = list.map(j => ({ j, harga: getTotalHargaPaketUntukProgram(j, p.id) || 0 })).filter(x => x.harga > 0);
+            const nama = (x) => x.j.nama_lengkap || '(tanpa nama)';
+            // 1. Harga tidak wajar (di bawah batas minimum)
+            const murah = berharga.filter(x => x.harga < A.hargaMinimum), idMurah = new Set(murah.map(x => x.j.id));
+            if (murah.length) out.push(T('jamaah.harga_tidak_wajar:' + p.id, 'Jamaah', 'perhatian', 'Harga paket tidak wajar (terlalu kecil)' + tag, `Harga di bawah ${rp(A.hargaMinimum)} hampir pasti salah ketik, dan ikut terhitung sebagai kontrak di laporan.`, 'Periksa dan perbaiki harga paketnya. Abaikan bila sengaja (misalnya data uji).', murah.map(x => `${nama(x)} · ${rp(x.harga)}`), { label: 'Buka Database Jamaah', halaman: 'jamaah' }));
+            // 2. Harga di bawah modal Cuan Plan (aturan yang sama dengan tab Rekap)
+            const est = ctx.konfig.per_program?.[p.id]?.estimasi_data;
+            const idBawahModal = new Set();
+            if (est) {
+                const bawah = berharga.filter(x => !idMurah.has(x.j.id) && String(x.j.additional_fields?.tipe_paket || '').trim()).map(x => ({ x, modal: modalPerJamaahMenurutTipe(est, x.j.additional_fields.tipe_paket) })).filter(y => y.modal > 0 && y.x.harga < y.modal);
+                bawah.forEach(y => idBawahModal.add(y.x.j.id));
+                if (bawah.length) out.push(T('jamaah.harga_bawah_modal:' + p.id, 'Jamaah', 'perhatian', 'Harga paket di bawah modal' + tag, 'Harga lebih kecil dari modal per jamaah di Cuan Plan, jadi jamaah ini merugi. Mungkin diskon yang disengaja, atau salah ketik.', 'Periksa harganya. Abaikan bila diskon memang disengaja.', bawah.map(y => `${nama(y.x)} · harga ${rp(y.x.harga)}, modal ${rp(y.modal)}`), { label: 'Buka Database Jamaah', halaman: 'jamaah' }));
+            }
+            // 3. Harga jauh berbeda dari jamaah lain (hanya bila cukup banyak data pembanding)
+            const pembanding = berharga.filter(x => !idMurah.has(x.j.id));
+            if (pembanding.length >= A.minBandingHarga) {
+                const urut = pembanding.map(x => x.harga).sort((a, b) => a - b), m = urut.length % 2 ? urut[(urut.length - 1) / 2] : (urut[urut.length / 2 - 1] + urut[urut.length / 2]) / 2;
+                const aneh = pembanding.filter(x => !idBawahModal.has(x.j.id) && (x.harga < m / A.rasioHarga || x.harga > m * A.rasioHarga));
+                if (aneh.length) out.push(T('jamaah.harga_menyimpang:' + p.id, 'Jamaah', 'info', 'Harga paket jauh berbeda dari jamaah lain' + tag, `Harga tengah program ini ${rp(m)}. Harga di bawah setengah atau di atas dua kali lipatnya hanya petunjuk, bukan kepastian salah.`, '', aneh.map(x => `${nama(x)} · ${rp(x.harga)}`)));
+            }
+            // 4. Pembayaran melebihi harga paket
+            const lebih = [];
+            berharga.forEach(x => { const total = ctx.bayar.filter(t => String(t.id_jamaah) === String(x.j.id)).reduce((a, t) => a + (Number(t.nominal) || 0), 0); if (total > x.harga) lebih.push(`${nama(x)} · bayar ${rp(total)}, harga ${rp(x.harga)}`); });
+            if (lebih.length) out.push(T('jamaah.bayar_melebihi_harga:' + p.id, 'Jamaah', 'perhatian', 'Pembayaran melebihi harga paket' + tag, 'Biasanya salah ketik nominal atau pembayaran tercatat dua kali.', 'Periksa riwayat pembayaran jamaah itu. Abaikan bila kelebihannya memang titipan.', lebih, { label: 'Buka Pembayaran', halaman: 'pembayaran' }));
+        }
+        if (hajiReg.length) out.push(T('jamaah.harga_haji_dilewati', 'Jamaah', 'info', 'Pemeriksaan harga dilewati untuk Haji Reguler', `Harga Haji Reguler terdiri dari komponen, bukan satu angka (${hajiReg.map(p => p.nama).join(', ')}), jadi belum diperiksa otomatis.`, '', []));
+        return out;
+    } },
     // ===== CADANGAN & PERANGKAT =====
     { id: 'cadangan.usia', kelompok: 'Cadangan & perangkat', judul: 'Usia cadangan terakhir', jalankan: async (ctx) => {
         const A = cekKesehatanData.ambang, s = localStorage.getItem('navara_last_backup');
@@ -12451,7 +12490,9 @@ async function jadwalkanCekKesehatan() {
     try {
         if (!adalahAdminPenuh()) return;
         await muatCekKesehatan(); perbaruiTandaKesehatan();
-        if (Date.now() - cekKesehatanData.terakhir > 20 * 3600000) { await jalankanCekKesehatan(false); if (document.getElementById('page-cekkesehatan')?.classList.contains('active')) renderCekKesehatan(); }
+        const umur = Date.now() - cekKesehatanData.terakhir;
+        // diperiksa ulang bila sudah lama (>20 jam), atau bila data berubah sejak pemeriksaan terakhir (diberi jeda 2 menit agar tidak terlalu sering)
+        if (umur > 20 * 3600000 || (dataBerubahSejakCek() && umur > 120000)) { await jalankanCekKesehatan(false); if (document.getElementById('page-cekkesehatan')?.classList.contains('active')) renderCekKesehatan(); }
     } catch (e) { /* jangan mengganggu startup */ }
 }
 setTimeout(jadwalkanCekKesehatan, 6000);
@@ -12461,10 +12502,15 @@ document.addEventListener('visibilitychange', () => { if (!document.hidden) setT
 function bolehKesehatan() { if (!adalahAdminPenuh()) { showToast('🔒 Cek Kesehatan Data hanya untuk Admin Utama'); return false; } return true; }
 const IKON_TINGKAT = { serius: '🔴', perhatian: '🟡', info: '🔵' };
 const WARNA_TINGKAT = { serius: '#EF4444', perhatian: '#F59E0B', info: '#3B82F6' };
+function dataBerubahSejakCek() { return Number(localStorage.getItem('navara_data_berubah') || 0) > (cekKesehatanData.terakhir || 0); }
+function umurTeksCek(ms) { const m = Math.floor(ms / 60000); if (m < 1) return 'baru saja'; if (m < 60) return m + ' menit lalu'; const j = Math.floor(m / 60); return j < 24 ? j + ' jam lalu' : Math.floor(j / 24) + ' hari lalu'; }
 async function bukaCekKesehatan() {
     if (!bolehKesehatan()) return;
     await muatCekKesehatan();
-    if (!cekKesehatanData.terakhir || Date.now() - cekKesehatanData.terakhir > 24 * 3600000) await jalankanCekKesehatan(false);
+    // Selalu diperiksa ulang saat layar dibuka, supaya yang tampil adalah keadaan data SEKARANG, bukan hasil lama
+    const ring = document.getElementById('ckRingkas'); if (ring) ring.innerHTML = '<div style="padding:12px;color:#888;font-size:12px;">Memeriksa data...</div>';
+    const daftar = document.getElementById('ckDaftar'); if (daftar) daftar.innerHTML = '';
+    await jalankanCekKesehatan(false);
     renderCekKesehatan();
 }
 async function periksaSekarangCek() {
@@ -12480,7 +12526,8 @@ function renderCekKesehatan() {
     document.getElementById('ckRingkas').innerHTML = `<div style="display:flex;gap:6px;margin-bottom:8px;">
             ${[['serius', r.serius], ['perhatian', r.perhatian], ['info', r.info]].map(([k, n]) => `<div style="flex:1;background:#fff;border-radius:12px;padding:10px 6px;text-align:center;border-top:3px solid ${WARNA_TINGKAT[k]};box-shadow:0 2px 8px rgba(0,0,0,0.05);"><div style="font-size:20px;font-weight:800;">${n}</div><div style="font-size:11px;color:#666;">${k === 'serius' ? 'Serius' : (k === 'perhatian' ? 'Perhatian' : 'Info')}</div></div>`).join('')}
         </div>
-        <div style="font-size:11px;color:#888;margin-bottom:8px;">Pemeriksaan terakhir: ${escapeHtml(waktu)}. Aplikasi memeriksa otomatis paling sering sekali sehari saat dibuka. Tidak ada notifikasi ke HP; tanda hanya muncul di aplikasi.</div>
+        <div style="font-size:11px;color:#888;margin-bottom:8px;">Hasil pemeriksaan: ${escapeHtml(waktu)}${cekKesehatanData.terakhir ? ' (' + umurTeksCek(Date.now() - cekKesehatanData.terakhir) + ')' : ''}. Diperiksa ulang otomatis setiap layar ini dibuka dan saat data berubah. Tidak ada notifikasi ke HP; tanda hanya muncul di aplikasi.</div>
+        ${dataBerubahSejakCek() ? '<div style="font-size:11.5px;color:#92400E;background:#FEF3C7;border-radius:8px;padding:6px 10px;margin-bottom:8px;">Data berubah sejak pemeriksaan ini. Tekan "Periksa sekarang" agar hasilnya terbaru.</div>' : ''}
         <div style="display:flex;gap:6px;margin-bottom:10px;">
             <button id="ckTombolPeriksa" onclick="periksaSekarangCek()" style="flex:1;padding:10px;border:none;border-radius:10px;font-size:12px;font-weight:700;background:var(--primary);color:#fff;cursor:pointer;">Periksa sekarang</button>
             <button onclick="salinLaporanCek()" style="flex:1;padding:10px;border:none;border-radius:10px;font-size:12px;font-weight:700;background:#E0F2FE;color:#0369A1;cursor:pointer;">Salin laporan</button>
@@ -12498,7 +12545,7 @@ function renderCekKesehatan() {
     document.getElementById('ckDiabaikan').innerHTML = ab.length ? `<details class="card-premium" style="margin:0 0 12px;"><summary style="cursor:pointer;font-weight:700;font-size:13px;">Temuan yang diabaikan (${ab.length})</summary><div style="font-size:12px;margin-top:6px;color:#666;">Muncul lagi otomatis kalau datanya berubah.</div>${ab.map(t => { const x = cekKesehatanData.diabaikan[t.kunci] || {}; return `<div style="padding:8px 0;border-top:0.5px solid #eef2f1;"><div>${IKON_TINGKAT[t.tingkat]} ${escapeHtml(t.judul)}</div><div style="color:#888;font-size:11px;">Diabaikan oleh ${escapeHtml(x.oleh || '-')} · ${escapeHtml(x.waktu ? teksWaktuLaporan(x.waktu) : '')}</div><button onclick="pantauLagiCek('${escapeHtml(t.kunci)}')" style="margin-top:4px;border:none;background:#F1F5F9;border-radius:6px;padding:4px 10px;font-size:11px;cursor:pointer;">Pantau lagi</button></div>`; }).join('')}</details>` : '';
     const A = cekKesehatanData.ambang;
     document.getElementById('ckAmbang').innerHTML = `<details class="card-premium" style="margin:0 0 12px;"><summary style="cursor:pointer;font-weight:700;font-size:13px;">Batas pemeriksaan (bisa diubah)</summary>
-        ${[['pasporBulan', 'Paspor minimal berlaku sebelum keberangkatan (bulan)'], ['meningitisBulan', 'Vaksin meningitis minimal berlaku (bulan)'], ['cadanganPerhatian', 'Cadangan: Perhatian setelah (hari)'], ['cadanganSerius', 'Cadangan: Serius setelah (hari)'], ['hariBelumDitangani', 'Perhatian naik ke Home jika belum ditangani (hari)'], ['tumpuk', 'Perhatian naik ke Home jika lebih dari (temuan)']].map(([k, t]) => `<div style="display:flex;justify-content:space-between;align-items:center;gap:8px;margin-top:8px;font-size:12px;"><span style="flex:1;">${t}</span><input type="number" min="1" value="${A[k]}" onchange="aturAmbangCek('${k}',this.value)" style="width:64px;padding:6px;border:1px solid #cbd5e1;border-radius:8px;text-align:right;"></div>`).join('')}
+        ${[['pasporBulan', 'Paspor minimal berlaku sebelum keberangkatan (bulan)'], ['meningitisBulan', 'Vaksin meningitis minimal berlaku (bulan)'], ['cadanganPerhatian', 'Cadangan: Perhatian setelah (hari)'], ['cadanganSerius', 'Cadangan: Serius setelah (hari)'], ['hariBelumDitangani', 'Perhatian naik ke Home jika belum ditangani (hari)'], ['tumpuk', 'Perhatian naik ke Home jika lebih dari (temuan)'], ['hargaMinimum', 'Harga paket dianggap tidak wajar jika di bawah (Rp)'], ['rasioHarga', 'Harga menyimpang jika di luar setengah atau kelipatan ini dari harga tengah (x)'], ['minBandingHarga', 'Minimal jamaah berharga untuk membandingkan harga (orang)']].map(([k, t]) => `<div style="display:flex;justify-content:space-between;align-items:center;gap:8px;margin-top:8px;font-size:12px;"><span style="flex:1;">${t}</span><input type="number" min="1" value="${A[k]}" onchange="aturAmbangCek('${k}',this.value)" style="width:64px;padding:6px;border:1px solid #cbd5e1;border-radius:8px;text-align:right;"></div>`).join('')}
         <div style="font-size:11px;color:#888;margin-top:8px;">Aturan paspor dan meningitis sama dengan kartu peringatan di Home.</div></details>`;
 }
 function kartuTemuanCek(t) {
@@ -22807,7 +22854,7 @@ function openIndexedDB() {
 // dengan build baru, data MENTAH (langsung dari IndexedDB, bukan dari memori) disalin dulu sebelum
 // proses migrasi apapun berjalan — supaya kalau ada kesalahan di update, data lama masih bisa dipulihkan.
 // Dokumen & foto tidak ikut disalin (ukurannya besar, dan tidak pernah disentuh proses migrasi).
-const NAVARA_BUILD = '2026.10.05-58';
+const NAVARA_BUILD = '2026.10.05-60';
 const MAKS_SNAPSHOT = 3;
 
 // ==================== DAFTAR DATA PUSAT ====================
@@ -23041,6 +23088,8 @@ async function pulihkanSnapshot(idx) {
 }
 
 async function idbSet(storeName, key, value) {
+    // Penanda "data berubah": dipakai Cek Kesehatan untuk tahu hasil pemeriksaannya sudah basi. (Kunci ditulis langsung sebagai teks agar aman dipanggil sangat awal.)
+    if (key !== 'cek_kesehatan' && key !== 'snapshot_pra_update') { try { localStorage.setItem('navara_data_berubah', String(Date.now())); } catch (e) {} }
     const d = await openIndexedDB();
     return new Promise((resolve, reject) => {
         const tx = d.transaction([storeName], 'readwrite');
