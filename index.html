@@ -2061,6 +2061,15 @@
             </div>
         </div>
 
+        <!-- Cek Kesehatan Data: kartu merah hanya untuk masalah serius; baris kuning bila Perhatian menumpuk -->
+        <div id="homeKesehatanCard" class="khusus-pemilik" style="display:none;background:#FEE2E2;border:1px solid #EF4444;border-radius:14px;padding:10px 14px;margin-bottom:10px;">
+            <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;">
+                <div style="min-width:0;"><div style="font-size:12px;font-weight:800;color:#991B1B;">🔴 Cek Kesehatan Data</div><div id="homeKesehatanTeks" style="font-size:11px;color:#7F1D1D;margin-top:2px;"></div></div>
+                <button onclick="showPage('cekkesehatan')" style="flex-shrink:0;padding:6px 12px;background:#EF4444;color:#fff;border:none;border-radius:8px;font-size:11px;font-weight:700;cursor:pointer;">Lihat</button>
+            </div>
+        </div>
+        <div id="homeKesehatanRingkas" class="khusus-pemilik" onclick="showPage('cekkesehatan')" style="display:none;background:#FEF3C7;border:1px solid #F59E0B;border-radius:14px;padding:8px 14px;margin-bottom:10px;cursor:pointer;font-size:12px;color:#92400E;">🟡 <span id="homeKesehatanRingkasTeks"></span></div>
+
         <!-- Akses sementara yang sedang dipinjam staf -->
         <div id="homeAksesSementaraCard" style="display:none;background:#FEF3C7;border:1px solid #F59E0B;border-radius:14px;padding:10px 14px;margin-bottom:10px;">
             <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;">
@@ -2889,6 +2898,19 @@
     </div>
 </div>
 
+<!-- CEK KESEHATAN DATA -->
+<div id="page-cekkesehatan" class="page">
+    <div class="header-premium header-premium-small"><div class="back-header"><i class="fas fa-arrow-left" onclick="showPage('home')"></i><h2>Cek Kesehatan Data</h2><div style="width:30px;"></div></div></div>
+    <div class="container" style="padding:0 16px 28px;">
+        <div style="font-size:11px;color:#888;margin:14px 4px 10px;">Memeriksa data uang, jamaah, dan cadangan, lalu menandai yang janggal. Aplikasi hanya membaca dan tidak mengubah data apa pun.</div>
+        <div id="ckRingkas"></div>
+        <label style="display:flex;align-items:center;gap:8px;font-size:12px;margin:0 4px 6px;cursor:pointer;"><input type="checkbox" id="ckInfo" onchange="renderCekKesehatan()" style="width:16px;height:16px;"> Tampilkan Info</label>
+        <div id="ckDaftar"></div>
+        <div id="ckDiabaikan"></div>
+        <div id="ckAmbang"></div>
+    </div>
+</div>
+
 <!-- SALDO KANTOR -->
 <div id="page-saldokantor" class="page">
     <div class="header-premium header-premium-small"><div class="back-header"><i class="fas fa-arrow-left" onclick="showPage('home')"></i><h2>Saldo Kantor</h2><div style="width:30px;"></div></div></div>
@@ -3641,7 +3663,7 @@
                 <button type="button" class="btn-pecahan-riyal" data-pecahan="5" onclick="pilihPecahanRiyal(5)" style="flex:1;padding:9px;border-radius:8px;border:1.5px solid #ddd;background:white;color:#555;font-size:13px;font-weight:700;cursor:pointer;">5</button>
                 <button type="button" class="btn-pecahan-riyal" data-pecahan="10" onclick="pilihPecahanRiyal(10)" style="flex:1;padding:9px;border-radius:8px;border:1.5px solid #ddd;background:white;color:#555;font-size:13px;font-weight:700;cursor:pointer;">10</button>
             </div>
-            <div style="font-size:11px;color:#888;margin-top:4px;">Pilih sesuai pecahan terkecil yang Bapak pegang saat ini — sisa yang tidak bisa diberikan otomatis masuk ke kembalian Rupiah.</div>
+            <div style="font-size:11px;color:#888;margin-top:4px;">Pilih sesuai pecahan terkecil yang tersedia saat ini — sisa yang tidak bisa diberikan otomatis masuk ke kembalian Rupiah.</div>
         </div>
     </div>
     <div id="hasilTukarRiyal" class="res-card" style="display:none;"></div>
@@ -4487,6 +4509,7 @@ function internalShowPage(pageId) {
     if (pageId === 'fitur') { if(typeof bukaSemuaMenu === 'function') bukaSemuaMenu(); }
     if (pageId === 'pinjaman') { if(typeof loadPinjamanData === 'function') loadPinjamanData(); }
     if (pageId === 'saldokantor') { if(typeof loadSaldoKantor === 'function') loadSaldoKantor(); }
+    if (pageId === 'cekkesehatan') { if(typeof bukaCekKesehatan === 'function') bukaCekKesehatan(); }
     if (pageId === 'jamaah') { if(window.loadJamaahData) window.loadJamaahData().then(() => { if(window.renderJamaahListWithPagination) window.renderJamaahListWithPagination(); }); else if(window.renderJamaahListWithPagination) window.renderJamaahListWithPagination(); }
     if (pageId === 'jamaahkita') {
         const c = document.getElementById('jamaahKitaListContainer');
@@ -5248,7 +5271,7 @@ const MODUL_BISA_DIKUNCI = ['estimasi','kas','jamaah','jamaahkita','catatan','za
 // Ini menjaga supaya siapapun yang sudah ada SEBELUM fitur ini tidak mendadak kehilangan akses.
 // Halaman yang TIDAK PERNAH bisa diberikan lewat Peran (dan tidak bisa dipinjamkan): hanya Admin Utama
 // atau admin lama yang belum dipasangi Peran (akses penuh, seperti aturan sebelumnya).
-const MODUL_HANYA_PEMILIK = ['cloudstorage', 'saldokantor'];
+const MODUL_HANYA_PEMILIK = ['cloudstorage', 'saldokantor', 'cekkesehatan'];
 
 function adalahAdminPenuh() {
     if (currentAdminIsPemilik) return true;
@@ -5899,7 +5922,7 @@ function openTambahPeranForm(peranId) {
 }
 
 // Fitur Menu Lengkap yang TIDAK muncul di daftar centang Peran: Buku Pinjaman (izin modul sendiri) dan Backup & Restore (hanya Admin Utama)
-const FITUR_TIDAK_BISA_DICENTANG = ['pinjaman', 'cloudstorage', 'saldokantor'];
+const FITUR_TIDAK_BISA_DICENTANG = ['pinjaman', 'cloudstorage', 'saldokantor', 'cekkesehatan'];
 // Fitur yang memperlihatkan laba/omzet — ditandai 🔒 dan tidak ikut "Pilih semua"
 const FITUR_SENSITIF = ['cetakLaporanPenutupanMusim', 'cetakRekapTahunanGabungan', 'openProyeksiKasModal', 'openBandingkanProgramModal', 'openDashboardTrenModal'];
 
@@ -6014,6 +6037,7 @@ const FITUR_LENGKAP = [
     { id: "suratresmi", label: "Surat Resmi", ket: "Buat surat otomatis dari data jamaah", kelompok: "kantor", aksi: "showPage('suratresmi')", halaman: "suratresmi", icon: "<i class=\"fas fa-file-signature\"></i>" },
     { id: "cetaklabel", label: "Cetak Label", ket: "Name tag / stiker koper", kelompok: "jamaah", aksi: "showPage('cetaklabel')", halaman: "cetaklabel", icon: "<i class=\"fas fa-tag\"></i>" },
     { id: "pinjaman", label: "Buku Pinjaman", ket: "Catat talangan & pengembalian", kelompok: "keuangan", aksi: "showPage('pinjaman')", halaman: "pinjaman", icon: "<i class=\"fas fa-file-invoice-dollar\"></i>" },
+    { id: "cekkesehatan", label: "Cek Kesehatan Data", ket: "Periksa data uang, jamaah & cadangan", kelompok: "pengaturan", aksi: "showPage('cekkesehatan')", halaman: "cekkesehatan", icon: "<i class=\"fas fa-heart-pulse\"></i>" },
     { id: "saldokantor", label: "Saldo Kantor", ket: "Saldo rekening & kas per entitas", kelompok: "keuangan", aksi: "showPage('saldokantor')", halaman: "saldokantor", icon: "<i class=\"fas fa-building-columns\"></i>" },
     { id: "cloudstorage", label: "Backup & Restore", ket: "Cadangkan, pulihkan & salin pengaturan", kelompok: "pengaturan", aksi: "showPage('cloudstorage')", halaman: "cloudstorage", icon: "<i class=\"fas fa-cloud\"></i>" },
     { id: "dashboard", label: "Dashboard", ket: "Grafik statistik data", kelompok: "laporan", aksi: "showPage('dashboard')", halaman: "dashboard", icon: "<i class=\"fas fa-chart-line\"></i>" },
@@ -12155,6 +12179,362 @@ async function shareLaporanSaldoWA() {
     if (teks.length > 3000) teks = susunTeksWALaporanSaldo(data, false); // terlalu panjang: tanpa rincian, ringkasnya tetap lengkap
     window.open(`https://wa.me/?text=${encodeURIComponent(teks)}`, '_blank');
     await catatLaporanTerakhirSaldo(data);
+}
+
+// ==================== CEK KESEHATAN DATA ====================
+// Hanya MEMBACA dan menandai kejanggalan (tidak memperbaiki apa pun). Pemeriksaan yang gagal ditulis "tidak dapat diperiksa", bukan lolos.
+// Tingkat: serius (kartu merah di Home) · perhatian (tanda di menu) · info (hanya di laporan).
+const KUNCI_CEK = 'cek_kesehatan';
+const AMBANG_CEK_BAWAAN = { pasporBulan: 6, meningitisBulan: 3, cadanganPerhatian: 7, cadanganSerius: 30, tumpuk: 5, hariBelumDitangani: 14, penyimpananPerhatian: 70, penyimpananSerius: 85 };
+// Kunci data yang SENGAJA tidak masuk cadangan teks (foto, bukti, data sementara, dan data pemeriksa ini sendiri)
+const AWALAN_KUNCI_DIKECUALIKAN = ['pinjaman_bukti_', 'foto_', 'sesi_aktif_id_'];
+const KUNCI_DIKECUALIKAN = ['snapshot_pra_update'];
+let cekKesehatanData = { terakhir: 0, temuan: [], diabaikan: {}, pertamaTerlihat: {}, ambang: Object.assign({}, AMBANG_CEK_BAWAAN) };
+let cekSedangJalan = false;
+
+function hashSederhana(str) { let h = 5381; for (let i = 0; i < str.length; i++) h = ((h << 5) + h + str.charCodeAt(i)) | 0; return (h >>> 0).toString(36); }
+function parseTglCek(s) { if (!s || typeof s !== 'string' || !/^\d{4}-\d{2}-\d{2}/.test(s)) return null; const d = new Date(s.slice(0, 10) + 'T00:00:00'); return isNaN(d.getTime()) ? null : d; }
+function normalCekKesehatan(d) {
+    d = d && typeof d === 'object' ? d : {};
+    d.terakhir = Number(d.terakhir) || 0; d.temuan = Array.isArray(d.temuan) ? d.temuan : [];
+    d.diabaikan = d.diabaikan && typeof d.diabaikan === 'object' ? d.diabaikan : {};
+    d.pertamaTerlihat = d.pertamaTerlihat && typeof d.pertamaTerlihat === 'object' ? d.pertamaTerlihat : {};
+    d.ambang = Object.assign({}, AMBANG_CEK_BAWAAN, d.ambang && typeof d.ambang === 'object' ? d.ambang : {});
+    return d;
+}
+async function muatCekKesehatan() { try { cekKesehatanData = normalCekKesehatan(await idbGet(STORE_CATATAN, KUNCI_CEK)); } catch (e) { cekKesehatanData = normalCekKesehatan(null); } return cekKesehatanData; }
+async function simpanCekKesehatan() { try { await idbSet(STORE_CATATAN, KUNCI_CEK, cekKesehatanData); } catch (e) { /* tidak fatal */ } }
+async function idbDaftarKunci(store) {
+    const d = await openIndexedDB();
+    return new Promise(res => { try { const req = d.transaction([store], 'readonly').objectStore(store).getAllKeys(); req.onsuccess = () => res(req.result || []); req.onerror = () => res(null); } catch (e) { res(null); } });
+}
+function T(kunci, kelompok, tingkat, judul, uraian, saran, daftar, aksi) {
+    daftar = daftar || [];
+    return { kunci, kelompok, tingkat, judul, uraian, saran: saran || '', daftar, jumlah: daftar.length, aksi: aksi || null, sidik: hashSederhana(kunci + '|' + daftar.length + '|' + daftar.slice(0, 300).join('~')) };
+}
+
+// ---------- Konteks: semua data dibaca langsung dari penyimpanan, bukan dari tampilan ----------
+async function bacaKonteksCek() {
+    const ambil = async (s, k) => { const v = await idbGet(s, k); return v; };
+    const ctx = {
+        program: (await ambil(STORE_PROGRAM, 'program_list')) || [],
+        jamaah: (await ambil(STORE_JAMAAH, 'jamaah_list')) || [],
+        fieldJamaah: (await ambil(STORE_JAMAAH, 'jamaah_fields')) || [],
+        bayar: (await ambil(STORE_PEMBAYARAN, 'pembayaran_list')) || [],
+        saldo: normalSaldo(await ambil(STORE_CATATAN, 'saldo_kantor')),
+        pinjaman: (await ambil(STORE_CATATAN, 'pinjaman_data')) || { orang: [], transaksi: [] },
+        konfig: (await ambil(STORE_KONFIGURASI, 'konfigurasi_pro')) || konfigurasiPro || {},
+        sekarang: new Date(),
+    };
+    if (!Array.isArray(ctx.pinjaman.orang)) ctx.pinjaman.orang = []; if (!Array.isArray(ctx.pinjaman.transaksi)) ctx.pinjaman.transaksi = [];
+    return ctx;
+}
+function namaProgramCek(ctx, pid) { const p = ctx.program.find(x => x.id === pid); return p ? (p.nama || 'Program') : '(program tidak ditemukan)'; }
+function tglBerangkatCek(ctx, pid) { const t = ctx.konfig.per_program?.[pid]?.keberangkatan?.tanggal; return parseTglCek(t); }
+
+// ---------- Daftar pemeriksa ----------
+const PEMERIKSA_KESEHATAN = [
+    // ===== UANG: Saldo Kantor =====
+    { id: 'uang.saldo', kelompok: 'Uang', judul: 'Catatan Saldo Kantor', jalankan: async (ctx) => {
+        const S = ctx.saldo, out = [], rekIds = new Set(S.rekening.map(r => r.id)), mutIds = new Set(S.mutasi.map(m => m.id));
+        const nama = (m) => { const r = S.rekening.find(x => x.id === m.rekId); return `${m.tanggal || '?'} · ${r ? labelRekeningSaldo(r) : '(rekening hilang)'} · ${rupiahSaldo(m.nominal || 0)}`; };
+        const yatim = S.mutasi.filter(m => !rekIds.has(m.rekId));
+        if (yatim.length) out.push(T('uang.mutasi_tanpa_rekening', 'Uang', 'serius', 'Catatan Saldo Kantor tanpa rekening', 'Ada catatan uang yang rekeningnya sudah tidak ada, jadi uang itu tidak terhitung di saldo mana pun.', 'Jangan hapus rekening manual. Buka Saldo Kantor dan periksa riwayat; kirim laporan ini ke pengembang bila belum jelas penyebabnya.', yatim.map(nama), { label: 'Buka Saldo Kantor', halaman: 'saldokantor' }));
+        const bentukBuruk = S.mutasi.filter(m => !(Number(m.nominal) > 0) || !parseTglCek(m.tanggal) || ![1, -1].includes(m.arah));
+        if (bentukBuruk.length) out.push(T('uang.mutasi_tidak_valid', 'Uang', 'serius', 'Catatan Saldo Kantor dengan nominal atau tanggal tidak valid', 'Nominal nol atau negatif, tanggal rusak, atau arah uang tidak jelas membuat saldo tidak bisa dipercaya.', 'Edit catatan itu di Saldo Kantor, atau hapus bila memang salah buat.', bentukBuruk.map(nama), { label: 'Buka Saldo Kantor', halaman: 'saldokantor' }));
+        const grup = {}; S.mutasi.filter(m => m.jenis === 'pindah').forEach(m => { (grup[m.pairId || m.id] = grup[m.pairId || m.id] || []).push(m); });
+        const pindahRusak = Object.values(grup).filter(g => g.length !== 2 || g[0].arah === g[1].arah || g[0].nominal !== g[1].nominal || (S.rekening.find(r => r.id === g[0].rekId) || {}).entitas !== (S.rekening.find(r => r.id === g[1].rekId) || {}).entitas);
+        if (pindahRusak.length) out.push(T('uang.pindah_tidak_utuh', 'Uang', 'serius', 'Perpindahan antar rekening tidak utuh', 'Perpindahan harus punya dua sisi (keluar dan masuk) dengan nominal sama di entitas yang sama. Kalau tidak, total uang bertambah atau berkurang tanpa sebab.', 'Periksa perpindahan itu di riwayat rekening; hapus dan catat ulang bila perlu.', pindahRusak.map(g => nama(g[0])), { label: 'Buka Saldo Kantor', halaman: 'saldokantor' }));
+        const evId = new Set(S.antarEntitas.map(e => e.id));
+        const evRusak = S.antarEntitas.filter(e => !(e.mutasiIds || []).length || (e.mutasiIds || []).some(id => !mutIds.has(id))).map(e => `${e.tanggal || '?'} · ${rupiahSaldo(e.nominal || 0)} · ${e.ket || ''}`)
+            .concat(S.mutasi.filter(m => m.eventId && !evId.has(m.eventId)).map(nama));
+        if (evRusak.length) out.push(T('uang.antar_entitas_putus', 'Uang', 'serius', 'Utang-piutang antar entitas tidak sinkron dengan catatan uangnya', 'Catatan pinjaman antar entitas dan catatan uang di rekening harus selalu berpasangan.', 'Buka rincian utang-piutang, lalu hapus dan catat ulang pinjaman yang bermasalah.', evRusak, { label: 'Buka Saldo Kantor', halaman: 'saldokantor' }));
+        const trxIds = new Set(ctx.pinjaman.transaksi.map(t => t.id));
+        const tautanPutus = S.mutasi.filter(m => m.pinjamanTrxId && (!trxIds.has(m.pinjamanTrxId) || (ctx.pinjaman.transaksi.find(t => t.id === m.pinjamanTrxId) || {}).nominal !== m.nominal)).map(nama)
+            .concat(ctx.pinjaman.transaksi.filter(t => t.saldoMutasiId && !mutIds.has(t.saldoMutasiId)).map(t => `Buku Pinjaman ${t.tanggal || '?'} · ${rupiahSaldo(t.nominal || 0)}`));
+        if (tautanPutus.length) out.push(T('uang.tautan_pinjaman_putus', 'Uang', 'serius', 'Tautan Buku Pinjaman dan Saldo Kantor putus atau nominalnya berbeda', 'Satu pinjaman tercatat di dua tempat dan keduanya harus sama. Kalau berbeda, saldo dompet tidak cocok dengan Buku Pinjaman.', 'Buka kedua catatan dan samakan, atau hapus yang salah.', tautanPutus, { label: 'Buka Buku Pinjaman', halaman: 'pinjaman' }));
+        const saldoDari = (rid) => S.mutasi.filter(m => m.rekId === rid).reduce((a, m) => a + (Number(m.arah) || 0) * (Number(m.nominal) || 0), 0);
+        const minus = S.rekening.filter(r => r.aktif !== false && Math.round(saldoDari(r.id)) < 0).map(r => `${labelRekeningSaldo(r)} (${namaEntitasSaldo(r.entitas)}) · ${rupiahSaldo(saldoDari(r.id))}`);
+        if (minus.length) out.push(T('uang.saldo_minus', 'Uang', 'perhatian', 'Ada rekening yang saldonya minus', 'Uang di rekening tidak mungkin minus. Biasanya ada pemasukan yang belum dicatat atau saldo awal yang terlalu kecil.', 'Tambahkan catatan yang kurang, lalu gunakan Cocokkan untuk mencocokkan dengan uang sebenarnya.', minus, { label: 'Buka Saldo Kantor', halaman: 'saldokantor' }));
+        const tutup = S.rekening.filter(r => r.aktif === false);
+        if (S.rekening.length) out.push(T('uang.ringkas', 'Uang', 'info', `Saldo Kantor: ${S.rekening.length} rekening, ${S.mutasi.length} catatan`, `${tutup.length} rekening ditutup, ${S.antarEntitas.length} catatan utang-piutang antar entitas.`, '', []));
+        return out;
+    } },
+    { id: 'uang.pinjaman', kelompok: 'Uang', judul: 'Buku Pinjaman', jalankan: async (ctx) => {
+        const out = [], orangIds = new Set(ctx.pinjaman.orang.map(o => o.id));
+        // Aplikasi membatasi sisa agar tidak minus, sehingga kelebihan pengembalian bisa tersembunyi — di sini dihitung langsung dari catatan.
+        const sisaNegatif = [];
+        ctx.pinjaman.orang.forEach(o => ['kantor', 'pribadi'].forEach(sumber => {
+            const trx = ctx.pinjaman.transaksi.filter(t => t.orangId === o.id && t.sumber === sumber);
+            const pinjam = trx.filter(t => t.jenis === 'pinjam').reduce((a, t) => a + (Number(t.nominal) || 0), 0), kembali = trx.filter(t => t.jenis === 'kembali').reduce((a, t) => a + (Number(t.nominal) || 0), 0);
+            if (kembali > pinjam) sisaNegatif.push(`${o.nama} (${sumber === 'kantor' ? 'uang kantor' : 'uang pribadi'}) · kelebihan ${rupiahSaldo(kembali - pinjam)}`);
+        }));
+        if (sisaNegatif.length) out.push(T('uang.pinjaman_sisa_negatif', 'Uang', 'serius', 'Buku Pinjaman: pengembalian lebih besar dari pinjaman', 'Total pengembalian melebihi total pinjaman, jadi sisa hutang menjadi minus.', 'Buka peminjam itu dan periksa nominal pengembalian.', sisaNegatif, { label: 'Buka Buku Pinjaman', halaman: 'pinjaman' }));
+        const tanpaOrang = ctx.pinjaman.transaksi.filter(t => !orangIds.has(t.orangId)).map(t => `${t.tanggal || '?'} · ${rupiahSaldo(t.nominal || 0)}`);
+        if (tanpaOrang.length) out.push(T('uang.pinjaman_tanpa_orang', 'Uang', 'serius', 'Catatan Buku Pinjaman tanpa peminjam', 'Ada transaksi pinjaman yang peminjamnya sudah tidak ada.', 'Buka Buku Pinjaman dan periksa; kirim laporan ini ke pengembang bila belum jelas.', tanpaOrang, { label: 'Buka Buku Pinjaman', halaman: 'pinjaman' }));
+        return out;
+    } },
+    // ===== JAMAAH & PEMBAYARAN =====
+    { id: 'jamaah.pembayaran', kelompok: 'Jamaah', judul: 'Pembayaran dan keterkaitan data', jalankan: async (ctx) => {
+        const out = [], jamIds = new Set(ctx.jamaah.map(j => String(j.id))), pIds = new Set(ctx.program.map(p => p.id));
+        const bayarYatim = ctx.bayar.filter(t => !jamIds.has(String(t.id_jamaah))).map(t => `${t.tanggal || '?'} · ${rupiahSaldo(t.nominal || 0)}`);
+        if (bayarYatim.length) out.push(T('jamaah.pembayaran_tanpa_jamaah', 'Jamaah', 'serius', 'Pembayaran tanpa jamaah', 'Ada pembayaran yang jamaahnya sudah tidak ada. Uangnya tercatat masuk tapi tidak milik siapa pun.', 'Periksa di menu Pembayaran; hapus bila salah, atau pulihkan jamaahnya dari cadangan.', bayarYatim, { label: 'Buka Pembayaran', halaman: 'pembayaran' }));
+        const bayarBuruk = ctx.bayar.filter(t => !(Number(t.nominal) > 0)).map(t => `${t.tanggal || '?'} · ${rupiahSaldo(t.nominal || 0)}`);
+        if (bayarBuruk.length) out.push(T('jamaah.pembayaran_tidak_valid', 'Jamaah', 'serius', 'Pembayaran dengan nominal nol atau negatif', 'Nominal pembayaran yang tidak valid merusak total terbayar.', 'Edit atau hapus pembayaran itu.', bayarBuruk, { label: 'Buka Pembayaran', halaman: 'pembayaran' }));
+        const tanpaProgram = ctx.jamaah.filter(j => !j.program_id || !pIds.has(j.program_id)).map(j => j.nama_lengkap || '(tanpa nama)');
+        if (tanpaProgram.length) out.push(T('jamaah.tanpa_program', 'Jamaah', 'serius', 'Jamaah tanpa Program yang valid', 'Jamaah ini tidak muncul di Program mana pun.', 'Buka Database Jamaah dan pindahkan ke Program yang benar.', tanpaProgram, { label: 'Buka Database Jamaah', halaman: 'jamaah' }));
+        return out;
+    } },
+    { id: 'jamaah.data', kelompok: 'Jamaah', judul: 'Kelengkapan dan kebenaran data jamaah', jalankan: async (ctx) => {
+        const out = [], A = cekKesehatanData.ambang, hari = new Date(ctx.sekarang.getFullYear(), ctx.sekarang.getMonth(), ctx.sekarang.getDate());
+        const adaField = (nm) => ctx.fieldJamaah.some(f => f.name === nm);
+        const wajib = ctx.fieldJamaah.filter(f => f.isRequired === true && f.name !== 'nama_lengkap');
+        const tingkatDekat = (d) => d === null ? 'perhatian' : (d <= 30 ? 'serius' : (d <= 90 ? 'perhatian' : 'info'));
+        const programAda = ctx.program.filter(p => ctx.jamaah.some(j => j.program_id === p.id));
+        let totalJamaah = 0, tanpaTemuan = 0;
+        for (const p of programAda) {
+            const list = ctx.jamaah.filter(j => j.program_id === p.id); totalJamaah += list.length;
+            const berangkat = tglBerangkatCek(ctx, p.id), d = berangkat ? Math.ceil((berangkat - hari) / 86400000) : null;
+            const label = (j) => j.nama_lengkap || '(tanpa nama)', af = (j) => j.additional_fields || {};
+            const tag = ` — ${p.nama || 'Program'}`;
+            if (d !== null && d < 0) { out.push(T('jamaah.sudah_berangkat:' + p.id, 'Jamaah', 'info', `${p.nama}: program sudah berangkat`, 'Pemeriksaan kelengkapan data jamaah dilewati untuk program yang sudah berangkat.', '', [])); continue; }
+            const tk = tingkatDekat(d), bermasalah = new Set();
+            const tambah = (kunci, tingkat, judul, uraian, saran, daftar) => { if (!daftar.length) return; daftar.forEach(x => bermasalah.add(x.split(' · ')[0])); out.push(T(kunci + ':' + p.id, 'Jamaah', tingkat, judul + tag, uraian, saran, daftar, { label: 'Buka Database Jamaah', halaman: 'jamaah' })); };
+            tambah('jamaah.nama_kosong', 'serius', 'Jamaah tanpa nama', 'Data tanpa nama tidak bisa dipakai untuk dokumen atau tiket.', 'Isi namanya di Database Jamaah.', list.filter(j => !(j.nama_lengkap || '').trim()).map(j => '(tanpa nama) · id ' + j.id));
+            if (adaField('nik')) tambah('jamaah.nik_salah', 'serius', 'NIK bukan 16 digit', 'NIK harus 16 digit angka. Salah ketik akan menggagalkan dokumen dan visa.', 'Periksa dengan KTP lalu perbaiki.', list.filter(j => { const v = String(af(j).nik || '').trim(); return v && !/^\d{16}$/.test(v); }).map(label));
+            if (adaField('tgl_lahir')) tambah('jamaah.tgl_lahir_salah', 'serius', 'Tanggal lahir tidak masuk akal', 'Tanggal lahir di masa depan atau usia lebih dari 110 tahun hampir pasti salah ketik.', 'Periksa dengan KTP atau paspor.', list.filter(j => { const v = af(j).tgl_lahir; if (!v) return false; const t = parseTglCek(v); if (!t) return true; return t > hari || (hari.getFullYear() - t.getFullYear()) > 110; }).map(label));
+            // ganda
+            const kelompokNilai = (nm) => { const m = {}; list.forEach(j => { const v = String(af(j)[nm] || '').trim().toLowerCase(); if (v) (m[v] = m[v] || []).push(label(j)); }); return Object.values(m).filter(a => a.length > 1).map(a => a.join(' = ')); };
+            if (adaField('nik')) tambah('jamaah.nik_ganda', 'serius', 'NIK yang sama dipakai lebih dari satu jamaah', 'Biasanya jamaah yang terdaftar dua kali, atau salah ketik.', 'Gabungkan atau perbaiki salah satunya.', kelompokNilai('nik'));
+            if (adaField('no_paspor')) tambah('jamaah.paspor_ganda', 'serius', 'Nomor paspor yang sama dipakai lebih dari satu jamaah', 'Satu paspor tidak mungkin milik dua orang.', 'Gabungkan atau perbaiki salah satunya.', kelompokNilai('no_paspor'));
+            const mirip = {}; list.forEach(j => { const k = (j.nama_lengkap || '').trim().toLowerCase().replace(/\s+/g, ' ') + '|' + (af(j).tgl_lahir || ''); if (k.length > 2 && af(j).tgl_lahir) (mirip[k] = mirip[k] || []).push(label(j)); });
+            tambah('jamaah.mirip', 'perhatian', 'Nama dan tanggal lahir sama (kemungkinan ganda)', 'Bisa jadi orang yang sama terdaftar dua kali.', 'Periksa; abaikan temuan ini bila memang dua orang berbeda.', Object.values(mirip).filter(a => a.length > 1).map(a => a.join(' = ')));
+            // paspor & meningitis (aturan sama dengan kartu peringatan di Home)
+            const cekKadaluarsa = (nm, bulan, kunci, judul, ket) => {
+                if (!adaField(nm)) return; const acuan = berangkat || hari, batas = new Date(acuan); batas.setMonth(batas.getMonth() + bulan);
+                const sudah = [], sebelum = [], akan = [];
+                list.forEach(j => { const t = parseTglCek(af(j)[nm]); if (!t) return; if (t < hari) sudah.push(label(j)); else if (berangkat && t < berangkat) sebelum.push(label(j)); else if (t < batas) akan.push(label(j)); });
+                tambah(kunci + '_habis', 'serius', judul + ' sudah habis', ket, 'Segera perbarui dokumennya.', sudah);
+                tambah(kunci + '_sebelum_berangkat', (d !== null && d <= 90) ? 'serius' : 'perhatian', judul + ' habis sebelum keberangkatan', 'Jamaah tidak bisa berangkat dengan dokumen yang sudah habis saat hari keberangkatan.', 'Perbarui dokumennya sebelum berangkat.', sebelum);
+                tambah(kunci + '_dekat', tk, `${judul} kurang dari ${bulan} bulan ${berangkat ? 'dari keberangkatan' : 'dari hari ini'}`, ket, 'Perbarui sebelum waktunya mepet.', akan);
+            };
+            cekKadaluarsa('tgl_expired_paspor', A.pasporBulan, 'jamaah.paspor', 'Paspor', 'Paspor yang masa berlakunya kurang dari batas bisa membuat visa ditolak.');
+            cekKadaluarsa('tgl_expired_meningitis', A.meningitisBulan, 'jamaah.meningitis', 'Vaksin meningitis', 'Vaksin yang kadaluarsa sebelum keberangkatan tidak diterima.');
+            // kelengkapan
+            if (adaField('whatsapp')) tambah('jamaah.wa_salah', tk === 'serius' ? 'perhatian' : tk, 'Nomor WhatsApp kosong atau formatnya salah', 'Pengingat dan pesan massal tidak akan sampai.', 'Lengkapi nomornya (contoh 0812xxxxxxx).', list.filter(j => { const v = String(af(j).whatsapp || '').replace(/\D/g, ''); return !v || v.length < 9 || v.length > 15 || !/^(0|62)/.test(v); }).map(label));
+            if (p.jenis !== 'haji_reguler') tambah('jamaah.tanpa_tipe_kamar', 'perhatian', 'Jamaah belum punya tipe kamar', 'Tanpa tipe kamar, modal jamaah dihitung dengan tarif Quad di laporan.', 'Isi tipe paket di Database Jamaah.', list.filter(j => !String(af(j).tipe_paket || '').trim()).map(label));
+            if (wajib.length) tambah('jamaah.wajib_kosong', tk, 'Kolom wajib belum diisi', `Kolom yang ditandai wajib: ${wajib.map(f => f.label || f.name).join(', ')}.`, 'Lengkapi data jamaah itu.', list.filter(j => wajib.some(f => !String(af(j)[f.name] ?? '').trim())).map(label));
+            tanpaTemuan += list.filter(j => !bermasalah.has(label(j))).length;
+        }
+        if (totalJamaah) out.push(T('jamaah.ringkas', 'Jamaah', 'info', `Jamaah: ${totalJamaah} orang di ${programAda.length} program`, `${tanpaTemuan} jamaah tanpa temuan, ${totalJamaah - tanpaTemuan} punya catatan di atas (${Math.round(tanpaTemuan / totalJamaah * 100)}% bersih).`, '', []));
+        return out;
+    } },
+    // ===== CADANGAN & PERANGKAT =====
+    { id: 'cadangan.usia', kelompok: 'Cadangan & perangkat', judul: 'Usia cadangan terakhir', jalankan: async (ctx) => {
+        const A = cekKesehatanData.ambang, s = localStorage.getItem('navara_last_backup');
+        if (!s) return [T('cadangan.belum_pernah', 'Cadangan & perangkat', 'serius', 'Belum pernah membuat cadangan', 'Kalau perangkat rusak atau hilang, seluruh data ikut hilang.', 'Buka Backup & Restore lalu unduh cadangan sekarang.', [], { label: 'Buka Backup & Restore', halaman: 'cloudstorage' })];
+        const hr = Math.floor((ctx.sekarang - new Date(s)) / 86400000);
+        if (isNaN(hr)) return [T('cadangan.tanggal_rusak', 'Cadangan & perangkat', 'perhatian', 'Tanggal cadangan terakhir tidak terbaca', 'Aplikasi tidak bisa memastikan kapan cadangan terakhir dibuat.', 'Buat cadangan baru.', [], { label: 'Buka Backup & Restore', halaman: 'cloudstorage' })];
+        if (hr >= A.cadanganSerius) return [T('cadangan.usia', 'Cadangan & perangkat', 'serius', `Cadangan terakhir ${hr} hari lalu`, 'Data baru selama itu tidak punya salinan di luar perangkat.', 'Buat cadangan sekarang.', [], { label: 'Buka Backup & Restore', halaman: 'cloudstorage' })];
+        if (hr >= A.cadanganPerhatian) return [T('cadangan.usia', 'Cadangan & perangkat', 'perhatian', `Cadangan terakhir ${hr} hari lalu`, 'Sebaiknya buat cadangan baru secara berkala.', 'Buat cadangan.', [], { label: 'Buka Backup & Restore', halaman: 'cloudstorage' })];
+        return [T('cadangan.usia_ok', 'Cadangan & perangkat', 'info', `Cadangan terakhir ${hr} hari lalu`, 'Masih dalam batas aman.', '', [])];
+    } },
+    { id: 'cadangan.cakupan', kelompok: 'Cadangan & perangkat', judul: 'Cakupan semua jalur cadangan', jalankan: async (ctx) => {
+        const K = 'Cadangan & perangkat', out = [];
+        // 1. Data yang tersimpan tetapi BELUM didaftarkan di daftar data pusat
+        const terdaftar = new Set(DAFTAR_DATA.map(d => d.store + '|' + d.key)), tidakTerdaftar = [];
+        for (const store of [STORE_JAMAAH, STORE_JAMAAH_KITA, STORE_FOLDER, STORE_KAS, STORE_PEMBAYARAN, STORE_KONFIGURASI, STORE_MASTER, STORE_ABSENSI, STORE_PENGELUARAN, STORE_CATATAN, STORE_PROGRAM, STORE_PROSPEK]) {
+            const kunci = await idbDaftarKunci(store);
+            if (kunci === null) throw new Error('daftar data ' + store + ' tidak bisa dibaca');
+            kunci.forEach(k => { const ks = String(k); if (KUNCI_DIKECUALIKAN.includes(ks) || AWALAN_KUNCI_DIKECUALIKAN.some(a => ks.startsWith(a))) return; if (!terdaftar.has(store + '|' + ks)) tidakTerdaftar.push(store + ' / ' + ks); });
+        }
+        if (tidakTerdaftar.length) out.push(T('cadangan.tidak_terdaftar', K, 'serius', 'Ada data yang belum didaftarkan, jadi belum tentu ikut cadangan', 'Data berikut tersimpan di perangkat tetapi belum ada di daftar data pusat, sehingga tidak ikut cadangan otomatis maupun berkas cadangan.', 'Laporkan ke pengembang agar datanya didaftarkan.', tidakTerdaftar));
+        // 2. Isi ekspor JSON yang BENAR-BENAR dibangun (bukan sekadar daftar): setiap data terdaftar harus ada di dalamnya
+        const json = await susunBackupJson(), hilangJson = [];
+        for (const d of DAFTAR_DATA) { if (d.generik) { const ada = await idbGet(d.store, d.key); if (ada !== null && ada !== undefined && !(json.extra && d.id in json.extra)) hilangJson.push(d.label); } else if (d.jsonField && !(d.jsonField in json)) hilangJson.push(d.label); }
+        if (hilangJson.length) out.push(T('cadangan.json_tidak_membawa', K, 'serius', 'Berkas cadangan JSON tidak membawa sebagian data', 'Data berikut terdaftar tetapi tidak ada di isi berkas JSON, jadi hilang kalau dipulihkan dari berkas itu.', 'Laporkan ke pengembang.', hilangJson));
+        // 3. Jalur lain diperiksa dengan membandingkan nama bidang pada kode (BUKAN uji pulih penuh)
+        const srcRestoreJson = String(applyRestoreBackupData), srcZipBuild = String(buildFullBackupZip), srcZipRestore = String(restoreFromZip);
+        const biasa = DAFTAR_DATA.filter(d => !d.generik && d.jsonField);
+        const unik = (arr) => [...new Set(arr)];
+        const restoreJsonHilang = unik(biasa.filter(d => !new RegExp('backup\\.' + d.jsonField + '\\b').test(srcRestoreJson)).map(d => d.label));
+        const zipBuildHilang = unik(biasa.filter(d => !srcZipBuild.includes("'" + d.zipFile + "'")).map(d => d.label));
+        const zipRestoreHilang = unik(biasa.filter(d => !srcZipRestore.includes("'" + d.zipFile + "'")).map(d => d.label));
+        if (DAFTAR_DATA.some(d => d.generik)) {
+            if (!srcRestoreJson.includes('terapkanDataGenerik')) restoreJsonHilang.push('(data generik)');
+            if (!srcZipBuild.includes('bacaDataGenerik')) zipBuildHilang.push('(data generik)');
+            if (!srcZipRestore.includes('terapkanDataGenerik')) zipRestoreHilang.push('(data generik)');
+        }
+        if (restoreJsonHilang.length) out.push(T('cadangan.restore_json_tidak_membaca', K, 'serius', 'Pemulihan dari berkas JSON tidak membaca sebagian data', 'Data berikut ikut dibuat ke berkas tetapi tidak dipulihkan kembali.', 'Laporkan ke pengembang.', restoreJsonHilang));
+        if (zipBuildHilang.length) out.push(T('cadangan.zip_tidak_membawa', K, 'serius', 'Berkas cadangan ZIP tidak membawa sebagian data', 'Data berikut terdaftar tetapi tidak dimasukkan ke ZIP.', 'Laporkan ke pengembang.', zipBuildHilang));
+        if (zipRestoreHilang.length) out.push(T('cadangan.zip_restore_tidak_membaca', K, 'serius', 'Pemulihan dari ZIP tidak membaca sebagian data', 'Data berikut ada di ZIP tetapi tidak dipulihkan kembali.', 'Laporkan ke pengembang.', zipRestoreHilang));
+        if (!out.length) out.push(T('cadangan.tercakup_ok', K, 'info', `Semua ${DAFTAR_DATA.length} jenis data terdaftar dan tercakup di semua jalur cadangan`, 'Diperiksa: cadangan otomatis, isi berkas JSON (dibangun sungguhan), serta kode restore JSON dan ZIP dan ekspor ZIP (dengan membandingkan nama bidang). Ini bukan uji pulih penuh.', '', []));
+        const snap = (await idbGet(STORE_MASTER, 'snapshot_pra_update')) || [];
+        out.push(T('cadangan.snapshot', K, 'info', `Cadangan otomatis sebelum update: ${snap.length} tersimpan`, 'Disimpan otomatis tiap versi aplikasi diperbarui (maksimal 3).', '', []));
+        return out;
+    } },
+    { id: 'perangkat.penyimpanan', kelompok: 'Cadangan & perangkat', judul: 'Ruang penyimpanan', jalankan: async () => {
+        if (!navigator.storage || !navigator.storage.estimate) return [T('perangkat.penyimpanan_tidak_bisa', 'Cadangan & perangkat', 'info', 'Ruang penyimpanan tidak dapat diperiksa', 'Peramban ini tidak menyediakan informasi ruang penyimpanan.', '', [])];
+        const e = await navigator.storage.estimate(); if (!e.quota) return [];
+        const pct = Math.round(e.usage / e.quota * 100), A = cekKesehatanData.ambang;
+        const t = pct >= A.penyimpananSerius ? 'serius' : (pct >= A.penyimpananPerhatian ? 'perhatian' : 'info');
+        return [T('perangkat.penyimpanan', 'Cadangan & perangkat', t, `Penyimpanan aplikasi terpakai ${pct}%`, t === 'info' ? 'Masih longgar.' : 'Kalau penuh, data baru bisa gagal tersimpan.', t === 'info' ? '' : 'Hapus foto atau dokumen yang tidak perlu, dan buat cadangan.', [])];
+    } },
+    { id: 'perangkat.jam', kelompok: 'Cadangan & perangkat', judul: 'Jam perangkat', jalankan: async (ctx) => {
+        const last = Number(localStorage.getItem('navara_waktu_terakhir') || 0);
+        if (last && ctx.sekarang.getTime() + 120000 < last) return [T('perangkat.jam_mundur', 'Cadangan & perangkat', 'perhatian', 'Jam perangkat tampak mundur', 'Jam yang mundur membuat tanggal catatan dan batas Akses Sementara tidak bisa dipercaya.', 'Periksa pengaturan tanggal dan jam di perangkat.', [])];
+        return [T('perangkat.build', 'Cadangan & perangkat', 'info', `Versi aplikasi: ${typeof NAVARA_BUILD !== 'undefined' ? NAVARA_BUILD : '?'}`, 'Sebutkan versi ini bila melaporkan masalah.', '', [])];
+    } },
+    // ===== PENGATURAN & IZIN =====
+    { id: 'izin.admin', kelompok: 'Pengaturan & izin', judul: 'Admin, Peran, dan Akses Sementara', jalankan: async (ctx) => {
+        const out = [], admins = Array.isArray(ctx.konfig.admin_list) ? ctx.konfig.admin_list : [], peran = Array.isArray(ctx.konfig.peran_list) ? ctx.konfig.peran_list : [];
+        if (admins.length && !admins.some(a => a.isPemilik && a.pinHash)) out.push(T('izin.pemilik_tanpa_pin', 'Pengaturan & izin', 'serius', 'Tidak ada Admin Utama yang punya PIN', 'Siapa pun bisa masuk sebagai Admin Utama dan membuka data uang.', 'Atur PIN Admin Utama di Kelola Admin.', admins.filter(a => a.isPemilik).map(a => a.nama), { label: 'Buka Konfigurasi', halaman: 'konfigurasi' }));
+        const tanpaPin = admins.filter(a => !a.isPemilik && !a.pinHash).map(a => a.nama);
+        if (tanpaPin.length) out.push(T('izin.admin_tanpa_pin', 'Pengaturan & izin', 'perhatian', 'Admin tanpa PIN', 'Admin ini bisa dimasuki siapa saja.', 'Beri PIN di Kelola Admin.', tanpaPin, { label: 'Buka Konfigurasi', halaman: 'konfigurasi' }));
+        const pIds = new Set(peran.map(p => p.id)), yatim = admins.filter(a => a.peranId && !pIds.has(a.peranId)).map(a => a.nama);
+        if (yatim.length) out.push(T('izin.peran_yatim', 'Pengaturan & izin', 'perhatian', 'Admin dengan Peran yang sudah tidak ada', 'Admin ini diperlakukan sebagai akses penuh sampai Perannya diperbaiki.', 'Pasang Peran yang benar di Kelola Admin.', yatim, { label: 'Buka Konfigurasi', halaman: 'konfigurasi' }));
+        const now = Date.now(), lewat = (Array.isArray(ctx.konfig.akses_sementara) ? ctx.konfig.akses_sementara : []).filter(g => !g.dicabut && !g.selesai && Date.parse(g.sampai) < now - 3600000).map(g => `${g.admin} · seharusnya habis ${new Date(g.sampai).toLocaleString('id-ID')}`);
+        if (lewat.length) out.push(T('izin.akses_menggantung', 'Pengaturan & izin', 'info', 'Akses Sementara yang sudah lewat tapi belum ditutup', 'Akses ini tidak berlaku lagi, hanya penandanya yang belum diperbarui.', 'Buka aplikasi sebagai Admin Utama sekali, penandanya diperbarui otomatis.', lewat));
+        return out;
+    } },
+];
+
+// ---------- Menjalankan semua pemeriksa ----------
+async function jalankanCekKesehatan(manual) {
+    if (cekSedangJalan) return null; cekSedangJalan = true;
+    try {
+        await muatCekKesehatan();
+        let ctx = null, gagalKonteks = null;
+        try { ctx = await bacaKonteksCek(); } catch (e) { gagalKonteks = e; }
+        const temuan = [], gagal = [];
+        for (const p of PEMERIKSA_KESEHATAN) {
+            try {
+                if (!ctx) throw gagalKonteks || new Error('data tidak terbaca');
+                (await p.jalankan(ctx)).forEach(t => temuan.push(t));
+            } catch (e) {
+                gagal.push(p.judul);
+                temuan.push(Object.assign(T('gagal.' + p.id, p.kelompok, 'perhatian', `Tidak dapat diperiksa: ${p.judul}`, `Pemeriksaan ini gagal dijalankan (${(e && e.message) || e}). Hasilnya tidak diketahui, jadi jangan dianggap aman.`, 'Coba periksa lagi; bila berulang, kirim laporan ini ke pengembang.', []), { gagal: true }));
+            }
+        }
+        const now = Date.now(), ada = new Set();
+        temuan.forEach(t => { ada.add(t.kunci); if (!cekKesehatanData.pertamaTerlihat[t.kunci]) cekKesehatanData.pertamaTerlihat[t.kunci] = now; });
+        Object.keys(cekKesehatanData.pertamaTerlihat).forEach(k => { if (!ada.has(k)) delete cekKesehatanData.pertamaTerlihat[k]; });
+        cekKesehatanData.temuan = temuan; cekKesehatanData.terakhir = now;
+        await simpanCekKesehatan();
+        perbaruiTandaKesehatan(); try { renderSemuaMenu(); } catch (e) {}
+        return temuan;
+    } finally { cekSedangJalan = false; }
+}
+// Temuan yang diabaikan disembunyikan HANYA selama datanya sama; kalau berubah (sidik beda) muncul lagi
+function temuanAktifCek() {
+    const d = cekKesehatanData;
+    return d.temuan.map(t => Object.assign({}, t, { diabaikan: !!(d.diabaikan[t.kunci] && d.diabaikan[t.kunci].sidik === t.sidik) }));
+}
+function ringkasanCek() {
+    const a = temuanAktifCek().filter(t => !t.diabaikan);
+    const hitung = (x) => a.filter(t => t.tingkat === x).length;
+    const lama = a.filter(t => t.tingkat === 'perhatian' && (Date.now() - (cekKesehatanData.pertamaTerlihat[t.kunci] || Date.now())) > cekKesehatanData.ambang.hariBelumDitangani * 86400000).length;
+    return { serius: hitung('serius'), perhatian: hitung('perhatian'), info: hitung('info'), perhatianLama: lama, diabaikan: temuanAktifCek().filter(t => t.diabaikan).length };
+}
+function perbaruiTandaKesehatan() {
+    try {
+        const r = ringkasanCek(), kartu = document.getElementById('homeKesehatanCard'), baris = document.getElementById('homeKesehatanRingkas');
+        const penuh = adalahAdminPenuh();
+        if (kartu) { kartu.style.display = (penuh && r.serius > 0) ? 'block' : 'none'; const el = document.getElementById('homeKesehatanTeks'); if (el) el.textContent = `${r.serius} masalah serius pada data`; }
+        if (baris) { const tampil = penuh && r.serius === 0 && (r.perhatian > cekKesehatanData.ambang.tumpuk || r.perhatianLama > 0); baris.style.display = tampil ? 'block' : 'none'; const el = document.getElementById('homeKesehatanRingkasTeks'); if (el) el.textContent = `${r.perhatian} hal perlu dilihat di Cek Kesehatan Data`; }
+        const item = FITUR_LENGKAP.find(f => f.id === 'cekkesehatan');
+        if (item) { item.ket = r.serius ? `🔴 ${r.serius} serius` : (r.perhatian ? `🟡 ${r.perhatian} perlu dilihat` : 'Periksa data uang, jamaah & cadangan'); }
+    } catch (e) { /* tanda hanya tambahan; jangan mengganggu aplikasi */ }
+}
+// Otomatis: maksimal sekali sehari saat aplikasi dibuka atau kembali dibuka (hanya Admin Utama; tidak ada notifikasi ke HP)
+async function jadwalkanCekKesehatan() {
+    try {
+        if (!adalahAdminPenuh()) return;
+        await muatCekKesehatan(); perbaruiTandaKesehatan();
+        if (Date.now() - cekKesehatanData.terakhir > 20 * 3600000) { await jalankanCekKesehatan(false); if (document.getElementById('page-cekkesehatan')?.classList.contains('active')) renderCekKesehatan(); }
+    } catch (e) { /* jangan mengganggu startup */ }
+}
+setTimeout(jadwalkanCekKesehatan, 6000);
+document.addEventListener('visibilitychange', () => { if (!document.hidden) setTimeout(jadwalkanCekKesehatan, 1500); });
+
+// ---------- Layar Cek Kesehatan Data ----------
+function bolehKesehatan() { if (!adalahAdminPenuh()) { showToast('🔒 Cek Kesehatan Data hanya untuk Admin Utama'); return false; } return true; }
+const IKON_TINGKAT = { serius: '🔴', perhatian: '🟡', info: '🔵' };
+const WARNA_TINGKAT = { serius: '#EF4444', perhatian: '#F59E0B', info: '#3B82F6' };
+async function bukaCekKesehatan() {
+    if (!bolehKesehatan()) return;
+    await muatCekKesehatan();
+    if (!cekKesehatanData.terakhir || Date.now() - cekKesehatanData.terakhir > 24 * 3600000) await jalankanCekKesehatan(false);
+    renderCekKesehatan();
+}
+async function periksaSekarangCek() {
+    if (!bolehKesehatan()) return;
+    const tombol = document.getElementById('ckTombolPeriksa'); if (tombol) { tombol.disabled = true; tombol.textContent = 'Memeriksa...'; }
+    await jalankanCekKesehatan(true); renderCekKesehatan(); try { renderSemuaMenu(); } catch (e) {}
+    showToast('Pemeriksaan selesai');
+}
+function renderCekKesehatan() {
+    const wadah = document.getElementById('ckDaftar'); if (!wadah) return;
+    const r = ringkasanCek(), tampilInfo = !!document.getElementById('ckInfo')?.checked, semua = temuanAktifCek();
+    const waktu = cekKesehatanData.terakhir ? teksWaktuLaporan(cekKesehatanData.terakhir) : 'belum pernah';
+    document.getElementById('ckRingkas').innerHTML = `<div style="display:flex;gap:6px;margin-bottom:8px;">
+            ${[['serius', r.serius], ['perhatian', r.perhatian], ['info', r.info]].map(([k, n]) => `<div style="flex:1;background:#fff;border-radius:12px;padding:10px 6px;text-align:center;border-top:3px solid ${WARNA_TINGKAT[k]};box-shadow:0 2px 8px rgba(0,0,0,0.05);"><div style="font-size:20px;font-weight:800;">${n}</div><div style="font-size:11px;color:#666;">${k === 'serius' ? 'Serius' : (k === 'perhatian' ? 'Perhatian' : 'Info')}</div></div>`).join('')}
+        </div>
+        <div style="font-size:11px;color:#888;margin-bottom:8px;">Pemeriksaan terakhir: ${escapeHtml(waktu)}. Aplikasi memeriksa otomatis paling sering sekali sehari saat dibuka. Tidak ada notifikasi ke HP; tanda hanya muncul di aplikasi.</div>
+        <div style="display:flex;gap:6px;margin-bottom:10px;">
+            <button id="ckTombolPeriksa" onclick="periksaSekarangCek()" style="flex:1;padding:10px;border:none;border-radius:10px;font-size:12px;font-weight:700;background:var(--primary);color:#fff;cursor:pointer;">Periksa sekarang</button>
+            <button onclick="salinLaporanCek()" style="flex:1;padding:10px;border:none;border-radius:10px;font-size:12px;font-weight:700;background:#E0F2FE;color:#0369A1;cursor:pointer;">Salin laporan</button>
+        </div>`;
+    const urut = { serius: 0, perhatian: 1, info: 2 }, kelompok = ['Uang', 'Jamaah', 'Cadangan & perangkat', 'Pengaturan & izin'];
+    const tampil = semua.filter(t => !t.diabaikan && (tampilInfo || t.tingkat !== 'info'));
+    let html = kelompok.map(k => {
+        const items = tampil.filter(t => t.kelompok === k).sort((a, b) => urut[a.tingkat] - urut[b.tingkat]);
+        if (!items.length) return '';
+        return `<div style="font-weight:700;font-size:13px;margin:12px 4px 6px;">${escapeHtml(k)}</div>` + items.map(kartuTemuanCek).join('');
+    }).join('');
+    if (!html) html = `<div class="card-premium" style="margin:0 0 12px;text-align:center;color:#15803d;">✅ Tidak ada temuan yang perlu ditindak${tampilInfo ? '' : '.<div style="font-size:11px;color:#888;margin-top:4px;">Centang "Tampilkan Info" untuk melihat catatan lainnya.</div>'}</div>`;
+    wadah.innerHTML = html;
+    const ab = semua.filter(t => t.diabaikan);
+    document.getElementById('ckDiabaikan').innerHTML = ab.length ? `<details class="card-premium" style="margin:0 0 12px;"><summary style="cursor:pointer;font-weight:700;font-size:13px;">Temuan yang diabaikan (${ab.length})</summary><div style="font-size:12px;margin-top:6px;color:#666;">Muncul lagi otomatis kalau datanya berubah.</div>${ab.map(t => { const x = cekKesehatanData.diabaikan[t.kunci] || {}; return `<div style="padding:8px 0;border-top:0.5px solid #eef2f1;"><div>${IKON_TINGKAT[t.tingkat]} ${escapeHtml(t.judul)}</div><div style="color:#888;font-size:11px;">Diabaikan oleh ${escapeHtml(x.oleh || '-')} · ${escapeHtml(x.waktu ? teksWaktuLaporan(x.waktu) : '')}</div><button onclick="pantauLagiCek('${escapeHtml(t.kunci)}')" style="margin-top:4px;border:none;background:#F1F5F9;border-radius:6px;padding:4px 10px;font-size:11px;cursor:pointer;">Pantau lagi</button></div>`; }).join('')}</details>` : '';
+    const A = cekKesehatanData.ambang;
+    document.getElementById('ckAmbang').innerHTML = `<details class="card-premium" style="margin:0 0 12px;"><summary style="cursor:pointer;font-weight:700;font-size:13px;">Batas pemeriksaan (bisa diubah)</summary>
+        ${[['pasporBulan', 'Paspor minimal berlaku sebelum keberangkatan (bulan)'], ['meningitisBulan', 'Vaksin meningitis minimal berlaku (bulan)'], ['cadanganPerhatian', 'Cadangan: Perhatian setelah (hari)'], ['cadanganSerius', 'Cadangan: Serius setelah (hari)'], ['hariBelumDitangani', 'Perhatian naik ke Home jika belum ditangani (hari)'], ['tumpuk', 'Perhatian naik ke Home jika lebih dari (temuan)']].map(([k, t]) => `<div style="display:flex;justify-content:space-between;align-items:center;gap:8px;margin-top:8px;font-size:12px;"><span style="flex:1;">${t}</span><input type="number" min="1" value="${A[k]}" onchange="aturAmbangCek('${k}',this.value)" style="width:64px;padding:6px;border:1px solid #cbd5e1;border-radius:8px;text-align:right;"></div>`).join('')}
+        <div style="font-size:11px;color:#888;margin-top:8px;">Aturan paspor dan meningitis sama dengan kartu peringatan di Home.</div></details>`;
+}
+function kartuTemuanCek(t) {
+    const aksi = t.aksi ? `<button onclick="showPage('${t.aksi.halaman}')" style="border:none;background:#EDE9FE;color:#6D28D9;border-radius:8px;padding:6px 12px;font-size:11px;font-weight:700;cursor:pointer;">${escapeHtml(t.aksi.label)}</button>` : '';
+    const abaikan = (t.gagal || t.tingkat === 'info') ? '' : `<button onclick="abaikanTemuanCek('${escapeHtml(t.kunci)}')" style="border:none;background:#F1F5F9;border-radius:8px;padding:6px 12px;font-size:11px;cursor:pointer;">Abaikan</button>`;
+    const umur = Math.floor((Date.now() - (cekKesehatanData.pertamaTerlihat[t.kunci] || Date.now())) / 86400000);
+    return `<div style="background:#fff;border-radius:12px;border-left:4px solid ${WARNA_TINGKAT[t.tingkat]};padding:10px 12px;margin-bottom:8px;box-shadow:0 2px 8px rgba(0,0,0,0.05);">
+        <div style="font-weight:700;font-size:13px;">${IKON_TINGKAT[t.tingkat]} ${escapeHtml(t.judul)}${t.jumlah > 1 ? ` <span style="color:#888;font-weight:600;">(${t.jumlah})</span>` : ''}</div>
+        <div style="font-size:12px;color:#555;margin-top:3px;">${escapeHtml(t.uraian)}</div>
+        ${t.saran ? `<div style="font-size:12px;color:#166534;margin-top:3px;">Saran: ${escapeHtml(t.saran)}</div>` : ''}
+        ${t.daftar.length ? `<details style="margin-top:4px;font-size:11.5px;"><summary style="cursor:pointer;color:#0369A1;">Lihat daftar (${t.daftar.length})</summary><div style="margin-top:4px;color:#444;">${t.daftar.slice(0, 40).map(x => '• ' + escapeHtml(x)).join('<br>')}${t.daftar.length > 40 ? `<br>…dan ${t.daftar.length - 40} lainnya` : ''}</div></details>` : ''}
+        <div style="display:flex;gap:6px;margin-top:8px;align-items:center;">${aksi}${abaikan}${umur >= 1 && t.tingkat !== 'info' ? `<span style="font-size:10.5px;color:#888;margin-left:auto;">terlihat ${umur} hari</span>` : ''}</div></div>`;
+}
+function abaikanTemuanCek(kunci) {
+    if (!bolehKesehatan()) return;
+    const t = cekKesehatanData.temuan.find(x => x.kunci === kunci); if (!t) return;
+    konfirmasiBertema('Abaikan temuan ini?', 'Temuan disembunyikan, tetapi muncul lagi otomatis kalau datanya berubah. Daftarnya tetap bisa dilihat di "Temuan yang diabaikan".', async () => {
+        cekKesehatanData.diabaikan[kunci] = { sidik: t.sidik, oleh: currentAdminNama || '-', waktu: Date.now() };
+        catatAktivitas('🩺', `Cek Kesehatan Data: temuan "${t.judul}" diabaikan`);
+        await simpanCekKesehatan(); perbaruiTandaKesehatan(); renderCekKesehatan();
+    });
+}
+async function pantauLagiCek(kunci) { if (!bolehKesehatan()) return; delete cekKesehatanData.diabaikan[kunci]; await simpanCekKesehatan(); perbaruiTandaKesehatan(); renderCekKesehatan(); }
+async function aturAmbangCek(kunci, nilai) { if (!bolehKesehatan()) return; const n = parseInt(nilai, 10); if (!(n >= 1) || n > 3650) return showToast('Isi angka 1 sampai 3650'); cekKesehatanData.ambang[kunci] = n; await simpanCekKesehatan(); showToast('Batas diperbarui. Tekan "Periksa sekarang" untuk menerapkan.'); }
+// Laporan teks: HANYA jenis masalah dan jumlahnya — tanpa nama jamaah, NIK, paspor, atau nominal — aman dikirim ke pengembang
+function teksLaporanCek() {
+    const r = ringkasanCek(), semua = temuanAktifCek().filter(t => !t.diabaikan);
+    let t = `LAPORAN CEK KESEHATAN DATA\nVersi: ${typeof NAVARA_BUILD !== 'undefined' ? NAVARA_BUILD : '?'}\nDiperiksa: ${cekKesehatanData.terakhir ? teksWaktuLaporan(cekKesehatanData.terakhir) : 'belum pernah'}\nSerius: ${r.serius} | Perhatian: ${r.perhatian} | Info: ${r.info} | Diabaikan: ${r.diabaikan}\n`;
+    ['serius', 'perhatian', 'info'].forEach(k => { const a = semua.filter(x => x.tingkat === k); if (!a.length) return; t += `\n[${k.toUpperCase()}]\n` + a.map(x => `- (${x.kelompok}) ${x.judul}${x.jumlah ? ' — ' + x.jumlah + ' data' : ''}`).join('\n') + '\n'; });
+    return t + '\n(Laporan ini tidak memuat nama, NIK, nomor paspor, atau nominal uang.)';
+}
+async function salinLaporanCek() {
+    if (!bolehKesehatan()) return;
+    const teks = teksLaporanCek();
+    try { await navigator.clipboard.writeText(teks); showToast('Laporan disalin'); }
+    catch (e) { const ta = document.createElement('textarea'); ta.value = teks; document.body.appendChild(ta); ta.select(); try { document.execCommand('copy'); showToast('Laporan disalin'); } catch (e2) { showToast('Tidak bisa menyalin otomatis'); } ta.remove(); }
 }
 
 // ---------- Hapus & sinkron dengan Buku Pinjaman ----------
@@ -22427,22 +22807,79 @@ function openIndexedDB() {
 // dengan build baru, data MENTAH (langsung dari IndexedDB, bukan dari memori) disalin dulu sebelum
 // proses migrasi apapun berjalan — supaya kalau ada kesalahan di update, data lama masih bisa dipulihkan.
 // Dokumen & foto tidak ikut disalin (ukurannya besar, dan tidak pernah disentuh proses migrasi).
-const NAVARA_BUILD = '2026.10.03-55';
+const NAVARA_BUILD = '2026.10.05-58';
 const MAKS_SNAPSHOT = 3;
 
+// ==================== DAFTAR DATA PUSAT ====================
+// SATU daftar semua data yang disimpan di IndexedDB. Cadangan otomatis (snapshot), Lihat Cadangan, dan Cek Kesehatan Data membacanya.
+// Data BARU cukup didaftarkan di sini dengan generik:true, lalu otomatis ikut: snapshot, ekspor JSON, ekspor ZIP, restore JSON, restore ZIP.
+// (Data lama punya bidang JSON/ZIP sendiri: jsonField & zipFile. Cek Kesehatan memeriksa tiap jalur membawanya.)
+const DAFTAR_DATA = [
+    { id: 'program', label: 'Program', store: STORE_PROGRAM, key: 'program_list', jsonField: 'program', zipFile: 'program.json' },
+    { id: 'konfigurasi', label: 'Konfigurasi', store: STORE_KONFIGURASI, key: 'konfigurasi_pro', jsonField: 'konfigurasi', zipFile: 'konfigurasi.json' },
+    { id: 'jamaah_fields', label: 'Kolom Jamaah', store: STORE_JAMAAH, key: 'jamaah_fields', jsonField: 'jamaah', zipFile: 'jamaah.json' },
+    { id: 'jamaah_list', label: 'Jamaah', store: STORE_JAMAAH, key: 'jamaah_list', jsonField: 'jamaah', zipFile: 'jamaah.json' },
+    { id: 'kita_fields', label: 'Kolom Jamaah on Proses', store: STORE_JAMAAH_KITA, key: 'kita_fields', jsonField: 'jamaah_kita', zipFile: 'jamaah_kita.json' },
+    { id: 'kita_list', label: 'Jamaah on Proses', store: STORE_JAMAAH_KITA, key: 'kita_list', jsonField: 'jamaah_kita', zipFile: 'jamaah_kita.json' },
+    { id: 'kas', label: 'Kas', store: STORE_KAS, key: 'kas_data', jsonField: 'kas', zipFile: 'kas.json' },
+    { id: 'pembayaran', label: 'Pembayaran', store: STORE_PEMBAYARAN, key: 'pembayaran_list', jsonField: 'pembayaran', zipFile: 'pembayaran.json' },
+    { id: 'master_data', label: 'Multi Event (data)', store: STORE_MASTER, key: 'master_data', jsonField: 'multi_event', zipFile: 'multi_event.json' },
+    { id: 'master_items', label: 'Multi Event (item)', store: STORE_MASTER, key: 'master_items', generik: true },
+    { id: 'master_fields', label: 'Multi Event (kolom)', store: STORE_MASTER, key: 'master_fields', generik: true },
+    { id: 'folder', label: 'Folder', store: STORE_FOLDER, key: 'folder_list', jsonField: 'folder', zipFile: 'folder.json' },
+    { id: 'pengeluaran', label: 'Pengeluaran', store: STORE_PENGELUARAN, key: 'pengeluaran_data', jsonField: 'pengeluaran', zipFile: 'pengeluaran.json' },
+    { id: 'absensi', label: 'Absensi', store: STORE_ABSENSI, key: 'absensi_sesi', jsonField: 'absensi', zipFile: 'absensi.json' },
+    { id: 'jadwal_manasik', label: 'Jadwal Manasik', store: STORE_ABSENSI, key: 'jadwal_manasik', jsonField: 'jadwal_manasik', zipFile: 'jadwal_manasik.json' },
+    { id: 'prospek', label: 'Prospek', store: STORE_PROSPEK, key: 'prospek_list', jsonField: 'prospek', zipFile: 'prospek.json' },
+    { id: 'catatan', label: 'Catatan', store: STORE_CATATAN, key: 'catatan_list', jsonField: 'catatan', zipFile: 'catatan.json' },
+    { id: 'agenda_kantor', label: 'Agenda Kantor', store: STORE_CATATAN, key: 'agenda_kantor_list', jsonField: 'agenda_kantor', zipFile: 'agenda_kantor.json' },
+    { id: 'kalender_pejabat', label: 'Kalender Pejabat', store: STORE_CATATAN, key: 'pejabat_list', jsonField: 'kalender_pejabat', zipFile: 'kalender_pejabat.json' },
+    { id: 'buku_pinjaman', label: 'Buku Pinjaman', store: STORE_CATATAN, key: 'pinjaman_data', jsonField: 'buku_pinjaman', zipFile: 'buku_pinjaman.json' },
+    { id: 'saldo_kantor', label: 'Saldo Kantor', store: STORE_CATATAN, key: 'saldo_kantor', jsonField: 'saldo_kantor', zipFile: 'saldo_kantor.json' },
+    // Data generik: otomatis ikut SEMUA jalur cadangan lewat bidang "extra" (tidak perlu menyentuh kode ekspor/restore)
+    { id: 'cek_kesehatan', label: 'Cek Kesehatan Data (batas & temuan diabaikan)', store: STORE_CATATAN, key: KUNCI_CEK, generik: true },
+];
+async function bacaDataGenerik() { const o = {}; for (const d of DAFTAR_DATA.filter(x => x.generik)) { const v = await idbGet(d.store, d.key); if (v !== null && v !== undefined) o[d.id] = v; } return o; }
+async function terapkanDataGenerik(extra) {
+    if (!extra || typeof extra !== 'object') return 0; let n = 0;
+    for (const d of DAFTAR_DATA.filter(x => x.generik)) { if (extra[d.id] !== undefined && extra[d.id] !== null) { await idbSet(d.store, d.key, extra[d.id]); n++; } }
+    return n;
+}
+// Pengaturan yang disimpan di localStorage (bukan IndexedDB) — satu definisi untuk semua jalur ekspor
+function bacaPengaturanLokal() {
+    const j = (k) => JSON.parse(localStorage.getItem(k) || 'null');
+    return {
+        template_surat_kustom: localStorage.getItem('navara_template_surat_kustom') || '',
+        template_surat_kustom_judul: localStorage.getItem('navara_template_surat_kustom_judul') || '',
+        jenis_layanan: j('navara_jenis_layanan'), scheduled_reminders: j('navara_scheduled_reminders'), onproses_print_fields: j('navara_onproses_print_fields'),
+        nametag_fields: j('navara_nametag_fields'), absensi_columns: j('navara_absensi_columns'), menu_home: j('navara_menu_home'),
+        menu_tampilan: localStorage.getItem('navara_menu_tampilan') || null, pengingat_cicilan_hari: localStorage.getItem('navara_pengingat_cicilan_hari') || null,
+    };
+}
+// SATU pembangun isi cadangan JSON — dipakai jalur Bagikan/Download DAN jalur cadangan darurat (dulu keduanya berbeda isi)
+async function susunBackupJson() {
+    const segar = async (store, key, bawaan) => { const v = await idbGet(store, key); return v === null || v === undefined ? bawaan : v; };
+    return {
+        app: 'Navara', version: '3.0', created: new Date().toISOString(),
+        program: programList,
+        jamaah: { data: _allJamaahData, fields: dynamicFieldsJamaah },
+        prospek: _allProspekData,
+        jamaah_kita: { data: _allJamaahKitaData, fields: dynamicFieldsJamaahKita },
+        folder: _allFolderData, absensi: _allAbsensiData, kas: _allKasData, pembayaran: _allPaymentData,
+        multi_event: _allMasterData, dokumen_jenis: dokumenJenisList,
+        konfigurasi: konfigurasiPro, catatan: catatanList, pengeluaran: _allPengeluaranData,
+        jadwal_manasik: await segar(STORE_ABSENSI, 'jadwal_manasik', []),
+        agenda_kantor: await segar(STORE_CATATAN, 'agenda_kantor_list', []),
+        kalender_pejabat: await segar(STORE_CATATAN, 'pejabat_list', []),
+        buku_pinjaman: await segar(STORE_CATATAN, 'pinjaman_data', null),
+        saldo_kantor: await segar(STORE_CATATAN, 'saldo_kantor', null),
+        pengaturan_lokal: bacaPengaturanLokal(),
+        extra: await bacaDataGenerik(),
+    };
+}
+
 function daftarKunciSnapshot() {
-    return [
-        [STORE_PROGRAM, 'program_list'],
-        [STORE_KONFIGURASI, 'konfigurasi_pro'],
-        [STORE_JAMAAH, 'jamaah_fields'], [STORE_JAMAAH, 'jamaah_list'],
-        [STORE_JAMAAH_KITA, 'kita_fields'], [STORE_JAMAAH_KITA, 'kita_list'],
-        [STORE_KAS, 'kas_data'], [STORE_PEMBAYARAN, 'pembayaran_list'],
-        [STORE_MASTER, 'master_data'], [STORE_MASTER, 'master_items'], [STORE_MASTER, 'master_fields'],
-        [STORE_FOLDER, 'folder_list'], [STORE_PENGELUARAN, 'pengeluaran_data'],
-        [STORE_ABSENSI, 'absensi_sesi'], [STORE_ABSENSI, 'jadwal_manasik'],
-        [STORE_PROSPEK, 'prospek_list'],
-        [STORE_CATATAN, 'catatan_list'], [STORE_CATATAN, 'agenda_kantor_list'], [STORE_CATATAN, 'pejabat_list'], [STORE_CATATAN, 'pinjaman_data'], [STORE_CATATAN, 'saldo_kantor'],
-    ];
+    return DAFTAR_DATA.map(d => [d.store, d.key]); // diturunkan dari daftar data pusat
 }
 
 async function buatSnapshotData(alasan) {
@@ -23660,26 +24097,7 @@ async function bagikanFullZip() {
         showToast('⏳ Menyiapkan data...');
         // Muat data segar Jadwal Manasik langsung dari penyimpanan — supaya tetap lengkap
         // walau halaman Manasik & Absensi belum sempat dibuka di sesi ini
-        const jadwalManasikSegar = await idbGet(STORE_ABSENSI, 'jadwal_manasik') || [];
-        const backupData = {
-            app: 'Navara',
-            version: '3.0',
-            created: new Date().toISOString(),
-            program: programList,
-            jamaah: { data: _allJamaahData, fields: dynamicFieldsJamaah },
-            prospek: _allProspekData,
-            jamaah_kita: { data: _allJamaahKitaData, fields: dynamicFieldsJamaahKita },
-            folder: _allFolderData,
-            absensi: _allAbsensiData,
-            kas: _allKasData,
-            pembayaran: _allPaymentData,
-            multi_event: _allMasterData,
-            dokumen_jenis: dokumenJenisList,
-            konfigurasi: konfigurasiPro,
-            catatan: catatanList,
-            pengeluaran: _allPengeluaranData,
-            jadwal_manasik: jadwalManasikSegar
-        };
+        const backupData = await susunBackupJson();
         catatBackupTerakhir();
         const json = JSON.stringify(backupData);
         const date = new Date().toISOString().slice(0, 10);
@@ -23717,35 +24135,7 @@ async function bagikanFullZip() {
     } catch(err) {
         // Kalau semua cara di atas error sebelum sempat dicoba, tetap tampilkan fallback modal
         try {
-            const backupData = {
-                app: 'Navara', version: '3.0', created: new Date().toISOString(),
-                program: programList,
-                jamaah: { data: _allJamaahData, fields: dynamicFieldsJamaah },
-            prospek: _allProspekData,
-                jamaah_kita: { data: _allJamaahKitaData, fields: dynamicFieldsJamaahKita },
-                folder: _allFolderData, absensi: _allAbsensiData, kas: _allKasData, pembayaran: _allPaymentData,
-                multi_event: _allMasterData, dokumen_jenis: dokumenJenisList,
-                konfigurasi: konfigurasiPro,
-                catatan: catatanList,
-                pengeluaran: _allPengeluaranData,
-                jadwal_manasik: (await idbGet(STORE_ABSENSI, 'jadwal_manasik')) || [],
-                agenda_kantor: (await idbGet(STORE_CATATAN, 'agenda_kantor_list')) || [],
-                kalender_pejabat: (await idbGet(STORE_CATATAN, 'pejabat_list')) || [],
-                buku_pinjaman: (await idbGet(STORE_CATATAN, 'pinjaman_data')) || null,
-                saldo_kantor: (await idbGet(STORE_CATATAN, 'saldo_kantor')) || null,
-                pengaturan_lokal: {
-                    template_surat_kustom: localStorage.getItem('navara_template_surat_kustom') || '',
-                    template_surat_kustom_judul: localStorage.getItem('navara_template_surat_kustom_judul') || '',
-                    jenis_layanan: JSON.parse(localStorage.getItem('navara_jenis_layanan') || 'null'),
-                    scheduled_reminders: JSON.parse(localStorage.getItem('navara_scheduled_reminders') || 'null'),
-                    onproses_print_fields: JSON.parse(localStorage.getItem('navara_onproses_print_fields') || 'null'),
-                    nametag_fields: JSON.parse(localStorage.getItem('navara_nametag_fields') || 'null'),
-                    absensi_columns: JSON.parse(localStorage.getItem('navara_absensi_columns') || 'null'),
-                    menu_home: JSON.parse(localStorage.getItem('navara_menu_home') || 'null'),
-                    menu_tampilan: localStorage.getItem('navara_menu_tampilan') || null,
-                    pengingat_cicilan_hari: localStorage.getItem('navara_pengingat_cicilan_hari') || null,
-                }
-            };
+            const backupData = await susunBackupJson();
             catatBackupTerakhir();
             const json = JSON.stringify(backupData);
             const date = new Date().toISOString().slice(0, 10);
@@ -23833,19 +24223,9 @@ async function buildFullBackupZip() {
         });
     }
     // Data lain yang tersimpan di localStorage (bukan IndexedDB) — template surat, jenis layanan, pengingat WA, dll
-    const pengaturanLokal = {
-        template_surat_kustom: localStorage.getItem('navara_template_surat_kustom') || '',
-        template_surat_kustom_judul: localStorage.getItem('navara_template_surat_kustom_judul') || '',
-        jenis_layanan: JSON.parse(localStorage.getItem('navara_jenis_layanan') || 'null'),
-        scheduled_reminders: JSON.parse(localStorage.getItem('navara_scheduled_reminders') || 'null'),
-        onproses_print_fields: JSON.parse(localStorage.getItem('navara_onproses_print_fields') || 'null'),
-        nametag_fields: JSON.parse(localStorage.getItem('navara_nametag_fields') || 'null'),
-        absensi_columns: JSON.parse(localStorage.getItem('navara_absensi_columns') || 'null'),
-        menu_home: JSON.parse(localStorage.getItem('navara_menu_home') || 'null'),
-        menu_tampilan: localStorage.getItem('navara_menu_tampilan') || null,
-        pengingat_cicilan_hari: localStorage.getItem('navara_pengingat_cicilan_hari') || null,
-    };
+    const pengaturanLokal = bacaPengaturanLokal();
     zip.file('pengaturan_lokal.json', JSON.stringify(pengaturanLokal, null, 2));
+    zip.file('extra.json', JSON.stringify(await bacaDataGenerik(), null, 2)); // data generik terdaftar
     catatBackupTerakhir();
     // Dokumen — SEMUA Program, bukan cuma yang sedang aktif
     const dokumenFolder = zip.folder('dokumen'); 
@@ -24017,6 +24397,7 @@ async function applyRestoreBackupData(backup) {
         saldoKantorData = normalSaldo(backup.saldo_kantor);
         await idbSet(STORE_CATATAN, 'saldo_kantor', saldoKantorData);
     }
+    await terapkanDataGenerik(backup.extra);
     if (backup.kalender_pejabat) {
         pejabatList = backup.kalender_pejabat || [];
         await idbSet(STORE_CATATAN, 'pejabat_list', pejabatList);
@@ -24291,6 +24672,8 @@ async function restoreFromZip(input) {
                 agendaKantorList = JSON.parse(await agendaKantorFile.async('string'));
                 await idbSet(STORE_CATATAN, 'agenda_kantor_list', agendaKantorList);
             }
+            // Restore data generik terdaftar (extra.json)
+            try { const fx = zip.file('extra.json'); if (fx) await terapkanDataGenerik(JSON.parse(await fx.async('string'))); } catch (e) { /* berkas extra rusak: lewati */ }
             // Restore Saldo Kantor
             const saldoKantorFile = zip.file('saldo_kantor.json');
             if (saldoKantorFile) {
