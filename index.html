@@ -2327,6 +2327,11 @@
             <input type="text" id="cBuffer" class="money-input" inputmode="numeric" value="0" oninput="saveEstimasiData()">
             <small style="color:#888;font-size:11px;margin-top:4px;display:block;">Ditambahkan ke harga brosur — tidak kena markup profit</small>
         </div>
+        <div class="section-title"><span>Biaya Sudah Pasti Keluar <small style="font-weight:normal;color:#888;">(Opsional — titik impas)</small></span></div>
+        <div class="input-group">
+            <input type="text" id="cSudahBayar" class="money-input" inputmode="numeric" value="" placeholder="Kosong = hanya Tiket" oninput="saveEstimasiData()">
+            <small style="color:#888;font-size:11px;margin-top:4px;display:block;">Per kursi, biaya yang sudah dibayar dan tidak bisa dikembalikan (misalnya tiket saja). Dipakai untuk menghitung titik impas rombongan.</small>
+        </div>
         <div class="section-title"><span>Harga Jual Brosur <small style="font-weight:normal;color:#888;">(Opsional — pembulatan)</small></span></div>
         <div class="input-group">
             <input type="text" id="cHargaJual" class="money-input" inputmode="numeric" value="" placeholder="Kosong = pakai hasil hitungan" oninput="saveEstimasiData()">
@@ -2343,6 +2348,7 @@
         <button class="mt-2" onclick="openSimulasiKebijakanGratisModal()" style="width:100%;padding:11px;background:#0369A1;color:white;border:none;border-radius:10px;font-size:14px;font-weight:bold;cursor:pointer;">🧮 Simulasi FOC Mitra</button>
     </div>
     <div id="hasilEstimasi" class="res-card" style="display:none;"></div>
+    <div id="kartuImpasEstimasi" style="display:none;background:#F8FAFC;border:1.5px solid #CBD5E1;border-radius:16px;padding:14px;margin-top:14px;"></div>
     </div><!-- end cuanTabEstimasi -->
 
     <!-- TAB REKAP AKTUAL -->
@@ -2521,6 +2527,11 @@
                 <div class="input-group"><label>Buffer Diskon (opsional)</label><input type="text" id="konCBuffer" class="money-input" inputmode="numeric" value="0" oninput="saveKonsorsiumEstimasiData()"></div>
             </div>
 
+            <div class="input-group" style="margin-top:12px;">
+                <label>Biaya yang sudah pasti keluar per kursi (Rp)</label>
+                <input type="text" id="konCSudahBayar" class="money-input" inputmode="numeric" value="" placeholder="Kosong = hanya Tiket" oninput="saveKonsorsiumEstimasiData()">
+                <small style="color:#888;font-size:11px;margin-top:4px;display:block;">Dipakai untuk titik impas. Isi dengan biaya yang sudah dibayar dan tidak bisa dikembalikan (misalnya tiket saja). Sisanya dianggap masih bisa mengikuti jumlah peserta.</small>
+            </div>
             <div class="section-title" style="margin-top:12px;"><span>Harga Jual Brosur <small style="font-weight:normal;color:#888;">(Opsional — pembulatan)</small></span></div>
             <div class="input-group">
                 <input type="text" id="konCHargaJual" class="money-input" inputmode="numeric" value="" placeholder="Kosong = pakai hasil hitungan" oninput="saveKonsorsiumEstimasiData()">
@@ -2552,6 +2563,11 @@
                 <div id="konHasilBrosur" style="font-size:26px;font-weight:900;color:#FBBF24;">Rp 0</div>
                 <div id="konHasilKeterangan" style="font-size:11px;opacity:0.75;"></div>
             </div>
+        </div>
+
+        <div id="konsorsiumPosisiCard" style="display:none;background:#F8FAFC;border:1.5px solid #CBD5E1;border-radius:16px;padding:14px;margin-bottom:14px;">
+            <div style="font-weight:700;font-size:14px;color:var(--primary);margin-bottom:8px;">📊 Posisi Rombongan <small style="font-weight:400;color:#888;">(perkiraan)</small></div>
+            <div id="konsorsiumPosisiIsi"></div>
         </div>
 
         <div style="border-top:2px dashed #cbd5e1;margin:20px 0;padding-top:16px;">
@@ -2592,7 +2608,7 @@
                 <span id="konsorsiumTotalSisaTagihan" style="font-weight:700;">Rp 0</span>
             </div>
             <div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid rgba(255,255,255,0.2);">
-                <span style="opacity:0.8;font-size:13px;">Rata-rata Harga Tagihan/Pax</span>
+                <span style="opacity:0.8;font-size:13px;">Rata-rata Harga Tagihan/Orang yang Bayar</span>
                 <span id="konsorsiumRataHarga" style="font-weight:700;">Rp 0</span>
             </div>
             <div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid rgba(255,255,255,0.2);">
@@ -2608,18 +2624,9 @@
                 <span id="konsorsiumMarginPct" style="font-weight:700;">0%</span>
             </div>
             <div style="display:flex;justify-content:space-between;padding:8px 0 0;">
-                <span id="konsorsiumLabelProfit" style="font-weight:700;font-size:14px;">PROFIT TOTAL ANDA</span>
+                <span style="font-weight:700;font-size:14px;">PROFIT TOTAL ANDA</span>
                 <span id="konsorsiumTotalProfit" style="font-weight:900;font-size:18px;color:#4ADE80;">Rp 0</span>
             </div>
-            <div id="konsorsiumBarisTL" style="display:none;justify-content:space-between;padding:6px 0 0;">
-                <span id="konsorsiumLabelTL" style="opacity:0.85;font-size:13px;">Biaya TL (diambil dari profit)</span>
-                <span id="konsorsiumNilaiTL" style="font-weight:700;color:#FCA5A5;">- Rp 0</span>
-            </div>
-            <div id="konsorsiumBarisBersihTL" style="display:none;justify-content:space-between;padding:6px 0 0;">
-                <span style="font-weight:700;font-size:14px;">PERKIRAAN LABA BERSIH setelah TL</span>
-                <span id="konsorsiumNilaiBersihTL" style="font-weight:900;font-size:18px;color:#4ADE80;">Rp 0</span>
-            </div>
-            <div id="konsorsiumCatatanTL" style="display:none;font-size:11px;opacity:0.75;padding-top:6px;">*Perkiraan, bukan realisasi. Biaya TL sebenarnya tercatat di Pengeluaran dan masuk Laporan Penutupan Musim.</div>
         </div>
         <div style="display:flex;gap:8px;margin-top:10px;">
             <button onclick="cetakLaporanKonsorsium()" style="flex:1;padding:11px;background:#F59E0B;color:white;border:none;border-radius:10px;font-size:12px;font-weight:700;cursor:pointer;">🖨️ Cetak Laporan (Internal)</button>
@@ -6707,6 +6714,7 @@ function saveEstimasiData() {
         profitPct:document.getElementById('profitPct').value,
         cBuffer:document.getElementById('cBuffer').value,
         cHargaJual:document.getElementById('cHargaJual')?.value || '',
+        cSudahBayar:document.getElementById('cSudahBayar')?.value || '',
         fxModeTiket: document.getElementById('fxModeTiket')?.checked || false,
         fxNominalTiket: document.getElementById('fxNominalTiket')?.value || '',
         fxKursTiket: document.getElementById('fxKursTiket')?.value || '',
@@ -6773,7 +6781,7 @@ function renderProgramSetupChecklist() {
 }
 
 // ==================== KUNCI HARGA & RIWAYAT ESTIMASI ====================
-const ESTIMASI_FIELD_IDS = ['lokasiPaket','namaHotelMakkah','namaHotelMadinah','namaMaskapai','totJam','jamGratis','numTL','cTiket','cLAquad','cLAtriple','cLAdouble','cAsuransi','cHandling','cAlat','cAplikasi','cPIC','cLain','profitPct','cBuffer','cHargaJual'];
+const ESTIMASI_FIELD_IDS = ['lokasiPaket','namaHotelMakkah','namaHotelMadinah','namaMaskapai','totJam','jamGratis','numTL','cTiket','cLAquad','cLAtriple','cLAdouble','cAsuransi','cHandling','cAlat','cAplikasi','cPIC','cLain','profitPct','cBuffer','cHargaJual','cSudahBayar'];
 
 function renderKunciEstimasiUI() {
     const slot = ensureProgramConfigSlot();
@@ -6895,6 +6903,7 @@ function loadEstimasiData() {
         if(data.profitPct !== undefined) document.getElementById('profitPct').value=data.profitPct;
         if(data.cBuffer !== undefined) document.getElementById('cBuffer').value=data.cBuffer;
         { const elHJ = document.getElementById('cHargaJual'); if(elHJ) elHJ.value = data.cHargaJual || ''; }
+        { const elSB = document.getElementById('cSudahBayar'); if(elSB) elSB.value = data.cSudahBayar || ''; }
         // Pulihkan helper kurs FX (opsional, tidak wajib ada di data lama)
         const fxModeTiketEl = document.getElementById('fxModeTiket');
         if(fxModeTiketEl) { fxModeTiketEl.checked = !!data.fxModeTiket; document.getElementById('fxBoxTiket').style.display = data.fxModeTiket ? 'block' : 'none'; }
@@ -6917,6 +6926,7 @@ function loadEstimasiData() {
         const profitPctEl = document.getElementById('profitPct'); if(profitPctEl) profitPctEl.value = '';
         const cBufferEl = document.getElementById('cBuffer'); if(cBufferEl) cBufferEl.value = '';
         const cHargaJualEl = document.getElementById('cHargaJual'); if(cHargaJualEl) cHargaJualEl.value = '';
+        { const cSB = document.getElementById('cSudahBayar'); if(cSB) cSB.value = ''; }
         const elPenuh = document.getElementById('modeHargaPenuh');
         if(elPenuh) { elPenuh.checked = true; updateModeLA(); }
         updateLAPreview();
@@ -6958,6 +6968,7 @@ function perbaruiHintKursi() {
 function perbaruiPetunjukHargaJual() {
     const el = document.getElementById('hargaJualInfo');
     if(!el) return;
+    try { perbaruiKartuImpas(); } catch(e) {}
     const f = n => 'Rp ' + Math.round(n).toLocaleString('id-ID');
     const d = hitungDasarEstimasiDariForm();
     const manual = parseRupiah(document.getElementById('cHargaJual')?.value || '0');
@@ -6971,6 +6982,43 @@ function perbaruiPetunjukHargaJual() {
         el.style.color = '#B45309';
         el.textContent = `⚠️ Harga jual ${f(-selisih)}/pax di bawah hitungan (${f(d.jual)}). Laba bersih rencana turun ${f(-tambah)} menjadi ${f(d.bersih + tambah)}.`;
     }
+}
+
+// Titik impas rombongan (Cuan Plan): berapa pembayar minimal agar tidak rugi, bila biaya yang sudah pasti keluar hanya sebagian (default: Tiket)
+function perbaruiKartuImpas() {
+    const el = document.getElementById('kartuImpasEstimasi');
+    if(!el) return;
+    const f = n => 'Rp ' + Math.round(n).toLocaleString('id-ID');
+    const v0 = id => parseRupiah(document.getElementById(id)?.value || '0');
+    const d = hitungDasarEstimasiDariForm();
+    if(d.nBayar <= 0 || !(d.sub > 0) || !(d.jual > 0)) { el.style.display = 'none'; return; }
+    const manual = v0('cHargaJual');
+    const hargaJual = manual > 0 ? manual : d.jual;
+    const hargaB2C = Math.max(0, hargaJual - d.buffer);
+    const tiket = v0('cTiket'), sudah = v0('cSudahBayar');
+    const tetapPerKursi = Math.min(d.sub, sudah > 0 ? sudah : tiket);
+    const v = d.sub - tetapPerKursi;
+    const tetapTotal = tetapPerKursi * (d.nJam + d.nTL);
+    const margin = hargaB2C - v;
+    const terdaftar = (typeof jamaahList !== 'undefined' ? jamaahList : []).filter(j => String(j.program_id) === String(currentProgramId) && !tanpaTagihan(j)).length;
+    const baris = (l, val, col) => `<div style="display:flex;justify-content:space-between;gap:8px;padding:5px 0;border-bottom:1px solid #e2e8f0;font-size:13px;"><span style="color:#555;">${l}</span><span style="font-weight:700;text-align:right;${col ? 'color:' + col + ';' : ''}">${val}</span></div>`;
+    const kotak = (w, bg, t) => `<div style="background:${bg};border:1.5px solid ${w};border-radius:10px;padding:9px 11px;font-size:12px;color:${w};font-weight:600;margin-top:8px;">${t}</div>`;
+    let isi = '<div style="font-weight:700;font-size:14px;color:var(--primary);margin-bottom:8px;">⚖️ Titik Impas Rombongan <small style="font-weight:400;color:#888;">(perkiraan)</small></div>';
+    if(!(margin > 0)) {
+        isi += kotak('#991B1B', '#FEE2E2', '⚠️ Harga jual (setelah buffer) tidak lebih tinggi dari biaya per orang yang masih keluar. Titik impas tidak bisa dihitung, periksa harga jual.');
+    } else {
+        const impas = Math.ceil((tetapTotal + v * (d.nFoc + d.nTL)) / margin - 1e-9);
+        const labaPenuh = d.nBayar * hargaB2C - (tetapTotal + v * (d.nJam + d.nTL));
+        isi += baris('Kursi bayar', `${d.nBayar} orang`) +
+               baris('Impas bila semua pembayar bayar harga brosur', `${impas} orang`) +
+               baris('Jamaah terdaftar di database (bayar)', `${terdaftar} orang`, terdaftar >= impas ? '#166534' : '') +
+               baris(terdaftar >= impas ? 'Sudah melewati titik impas' : 'Kurang menuju impas', terdaftar >= impas ? `+${terdaftar - impas} orang` : `${impas - terdaftar} orang`, terdaftar >= impas ? '#166534' : '#B45309') +
+               baris('Laba bila semua kursi bayar terisi', f(labaPenuh), labaPenuh >= 0 ? '#166534' : '#DC2626');
+        if(impas > d.nBayar) isi += kotak('#991B1B', '#FEE2E2', `⚠️ Titik impas (${impas}) lebih besar dari jumlah kursi bayar (${d.nBayar}). Rombongan rugi walau semua kursi terisi, naikkan harga atau kurangi biaya.`);
+        else if(impas > d.nBayar * 0.9) isi += kotak('#92400E', '#FEF3C7', `⚠️ Titik impas ${impas} dari ${d.nBayar} kursi bayar (lebih dari 90%). Ruang untuk diskon dan kursi kosong sangat sempit.`);
+        isi += `<div style="font-size:11px;color:#888;margin-top:8px;line-height:1.5;">Perkiraan, bukan realisasi. Biaya yang sudah pasti keluar: ${f(tetapPerKursi)}/kursi (${d.nTL > 0 ? 'termasuk kursi TL' : 'sesuai jumlah kursi'}). Biaya lain (${f(v)}/orang) dianggap bisa mengikuti jumlah peserta. Harga yang dipakai: ${f(hargaB2C)} (harga jual dikurangi buffer). Laba penuh sama dengan Profit Bersih di hasil perhitungan (setelah pembulatan, bila ada).</div>`;
+    }
+    el.innerHTML = isi; el.style.display = 'block';
 }
 
 function bulatkanHargaJual(step) {
@@ -7660,6 +7708,7 @@ function salinDariEstimasiKeKonsorsium() {
     document.getElementById('konProfitPct').value = est.profitPct !== undefined ? est.profitPct : 8;
     document.getElementById('konCBuffer').value = pr(est.cBuffer);
     { const elHJ = document.getElementById('konCHargaJual'); if(elHJ) elHJ.value = est.cHargaJual ? pr(est.cHargaJual) : ''; }
+    { const elSB = document.getElementById('konCSudahBayar'); if(elSB) elSB.value = est.cSudahBayar ? pr(est.cSudahBayar) : ''; }
     konPerbaruiPetunjukHargaJual();
     showToast('✅ Komponen biaya disalin dari Estimasi Program');
 }
@@ -7692,9 +7741,11 @@ function saveKonsorsiumEstimasiData() {
         profitPct: document.getElementById('konProfitPct').value,
         cBuffer: document.getElementById('konCBuffer').value,
         cHargaJual: document.getElementById('konCHargaJual')?.value || '',
+        cSudahBayar: document.getElementById('konCSudahBayar')?.value || '',
     };
     simpanKonsorsium();
     konPerbaruiPetunjukHargaJual();
+    try { renderPosisiRombongan(); } catch(e) {}
 }
 
 // Dasar hitungan Estimasi Konsorsium dari isian form (sama dengan rumus di hitungKonsorsiumEstimasi dan Estimasi biasa)
@@ -7813,6 +7864,7 @@ function loadKonsorsiumEstimasiUI() {
         document.getElementById('konsorsiumHasilCard').style.display = 'none';
         konsorsiumLastModal = 0; konsorsiumLastBrosur = 0;
         { const elHJ = document.getElementById('konCHargaJual'); if(elHJ) elHJ.value = ''; }
+        { const elSB = document.getElementById('konCSudahBayar'); if(elSB) elSB.value = ''; }
         konTampilBarisPembulatan(0, 0, 0, 0, false); konPerbaruiPetunjukHargaJual();
         return;
     }
@@ -7837,6 +7889,7 @@ function loadKonsorsiumEstimasiUI() {
     document.getElementById('konProfitPct').value = d.profitPct;
     document.getElementById('konCBuffer').value = d.cBuffer;
     { const elHJ = document.getElementById('konCHargaJual'); if(elHJ) elHJ.value = d.cHargaJual || ''; }
+    { const elSB = document.getElementById('konCSudahBayar'); if(elSB) elSB.value = d.cSudahBayar || ''; }
 
     // Hitung ulang rincian lengkap dari data tersimpan (bukan cuma Modal & Brosur)
     const pr = v => parseInt((v||'0').toString().replace(/\./g,'').replace(/[^0-9]/g,'')) || 0;
@@ -7869,14 +7922,21 @@ function ambilKomponenBiayaEstimasi() {
     const slot = ensureProgramConfigSlot();
     const d = slot.konsorsium_estimasi_data;
     if(!d || !konsorsiumLastModal) return null;
+    return bangunKomponenKonsorsium(d, konsorsiumLastModal);
+}
+
+// Versi murni (tidak bergantung pada variabel global) supaya bisa dipakai juga oleh Cek Kesehatan untuk program lain
+function bangunKomponenKonsorsium(d, modal) {
+    if(!d || !(modal > 0)) return null;
     const pr = v => parseInt((v||'0').toString().replace(/\./g,'').replace(/[^0-9]/g,'')) || 0;
     const laQuad = pr(d.cLAquad || d.cLA);
     const laTripleRaw = pr(d.cLAtriple);
     const laDoubleRaw = pr(d.cLAdouble);
     const modeUpgrade = d.modeLA === 'upgrade';
     return {
-        sub: konsorsiumLastModal,
+        sub: modal,
         nFocGabungan: parseInt(d.jamGratis)||0,
+        totPax: parseInt(d.totJam)||0, // Total Pax rombongan (dasar harga brosur) — modal FOC dibagi ke jumlah ini, bukan ke jumlah orang yang kebetulan sudah diisi di travel
         laQuad, laTriple: laTripleRaw, laDouble: laDoubleRaw, modeUpgrade,
         rincian: {
             tiket: pr(d.cTiket), asuransi: pr(d.cAsuransi), handling: pr(d.cHandling),
@@ -7887,8 +7947,9 @@ function ambilKomponenBiayaEstimasi() {
 
 // Modal per ORANG per TIPE KAMAR (Quad/Triple/Double dipisah) — dasar untuk 3 tagihan transparan
 function hitungModalPerTipeKamar(komponen, komponenDicentang, totalGabungan, nFoc) {
-    if(totalGabungan <= nFoc) return null;
-    const multiplier = totalGabungan / (totalGabungan - nFoc);
+    const basis = (komponen.totPax > nFoc) ? komponen.totPax : totalGabungan; // dasar = Total Pax rombongan (sama dengan harga brosur)
+    if(basis <= nFoc) return null;
+    const multiplier = basis / (basis - nFoc);
     let nonLA = 0;
     DAFTAR_KOMPONEN_KONSORSIUM.forEach(k => {
         if(k.key !== 'la' && komponenDicentang[k.key] !== false) nonLA += (komponen.rincian[k.key] || 0);
@@ -7915,13 +7976,16 @@ function hitungModalRataRataTertimbang(komponen, t, totalGabungan) {
 
 // Hitung Harga per tipe dari 1 kebijakan (persen atau profit tetap), diterapkan SAMA RATA ke semua tipe kamar
 function hitungHargaDariKebijakan(modal, t) {
+    let h = null;
     if(t.persen !== '' && t.persen !== undefined && t.persen !== null) {
         const p = parseFloat((t.persen+'').replace(',', '.'));
-        if(!isNaN(p)) return modal * (1 + p/100);
+        if(!isNaN(p)) h = modal * (1 + p/100);
     } else if(t.profitRp) {
-        return modal + t.profitRp;
+        h = modal + t.profitRp;
     }
-    return null;
+    // Pembulatan harga ke atas (opsional, per travel): 100 rb / 250 rb / 500 rb
+    if(h !== null && (t.bulat || 0) > 0) h = Math.ceil(Math.round(h) / t.bulat) * t.bulat;
+    return h;
 }
 
 const DAFTAR_KOMPONEN_KONSORSIUM = [
@@ -7985,6 +8049,9 @@ function updateKonsorsiumTravel(id, field, value) {
         if(totalEl) totalEl.textContent = 'Total: ' + t.jumlah + ' orang';
         field = 'jumlah'; // biar semua kartu ikut refresh (Modal Gabungan berubah)
     }
+    if(field === 'bulat') {
+        t.bulat = parseInt(value) || 0;
+    }
     if(field === 'bufferB2B') {
         t.bufferB2B = parseInt(value.replace(/\D/g,'')) || 0;
     }
@@ -8047,6 +8114,7 @@ function renderSatuKartuKonsorsiumInfo(id) {
         infoEl.innerHTML = `<div style="background:#F8FAFC;border-radius:8px;padding:10px;font-size:12px;color:#888;">📌 Modal Efektif — ${rincianModal}<br>Isi Markup % atau Profit Tetap untuk lihat tagihan & profit.</div>`;
     } else {
         const adaRugi = ring.totalProfit < 0;
+        const tipis = !adaRugi && ring.totalModal > 0 && (ring.totalProfit / ring.totalModal) < 0.01; // untung kurang dari 1% dari modal
         const barisTipe = ring.tipeData.map(x => {
             const keteranganGratis = x.gratisDiSini > 0 ? ` <span style="color:#F59E0B;font-weight:700;">(${x.gratisDiSini} FOC)</span>` : '';
             return `<div style="display:flex;justify-content:space-between;font-size:11px;color:#444;padding:3px 0;border-bottom:1px dashed #e2e8f0;">
@@ -8058,13 +8126,15 @@ function renderSatuKartuKonsorsiumInfo(id) {
         infoEl.innerHTML = `
             <div style="background:#F8FAFC;border-radius:8px;padding:10px 12px;margin-bottom:8px;">
                 <div style="font-size:10px;color:#888;font-weight:700;text-transform:uppercase;margin-bottom:4px;">💵 Tagihan per Tipe Kamar${ring.totalGratisTerpakai > 0 ? ` (${ring.totalGratisTerpakai} orang FOC)` : ''}</div>
+                ${(t.bulat || 0) > 0 ? `<div style="font-size:10px;color:#0369A1;margin-bottom:6px;">Harga dibulatkan ke atas, kelipatan Rp ${t.bulat.toLocaleString('id-ID')}/orang (profit sudah memakai harga bulat)</div>` : ''}
                 ${ring.bufferB2B > 0 ? `<div style="font-size:10px;color:#0369A1;margin-bottom:6px;">+ Buffer Rp ${ring.bufferB2B.toLocaleString('id-ID')}/orang sudah termasuk di Harga (tidak dihitung Profit)</div>` : ''}
                 ${barisTipe}
             </div>
-            <div style="background:${adaRugi ? 'linear-gradient(135deg,#DC2626,#991B1B)' : 'linear-gradient(135deg,#166534,var(--primary))'};border-radius:10px;padding:12px 14px;text-align:center;">
-                <div style="color:rgba(255,255,255,.8);font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;">${adaRugi ? '⚠️ RUGI' : '✅ Profit'} dari Travel Ini</div>
-                <div style="color:${adaRugi ? '#FCA5A5' : '#4ADE80'};font-size:22px;font-weight:900;">${f(Math.abs(ring.totalProfit))}</div>
-            </div>`;
+            <div style="background:${adaRugi ? 'linear-gradient(135deg,#DC2626,#991B1B)' : (tipis ? 'linear-gradient(135deg,#B45309,#92400E)' : 'linear-gradient(135deg,#166534,var(--primary))')};border-radius:10px;padding:12px 14px;text-align:center;">
+                <div style="color:rgba(255,255,255,.8);font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;">${adaRugi ? '⚠️ RUGI' : (tipis ? '⚠️ Untung tipis (di bawah 1%)' : '✅ Profit')} dari Travel Ini</div>
+                <div style="color:${adaRugi ? '#FCA5A5' : (tipis ? '#FDE68A' : '#4ADE80')};font-size:22px;font-weight:900;">${f(Math.abs(ring.totalProfit))}</div>
+            </div>
+            ${(ring.totalGratisTerpakai > 0 && t.jumlah > ring.totalGratisTerpakai) ? `<div style="font-size:11px;color:#92400E;background:#FEF3C7;border-radius:8px;padding:8px 10px;margin-top:8px;">💡 Dengan ${ring.totalGratisTerpakai} FOC dari ${t.jumlah} orang, markup minimal agar impas sekitar <b>${(Math.ceil((t.jumlah / (t.jumlah - ring.totalGratisTerpakai) - 1) * 10000) / 100).toFixed(2).replace('.', ',')}%</b> (di bawah itu travel ini rugi).</div>` : ''}`;
     }
     if(infoEl.innerHTML !== isiSebelumnya && infoEl.innerHTML !== '') {
         infoEl.classList.remove('flash-update');
@@ -8128,6 +8198,7 @@ function renderKonsorsiumList() {
                 </div>
                 <div class="dynamic-field" style="margin-bottom:8px;"><label style="font-size:12px;">Markup (%)</label><input type="text" id="konsorsiumPersenInput_${t.id}" inputmode="decimal" value="${t.persen || ''}" placeholder="Contoh: 6.7" oninput="updateKonsorsiumTravel(${t.id}, 'persen', this.value)"></div>
                 <div class="dynamic-field" style="margin-bottom:0;"><label style="font-size:12px;">Atau Profit Tetap (Rp)</label><input type="text" id="konsorsiumProfitRpInput_${t.id}" class="money-input" inputmode="numeric" value="${t.profitRp ? t.profitRp.toLocaleString('id-ID') : ''}" placeholder="Contoh: 2.500.000 (B2B)" oninput="updateKonsorsiumTravel(${t.id}, 'profitRp', this.value)"></div>
+                <div class="dynamic-field" style="margin:8px 0;"><label style="font-size:12px;">Pembulatan harga ke atas <span style="color:#6B7280;font-weight:400;">— opsional, per orang</span></label><select onchange="updateKonsorsiumTravel(${t.id}, 'bulat', this.value)" style="width:100%;padding:10px;border:1.5px solid #cbd5e1;border-radius:10px;font-size:13px;background:white;">${[[0,'Tanpa pembulatan'],[100000,'Ke atas, kelipatan Rp 100 rb'],[250000,'Ke atas, kelipatan Rp 250 rb'],[500000,'Ke atas, kelipatan Rp 500 rb']].map(o => `<option value="${o[0]}" ${(t.bulat || 0) === o[0] ? 'selected' : ''}>${o[1]}</option>`).join('')}</select></div>
                 <div class="dynamic-field" style="margin-bottom:0;"><label style="font-size:12px;">Buffer / Cadangan Nego (Rp) <span style="color:#6B7280;font-weight:400;">— opsional, ditambahkan ke Harga, tidak dihitung Profit</span></label><input type="text" class="money-input" inputmode="numeric" value="${t.bufferB2B ? t.bufferB2B.toLocaleString('id-ID') : ''}" placeholder="Contoh: 500.000" oninput="updateKonsorsiumTravel(${t.id}, 'bufferB2B', this.value)"></div>
             </div>
             <div id="konsorsiumInfo_${t.id}" style="margin-top:8px;"></div>
@@ -8462,6 +8533,7 @@ function renderAnalisisBufferB2BModal(modalEl) {
 }
 
 function renderKonsorsiumRingkasan() {
+    try { renderPosisiRombongan(); } catch(e) {}
     const komponen = ambilKomponenBiayaEstimasi();
     const list = ensureKonsorsiumList();
     const ringkasanEl = document.getElementById('konsorsiumRingkasan');
@@ -8471,7 +8543,7 @@ function renderKonsorsiumRingkasan() {
     const totalGabungan = list.reduce((s,t) => s + (t.jumlah||0), 0);
     if(totalGabungan <= 0) { ringkasanEl.style.display = 'none'; if(warningEl2) warningEl2.style.display = 'none'; return; }
 
-    let totalModal = 0, totalTagihan = 0, totalProfit = 0, paxDenganHarga = 0, modalUntukPaxHarga = 0, totalSudahDibayar = 0;
+    let totalModal = 0, totalTagihan = 0, totalProfit = 0, paxDenganHarga = 0, paxBayarDenganHarga = 0, modalUntukPaxHarga = 0, totalSudahDibayar = 0;
     let adaYangValid = false, jumlahTravelAktif = 0;
     const travelRugi = [];
     list.forEach(t => {
@@ -8486,6 +8558,7 @@ function renderKonsorsiumRingkasan() {
                 totalTagihan += ring.totalTagihan;
                 totalProfit += ring.totalProfit;
                 paxDenganHarga += t.jumlah;
+                paxBayarDenganHarga += Math.max(0, t.jumlah - (ring.totalGratisTerpakai || 0));
                 modalUntukPaxHarga += ring.totalModal;
                 if(ring.totalProfit < 0) travelRugi.push(t.nama || 'Travel tanpa nama');
             }
@@ -8515,7 +8588,7 @@ function renderKonsorsiumRingkasan() {
     if(elSisaTagihan) elSisaTagihan.textContent = f(totalTagihan - totalSudahDibayar);
 
     if(paxDenganHarga > 0) {
-        const rataHarga = totalTagihan / paxDenganHarga;
+        const rataHarga = totalTagihan / (paxBayarDenganHarga > 0 ? paxBayarDenganHarga : paxDenganHarga); // per orang yang MEMBAYAR (FOC tidak ikut dibagi)
         const rataProfit = totalProfit / paxDenganHarga;
         const marginPct = modalUntukPaxHarga > 0 ? (totalProfit / modalUntukPaxHarga) * 100 : 0;
         document.getElementById('konsorsiumRataHarga').textContent = f(rataHarga);
@@ -8541,31 +8614,94 @@ function renderKonsorsiumRingkasan() {
     profitEl.textContent = f(totalProfit);
     profitEl.style.color = totalProfit >= 0 ? '#4ADE80' : '#FCA5A5';
 
-    // Biaya TL diambil dari profit (sama seperti Estimasi): modal Quad x jumlah TL. Hanya perkiraan; tampil bila ada TL dan ada travel yang sudah punya harga.
-    const tl = hitungBiayaTLKonsorsium();
-    const adaTL = tl.nTL > 0 && tl.biaya > 0 && paxDenganHarga > 0;
-    const setTampil = (id, show) => { const e = document.getElementById(id); if(e) e.style.display = show ? 'flex' : 'none'; };
-    setTampil('konsorsiumBarisTL', adaTL); setTampil('konsorsiumBarisBersihTL', adaTL);
-    const cat = document.getElementById('konsorsiumCatatanTL'); if(cat) cat.style.display = adaTL ? 'block' : 'none';
-    const lbl = document.getElementById('konsorsiumLabelProfit'); if(lbl) lbl.textContent = adaTL ? 'PROFIT TOTAL (sebelum biaya TL)' : 'PROFIT TOTAL ANDA';
-    if(adaTL) {
-        document.getElementById('konsorsiumLabelTL').textContent = `Biaya TL (${tl.nTL} orang, diambil dari profit)`;
-        document.getElementById('konsorsiumNilaiTL').textContent = '- ' + f(tl.biaya);
-        const nb = document.getElementById('konsorsiumNilaiBersihTL');
-        nb.textContent = f(totalProfit - tl.biaya);
-        nb.style.color = (totalProfit - tl.biaya) >= 0 ? '#4ADE80' : '#FCA5A5';
-    }
+    renderPosisiRombongan();
 }
 
-// Biaya TL konsorsium = modal pokok per pax (Quad) x jumlah TL pada kartu Estimasi Konsorsium (rumus sama dengan Estimasi biasa)
-function hitungBiayaTLKonsorsium() {
+// ==================== POSISI ROMBONGAN (perkiraan, seluruh rombongan) ====================
+// Gabungan jamaah sendiri (B2C, dari database) + Travel Partner, dengan modal dibagi ke Total Pax rombongan.
+// Biaya dibagi dua: yang SUDAH PASTI keluar per kursi (default: Tiket) dan yang masih mengikuti jumlah peserta.
+function hitungPosisiRombongan() {
     const d = ensureProgramConfigSlot().konsorsium_estimasi_data;
-    const nTL = d ? (parseInt(d.numTL) || 0) : 0;
-    return { nTL, biaya: (konsorsiumLastModal || 0) * nTL };
+    if(!d || !konsorsiumLastModal) return null;
+    const sendiri = (typeof jamaahList !== 'undefined' ? jamaahList : []).filter(j => String(j.program_id) === String(currentProgramId) && !tanpaTagihan(j)).length;
+    return hitungPosisiDariData(d, konsorsiumLastModal, konsorsiumLastBrosur, ensureKonsorsiumList(), sendiri);
+}
+
+// Versi murni: semua data dikirim lewat parameter (d = data estimasi konsorsium, modal = modal pokok Quad, brosur = harga brosur, list = daftar travel, sendiri = jumlah jamaah B2C terdaftar)
+function hitungPosisiDariData(d, modal, brosur, daftarTravel, sendiri) {
+    if(!d || !(modal > 0)) return null;
+    const pr = v => parseInt((v||'0').toString().replace(/\./g,'').replace(/[^0-9]/g,'')) || 0;
+    const nJam = parseInt(d.totJam)||0, nFoc = parseInt(d.jamGratis)||0, nTL = parseInt(d.numTL)||0;
+    if(nJam <= nFoc) return null;
+    const sub = modal;
+    const tetapPerKursi = Math.min(sub, pr(d.cSudahBayar) > 0 ? pr(d.cSudahBayar) : pr(d.cTiket));
+    const v = sub - tetapPerKursi; // biaya per orang yang masih mengikuti jumlah peserta
+    const tetapTotal = tetapPerKursi * (nJam + nTL);
+    const buffer = pr(d.cBuffer);
+    const hargaB2C = Math.max(0, (brosur || 0) - buffer); // buffer dicadangkan untuk diskon, sama seperti Estimasi
+    const kursiBayar = nJam - nFoc;
+    const komponen = bangunKomponenKonsorsium(d, modal);
+    const list = (daftarTravel || []).filter(t => t.jumlah > 0);
+    const totalGabungan = list.reduce((a, t) => a + (t.jumlah||0), 0);
+    let travelOrang = 0, tagihan = 0, belumHarga = [], dibawahBiaya = [], diAtasBrosur = [], untungTipis = [];
+    list.forEach(t => {
+        travelOrang += t.jumlah;
+        const ring = komponen ? hitungRingkasanTravel(t, komponen, totalGabungan) : null;
+        if(!ring || !ring.punyaKebijakan) { belumHarga.push(t.nama || 'Travel tanpa nama'); return; }
+        tagihan += ring.totalTagihan;
+        if(ring.totalProfit >= 0 && ring.totalModal > 0 && (ring.totalProfit / ring.totalModal) < 0.01) untungTipis.push(t.nama || 'Travel tanpa nama');
+        ring.tipeData.forEach(x => {
+            if(x.harga === null || x.harga === undefined) return;
+            if(x.harga < v) dibawahBiaya.push(`${t.nama || 'Travel'} (${x.label})`);
+            else if(hargaB2C > 0 && x.harga >= hargaB2C) diAtasBrosur.push(`${t.nama || 'Travel'} (${x.label})`);
+        });
+    });
+    const sisa = kursiBayar - sendiri - travelOrang;
+    const kepala = sendiri + travelOrang + nFoc + nTL;
+    const biaya = tetapTotal + v * kepala;
+    const pendapatan = sendiri * hargaB2C + tagihan;
+    const laba = pendapatan - biaya;
+    const margin = hargaB2C - v; // kontribusi 1 kursi B2C setelah biaya yang masih mengikuti peserta
+    const labaPenuh = laba + (sisa > 0 ? sisa * margin : 0);
+    const impasSendiri = margin > 0 ? Math.max(0, Math.ceil((tetapTotal + v * (travelOrang + nFoc + nTL) - tagihan) / margin - 1e-9)) : null;
+    const impasSemuaB2C = margin > 0 ? Math.ceil((tetapTotal + v * (nFoc + nTL)) / margin - 1e-9) : null;
+    return { kursiBayar, sendiri, travelOrang, sisa, laba, labaPenuh, impasSendiri, impasSemuaB2C, hargaB2C, v, tetapPerKursi, tagihan, belumHarga, dibawahBiaya, diAtasBrosur, untungTipis, nTL, nFoc };
+}
+
+function renderPosisiRombongan() {
+    const card = document.getElementById('konsorsiumPosisiCard'), isi = document.getElementById('konsorsiumPosisiIsi');
+    if(!card || !isi) return;
+    const pos = hitungPosisiRombongan();
+    if(!pos) { card.style.display = 'none'; return; }
+    const f = n => 'Rp ' + Math.round(n).toLocaleString('id-ID');
+    const baris = (lbl, val, col) => `<div style="display:flex;justify-content:space-between;gap:8px;padding:5px 0;border-bottom:1px solid #e2e8f0;font-size:13px;"><span style="color:#555;">${lbl}</span><span style="font-weight:700;text-align:right;${col ? 'color:' + col + ';' : ''}">${val}</span></div>`;
+    const peringatan = [];
+    const kotak = (warna, bg, teks) => `<div style="background:${bg};border:1.5px solid ${warna};border-radius:10px;padding:9px 11px;font-size:12px;color:${warna};font-weight:600;margin-top:8px;">${teks}</div>`;
+    if(pos.sisa < 0) peringatan.push(kotak('#991B1B', '#FEE2E2', `⚠️ Jumlah orang (jamaah sendiri + Travel Partner) melebihi kursi bayar ${pos.kursiBayar} sebanyak ${-pos.sisa} orang. Harga berdasarkan Total Pax tidak lagi valid, naikkan Total Pax atau kurangi peserta.`));
+    if(pos.impasSendiri === null) peringatan.push(kotak('#991B1B', '#FEE2E2', '⚠️ Harga brosur (setelah buffer) tidak lebih tinggi dari biaya per orang yang masih keluar. Titik impas tidak bisa dihitung, periksa harga jual.'));
+    else if(!pos.belumHarga.length && pos.labaPenuh < 0) peringatan.push(kotak('#991B1B', '#FEE2E2', `⚠️ Bahkan bila semua sisa kursi terjual B2C di harga brosur, rombongan masih RUGI ${f(-pos.labaPenuh)}. Harga Travel Partner terlalu rendah atau FOC terlalu banyak.`));
+    else if(!pos.belumHarga.length && pos.laba < 0) peringatan.push(kotak('#92400E', '#FEF3C7', `⚠️ Dengan jumlah terisi sekarang rombongan masih rugi ${f(-pos.laba)}. Jamaah sendiri minimal ${pos.impasSendiri} orang agar impas (sekarang ${pos.sendiri}, kurang ${Math.max(0, pos.impasSendiri - pos.sendiri)}).`));
+    if(pos.dibawahBiaya.length) peringatan.push(kotak('#991B1B', '#FEE2E2', `⚠️ Harga di bawah biaya yang masih keluar per orang (${f(pos.v)}): ${pos.dibawahBiaya.join(', ')}. Lebih baik tidak dijual di harga ini.`));
+    if(pos.diAtasBrosur.length) peringatan.push(kotak('#92400E', '#FEF3C7', `⚠️ Harga tagihan sama atau lebih tinggi dari harga brosur B2C: ${pos.diAtasBrosur.join(', ')}. Travel Partner tidak punya keuntungan untuk dijual lagi.`));
+    if(pos.untungTipis.length) peringatan.push(kotak('#92400E', '#FEF3C7', `⚠️ Untung sangat tipis (di bawah 1% dari modal): ${pos.untungTipis.join(', ')}. Sedikit saja diskon atau FOC tambahan akan membuatnya rugi.`));
+    if(pos.belumHarga.length) peringatan.push(kotak('#0369A1', '#E0F2FE', `ℹ️ Belum ada harga (markup atau profit tetap): ${pos.belumHarga.join(', ')}. Orangnya sudah dihitung sebagai peserta, pendapatannya belum.`));
+    if(pos.sendiri === 0) peringatan.push(kotak('#0369A1', '#E0F2FE', 'ℹ️ Belum ada jamaah sendiri yang terdaftar di database program ini, jadi hitungan memakai 0 orang.'));
+    isi.innerHTML =
+        baris('Kursi bayar rombongan', `${pos.kursiBayar} orang`) +
+        baris('Jamaah sendiri terdaftar (B2C)', `${pos.sendiri} orang`) +
+        baris('Diambil Travel Partner', `${pos.travelOrang} orang`) +
+        baris('Sisa kursi', `${pos.sisa} orang`, pos.sisa < 0 ? '#DC2626' : (pos.sisa === 0 ? '#166534' : '#B45309')) +
+        baris('Laba rombongan saat ini (sudah termasuk TL)', f(pos.laba), pos.laba >= 0 ? '#166534' : '#DC2626') +
+        baris('Laba bila sisa kursi terjual B2C', f(pos.labaPenuh), pos.labaPenuh >= 0 ? '#166534' : '#DC2626') +
+        baris('Jamaah sendiri minimal agar impas', pos.impasSendiri === null ? '-' : `${pos.impasSendiri} orang`) +
+        (pos.impasSemuaB2C !== null ? baris('Impas bila semua pembayar B2C', `${pos.impasSemuaB2C} orang`) : '') +
+        peringatan.join('') +
+        `<div style="font-size:11px;color:#888;margin-top:8px;line-height:1.5;">Perkiraan, bukan realisasi. Biaya yang sudah pasti keluar: ${f(pos.tetapPerKursi)}/kursi (${pos.nTL > 0 ? 'termasuk kursi TL' : ''}). Biaya lain dianggap mengikuti jumlah peserta (${f(pos.v)}/orang). Harga B2C dipakai: ${f(pos.hargaB2C)} (harga brosur dikurangi buffer). Jamaah sendiri dihitung dari database jamaah program ini, tanpa FOC/TL/Pembimbing.</div>`;
+    card.style.display = 'block';
 }
 
 // ==================== KUNCI & RIWAYAT KONSORSIUM ====================
-const KONSORSIUM_FIELD_IDS = ['konTotJam','konJamGratis','konNumTL','konCTiket','konCLAquad','konCLAtriple','konCLAdouble','konCAsuransi','konCHandling','konCAlat','konCAplikasi','konCPIC','konCLain','konProfitPct','konCBuffer','konCHargaJual'];
+const KONSORSIUM_FIELD_IDS = ['konTotJam','konJamGratis','konNumTL','konCTiket','konCLAquad','konCLAtriple','konCLAdouble','konCAsuransi','konCHandling','konCAlat','konCAplikasi','konCPIC','konCLain','konProfitPct','konCBuffer','konCHargaJual','konCSudahBayar'];
 
 function renderKunciKonsorsiumUI() {
     const slot = ensureProgramConfigSlot();
@@ -8688,9 +8824,7 @@ function kumpulkanDataKonsorsiumUntukLaporan() {
             rows.push({ nama: t.nama || 'Travel Partner', tipe: x.label, jumlah: x.jumlah, gratisDiSini: x.gratisDiSini, modal: x.modal, harga: x.harga, tagihan: tagihanTipe, profit: profitTipe });
         });
     });
-    const tl = hitungBiayaTLKonsorsium();
-    const adaTL = tl.nTL > 0 && tl.biaya > 0 && rows.some(r => r.harga !== null && r.harga !== undefined);
-    return { rows, totalGabungan, totalModal, totalTagihan, totalProfit, hargaBrosur: konsorsiumLastBrosur, adaTL, nTL: tl.nTL, biayaTL: tl.biaya };
+    return { rows, jumlahTravel: list.filter(t => t.jumlah > 0).length, totalGabungan, totalModal, totalTagihan, totalProfit, hargaBrosur: konsorsiumLastBrosur, pos: hitungPosisiRombongan() };
 }
 
 function cetakLaporanKonsorsium() {
@@ -8731,12 +8865,17 @@ function cetakLaporanKonsorsium() {
     <table><thead><tr><th>Travel Partner</th><th>Tipe Kamar</th><th style="text-align:center;">Jamaah</th><th style="text-align:right;">Modal Efektif/Orang</th><th style="text-align:right;">Harga/Orang</th><th style="text-align:right;">Total Tagihan</th><th style="text-align:right;">Profit</th></tr></thead>
     <tbody>${rowsHtml}</tbody></table>
     <div class="total-box">
-        <div><b>RINGKASAN (${data.rows.length} Travel Partner)</b></div>
+        <div><b>RINGKASAN (${data.jumlahTravel} Travel Partner)</b></div>
         <div>👥 Total Jamaah Gabungan: ${data.totalGabungan}</div>
         <div>💰 Total Modal Efektif Gabungan: ${f(data.totalModal)}</div>
         <div>💵 Total Tagihan: ${f(data.totalTagihan)}</div>
-        <div>✅ PROFIT TOTAL${data.adaTL ? ' (sebelum biaya TL)' : ''}: ${f(data.totalProfit)}</div>
-        ${data.adaTL ? `<div>🧳 Biaya TL (${data.nTL} orang, dari profit): - ${f(data.biayaTL)}</div><div>✅ PERKIRAAN LABA BERSIH setelah TL: ${f(data.totalProfit - data.biayaTL)}</div><div style="font-size:11px;opacity:.8;">*Perkiraan, bukan realisasi.</div>` : ''}
+        <div>✅ PROFIT TOTAL (hanya dari Travel Partner): ${f(data.totalProfit)}</div>
+        ${data.pos ? `<div style="margin-top:8px;border-top:1px solid rgba(255,255,255,.3);padding-top:8px;"><b>POSISI ROMBONGAN (perkiraan)</b></div>
+        <div>🪑 Kursi bayar ${data.pos.kursiBayar}: jamaah sendiri ${data.pos.sendiri}, Travel Partner ${data.pos.travelOrang}, sisa ${data.pos.sisa}</div>
+        <div>💼 Laba rombongan saat ini (sudah termasuk TL): ${f(data.pos.laba)}</div>
+        <div>📈 Laba bila sisa kursi terjual B2C: ${f(data.pos.labaPenuh)}</div>
+        <div>⚖️ Jamaah sendiri minimal agar impas: ${data.pos.impasSendiri}</div>
+        <div style="font-size:11px;opacity:.8;">*Perkiraan, bukan realisasi. Biaya TL dan FOC sudah dihitung di sini.</div>` : ''}
     </div>
     `;
     tampilkanJendelaCetak(html);
@@ -8752,8 +8891,8 @@ function bagikanKonsorsiumWA() {
     data.rows.forEach(r => {
         teks += `${r.nama} - ${r.tipe} (${r.jumlah} org): Rp ${Math.round(r.harga||0).toLocaleString('id-ID')}/org → Profit ${f(r.profit)}\n`;
     });
-    teks += `\n👥 Total Jamaah: ${data.totalGabungan}\n💰 Total Modal Efektif: ${f(data.totalModal)}\n💵 Total Tagihan: ${f(data.totalTagihan)}\n✅ *PROFIT TOTAL${data.adaTL ? ' (sebelum biaya TL)' : ''}: ${f(data.totalProfit)}*`;
-    if(data.adaTL) teks += `\n🧳 Biaya TL (${data.nTL} orang): - ${f(data.biayaTL)}\n✅ *PERKIRAAN LABA BERSIH setelah TL: ${f(data.totalProfit - data.biayaTL)}* (perkiraan)`;
+    teks += `\n👥 Total Jamaah: ${data.totalGabungan}\n💰 Total Modal Efektif: ${f(data.totalModal)}\n💵 Total Tagihan: ${f(data.totalTagihan)}\n✅ *PROFIT TOTAL (hanya dari Travel Partner): ${f(data.totalProfit)}*`;
+    if(data.pos) teks += `\n\n*POSISI ROMBONGAN (perkiraan)*\n🪑 Kursi bayar ${data.pos.kursiBayar}: sendiri ${data.pos.sendiri}, Travel ${data.pos.travelOrang}, sisa ${data.pos.sisa}\n💼 Laba rombongan saat ini (sudah termasuk TL): ${f(data.pos.laba)}\n📈 Laba bila sisa terjual B2C: ${f(data.pos.labaPenuh)}\n⚖️ Jamaah sendiri minimal agar impas: ${data.pos.impasSendiri}`;
     window.open(`https://wa.me/?text=${encodeURIComponent(teks)}`, '_blank');
 }
 
@@ -9472,6 +9611,7 @@ async function resetEstimasiToDefault() {
         document.getElementById('profitPct').value="5";
         document.getElementById('cBuffer').value="0";
         { const elHJ = document.getElementById('cHargaJual'); if(elHJ) elHJ.value = ""; }
+        { const elSB2 = document.getElementById('cSudahBayar'); if(elSB2) elSB2.value = ""; }
         const modeHargaPenuh = document.getElementById('modeHargaPenuh');
         if(modeHargaPenuh) { modeHargaPenuh.checked = true; updateModeLA(); }
         saveEstimasiData(); 
@@ -12624,6 +12764,34 @@ const PEMERIKSA_KESEHATAN = [
         if (hajiReg.length) out.push(T('jamaah.harga_haji_dilewati', 'Jamaah', 'info', 'Pemeriksaan harga dilewati untuk Haji Reguler', `Harga Haji Reguler terdiri dari komponen, bukan satu angka (${hajiReg.map(p => p.nama).join(', ')}), jadi belum diperiksa otomatis.`, '', []));
         return out;
     } },
+    { id: 'konsorsium.cek', kelompok: 'Konsorsium', judul: 'Konsorsium dan Travel Partner', jalankan: async (ctx) => {
+        const out = [], K = 'Konsorsium', rp = n => 'Rp ' + Math.round(n).toLocaleString('id-ID');
+        for (const p of ctx.program) {
+            const slot = ctx.konfig.per_program?.[p.id];
+            const d = slot?.konsorsium_estimasi_data, daftar = Array.isArray(slot?.konsorsium_list) ? slot.konsorsium_list.filter(t => t.jumlah > 0) : [];
+            if (!d || !daftar.length) continue;
+            const tag = ` — ${p.nama || 'Program'}`;
+            if (!(d.modal > 0)) { out.push(T('konsorsium.belum_hitung:' + p.id, K, 'perhatian', 'Estimasi Konsorsium belum dihitung' + tag, 'Travel Partner sudah ada, tetapi tombol HITUNG ESTIMASI KONSORSIUM belum ditekan, jadi harga dan posisi rombongan belum bisa diperiksa.', 'Buka tab Konsorsium lalu tekan HITUNG ESTIMASI KONSORSIUM.', [])); continue; }
+            const sendiri = ctx.jamaah.filter(j => j.program_id === p.id && !tanpaTagihan(j)).length;
+            const pos = hitungPosisiDariData(d, d.modal, d.hargaBrosur || 0, daftar, sendiri);
+            if (!pos) continue;
+            if (pos.sisa < 0) out.push(T('konsorsium.melebihi_kursi:' + p.id, K, 'serius', 'Jumlah orang melebihi kursi bayar' + tag, `Jamaah sendiri (${pos.sendiri}) ditambah Travel Partner (${pos.travelOrang}) lebih banyak ${-pos.sisa} orang dari kursi bayar (${pos.kursiBayar}). Harga yang dihitung dari Total Pax tidak lagi valid.`, 'Naikkan Total Pax di Cuan Plan atau kurangi peserta, lalu hitung ulang.', []));
+            if (pos.dibawahBiaya.length) out.push(T('konsorsium.di_bawah_biaya:' + p.id, K, 'serius', 'Harga Travel Partner di bawah biaya yang masih keluar' + tag, `Biaya per orang yang masih keluar ${rp(pos.v)}. Harga di bawah itu rugi pada setiap kursi.`, 'Naikkan markup atau profit tetap Travel Partner ini.', pos.dibawahBiaya));
+            if (pos.impasSendiri !== null && !pos.belumHarga.length && pos.labaPenuh < 0) out.push(T('konsorsium.rugi_walau_penuh:' + p.id, K, 'serius', 'Rombongan rugi walau sisa kursi terjual semua' + tag, `Bila semua sisa kursi terjual B2C di harga brosur, laba rombongan tetap ${rp(pos.labaPenuh)}. Harga Travel Partner terlalu rendah atau FOC terlalu banyak.`, 'Periksa markup Travel Partner dan jumlah FOC.', []));
+            else if (pos.impasSendiri !== null && !pos.belumHarga.length && pos.laba < 0) out.push(T('konsorsium.belum_impas:' + p.id, K, 'info', 'Rombongan belum mencapai titik impas' + tag, `Dengan jumlah terisi sekarang laba ${rp(pos.laba)}. Jamaah sendiri minimal ${pos.impasSendiri} orang agar impas (terdaftar ${pos.sendiri}).`, 'Pantau sampai jamaah sendiri dan Travel Partner cukup.', []));
+            const rugi = [], tanpaDP = [];
+            const komponen = bangunKomponenKonsorsium(d, d.modal), total = daftar.reduce((a, t) => a + (t.jumlah || 0), 0);
+            daftar.forEach(t => {
+                const ring = komponen ? hitungRingkasanTravel(t, komponen, total) : null;
+                if (ring && ring.punyaKebijakan && ring.totalProfit < 0) rugi.push(`${t.nama || 'Travel tanpa nama'} · rugi ${rp(-ring.totalProfit)}`);
+                if (ring && ring.punyaKebijakan && !((t.pembayaran || []).some(x => (x.nominal || 0) > 0))) tanpaDP.push(`${t.nama || 'Travel tanpa nama'} · ${t.jumlah} orang`);
+            });
+            if (rugi.length) out.push(T('konsorsium.travel_rugi:' + p.id, K, 'perhatian', 'Ada Travel Partner yang harganya di bawah modal' + tag, 'Tagihan travel ini lebih kecil dari modal efektif semua orangnya (termasuk yang FOC).', 'Naikkan markup, kurangi FOC, atau pastikan memang disengaja.', rugi));
+            if (tanpaDP.length) out.push(T('konsorsium.tanpa_dp:' + p.id, K, 'perhatian', 'Travel Partner belum ada pembayaran (DP)' + tag, 'Kursi sudah dihitung untuk travel ini, tetapi belum ada uang masuk. Kursi bisa kosong bila travel tidak jadi.', 'Catat DP di kartu Travel Partner, atau tetapkan batas waktu pelunasan.', tanpaDP));
+            if (pos.belumHarga.length) out.push(T('konsorsium.tanpa_harga:' + p.id, K, 'perhatian', 'Travel Partner belum punya harga' + tag, 'Markup atau profit tetap belum diisi, jadi tagihannya belum dihitung.', 'Isi Markup % atau Profit Tetap pada kartu Travel Partner.', pos.belumHarga));
+        }
+        return out;
+    } },
     // ===== CADANGAN & PERANGKAT =====
     { id: 'cadangan.usia', kelompok: 'Cadangan & perangkat', judul: 'Usia cadangan terakhir', jalankan: async (ctx) => {
         const A = cekKesehatanData.ambang, s = localStorage.getItem('navara_last_backup');
@@ -12788,7 +12956,7 @@ function renderCekKesehatan() {
             <button id="ckTombolPeriksa" onclick="periksaSekarangCek()" style="flex:1;padding:10px;border:none;border-radius:10px;font-size:12px;font-weight:700;background:var(--primary);color:#fff;cursor:pointer;">Periksa sekarang</button>
             <button onclick="salinLaporanCek()" style="flex:1;padding:10px;border:none;border-radius:10px;font-size:12px;font-weight:700;background:#E0F2FE;color:#0369A1;cursor:pointer;">Salin laporan</button>
         </div>`;
-    const urut = { serius: 0, perhatian: 1, info: 2 }, kelompok = ['Uang', 'Jamaah', 'Cadangan & perangkat', 'Pengaturan & izin'];
+    const urut = { serius: 0, perhatian: 1, info: 2 }, kelompok = ['Uang', 'Jamaah', 'Konsorsium', 'Cadangan & perangkat', 'Pengaturan & izin'];
     const tampil = semua.filter(t => !t.diabaikan && (tampilInfo || t.tingkat !== 'info'));
     let html = kelompok.map(k => {
         const items = tampil.filter(t => t.kelompok === k).sort((a, b) => urut[a.tingkat] - urut[b.tingkat]);
@@ -23191,7 +23359,7 @@ function openIndexedDB() {
 // dengan build baru, data MENTAH (langsung dari IndexedDB, bukan dari memori) disalin dulu sebelum
 // proses migrasi apapun berjalan — supaya kalau ada kesalahan di update, data lama masih bisa dipulihkan.
 // Dokumen & foto tidak ikut disalin (ukurannya besar, dan tidak pernah disentuh proses migrasi).
-const NAVARA_BUILD = '2026.10.06-63';
+const NAVARA_BUILD = '2026.10.06-66';
 const MAKS_SNAPSHOT = 3;
 
 // ==================== DAFTAR DATA PUSAT ====================
