@@ -2243,6 +2243,7 @@
         </div>
         <div class="input-group"><label>Maskapai</label><input type="text" id="namaMaskapai" placeholder="Contoh: Saudia Airlines" oninput="saveEstimasiData()"></div>
         <div class="row"><div class="input-group"><label>Total Pax</label><input type="number" id="totJam" value="21" oninput="saveEstimasiData()"></div><div class="input-group"><label>FOC</label><input type="number" id="jamGratis" value="1" oninput="saveEstimasiData()"></div><div class="input-group"><label>TL</label><input type="number" id="numTL" value="1" oninput="saveEstimasiData()"></div></div>
+        <div id="hintTotalKursi" style="font-size:11px;color:#888;margin:-4px 0 10px;"></div>
         <div class="section-title"><span>KOMPONEN BIAYA</span></div>
         <div class="input-group"><label>Tiket</label><input type="text" id="cTiket" class="money-input" inputmode="numeric" value="15.450.000" oninput="saveEstimasiData()"></div>
         <div style="margin:6px 0 12px 0;">
@@ -2325,6 +2326,17 @@
         <div class="input-group">
             <input type="text" id="cBuffer" class="money-input" inputmode="numeric" value="0" oninput="saveEstimasiData()">
             <small style="color:#888;font-size:11px;margin-top:4px;display:block;">Ditambahkan ke harga brosur — tidak kena markup profit</small>
+        </div>
+        <div class="section-title"><span>Harga Jual Brosur <small style="font-weight:normal;color:#888;">(Opsional — pembulatan)</small></span></div>
+        <div class="input-group">
+            <input type="text" id="cHargaJual" class="money-input" inputmode="numeric" value="" placeholder="Kosong = pakai hasil hitungan" oninput="saveEstimasiData()">
+            <div style="display:flex;gap:6px;margin-top:6px;flex-wrap:wrap;">
+                <button type="button" onclick="bulatkanHargaJual(100000)" style="flex:1;min-width:80px;padding:8px 6px;border:1.5px solid var(--primary);background:white;color:var(--primary);border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;">↑ 100 rb</button>
+                <button type="button" onclick="bulatkanHargaJual(250000)" style="flex:1;min-width:80px;padding:8px 6px;border:1.5px solid var(--primary);background:white;color:var(--primary);border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;">↑ 250 rb</button>
+                <button type="button" onclick="bulatkanHargaJual(500000)" style="flex:1;min-width:80px;padding:8px 6px;border:1.5px solid var(--primary);background:white;color:var(--primary);border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;">↑ 500 rb</button>
+                <button type="button" onclick="hapusHargaJual()" style="flex:1;min-width:80px;padding:8px 6px;border:1.5px solid #ccc;background:white;color:#666;border-radius:8px;font-size:12px;cursor:pointer;">Hapus</button>
+            </div>
+            <small id="hargaJualInfo" style="color:#888;font-size:11px;margin-top:6px;display:block;"></small>
         </div>
         <button class="btn btn-primary" onclick="hitungUmroh()"><i class="fas fa-calculator"></i> HITUNG ESTIMASI</button>
         <button class="btn btn-orange mt-2" onclick="resetEstimasiToDefault()"><i class="fas fa-undo-alt"></i> RESET KE DEFAULT</button>
@@ -4706,10 +4718,11 @@ function updateHomeStats() {
     document.getElementById('homeStatPiutang').innerHTML = 'Rp ' + formatAngka(totalPiutang);
 
     // Update dashboard extra
-    updateHomeDashboardExtra(jamaahData.length, lunasCount, totalPiutang);
+    const komposisiHome = hitungKomposisiPeserta(jamaahData);
+    updateHomeDashboardExtra(komposisiHome.bayar, lunasCount, totalPiutang, komposisiHome);
 }
 
-function updateHomeDashboardExtra(totalJamaah, lunasCount, totalPiutang) {
+function updateHomeDashboardExtra(totalJamaah, lunasCount, totalPiutang, komposisi) {
     try {
         // Progress lunas
         const pct = totalJamaah > 0 ? Math.round((lunasCount / totalJamaah) * 100) : 0;
@@ -4720,9 +4733,11 @@ function updateHomeDashboardExtra(totalJamaah, lunasCount, totalPiutang) {
         if(countEl) countEl.textContent = lunasCount + ' / ' + totalJamaah;
         if(labelEl) {
             const sisa = totalJamaah - lunasCount;
-            if(totalJamaah === 0) labelEl.textContent = 'Belum ada jamaah';
-            else if(sisa === 0) labelEl.textContent = '🎉 Semua jamaah sudah lunas!';
-            else labelEl.textContent = `Masih ${sisa} jamaah belum lunas`;
+            const tanpaBayar = komposisi ? (komposisi.foc + komposisi.tl + komposisi.pembimbing) : 0;
+            const catatanTanpa = tanpaBayar > 0 ? ` (+ ${tanpaBayar} tanpa tagihan)` : '';
+            if(totalJamaah === 0) labelEl.textContent = tanpaBayar > 0 ? `Belum ada jamaah yang bayar${catatanTanpa}` : 'Belum ada jamaah';
+            else if(sisa === 0) labelEl.textContent = '🎉 Semua jamaah sudah lunas!' + catatanTanpa;
+            else labelEl.textContent = `Masih ${sisa} jamaah belum lunas` + catatanTanpa;
         }
 
         // Keterangan di bawah Total Tagihan (kosong kalau semua sudah lunas — kabar lunas sudah ada di bar Pelunasan)
@@ -6667,6 +6682,7 @@ function saveEstimasiData() {
         cLain:document.getElementById('cLain').value, 
         profitPct:document.getElementById('profitPct').value,
         cBuffer:document.getElementById('cBuffer').value,
+        cHargaJual:document.getElementById('cHargaJual')?.value || '',
         fxModeTiket: document.getElementById('fxModeTiket')?.checked || false,
         fxNominalTiket: document.getElementById('fxNominalTiket')?.value || '',
         fxKursTiket: document.getElementById('fxKursTiket')?.value || '',
@@ -6679,6 +6695,7 @@ function saveEstimasiData() {
     // Per-Program: simpan ke slot Program aktif, bukan lagi 1 tempat global
     const slot = ensureProgramConfigSlot();
     slot.estimasi_data = estimasiData;
+    perbaruiHintKursi(); perbaruiPetunjukHargaJual();
     localStorage.setItem('navara_konfigurasi_pro', JSON.stringify(konfigurasiPro));
     idbSet(STORE_KONFIGURASI, 'konfigurasi_pro', konfigurasiPro);
 }
@@ -6723,7 +6740,7 @@ function renderProgramSetupChecklist() {
     if(!cfg.keberangkatan || !cfg.keberangkatan.tanggal) kurang.push('⬜ Tanggal Keberangkatan belum diisi');
     if(!hajiReg && !slot.estimasi_data) kurang.push('⬜ Estimasi Cuan Plan belum dihitung');
     if(!(cfg.harga_paket && cfg.harga_paket.seragam) && jamaahList.length > 0) {
-        const belumAdaHarga = jamaahList.some(j => !getTotalHargaPaket(j));
+        const belumAdaHarga = jamaahList.some(j => !tanpaTagihan(j) && !getTotalHargaPaket(j));
         if(belumAdaHarga) kurang.push(hajiReg ? '⬜ Ada jamaah yang belum diisi biaya bimbingannya' : '⬜ Ada jamaah yang belum diisi harga paketnya');
     }
     if(kurang.length === 0) { card.style.display = 'none'; return; }
@@ -6732,7 +6749,7 @@ function renderProgramSetupChecklist() {
 }
 
 // ==================== KUNCI HARGA & RIWAYAT ESTIMASI ====================
-const ESTIMASI_FIELD_IDS = ['lokasiPaket','namaHotelMakkah','namaHotelMadinah','namaMaskapai','totJam','jamGratis','numTL','cTiket','cLAquad','cLAtriple','cLAdouble','cAsuransi','cHandling','cAlat','cAplikasi','cPIC','cLain','profitPct','cBuffer'];
+const ESTIMASI_FIELD_IDS = ['lokasiPaket','namaHotelMakkah','namaHotelMadinah','namaMaskapai','totJam','jamGratis','numTL','cTiket','cLAquad','cLAtriple','cLAdouble','cAsuransi','cHandling','cAlat','cAplikasi','cPIC','cLain','profitPct','cBuffer','cHargaJual'];
 
 function renderKunciEstimasiUI() {
     const slot = ensureProgramConfigSlot();
@@ -6853,6 +6870,7 @@ function loadEstimasiData() {
         if(data.cLain !== undefined) document.getElementById('cLain').value=data.cLain; 
         if(data.profitPct !== undefined) document.getElementById('profitPct').value=data.profitPct;
         if(data.cBuffer !== undefined) document.getElementById('cBuffer').value=data.cBuffer;
+        { const elHJ = document.getElementById('cHargaJual'); if(elHJ) elHJ.value = data.cHargaJual || ''; }
         // Pulihkan helper kurs FX (opsional, tidak wajib ada di data lama)
         const fxModeTiketEl = document.getElementById('fxModeTiket');
         if(fxModeTiketEl) { fxModeTiketEl.checked = !!data.fxModeTiket; document.getElementById('fxBoxTiket').style.display = data.fxModeTiket ? 'block' : 'none'; }
@@ -6874,6 +6892,7 @@ function loadEstimasiData() {
         const numTLEl = document.getElementById('numTL'); if(numTLEl) numTLEl.value = '';
         const profitPctEl = document.getElementById('profitPct'); if(profitPctEl) profitPctEl.value = '';
         const cBufferEl = document.getElementById('cBuffer'); if(cBufferEl) cBufferEl.value = '';
+        const cHargaJualEl = document.getElementById('cHargaJual'); if(cHargaJualEl) cHargaJualEl.value = '';
         const elPenuh = document.getElementById('modeHargaPenuh');
         if(elPenuh) { elPenuh.checked = true; updateModeLA(); }
         updateLAPreview();
@@ -6883,6 +6902,69 @@ function loadEstimasiData() {
         ['fxNominalTiket','fxKursTiket','fxKursLA','fxNominalLAquad','fxNominalLAtriple','fxNominalLAdouble'].forEach(id => { const el = document.getElementById(id); if(el) el.value = ''; });
         const fxHasilEl = document.getElementById('fxHasilTiket'); if(fxHasilEl) fxHasilEl.textContent = '';
     } 
+    perbaruiHintKursi(); perbaruiPetunjukHargaJual();
+}
+
+// ==================== HARGA JUAL BULAT & KETERANGAN TOTAL KURSI ====================
+// Hitungan dasar dari isian formulir (rumus SAMA dengan hitungUmroh — tidak mengubah angka apa pun)
+function hitungDasarEstimasiDariForm() {
+    const v = id => parseRupiah(document.getElementById(id)?.value || '0');
+    const nJam = parseInt(document.getElementById('totJam')?.value) || 0;
+    const nFoc = parseInt(document.getElementById('jamGratis')?.value) || 0;
+    const nTL = parseInt(document.getElementById('numTL')?.value) || 0;
+    const subBase = ['cTiket','cAsuransi','cHandling','cPIC','cAlat','cAplikasi','cLain'].reduce((a, id) => a + v(id), 0);
+    const sub = subBase + v('cLAquad');
+    const pPct = (parseFloat(document.getElementById('profitPct')?.value) || 0) / 100;
+    const profitKotor = (sub * nJam) * pPct;
+    const bersih = profitKotor - sub * nTL;
+    const nBayar = nJam - nFoc;
+    const buffer = v('cBuffer');
+    const jual = nBayar > 0 ? (((sub * nJam) + profitKotor) / nBayar) + buffer : 0;
+    return { nJam, nFoc, nTL, sub, profitKotor, bersih, nBayar, buffer, jual };
+}
+
+function perbaruiHintKursi() {
+    const el = document.getElementById('hintTotalKursi');
+    if(!el) return;
+    const d = hitungDasarEstimasiDariForm();
+    if(d.nJam <= 0) { el.textContent = ''; return; }
+    el.textContent = `Total kursi = Total Pax + TL = ${d.nJam + d.nTL} (${Math.max(0, d.nBayar)} bayar + ${d.nFoc} FOC + ${d.nTL} TL). TL ditambahkan di luar Total Pax.`;
+}
+
+function perbaruiPetunjukHargaJual() {
+    const el = document.getElementById('hargaJualInfo');
+    if(!el) return;
+    const f = n => 'Rp ' + Math.round(n).toLocaleString('id-ID');
+    const d = hitungDasarEstimasiDariForm();
+    const manual = parseRupiah(document.getElementById('cHargaJual')?.value || '0');
+    if(d.nBayar <= 0 || !(d.jual > 0)) { el.style.color = '#888'; el.textContent = ''; return; }
+    if(!manual) { el.style.color = '#888'; el.textContent = `Kosong = memakai hasil hitungan (${f(d.jual)}). Ketik harga bulat, atau pakai tombol di atas.`; return; }
+    const selisih = manual - d.jual, tambah = selisih * d.nBayar;
+    if(Math.round(selisih) >= 0) {
+        el.style.color = '#166534';
+        el.textContent = `Hitungan ${f(d.jual)} → harga jual ${f(manual)} (+${f(selisih)}/pax). Laba bersih rencana setelah pembulatan: ${f(d.bersih + tambah)} (+${f(tambah)}), bila buffer terpakai penuh untuk diskon.`;
+    } else {
+        el.style.color = '#B45309';
+        el.textContent = `⚠️ Harga jual ${f(-selisih)}/pax di bawah hitungan (${f(d.jual)}). Laba bersih rencana turun ${f(-tambah)} menjadi ${f(d.bersih + tambah)}.`;
+    }
+}
+
+function bulatkanHargaJual(step) {
+    const slot = ensureProgramConfigSlot();
+    if(slot.estimasi_locked) return showToast('🔒 Harga program terkunci — buka kunci dulu');
+    const d = hitungDasarEstimasiDariForm();
+    if(!(d.jual > 0)) return showToast('Isi Total Pax dan komponen biaya dulu');
+    const el = document.getElementById('cHargaJual');
+    el.value = (Math.ceil(Math.round(d.jual) / step) * step).toLocaleString('id-ID');
+    saveEstimasiData();
+}
+
+function hapusHargaJual() {
+    const slot = ensureProgramConfigSlot();
+    if(slot.estimasi_locked) return showToast('🔒 Harga program terkunci — buka kunci dulu');
+    const el = document.getElementById('cHargaJual');
+    if(el) el.value = '';
+    saveEstimasiData();
 }
 
 function hitungUmroh() { 
@@ -6909,7 +6991,11 @@ function hitungUmroh() {
     const profitPerPax=bersih/(nJam-nFoc); 
     const jualBase=((sub*nJam)+profitKotor)/(nJam-nFoc);
     const buffer=parseRupiah(document.getElementById('cBuffer')?.value||'0');
-    const jual=jualBase+buffer;
+    const jualHitungan=jualBase+buffer;
+    const hargaJualManual=parseRupiah(document.getElementById('cHargaJual')?.value||'0');
+    const jual = hargaJualManual>0 ? hargaJualManual : jualHitungan; // harga jual yang dipakai: hasil hitungan, atau harga bulat yang diketik
+    const selisihBulat = jual - jualHitungan;
+    const tambahanBulat = selisihBulat*(nJam-nFoc);
     const totalOmzet=jual*(nJam-nFoc); 
     const f=n=>"Rp "+Math.round(n).toLocaleString('id-ID'); 
     const lokasi=document.getElementById('lokasiPaket').value; 
@@ -6931,7 +7017,7 @@ function hitungUmroh() {
             const subT = subBase + t.la;
             const profitKotorT = (subT * nJam) * pPct;
             const jualBaseT = ((subT * nJam) + profitKotorT) / (nJam - nFoc);
-            jualTipe = jualBaseT + buffer;
+            jualTipe = (t.nama === 'Quad') ? jual : (jualBaseT + buffer);
         }
         return { nama: t.nama, jual: jualTipe };
     });
@@ -6981,6 +7067,9 @@ function hitungUmroh() {
     <div class="res-item"><span>Profit Per Pax</span><div style="display:flex;align-items:center;gap:6px;"><span>${f(profitPerPax)}</span>${cp(f(profitPerPax),'Profit Per Pax')}</div></div>
     <div class="res-item" style="color:#2ecc71"><span>PROFIT BERSIH</span><div style="display:flex;align-items:center;gap:6px;"><b>${f(bersih)}</b>${cp(f(bersih),'Profit Bersih')}</div></div>
     ${buffer > 0 ? `<div class="res-item" style="color:#f59e0b;"><span>+ Buffer Diskon</span><div style="display:flex;align-items:center;gap:6px;"><span>${f(buffer)}</span>${cp(f(buffer),'Buffer Diskon')}</div></div>` : ''}
+    ${hargaJualManual > 0 ? `<div class="res-item"><span>Harga hasil hitungan</span><span>${f(jualHitungan)}</span></div>
+    <div class="res-item" style="color:#f59e0b;"><span>Pembulatan harga jual</span><span>${selisihBulat>=0?'+':'-'}${f(Math.abs(selisihBulat))}/pax</span></div>
+    <div class="res-item" style="color:#2ecc71"><span>PROFIT BERSIH setelah pembulatan</span><div style="display:flex;align-items:center;gap:6px;"><b>${f(bersih+tambahanBulat)}</b>${cp(f(bersih+tambahanBulat),'Profit Bersih setelah pembulatan')}</div></div>` : ''}
     ${hargaBrosurRows}
     <div class="action-buttons" style="display:flex;gap:10px;margin-top:15px;">
         <button class="btn" onclick="salinRingkasan()" style="background:#34495e;margin-top:0;flex:1;">SALIN</button>
@@ -7056,7 +7145,10 @@ async function cetakEstimasiPDFInternal() {
     const profitPerPax = profitBersih/(nJam-nFoc);
     const buffer = pr(est.cBuffer||'0');
     const jualBase = ((sub*nJam)+profitKotor)/(nJam-nFoc);
-    const jual = jualBase + buffer;
+    const jualHitungan = jualBase + buffer;
+    const hargaJualManual = pr(est.cHargaJual||'0');
+    const jual = hargaJualManual > 0 ? hargaJualManual : jualHitungan;
+    const selisihBulat = jual - jualHitungan, tambahanBulat = selisihBulat*(nJam-nFoc);
     const totalOmzet = jual*(nJam-nFoc);
     const laItems = [
         ['LA/Hotel Quad', pr(est.cLAquad||est.cLA||'0')],
@@ -7121,6 +7213,8 @@ async function cetakEstimasiPDFInternal() {
             <div>Profit Bersih &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: <strong style="color:#10B981;">${f(profitBersih)}</strong></div>
             <div>Profit Per Pax &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: <strong style="color:#10B981;">${f(profitPerPax)}</strong></div>
             ${buffer > 0 ? `<div>+ Buffer Diskon <small style="color:#888;">(langsung ke Harga Jual, bukan Modal)</small>&nbsp;: <strong style="color:#f59e0b;">${f(buffer)}</strong></div>` : ''}
+            ${hargaJualManual > 0 ? `<div>Pembulatan harga jual &nbsp;: <strong style="color:#f59e0b;">${selisihBulat>=0?'+':'-'} ${f(Math.abs(selisihBulat))} /pax</strong></div>
+            <div>Profit Bersih setelah pembulatan : <strong style="color:#10B981;">${f(profitBersih+tambahanBulat)}</strong></div>` : ''}
             <div class="harga-jual">HARGA JUAL PER PAX: ${f(lastCalculatedPrice)}</div>
         </div>
         ${ttdHtml}
@@ -7156,7 +7250,10 @@ async function shareEstimasiInternalPDF() {
         const profitPerPax = profitBersih/(nJam-nFoc);
         const buffer = pr(est.cBuffer||'0');
         const jualBase = ((sub*nJam)+profitKotor)/(nJam-nFoc);
-        const jual = jualBase + buffer;
+        const jualHitungan = jualBase + buffer;
+        const hargaJualManual = pr(est.cHargaJual||'0');
+        const jual = hargaJualManual > 0 ? hargaJualManual : jualHitungan;
+        const selisihBulat = jual - jualHitungan, tambahanBulat = selisihBulat*(nJam-nFoc);
         const totalOmzet = jual*(nJam-nFoc);
         const laItems = [
             ['LA/Hotel Quad', pr(est.cLAquad||est.cLA||'0')],
@@ -7217,7 +7314,7 @@ async function shareEstimasiInternalPDF() {
         });
 
         let y = doc.lastAutoTable.finalY + 6;
-        const tinggiRingkasan = 6 * 6 + (buffer > 0 ? 6 : 0) + 6;
+        const tinggiRingkasan = 6 * 6 + (buffer > 0 ? 6 : 0) + (hargaJualManual > 0 ? 12 : 0) + 6;
         gambarKotakInfoPDF(doc, 14, y, PW-28, tinggiRingkasan);
         y += 8;
         doc.setFontSize(10); doc.setFont('helvetica','normal'); doc.setTextColor(0,0,0);
@@ -7229,6 +7326,10 @@ async function shareEstimasiInternalPDF() {
         doc.text(`Profit Bersih: ${f(profitBersih)}`, 18, y); y += 6;
         doc.text(`Profit Per Pax: ${f(profitPerPax)}`, 18, y); y += 6;
         if (buffer > 0) { doc.setTextColor(245,158,11); doc.text(`+ Buffer Diskon: ${f(buffer)}`, 18, y); y += 6; }
+        if (hargaJualManual > 0) {
+            doc.setTextColor(245,158,11); doc.text(`Pembulatan harga jual: ${selisihBulat>=0?'+':'-'} ${f(Math.abs(selisihBulat))} /pax`, 18, y); y += 6;
+            doc.setTextColor(16,185,129); doc.text(`Profit Bersih setelah pembulatan: ${f(profitBersih+tambahanBulat)}`, 18, y); y += 6;
+        }
         y += 4;
         doc.setDrawColor(wr,wg,wb); doc.setLineWidth(0.5); doc.line(14, y, PW-14, y); y += 8;
         doc.setFontSize(13); doc.setFont('helvetica','bold'); doc.setTextColor(wr,wg,wb);
@@ -8841,6 +8942,7 @@ function hitungRekapAktual() {
     const tipeData = {};
     const tanpaTipe = [];
     const hargaBawahStandar = [];
+    const tanpaTagihanList = []; // FOC / TL / Pembimbing — tidak ditagih, tidak masuk hitungan kontrak (modalnya dari Cuan Plan)
 
     jamaahList.forEach(j => {
         const tipe = j.additional_fields?.tipe_paket || '';
@@ -8857,6 +8959,9 @@ function hitungRekapAktual() {
 
         const piutang = Math.max(0, hargaPaket - sudahDibayar);
         const belumIsiHarga = hargaPaket === 0 && sudahDibayar === 0;
+
+        // Peserta tanpa tagihan: dicatat terpisah. (Kalau ternyata ada uang masuk atas namanya, tetap dihitung supaya uangnya tidak hilang dari rekap — dan Cek Kesehatan memberi peringatan.)
+        if(tanpaTagihan(j) && sudahDibayar === 0) { tanpaTagihanList.push(j); return; }
 
         if(!tipe) {
             tanpaTipe.push(j.nama_lengkap);
@@ -8941,6 +9046,8 @@ function hitungRekapAktual() {
     const modalFocTL = estRingkas ? ((estRingkas.foc || 0) + (estRingkas.tl || 0)) * estRingkas.modal : 0;
     const modalJamaahBayar = grandModal;
     grandModal += modalFocTL;
+    const komposisiRekap = hitungKomposisiPeserta(jamaahList);
+    const adaTanpaTagihan = (komposisiRekap.foc + komposisiRekap.tl + komposisiRekap.pembimbing) > 0;
 
     // Grand Total
     const grandProfit = grandOmzet - grandModal;
@@ -8951,8 +9058,14 @@ function hitungRekapAktual() {
             modal: d.totalModal, profit: d.totalOmzet - d.totalModal, tanpaHarga: d.tanpaHarga?.length || 0 }; }),
         grand: { kontrak: grandKontrak, dibayar: grandOmzet, piutang: grandPiutang, modalJamaahBayar, modalFocTL,
                  nFoc: estRingkas?.foc || 0, nTL: estRingkas?.tl || 0, modal: grandModal, profit: grandProfit },
-        tanpaTipe: tanpaTipe.slice(), hargaBawah: hargaBawahStandar.length
+        tanpaTipe: tanpaTipe.slice(), hargaBawah: hargaBawahStandar.length,
+        komposisi: adaTanpaTagihan ? teksKomposisiPeserta(komposisiRekap) : ''
     };
+    if(adaTanpaTagihan) {
+        html += `<div style="background:#EDE9FE;border:1.5px solid #C4B5FD;border-radius:12px;padding:10px 12px;margin-bottom:10px;font-size:12px;color:#4C1D95;">
+            🏷️ <strong>Peserta tanpa tagihan</strong> tidak masuk hitungan kontrak.<br>${teksKomposisiPeserta(komposisiRekap)}.
+            <div style="font-size:11px;opacity:.85;margin-top:3px;">Modal FOC dan TL dihitung dari angka di Cuan Plan.</div></div>`;
+    }
     html += `<div class="kartu-total-rekap" style="background:linear-gradient(135deg,var(--primary),#0a3d31);border-radius:14px;padding:16px;margin-bottom:10px;color:white;">
         <div style="font-weight:700;font-size:15px;margin-bottom:10px;">💰 TOTAL KESELURUHAN</div>
         <div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid rgba(255,255,255,0.2);">
@@ -9152,6 +9265,7 @@ function shareRekapAktual() {
     if (g.piutang > 0) text += `Piutang/Sisa: -${f(g.piutang)}\n`;
     if (g.modalFocTL > 0) text += `Modal jamaah bayar: ${f(g.modalJamaahBayar)}\nModal FOC (${g.nFoc}) dan TL (${g.nTL}): ${f(g.modalFocTL)}\n`;
     if (g.modal > 0) text += `Total Modal (estimasi): ${f(g.modal)}\n*LABA SEMENTARA: ${f(g.profit)}*\n`;
+    if (data.komposisi) text += `\n🏷️ Peserta: ${data.komposisi}`;
     if (data.hargaBawah > 0) text += `\n⚠️ ${data.hargaBawah} jamaah harga paketnya di bawah modal`;
     if (data.tanpaTipe.length > 0) text += `\n⚠️ ${data.tanpaTipe.length} jamaah belum ada tipe paket (tidak dihitung): ${data.tanpaTipe.join(', ')}`;
     // Penutup mengikuti pengaturan: pengguna berlisensi memakai nama instansinya sendiri; versi gratis tetap "Navara App"
@@ -9232,6 +9346,7 @@ async function resetEstimasiToDefault() {
         document.getElementById('cLain').value="0"; 
         document.getElementById('profitPct').value="5";
         document.getElementById('cBuffer').value="0";
+        { const elHJ = document.getElementById('cHargaJual'); if(elHJ) elHJ.value = ""; }
         const modeHargaPenuh = document.getElementById('modeHargaPenuh');
         if(modeHargaPenuh) { modeHargaPenuh.checked = true; updateModeLA(); }
         saveEstimasiData(); 
@@ -9701,7 +9816,7 @@ function renderJamaahListWithPagination() {
         const adaKebutuhanKhusus = (j.kebutuhan_khusus?.kondisi?.length > 0) || !!j.kebutuhan_khusus?.catatan;
         const statusProses = j.additional_fields?.status_proses || '';
         const badgeStatusProses = (statusProses && statusProses !== 'Normal') ? `<span title="Status Proses: ${escapeHtml(statusProses)}${j.additional_fields?.catatan_status_proses ? ' — ' + escapeHtml(j.additional_fields.catatan_status_proses) : ''}" style="font-size:13px;">${statusProses}</span>` : '';
-        html+=`<div class="jamaah-card"><div class="jamaah-header"><div style="display:flex;align-items:center;gap:10px;flex:1;"><div id="foto_thumb_${j.id}" style="width:44px;height:44px;border-radius:50%;background:#f0f0f0;border:2px solid var(--primary);overflow:hidden;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;" onclick="showFotoProfilModal(${j.id},'${jsArg(j.nama_lengkap)}')"><span style="font-size:22px;">👤</span></div><div><div class="jamaah-nama"><span style="background:var(--primary); color:white; display:inline-block; width:28px; height:28px; border-radius:50%; text-align:center; line-height:28px; font-size:13px; margin-right:10px;">${displayNum}</span> ${escapeHtml(j.nama_lengkap)} ${adaKebutuhanKhusus ? '<span title="Ada kebutuhan khusus/kontak darurat tercatat" style="font-size:13px;">🏥</span>' : ''} ${badgeStatusProses}</div><div class="jamaah-tgl"> ${j.created_at||'-'}</div></div></div><div class="jamaah-actions"><button class="btn-share-wa" style="background:#0D9488;" onclick="openPaymentModalWithJamaah(${j.id})" title="Bayar Cepat"><i class="fas fa-money-bill-wave"></i></button><button class="btn-share-wa" onclick="shareSingleJamaahById('${j.id}')"><i class="fab fa-whatsapp"></i></button><button class="btn-edit-jamaah" onclick="editJamaahById('${j.id}')"><i class="fas fa-edit"></i></button><button class="btn-delete-jamaah" onclick="confirmDeleteJamaahById('${j.id}')"><i class="fas fa-trash"></i></button></div></div><div class="jamaah-detail">`; 
+        html+=`<div class="jamaah-card"><div class="jamaah-header"><div style="display:flex;align-items:center;gap:10px;flex:1;"><div id="foto_thumb_${j.id}" style="width:44px;height:44px;border-radius:50%;background:#f0f0f0;border:2px solid var(--primary);overflow:hidden;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;" onclick="showFotoProfilModal(${j.id},'${jsArg(j.nama_lengkap)}')"><span style="font-size:22px;">👤</span></div><div><div class="jamaah-nama"><span style="background:var(--primary); color:white; display:inline-block; width:28px; height:28px; border-radius:50%; text-align:center; line-height:28px; font-size:13px; margin-right:10px;">${displayNum}</span> ${escapeHtml(j.nama_lengkap)} ${adaKebutuhanKhusus ? '<span title="Ada kebutuhan khusus/kontak darurat tercatat" style="font-size:13px;">🏥</span>' : ''} ${badgeStatusProses} ${tanpaTagihan(j) ? `<span title="${escapeHtml(infoJenisPeserta(j).ket)}" style="font-size:10px;background:#EDE9FE;color:#5B21B6;border-radius:6px;padding:2px 6px;font-weight:700;vertical-align:middle;">${infoJenisPeserta(j).ikon} ${infoJenisPeserta(j).label}</span>` : ''}</div><div class="jamaah-tgl"> ${j.created_at||'-'}</div></div></div><div class="jamaah-actions"><button class="btn-share-wa" style="background:#0D9488;" onclick="openPaymentModalWithJamaah(${j.id})" title="Bayar Cepat"><i class="fas fa-money-bill-wave"></i></button><button class="btn-share-wa" onclick="shareSingleJamaahById('${j.id}')"><i class="fab fa-whatsapp"></i></button><button class="btn-edit-jamaah" onclick="editJamaahById('${j.id}')"><i class="fas fa-edit"></i></button><button class="btn-delete-jamaah" onclick="confirmDeleteJamaahById('${j.id}')"><i class="fas fa-trash"></i></button></div></div><div class="jamaah-detail">`; 
         for(const field of getDynamicFieldsJamaahTampil()){ 
             const val=j.additional_fields?.[field.name]||''; 
             if(val) html+=`<div class="jamaah-detail-item"><strong>${escapeHtml(field.label)}:</strong> ${escapeHtml(val)}</div>`; 
@@ -12322,7 +12437,7 @@ const PEMERIKSA_KESEHATAN = [
             cekKadaluarsa('tgl_expired_meningitis', A.meningitisBulan, 'jamaah.meningitis', 'Vaksin meningitis', 'Vaksin yang kadaluarsa sebelum keberangkatan tidak diterima.');
             // kelengkapan
             if (adaField('whatsapp')) tambah('jamaah.wa_salah', tk === 'serius' ? 'perhatian' : tk, 'Nomor WhatsApp kosong atau formatnya salah', 'Pengingat dan pesan massal tidak akan sampai.', 'Lengkapi nomornya (contoh 0812xxxxxxx).', list.filter(j => { const v = String(af(j).whatsapp || '').replace(/\D/g, ''); return !v || v.length < 9 || v.length > 15 || !/^(0|62)/.test(v); }).map(label));
-            if (p.jenis !== 'haji_reguler') tambah('jamaah.tanpa_tipe_kamar', 'perhatian', 'Jamaah belum punya tipe kamar', 'Tanpa tipe kamar, modal jamaah dihitung dengan tarif Quad di laporan.', 'Isi tipe paket di Database Jamaah.', list.filter(j => !String(af(j).tipe_paket || '').trim()).map(label));
+            if (p.jenis !== 'haji_reguler') tambah('jamaah.tanpa_tipe_kamar', 'perhatian', 'Jamaah belum punya tipe kamar', 'Tanpa tipe kamar, modal jamaah dihitung dengan tarif Quad di laporan.', 'Isi tipe paket di Database Jamaah.', list.filter(j => !tanpaTagihan(j) && !String(af(j).tipe_paket || '').trim()).map(label));
             if (wajib.length) tambah('jamaah.wajib_kosong', tk, 'Kolom wajib belum diisi', `Kolom yang ditandai wajib: ${wajib.map(f => f.label || f.name).join(', ')}.`, 'Lengkapi data jamaah itu.', list.filter(j => wajib.some(f => !String(af(j)[f.name] ?? '').trim())).map(label));
             tanpaTemuan += list.filter(j => !bermasalah.has(label(j))).length;
         }
@@ -12363,6 +12478,22 @@ const PEMERIKSA_KESEHATAN = [
             // 4. Pembayaran melebihi harga paket
             const lebih = [];
             berharga.forEach(x => { const total = ctx.bayar.filter(t => String(t.id_jamaah) === String(x.j.id)).reduce((a, t) => a + (Number(t.nominal) || 0), 0); if (total > x.harga) lebih.push(`${nama(x)} · bayar ${rp(total)}, harga ${rp(x.harga)}`); });
+            // 4b. Uang sudah masuk dari jamaah bertipe Bayar yang harga paketnya BELUM diisi (laporan memakai uang ini, tetapi kontraknya tidak ada)
+            const bayarTanpaHarga = [];
+            list.filter(j => !tanpaTagihan(j) && !(getTotalHargaPaketUntukProgram(j, p.id) > 0)).forEach(j => { const total = ctx.bayar.filter(t => String(t.id_jamaah) === String(j.id)).reduce((a, t) => a + (Number(t.nominal) || 0), 0); if (total > 0) bayarTanpaHarga.push(`${nama({ j })} · sudah bayar ${rp(total)}, harga paket belum diisi`); });
+            if (bayarTanpaHarga.length) out.push(T('jamaah.bayar_tanpa_harga:' + p.id, 'Jamaah', 'serius', 'Ada uang masuk dari jamaah yang harga paketnya belum diisi' + tag, 'Uangnya tercatat dan ikut dihitung di Realisasi, tetapi kontraknya tidak ada, jadi Total Kontrak, Piutang, dan Proyeksi Laba kurang dari sebenarnya.', 'Isi harga paketnya di menu Pembayaran (tombol Atur Harga).', bayarTanpaHarga));
+            // 5. Peserta tanpa tagihan (FOC/TL/Pembimbing) yang tercatat punya pembayaran
+            const tanpaTagBayar = [];
+            list.filter(j => tanpaTagihan(j)).forEach(j => { const total = ctx.bayar.filter(t => String(t.id_jamaah) === String(j.id)).reduce((a, t) => a + (Number(t.nominal) || 0), 0); if (total > 0) tanpaTagBayar.push(`${nama({ j })} · ${infoJenisPeserta(j).label} · tercatat ${rp(total)}`); });
+            if (tanpaTagBayar.length) out.push(T('jamaah.tanpa_tagihan_ada_bayar:' + p.id, 'Jamaah', 'perhatian', 'Peserta tanpa tagihan punya pembayaran' + tag, 'FOC, TL, atau pembimbing tidak ditagih, tetapi ada uang masuk atas namanya. Uang itu tetap dihitung di Rekap, tetapi biasanya ini salah jenis peserta atau salah pilih nama.', 'Periksa jenis pesertanya, atau pindahkan pembayarannya ke nama yang benar.', tanpaTagBayar));
+            // 6. Jumlah FOC dan TL di daftar jamaah dibanding rencana di Cuan Plan (modal FOC/TL dihitung dari Cuan Plan)
+            if (est) {
+                const kom = hitungKomposisiPeserta(list), prn = v => parseInt(String(v || '0').replace(/\./g, '').replace(/[^0-9]/g, '')) || 0;
+                const rFoc = prn(est.jamGratis), rTL = prn(est.numTL), selisih = [];
+                if (kom.foc !== rFoc) selisih.push(`FOC: di daftar jamaah ${kom.foc}, di Cuan Plan ${rFoc}`);
+                if (kom.tl !== rTL) selisih.push(`TL: di daftar jamaah ${kom.tl}, di Cuan Plan ${rTL}`);
+                if (selisih.length) out.push(T('jamaah.foc_tl_beda:' + p.id, 'Jamaah', (kom.foc > rFoc || kom.tl > rTL) ? 'perhatian' : 'info', 'Jumlah FOC/TL di daftar jamaah beda dari Cuan Plan' + tag, 'Modal FOC dan TL di laporan dihitung dari angka Cuan Plan. Kalau di daftar jamaah lebih banyak, modalnya kurang terhitung dan laba tampak lebih besar dari sebenarnya.', 'Samakan angkanya (ubah jenis peserta di Database Jamaah atau isian FOC/TL di Cuan Plan).', selisih));
+            }
             if (lebih.length) out.push(T('jamaah.bayar_melebihi_harga:' + p.id, 'Jamaah', 'perhatian', 'Pembayaran melebihi harga paket' + tag, 'Biasanya salah ketik nominal atau pembayaran tercatat dua kali.', 'Periksa riwayat pembayaran jamaah itu. Abaikan bila kelebihannya memang titipan.', lebih, { label: 'Buka Pembayaran', halaman: 'pembayaran' }));
         }
         if (hajiReg.length) out.push(T('jamaah.harga_haji_dilewati', 'Jamaah', 'info', 'Pemeriksaan harga dilewati untuk Haji Reguler', `Harga Haji Reguler terdiri dari komponen, bukan satu angka (${hajiReg.map(p => p.nama).join(', ')}), jadi belum diperiksa otomatis.`, '', []));
@@ -15638,6 +15769,14 @@ function renderJamaahForm(){
         }
         html+=`<div class="dynamic-field"><label>${escapeHtml(field.label)}</label>${inputHtml}</div>`; 
     }
+    // Field permanen Jenis Peserta (Bayar / FOC / TL / Pembimbing) — berlaku juga untuk Haji Reguler
+    html += `<div class="dynamic-field" style="border-top:1.5px solid #e2e8f0;padding-top:14px;margin-top:4px;">
+        <label style="font-weight:700;color:var(--primary);">🏷️ Jenis Peserta</label>
+        <select id="jamaahJenisPeserta" onchange="ketJenisPesertaForm()" style="width:100%;padding:10px;border-radius:8px;border:1.5px solid #ddd;font-size:14px;background:var(--input-bg);color:var(--text);">
+            ${daftarJenisPeserta().map(x => `<option value="${x.id}">${x.ikon} ${x.label}</option>`).join('')}
+        </select>
+        <div id="jamaahJenisPesertaKet" style="font-size:11px;color:#888;margin-top:4px;">${daftarJenisPeserta()[0].ket}</div>
+    </div>`;
     // Field permanen Tipe Paket — tidak relevan untuk Haji Reguler
     if(tipeOpts && !isHajiReguler()) {
         html += `<div class="dynamic-field" style="border-top:1.5px solid #e2e8f0;padding-top:14px;margin-top:4px;">
@@ -15709,6 +15848,9 @@ function editJamaah(index){
     // Load Tipe Paket
     const tipePaketEl = document.getElementById('jamaahTipePaket');
     if(tipePaketEl) tipePaketEl.value = j.additional_fields?.tipe_paket || '';
+    // Load Jenis Peserta
+    const jenisEl = document.getElementById('jamaahJenisPeserta');
+    if(jenisEl) { jenisEl.value = jenisPeserta(j); ketJenisPesertaForm(); }
     // Load Kontak Darurat & Kebutuhan Khusus
     const kd = j.kontak_darurat || {};
     if(document.getElementById('jamaahKontakDarurat1Nama')) document.getElementById('jamaahKontakDarurat1Nama').value = kd.nama1 || '';
@@ -15738,6 +15880,9 @@ function saveJamaah(tetapBuka){
     // Simpan Tipe Paket
     const tipePaketEl = document.getElementById('jamaahTipePaket');
     if(tipePaketEl) additional['tipe_paket'] = tipePaketEl.value;
+    // Simpan Jenis Peserta (kosong/bayar = ditagih biasa)
+    const jenisEl = document.getElementById('jamaahJenisPeserta');
+    if(jenisEl) additional['jenis_peserta'] = jenisEl.value || 'bayar';
     // Simpan Kontak Darurat & Kebutuhan Khusus (disimpan terpisah dari additional_fields biasa)
     const kontakDarurat = {
         nama1: document.getElementById('jamaahKontakDarurat1Nama')?.value.trim() || '',
@@ -15923,12 +16068,21 @@ function exportJamaahToExcel(){
 // ============================================
 // REKAP PER KATEGORI - generik untuk semua field dropdown
 // ============================================
+function ketJenisPesertaForm() {
+    const el = document.getElementById('jamaahJenisPeserta');
+    const ket = document.getElementById('jamaahJenisPesertaKet');
+    if(!el || !ket) return;
+    const x = daftarJenisPeserta().find(i => i.id === el.value);
+    ket.textContent = x ? x.ket : '';
+}
+
 function getDropdownFieldsJamaah() {
     return dynamicFieldsJamaah.filter(f => f.type === 'dropdown');
 }
 
 // ==================== BANDINGKAN PERFORMA ANTAR PROGRAM ====================
 function getTotalHargaPaketUntukProgram(jamaah, programId) {
+    if (tanpaTagihan(jamaah)) return 0;
     const cfg = konfigurasiPro.per_program && konfigurasiPro.per_program[programId];
     const hp = (cfg && cfg.harga_paket) || konfigurasiPro.harga_paket || { seragam: false, nominal: 0 };
     if (hp.seragam && hp.nominal > 0) return hp.nominal;
@@ -16611,8 +16765,10 @@ function hitungModalHargaEstimasiTerkini() {
     const buffer = pr(est.cBuffer);
     const profitKotor = sub * nJam * pPct;
     const jualBase = ((sub*nJam) + profitKotor) / (nJam - nFoc);
-    const harga = jualBase + buffer;
-    return { modal: sub, harga, buffer, foc: nFoc, tl: nTL };
+    const hargaHitung = jualBase + buffer;
+    const hargaManual = pr(est.cHargaJual);
+    const harga = hargaManual > 0 ? hargaManual : hargaHitung; // harga jual bulat yang diketik menggantikan hasil hitungan
+    return { modal: sub, harga, buffer, foc: nFoc, tl: nTL, hargaHitung, dibulatkan: hargaManual > 0 };
 }
 
 // Modal per jamaah menurut tipe kamar (Quad/Triple/Double) — SATU rumus yang dipakai tab Rekap DAN Laporan Penutupan Musim
@@ -17041,6 +17197,17 @@ function cetakLaporanPenutupanMusim() {
         totalKontrak += getTotalHargaPaket(j);
         totalDibayarJamaah += paymentTransaksiList.filter(t => t.id_jamaah == j.id).reduce((s,t) => s + (parseInt(t.nominal)||0), 0);
     });
+    // Uang yang SUDAH MASUK dari jamaah yang tidak punya harga paket (harga belum diisi, atau peserta tanpa tagihan yang tercatat membayar).
+    // Uang ini nyata, jadi ikut dihitung di Realisasi (Uang Masuk dan Laba Bersih). Total Kontrak dan Proyeksi Laba TIDAK berubah.
+    let uangTanpaHarga = 0, jmlTanpaHargaAdaBayar = 0;
+    jamaahList.forEach(j => {
+        if(getTotalHargaPaket(j) > 0) return;
+        const u = paymentTransaksiList.filter(t => t.id_jamaah == j.id).reduce((s2,t) => s2 + (parseInt(t.nominal)||0), 0);
+        if(u > 0) { uangTanpaHarga += u; jmlTanpaHargaAdaBayar++; }
+    });
+    const totalUangMasuk = totalDibayarJamaah + uangTanpaHarga;
+    const barisUangTanpaHarga = uangTanpaHarga > 0
+        ? `<tr><td style="color:#666;font-size:11px;">↳ termasuk dari ${jmlTanpaHargaAdaBayar} jamaah yang harga paketnya belum diisi (atau peserta tanpa tagihan)</td><td style="color:#666;font-size:11px;">${f(uangTanpaHarga)}</td></tr>` : '';
     // Modal estimasi: jamaah bayar (menurut tipe kamar) + FOC + TL — satu hitungan untuk halaman depan DAN rincian
     const modalEst = est ? hitungTotalModalEstimasi(jamaahRelevan) : null;
 
@@ -17066,7 +17233,7 @@ function cetakLaporanPenutupanMusim() {
             let targetKomponen = 0, dibayarKomponen = 0;
             jamaahList.forEach(j => {
                 const override = j.harga_komponen_haji || {};
-                const target = override[k.jenis] !== undefined ? override[k.jenis] : (k.harga || 0);
+                const target = tanpaTagihan(j) ? 0 : (override[k.jenis] !== undefined ? override[k.jenis] : (k.harga || 0)); // pembimbing/FOC/TL tidak ditagih
                 targetKomponen += target;
                 dibayarKomponen += paymentTransaksiList.filter(t => t.id_jamaah == j.id && t.komponen === k.jenis).reduce((s,t) => s + (parseInt(t.nominal)||0), 0);
             });
@@ -17103,12 +17270,12 @@ function cetakLaporanPenutupanMusim() {
         });
         rowsPengeluaran = Object.keys(pengeluaranPerKategori).map(k => `<tr><td>${escapeHtml(k)}</td><td>${fKurang(pengeluaranPerKategori[k])}</td></tr>`).join('');
     }
-    const profitRiil = totalDibayarJamaah - totalPengeluaran;
+    const profitRiil = totalUangMasuk - totalPengeluaran;
     let sectionPengeluaran = `<div class="lap-section"><h2>💸 Realisasi Pengeluaran${isHajiReguler() ? ' (dari Kas)' : ''}</h2>
         <table class="lap-table">${rowsPengeluaran || '<tr><td colspan="2" style="color:#888;">Belum ada Pengeluaran tercatat</td></tr>'}
         <tr class="lap-total"><td>TOTAL PENGELUARAN</td><td>${fKurang(totalPengeluaran)}</td></tr></table>
         <table class="lap-table" style="margin-top:10px;">
-        <tr><td>Total Pemasukan Jamaah (Sudah Dibayar)</td><td>${f(totalDibayarJamaah)}</td></tr>
+        <tr><td>Total Pemasukan Jamaah (Sudah Dibayar)</td><td>${f(totalUangMasuk)}</td></tr>${barisUangTanpaHarga}
         <tr><td>Total Pengeluaran</td><td>${fKurang(totalPengeluaran)}</td></tr>
         <tr class="lap-total" style="color:${profitRiil<0?'#DC2626':'#166534'};"><td>LABA BERSIH (Realisasi)</td><td>${f(profitRiil)}</td></tr></table></div>`;
 
@@ -17212,11 +17379,15 @@ function cetakLaporanPenutupanMusim() {
     const fTanda = n => { const r = Math.round(n); return r > 0 ? '+' + f(r) : (r < 0 ? '-' + f(-r) : f(0)); };
     const warnaTanda = n => Math.round(n) < 0 ? '#DC2626' : (Math.round(n) > 0 ? '#166534' : '#222');
     const belumDibayar = totalKontrak - totalDibayarJamaah; // negatif = ada kelebihan bayar
-    const tanpaHarga = jamaahList.length - jamaahRelevan.length;
+    const komposisiLap = hitungKomposisiPeserta(jamaahList);
+    const nTanpaTagihanLap = komposisiLap.foc + komposisiLap.tl + komposisiLap.pembimbing;
+    const tanpaHarga = komposisiLap.bayar - jamaahRelevan.length; // hanya peserta bayar yang belum punya harga
     const cekPiutangDepan = cekPeringatanCicilanSemuaJamaah();
     const piutangTermin = [...cekPiutangDepan.telat, ...cekPiutangDepan.hariIni, ...cekPiutangDepan.akanDatang].reduce((s2, x) => s2 + x.sisa, 0);
     let catatanBelum = '';
+    if (nTanpaTagihanLap > 0) catatanBelum += `<p class="lap-note">Peserta: ${teksKomposisiPeserta(komposisiLap)}. FOC, TL, dan pembimbing tidak ditagih sehingga tidak masuk Total Kontrak.</p>`;
     if (tanpaHarga > 0) catatanBelum += `<p class="lap-note">Dihitung dari ${jamaahRelevan.length} jamaah yang sudah punya harga paket. ${tanpaHarga} jamaah lain belum punya harga paket sehingga tidak ikut dihitung.</p>`;
+    if (uangTanpaHarga > 0) catatanBelum += `<p class="lap-note">Uang yang sudah masuk dari ${jmlTanpaHargaAdaBayar} jamaah tanpa harga paket (${f(uangTanpaHarga)}) tidak termasuk Total Kontrak dan Sudah Dibayar di atas, tetapi sudah dihitung di Realisasi.</p>`;
     if (Math.round(piutangTermin) !== Math.round(belumDibayar) && belumDibayar > 0) catatanBelum += `<p class="lap-note">"Belum dibayar" di sini dihitung dari Total Kontrak dikurangi Sudah Dibayar. Piutang di halaman rincian dihitung dari jadwal cicilan (${f(piutangTermin)}); selisihnya adalah sisa yang tidak tercatat di jadwal cicilan.</p>`;
 
     const blok1 = `<div class="lap-section"><h2>1. Ringkasan Penjualan</h2>
@@ -17227,7 +17398,7 @@ function cetakLaporanPenutupanMusim() {
 
     let blok2 = '', blok4 = '';
     const blok3 = `<div class="lap-section"><h2>${est ? '3' : '2'}. Realisasi</h2>
-        <table class="lap-table"><tr><td>Uang Masuk dari Jamaah (Sudah Dibayar)</td><td>${f(totalDibayarJamaah)}</td></tr>
+        <table class="lap-table"><tr><td>Uang Masuk dari Jamaah (Sudah Dibayar)</td><td>${f(totalUangMasuk)}</td></tr>${barisUangTanpaHarga}
         <tr><td>Realisasi Pengeluaran</td><td>${fKurang(totalPengeluaran)}</td></tr>
         <tr class="lap-total" style="color:${profitRiil < 0 ? '#DC2626' : '#166534'};"><td>LABA BERSIH (Realisasi)</td><td>${f(profitRiil)}</td></tr></table>${(jamaahRelevan.length > 0 && totalPengeluaran === 0) ? '<p class="lap-note">Belum ada pengeluaran tercatat, jadi Laba Bersih dan Selisih belum mencerminkan biaya yang sebenarnya.</p>' : ''}</div>`;
     if (est && jamaahRelevan.length === 0) {
@@ -17238,7 +17409,7 @@ function cetakLaporanPenutupanMusim() {
         const proyeksiDepan = totalKontrak - totalModalDepan;
         const efekBelum = totalDibayarJamaah - totalKontrak;
         const efekBiaya = totalModalDepan - totalPengeluaran;
-        const selisih = profitRiil - proyeksiDepan;
+        const selisih = profitRiil - proyeksiDepan; // = efekBelum + efekBiaya + uangTanpaHarga (tepat)
         const adaFocTL = modalEst && (modalEst.nFoc + modalEst.nTL) > 0;
         let catatanProyeksi = '';
         if (modalEst && modalEst.tanpaTipe > 0) catatanProyeksi += `<p class="lap-note">${modalEst.tanpaTipe} jamaah belum punya tipe kamar, modalnya dihitung dengan tarif Quad.</p>`;
@@ -17253,8 +17424,9 @@ function cetakLaporanPenutupanMusim() {
         blok4 = `<div class="lap-section"><h2>4. Selisih dari Rencana</h2>
             <table class="lap-table"><tr><td>Belum dibayar jamaah (Sudah Dibayar − Kontrak)</td><td style="color:${warnaTanda(efekBelum)};">${fTanda(efekBelum)}</td></tr>
             <tr><td>Pengeluaran dibanding modal estimasi (Modal − Pengeluaran)</td><td style="color:${warnaTanda(efekBiaya)};">${fTanda(efekBiaya)}</td></tr>
+            ${uangTanpaHarga > 0 ? `<tr><td>Uang masuk dari jamaah tanpa harga paket</td><td style="color:${warnaTanda(uangTanpaHarga)};">${fTanda(uangTanpaHarga)}</td></tr>` : ''}
             <tr class="lap-total" style="color:${warnaTanda(selisih)};"><td>SELISIH LABA (Realisasi − Proyeksi)</td><td>${fTanda(selisih)}</td></tr></table>
-            <p class="lap-note">Tanda minus berarti lebih rendah dari rencana, tanda plus berarti lebih tinggi. Dua baris pertama dijumlahkan menjadi Selisih Laba.</p></div>`;
+            <p class="lap-note">Tanda minus berarti lebih rendah dari rencana, tanda plus berarti lebih tinggi. ${uangTanpaHarga > 0 ? 'Baris-baris di atas dijumlahkan menjadi Selisih Laba.' : 'Dua baris pertama dijumlahkan menjadi Selisih Laba.'}</p></div>`;
     } else {
         blok4 = `<div class="lap-section"><p class="lap-note">Proyeksi Laba dan Selisih tidak ditampilkan karena program ini tidak memakai Estimasi/Modal (Cuan Plan).</p></div>`;
     }
@@ -20020,7 +20192,41 @@ function formatHargaInput(el) {
     if (preview) preview.textContent = num > 0 ? 'Rp ' + num.toLocaleString('id-ID') : '';
 }
 
+// ==================== JENIS PESERTA (Bayar / FOC / TL / Pembimbing) ====================
+// Disimpan di additional_fields.jenis_peserta. Kosong = Bayar (data lama otomatis dianggap Bayar).
+// FOC, TL, dan Pembimbing TIDAK PERNAH ditagih — juga saat Harga Seragam aktif.
+function daftarJenisPeserta() {
+    return [
+        { id: 'bayar', label: 'Bayar', ikon: '💳', ket: 'Ditagih sesuai harga paket' },
+        { id: 'foc', label: 'FOC', ikon: '🎁', ket: 'Gratis — biayanya sudah dibebankan ke jamaah yang bayar' },
+        { id: 'tl', label: 'TL', ikon: '🧭', ket: 'Tour Leader — biayanya dari kantor (profit)' },
+        { id: 'pembimbing', label: 'Pembimbing', ikon: '📖', ket: 'Pembimbing — tidak ditagih' }
+    ];
+}
+function jenisPeserta(j) {
+    const v = String((j && j.additional_fields && j.additional_fields.jenis_peserta) || 'bayar').toLowerCase();
+    return (v === 'foc' || v === 'tl' || v === 'pembimbing') ? v : 'bayar';
+}
+function tanpaTagihan(j) { return jenisPeserta(j) !== 'bayar'; }
+function infoJenisPeserta(j) {
+    const id = jenisPeserta(j);
+    return daftarJenisPeserta().find(x => x.id === id) || daftarJenisPeserta()[0];
+}
+function hitungKomposisiPeserta(daftar) {
+    const r = { bayar: 0, foc: 0, tl: 0, pembimbing: 0, total: 0 };
+    (daftar || []).forEach(j => { r[jenisPeserta(j)]++; r.total++; });
+    return r;
+}
+function teksKomposisiPeserta(k) {
+    const bagian = [];
+    if (k.foc) bagian.push(k.foc + ' FOC');
+    if (k.tl) bagian.push(k.tl + ' TL');
+    if (k.pembimbing) bagian.push(k.pembimbing + ' pembimbing');
+    return k.bayar + ' bayar' + (bagian.length ? ' + ' + bagian.join(' + ') : '') + ' = ' + k.total + ' orang';
+}
+
 function getTotalHargaPaket(jamaah) { 
+    if (tanpaTagihan(jamaah)) return 0; // FOC / TL / Pembimbing: tidak pernah ditagih, apa pun pengaturan harga
     // Haji Reguler: total = jumlah semua Komponen (Bimbingan+Touring+dst), pakai nilai per-jamaah kalau ada override, kalau tidak pakai Harga Seragam komponen itu
     if(isHajiReguler()) {
         const komponenList = ensureKomponenHaji();
@@ -20065,6 +20271,9 @@ function hitungTotalBayarJamaah(idJamaah) {
 
 function getStatusPembayaran(jamaah) { 
     const totalBayar = hitungTotalBayarJamaah(jamaah.id); 
+    if (tanpaTagihan(jamaah)) {
+        return { status: 'TANPA TAGIHAN', warna: '#8B5CF6', sisa: 0, totalBayar, totalHargaPaket: 0, needInput: false, tanpaTagihan: true, jenis: jenisPeserta(jamaah) };
+    }
     let totalHargaPaket = getTotalHargaPaket(jamaah); 
     if (totalHargaPaket === null || totalHargaPaket === 0) { 
         return { status: 'BELUM DIISI', warna: '#f39c12', sisa: 0, totalBayar, totalHargaPaket: 0, needInput: true }; 
@@ -20125,7 +20334,7 @@ function hitungStatusPerKomponenHaji(jamaahId) {
     const komponenList = ensureKomponenHaji();
     const override = jamaah.harga_komponen_haji || {};
     return komponenList.map(k => {
-        const target = override[k.jenis] !== undefined ? override[k.jenis] : (k.harga || 0);
+        const target = tanpaTagihan(jamaah) ? 0 : (override[k.jenis] !== undefined ? override[k.jenis] : (k.harga || 0));
         const dibayar = paymentTransaksiList.filter(t => t.id_jamaah == jamaahId && t.komponen === k.jenis).reduce((s,t) => s + (parseInt(t.nominal)||0), 0);
         const sisa = target - dibayar;
         let status = 'Belum';
@@ -20165,8 +20374,11 @@ function renderPaymentJamaahList() {
     const pageData = filteredJamaah.slice(start, start + perPage);
     let html = `<div style="margin-bottom:10px; font-size:0.8rem; color:var(--accent);">Total: ${filteredJamaah.length} jamaah (halaman ${currentPaymentPage} dari ${totalPages})</div>`; 
     pageData.forEach(j => { 
-        const { status, warna, sisa, totalBayar, totalHargaPaket, needInput } = getStatusPembayaran(j); 
-        if (needInput) 
+        const { status, warna, sisa, totalBayar, totalHargaPaket, needInput, tanpaTagihan: tanpaTag } = getStatusPembayaran(j); 
+        if (tanpaTag) {
+            const infoJ = infoJenisPeserta(j);
+            html += `<div class="payment-jamaah-card" style="border-left-color: #8B5CF6;"><div class="payment-jamaah-info"><h4>${escapeHtml(j.nama_lengkap)} <span style="font-size:11px;background:#EDE9FE;color:#5B21B6;border-radius:6px;padding:2px 7px;font-weight:700;">${infoJ.ikon} ${infoJ.label}</span></h4><div class="payment-price-detail" style="color:#6D28D9;">Tidak ditagih${totalBayar > 0 ? ' · tercatat pembayaran ' + formatRupiah(totalBayar) : ''}</div></div></div>`;
+        } else if (needInput) 
             html += `<div class="payment-jamaah-card" style="border-left-color: #f39c12;"><div class="payment-jamaah-info"><h4>${escapeHtml(j.nama_lengkap)}</h4><div class="payment-price-detail" style="color: #f39c12;">⚠️ Total Harga Paket belum diisi!</div></div><div><button class="payment-btn-bayar" onclick="openEditHargaModal('${j.id}')" style="background:#f39c12; color:white;"><i class="fas fa-tag"></i> Atur Harga</button></div></div>`; 
         else {
             let rincianKomponen = '';
@@ -20200,7 +20412,7 @@ function populatePaymentJamaahDropdown() {
         const option = document.createElement('option'); 
         option.value = j.id; 
         let totalHarga = getTotalHargaPaket(j); 
-        option.textContent = `${j.nama_lengkap} (Paket: ${totalHarga ? formatRupiah(totalHarga) : 'belum diisi'})`; 
+        option.textContent = `${j.nama_lengkap} (${tanpaTagihan(j) ? infoJenisPeserta(j).label + ' — tanpa tagihan' : 'Paket: ' + (totalHarga ? formatRupiah(totalHarga) : 'belum diisi')})`; 
         select.appendChild(option); 
     }); 
 }
@@ -22854,7 +23066,7 @@ function openIndexedDB() {
 // dengan build baru, data MENTAH (langsung dari IndexedDB, bukan dari memori) disalin dulu sebelum
 // proses migrasi apapun berjalan — supaya kalau ada kesalahan di update, data lama masih bisa dipulihkan.
 // Dokumen & foto tidak ikut disalin (ukurannya besar, dan tidak pernah disentuh proses migrasi).
-const NAVARA_BUILD = '2026.10.05-60';
+const NAVARA_BUILD = '2026.10.06-62';
 const MAKS_SNAPSHOT = 3;
 
 // ==================== DAFTAR DATA PUSAT ====================
