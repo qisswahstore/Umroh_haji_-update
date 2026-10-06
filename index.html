@@ -2521,6 +2521,18 @@
                 <div class="input-group"><label>Buffer Diskon (opsional)</label><input type="text" id="konCBuffer" class="money-input" inputmode="numeric" value="0" oninput="saveKonsorsiumEstimasiData()"></div>
             </div>
 
+            <div class="section-title" style="margin-top:12px;"><span>Harga Jual Brosur <small style="font-weight:normal;color:#888;">(Opsional — pembulatan)</small></span></div>
+            <div class="input-group">
+                <input type="text" id="konCHargaJual" class="money-input" inputmode="numeric" value="" placeholder="Kosong = pakai hasil hitungan" oninput="saveKonsorsiumEstimasiData()">
+                <div style="display:flex;gap:6px;margin-top:6px;flex-wrap:wrap;">
+                    <button type="button" onclick="konBulatkanHargaJual(100000)" style="flex:1;min-width:80px;padding:8px 6px;border:1.5px solid var(--primary);background:white;color:var(--primary);border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;">↑ 100 rb</button>
+                    <button type="button" onclick="konBulatkanHargaJual(250000)" style="flex:1;min-width:80px;padding:8px 6px;border:1.5px solid var(--primary);background:white;color:var(--primary);border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;">↑ 250 rb</button>
+                    <button type="button" onclick="konBulatkanHargaJual(500000)" style="flex:1;min-width:80px;padding:8px 6px;border:1.5px solid var(--primary);background:white;color:var(--primary);border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;">↑ 500 rb</button>
+                    <button type="button" onclick="konHapusHargaJual()" style="flex:1;min-width:80px;padding:8px 6px;border:1.5px solid #ccc;background:white;color:#666;border-radius:8px;font-size:12px;cursor:pointer;">Hapus</button>
+                </div>
+                <small id="konHargaJualInfo" style="color:#888;font-size:11px;margin-top:6px;display:block;"></small>
+            </div>
+
             <button onclick="hitungKonsorsiumEstimasi()" style="width:100%;padding:13px;background:var(--primary);color:white;border:none;border-radius:12px;font-size:14px;font-weight:700;cursor:pointer;margin-top:16px;">🧮 HITUNG ESTIMASI KONSORSIUM</button>
         </div>
 
@@ -2529,6 +2541,9 @@
             <div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid rgba(255,255,255,0.2);"><span style="opacity:0.8;font-size:13px;">Total Omzet Grup</span><span id="konHasilOmzet" style="font-weight:700;">Rp 0</span></div>
             <div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid rgba(255,255,255,0.2);"><span style="opacity:0.8;font-size:13px;">Profit Kotor Grup</span><span id="konHasilProfitKotor" style="font-weight:700;">Rp 0</span></div>
             <div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid rgba(255,255,255,0.2);"><span style="opacity:0.8;font-size:13px;">PROFIT BERSIH</span><span id="konHasilProfitBersih" style="font-weight:700;color:#4ADE80;">Rp 0</span></div>
+            <div id="konBarisHitungan" style="display:none;justify-content:space-between;padding:5px 0;border-bottom:1px solid rgba(255,255,255,0.2);"><span style="opacity:0.8;font-size:13px;">Harga hasil hitungan</span><span id="konBarisHitunganNilai" style="font-weight:700;"></span></div>
+            <div id="konBarisBulat" style="display:none;justify-content:space-between;padding:5px 0;border-bottom:1px solid rgba(255,255,255,0.2);"><span style="opacity:0.8;font-size:13px;">Pembulatan harga jual</span><span id="konBarisBulatNilai" style="font-weight:700;color:#FBBF24;"></span></div>
+            <div id="konBarisBersihBulat" style="display:none;justify-content:space-between;padding:5px 0;border-bottom:1px solid rgba(255,255,255,0.2);"><span style="opacity:0.8;font-size:13px;">PROFIT BERSIH setelah pembulatan</span><span id="konBarisBersihBulatNilai" style="font-weight:700;color:#4ADE80;"></span></div>
             <div style="text-align:center;margin-top:14px;">
                 <div style="display:flex;align-items:center;justify-content:center;gap:6px;">
                     <span style="background:#F59E0B;color:#1a1a1a;font-size:9px;font-weight:700;padding:2px 7px;border-radius:10px;">B2C</span>
@@ -2593,9 +2608,18 @@
                 <span id="konsorsiumMarginPct" style="font-weight:700;">0%</span>
             </div>
             <div style="display:flex;justify-content:space-between;padding:8px 0 0;">
-                <span style="font-weight:700;font-size:14px;">PROFIT TOTAL ANDA</span>
+                <span id="konsorsiumLabelProfit" style="font-weight:700;font-size:14px;">PROFIT TOTAL ANDA</span>
                 <span id="konsorsiumTotalProfit" style="font-weight:900;font-size:18px;color:#4ADE80;">Rp 0</span>
             </div>
+            <div id="konsorsiumBarisTL" style="display:none;justify-content:space-between;padding:6px 0 0;">
+                <span id="konsorsiumLabelTL" style="opacity:0.85;font-size:13px;">Biaya TL (diambil dari profit)</span>
+                <span id="konsorsiumNilaiTL" style="font-weight:700;color:#FCA5A5;">- Rp 0</span>
+            </div>
+            <div id="konsorsiumBarisBersihTL" style="display:none;justify-content:space-between;padding:6px 0 0;">
+                <span style="font-weight:700;font-size:14px;">PERKIRAAN LABA BERSIH setelah TL</span>
+                <span id="konsorsiumNilaiBersihTL" style="font-weight:900;font-size:18px;color:#4ADE80;">Rp 0</span>
+            </div>
+            <div id="konsorsiumCatatanTL" style="display:none;font-size:11px;opacity:0.75;padding-top:6px;">*Perkiraan, bukan realisasi. Biaya TL sebenarnya tercatat di Pengeluaran dan masuk Laporan Penutupan Musim.</div>
         </div>
         <div style="display:flex;gap:8px;margin-top:10px;">
             <button onclick="cetakLaporanKonsorsium()" style="flex:1;padding:11px;background:#F59E0B;color:white;border:none;border-radius:10px;font-size:12px;font-weight:700;cursor:pointer;">🖨️ Cetak Laporan (Internal)</button>
@@ -7635,6 +7659,8 @@ function salinDariEstimasiKeKonsorsium() {
     document.getElementById('konCLain').value = pr(est.cLain);
     document.getElementById('konProfitPct').value = est.profitPct !== undefined ? est.profitPct : 8;
     document.getElementById('konCBuffer').value = pr(est.cBuffer);
+    { const elHJ = document.getElementById('konCHargaJual'); if(elHJ) elHJ.value = est.cHargaJual ? pr(est.cHargaJual) : ''; }
+    konPerbaruiPetunjukHargaJual();
     showToast('✅ Komponen biaya disalin dari Estimasi Program');
 }
 
@@ -7665,8 +7691,72 @@ function saveKonsorsiumEstimasiData() {
         cLain: document.getElementById('konCLain').value,
         profitPct: document.getElementById('konProfitPct').value,
         cBuffer: document.getElementById('konCBuffer').value,
+        cHargaJual: document.getElementById('konCHargaJual')?.value || '',
     };
     simpanKonsorsium();
+    konPerbaruiPetunjukHargaJual();
+}
+
+// Dasar hitungan Estimasi Konsorsium dari isian form (sama dengan rumus di hitungKonsorsiumEstimasi dan Estimasi biasa)
+function konHitungDasarDariForm() {
+    const v = id => parseRupiah(document.getElementById(id)?.value || '0');
+    const nJam = parseInt(document.getElementById('konTotJam')?.value) || 0;
+    const nFoc = parseInt(document.getElementById('konJamGratis')?.value) || 0;
+    const nTL = parseInt(document.getElementById('konNumTL')?.value) || 0;
+    const sub = ['konCTiket','konCAsuransi','konCHandling','konCPIC','konCAlat','konCAplikasi','konCLain'].reduce((a, id) => a + v(id), 0) + v('konCLAquad');
+    const pPct = (parseFloat(document.getElementById('konProfitPct')?.value) || 0) / 100;
+    const profitKotor = (sub * nJam) * pPct;
+    const bersih = profitKotor - sub * nTL;
+    const nBayar = nJam - nFoc;
+    const buffer = v('konCBuffer');
+    const jual = nBayar > 0 ? (((sub * nJam) + profitKotor) / nBayar) + buffer : 0;
+    return { nJam, nFoc, nTL, sub, profitKotor, bersih, nBayar, buffer, jual };
+}
+
+function konPerbaruiPetunjukHargaJual() {
+    const el = document.getElementById('konHargaJualInfo');
+    if(!el) return;
+    const f = n => 'Rp ' + Math.round(n).toLocaleString('id-ID');
+    const d = konHitungDasarDariForm();
+    const manual = parseRupiah(document.getElementById('konCHargaJual')?.value || '0');
+    if(d.nBayar <= 0 || !(d.jual > 0)) { el.style.color = '#888'; el.textContent = ''; return; }
+    if(!manual) { el.style.color = '#888'; el.textContent = `Kosong = memakai hasil hitungan (${f(d.jual)}). Ketik harga bulat, atau pakai tombol di atas, lalu tekan HITUNG ESTIMASI KONSORSIUM.`; return; }
+    const selisih = manual - d.jual, tambah = selisih * d.nBayar;
+    if(Math.round(selisih) >= 0) {
+        el.style.color = '#166534';
+        el.textContent = `Hitungan ${f(d.jual)} → harga jual ${f(manual)} (+${f(selisih)}/pax). Laba bersih rencana setelah pembulatan: ${f(d.bersih + tambah)} (+${f(tambah)}), bila buffer terpakai penuh untuk diskon. Tekan HITUNG ESTIMASI KONSORSIUM untuk menerapkan.`;
+    } else {
+        el.style.color = '#B45309';
+        el.textContent = `⚠️ Harga jual ${f(-selisih)}/pax di bawah hitungan (${f(d.jual)}). Laba bersih rencana turun ${f(-tambah)} menjadi ${f(d.bersih + tambah)}.`;
+    }
+}
+
+function konBulatkanHargaJual(step) {
+    const slot = ensureProgramConfigSlot();
+    if(slot.konsorsium_locked) return showToast('🔒 Konsorsium terkunci, buka dulu untuk edit!');
+    const d = konHitungDasarDariForm();
+    if(!(d.jual > 0)) return showToast('Isi Total Pax dan komponen biaya dulu');
+    document.getElementById('konCHargaJual').value = (Math.ceil(Math.round(d.jual) / step) * step).toLocaleString('id-ID');
+    saveKonsorsiumEstimasiData();
+}
+
+function konHapusHargaJual() {
+    const slot = ensureProgramConfigSlot();
+    if(slot.konsorsium_locked) return showToast('🔒 Konsorsium terkunci, buka dulu untuk edit!');
+    const el = document.getElementById('konCHargaJual');
+    if(el) el.value = '';
+    saveKonsorsiumEstimasiData();
+}
+
+// Tampilkan / sembunyikan 3 baris pembulatan pada kartu hasil Konsorsium
+function konTampilBarisPembulatan(hitungan, brosur, bersih, nBayar, dipakai) {
+    const f = n => 'Rp ' + Math.round(n).toLocaleString('id-ID');
+    const set = (id, show, teks) => { const r = document.getElementById(id), n = document.getElementById(id + 'Nilai'); if(r) r.style.display = show ? 'flex' : 'none'; if(n && show) n.textContent = teks; };
+    if(!dipakai) { set('konBarisHitungan', false); set('konBarisBulat', false); set('konBarisBersihBulat', false); return; }
+    const selisih = brosur - hitungan;
+    set('konBarisHitungan', true, f(hitungan));
+    set('konBarisBulat', true, (selisih >= 0 ? '+' : '-') + f(Math.abs(selisih)) + '/pax');
+    set('konBarisBersihBulat', true, f(bersih + selisih * nBayar));
 }
 
 function hitungKonsorsiumEstimasi() {
@@ -7687,7 +7777,9 @@ function hitungKonsorsiumEstimasi() {
     const biayaTL = sub * nTL;
     const profitBersih = profitKotor - biayaTL;
     const jualBase = (totalModalGrup + profitKotor) / (nJam - nFoc);
-    const hargaBrosur = jualBase + buffer;
+    const hargaHitungan = jualBase + buffer;
+    const hargaJualManual = pr(document.getElementById('konCHargaJual')?.value || '0');
+    const hargaBrosur = hargaJualManual > 0 ? hargaJualManual : hargaHitungan; // harga bulat bila diisi, kalau kosong memakai hasil hitungan
     const totalOmzet = hargaBrosur * (nJam - nFoc); // yang DITAMPILKAN — Harga Jual (termasuk Buffer) x Jamaah Bayar, sama seperti Estimasi asli
 
     konsorsiumLastModal = sub;
@@ -7701,12 +7793,14 @@ function hitungKonsorsiumEstimasi() {
     document.getElementById('konHasilBrosur').textContent = f(hargaBrosur);
     document.getElementById('konHasilKeterangan').textContent = `*Berdasarkan ${nJam-nFoc} jamaah bayar dan ${nFoc} FOC (basis kamar Quad)`;
     document.getElementById('konsorsiumHasilCard').style.display = 'block';
+    konTampilBarisPembulatan(hargaHitungan, hargaBrosur, profitBersih, nJam - nFoc, hargaJualManual > 0);
 
     // Simpan per-Program
     saveKonsorsiumEstimasiData();
     const slot = ensureProgramConfigSlot();
     slot.konsorsium_estimasi_data.modal = sub;
     slot.konsorsium_estimasi_data.hargaBrosur = hargaBrosur;
+    slot.konsorsium_estimasi_data.hargaHitungan = hargaHitungan;
     simpanKonsorsium();
     renderKonsorsiumList();
     showToast('✅ Estimasi Konsorsium dihitung');
@@ -7718,6 +7812,8 @@ function loadKonsorsiumEstimasiUI() {
     if(!d) {
         document.getElementById('konsorsiumHasilCard').style.display = 'none';
         konsorsiumLastModal = 0; konsorsiumLastBrosur = 0;
+        { const elHJ = document.getElementById('konCHargaJual'); if(elHJ) elHJ.value = ''; }
+        konTampilBarisPembulatan(0, 0, 0, 0, false); konPerbaruiPetunjukHargaJual();
         return;
     }
     document.getElementById('konTotJam').value = d.totJam;
@@ -7740,6 +7836,7 @@ function loadKonsorsiumEstimasiUI() {
     document.getElementById('konCLain').value = d.cLain;
     document.getElementById('konProfitPct').value = d.profitPct;
     document.getElementById('konCBuffer').value = d.cBuffer;
+    { const elHJ = document.getElementById('konCHargaJual'); if(elHJ) elHJ.value = d.cHargaJual || ''; }
 
     // Hitung ulang rincian lengkap dari data tersimpan (bukan cuma Modal & Brosur)
     const pr = v => parseInt((v||'0').toString().replace(/\./g,'').replace(/[^0-9]/g,'')) || 0;
@@ -7763,6 +7860,8 @@ function loadKonsorsiumEstimasiUI() {
     document.getElementById('konHasilBrosur').textContent = f(konsorsiumLastBrosur);
     document.getElementById('konHasilKeterangan').textContent = `*Berdasarkan ${nJam-nFoc} jamaah bayar dan ${nFoc} FOC`;
     document.getElementById('konsorsiumHasilCard').style.display = 'block';
+    konTampilBarisPembulatan(d.hargaHitungan !== undefined ? d.hargaHitungan : (d.hargaBrosur || 0), d.hargaBrosur || 0, profitBersih, nJam - nFoc, pr(d.cHargaJual) > 0 && d.hargaHitungan !== undefined);
+    konPerbaruiPetunjukHargaJual();
 }
 
 // ==================== KALKULATOR KONSORSIUM (Tahap 1: alat bantu perkiraan) ====================
@@ -8441,10 +8540,32 @@ function renderKonsorsiumRingkasan() {
     const profitEl = document.getElementById('konsorsiumTotalProfit');
     profitEl.textContent = f(totalProfit);
     profitEl.style.color = totalProfit >= 0 ? '#4ADE80' : '#FCA5A5';
+
+    // Biaya TL diambil dari profit (sama seperti Estimasi): modal Quad x jumlah TL. Hanya perkiraan; tampil bila ada TL dan ada travel yang sudah punya harga.
+    const tl = hitungBiayaTLKonsorsium();
+    const adaTL = tl.nTL > 0 && tl.biaya > 0 && paxDenganHarga > 0;
+    const setTampil = (id, show) => { const e = document.getElementById(id); if(e) e.style.display = show ? 'flex' : 'none'; };
+    setTampil('konsorsiumBarisTL', adaTL); setTampil('konsorsiumBarisBersihTL', adaTL);
+    const cat = document.getElementById('konsorsiumCatatanTL'); if(cat) cat.style.display = adaTL ? 'block' : 'none';
+    const lbl = document.getElementById('konsorsiumLabelProfit'); if(lbl) lbl.textContent = adaTL ? 'PROFIT TOTAL (sebelum biaya TL)' : 'PROFIT TOTAL ANDA';
+    if(adaTL) {
+        document.getElementById('konsorsiumLabelTL').textContent = `Biaya TL (${tl.nTL} orang, diambil dari profit)`;
+        document.getElementById('konsorsiumNilaiTL').textContent = '- ' + f(tl.biaya);
+        const nb = document.getElementById('konsorsiumNilaiBersihTL');
+        nb.textContent = f(totalProfit - tl.biaya);
+        nb.style.color = (totalProfit - tl.biaya) >= 0 ? '#4ADE80' : '#FCA5A5';
+    }
+}
+
+// Biaya TL konsorsium = modal pokok per pax (Quad) x jumlah TL pada kartu Estimasi Konsorsium (rumus sama dengan Estimasi biasa)
+function hitungBiayaTLKonsorsium() {
+    const d = ensureProgramConfigSlot().konsorsium_estimasi_data;
+    const nTL = d ? (parseInt(d.numTL) || 0) : 0;
+    return { nTL, biaya: (konsorsiumLastModal || 0) * nTL };
 }
 
 // ==================== KUNCI & RIWAYAT KONSORSIUM ====================
-const KONSORSIUM_FIELD_IDS = ['konTotJam','konJamGratis','konNumTL','konCTiket','konCLAquad','konCLAtriple','konCLAdouble','konCAsuransi','konCHandling','konCAlat','konCAplikasi','konCPIC','konCLain','konProfitPct','konCBuffer'];
+const KONSORSIUM_FIELD_IDS = ['konTotJam','konJamGratis','konNumTL','konCTiket','konCLAquad','konCLAtriple','konCLAdouble','konCAsuransi','konCHandling','konCAlat','konCAplikasi','konCPIC','konCLain','konProfitPct','konCBuffer','konCHargaJual'];
 
 function renderKunciKonsorsiumUI() {
     const slot = ensureProgramConfigSlot();
@@ -8567,7 +8688,9 @@ function kumpulkanDataKonsorsiumUntukLaporan() {
             rows.push({ nama: t.nama || 'Travel Partner', tipe: x.label, jumlah: x.jumlah, gratisDiSini: x.gratisDiSini, modal: x.modal, harga: x.harga, tagihan: tagihanTipe, profit: profitTipe });
         });
     });
-    return { rows, totalGabungan, totalModal, totalTagihan, totalProfit, hargaBrosur: konsorsiumLastBrosur };
+    const tl = hitungBiayaTLKonsorsium();
+    const adaTL = tl.nTL > 0 && tl.biaya > 0 && rows.some(r => r.harga !== null && r.harga !== undefined);
+    return { rows, totalGabungan, totalModal, totalTagihan, totalProfit, hargaBrosur: konsorsiumLastBrosur, adaTL, nTL: tl.nTL, biayaTL: tl.biaya };
 }
 
 function cetakLaporanKonsorsium() {
@@ -8612,7 +8735,8 @@ function cetakLaporanKonsorsium() {
         <div>👥 Total Jamaah Gabungan: ${data.totalGabungan}</div>
         <div>💰 Total Modal Efektif Gabungan: ${f(data.totalModal)}</div>
         <div>💵 Total Tagihan: ${f(data.totalTagihan)}</div>
-        <div>✅ PROFIT TOTAL: ${f(data.totalProfit)}</div>
+        <div>✅ PROFIT TOTAL${data.adaTL ? ' (sebelum biaya TL)' : ''}: ${f(data.totalProfit)}</div>
+        ${data.adaTL ? `<div>🧳 Biaya TL (${data.nTL} orang, dari profit): - ${f(data.biayaTL)}</div><div>✅ PERKIRAAN LABA BERSIH setelah TL: ${f(data.totalProfit - data.biayaTL)}</div><div style="font-size:11px;opacity:.8;">*Perkiraan, bukan realisasi.</div>` : ''}
     </div>
     `;
     tampilkanJendelaCetak(html);
@@ -8628,7 +8752,8 @@ function bagikanKonsorsiumWA() {
     data.rows.forEach(r => {
         teks += `${r.nama} - ${r.tipe} (${r.jumlah} org): Rp ${Math.round(r.harga||0).toLocaleString('id-ID')}/org → Profit ${f(r.profit)}\n`;
     });
-    teks += `\n👥 Total Jamaah: ${data.totalGabungan}\n💰 Total Modal Efektif: ${f(data.totalModal)}\n💵 Total Tagihan: ${f(data.totalTagihan)}\n✅ *PROFIT TOTAL: ${f(data.totalProfit)}*`;
+    teks += `\n👥 Total Jamaah: ${data.totalGabungan}\n💰 Total Modal Efektif: ${f(data.totalModal)}\n💵 Total Tagihan: ${f(data.totalTagihan)}\n✅ *PROFIT TOTAL${data.adaTL ? ' (sebelum biaya TL)' : ''}: ${f(data.totalProfit)}*`;
+    if(data.adaTL) teks += `\n🧳 Biaya TL (${data.nTL} orang): - ${f(data.biayaTL)}\n✅ *PERKIRAAN LABA BERSIH setelah TL: ${f(data.totalProfit - data.biayaTL)}* (perkiraan)`;
     window.open(`https://wa.me/?text=${encodeURIComponent(teks)}`, '_blank');
 }
 
@@ -23066,7 +23191,7 @@ function openIndexedDB() {
 // dengan build baru, data MENTAH (langsung dari IndexedDB, bukan dari memori) disalin dulu sebelum
 // proses migrasi apapun berjalan — supaya kalau ada kesalahan di update, data lama masih bisa dipulihkan.
 // Dokumen & foto tidak ikut disalin (ukurannya besar, dan tidak pernah disentuh proses migrasi).
-const NAVARA_BUILD = '2026.10.06-62';
+const NAVARA_BUILD = '2026.10.06-63';
 const MAKS_SNAPSHOT = 3;
 
 // ==================== DAFTAR DATA PUSAT ====================
