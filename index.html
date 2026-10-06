@@ -2424,9 +2424,10 @@
                 <span id="ringkasanPengeluaran" style="font-weight:700;">Rp 0</span>
             </div>
             <div style="display:flex;justify-content:space-between;padding:8px 0 0;">
-                <span style="font-weight:700;font-size:14px;">LABA BERSIH (Realisasi)</span>
+                <span id="ringkasanLabelProfit" style="font-weight:700;font-size:14px;">LABA BERSIH (Realisasi)</span>
                 <span id="ringkasanProfit" style="font-weight:900;font-size:18px;color:#2ecc71;">Rp 0</span>
             </div>
+            <div id="ringkasanCatatanFinal" style="display:none;margin-top:8px;padding:7px 9px;background:#FEF3C7;color:#92400E;border-radius:8px;font-size:11px;line-height:1.4;"></div>
         </div>
 
         <!-- List Pengeluaran -->
@@ -7268,7 +7269,7 @@ async function cetakEstimasiPDFInternal() {
             <div><strong>Paket &nbsp;&nbsp;:</strong> ${lastCalculatedPaket}</div>
             ${(est.namaHotelMakkah || est.namaHotelMadinah) ? `<div><strong>Hotel &nbsp;&nbsp;:</strong> ${[est.namaHotelMakkah ? est.namaHotelMakkah + ' (Makkah)' : '', est.namaHotelMadinah ? est.namaHotelMadinah + ' (Madinah)' : ''].filter(x=>x).join(', ')}</div>` : ''}
             ${est.namaMaskapai ? `<div><strong>Maskapai:</strong> ${est.namaMaskapai}</div>` : ''}
-            <div><strong>Jamaah :</strong> ${nJam} orang (${nFoc} FOC, ${nTL} TL)</div>
+            <div><strong>Jamaah :</strong> ${teksJamaahEstimasi(nJam, nFoc, nTL)}</div>
             ${tglBerangkat ? `<div><strong>Tgl Keberangkatan:</strong> ${tglBerangkat}</div>` : ''}
             <div><strong>Dicetak :</strong> ${tgl}</div>
         </div>
@@ -7367,7 +7368,7 @@ async function shareEstimasiInternalPDF() {
             tulisBarisInfo('Hotel: ', hotelTxt);
         }
         if (est.namaMaskapai) tulisBarisInfo('Maskapai: ', est.namaMaskapai);
-        tulisBarisInfo('Jamaah: ', `${nJam} orang (${nFoc} FOC, ${nTL} TL)`);
+        tulisBarisInfo('Jamaah: ', teksJamaahEstimasi(nJam, nFoc, nTL));
         if (tglBerangkat) tulisBarisInfo('Tgl Keberangkatan: ', tglBerangkat);
         tulisBarisInfo('Dicetak: ', tgl);
         yInfo += 3;
@@ -7397,7 +7398,7 @@ async function shareEstimasiInternalPDF() {
         doc.setTextColor(16,185,129);
         doc.text(`Profit Bersih: ${f(profitBersih)}`, 18, y); y += 6;
         doc.text(`Profit Per Pax: ${f(profitPerPax)}`, 18, y); y += 6;
-        if (buffer > 0) { doc.setTextColor(245,158,11); doc.text(`+ Buffer Diskon: ${f(buffer)}`, 18, y); y += 6; }
+        if (buffer > 0) { doc.setTextColor(245,158,11); doc.text(`+ Buffer Diskon (langsung ke Harga Jual, bukan Modal): ${f(buffer)}`, 18, y); y += 6; }
         if (hargaJualManual > 0) {
             doc.setTextColor(245,158,11); doc.text(`Pembulatan harga jual: ${selisihBulat>=0?'+':'-'} ${f(Math.abs(selisihBulat))} /pax`, 18, y); y += 6;
             doc.setTextColor(16,185,129); doc.text(`Profit Bersih setelah pembulatan: ${f(profitBersih+tambahanBulat)}`, 18, y); y += 6;
@@ -9104,6 +9105,16 @@ function updateRingkasanKeuangan() {
         const profitEl = document.getElementById('ringkasanProfit');
         profitEl.textContent = f(profit);
         profitEl.style.color = profit >= 0 ? '#2ecc71' : '#ef4444';
+        try {
+            const st = statusLabaBelumFinal(jamaahList, totalPengeluaran);
+            const lbl = document.getElementById('ringkasanLabelProfit');
+            const cat = document.getElementById('ringkasanCatatanFinal');
+            if(lbl) lbl.textContent = 'LABA BERSIH (Realisasi' + (st ? ', sementara' : '') + ')';
+            if(cat) {
+                if(st) { cat.style.display = 'block'; cat.textContent = '⚠️ Belum final: pengeluaran tercatat baru ' + f(st.pengeluaran) + ' dari modal estimasi ' + f(st.modal) + ' (' + st.persen + '%). Catat semua biaya (terutama tiket maskapai, hotel, handling) sebelum angka ini dijadikan acuan.'; }
+                else { cat.style.display = 'none'; cat.textContent = ''; }
+            }
+        } catch(e) {}
     }
 }
 
@@ -9266,6 +9277,9 @@ function hitungRekapAktual() {
     let html = '';
 
     // Render per tipe
+    // Kalau ada FOC/TL, laba per tipe BELUM dikurangi modal FOC dan TL (itu baru dikurangkan di Total Keseluruhan)
+    const _erAwal = est ? hitungModalHargaEstimasiTerkini() : null;
+    const _adaModalFocTL = !!(_erAwal && ((_erAwal.foc || 0) + (_erAwal.tl || 0)) > 0);
     Object.keys(tipeData).forEach(tipe => {
         const d = tipeData[tipe];
         const profit = d.totalOmzet - d.totalModal;
@@ -9295,7 +9309,7 @@ function hitungRekapAktual() {
                 <span style="font-size:13px;">${f(d.totalModal)}</span>
             </div>
             <div style="display:flex;justify-content:space-between;padding:5px 0;">
-                <span style="font-size:13px;font-weight:700;color:${profit>=0?'#10B981':'#ef4444'}">Laba Sementara</span>
+                <span style="font-size:13px;font-weight:700;color:${profit>=0?'#10B981':'#ef4444'}">${_adaModalFocTL ? 'Laba sebelum biaya FOC &amp; TL' : 'Laba Sementara'}</span>
                 <span style="font-size:13px;font-weight:700;color:${profit>=0?'#10B981':'#ef4444'}">${f(profit)}</span>
             </div>` : ''}` : ''}
             ${d.tanpaHarga?.length > 0 ? `
@@ -9312,6 +9326,7 @@ function hitungRekapAktual() {
     grandModal += modalFocTL;
     const komposisiRekap = hitungKomposisiPeserta(jamaahList);
     const adaTanpaTagihan = (komposisiRekap.foc + komposisiRekap.tl + komposisiRekap.pembimbing) > 0;
+    const kursiRekap = ringkasKursiTerisi(jamaahList);
 
     // Grand Total
     const grandProfit = grandOmzet - grandModal;
@@ -9323,7 +9338,8 @@ function hitungRekapAktual() {
         grand: { kontrak: grandKontrak, dibayar: grandOmzet, piutang: grandPiutang, modalJamaahBayar, modalFocTL,
                  nFoc: estRingkas?.foc || 0, nTL: estRingkas?.tl || 0, modal: grandModal, profit: grandProfit },
         tanpaTipe: tanpaTipe.slice(), hargaBawah: hargaBawahStandar.length,
-        komposisi: adaTanpaTagihan ? teksKomposisiPeserta(komposisiRekap) : ''
+        komposisi: adaTanpaTagihan ? teksKomposisiPeserta(komposisiRekap) : '',
+        kursi: kursiRekap
     };
     if(adaTanpaTagihan) {
         html += `<div style="background:#EDE9FE;border:1.5px solid #C4B5FD;border-radius:12px;padding:10px 12px;margin-bottom:10px;font-size:12px;color:#4C1D95;">
@@ -9360,8 +9376,9 @@ function hitungRekapAktual() {
             <span style="font-size:15px;font-weight:700;">LABA SEMENTARA</span>
             <span style="font-size:18px;font-weight:900;color:${grandProfit>=0?'#2ecc71':'#ef4444'};">${f(grandProfit)}</span>
         </div>
+        ${kursiRekap ? `<div style="font-size:11px;opacity:0.85;margin-top:8px;text-align:right;">🪑 Kursi bayar terisi ${kursiRekap.terisi} dari ${kursiRekap.total} (${kursiRekap.persen}%)${kursiRekap.terisi < kursiRekap.total ? '. Laba Sementara baru mencerminkan kursi yang sudah terjual.' : ''}</div>` : ''}
         <div style="font-size:11px;opacity:0.6;margin-top:6px;text-align:right;">
-            Total ${jamaahList.length} jamaah · ${Object.keys(tipeData).length} tipe
+            ${adaTanpaTagihan ? `Total ${komposisiRekap.total} peserta (${teksKomposisiPeserta(komposisiRekap).split(' = ')[0]})` : `Total ${jamaahList.length} jamaah`} · ${Object.keys(tipeData).length} tipe
         </div>
     </div>`;
 
@@ -9520,7 +9537,7 @@ function shareRekapAktual() {
         if (t.nBayar > 0) {
             text += `Total Kontrak: ${f(t.kontrak)}\nSudah Dibayar (${t.nBayar} jamaah): ${f(t.dibayar)}\n`;
             if (t.piutang > 0) text += `Piutang/Sisa: -${f(t.piutang)}\n`;
-            if (t.modal > 0) text += `Total Modal: ${f(t.modal)}\n*Laba Sementara: ${f(t.profit)}*\n`;
+            if (t.modal > 0) text += `Total Modal: ${f(t.modal)}\n*${data.grand.modalFocTL > 0 ? 'Laba sebelum biaya FOC & TL' : 'Laba Sementara'}: ${f(t.profit)}*\n`;
         }
         if (t.tanpaHarga > 0) text += `⚠️ ${t.tanpaHarga} jamaah belum ada data pembayaran\n`;
     });
@@ -9530,6 +9547,7 @@ function shareRekapAktual() {
     if (g.modalFocTL > 0) text += `Modal jamaah bayar: ${f(g.modalJamaahBayar)}\nModal FOC (${g.nFoc}) dan TL (${g.nTL}): ${f(g.modalFocTL)}\n`;
     if (g.modal > 0) text += `Total Modal (estimasi): ${f(g.modal)}\n*LABA SEMENTARA: ${f(g.profit)}*\n`;
     if (data.komposisi) text += `\n🏷️ Peserta: ${data.komposisi}`;
+    if (data.kursi) text += `\n🪑 Kursi bayar terisi ${data.kursi.terisi} dari ${data.kursi.total} (${data.kursi.persen}%)`;
     if (data.hargaBawah > 0) text += `\n⚠️ ${data.hargaBawah} jamaah harga paketnya di bawah modal`;
     if (data.tanpaTipe.length > 0) text += `\n⚠️ ${data.tanpaTipe.length} jamaah belum ada tipe paket (tidak dihitung): ${data.tanpaTipe.join(', ')}`;
     // Penutup mengikuti pengaturan: pengguna berlisensi memakai nama instansinya sendiri; versi gratis tetap "Navara App"
@@ -17061,7 +17079,7 @@ function hitungModalHargaEstimasiTerkini() {
     const hargaHitung = jualBase + buffer;
     const hargaManual = pr(est.cHargaJual);
     const harga = hargaManual > 0 ? hargaManual : hargaHitung; // harga jual bulat yang diketik menggantikan hasil hitungan
-    return { modal: sub, harga, buffer, foc: nFoc, tl: nTL, hargaHitung, dibulatkan: hargaManual > 0 };
+    return { modal: sub, harga, buffer, foc: nFoc, tl: nTL, nJam, hargaHitung, dibulatkan: hargaManual > 0 };
 }
 
 // Modal per jamaah menurut tipe kamar (Quad/Triple/Double) — SATU rumus yang dipakai tab Rekap DAN Laporan Penutupan Musim
@@ -17101,6 +17119,36 @@ function hitungTotalModalEstimasi(daftarJamaah) {
     const nFoc = ringkas.foc || 0, nTL = ringkas.tl || 0;
     const modalFoc = nFoc * modalQuad, modalTL = nTL * modalQuad;
     return { bayar, nBayar: daftarJamaah.length, nFoc, nTL, modalFoc, modalTL, total: bayar + modalFoc + modalTL, tanpaTipe, modalQuad };
+}
+
+// ===== Penjelasan untuk laporan (build -67): HANYA teks penjelas, tidak mengubah angka/rumus apa pun =====
+// Kursi bayar = Total Pax - FOC (TL di luar Total Pax). Terisi = peserta yang membayar.
+function ringkasKursiTerisi(daftarJamaah) {
+    if(isHajiReguler()) return null;
+    const est = hitungModalHargaEstimasiTerkini();
+    if(!est || !est.nJam) return null;
+    const total = est.nJam - (est.foc || 0);
+    if(total <= 0) return null;
+    const terisi = hitungKomposisiPeserta(daftarJamaah).bayar;
+    return { terisi, total, persen: Math.round(terisi * 100 / total) };
+}
+// Laba Bersih (Realisasi) belum final bila pengeluaran tercatat masih di bawah 80% modal estimasi untuk peserta yang ada
+function statusLabaBelumFinal(daftarJamaah, totalPengeluaran) {
+    if(isHajiReguler()) return null;
+    const bayar = daftarJamaah.filter(j => getTotalHargaPaket(j) > 0);
+    if(!bayar.length) return null;
+    const tm = hitungTotalModalEstimasi(bayar);
+    if(!tm || tm.total <= 0) return null;
+    const rasio = totalPengeluaran / tm.total;
+    if(rasio >= 0.8) return null;
+    return { modal: tm.total, pengeluaran: totalPengeluaran, persen: Math.round(rasio * 100) };
+}
+function teksJamaahEstimasi(nJam, nFoc, nTL) {
+    nJam = Number(nJam) || 0; nFoc = Number(nFoc) || 0; nTL = Number(nTL) || 0;
+    let t = nJam + ' pax';
+    if(nFoc > 0) t += ' (termasuk ' + nFoc + ' FOC)';
+    if(nTL > 0) t += ' + ' + nTL + ' TL';
+    return t + ' = ' + (nJam + nTL) + ' kursi, ' + (nJam - nFoc) + ' membayar';
 }
 
 function hitungSimulasiRasioGratis(modal, harga, setiap, dapat) {
@@ -17564,13 +17612,16 @@ function cetakLaporanPenutupanMusim() {
         rowsPengeluaran = Object.keys(pengeluaranPerKategori).map(k => `<tr><td>${escapeHtml(k)}</td><td>${fKurang(pengeluaranPerKategori[k])}</td></tr>`).join('');
     }
     const profitRiil = totalUangMasuk - totalPengeluaran;
+    const stBelumFinal = est ? statusLabaBelumFinal(jamaahList, totalPengeluaran) : null;
+    const labelLabaBersih = 'LABA BERSIH (Realisasi' + (stBelumFinal ? ', sementara' : '') + ')';
+    const catBelumFinal = (stBelumFinal && totalPengeluaran > 0) ? `<p class="lap-note" style="background:#FEF3C7;color:#92400E;padding:6px 8px;border-radius:6px;">⚠️ Laba Bersih belum final: pengeluaran tercatat baru ${f(stBelumFinal.pengeluaran)} dari modal estimasi ${f(stBelumFinal.modal)} (${stBelumFinal.persen}%). Catat semua biaya (terutama tiket maskapai, hotel, dan handling) sebelum angka ini dipakai sebagai acuan.</p>` : '';
     let sectionPengeluaran = `<div class="lap-section"><h2>💸 Realisasi Pengeluaran${isHajiReguler() ? ' (dari Kas)' : ''}</h2>
         <table class="lap-table">${rowsPengeluaran || '<tr><td colspan="2" style="color:#888;">Belum ada Pengeluaran tercatat</td></tr>'}
         <tr class="lap-total"><td>TOTAL PENGELUARAN</td><td>${fKurang(totalPengeluaran)}</td></tr></table>
         <table class="lap-table" style="margin-top:10px;">
         <tr><td>Total Pemasukan Jamaah (Sudah Dibayar)</td><td>${f(totalUangMasuk)}</td></tr>${barisUangTanpaHarga}
         <tr><td>Total Pengeluaran</td><td>${fKurang(totalPengeluaran)}</td></tr>
-        <tr class="lap-total" style="color:${profitRiil<0?'#DC2626':'#166534'};"><td>LABA BERSIH (Realisasi)</td><td>${f(profitRiil)}</td></tr></table></div>`;
+        <tr class="lap-total" style="color:${profitRiil<0?'#DC2626':'#166534'};"><td>${labelLabaBersih}</td><td>${f(profitRiil)}</td></tr></table></div>`;
 
     // 2. Analisis Buffer B2C
     let sectionBufferB2C = '';
@@ -17675,6 +17726,7 @@ function cetakLaporanPenutupanMusim() {
     const komposisiLap = hitungKomposisiPeserta(jamaahList);
     const nTanpaTagihanLap = komposisiLap.foc + komposisiLap.tl + komposisiLap.pembimbing;
     const tanpaHarga = komposisiLap.bayar - jamaahRelevan.length; // hanya peserta bayar yang belum punya harga
+    const kursiLap = ringkasKursiTerisi(jamaahList);
     const cekPiutangDepan = cekPeringatanCicilanSemuaJamaah();
     const piutangTermin = [...cekPiutangDepan.telat, ...cekPiutangDepan.hariIni, ...cekPiutangDepan.akanDatang].reduce((s2, x) => s2 + x.sisa, 0);
     let catatanBelum = '';
@@ -17684,7 +17736,8 @@ function cetakLaporanPenutupanMusim() {
     if (Math.round(piutangTermin) !== Math.round(belumDibayar) && belumDibayar > 0) catatanBelum += `<p class="lap-note">"Belum dibayar" di sini dihitung dari Total Kontrak dikurangi Sudah Dibayar. Piutang di halaman rincian dihitung dari jadwal cicilan (${f(piutangTermin)}); selisihnya adalah sisa yang tidak tercatat di jadwal cicilan.</p>`;
 
     const blok1 = `<div class="lap-section"><h2>1. Ringkasan Penjualan</h2>
-        <table class="lap-table"><tr><td>Total Jamaah</td><td>${jamaahRelevan.length}</td></tr>
+        <table class="lap-table"><tr><td>${nTanpaTagihanLap > 0 ? 'Jamaah Bayar (tidak termasuk FOC/TL/pembimbing)' : 'Total Jamaah'}</td><td>${jamaahRelevan.length}</td></tr>
+        ${kursiLap ? `<tr><td>Kursi bayar terisi (dari ${kursiLap.total} kursi)</td><td>${kursiLap.terisi} (${kursiLap.persen}%)</td></tr>` : ''}
         <tr><td>Total Kontrak</td><td>${f(totalKontrak)}</td></tr>
         <tr><td>Sudah Dibayar</td><td>${f(totalDibayarJamaah)}</td></tr>
         <tr class="lap-total"><td>${belumDibayar >= 0 ? 'Belum Dibayar (Kontrak − Sudah Dibayar)' : 'Kelebihan Bayar dari Kontrak'}</td><td>${f(Math.abs(belumDibayar))}</td></tr></table>${catatanBelum}</div>`;
@@ -17693,7 +17746,7 @@ function cetakLaporanPenutupanMusim() {
     const blok3 = `<div class="lap-section"><h2>${est ? '3' : '2'}. Realisasi</h2>
         <table class="lap-table"><tr><td>Uang Masuk dari Jamaah (Sudah Dibayar)</td><td>${f(totalUangMasuk)}</td></tr>${barisUangTanpaHarga}
         <tr><td>Realisasi Pengeluaran</td><td>${fKurang(totalPengeluaran)}</td></tr>
-        <tr class="lap-total" style="color:${profitRiil < 0 ? '#DC2626' : '#166534'};"><td>LABA BERSIH (Realisasi)</td><td>${f(profitRiil)}</td></tr></table>${(jamaahRelevan.length > 0 && totalPengeluaran === 0) ? '<p class="lap-note">Belum ada pengeluaran tercatat, jadi Laba Bersih dan Selisih belum mencerminkan biaya yang sebenarnya.</p>' : ''}</div>`;
+        <tr class="lap-total" style="color:${profitRiil < 0 ? '#DC2626' : '#166534'};"><td>${labelLabaBersih}</td><td>${f(profitRiil)}</td></tr></table>${(jamaahRelevan.length > 0 && totalPengeluaran === 0) ? '<p class="lap-note">Belum ada pengeluaran tercatat, jadi Laba Bersih dan Selisih belum mencerminkan biaya yang sebenarnya.</p>' : ''}${catBelumFinal}</div>`;
     if (est && jamaahRelevan.length === 0) {
         blok2 = `<div class="lap-section"><h2>2. Proyeksi (dari Cuan Plan)</h2><p class="lap-note">Belum ada jamaah dengan harga paket, jadi Proyeksi Laba belum bisa dihitung.</p></div>`;
         blok4 = `<div class="lap-section"><h2>4. Selisih dari Rencana</h2><p class="lap-note">Selisih belum bisa dihitung karena belum ada jamaah dengan harga paket.</p></div>`;
@@ -17719,7 +17772,7 @@ function cetakLaporanPenutupanMusim() {
             <tr><td>Pengeluaran dibanding modal estimasi (Modal − Pengeluaran)</td><td style="color:${warnaTanda(efekBiaya)};">${fTanda(efekBiaya)}</td></tr>
             ${uangTanpaHarga > 0 ? `<tr><td>Uang masuk dari jamaah tanpa harga paket</td><td style="color:${warnaTanda(uangTanpaHarga)};">${fTanda(uangTanpaHarga)}</td></tr>` : ''}
             <tr class="lap-total" style="color:${warnaTanda(selisih)};"><td>SELISIH LABA (Realisasi − Proyeksi)</td><td>${fTanda(selisih)}</td></tr></table>
-            <p class="lap-note">Tanda minus berarti lebih rendah dari rencana, tanda plus berarti lebih tinggi. ${uangTanpaHarga > 0 ? 'Baris-baris di atas dijumlahkan menjadi Selisih Laba.' : 'Dua baris pertama dijumlahkan menjadi Selisih Laba.'}</p></div>`;
+            <p class="lap-note">Tanda minus berarti lebih rendah dari rencana, tanda plus berarti lebih tinggi. ${uangTanpaHarga > 0 ? 'Baris-baris di atas dijumlahkan menjadi Selisih Laba.' : 'Dua baris pertama dijumlahkan menjadi Selisih Laba.'}</p>${stBelumFinal ? '<p class="lap-note" style="background:#FEF3C7;color:#92400E;padding:6px 8px;border-radius:6px;">⚠️ Selisih ikut belum final karena pengeluaran belum lengkap.</p>' : ''}</div>`;
     } else {
         blok4 = `<div class="lap-section"><p class="lap-note">Proyeksi Laba dan Selisih tidak ditampilkan karena program ini tidak memakai Estimasi/Modal (Cuan Plan).</p></div>`;
     }
@@ -23359,7 +23412,7 @@ function openIndexedDB() {
 // dengan build baru, data MENTAH (langsung dari IndexedDB, bukan dari memori) disalin dulu sebelum
 // proses migrasi apapun berjalan — supaya kalau ada kesalahan di update, data lama masih bisa dipulihkan.
 // Dokumen & foto tidak ikut disalin (ukurannya besar, dan tidak pernah disentuh proses migrasi).
-const NAVARA_BUILD = '2026.10.06-66';
+const NAVARA_BUILD = '2026.10.06-68';
 const MAKS_SNAPSHOT = 3;
 
 // ==================== DAFTAR DATA PUSAT ====================
