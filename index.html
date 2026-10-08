@@ -2327,16 +2327,25 @@
             <input type="text" id="cBuffer" class="money-input" inputmode="numeric" value="0" oninput="saveEstimasiData()">
             <small style="color:#888;font-size:11px;margin-top:4px;display:block;">Ditambahkan ke harga brosur — tidak kena markup profit</small>
         </div>
-        <div class="section-title"><span>Biaya Sudah Pasti Keluar <small style="font-weight:normal;color:#888;">(Opsional — titik impas)</small></span></div>
-        <small style="color:#888;font-size:11px;display:block;margin:-4px 0 8px;line-height:1.5;">Per kursi: biaya yang sudah dibayar dan tidak bisa dikembalikan. Sisanya dianggap masih bisa mengikuti jumlah peserta. Dipakai untuk titik impas rombongan.</small>
-        <div class="input-group"><label>Tiket <small style="font-weight:normal;color:#888;">(kosong = sama dengan Tiket di atas)</small></label>
-            <input type="text" id="sbTiket" class="money-input" inputmode="numeric" value="" placeholder="Otomatis = Tiket" oninput="saveEstimasiData()"></div>
-        <div class="input-group"><label>Hotel / LA <small style="font-weight:normal;color:#888;">(DP yang hangus, atau dibayar penuh)</small></label>
-            <input type="text" id="sbHotel" class="money-input" inputmode="numeric" value="" placeholder="0 = belum ada" oninput="saveEstimasiData()">
+<details id="estSbLipat" ontoggle="perbaruiTeksSudahPasti('')" style="margin:0 0 10px;"><summary style="cursor:pointer;list-style:none;padding:9px 12px;background:#F8FAFC;border:1.5px solid #e2e8f0;border-radius:10px;font-size:13px;font-weight:700;color:var(--primary);">⚖️ Biaya yang Hangus bila Dibatalkan Hari Ini <small style="font-weight:normal;color:#888;">(opsional, ketuk untuk buka)</small><div id="estSbRingkas" style="font-size:11px;font-weight:600;color:#666;margin-top:3px;"></div></summary><div style="padding-top:10px;">
+        <small style="color:#888;font-size:11px;display:block;margin:0 0 8px;line-height:1.5;">Boleh dikosongkan. Hanya mengubah kartu Titik Impas, bukan harga, profit, atau laporan. Isi per kursi: bagian biaya yang <b>HANGUS</b> (tidak kembali) kalau kursi dibatalkan hari ini, bukan yang sudah dibayar. Contoh: tiket sudah dibayar penuh, tetapi maskapai hanya menahan DP bila kursi dikurangi, maka isi DP-nya. Hotel dan Lainnya yang tidak diisi dianggap ikut jumlah peserta. Tiket yang tidak diisi dianggap hangus seluruhnya (skenario terburuk).</small>
+<div id="estSbSaran" style="display:none;font-size:12px;line-height:1.5;background:#EFF6FF;border:1.5px solid #BFDBFE;border-radius:10px;padding:9px 11px;margin-bottom:10px;color:#1E3A8A;"></div>
+        <div class="input-group"><label>Tiket yang hangus <small style="font-weight:normal;color:#888;">(isi persen ATAU rupiah, yang satunya muncul otomatis)</small></label>
+            <div style="display:flex;gap:8px;">
+                <input type="text" id="sbTiketPct" inputmode="decimal" value="" placeholder="% tiket" style="flex:1;min-width:0;width:auto;" oninput="ubahTiketHangus('','pct')">
+                <input type="text" id="sbTiket" class="money-input" inputmode="numeric" value="" placeholder="Rp per kursi" style="flex:2;min-width:0;width:auto;" oninput="ubahTiketHangus('','rp')">
+            </div>
+            <small style="color:#888;font-size:11px;margin-top:4px;display:block;">Kosong = seluruh tiket dianggap hangus (skenario terburuk).</small></div>
+        <div class="input-group"><label>Hotel / LA yang hangus <small style="font-weight:normal;color:#888;">(isi persen dari LA Quad ATAU rupiah; kosong = tidak ada yang hangus)</small></label>
+            <div style="display:flex;gap:8px;">
+                <input type="text" id="sbHotelPct" inputmode="decimal" value="" placeholder="% LA Quad" style="flex:1;min-width:0;width:auto;" oninput="ubahHotelHangus('','pct')">
+                <input type="text" id="sbHotel" class="money-input" inputmode="numeric" value="" placeholder="Rp per kursi" style="flex:2;min-width:0;width:auto;" oninput="ubahHotelHangus('','rp')">
+            </div>
             <button type="button" onclick="isiSudahPastiHotel('')" style="margin-top:6px;padding:7px 10px;border:1.5px solid var(--primary);background:white;color:var(--primary);border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;">Hotel dibayar penuh (= LA Quad)</button></div>
-        <div class="input-group"><label>Lainnya <small style="font-weight:normal;color:#888;">(asuransi, handling, dll yang sudah dibayar)</small></label>
+        <div class="input-group"><label>Lainnya <small style="font-weight:normal;color:#888;">(asuransi, handling, dll yang hangus)</small></label>
             <input type="text" id="sbLain" class="money-input" inputmode="numeric" value="" placeholder="0 = belum ada" oninput="saveEstimasiData()"></div>
         <div id="sbTotalTeks" style="font-size:12px;font-weight:700;color:var(--primary);background:#F0FDF4;border-radius:8px;padding:8px 10px;margin-bottom:6px;"></div>
+        </div></details>
         <div class="section-title"><span>Harga Jual Brosur <small style="font-weight:normal;color:#888;">(Opsional — pembulatan)</small></span></div>
         <div class="input-group">
             <input type="text" id="cHargaJual" class="money-input" inputmode="numeric" value="" placeholder="Kosong = pakai hasil hitungan" oninput="saveEstimasiData()">
@@ -2533,16 +2542,25 @@
                 <div class="input-group"><label>Buffer Diskon (opsional)</label><input type="text" id="konCBuffer" class="money-input" inputmode="numeric" value="0" oninput="saveKonsorsiumEstimasiData()"></div>
             </div>
 
-            <div class="section-title" style="margin-top:12px;"><span>Biaya Sudah Pasti Keluar <small style="font-weight:normal;color:#888;">(Opsional — titik impas)</small></span></div>
-            <small style="color:#888;font-size:11px;display:block;margin:-4px 0 8px;line-height:1.5;">Per kursi: biaya yang sudah dibayar dan tidak bisa dikembalikan. Sisanya dianggap masih bisa mengikuti jumlah peserta.</small>
-            <div class="input-group"><label>Tiket <small style="font-weight:normal;color:#888;">(kosong = sama dengan Tiket di atas)</small></label>
-                <input type="text" id="konSbTiket" class="money-input" inputmode="numeric" value="" placeholder="Otomatis = Tiket" oninput="saveKonsorsiumEstimasiData()"></div>
-            <div class="input-group"><label>Hotel / LA <small style="font-weight:normal;color:#888;">(DP yang hangus, atau dibayar penuh)</small></label>
-                <input type="text" id="konSbHotel" class="money-input" inputmode="numeric" value="" placeholder="0 = belum ada" oninput="saveKonsorsiumEstimasiData()">
+<details id="konSbLipat" ontoggle="perbaruiTeksSudahPasti('kon')" style="margin:12px 0 10px;"><summary style="cursor:pointer;list-style:none;padding:9px 12px;background:#F8FAFC;border:1.5px solid #e2e8f0;border-radius:10px;font-size:13px;font-weight:700;color:var(--primary);">⚖️ Biaya yang Hangus bila Dibatalkan Hari Ini <small style="font-weight:normal;color:#888;">(opsional, ketuk untuk buka)</small><div id="konSbRingkas" style="font-size:11px;font-weight:600;color:#666;margin-top:3px;"></div></summary><div style="padding-top:10px;">
+            <small style="color:#888;font-size:11px;display:block;margin:0 0 8px;line-height:1.5;">Boleh dikosongkan. Hanya mengubah titik impas dan Posisi Rombongan, bukan harga atau laporan. Isi per kursi: bagian biaya yang <b>HANGUS</b> (tidak kembali) kalau kursi dibatalkan hari ini, bukan yang sudah dibayar. Contoh: tiket sudah dibayar penuh, tetapi maskapai hanya menahan DP bila kursi dikurangi, maka isi DP-nya. Hotel dan Lainnya yang tidak diisi dianggap ikut jumlah peserta. Tiket yang tidak diisi dianggap hangus seluruhnya (skenario terburuk).</small>
+<div id="konSbSaran" style="display:none;font-size:12px;line-height:1.5;background:#EFF6FF;border:1.5px solid #BFDBFE;border-radius:10px;padding:9px 11px;margin-bottom:10px;color:#1E3A8A;"></div>
+            <div class="input-group"><label>Tiket yang hangus <small style="font-weight:normal;color:#888;">(isi persen ATAU rupiah, yang satunya muncul otomatis)</small></label>
+            <div style="display:flex;gap:8px;">
+                <input type="text" id="konSbTiketPct" inputmode="decimal" value="" placeholder="% tiket" style="flex:1;min-width:0;width:auto;" oninput="ubahTiketHangus('kon','pct')">
+                <input type="text" id="konSbTiket" class="money-input" inputmode="numeric" value="" placeholder="Rp per kursi" style="flex:2;min-width:0;width:auto;" oninput="ubahTiketHangus('kon','rp')">
+            </div>
+            <small style="color:#888;font-size:11px;margin-top:4px;display:block;">Kosong = seluruh tiket dianggap hangus (skenario terburuk).</small></div>
+            <div class="input-group"><label>Hotel / LA yang hangus <small style="font-weight:normal;color:#888;">(isi persen dari LA Quad ATAU rupiah; kosong = tidak ada yang hangus)</small></label>
+                <div style="display:flex;gap:8px;">
+                <input type="text" id="konSbHotelPct" inputmode="decimal" value="" placeholder="% LA Quad" style="flex:1;min-width:0;width:auto;" oninput="ubahHotelHangus('kon','pct')">
+                <input type="text" id="konSbHotel" class="money-input" inputmode="numeric" value="" placeholder="Rp per kursi" style="flex:2;min-width:0;width:auto;" oninput="ubahHotelHangus('kon','rp')">
+            </div>
                 <button type="button" onclick="isiSudahPastiHotel('kon')" style="margin-top:6px;padding:7px 10px;border:1.5px solid var(--primary);background:white;color:var(--primary);border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;">Hotel dibayar penuh (= LA Quad)</button></div>
-            <div class="input-group"><label>Lainnya <small style="font-weight:normal;color:#888;">(asuransi, handling, dll yang sudah dibayar)</small></label>
+            <div class="input-group"><label>Lainnya <small style="font-weight:normal;color:#888;">(asuransi, handling, dll yang hangus)</small></label>
                 <input type="text" id="konSbLain" class="money-input" inputmode="numeric" value="" placeholder="0 = belum ada" oninput="saveKonsorsiumEstimasiData()"></div>
             <div id="konSbTotalTeks" style="font-size:12px;font-weight:700;color:var(--primary);background:#F0FDF4;border-radius:8px;padding:8px 10px;margin-bottom:6px;"></div>
+            </div></details>
             <div class="section-title" style="margin-top:12px;"><span>Harga Jual Brosur <small style="font-weight:normal;color:#888;">(Opsional — pembulatan)</small></span></div>
             <div class="input-group">
                 <input type="text" id="konCHargaJual" class="money-input" inputmode="numeric" value="" placeholder="Kosong = pakai hasil hitungan" oninput="saveKonsorsiumEstimasiData()">
@@ -2577,8 +2595,11 @@
         </div>
 
         <div id="konsorsiumPosisiCard" style="display:none;background:#F8FAFC;border:1.5px solid #CBD5E1;border-radius:16px;padding:14px;margin-bottom:14px;">
-            <div style="font-weight:700;font-size:14px;color:var(--primary);margin-bottom:8px;">📊 Posisi Rombongan <small style="font-weight:400;color:#888;">(perkiraan)</small></div>
-            <div id="konsorsiumPosisiIsi"></div>
+            <details id="konPosisiLipat" ontoggle="_lipatImpas.kon = this.open"><summary style="cursor:pointer;list-style:none;">
+                <div style="font-weight:700;font-size:14px;color:var(--primary);">📊 Posisi Rombongan <small style="font-weight:400;color:#888;">(perkiraan, ketuk untuk buka)</small></div>
+                <div id="konPosisiRingkas" style="font-size:12px;font-weight:600;color:#475569;margin-top:3px;"></div></summary>
+                <div id="konsorsiumPosisiIsi" style="margin-top:8px;"></div>
+            </details>
         </div>
 
         <div style="border-top:2px dashed #cbd5e1;margin:20px 0;padding-top:16px;">
@@ -6725,9 +6746,7 @@ function saveEstimasiData() {
         profitPct:document.getElementById('profitPct').value,
         cBuffer:document.getElementById('cBuffer').value,
         cHargaJual:document.getElementById('cHargaJual')?.value || '',
-        sbTiket:document.getElementById('sbTiket')?.value || '',
-        sbHotel:document.getElementById('sbHotel')?.value || '',
-        sbLain:document.getElementById('sbLain')?.value || '',
+        ...ambilSudahPastiUntukSimpan(''),
         fxModeTiket: document.getElementById('fxModeTiket')?.checked || false,
         fxNominalTiket: document.getElementById('fxNominalTiket')?.value || '',
         fxKursTiket: document.getElementById('fxKursTiket')?.value || '',
@@ -6794,7 +6813,7 @@ function renderProgramSetupChecklist() {
 }
 
 // ==================== KUNCI HARGA & RIWAYAT ESTIMASI ====================
-const ESTIMASI_FIELD_IDS = ['lokasiPaket','namaHotelMakkah','namaHotelMadinah','namaMaskapai','totJam','jamGratis','numTL','cTiket','cLAquad','cLAtriple','cLAdouble','cAsuransi','cHandling','cAlat','cAplikasi','cPIC','cLain','profitPct','cBuffer','cHargaJual','sbTiket','sbHotel','sbLain'];
+const ESTIMASI_FIELD_IDS = ['lokasiPaket','namaHotelMakkah','namaHotelMadinah','namaMaskapai','totJam','jamGratis','numTL','cTiket','cLAquad','cLAtriple','cLAdouble','cAsuransi','cHandling','cAlat','cAplikasi','cPIC','cLain','profitPct','cBuffer','cHargaJual','sbTiketPct','sbTiket','sbHotelPct','sbHotel','sbLain'];
 
 function renderKunciEstimasiUI() {
     const slot = ensureProgramConfigSlot();
@@ -6997,50 +7016,151 @@ function perbaruiPetunjukHargaJual() {
     }
 }
 
-// ===== Biaya sudah pasti keluar per kursi (build -69): isian per komponen =====
-// d = data Estimasi / Konsorsium. Semua kosong = hanya Tiket (sama seperti sebelumnya).
+// ===== Biaya yang HANGUS bila dibatalkan hari ini, per kursi (build -69, diperbarui -73/-74) =====
+// d = data Estimasi / Konsorsium. Tiket dan Hotel boleh diisi sebagai persen (Tiket: dari harga tiket, Hotel: dari LA Quad)
+// ATAU rupiah per kursi. Tiket kosong = seluruh Tiket dianggap hangus (skenario terburuk). Hotel dan Lainnya kosong = tidak ada yang hangus.
 // Data lama (satu angka total di d.cSudahBayar) tetap terbaca: selisih di atas Tiket dimasukkan ke "Lainnya".
+const _KOMP_SB = { Tiket: { pct: 'sbTiketPct', rp: 'sbTiket' }, Hotel: { pct: 'sbHotelPct', rp: 'sbHotel' } };
 function bacaSudahPasti(d) {
     d = d || {};
     const pr = v => parseInt((v || '0').toString().replace(/\./g, '').replace(/[^0-9]/g, '')) || 0;
     const ada = k => d[k] !== undefined && d[k] !== null && String(d[k]).trim() !== '';
-    const tiketBiaya = pr(d.cTiket);
-    if(!ada('sbTiket') && !ada('sbHotel') && !ada('sbLain') && pr(d.cSudahBayar) > 0) {
+    const tiketBiaya = pr(d.cTiket), laQuad = pr(d.cLAquad || d.cLA);
+    if(!ada('sbTiket') && !ada('sbTiketPct') && !ada('sbHotel') && !ada('sbHotelPct') && !ada('sbLain') && pr(d.cSudahBayar) > 0) {
         const t = pr(d.cSudahBayar);
-        return t > tiketBiaya ? { tiket: tiketBiaya, hotel: 0, lain: t - tiketBiaya, total: t, lama: true, otomatis: false }
-                              : { tiket: t, hotel: 0, lain: 0, total: t, lama: true, otomatis: false };
+        return t > tiketBiaya ? { tiket: tiketBiaya, hotel: 0, lain: t - tiketBiaya, total: t, lama: true, otomatis: false, pct: null, pctHotel: null, tiketBiaya, laQuad }
+                              : { tiket: t, hotel: 0, lain: 0, total: t, lama: true, otomatis: false, pct: null, pctHotel: null, tiketBiaya, laQuad };
     }
-    const tiket = ada('sbTiket') ? pr(d.sbTiket) : tiketBiaya;
-    const hotel = pr(d.sbHotel), lain = pr(d.sbLain);
-    return { tiket, hotel, lain, total: tiket + hotel + lain, lama: false, otomatis: !ada('sbTiket') && hotel === 0 && lain === 0 };
+    const hitung = (kPct, kRp, basis, bawaan) => {
+        if(ada(kPct)) {
+            let x = parseFloat(String(d[kPct]).replace(',', '.'));
+            if(!isFinite(x)) x = 0;
+            const pct = Math.min(Math.max(x, 0), 100); // hangus tidak mungkin lebih dari harganya
+            return { nilai: Math.round(basis * pct / 100), pct };
+        }
+        if(ada(kRp)) return { nilai: pr(d[kRp]), pct: null };
+        return { nilai: bawaan, pct: null };
+    };
+    const t = hitung('sbTiketPct', 'sbTiket', tiketBiaya, tiketBiaya);
+    const h = hitung('sbHotelPct', 'sbHotel', laQuad, 0);
+    const lain = pr(d.sbLain);
+    return { tiket: t.nilai, hotel: h.nilai, lain, total: t.nilai + h.nilai + lain, lama: false, pct: t.pct, pctHotel: h.pct, tiketBiaya, laQuad,
+             otomatis: !ada('sbTiketPct') && !ada('sbTiket') && !ada('sbHotelPct') && !ada('sbHotel') && lain === 0 };
 }
 const _idSB = (pfx, n) => pfx ? pfx + n.charAt(0).toUpperCase() + n.slice(1) : n;
+// Yang disimpan: tiket/hotel dari persen ATAU dari rupiah (mana yang terakhir diketik), tidak dua-duanya
+function ambilSudahPastiUntukSimpan(pfx) {
+    const el = n => document.getElementById(_idSB(pfx, n));
+    const g = n => (el(n)?.value || '');
+    const dariPersen = k => (el(_KOMP_SB[k].pct)?.dataset.sumber === 'pct') && g(_KOMP_SB[k].pct).trim() !== '';
+    const tp = dariPersen('Tiket'), hp = dariPersen('Hotel');
+    return { sbTiket: tp ? '' : g('sbTiket'), sbTiketPct: tp ? g('sbTiketPct') : '',
+             sbHotel: hp ? '' : g('sbHotel'), sbHotelPct: hp ? g('sbHotelPct') : '', sbLain: g('sbLain') };
+}
 function ambilSudahPastiDariForm(pfx) {
     const g = n => document.getElementById(_idSB(pfx, n))?.value || '';
-    return { cTiket: g('cTiket'), sbTiket: g('sbTiket'), sbHotel: g('sbHotel'), sbLain: g('sbLain') };
+    return Object.assign({ cTiket: g('cTiket'), cLAquad: g('cLAquad') }, ambilSudahPastiUntukSimpan(pfx));
 }
+function ubahHangus(pfx, komp, sumber) {
+    const pe = document.getElementById(_idSB(pfx, _KOMP_SB[komp].pct)), re = document.getElementById(_idSB(pfx, _KOMP_SB[komp].rp));
+    if(!pe || !re) return;
+    const diketik = sumber === 'pct' ? pe : re;
+    if(diketik.value.trim() === '') { pe.value = ''; re.value = ''; pe.dataset.sumber = ''; }
+    else pe.dataset.sumber = sumber;
+    if(pfx) saveKonsorsiumEstimasiData(); else saveEstimasiData();
+}
+function ubahTiketHangus(pfx, sumber) { ubahHangus(pfx, 'Tiket', sumber); }
+function ubahHotelHangus(pfx, sumber) { ubahHangus(pfx, 'Hotel', sumber); }
 function perbaruiTeksSudahPasti(pfx) {
     const el = document.getElementById(_idSB(pfx, 'sbTotalTeks'));
     if(!el) return;
     const r = bacaSudahPasti(ambilSudahPastiDariForm(pfx));
-    el.textContent = 'Total sudah pasti keluar: Rp ' + r.total.toLocaleString('id-ID') + ' per kursi' + (r.otomatis ? ' (otomatis: hanya Tiket)' : '');
+    let lebih = false;
+    // Isian satunya ikut menampilkan padanannya (persen <-> rupiah)
+    if(!r.lama) [['Tiket', r.tiket, r.tiketBiaya], ['Hotel', r.hotel, r.laQuad]].forEach(([k, nilai, basis]) => {
+        const pe = document.getElementById(_idSB(pfx, _KOMP_SB[k].pct)), re = document.getElementById(_idSB(pfx, _KOMP_SB[k].rp));
+        if(!pe || !re) return;
+        if(pe.dataset.sumber === 'pct' && pe.value.trim() !== '') {
+            re.value = nilai.toLocaleString('id-ID');
+            if(parseFloat(pe.value.replace(',', '.')) > 100) lebih = true;
+        }
+        else if(re.value.trim() !== '' && basis > 0) pe.value = (Math.round(nilai / basis * 1000) / 10).toString().replace('.', ',');
+        else if(re.value.trim() === '' || basis <= 0) pe.value = '';
+    });
+    const rp = n => 'Rp ' + n.toLocaleString('id-ID');
+    el.textContent = 'Total hangus bila dibatalkan hari ini: ' + rp(r.total) + ' per kursi' + (r.otomatis ? ' (otomatis: seluruh tiket dianggap hangus, skenario terburuk)' : '') + (lebih ? ' (persen dibatasi 100%)' : '');
+    try { perbaruiSaranDariPengeluaran(pfx); } catch(e) {}
+    const rk = document.getElementById((pfx ? 'kon' : 'est') + 'SbRingkas');
+    if(rk) rk.textContent = r.otomatis ? 'Sekarang: seluruh tiket dianggap hangus (terburuk), ' + rp(r.total) + ' per kursi' : 'Sekarang: ' + rp(r.total) + ' hangus per kursi (diisi manual)';
 }
 function isiFormSudahPasti(pfx, d) {
     const pr = v => parseInt((v || '0').toString().replace(/\./g, '').replace(/[^0-9]/g, '')) || 0;
-    const set = (n, v) => { const e = document.getElementById(_idSB(pfx, n)); if(e) e.value = v; };
+    const el = n => document.getElementById(_idSB(pfx, n));
+    const set = (n, v) => { const e = el(n); if(e) e.value = v; };
     const ada = k => d && d[k] !== undefined && d[k] !== null && String(d[k]).trim() !== '';
     const fmt = n => n.toLocaleString('id-ID');
     const r = bacaSudahPasti(d);
-    if(r.lama) {
-        set('sbTiket', r.tiket !== pr(d.cTiket) ? fmt(r.tiket) : '');
-        set('sbHotel', '');
-        set('sbLain', r.lain > 0 ? fmt(r.lain) : '');
-    } else {
-        set('sbTiket', ada('sbTiket') ? fmt(pr(d.sbTiket)) : '');
-        set('sbHotel', ada('sbHotel') ? fmt(pr(d.sbHotel)) : '');
-        set('sbLain', ada('sbLain') ? fmt(pr(d.sbLain)) : '');
-    }
+    const isiKomp = (k, nilaiLama) => {
+        const kp = _KOMP_SB[k].pct, kr = _KOMP_SB[k].rp, pe = el(kp);
+        if(r.lama) { set(kp, ''); set(kr, nilaiLama > 0 ? fmt(nilaiLama) : ''); if(pe) pe.dataset.sumber = nilaiLama > 0 ? 'rp' : ''; return; }
+        if(ada(kp)) { set(kp, String(d[kp])); set(kr, ''); if(pe) pe.dataset.sumber = 'pct'; }
+        else if(ada(kr)) { set(kp, ''); set(kr, fmt(pr(d[kr]))); if(pe) pe.dataset.sumber = 'rp'; }
+        else { set(kp, ''); set(kr, ''); if(pe) pe.dataset.sumber = ''; }
+    };
+    isiKomp('Tiket', r.tiket !== pr(d && d.cTiket) ? r.tiket : 0);
+    isiKomp('Hotel', 0);
+    set('sbLain', r.lama ? (r.lain > 0 ? fmt(r.lain) : '') : (ada('sbLain') ? fmt(pr(d.sbLain)) : ''));
     perbaruiTeksSudahPasti(pfx);
+}
+// Saran dari halaman Pengeluaran (build -71): HANYA saran, tidak mengubah angka sebelum tombol ditekan.
+function ringkasPengeluaranUntukImpas() {
+    const list = (typeof pengeluaranList !== 'undefined' && Array.isArray(pengeluaranList)) ? pengeluaranList : [];
+    let maskapai = 0, hotel = 0;
+    list.forEach(p => {
+        const k = (p.kategori || '').toString().trim().toLowerCase(), n = parseInt(p.nominal) || 0;
+        if(k === 'maskapai') maskapai += n; else if(k === 'hotel') hotel += n;
+    });
+    return { maskapai, hotel };
+}
+function hitungSaranHotelPerKursi(pfx) {
+    const g = n => document.getElementById(_idSB(pfx, n))?.value || '';
+    const kursi = (parseInt(g('totJam')) || 0) + (parseInt(g('numTL')) || 0);
+    const la = parseRupiah(g('cLAquad') || '0');
+    const rp = ringkasPengeluaranUntukImpas();
+    if(kursi <= 0 || rp.hotel <= 0) return null;
+    const mentah = Math.round(rp.hotel / kursi);
+    const isi = la > 0 ? Math.min(mentah, la) : mentah;
+    return { kursi, rp, mentah, isi, la, dibatasi: la > 0 && mentah > la, tiketButuh: parseRupiah(g('cTiket') || '0') * kursi };
+}
+function perbaruiSaranDariPengeluaran(pfx) {
+    const el = document.getElementById((pfx ? 'kon' : 'est') + 'SbSaran');
+    if(!el) return;
+    const f = n => 'Rp ' + Math.round(n).toLocaleString('id-ID');
+    const rp = ringkasPengeluaranUntukImpas();
+    const kursi = (parseInt(document.getElementById(_idSB(pfx, 'totJam'))?.value) || 0) + (parseInt(document.getElementById(_idSB(pfx, 'numTL'))?.value) || 0);
+    if((rp.maskapai <= 0 && rp.hotel <= 0) || kursi <= 0) { el.style.display = 'none'; el.innerHTML = ''; return; }
+    const sh = hitungSaranHotelPerKursi(pfx);
+    let h = '<div style="font-weight:700;margin-bottom:3px;">📒 Dari halaman Pengeluaran (saran, tidak mengubah angka sendiri)</div>';
+    if(rp.maskapai > 0) {
+        h += 'Maskapai tercatat ' + f(rp.maskapai) + '.<br>';
+        h += '<i>Yang dibayar belum tentu yang hangus. Isi kolom Tiket di bawah dengan bagian yang hilang bila kursi dibatalkan (misalnya DP), dalam persen atau rupiah per kursi.</i><br>';
+    }
+    if(sh) {
+        h += 'Hotel tercatat ' + f(rp.hotel) + ' = ' + f(sh.isi) + ' per kursi' + (sh.dibatasi ? ' (dibatasi sebesar LA Quad)' : '') + '.<br>';
+        h += '<button type="button" onclick="isiHotelDariPengeluaran(\'' + (pfx || '') + '\')" style="margin-top:6px;padding:7px 10px;border:1.5px solid #1D4ED8;background:white;color:#1D4ED8;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;">Isi Hotel dari Pengeluaran</button>';
+        h += '<div style="font-size:11px;color:#475569;margin-top:4px;">Pakai ini hanya kalau uang hotel itu hangus (tidak bisa dikembalikan) bila dibatalkan.</div>';
+    }
+    el.innerHTML = h; el.style.display = 'block';
+}
+function isiHotelDariPengeluaran(pfx) {
+    pfx = pfx || '';
+    const slot = ensureProgramConfigSlot();
+    if(pfx ? slot.konsorsium_locked : slot.estimasi_locked) return showToast('🔒 Terkunci — buka kunci dulu');
+    const sh = hitungSaranHotelPerKursi(pfx);
+    if(!sh) return showToast('Belum ada Pengeluaran kategori Hotel, atau Total Pax belum diisi');
+    document.getElementById(_idSB(pfx, 'sbHotel')).value = sh.isi.toLocaleString('id-ID');
+    document.getElementById(_idSB(pfx, 'sbHotelPct')).dataset.sumber = 'rp';
+    if(pfx) saveKonsorsiumEstimasiData(); else saveEstimasiData();
 }
 function isiSudahPastiHotel(pfx) {
     const slot = ensureProgramConfigSlot();
@@ -7048,10 +7168,12 @@ function isiSudahPastiHotel(pfx) {
     const la = parseRupiah(document.getElementById(_idSB(pfx, 'cLAquad'))?.value || '0');
     if(!(la > 0)) return showToast('Isi LA/Hotel Quad dulu');
     document.getElementById(_idSB(pfx, 'sbHotel')).value = la.toLocaleString('id-ID');
+    document.getElementById(_idSB(pfx, 'sbHotelPct')).dataset.sumber = 'rp';
     if(pfx) saveKonsorsiumEstimasiData(); else saveEstimasiData();
 }
 
 // Titik impas rombongan (Cuan Plan): berapa pembayar minimal agar tidak rugi, bila biaya yang sudah pasti keluar hanya sebagian (default: Tiket)
+var _lipatImpas = { est: false, kon: false }; // kartu impas dilipat secara bawaan; status buka/tutup diingat selama halaman terbuka
 function perbaruiKartuImpas() {
     const el = document.getElementById('kartuImpasEstimasi');
     try { perbaruiTeksSudahPasti(''); } catch(e) {}
@@ -7070,12 +7192,14 @@ function perbaruiKartuImpas() {
     const terdaftar = (typeof jamaahList !== 'undefined' ? jamaahList : []).filter(j => String(j.program_id) === String(currentProgramId) && !tanpaTagihan(j)).length;
     const baris = (l, val, col) => `<div style="display:flex;justify-content:space-between;gap:8px;padding:5px 0;border-bottom:1px solid #e2e8f0;font-size:13px;"><span style="color:#555;">${l}</span><span style="font-weight:700;text-align:right;${col ? 'color:' + col + ';' : ''}">${val}</span></div>`;
     const kotak = (w, bg, t) => `<div style="background:${bg};border:1.5px solid ${w};border-radius:10px;padding:9px 11px;font-size:12px;color:${w};font-weight:600;margin-top:8px;">${t}</div>`;
-    let isi = '<div style="font-weight:700;font-size:14px;color:var(--primary);margin-bottom:8px;">⚖️ Titik Impas Rombongan <small style="font-weight:400;color:#888;">(perkiraan)</small></div>';
+    let isi = '', ringkas = '';
     if(!(margin > 0)) {
+        ringkas = '⚠️ Titik impas tidak bisa dihitung, periksa harga jual';
         isi += kotak('#991B1B', '#FEE2E2', '⚠️ Harga jual (setelah buffer) tidak lebih tinggi dari biaya per orang yang masih keluar. Titik impas tidak bisa dihitung, periksa harga jual.');
     } else {
         const impas = Math.ceil((tetapTotal + v * (d.nFoc + d.nTL)) / margin - 1e-9);
         const labaPenuh = d.nBayar * hargaB2C - (tetapTotal + v * (d.nJam + d.nTL));
+        ringkas = (impas > d.nBayar * 0.9 ? '⚠️ ' : '') + 'Impas ' + impas + ' dari ' + d.nBayar + ' kursi · terdaftar ' + terdaftar + (terdaftar >= impas ? ' · sudah lewat impas' : ' · kurang ' + (impas - terdaftar));
         isi += baris('Kursi bayar', `${d.nBayar} orang`) +
                baris('Impas bila semua pembayar bayar harga brosur', `${impas} orang`) +
                baris('Jamaah terdaftar di database (bayar)', `${terdaftar} orang`, terdaftar >= impas ? '#166534' : '') +
@@ -7083,9 +7207,12 @@ function perbaruiKartuImpas() {
                baris('Laba bila semua kursi bayar terisi', f(labaPenuh), labaPenuh >= 0 ? '#166534' : '#DC2626');
         if(impas > d.nBayar) isi += kotak('#991B1B', '#FEE2E2', `⚠️ Titik impas (${impas}) lebih besar dari jumlah kursi bayar (${d.nBayar}). Rombongan rugi walau semua kursi terisi, naikkan harga atau kurangi biaya.`);
         else if(impas > d.nBayar * 0.9) isi += kotak('#92400E', '#FEF3C7', `⚠️ Titik impas ${impas} dari ${d.nBayar} kursi bayar (lebih dari 90%). Ruang untuk diskon dan kursi kosong sangat sempit.`);
-        isi += `<div style="font-size:11px;color:#888;margin-top:8px;line-height:1.5;">Perkiraan, bukan realisasi. Biaya yang sudah pasti keluar: ${f(tetapPerKursi)}/kursi (${d.nTL > 0 ? 'termasuk kursi TL' : 'sesuai jumlah kursi'}). Biaya lain (${f(v)}/orang) dianggap bisa mengikuti jumlah peserta. Harga yang dipakai: ${f(hargaB2C)} (harga jual dikurangi buffer). Laba penuh sama dengan Profit Bersih di hasil perhitungan (setelah pembulatan, bila ada).</div>`;
+        isi += `<div style="font-size:11px;color:#888;margin-top:8px;line-height:1.5;">Perkiraan, bukan realisasi. Biaya yang dianggap hangus per kursi: ${f(tetapPerKursi)} (${d.nTL > 0 ? 'termasuk kursi TL' : 'sesuai jumlah kursi'})${bacaSudahPasti(ambilSudahPastiDariForm('')).otomatis ? ', yaitu seluruh Tiket (skenario terburuk; isi kotak "Biaya yang Hangus" bila hanya DP yang hilang)' : ''}. Biaya lain (${f(v)}/orang) dianggap bisa mengikuti jumlah peserta. Harga yang dipakai: ${f(hargaB2C)} (harga jual dikurangi buffer). Laba penuh sama dengan Profit Bersih di hasil perhitungan (setelah pembulatan, bila ada).</div>`;
     }
-    el.innerHTML = isi; el.style.display = 'block';
+    el.innerHTML = `<details ${_lipatImpas.est ? 'open' : ''} ontoggle="_lipatImpas.est = this.open"><summary style="cursor:pointer;list-style:none;">
+        <div style="font-weight:700;font-size:14px;color:var(--primary);">⚖️ Titik Impas Rombongan <small style="font-weight:400;color:#888;">(perkiraan, ketuk untuk buka)</small></div>
+        <div style="font-size:12px;font-weight:600;color:#475569;margin-top:3px;">${ringkas}</div></summary><div style="margin-top:8px;">${isi}</div></details>`;
+    el.style.display = 'block';
 }
 
 function bulatkanHargaJual(step) {
@@ -7808,9 +7935,7 @@ function saveKonsorsiumEstimasiData() {
         profitPct: document.getElementById('konProfitPct').value,
         cBuffer: document.getElementById('konCBuffer').value,
         cHargaJual: document.getElementById('konCHargaJual')?.value || '',
-        sbTiket: document.getElementById('konSbTiket')?.value || '',
-        sbHotel: document.getElementById('konSbHotel')?.value || '',
-        sbLain: document.getElementById('konSbLain')?.value || '',
+        ...ambilSudahPastiUntukSimpan('kon'),
     };
     simpanKonsorsium();
     try { perbaruiTeksSudahPasti('kon'); } catch(e) {}
@@ -8704,7 +8829,8 @@ function hitungPosisiDariData(d, modal, brosur, daftarTravel, sendiri) {
     const nJam = parseInt(d.totJam)||0, nFoc = parseInt(d.jamGratis)||0, nTL = parseInt(d.numTL)||0;
     if(nJam <= nFoc) return null;
     const sub = modal;
-    const tetapPerKursi = Math.min(sub, bacaSudahPasti(d).total);
+    const sp = bacaSudahPasti(d);
+    const tetapPerKursi = Math.min(sub, sp.total);
     const v = sub - tetapPerKursi; // biaya per orang yang masih mengikuti jumlah peserta
     const tetapTotal = tetapPerKursi * (nJam + nTL);
     const buffer = pr(d.cBuffer);
@@ -8735,7 +8861,7 @@ function hitungPosisiDariData(d, modal, brosur, daftarTravel, sendiri) {
     const labaPenuh = laba + (sisa > 0 ? sisa * margin : 0);
     const impasSendiri = margin > 0 ? Math.max(0, Math.ceil((tetapTotal + v * (travelOrang + nFoc + nTL) - tagihan) / margin - 1e-9)) : null;
     const impasSemuaB2C = margin > 0 ? Math.ceil((tetapTotal + v * (nFoc + nTL)) / margin - 1e-9) : null;
-    return { kursiBayar, sendiri, travelOrang, sisa, laba, labaPenuh, impasSendiri, impasSemuaB2C, hargaB2C, v, tetapPerKursi, tagihan, belumHarga, dibawahBiaya, diAtasBrosur, untungTipis, nTL, nFoc };
+    return { kursiBayar, sendiri, travelOrang, sisa, laba, labaPenuh, impasSendiri, impasSemuaB2C, hargaB2C, v, tetapPerKursi, tagihan, belumHarga, dibawahBiaya, diAtasBrosur, untungTipis, nTL, nFoc , tiketOtomatis: sp.otomatis };
 }
 
 function renderPosisiRombongan() {
@@ -8766,12 +8892,17 @@ function renderPosisiRombongan() {
         baris('Jamaah sendiri minimal agar impas', pos.impasSendiri === null ? '-' : `${pos.impasSendiri} orang`) +
         (pos.impasSemuaB2C !== null ? baris('Impas bila semua pembayar B2C', `${pos.impasSemuaB2C} orang`) : '') +
         peringatan.join('') +
-        `<div style="font-size:11px;color:#888;margin-top:8px;line-height:1.5;">Perkiraan, bukan realisasi. Biaya yang sudah pasti keluar: ${f(pos.tetapPerKursi)}/kursi (${pos.nTL > 0 ? 'termasuk kursi TL' : ''}). Biaya lain dianggap mengikuti jumlah peserta (${f(pos.v)}/orang). Harga B2C dipakai: ${f(pos.hargaB2C)} (harga brosur dikurangi buffer). Jamaah sendiri dihitung dari database jamaah program ini, tanpa FOC/TL/Pembimbing.</div>`;
+        `<div style="font-size:11px;color:#888;margin-top:8px;line-height:1.5;">Perkiraan, bukan realisasi. Biaya yang dianggap hangus per kursi: ${f(pos.tetapPerKursi)} (${pos.nTL > 0 ? 'termasuk kursi TL' : ''})${pos.tiketOtomatis ? ', yaitu seluruh Tiket (skenario terburuk; isi kotak "Biaya yang Hangus" bila hanya DP yang hilang)' : ''}. Biaya lain dianggap mengikuti jumlah peserta (${f(pos.v)}/orang). Harga B2C dipakai: ${f(pos.hargaB2C)} (harga brosur dikurangi buffer). Jamaah sendiri dihitung dari database jamaah program ini, tanpa FOC/TL/Pembimbing.</div>`;
+    const adaPeringatan = peringatan.some(x => x.indexOf('⚠️') >= 0);
+    const rk = document.getElementById('konPosisiRingkas');
+    if(rk) rk.textContent = (adaPeringatan ? '⚠️ ' : '') + 'Sisa kursi ' + pos.sisa + ' · laba saat ini ' + f(pos.laba) + (pos.impasSendiri !== null ? ' · jamaah sendiri minimal ' + pos.impasSendiri : '');
+    const lp = document.getElementById('konPosisiLipat');
+    if(lp) lp.open = !!_lipatImpas.kon;
     card.style.display = 'block';
 }
 
 // ==================== KUNCI & RIWAYAT KONSORSIUM ====================
-const KONSORSIUM_FIELD_IDS = ['konTotJam','konJamGratis','konNumTL','konCTiket','konCLAquad','konCLAtriple','konCLAdouble','konCAsuransi','konCHandling','konCAlat','konCAplikasi','konCPIC','konCLain','konProfitPct','konCBuffer','konCHargaJual','konSbTiket','konSbHotel','konSbLain'];
+const KONSORSIUM_FIELD_IDS = ['konTotJam','konJamGratis','konNumTL','konCTiket','konCLAquad','konCLAtriple','konCLAdouble','konCAsuransi','konCHandling','konCAlat','konCAplikasi','konCPIC','konCLain','konProfitPct','konCBuffer','konCHargaJual','konSbTiketPct','konSbTiket','konSbHotelPct','konSbHotel','konSbLain'];
 
 function renderKunciKonsorsiumUI() {
     const slot = ensureProgramConfigSlot();
@@ -11149,6 +11280,7 @@ function gantiBulanPejabat(delta) {
     bulanPejabatDilihat.setMonth(bulanPejabatDilihat.getMonth() + delta);
     renderKalenderPejabat();
 }
+
 // ---------------- SUSUN KEJADIAN PER BULAN ----------------
 // Gabungkan jadwal rutin (berulang tiap minggu, dengan pengecualian per tanggal) + catatan tanggal
 // menjadi daftar kejadian per-tanggal. Dipakai bersama oleh layar, Cetak Internal, Cetak Promosi,
@@ -23480,7 +23612,7 @@ function openIndexedDB() {
 // dengan build baru, data MENTAH (langsung dari IndexedDB, bukan dari memori) disalin dulu sebelum
 // proses migrasi apapun berjalan — supaya kalau ada kesalahan di update, data lama masih bisa dipulihkan.
 // Dokumen & foto tidak ikut disalin (ukurannya besar, dan tidak pernah disentuh proses migrasi).
-const NAVARA_BUILD = '2026.10.06-69';
+const NAVARA_BUILD = '2026.10.06-74';
 const MAKS_SNAPSHOT = 3;
 
 // ==================== DAFTAR DATA PUSAT ====================
@@ -28444,4 +28576,3 @@ function cetakDariPreviewAlternatif() {
 
 </body>
     </html>
-
