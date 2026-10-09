@@ -3406,6 +3406,10 @@
                 <div id="previewTTDInstansi2" style="margin-top:8px;"></div>
             </div>
         </div>
+        <div class="config-section" id="rekPenSection"><h3><i class="fas fa-university"></i> Rekening Penerimaan Pembayaran</h3>
+            <p style="font-size:11px;color:#888;margin:-6px 0 10px;">Rekening tujuan transfer jamaah. Muncul di Invoice WA, Pengingat WA, serta Invoice cetak &amp; PDF — hanya bila jamaah masih punya sisa tagihan. Kosongkan bila tidak dipakai. Rekening Riyal tetap terpisah (di halaman Tukar Riyal).</p>
+            <div id="rekPenContainer"></div>
+        </div>
         <div class="config-section" id="komponenHajiConfigSection" style="display:none;"><h3><i class="fas fa-money-bill-wave"></i> Harga per Komponen (Haji Reguler)</h3>
             <div style="font-size:12px;color:#888;margin-bottom:10px;">Khusus Haji Reguler — pecah Harga Seragam jadi beberapa komponen (Bimbingan, Touring/Ziarah, dll). Umroh tidak terpengaruh sama sekali.</div>
             <div id="komponenHajiListContainer"></div>
@@ -4275,7 +4279,7 @@
 <div id="manageFieldsModal" class="modal"><div class="modal-content"><h3>Kelola Field Dinamis</h3><button class="btn btn-primary btn-small" style="margin-bottom:15px;" onclick="closeManageFieldsModal(); openFieldModal();">+ Tambah Field Baru</button><div id="fieldsListContainer"></div><button class="btn btn-primary mt-2" onclick="closeManageFieldsModal()">TUTUP</button></div></div>
 
 <div id="paymentModal" class="modal"><div class="modal-content"><h3> Input Pembayaran</h3><div class="input-group"><label> Tanggal</label><input type="date" id="paymentTanggal"></div><div class="input-group"><label> Nama Jamaah *</label><select id="paymentJamaahSelect"><option value="">-- Pilih Jamaah --</option></select></div><div class="input-group" id="paymentKomponenWrap" style="display:none;"><label> Untuk Komponen</label><select id="paymentKomponen"></select></div><div class="input-group"><label> Nominal (Rp)</label><input type="text" class="money-input" inputmode="numeric" id="paymentNominal" placeholder="Contoh: 5.000.000"></div><div class="input-group"><label> Metode</label><select id="paymentMetode"><option value="Transfer">Transfer</option><option value="Cash">Cash</option><option value="QRIS">QRIS</option></select></div><div class="input-group"><label> Keterangan</label><input type="text" id="paymentKeterangan" placeholder="DP / Cicilan / Pelunasan"></div><div class="row"><button class="btn btn-secondary" onclick="closePaymentModal()" style="flex:1">Batal</button><button class="btn btn-primary" onclick="simpanPembayaran()" style="flex:1">Simpan</button></div></div></div>
-<div id="invoiceConfirmModal" class="modal"><div class="modal-content"><h3> Konfirmasi Kirim Invoice</h3><p>Akan dikirim ke nomor WhatsApp:</p><p id="invoiceWANumber" style="font-weight:bold; font-size:18px; background:#f0f0f0; padding:10px; border-radius:10px;"></p><p id="invoiceWAName" style="color:#666;"></p><div class="row" style="margin-top:20px;"><button class="btn btn-secondary" onclick="closeInvoiceConfirmModal()" style="flex:1">Batal</button><button class="btn btn-wa" onclick="sendInvoiceWA()" style="flex:1">Kirim via WA</button><button class="btn btn-orange" onclick="copyInvoiceText()" style="flex:1">Salin Teks</button></div></div></div>
+<div id="invoiceConfirmModal" class="modal"><div class="modal-content"><h3> Konfirmasi Kirim Invoice</h3><p>Akan dikirim ke nomor WhatsApp:</p><p id="invoiceWANumber" style="font-weight:bold; font-size:18px; background:#f0f0f0; padding:10px; border-radius:10px;"></p><p id="invoiceWAName" style="color:#666;"></p><div id="invoiceRekPilih"></div><div class="row" style="margin-top:20px;"><button class="btn btn-secondary" onclick="closeInvoiceConfirmModal()" style="flex:1">Batal</button><button class="btn btn-wa" onclick="sendInvoiceWA()" style="flex:1">Kirim via WA</button><button class="btn btn-orange" onclick="copyInvoiceText()" style="flex:1">Salin Teks</button></div></div></div>
 <div id="editHargaModal" class="modal"><div class="modal-content"><h3> Edit Harga Paket</h3><p id="editHargaNama" style="font-weight:bold;"></p><div class="input-group" id="editHargaTotalWrap"><label> Total Harga Paket (Rp)</label><input type="text" class="money-input" inputmode="numeric" id="editHargaValue" placeholder="Contoh: 35.000.000"></div><div id="editHargaKomponenWrap" style="display:none;"></div><div class="row"><button class="btn btn-secondary" onclick="closeEditHargaModal()" style="flex:1">Batal</button><button class="btn btn-primary" onclick="saveEditHarga()" style="flex:1">Simpan</button></div></div></div>
 <div id="riwayatModal" class="modal"><div class="modal-content"><h3> Riwayat Pembayaran</h3><p id="riwayatNama" style="font-weight:bold;"></p><div id="riwayatListContainer" style="max-height:400px; overflow-y:auto;"></div><div class="row" style="margin-top:15px;"><button class="btn btn-secondary" onclick="closeRiwayatModal()" style="flex:1">Tutup</button></div></div></div>
 <div id="masterFieldModal" class="modal"><div class="modal-content"><h3>Kelola Field Dinamis</h3><div class="dynamic-field"><label>Nama Field</label><input type="text" id="masterNewFieldName" placeholder="contoh: alamat, no_hp"></div><div class="dynamic-field"><label>Label Field</label><input type="text" id="masterNewFieldLabel" placeholder="Contoh: Alamat, No HP"></div><div class="dynamic-field"><label>Tipe</label><select id="masterNewFieldType"><option value="text">Text</option><option value="date">Tanggal</option><option value="tel">Telepon</option><option value="textarea">Text Area</option></select></div><button class="btn btn-primary" onclick="addMasterDynamicField()"> TAMBAH FIELD</button><div id="masterFieldsList" style="margin-top:15px;"></div><button class="btn btn-secondary mt-2" onclick="closeMasterFieldModal()">TUTUP</button></div></div>
@@ -4650,7 +4654,7 @@ function internalShowPage(pageId) {
     }
     if (pageId === 'setting') { updateLicenseSummary(); const na = document.getElementById('namaAdminSaatIni'); if(na) na.textContent = currentAdminNama; const kuncipengaturan = getPengaturanKunciOtomatis(); const elAktif = document.getElementById('cfgKunciOtomatisAktif'); const elMenit = document.getElementById('cfgKunciOtomatisMenit'); if(elAktif) elAktif.checked = kuncipengaturan.aktif; if(elMenit) elMenit.value = kuncipengaturan.menit; }
     if (pageId === 'riwayataktivitas') { renderRiwayatAktivitas(); }
-    if (pageId === 'konfigurasi') { if(window.loadKonfigurasiPro) window.loadKonfigurasiPro(); setTimeout(applyKonfigurasiLock, 400); applyModeHajiReguler(); }
+    if (pageId === 'konfigurasi') { if(window.loadKonfigurasiPro) window.loadKonfigurasiPro(); setTimeout(applyKonfigurasiLock, 400); applyModeHajiReguler(); setTimeout(() => { if(window.siapkanRekeningPenerimaanUI) siapkanRekeningPenerimaanUI(); }, 600); }
     if (pageId === 'jamaah') { applyModeHajiReguler(); }    if (pageId === 'catatan') { if(window.renderCatatanList) window.renderCatatanList(); const fab = document.getElementById('catatanFabBtn'); if(fab) fab.style.display = 'flex'; }
     else { const fab = document.getElementById('catatanFabBtn'); if(fab) fab.style.display = 'none'; }
     if (pageId === 'uploaddokumen') { 
@@ -21447,8 +21451,11 @@ function prepareInvoice(idJamaah) {
             });
         }
     }
-    text += `${garis}\n💰 *Total Dibayar:* ${formatRupiah(totalBayar)}\n📌 *Sisa Tagihan:* ${formatRupiah(sisa > 0 ? sisa : 0)}\n✅ *Status:* ${sisa <= 0 ? 'LUNAS ✅' : 'BELUM LUNAS ⚠️'}\n${garis}\n_${footerNama}_`; 
-    currentInvoiceText = text; 
+    text += `${garis}\n💰 *Total Dibayar:* ${formatRupiah(totalBayar)}\n📌 *Sisa Tagihan:* ${formatRupiah(sisa > 0 ? sisa : 0)}\n✅ *Status:* ${sisa <= 0 ? 'LUNAS ✅' : 'BELUM LUNAS ⚠️'}\n`; 
+    _invoiceBagian = { kepala: text, garis, ekor: `${garis}\n_${footerNama}_`, sisa };
+    _rekPilihInvoice = null;
+    currentInvoiceText = susunTeksInvoiceWA();
+    renderChipRekInvoice(); 
     let waNumber = '628123456789'; 
     if (jamaah.additional_fields && jamaah.additional_fields.whatsapp) { 
         let num = bersihkanNomorWA(jamaah.additional_fields.whatsapp);
@@ -21478,6 +21485,163 @@ function copyInvoiceText() {
 
 // Generate invoice PDF - reusable untuk preview, cetak, download
 
+// ==================== REKENING PENERIMAAN PEMBAYARAN (per instansi) ====================
+// Disimpan di konfigurasiPro.rekening_penerimaan = { instansi1:[{id,bank,nomor,nama,aktif,utama}], instansi2:[...] }
+// Instansi dipilih dengan aturan yang sama seperti tanda tangan/kop: Haji Reguler + Instansi 2 aktif & bernama -> instansi2, selain itu instansi1.
+let _invoiceBagian = null, _rekPilihInvoice = null, _rekPilihPeng = null, _rekPenEditId = {};
+function kunciInstansiProgram(cfg) {
+    cfg = cfg || getKonfigurasiProData();
+    return (isHajiReguler() && cfg.instansi2 && cfg.instansi2.aktif && cfg.instansi2.nama) ? 'instansi2' : 'instansi1';
+}
+function getRekeningPenerimaan(kunci) {
+    const r = konfigurasiPro.rekening_penerimaan;
+    return (r && Array.isArray(r[kunci])) ? r[kunci] : [];
+}
+function getRekeningAktif(kunci) { return getRekeningPenerimaan(kunci).filter(r => r.aktif !== false); }
+function getRekeningUtama(kunci) { const a = getRekeningAktif(kunci); return a.find(r => r.utama) || a[0] || null; }
+function rekeningTerpilih(kunci, pilih) {
+    const a = getRekeningAktif(kunci);
+    if (!a.length || pilih === 'tanpa') return [];
+    if (pilih === 'semua') return a;
+    return [a.find(r => r.id === pilih) || getRekeningUtama(kunci)];
+}
+function teksRekeningWA(arr) {
+    if (!arr || !arr.length) return '';
+    return '💳 *Transfer ke:*\n' + arr.map(r => `🏦 *${r.bank}*\nNo. Rek: *${r.nomor}*${r.nama ? '\na.n. ' + r.nama : ''}\n`).join('\n');
+}
+function rekeningUntukCetak(sisa) {
+    if (!(sisa > 0)) return [];
+    const kunci = kunciInstansiProgram();
+    if (konfigurasiPro.rekening_cetak_mode === 'utama') { const u = getRekeningUtama(kunci); return u ? [u] : []; }
+    return getRekeningAktif(kunci);
+}
+function susunTeksInvoiceWA() {
+    const b = _invoiceBagian; if (!b) return '';
+    let rek = '';
+    if (b.sisa > 0) { const arr = rekeningTerpilih(kunciInstansiProgram(), _rekPilihInvoice); if (arr.length) rek = b.garis + '\n' + teksRekeningWA(arr); }
+    return b.kepala + rek + b.ekor;
+}
+function htmlChipRekening(daftar, terpilihId, fn, tambahTanpa) {
+    const chip = (id, label, on) => `<button type="button" onclick="${fn}(${typeof id === 'number' ? id : "'" + id + "'"})" style="padding:6px 12px;border-radius:999px;border:1.5px solid var(--primary);font-size:12px;font-weight:700;cursor:pointer;margin:0 6px 6px 0;background:${on ? 'var(--primary)' : 'white'};color:${on ? 'white' : 'var(--primary)'};">${label}</button>`;
+    let h = daftar.map(r => chip(r.id, escapeHtml(r.bank) + ' ·' + escapeHtml(String(r.nomor).replace(/[^0-9]/g, '').slice(-4)) + (r.utama ? ' ★' : ''), r.id === terpilihId)).join('');
+    if (tambahTanpa) h += chip('tanpa', 'Tanpa rekening', terpilihId === 'tanpa');
+    return h;
+}
+function renderChipRekInvoice() {
+    const box = document.getElementById('invoiceRekPilih'); if (!box) return;
+    const kunci = kunciInstansiProgram(), aktif = getRekeningAktif(kunci);
+    if (!_invoiceBagian || !(_invoiceBagian.sisa > 0) || !aktif.length) { box.innerHTML = ''; return; }
+    const dipakai = rekeningTerpilih(kunci, _rekPilihInvoice)[0];
+    box.innerHTML = aktif.length === 1
+        ? `<div style="font-size:12px;color:#475569;margin-top:10px;">💳 Rekening di pesan: <b>${escapeHtml(dipakai.bank)}</b></div>`
+        : `<div style="margin-top:12px;"><div style="font-size:12px;color:#475569;margin-bottom:6px;">💳 Rekening di pesan ini <span style="color:#94a3b8;">(★ = utama; pilihan hanya untuk pesan ini)</span></div>${htmlChipRekening(aktif, dipakai.id, 'pilihRekInvoice', false)}</div>`;
+}
+function pilihRekInvoice(id) { _rekPilihInvoice = id; currentInvoiceText = susunTeksInvoiceWA(); renderChipRekInvoice(); }
+function renderChipRekPeng() {
+    const box = document.getElementById('pengRekPilih'); if (!box) return;
+    const kunci = kunciInstansiProgram(), aktif = getRekeningAktif(kunci);
+    if (!aktif.length) { box.innerHTML = ''; return; }
+    const sel = _rekPilihPeng === 'tanpa' ? 'tanpa' : rekeningTerpilih(kunci, _rekPilihPeng)[0].id;
+    box.innerHTML = `<div style="font-size:12px;color:#475569;margin-bottom:6px;">💳 Rekening ditambahkan otomatis bila masih ada sisa tagihan</div>${htmlChipRekening(aktif, sel, 'pilihRekPeng', true)}`;
+}
+function pilihRekPeng(id) { _rekPilihPeng = id; renderChipRekPeng(); }
+
+// ---- UI Konfigurasi ----
+function simpanRekPenData() {
+    localStorage.setItem('navara_konfigurasi_pro', JSON.stringify(konfigurasiPro));
+    idbSet(STORE_KONFIGURASI, 'konfigurasi_pro', konfigurasiPro);
+}
+function siapkanRekeningPenerimaanUI() {
+    const wrap = document.getElementById('rekPenContainer'); if (!wrap) return;
+    const cfg = getKonfigurasiProData();
+    const blok = (kunci, judul) => `<div style="border:1px solid #e2e8f0;border-radius:12px;padding:12px;margin-bottom:12px;">
+        <div style="font-weight:700;font-size:13px;margin-bottom:8px;">${escapeHtml(judul)}</div>
+        <div id="rekPenList_${kunci}"></div>
+        <div style="font-size:12px;font-weight:700;color:#475569;margin:10px 0 6px;" id="rekPenJudul_${kunci}">Tambah rekening</div>
+        <div class="row"><div class="config-row"><label>Bank</label><input type="text" id="rekPenBank_${kunci}" placeholder="BCA / BSI / BRI / Mandiri"></div><div class="config-row"><label>Nomor Rekening</label><input type="text" id="rekPenNomor_${kunci}" inputmode="numeric" placeholder="1234567890"></div></div>
+        <div class="config-row"><label>Atas Nama</label><input type="text" id="rekPenNama_${kunci}" placeholder="PT AUVA EQTENA NAHDHA"></div>
+        <div class="row"><button type="button" class="btn btn-primary btn-small" style="flex:2;" onclick="simpanRekPen('${kunci}')">Simpan rekening</button><button type="button" class="btn btn-secondary btn-small" id="rekPenBatal_${kunci}" style="flex:1;display:none;" onclick="bersihFormRekPen('${kunci}')">Batal</button></div></div>`;
+    const n1 = (cfg.instansi1 && cfg.instansi1.nama) || '(nama belum diisi)';
+    const n2 = (cfg.instansi2 && cfg.instansi2.nama) || '(nama belum diisi)';
+    const mode = konfigurasiPro.rekening_cetak_mode === 'utama' ? 'utama' : 'semua';
+    wrap.innerHTML = blok('instansi1', 'Instansi 1 — ' + n1) + blok('instansi2', 'Instansi 2 — ' + n2) +
+        `<div style="font-size:12px;font-weight:700;color:#475569;margin:4px 0 6px;">Di invoice cetak &amp; PDF tampilkan:</div>
+        <label style="display:flex;gap:8px;align-items:center;font-size:12px;margin-bottom:6px;"><input type="radio" name="rekCetakMode" value="semua" ${mode === 'semua' ? 'checked' : ''} onchange="setModeRekeningCetak('semua')" style="width:18px;height:18px;flex:none;padding:0;margin:0;"> Semua rekening aktif (jamaah bebas pilih bank)</label>
+        <label style="display:flex;gap:8px;align-items:center;font-size:12px;"><input type="radio" name="rekCetakMode" value="utama" ${mode === 'utama' ? 'checked' : ''} onchange="setModeRekeningCetak('utama')" style="width:18px;height:18px;flex:none;padding:0;margin:0;"> Rekening Utama saja</label>`;
+    renderRekPenList('instansi1'); renderRekPenList('instansi2');
+}
+function setModeRekeningCetak(v) { konfigurasiPro.rekening_cetak_mode = v === 'utama' ? 'utama' : 'semua'; simpanRekPenData(); showToast('✅ Pengaturan rekening cetak disimpan'); }
+function renderRekPenList(kunci) {
+    const box = document.getElementById('rekPenList_' + kunci); if (!box) return;
+    const list = getRekeningPenerimaan(kunci), utama = getRekeningUtama(kunci);
+    if (!list.length) { box.innerHTML = '<div style="font-size:12px;color:#94a3b8;">Belum ada rekening. Invoice tetap tanpa rekening.</div>'; return; }
+    const tb = (fn, teks, warna) => `<button type="button" onclick="${fn}" style="border:none;background:none;color:${warna || '#0D5C4A'};font-size:12px;font-weight:700;cursor:pointer;padding:4px 6px;">${teks}</button>`;
+    box.innerHTML = list.map(r => {
+        const aktif = r.aktif !== false, isU = utama && utama.id === r.id;
+        return `<div style="border:1.5px solid ${isU ? 'var(--primary)' : '#e2e8f0'};background:${aktif ? (isU ? '#f0fdf9' : 'white') : '#f8fafc'};opacity:${aktif ? 1 : 0.65};border-radius:10px;padding:8px 10px;margin-bottom:6px;">
+            <div style="font-size:12px;word-break:break-word;"><b>${escapeHtml(r.bank)}</b> · ${escapeHtml(r.nomor)}<br><span style="color:#64748b;">a.n. ${escapeHtml(r.nama || '-')}</span>
+            ${isU ? ' <span style="color:var(--primary);font-weight:700;">★ Utama</span>' : ''}${aktif ? '' : ' <span style="color:#B45309;font-weight:700;">Nonaktif</span>'}</div>
+            <div style="display:flex;flex-wrap:wrap;margin-top:4px;">
+                ${aktif && !isU ? tb(`jadikanUtamaRekPen('${kunci}',${r.id})`, '★ Jadikan Utama') : ''}
+                ${tb(`toggleAktifRekPen('${kunci}',${r.id})`, aktif ? 'Nonaktifkan' : 'Aktifkan', aktif ? '#B45309' : '#0D5C4A')}
+                ${tb(`editRekPen('${kunci}',${r.id})`, 'Edit')}
+                ${tb(`hapusRekPen('${kunci}',${r.id})`, 'Hapus', '#DC2626')}
+            </div></div>`;
+    }).join('');
+}
+function bersihFormRekPen(kunci) {
+    ['Bank', 'Nomor', 'Nama'].forEach(f => { const e = document.getElementById('rekPen' + f + '_' + kunci); if (e) e.value = ''; });
+    _rekPenEditId[kunci] = null;
+    const j = document.getElementById('rekPenJudul_' + kunci); if (j) j.textContent = 'Tambah rekening';
+    const b = document.getElementById('rekPenBatal_' + kunci); if (b) b.style.display = 'none';
+}
+function simpanRekPen(kunci) {
+    const bank = (document.getElementById('rekPenBank_' + kunci).value || '').trim();
+    const nomor = (document.getElementById('rekPenNomor_' + kunci).value || '').replace(/[^0-9\-\s]/g, '').trim();
+    const nama = (document.getElementById('rekPenNama_' + kunci).value || '').trim();
+    if (!bank) return showToast('Isi nama bank dulu');
+    if (!nomor) return showToast('Isi nomor rekening dulu');
+    if (!konfigurasiPro.rekening_penerimaan) konfigurasiPro.rekening_penerimaan = {};
+    const list = getRekeningPenerimaan(kunci).slice();
+    if (_rekPenEditId[kunci]) {
+        const r = list.find(x => x.id === _rekPenEditId[kunci]);
+        if (r) { r.bank = bank; r.nomor = nomor; r.nama = nama; }
+    } else {
+        const id = Date.now() + list.length;
+        list.push({ id, bank, nomor, nama, aktif: true, utama: !list.some(x => x.aktif !== false && x.utama) });
+    }
+    konfigurasiPro.rekening_penerimaan[kunci] = list;
+    simpanRekPenData(); bersihFormRekPen(kunci); renderRekPenList(kunci);
+    showToast('✅ Rekening tersimpan — periksa kembali nomornya');
+}
+function editRekPen(kunci, id) {
+    const r = getRekeningPenerimaan(kunci).find(x => x.id === id); if (!r) return;
+    _rekPenEditId[kunci] = id;
+    document.getElementById('rekPenBank_' + kunci).value = r.bank;
+    document.getElementById('rekPenNomor_' + kunci).value = r.nomor;
+    document.getElementById('rekPenNama_' + kunci).value = r.nama || '';
+    document.getElementById('rekPenJudul_' + kunci).textContent = 'Ubah rekening';
+    document.getElementById('rekPenBatal_' + kunci).style.display = '';
+}
+function jadikanUtamaRekPen(kunci, id) {
+    const list = getRekeningPenerimaan(kunci);
+    list.forEach(r => { r.utama = (r.id === id); if (r.id === id) r.aktif = true; });
+    simpanRekPenData(); renderRekPenList(kunci);
+}
+function toggleAktifRekPen(kunci, id) {
+    const r = getRekeningPenerimaan(kunci).find(x => x.id === id); if (!r) return;
+    r.aktif = !(r.aktif !== false);
+    if (!r.aktif) r.utama = false;
+    simpanRekPenData(); renderRekPenList(kunci);
+}
+async function hapusRekPen(kunci, id) {
+    const r = getRekeningPenerimaan(kunci).find(x => x.id === id); if (!r) return;
+    if (!(await konfirmasi('Hapus rekening ' + r.bank + ' ' + r.nomor + '? (Bisa juga hanya dinonaktifkan)'))) return;
+    konfigurasiPro.rekening_penerimaan[kunci] = getRekeningPenerimaan(kunci).filter(x => x.id !== id);
+    if (_rekPenEditId[kunci] === id) bersihFormRekPen(kunci);
+    simpanRekPenData(); renderRekPenList(kunci);
+}
+
 async function shareInvoiceGambar(jamaahId) {
     const jamaah = jamaahList.find(j => j.id == jamaahId);
     if (!jamaah) return showToast('Data jamaah tidak ditemukan');
@@ -21500,6 +21664,7 @@ async function shareInvoiceGambar(jamaahId) {
         const [wr, wg, wb] = getWarnaTemaRGB();
         const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
         const PW = 210; // page width
+        const hW = PW - 28; // lebar kotak ringkasan (sebelumnya tidak terdefinisi -> PDF invoice gagal)
         let y = await gambarHeaderRoundedPDF(doc, cfg, PW);
         // ── Judul Invoice ──────────────────────────────────────────────────
         doc.setTextColor(wr, wg, wb);
@@ -21594,6 +21759,23 @@ async function shareInvoiceGambar(jamaahId) {
         doc.text(lunas ? '✓  LUNAS' : '!  BELUM LUNAS', 105, y + 8, { align: 'center' });
         y += 16;
 
+        // ── Rekening pembayaran (hanya bila masih ada sisa & rekening diisi) ──
+        const rekPdf = rekeningUntukCetak(sisa);
+        if (rekPdf.length) {
+            const tinggiRek = 12 + rekPdf.length * 5;
+            if (y + tinggiRek > 235) { doc.addPage(); y = 20; }
+            doc.setFillColor(240, 249, 246); doc.setDrawColor(wr, wg, wb);
+            doc.roundedRect(14, y, hW, tinggiRek, 3, 3, 'FD');
+            doc.setFontSize(9); doc.setFont('helvetica', 'bold'); doc.setTextColor(wr, wg, wb);
+            doc.text('Pembayaran dapat ditransfer ke:', 20, y + 6);
+            doc.setTextColor(30, 30, 30);
+            rekPdf.forEach((r, i) => {
+                doc.setFont('helvetica', 'bold'); doc.text(String(r.bank), 20, y + 12 + i * 5);
+                doc.setFont('helvetica', 'normal'); doc.text(`${r.nomor}${r.nama ? '   a.n. ' + r.nama : ''}`, 45, y + 12 + i * 5);
+            });
+            y += tinggiRek + 6;
+        }
+
         // ── Tanda Tangan (sama seperti versi Cetak — gambar TTD & Bendahara didukung) ──
         y = gambarTandaTanganPDF(doc, cfg, tglCetak, y + 10, PW, true);
 
@@ -21645,6 +21827,8 @@ async function cetakInvoiceAuto(jamaahId) {
             rowsHtml += `<tr><td style="padding:8px;border-bottom:1px solid #eee;text-align:center;">${i+1}</td><td style="padding:8px;border-bottom:1px solid #eee;">${t.tanggal}</td><td style="padding:8px;border-bottom:1px solid #eee;">${t.keterangan||'-'}</td><td style="padding:8px;border-bottom:1px solid #eee;">${t.metode||'-'}</td><td style="padding:8px;border-bottom:1px solid #eee;text-align:right;">${formatRupiah(t.nominal)}</td></tr>`;
         });
         if(!transaksiList.length) rowsHtml = `<tr><td colspan="5" style="padding:12px;text-align:center;color:#6B7280;">Belum ada transaksi</td></tr>`;
+        const rekCetak = rekeningUntukCetak(sisa);
+        const rekHtml = rekCetak.length ? `<div style="margin-top:14px;border:1px solid #cbd5e1;border-radius:10px;padding:10px 14px;font-size:13px;line-height:1.9;page-break-inside:avoid;"><div style="font-weight:bold;color:#0D5C4A;margin-bottom:2px;">Pembayaran dapat ditransfer ke:</div>${rekCetak.map(r => `<div><strong>${escapeHtml(r.bank)}</strong> &nbsp;${escapeHtml(r.nomor)}${r.nama ? ' &nbsp;a.n. ' + escapeHtml(r.nama) : ''}</div>`).join('')}</div>` : '';
         const html = `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Invoice - ${jamaah.nama_lengkap}</title>
         <style>
             *{margin:0;padding:0;box-sizing:border-box;}
@@ -21693,6 +21877,7 @@ async function cetakInvoiceAuto(jamaahId) {
                     <div>Sisa Tagihan &nbsp;: <strong>${formatRupiah(sisa>0?sisa:0)}</strong></div>
                     <div class="status">${sisa<=0?'✅ LUNAS':'⚠️ BELUM LUNAS'}</div>
                 </div>
+                ${rekHtml}
                 ${ttdHtml}
                 ${qrHtml}
             </div>
@@ -24011,7 +24196,7 @@ function openIndexedDB() {
 // dengan build baru, data MENTAH (langsung dari IndexedDB, bukan dari memori) disalin dulu sebelum
 // proses migrasi apapun berjalan — supaya kalau ada kesalahan di update, data lama masih bisa dipulihkan.
 // Dokumen & foto tidak ikut disalin (ukurannya besar, dan tidak pernah disentuh proses migrasi).
-const NAVARA_BUILD = '2026.10.09-82';
+const NAVARA_BUILD = '2026.10.09-83';
 const MAKS_SNAPSHOT = 3;
 
 // ==================== DAFTAR DATA PUSAT ====================
@@ -26653,6 +26838,10 @@ function tampilkanModalKirimSatuPerSatu(jamaahToSend, message) {
         <button onclick="document.getElementById('kirimSatuPerSatuModal').style.display='none'" style="width:100%;padding:11px;background:#e2e8f0;color:#333;border:none;border-radius:10px;font-size:13px;cursor:pointer;">Tutup</button>
     </div>`;
     modal.dataset.pesan = message;
+    _rekPilihPeng = null;
+    const hint = modal.querySelector('h3 + div');
+    if (hint) hint.insertAdjacentHTML('afterend', '<div id="pengRekPilih" style="margin-bottom:12px;"></div>');
+    renderChipRekPeng();
     modal.style.display = 'flex';
 }
 
@@ -26664,6 +26853,10 @@ function kirimPengingatWAPerorangan(jamaahId) {
     let msg = message.replace(/\[nama\]/gi, j.nama_lengkap); 
     const statusPembayaran = getStatusPembayaran(j); 
     if(!statusPembayaran.needInput) msg = msg.replace(/\[sisa\]/gi, formatRupiah(statusPembayaran.sisa)); 
+    if(!statusPembayaran.needInput && statusPembayaran.sisa > 0) {
+        const rekP = teksRekeningWA(rekeningTerpilih(kunciInstansiProgram(), _rekPilihPeng));
+        if(rekP) msg = msg.replace(/\s+$/, '') + '\n\n' + rekP.replace(/\s+$/, '');
+    }
     let waNumber = '628123456789'; 
     if(j.additional_fields && j.additional_fields.whatsapp) { 
         let num = bersihkanNomorWA(j.additional_fields.whatsapp);
@@ -28378,6 +28571,9 @@ async function resetKonfigurasiPro() {
         // Simpan dulu semua data per-Program (Estimasi, Konsorsium, Kalimat Sapaan, Tipe Paket, dll) —
         // ini TIDAK boleh ikut ter-reset, cuma pengaturan branding/laporan di bawah ini yang di-default-kan ulang.
         const perProgramAman = konfigurasiPro.per_program || {};
+        // Data rekening & riwayat Tukar Riyal bukan "branding/laporan" -> jangan ikut terhapus.
+        const dataAman = {};
+        ['rekening_penerimaan','rekening_cetak_mode','riwayat_tukar_riyal','rekening_riyal','rekening_riyal_pilih','riyal_pref'].forEach(k => { if(konfigurasiPro[k] !== undefined) dataAman[k] = konfigurasiPro[k]; });
         konfigurasiPro = {
             instansi1: { nama: '', alamat: '', telp: '', email: '', npwp: '', web: '', pimpinan: '', jabatan: '', logo: '' },
             instansi2: { aktif: false, nama: '', alamat: '', telp: '', email: '', izin: '', pimpinan: '', jabatan: '', logo: '' },
@@ -28387,7 +28583,8 @@ async function resetKonfigurasiPro() {
             harga_paket: { seragam: false, nominal: 0 },
             per_program: perProgramAman,
             wa_template: { laporan: '📊 *LAPORAN KAS KANTOR*\n\n💰 Saldo: [saldo]\n📈 Pemasukan: [masuk]\n📉 Pengeluaran: [keluar]\n\nTerima kasih.' },
-            bendahara: {}
+            bendahara: {},
+            ...dataAman
         };
         localStorage.setItem('navara_konfigurasi_pro', JSON.stringify(konfigurasiPro));
         idbSet(STORE_KONFIGURASI, 'konfigurasi_pro', konfigurasiPro);
