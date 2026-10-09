@@ -2415,6 +2415,19 @@
                 <input type="text" id="pengeluaranNominal" placeholder="Contoh: 570.000.000" class="money-input" inputmode="numeric"
                     style="width:100%;padding:10px;border-radius:10px;border:1.5px solid #e2e8f0;font-size:14px;background:var(--input-bg);color:var(--text);">
             </div>
+            <details id="hitungPengBox" style="margin:-2px 0 12px;background:#f8fafc;border-radius:10px;padding:8px 10px;">
+                <summary style="font-size:12px;color:#475569;cursor:pointer;font-weight:600;">🧮 Hitung dari harga per orang × jumlah (opsional)</summary>
+                <div style="font-size:11px;color:#64748b;margin:6px 0;">Tidak wajib. Untuk DP atau angka dari invoice, cukup ketik langsung di Nominal di atas.</div>
+                <div style="display:flex;gap:8px;">
+                    <div style="flex:1.4;"><label style="font-size:11px;color:#666;display:block;margin-bottom:3px;">Harga per orang/kursi (Rp)</label>
+                        <input type="text" id="hitPengHarga" class="money-input" inputmode="numeric" placeholder="19.000.000" oninput="perbaruiHitungPeng()" style="width:100%;padding:8px;border-radius:8px;border:1.5px solid #e2e8f0;font-size:13px;background:var(--input-bg);color:var(--text);"></div>
+                    <div style="flex:1;"><label style="font-size:11px;color:#666;display:block;margin-bottom:3px;">Jumlah</label>
+                        <input type="number" id="hitPengJumlah" inputmode="numeric" min="0" placeholder="90" oninput="perbaruiHitungPeng()" style="width:100%;padding:8px;border-radius:8px;border:1.5px solid #e2e8f0;font-size:13px;background:var(--input-bg);color:var(--text);"></div>
+                </div>
+                <div id="hitPengPilihan" style="display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;"></div>
+                <div id="hitPengHasil" style="font-size:12px;color:#334155;margin-top:8px;"></div>
+                <button type="button" onclick="terapkanHitungPeng()" style="width:100%;margin-top:8px;padding:9px;border:1.5px solid #1D4ED8;background:white;color:#1D4ED8;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;">Isi Nominal dengan hasil ini</button>
+            </details>
             <div style="margin-bottom:12px;">
                 <label style="font-size:12px;color:#666;display:block;margin-bottom:4px;">Tanggal</label>
                 <input type="date" id="pengeluaranTanggal"
@@ -3729,7 +3742,7 @@
 <div id="page-kalkulatorriyal" class="page">
     <div class="header-premium header-premium-small"><div class="back-header"><i class="fas fa-arrow-left" onclick="showPage('fitur')"></i><h2>Tukar Riyal</h2><div style="width:30px;"></div></div></div>
     <div class="card-premium">
-        <div class="input-group"><label>Kurs Jual (1 SAR = Rp)</label><input type="text" id="kursRiyalInput" class="money-input" inputmode="numeric" placeholder="Contoh: 4.300" oninput="formatMoneyInput(this); hitungTukarRiyal();"></div>
+        <div class="input-group"><label>Kurs Jual (1 SAR = Rp)</label><input type="text" id="kursRiyalInput" class="money-input" inputmode="numeric" placeholder="Contoh: 4.300" oninput="formatMoneyInput(this); hitungTukarRiyal(); hitungRiyalDiinginkan();" onchange="simpanPrefRiyal()"><div id="infoKursRiyal" style="font-size:11px;color:#64748b;margin-top:4px;"></div></div>
         <div class="input-group"><label>Uang Diberikan Jamaah (Rp)</label><input type="text" id="uangDiberikanInput" class="money-input" inputmode="numeric" placeholder="Contoh: 1.000.000" oninput="formatMoneyInput(this); hitungTukarRiyal();"></div>
         <div class="input-group">
             <label>Pecahan Riyal Terkecil yang Ada</label>
@@ -3740,6 +3753,28 @@
             </div>
             <div style="font-size:11px;color:#888;margin-top:4px;">Pilih sesuai pecahan terkecil yang tersedia saat ini — sisa yang tidak bisa diberikan otomatis masuk ke kembalian Rupiah.</div>
         </div>
+        <details id="riyalDiinginkanBox" style="background:#f8fafc;border-radius:10px;padding:8px 10px;">
+            <summary style="font-size:12px;color:#475569;cursor:pointer;font-weight:600;">🎯 Jamaah menyebut jumlah Riyal? Hitung nominal transfer pas (opsional)</summary>
+            <div class="input-group" style="margin:8px 0 0;"><label style="font-size:11px;">Jumlah Riyal yang diinginkan (SAR)</label><input type="text" id="riyalDiinginkanInput" class="money-input" inputmode="numeric" placeholder="Contoh: 500" oninput="formatMoneyInput(this); hitungRiyalDiinginkan();"></div>
+            <div id="hasilRiyalDiinginkan" style="font-size:12px;color:#334155;margin-top:8px;"></div>
+        </details>
+    </div>
+    <div class="card-premium" style="padding:12px 14px;">
+        <details id="rekRiyalBox">
+            <summary style="font-size:13px;font-weight:700;color:var(--primary);cursor:pointer;">🏦 Rekening Tujuan Transfer <span id="rekRiyalRingkas" style="font-weight:400;color:#64748b;font-size:12px;"></span></summary>
+            <div style="font-size:11px;color:#64748b;margin:6px 0 8px;">Khusus untuk tukar Riyal, terpisah dari rekening keuangan kantor. Rekening yang dipilih ikut terkirim di pesan WA "transfer pas".</div>
+            <div id="rekRiyalList"></div>
+            <div style="background:#f8fafc;border-radius:10px;padding:10px;margin-top:8px;">
+                <div id="rekRiyalJudulForm" style="font-size:12px;font-weight:700;color:#475569;margin-bottom:6px;">Tambah rekening</div>
+                <input type="text" id="rekRiyalBank" placeholder="Bank (contoh: BSI)" style="width:100%;padding:9px;margin-bottom:6px;border-radius:8px;border:1.5px solid #e2e8f0;font-size:13px;">
+                <input type="text" id="rekRiyalNomor" inputmode="numeric" placeholder="Nomor rekening" style="width:100%;padding:9px;margin-bottom:6px;border-radius:8px;border:1.5px solid #e2e8f0;font-size:13px;">
+                <input type="text" id="rekRiyalNama" placeholder="Atas nama" style="width:100%;padding:9px;margin-bottom:8px;border-radius:8px;border:1.5px solid #e2e8f0;font-size:13px;">
+                <div style="display:flex;gap:6px;">
+                    <button type="button" onclick="simpanRekeningRiyal()" style="flex:1;padding:9px;border:none;border-radius:8px;background:var(--primary);color:white;font-weight:700;font-size:13px;cursor:pointer;">Simpan Rekening</button>
+                    <button type="button" id="rekRiyalBatal" onclick="batalEditRekeningRiyal()" style="display:none;padding:9px 12px;border:1.5px solid #cbd5e1;border-radius:8px;background:white;color:#475569;font-size:13px;cursor:pointer;">Batal</button>
+                </div>
+            </div>
+        </details>
     </div>
     <div id="hasilTukarRiyal" class="res-card" style="display:none;"></div>
     <div class="card-premium">
@@ -4592,7 +4627,7 @@ function internalShowPage(pageId) {
         setTimeout(() => { selectedJamaahKitaIds = []; updateJamaahKitaBatchBar(); renderPilihJamaahKita(); renderJamaahKitaList(); renderJamaahKitaDynamicFieldsForm(); if(isAdminModePremium) renderJamaahKitaFieldsList(); }, 50);
     }
     if (pageId === 'zakat') { if(window.renderSumberHartaList) window.renderSumberHartaList(); }
-    if (pageId === 'kalkulatorriyal') { if(window.renderRiwayatTukarRiyal) window.renderRiwayatTukarRiyal(); }
+    if (pageId === 'kalkulatorriyal') { if(window.renderRiwayatTukarRiyal) window.renderRiwayatTukarRiyal(); if(window.siapkanHalamanRiyal) window.siapkanHalamanRiyal(); }
     if (pageId === 'evaluasihotelmaskapai') { if(window.renderRekananHotelList) window.renderRekananHotelList(); }
     if (pageId === 'pembayaran') {
         const cp = document.getElementById('paymentJamaahListContainer');
@@ -7117,7 +7152,7 @@ function ringkasPengeluaranUntukImpas() {
     const list = (typeof pengeluaranList !== 'undefined' && Array.isArray(pengeluaranList)) ? pengeluaranList : [];
     let maskapai = 0, hotel = 0;
     list.forEach(p => {
-        const k = (p.kategori || '').toString().trim().toLowerCase(), n = parseInt(p.nominal) || 0;
+        const k = (p.kategori || '').toString().toLowerCase().replace(/[^a-z]/g, ''), n = parseInt(p.nominal) || 0;
         if(k === 'maskapai') maskapai += n; else if(k === 'hotel') hotel += n;
     });
     return { maskapai, hotel };
@@ -8815,6 +8850,19 @@ function renderKonsorsiumRingkasan() {
 // ==================== POSISI ROMBONGAN (perkiraan, seluruh rombongan) ====================
 // Gabungan jamaah sendiri (B2C, dari database) + Travel Partner, dengan modal dibagi ke Total Pax rombongan.
 // Biaya dibagi dua: yang SUDAH PASTI keluar per kursi (default: Tiket) dan yang masih mengikuti jumlah peserta.
+// Catatan pembulatan harga brosur Konsorsium (HANYA teks). Impas dan laba rombongan memakai harga brosur, jadi tercapai hanya bila jamaah sendiri membayar harga itu.
+function catatanBulatKonsorsium() {
+    try {
+        const d = ensureProgramConfigSlot().konsorsium_estimasi_data;
+        if(!d) return '';
+        const pr = v => parseInt((v||'0').toString().replace(/[^0-9]/g,'')) || 0;
+        const hitung = Math.round(Number(d.hargaHitungan) || 0), brosur = Math.round(Number(d.hargaBrosur) || 0);
+        if(!(pr(d.cHargaJual) > 0) || hitung <= 0 || brosur <= 0 || brosur === hitung) return '';
+        const f = x => 'Rp ' + Math.round(Math.abs(x)).toLocaleString('id-ID');
+        const sel = brosur - hitung;
+        return ' Harga brosur ' + (sel > 0 ? 'dibulatkan naik' : 'diatur lebih rendah') + ' dari ' + f(hitung) + ' menjadi ' + f(brosur) + ' (' + (sel > 0 ? '+' : '-') + f(sel) + '/pax). Laba dan titik impas di atas mengandaikan jamaah sendiri membayar harga ini; bila dicatat lebih rendah, hasilnya lebih kecil.';
+    } catch(e) { return ''; }
+}
 function hitungPosisiRombongan() {
     const d = ensureProgramConfigSlot().konsorsium_estimasi_data;
     if(!d || !konsorsiumLastModal) return null;
@@ -8892,7 +8940,7 @@ function renderPosisiRombongan() {
         baris('Jamaah sendiri minimal agar impas', pos.impasSendiri === null ? '-' : `${pos.impasSendiri} orang`) +
         (pos.impasSemuaB2C !== null ? baris('Impas bila semua pembayar B2C', `${pos.impasSemuaB2C} orang`) : '') +
         peringatan.join('') +
-        `<div style="font-size:11px;color:#888;margin-top:8px;line-height:1.5;">Perkiraan, bukan realisasi. Biaya yang dianggap hangus per kursi: ${f(pos.tetapPerKursi)} (${pos.nTL > 0 ? 'termasuk kursi TL' : ''})${pos.tiketOtomatis ? ', yaitu seluruh Tiket (skenario terburuk; isi kotak "Biaya yang Hangus" bila hanya DP yang hilang)' : ''}. Biaya lain dianggap mengikuti jumlah peserta (${f(pos.v)}/orang). Harga B2C dipakai: ${f(pos.hargaB2C)} (harga brosur dikurangi buffer). Jamaah sendiri dihitung dari database jamaah program ini, tanpa FOC/TL/Pembimbing.</div>`;
+        `<div style="font-size:11px;color:#888;margin-top:8px;line-height:1.5;">Perkiraan, bukan realisasi. Biaya yang dianggap hangus per kursi: ${f(pos.tetapPerKursi)} (${pos.nTL > 0 ? 'termasuk kursi TL' : ''})${pos.tiketOtomatis ? ', yaitu seluruh Tiket (skenario terburuk; isi kotak "Biaya yang Hangus" bila hanya DP yang hilang)' : ''}. Biaya lain dianggap mengikuti jumlah peserta (${f(pos.v)}/orang). Harga B2C dipakai: ${f(pos.hargaB2C)} (harga brosur dikurangi buffer).${catatanBulatKonsorsium()} Jamaah sendiri dihitung dari database jamaah program ini, tanpa FOC/TL/Pembimbing.</div>`;
     const adaPeringatan = peringatan.some(x => x.indexOf('⚠️') >= 0);
     const rk = document.getElementById('konPosisiRingkas');
     if(rk) rk.textContent = (adaPeringatan ? '⚠️ ' : '') + 'Sisa kursi ' + pos.sisa + ' · laba saat ini ' + f(pos.laba) + (pos.impasSendiri !== null ? ' · jamaah sendiri minimal ' + pos.impasSendiri : '');
@@ -9118,6 +9166,7 @@ function switchCuanTab(tab) {
     if(tab === 'pengeluaran') {
         renderPengeluaranList();
         updateRingkasanKeuangan();
+        isiPilihanJumlahPengeluaran(); perbaruiHitungPeng();
         // Set tanggal hari ini kalau kosong
         const tglEl = document.getElementById('pengeluaranTanggal');
         if(tglEl && !tglEl.value) tglEl.value = new Date().toISOString().split('T')[0];
@@ -9165,6 +9214,62 @@ async function savePengeluaran() {
     } catch(e) {}
 }
 
+// Bantu hitung (opsional): harga per orang x jumlah -> mengisi Nominal. Yang disimpan tetap satu angka total.
+function pilihanJumlahPengeluaran() {
+    const v = id => parseInt(document.getElementById(id)?.value) || 0;
+    const nJam = v('totJam'), foc = v('jamGratis'), tl = v('numTL');
+    const daftar = (typeof jamaahList !== 'undefined' && Array.isArray(jamaahList)) ? jamaahList.length : 0;
+    const out = [];
+    if(nJam > 0) {
+        out.push({ label: 'Kursi total', n: nJam + tl });
+        out.push({ label: 'Kursi bayar', n: nJam - foc });
+    }
+    out.push({ label: 'Jamaah terdaftar', n: daftar });
+    return out;
+}
+function isiPilihanJumlahPengeluaran() {
+    const el = document.getElementById('hitPengPilihan');
+    if(!el) return;
+    el.innerHTML = pilihanJumlahPengeluaran().map(o =>
+        '<button type="button" data-n="' + o.n + '" onclick="pilihJumlahPengeluaran(' + o.n + ')" style="padding:5px 9px;border:1.5px solid #cbd5e1;background:white;color:#334155;border-radius:14px;font-size:11px;cursor:pointer;">' + o.label + ' (' + o.n + ')</button>').join('');
+}
+function pilihJumlahPengeluaran(n) {
+    const el = document.getElementById('hitPengJumlah');
+    if(el) el.value = n;
+    perbaruiHitungPeng();
+}
+function hitungPengeluaranPerOrang() {
+    const harga = parseRupiah(document.getElementById('hitPengHarga')?.value || '0');
+    const n = Math.max(0, parseInt(document.getElementById('hitPengJumlah')?.value) || 0);
+    return { harga, n, total: harga * n };
+}
+function perbaruiHitungPeng() {
+    const el = document.getElementById('hitPengHasil');
+    if(!el) return;
+    const r = hitungPengeluaranPerOrang();
+    el.innerHTML = (r.harga > 0 && r.n > 0)
+        ? 'Rp ' + r.harga.toLocaleString('id-ID') + ' × ' + r.n + ' = <b>Rp ' + r.total.toLocaleString('id-ID') + '</b>'
+        : '<span style="color:#94a3b8;">Isi harga per orang dan jumlah.</span>';
+}
+function terapkanHitungPeng() {
+    const r = hitungPengeluaranPerOrang();
+    if(r.harga <= 0 || r.n <= 0) return showToast('Isi harga per orang dan jumlah dulu');
+    const nom = document.getElementById('pengeluaranNominal');
+    const ket = document.getElementById('pengeluaranKeterangan');
+    if(nom) nom.value = r.total.toLocaleString('id-ID');
+    const rumus = '(' + r.n + ' × Rp ' + r.harga.toLocaleString('id-ID') + ')';
+    if(ket) {
+        if(ket.dataset.rumus) ket.value = ket.value.split(ket.dataset.rumus).join('').replace(/\s+$/,'');
+        ket.value = (ket.value.trim() ? ket.value.trim() + ' ' : '') + rumus;
+        ket.dataset.rumus = rumus; ket.dataset.rumusTotal = String(r.total);
+    }
+    showToast('Nominal terisi Rp ' + r.total.toLocaleString('id-ID') + '. Boleh diubah lagi sebelum disimpan');
+}
+function resetHitungPeng() {
+    ['hitPengHarga','hitPengJumlah'].forEach(id => { const e = document.getElementById(id); if(e) e.value = ''; });
+    perbaruiHitungPeng();
+}
+
 async function simpanPengeluaran() {
     if(cekProgramArsip()) return;
     const kategori = document.getElementById('pengeluaranKategori').value;
@@ -9172,14 +9277,18 @@ async function simpanPengeluaran() {
     const nominalRaw = document.getElementById('pengeluaranNominal').value;
     const tanggal = document.getElementById('pengeluaranTanggal').value;
     const nominal = parseInt(nominalRaw.replace(/\./g,'').replace(/[^0-9]/g,''))||0;
+    // Rumus otomatis hanya ikut tersimpan bila Nominal masih sama dengan hasil hitungnya (supaya keterangan tidak menyesatkan)
+    const ketEl = document.getElementById('pengeluaranKeterangan');
+    let ketFinal = keterangan;
+    if(ketEl.dataset.rumus && String(nominal) !== ketEl.dataset.rumusTotal) ketFinal = keterangan.split(ketEl.dataset.rumus).join('').replace(/\s+/g,' ').trim();
 
     if(!kategori) return showToast('Pilih kategori dulu!');
-    if(!keterangan) return showToast('Isi keterangan dulu!');
+    if(!ketFinal) return showToast('Isi keterangan dulu!');
     if(nominal <= 0) return showToast('Isi nominal yang valid!');
 
     pengeluaranList.push({
         id: Date.now(),
-        kategori, keterangan, nominal,
+        kategori, keterangan: ketFinal, nominal,
         tanggal: tanggal || new Date().toISOString().split('T')[0],
         program_id: currentProgramId
     });
@@ -9189,7 +9298,9 @@ async function simpanPengeluaran() {
 
     document.getElementById('pengeluaranKategori').value = '';
     document.getElementById('pengeluaranKeterangan').value = '';
+    delete ketEl.dataset.rumus; delete ketEl.dataset.rumusTotal;
     document.getElementById('pengeluaranNominal').value = '';
+    resetHitungPeng();
     showToast('✅ Pengeluaran disimpan!');
 }
 
@@ -9509,7 +9620,7 @@ function hitungRekapAktual() {
                 <span style="font-size:13px;">${f(d.totalModal)}</span>
             </div>
             <div style="display:flex;justify-content:space-between;padding:5px 0;">
-                <span style="font-size:13px;font-weight:700;color:${profit>=0?'#10B981':'#ef4444'}">${_adaModalFocTL ? 'Laba sebelum biaya FOC &amp; TL' : 'Laba Sementara'}</span>
+                <span style="font-size:13px;font-weight:700;color:${profit>=0?'#10B981':'#ef4444'}">${_adaModalFocTL ? labelLabaSebelumFocTL(_erAwal.foc, _erAwal.tl) : 'Laba Sementara'}</span>
                 <span style="font-size:13px;font-weight:700;color:${profit>=0?'#10B981':'#ef4444'}">${f(profit)}</span>
             </div>` : ''}` : ''}
             ${d.tanpaHarga?.length > 0 ? `
@@ -9527,6 +9638,7 @@ function hitungRekapAktual() {
     const komposisiRekap = hitungKomposisiPeserta(jamaahList);
     const adaTanpaTagihan = (komposisiRekap.foc + komposisiRekap.tl + komposisiRekap.pembimbing) > 0;
     const kursiRekap = ringkasKursiTerisi(jamaahList);
+    const pembulatanRekap = ringkasPembulatanHarga(jamaahList);
 
     // Grand Total
     const grandProfit = grandOmzet - grandModal;
@@ -9539,12 +9651,13 @@ function hitungRekapAktual() {
                  nFoc: estRingkas?.foc || 0, nTL: estRingkas?.tl || 0, modal: grandModal, profit: grandProfit },
         tanpaTipe: tanpaTipe.slice(), hargaBawah: hargaBawahStandar.length,
         komposisi: adaTanpaTagihan ? teksKomposisiPeserta(komposisiRekap) : '',
-        kursi: kursiRekap
+        kursi: kursiRekap,
+        pembulatan: pembulatanRekap
     };
     if(adaTanpaTagihan) {
         html += `<div style="background:#EDE9FE;border:1.5px solid #C4B5FD;border-radius:12px;padding:10px 12px;margin-bottom:10px;font-size:12px;color:#4C1D95;">
             🏷️ <strong>Peserta tanpa tagihan</strong> tidak masuk hitungan kontrak.<br>${teksKomposisiPeserta(komposisiRekap)}.
-            <div style="font-size:11px;opacity:.85;margin-top:3px;">Modal FOC dan TL dihitung dari angka di Cuan Plan.</div></div>`;
+            <div style="font-size:11px;opacity:.85;margin-top:3px;">Modal FOC dan TL dihitung dari angka di Cuan Plan.${komposisiRekap.pembimbing > 0 ? ' Biaya ' + komposisiRekap.pembimbing + ' pembimbing tidak dihitung otomatis; bila ditanggung, masukkan ke angka TL di Cuan Plan.' : ''}</div></div>`;
     }
     html += `<div class="kartu-total-rekap" style="background:linear-gradient(135deg,var(--primary),#0a3d31);border-radius:14px;padding:16px;margin-bottom:10px;color:white;">
         <div style="font-weight:700;font-size:15px;margin-bottom:10px;">💰 TOTAL KESELURUHAN</div>
@@ -9565,7 +9678,7 @@ function hitungRekapAktual() {
             <span style="font-size:13px;">${f(modalJamaahBayar)}</span>
         </div>
         <div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid rgba(255,255,255,0.2);">
-            <span style="font-size:13px;opacity:0.8;">Modal FOC (${estRingkas.foc || 0}) dan TL (${estRingkas.tl || 0})</span>
+            <span style="font-size:13px;opacity:0.8;">${labelModalFocTL(estRingkas.foc, estRingkas.tl)}</span>
             <span style="font-size:13px;">${f(modalFocTL)}</span>
         </div>` : ''}
         ${grandModal > 0 ? `<div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid rgba(255,255,255,0.2);">
@@ -9577,6 +9690,7 @@ function hitungRekapAktual() {
             <span style="font-size:18px;font-weight:900;color:${grandProfit>=0?'#2ecc71':'#ef4444'};">${f(grandProfit)}</span>
         </div>
         ${kursiRekap ? `<div style="font-size:11px;opacity:0.85;margin-top:8px;text-align:right;">🪑 Kursi bayar terisi ${kursiRekap.terisi} dari ${kursiRekap.total} (${kursiRekap.persen}%)${kursiRekap.terisi < kursiRekap.total ? '. Laba Sementara baru mencerminkan kursi yang sudah terjual.' : ''}</div>` : ''}
+        ${pembulatanRekap ? `<div style="font-size:11px;opacity:0.85;margin-top:8px;">🔸 ${escapeHtml(teksPembulatanHarga(pembulatanRekap, true))}</div>` : ''}
         <div style="font-size:11px;opacity:0.6;margin-top:6px;text-align:right;">
             ${adaTanpaTagihan ? `Total ${komposisiRekap.total} peserta (${teksKomposisiPeserta(komposisiRekap).split(' = ')[0]})` : `Total ${jamaahList.length} jamaah`} · ${Object.keys(tipeData).length} tipe
         </div>
@@ -9737,17 +9851,18 @@ function shareRekapAktual() {
         if (t.nBayar > 0) {
             text += `Total Kontrak: ${f(t.kontrak)}\nSudah Dibayar (${t.nBayar} jamaah): ${f(t.dibayar)}\n`;
             if (t.piutang > 0) text += `Piutang/Sisa: -${f(t.piutang)}\n`;
-            if (t.modal > 0) text += `Total Modal: ${f(t.modal)}\n*${data.grand.modalFocTL > 0 ? 'Laba sebelum biaya FOC & TL' : 'Laba Sementara'}: ${f(t.profit)}*\n`;
+            if (t.modal > 0) text += `Total Modal: ${f(t.modal)}\n*${data.grand.modalFocTL > 0 ? labelLabaSebelumFocTL(data.grand.nFoc, data.grand.nTL) : 'Laba Sementara'}: ${f(t.profit)}*\n`;
         }
         if (t.tanpaHarga > 0) text += `⚠️ ${t.tanpaHarga} jamaah belum ada data pembayaran\n`;
     });
     const g = data.grand;
     text += `\n💰 *TOTAL KESELURUHAN*\nTotal Kontrak/Omzet: ${f(g.kontrak)}\nSudah Dibayar: ${f(g.dibayar)}\n`;
     if (g.piutang > 0) text += `Piutang/Sisa: -${f(g.piutang)}\n`;
-    if (g.modalFocTL > 0) text += `Modal jamaah bayar: ${f(g.modalJamaahBayar)}\nModal FOC (${g.nFoc}) dan TL (${g.nTL}): ${f(g.modalFocTL)}\n`;
+    if (g.modalFocTL > 0) text += `Modal jamaah bayar: ${f(g.modalJamaahBayar)}\n${labelModalFocTL(g.nFoc, g.nTL)}: ${f(g.modalFocTL)}\n`;
     if (g.modal > 0) text += `Total Modal (estimasi): ${f(g.modal)}\n*LABA SEMENTARA: ${f(g.profit)}*\n`;
     if (data.komposisi) text += `\n🏷️ Peserta: ${data.komposisi}`;
     if (data.kursi) text += `\n🪑 Kursi bayar terisi ${data.kursi.terisi} dari ${data.kursi.total} (${data.kursi.persen}%)`;
+    if (data.pembulatan) text += `\n🔸 ${teksPembulatanHarga(data.pembulatan, true)}`;
     if (data.hargaBawah > 0) text += `\n⚠️ ${data.hargaBawah} jamaah harga paketnya di bawah modal`;
     if (data.tanpaTipe.length > 0) text += `\n⚠️ ${data.tanpaTipe.length} jamaah belum ada tipe paket (tidak dihitung): ${data.tanpaTipe.join(', ')}`;
     // Penutup mengikuti pengaturan: pengguna berlisensi memakai nama instansinya sendiri; versi gratis tetap "Navara App"
@@ -17323,6 +17438,50 @@ function hitungTotalModalEstimasi(daftarJamaah) {
 
 // ===== Penjelasan untuk laporan (build -67): HANYA teks penjelas, tidak mengubah angka/rumus apa pun =====
 // Kursi bayar = Total Pax - FOC (TL di luar Total Pax). Terisi = peserta yang membayar.
+// Catatan pembulatan harga brosur (HANYA teks, tidak mengubah angka). Null bila Cuan Plan tidak memakai harga jual manual.
+// Pembulatan hanya terwujud bila jamaah dicatat di harga brosur: dihitung dari jamaah tipe Quad (harga brosur = harga Quad).
+function ringkasPembulatanHarga(daftarJamaah) {
+    if(isHajiReguler()) return null;
+    const est = hitungModalHargaEstimasiTerkini();
+    if(!est || !est.dibulatkan || !(est.hargaHitung > 0)) return null;
+    const hitung = Math.round(est.hargaHitung), harga = Math.round(est.harga), selisih = harga - hitung;
+    if(selisih === 0) return null;
+    let n = 0, atas = 0, bawah = 0;
+    (daftarJamaah || []).forEach(j => {
+        if(tanpaTagihan(j)) return;
+        const tipe = (j.additional_fields && j.additional_fields.tipe_paket) || '';
+        if(tipe && tipe !== 'Quad') return;
+        const h = getTotalHargaPaket(j) || 0;
+        if(h <= 0) return;
+        n++; if(h >= harga) atas++; else bawah++;
+    });
+    return { hitung, harga, selisih, n, atas, bawah };
+}
+function teksPembulatanHarga(r, pendek) {
+    if(!r) return '';
+    const f = x => 'Rp ' + Math.round(Math.abs(x)).toLocaleString('id-ID');
+    const arah = r.selisih > 0 ? 'dibulatkan naik' : 'diatur lebih rendah';
+    let t = 'Harga brosur ' + arah + ' dari ' + f(r.hitung) + ' menjadi ' + f(r.harga) + ' (' + (r.selisih > 0 ? '+' : '-') + f(r.selisih) + '/pax).';
+    if(r.n > 0) t += ' Dari ' + r.n + ' jamaah Quad, ' + r.atas + ' tercatat di harga brosur atau lebih, ' + r.bawah + ' di bawahnya.';
+    if(!pendek) t += ' Angka Total Kontrak dan Proyeksi memakai harga yang tercatat di tiap jamaah, bukan harga brosur, jadi pembulatan hanya terwujud bila jamaah dicatat di harga brosur.';
+    return t;
+}
+// Teks FOC/TL: hanya menyebut yang jumlahnya > 0 (tanpa mengubah angka)
+function jenisFocTL(foc, tl) {
+    foc = Number(foc) || 0; tl = Number(tl) || 0;
+    return foc > 0 && tl > 0 ? 'FOC dan TL' : (foc > 0 ? 'FOC' : (tl > 0 ? 'TL' : ''));
+}
+function labelModalFocTL(foc, tl) {
+    foc = Number(foc) || 0; tl = Number(tl) || 0;
+    if(foc > 0 && tl > 0) return 'Modal FOC (' + foc + ') dan TL (' + tl + ')';
+    if(foc > 0) return 'Modal FOC (' + foc + ')';
+    if(tl > 0) return 'Modal TL (' + tl + ')';
+    return 'Modal FOC dan TL';
+}
+function labelLabaSebelumFocTL(foc, tl) {
+    const j = jenisFocTL(foc, tl);
+    return j ? 'Laba dari jamaah yang membayar (belum dikurangi modal ' + j + ')' : 'Laba Sementara';
+}
 function ringkasKursiTerisi(daftarJamaah) {
     if(isHajiReguler()) return null;
     const est = hitungModalHargaEstimasiTerkini();
@@ -17765,7 +17924,7 @@ function cetakLaporanPenutupanMusim() {
             <tr><td>Sudah Dibayar</td><td>${f(totalDibayarJamaah)}</td></tr>
             <tr><td>Total Modal (estimasi)</td><td>${f(totalModalAktual)}</td></tr>
             <tr class="lap-total"><td>PROYEKSI LABA (Kontrak − Modal Estimasi)</td><td>${f(profitAktual)}</td></tr></table>
-            ${modalEst && (modalEst.nFoc + modalEst.nTL) > 0 ? `<p class="lap-note">Total Modal sudah termasuk modal ${modalEst.nFoc} peserta FOC dan ${modalEst.nTL} TL, karena biaya mereka tetap keluar.</p>` : ''}</div>`;
+            ${modalEst && (modalEst.nFoc + modalEst.nTL) > 0 ? `<p class="lap-note">Total Modal sudah termasuk modal ${[modalEst.nFoc > 0 ? modalEst.nFoc + ' peserta FOC' : '', modalEst.nTL > 0 ? modalEst.nTL + ' TL' : ''].filter(Boolean).join(' dan ')}, karena biaya mereka tetap keluar.</p>` : ''}</div>`;
     } else if(isHajiReguler()) {
         // Haji Reguler dengan Komponen — pecah per Jenis (Bimbingan, Touring/Ziarah, dst)
         const komponenList = ensureKomponenHaji();
@@ -17930,7 +18089,7 @@ function cetakLaporanPenutupanMusim() {
     const cekPiutangDepan = cekPeringatanCicilanSemuaJamaah();
     const piutangTermin = [...cekPiutangDepan.telat, ...cekPiutangDepan.hariIni, ...cekPiutangDepan.akanDatang].reduce((s2, x) => s2 + x.sisa, 0);
     let catatanBelum = '';
-    if (nTanpaTagihanLap > 0) catatanBelum += `<p class="lap-note">Peserta: ${teksKomposisiPeserta(komposisiLap)}. FOC, TL, dan pembimbing tidak ditagih sehingga tidak masuk Total Kontrak.</p>`;
+    if (nTanpaTagihanLap > 0) catatanBelum += `<p class="lap-note">Peserta: ${teksKomposisiPeserta(komposisiLap)}. FOC, TL, dan pembimbing tidak ditagih sehingga tidak masuk Total Kontrak.${komposisiLap.pembimbing > 0 ? ' Biaya ' + komposisiLap.pembimbing + ' pembimbing tidak dihitung otomatis di modal; bila ditanggung, masukkan ke angka TL di Cuan Plan.' : ''}</p>`;
     if (tanpaHarga > 0) catatanBelum += `<p class="lap-note">Dihitung dari ${jamaahRelevan.length} jamaah yang sudah punya harga paket. ${tanpaHarga} jamaah lain belum punya harga paket sehingga tidak ikut dihitung.</p>`;
     if (uangTanpaHarga > 0) catatanBelum += `<p class="lap-note">Uang yang sudah masuk dari ${jmlTanpaHargaAdaBayar} jamaah tanpa harga paket (${f(uangTanpaHarga)}) tidak termasuk Total Kontrak dan Sudah Dibayar di atas, tetapi sudah dihitung di Realisasi.</p>`;
     if (Math.round(piutangTermin) !== Math.round(belumDibayar) && belumDibayar > 0) catatanBelum += `<p class="lap-note">"Belum dibayar" di sini dihitung dari Total Kontrak dikurangi Sudah Dibayar. Piutang di halaman rincian dihitung dari jadwal cicilan (${f(piutangTermin)}); selisihnya adalah sisa yang tidak tercatat di jadwal cicilan.</p>`;
@@ -17959,6 +18118,8 @@ function cetakLaporanPenutupanMusim() {
         const adaFocTL = modalEst && (modalEst.nFoc + modalEst.nTL) > 0;
         let catatanProyeksi = '';
         if (modalEst && modalEst.tanpaTipe > 0) catatanProyeksi += `<p class="lap-note">${modalEst.tanpaTipe} jamaah belum punya tipe kamar, modalnya dihitung dengan tarif Quad.</p>`;
+        const bulatLap = ringkasPembulatanHarga(jamaahRelevan);
+        if (bulatLap) catatanProyeksi += `<p class="lap-note">${escapeHtml(teksPembulatanHarga(bulatLap, false))}</p>`;
         if (est.buffer > 0) catatanProyeksi += `<p class="lap-note">Proyeksi dihitung dari kontrak yang ada. Buffer diskon yang belum terpakai ikut menjadi laba (lihat Analisis Buffer).</p>`;
         blok2 = `<div class="lap-section"><h2>2. Proyeksi (dari Cuan Plan)</h2>
             <table class="lap-table"><tr><td>Total Kontrak</td><td>${f(totalKontrak)}</td></tr>
@@ -20161,7 +20322,7 @@ function cetakLaporanEvaluasiRekanan() {
 
 let pecahanRiyalDipilih = 1; // default: presisi penuh (1 Riyal)
 
-function pilihPecahanRiyal(pecahan) {
+function pilihPecahanRiyal(pecahan, tanpaSimpan) {
     pecahanRiyalDipilih = pecahan;
     document.querySelectorAll('.btn-pecahan-riyal').forEach(btn => {
         const aktif = parseInt(btn.dataset.pecahan) === pecahan;
@@ -20170,6 +20331,8 @@ function pilihPecahanRiyal(pecahan) {
         btn.style.borderColor = aktif ? 'var(--primary)' : '#ddd';
     });
     hitungTukarRiyal();
+    hitungRiyalDiinginkan();
+    if(!tanpaSimpan) simpanPrefRiyal();
 }
 
 function hitungTukarRiyal() {
@@ -20198,9 +20361,241 @@ function hitungTukarRiyal() {
             <span style="font-weight:700;font-size:16px;color:${kembalian > 0 ? '#DC2626' : 'var(--primary)'};">Rp ${kembalian.toLocaleString('id-ID')}</span>
         </div>
         <div style="font-size:11px;color:#888;margin-top:8px;text-align:center;">Rp ${uang.toLocaleString('id-ID')} ÷ kurs Rp ${kurs.toLocaleString('id-ID')} = ${riyalMentah.toLocaleString('id-ID')} SAR${pecahanRiyalDipilih > 1 ? ` → dibulatkan ke ${riyalDidapat.toLocaleString('id-ID')} SAR (pecahan ${pecahanRiyalDipilih})` : ' (dibulatkan ke bawah)'}</div>
+        ${kembalian > 0 && riyalDidapat > 0 ? blokNominalPasRiyal(riyalDidapat, kurs) : ''}
         <div class="input-group" style="margin-top:14px;"><label>Atas Nama / Keterangan (opsional)</label><input type="text" id="keteranganRiyalInput" placeholder="Contoh: Ahmad Fauzi"></div>
         <button class="btn btn-primary" onclick="simpanTransaksiRiyal()"><i class="fas fa-save"></i> SIMPAN TRANSAKSI</button>
     `;
+}
+
+// ---------- Nominal transfer yang pas (tanpa kembalian) ----------
+function blokNominalPasRiyal(riyal, kurs) {
+    const pas = riyal * kurs;
+    return `<div style="margin-top:10px;background:rgba(255,255,255,.14);border-radius:10px;padding:10px;font-size:12px;">
+        Agar pas tanpa kembalian, transfer <b>Rp ${pas.toLocaleString('id-ID')}</b> (untuk ${riyal.toLocaleString('id-ID')} SAR)
+        <div style="display:flex;gap:6px;margin-top:8px;">
+            <button type="button" onclick="salinNominalPasRiyal(${pas})" style="flex:1;padding:7px;border:none;border-radius:8px;background:white;color:#0D5C4A;font-weight:700;font-size:12px;cursor:pointer;">Salin</button>
+            <button type="button" onclick="pakaiNominalPasRiyal(${pas})" style="flex:1.3;padding:7px;border:none;border-radius:8px;background:white;color:#0D5C4A;font-weight:700;font-size:12px;cursor:pointer;">Pakai nominal ini</button>
+            <button type="button" onclick="kirimWATransferRiyal(${riyal}, ${kurs})" style="flex:1;padding:7px;border:none;border-radius:8px;background:#25D366;color:white;font-weight:700;font-size:12px;cursor:pointer;">Kirim WA</button>
+        </div></div>`;
+}
+function salinNominalPasRiyal(nominal) {
+    const teks = 'Rp ' + nominal.toLocaleString('id-ID');
+    try {
+        if(navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(teks).then(() => showToast('Disalin: ' + teks), () => showToast(teks));
+        else showToast(teks);
+    } catch(e) { showToast(teks); }
+}
+function pakaiNominalPasRiyal(nominal) {
+    const el = document.getElementById('uangDiberikanInput');
+    if(!el) return;
+    el.value = nominal.toLocaleString('id-ID');
+    hitungTukarRiyal();
+}
+// Jamaah menyebut jumlah Riyal -> nominal transfer (dibulatkan NAIK ke kelipatan pecahan agar tidak kurang dari yang diminta)
+function hitungRiyalDiinginkan() {
+    const el = document.getElementById('hasilRiyalDiinginkan');
+    if(!el) return;
+    const pr = v => parseInt((v||'0').toString().replace(/\./g,'').replace(/[^0-9]/g,'')) || 0;
+    const kurs = pr(document.getElementById('kursRiyalInput')?.value);
+    const minta = pr(document.getElementById('riyalDiinginkanInput')?.value);
+    if(minta <= 0) { el.innerHTML = ''; return; }
+    if(kurs <= 0) { el.innerHTML = '<span style="color:#B45309;">Isi Kurs Jual dulu.</span>'; return; }
+    const riyal = Math.ceil(minta / pecahanRiyalDipilih) * pecahanRiyalDipilih;
+    const nominal = riyal * kurs;
+    const catatan = riyal !== minta ? ' <span style="color:#B45309;">(dibulatkan naik dari ' + minta.toLocaleString('id-ID') + ' SAR sesuai pecahan ' + pecahanRiyalDipilih + ')</span>' : '';
+    el.innerHTML = riyal.toLocaleString('id-ID') + ' SAR × Rp ' + kurs.toLocaleString('id-ID') + ' = <b>Rp ' + nominal.toLocaleString('id-ID') + '</b>' + catatan +
+        '<div style="display:flex;gap:6px;margin-top:8px;"><button type="button" onclick="salinNominalPasRiyal(' + nominal + ')" style="flex:1;padding:7px;border:1.5px solid #0D5C4A;background:white;color:#0D5C4A;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;">Salin</button>' +
+        '<button type="button" onclick="pakaiNominalPasRiyal(' + nominal + ')" style="flex:1.3;padding:7px;border:1.5px solid #0D5C4A;background:white;color:#0D5C4A;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;">Pakai nominal ini</button>' +
+        '<button type="button" onclick="kirimWATransferRiyal(' + riyal + ', ' + kurs + ')" style="flex:1;padding:7px;border:none;background:#25D366;color:white;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;">Kirim WA</button></div>';
+}
+
+// ---------- Rekening tujuan transfer (khusus tukar Riyal) ----------
+let _rekRiyalEditId = null;
+function getRekeningRiyal() { return Array.isArray(konfigurasiPro.rekening_riyal) ? konfigurasiPro.rekening_riyal : []; }
+function getRekeningRiyalDipilih() {
+    const list = getRekeningRiyal();
+    return list.find(r => r.id === konfigurasiPro.rekening_riyal_pilih) || list[0] || null;
+}
+function simpanKonfigRiyal() {
+    localStorage.setItem('navara_konfigurasi_pro', JSON.stringify(konfigurasiPro));
+    idbSet(STORE_KONFIGURASI, 'konfigurasi_pro', konfigurasiPro);
+}
+function maskNomorRekening(n) { const d = String(n || '').replace(/[^0-9]/g, ''); return d.length > 4 ? '•••' + d.slice(-4) : d; }
+function renderRekeningRiyal() {
+    const box = document.getElementById('rekRiyalList');
+    if(!box) return;
+    const list = getRekeningRiyal(), dipilih = getRekeningRiyalDipilih();
+    const ring = document.getElementById('rekRiyalRingkas');
+    if(ring) ring.textContent = dipilih ? '· ' + dipilih.bank + ' ' + maskNomorRekening(dipilih.nomor) : '· belum diisi';
+    if(!list.length) { box.innerHTML = '<div style="font-size:12px;color:#94a3b8;padding:6px 0;">Belum ada rekening. Tambahkan di bawah.</div>'; return; }
+    box.innerHTML = list.map(r => {
+        const aktif = dipilih && dipilih.id === r.id;
+        return `<div style="border:1.5px solid ${aktif ? 'var(--primary)' : '#e2e8f0'};background:${aktif ? '#f0fdf9' : 'white'};border-radius:10px;padding:8px 10px;margin-bottom:6px;">
+            <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:6px;">
+                <label style="display:flex;gap:8px;align-items:flex-start;cursor:pointer;font-size:12px;flex:1;">
+                    <input type="radio" name="rekRiyalPilih" ${aktif ? 'checked' : ''} onchange="pilihRekeningRiyal(${r.id})" style="margin:3px 0 0;width:18px;height:18px;flex:none;padding:0;">
+                    <span style="flex:1;min-width:0;word-break:break-word;"><b>${escapeHtml(r.bank)}</b> · ${escapeHtml(r.nomor)}<br><span style="color:#64748b;">a.n. ${escapeHtml(r.nama || '-')}</span>${aktif ? '<br><span style="color:var(--primary);font-weight:700;">dipakai di pesan WA</span>' : ''}</span>
+                </label>
+                <div style="display:flex;flex-shrink:0;">
+                    <button onclick="salinNomorRekeningRiyal(${r.id})" title="Salin nomor" style="border:none;background:none;color:#0D5C4A;font-size:14px;cursor:pointer;padding:4px 6px;"><i class="fas fa-copy"></i></button>
+                    <button onclick="editRekeningRiyal(${r.id})" title="Edit" style="border:none;background:none;color:#0D5C4A;font-size:14px;cursor:pointer;padding:4px 6px;"><i class="fas fa-pen"></i></button>
+                    <button onclick="hapusRekeningRiyal(${r.id})" title="Hapus" style="border:none;background:none;color:#DC2626;font-size:14px;cursor:pointer;padding:4px 6px;"><i class="fas fa-trash-alt"></i></button>
+                </div>
+            </div></div>`;
+    }).join('');
+}
+function bersihFormRekeningRiyal() {
+    ['rekRiyalBank','rekRiyalNomor','rekRiyalNama'].forEach(id => { const e = document.getElementById(id); if(e) e.value = ''; });
+    _rekRiyalEditId = null;
+    const j = document.getElementById('rekRiyalJudulForm'); if(j) j.textContent = 'Tambah rekening';
+    const b = document.getElementById('rekRiyalBatal'); if(b) b.style.display = 'none';
+}
+function simpanRekeningRiyal() {
+    const bank = (document.getElementById('rekRiyalBank').value || '').trim();
+    const nomor = (document.getElementById('rekRiyalNomor').value || '').replace(/[^0-9\-\s]/g, '').trim();
+    const nama = (document.getElementById('rekRiyalNama').value || '').trim();
+    if(!bank) return showToast('Isi nama bank dulu');
+    if(!nomor) return showToast('Isi nomor rekening dulu');
+    const list = getRekeningRiyal().slice();
+    if(_rekRiyalEditId) {
+        const r = list.find(x => x.id === _rekRiyalEditId);
+        if(r) { r.bank = bank; r.nomor = nomor; r.nama = nama; }
+    } else {
+        const id = Date.now();
+        list.push({ id, bank, nomor, nama });
+        if(!konfigurasiPro.rekening_riyal_pilih || list.length === 1) konfigurasiPro.rekening_riyal_pilih = id;
+    }
+    konfigurasiPro.rekening_riyal = list;
+    simpanKonfigRiyal();
+    bersihFormRekeningRiyal();
+    renderRekeningRiyal();
+    showToast('✅ Rekening tersimpan');
+}
+function editRekeningRiyal(id) {
+    const r = getRekeningRiyal().find(x => x.id === id);
+    if(!r) return;
+    _rekRiyalEditId = id;
+    document.getElementById('rekRiyalBank').value = r.bank;
+    document.getElementById('rekRiyalNomor').value = r.nomor;
+    document.getElementById('rekRiyalNama').value = r.nama || '';
+    document.getElementById('rekRiyalJudulForm').textContent = 'Edit rekening';
+    document.getElementById('rekRiyalBatal').style.display = 'block';
+}
+function batalEditRekeningRiyal() { bersihFormRekeningRiyal(); }
+async function hapusRekeningRiyal(id) {
+    const r = getRekeningRiyal().find(x => x.id === id);
+    if(!r) return;
+    if(!(await konfirmasiHapus('Rekening ' + r.bank + ' ' + r.nomor + ' akan dihapus dari halaman Tukar Riyal.', 'Hapus Rekening?'))) return;
+    konfigurasiPro.rekening_riyal = getRekeningRiyal().filter(x => x.id !== id);
+    if(konfigurasiPro.rekening_riyal_pilih === id) konfigurasiPro.rekening_riyal_pilih = (konfigurasiPro.rekening_riyal[0] || {}).id || null;
+    if(_rekRiyalEditId === id) bersihFormRekeningRiyal();
+    simpanKonfigRiyal();
+    renderRekeningRiyal();
+    showToast('🗑️ Rekening dihapus');
+}
+function pilihRekeningRiyal(id) {
+    konfigurasiPro.rekening_riyal_pilih = id;
+    simpanKonfigRiyal();
+    renderRekeningRiyal();
+}
+function salinNomorRekeningRiyal(id) {
+    const r = getRekeningRiyal().find(x => x.id === id);
+    if(!r) return;
+    try {
+        if(navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(r.nomor).then(() => showToast('Nomor disalin: ' + r.nomor), () => showToast(r.nomor));
+        else showToast(r.nomor);
+    } catch(e) { showToast(r.nomor); }
+}
+// Pesan WA: nominal transfer pas + rekening tujuan, sekali kirim
+function teksPesanTransferRiyal(riyal, kurs) {
+    const nominal = riyal * kurs;
+    const rek = getRekeningRiyalDipilih();
+    let t = `Assalamualaikum, untuk penukaran *${riyal.toLocaleString('id-ID')} SAR* (kurs Rp ${kurs.toLocaleString('id-ID')}) mohon transfer sebesar:\n\n💰 *Rp ${nominal.toLocaleString('id-ID')}*\n`;
+    if(rek) t += `\n🏦 *${rek.bank}*\nNo. Rek: *${rek.nomor}*${rek.nama ? '\na.n. ' + rek.nama : ''}\n`;
+    t += `\nMohon kirim bukti transfer setelah selesai. Terima kasih 🙏\n— ${getNamaInstansiUtama()}`;
+    return t;
+}
+function kirimWATransferRiyal(riyal, kurs) {
+    if(!(riyal > 0) || !(kurs > 0)) return showToast('Isi kurs dan jumlah Riyal dulu');
+    if(!getRekeningRiyalDipilih()) showToast('Rekening belum diisi, pesan dikirim tanpa rekening');
+    window.open('https://wa.me/?text=' + encodeURIComponent(teksPesanTransferRiyal(riyal, kurs)), '_blank');
+}
+
+// ---------- Kurs & pecahan diingat (jangan lupa cek kurs masih berlaku) ----------
+function infoKursRiyal() {
+    const el = document.getElementById('infoKursRiyal');
+    if(!el) return;
+    const pref = konfigurasiPro.riyal_pref || {};
+    el.textContent = pref.kurs > 0 && pref.tanggalTampil ? 'Kurs ini tersimpan sejak ' + pref.tanggalTampil + '. Pastikan masih berlaku.' : '';
+}
+function simpanPrefRiyal() {
+    const pr = v => parseInt((v||'0').toString().replace(/[^0-9]/g,'')) || 0;
+    const kurs = pr(document.getElementById('kursRiyalInput')?.value);
+    const lama = konfigurasiPro.riyal_pref || {};
+    const berubah = kurs !== (lama.kurs || 0);
+    konfigurasiPro.riyal_pref = {
+        kurs, pecahan: pecahanRiyalDipilih,
+        tanggalTampil: kurs > 0 ? (berubah ? new Date().toLocaleDateString('id-ID') + ' ' + new Date().toLocaleTimeString('id-ID') : (lama.tanggalTampil || '')) : ''
+    };
+    simpanKonfigRiyal();
+    infoKursRiyal();
+}
+function pulihPrefRiyal() {
+    const pref = konfigurasiPro.riyal_pref;
+    if(pref && pref.pecahan && [1,5,10].includes(pref.pecahan) && pref.pecahan !== pecahanRiyalDipilih) pilihPecahanRiyal(pref.pecahan, true);
+    const el = document.getElementById('kursRiyalInput');
+    if(pref && pref.kurs > 0 && el && !el.value) { el.value = pref.kurs.toLocaleString('id-ID'); }
+    infoKursRiyal();
+}
+function siapkanHalamanRiyal() { pulihPrefRiyal(); renderRekeningRiyal(); }
+
+// ---------- Bukti tukar per transaksi (cetak & WA) ----------
+function teksBuktiTukarRiyal(t) {
+    const f = n => 'Rp ' + Math.round(n).toLocaleString('id-ID');
+    const garis = '━━━━━━━━━━━━━━━━━━';
+    return `💱 *BUKTI TUKAR RIYAL*\n*${getNamaInstansiUtama()}*\n${garis}\n` +
+        `Atas nama: ${t.keterangan || '-'}\nTanggal: ${t.tanggalTampil}\n${garis}\n` +
+        `Uang diterima: ${f(t.uang)}\nKurs: ${t.kurs.toLocaleString('id-ID')}\nRiyal diberikan: *${t.riyal.toLocaleString('id-ID')} SAR*\n` +
+        `Kembalian: ${f(t.kembalian)}\nAdmin: ${t.admin}${t.diedit ? '\n(transaksi ini pernah diedit)' : ''}`;
+}
+function shareBuktiTukarRiyalWA(id) {
+    const t = getRiwayatTukarRiyal().find(x => x.id === id);
+    if(!t) return showToast('Transaksi tidak ditemukan');
+    window.open('https://wa.me/?text=' + encodeURIComponent(teksBuktiTukarRiyal(t)), '_blank');
+}
+async function cetakBuktiTukarRiyal(id) {
+    const t = getRiwayatTukarRiyal().find(x => x.id === id);
+    if(!t) return showToast('Transaksi tidak ditemukan');
+    const f = n => 'Rp ' + Math.round(n).toLocaleString('id-ID');
+    const cfg = getKonfigurasiProData();
+    const tgl = formatTanggalLengkap();
+    const headerHtml = buildPrintHeader(cfg, tgl);
+    const baris = (a, b, tebal) => `<tr><td class="l">${a}</td><td class="r"${tebal ? ' style="font-weight:bold;font-size:15px;"' : ''}>${b}</td></tr>`;
+    const html = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>Bukti Tukar Riyal</title>
+    <style>
+    *{box-sizing:border-box;} body{font-family:Arial,sans-serif;padding:20px;color:#222;background:#fff;margin:0;}
+    h1{color:#0D5C4A;font-size:18px;margin:0 0 2px;} .sub{font-size:12px;color:#666;margin:0 0 14px;}
+    table{width:100%;border-collapse:collapse;font-size:13px;} td{padding:9px 6px;border-bottom:1px solid #eee;} td.l{color:#666;width:42%;} td.r{text-align:right;}
+    .ttd{display:flex;justify-content:space-between;margin-top:40px;font-size:12px;text-align:center;} .ttd > div{width:44%;} .ttd .gr{border-top:1px solid #333;margin-top:60px;padding-top:4px;width:100%;}
+    .edit{color:#B45309;font-size:11px;margin-top:10px;}
+    @page{size:A5 portrait;margin:10mm;} @media print{ *{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important;} body{padding:0;} }
+    </style></head><body>
+    ${headerHtml}
+    <h1>💱 BUKTI TUKAR RIYAL</h1>
+    <p class="sub">${escapeHtml(t.tanggalTampil)}</p>
+    <table>
+        ${baris('Atas nama', escapeHtml(t.keterangan || '-'))}
+        ${baris('Uang diterima', f(t.uang))}
+        ${baris('Kurs jual (1 SAR)', f(t.kurs))}
+        ${baris('Riyal diberikan', t.riyal.toLocaleString('id-ID') + ' SAR', true)}
+        ${baris('Kembalian', f(t.kembalian))}
+        ${baris('Admin', escapeHtml(t.admin))}
+    </table>
+    ${t.diedit ? '<div class="edit">Catatan: transaksi ini pernah diedit. Angka di atas adalah nilai terbaru.</div>' : ''}
+    <div class="ttd"><div>Penerima<div class="gr">( ${escapeHtml(t.keterangan || '........................')} )</div></div><div>Admin<div class="gr">( ${escapeHtml(t.admin)} )</div></div></div>
+    </body></html>`;
+    const win = tampilkanJendelaCetak(html);
+    if(typeof injectWatermarkToPrintWin === 'function') injectWatermarkToPrintWin(win);
 }
 
 // ==================== RIWAYAT & LAPORAN TUKAR RIYAL ====================
@@ -20234,8 +20629,10 @@ function simpanTransaksiRiyal() {
     if (list.length > 200) list.length = 200; // batasi 200 transaksi terakhir, sama seperti Riwayat Aktivitas
     simpanRiwayatTukarRiyalList(list);
     showToast('✅ Transaksi tersimpan');
-    document.getElementById('kursRiyalInput').value = '';
+    simpanPrefRiyal();
     document.getElementById('uangDiberikanInput').value = '';
+    const _rd = document.getElementById('riyalDiinginkanInput'); if(_rd) _rd.value = '';
+    hitungRiyalDiinginkan();
     document.getElementById('hasilTukarRiyal').style.display = 'none';
     renderRiwayatTukarRiyal();
 }
@@ -20257,6 +20654,8 @@ function renderRiwayatTukarRiyal() {
                     <span style="color:#888;">Oleh: ${escapeHtml(t.admin)}${t.keterangan ? ' · ' + escapeHtml(t.keterangan) : ''}</span>
                 </div>
                 <div style="display:flex;gap:2px;flex-shrink:0;">
+                    <button onclick="cetakBuktiTukarRiyal(${t.id})" title="Cetak bukti" style="border:none;background:none;color:#0D5C4A;font-size:14px;cursor:pointer;padding:4px 6px;"><i class="fas fa-print"></i></button>
+                    <button onclick="shareBuktiTukarRiyalWA(${t.id})" title="Kirim bukti lewat WA" style="border:none;background:none;color:#16A34A;font-size:14px;cursor:pointer;padding:4px 6px;"><i class="fab fa-whatsapp"></i></button>
                     ${bolehEditTransaksiRiyal(t) ? `<button onclick="bukaEditTransaksiRiyal(${t.id})" title="Edit" style="border:none;background:none;color:#0D5C4A;font-size:14px;cursor:pointer;padding:4px 6px;"><i class="fas fa-pen"></i></button>` : ''}
                     <button onclick="hapusTransaksiRiyal(${t.id})" title="Hapus" style="border:none;background:none;color:#DC2626;font-size:14px;cursor:pointer;padding:4px 6px;"><i class="fas fa-trash-alt"></i></button>
                 </div>
@@ -23612,7 +24011,7 @@ function openIndexedDB() {
 // dengan build baru, data MENTAH (langsung dari IndexedDB, bukan dari memori) disalin dulu sebelum
 // proses migrasi apapun berjalan — supaya kalau ada kesalahan di update, data lama masih bisa dipulihkan.
 // Dokumen & foto tidak ikut disalin (ukurannya besar, dan tidak pernah disentuh proses migrasi).
-const NAVARA_BUILD = '2026.10.06-74';
+const NAVARA_BUILD = '2026.10.09-82';
 const MAKS_SNAPSHOT = 3;
 
 // ==================== DAFTAR DATA PUSAT ====================
