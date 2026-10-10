@@ -9225,13 +9225,22 @@ async function loadPengeluaran() {
     } catch(e) { pengeluaranList = []; _allPengeluaranData = []; }
 }
 
+// Kegagalan menyimpan ke penyimpanan perangkat (mis. memori penuh) TIDAK boleh diam-diam: data terlihat tersimpan di layar tapi hilang saat dibuka ulang.
+let _lastGagalSimpan = 0;
+let _restoreDilewati = [];
+function laporGagalSimpan(nama, e) {
+    console.error('Gagal menyimpan ' + nama, e);
+    const kini = Date.now(); if (kini - _lastGagalSimpan < 4000) return; _lastGagalSimpan = kini;
+    try { showToast('⚠️ ' + nama + ' GAGAL tersimpan di perangkat. Segera Download ZIP dan periksa memori tablet.'); } catch (_) {}
+}
+
 async function savePengeluaran() {
     try { 
         const otherProgramData = _allPengeluaranData.filter(p => p.program_id !== currentProgramId);
         pengeluaranList.forEach(p => { if(!p.program_id) p.program_id = currentProgramId; });
         _allPengeluaranData = [...otherProgramData, ...pengeluaranList];
         await idbSet(STORE_PENGELUARAN, 'pengeluaran_data', _allPengeluaranData); 
-    } catch(e) {}
+    } catch(e) { laporGagalSimpan('Data pengeluaran', e); }
 }
 
 // Bantu hitung (opsional): harga per orang x jumlah -> mengisi Nominal. Yang disimpan tetap satu angka total.
@@ -10970,7 +10979,7 @@ async function loadAgendaKantorData() {
 }
 
 async function saveAgendaKantorData() {
-    try { await idbSet(STORE_CATATAN, 'agenda_kantor_list', agendaKantorList); } catch(e) {}
+    try { await idbSet(STORE_CATATAN, 'agenda_kantor_list', agendaKantorList); } catch(e) { laporGagalSimpan('Agenda kantor', e); }
     renderAgendaKantorList();
 }
 
@@ -11328,7 +11337,7 @@ async function loadPejabatData() {
 }
 
 async function savePejabatData() {
-    try { await idbSet(STORE_CATATAN, 'pejabat_list', pejabatList); } catch(e) {}
+    try { await idbSet(STORE_CATATAN, 'pejabat_list', pejabatList); } catch(e) { laporGagalSimpan('Kalender pejabat', e); }
     renderDaftarPejabat();
     if (pejabatDipilihId) renderKalenderPejabat();
 }
@@ -22359,7 +22368,7 @@ async function loadProgramData() {
 }
 
 async function saveProgramData() {
-    try { await idbSet(STORE_PROGRAM, 'program_list', programList); } catch(e) {}
+    try { await idbSet(STORE_PROGRAM, 'program_list', programList); } catch(e) { laporGagalSimpan('Data program', e); }
 }
 
 function getCurrentProgram() {
@@ -23322,7 +23331,7 @@ async function loadCatatanData() {
 }
 
 async function saveCatatanData() {
-    try { await idbSet(STORE_CATATAN, 'catatan_list', catatanList); } catch(e) {}
+    try { await idbSet(STORE_CATATAN, 'catatan_list', catatanList); } catch(e) { laporGagalSimpan('Catatan', e); }
     renderCatatanList();
 }
 
@@ -24216,7 +24225,7 @@ function openIndexedDB() {
 // dengan build baru, data MENTAH (langsung dari IndexedDB, bukan dari memori) disalin dulu sebelum
 // proses migrasi apapun berjalan — supaya kalau ada kesalahan di update, data lama masih bisa dipulihkan.
 // Dokumen & foto tidak ikut disalin (ukurannya besar, dan tidak pernah disentuh proses migrasi).
-const NAVARA_BUILD = '2026.10.10-86';
+const NAVARA_BUILD = '2026.10.10-88';
 const MAKS_SNAPSHOT = 3;
 
 // ==================== DAFTAR DATA PUSAT ====================
@@ -24480,9 +24489,22 @@ async function idbSet(storeName, key, value) {
     return new Promise((resolve, reject) => {
         const tx = d.transaction([storeName], 'readwrite');
         tx.objectStore(storeName).put({ id: key, data: value });
+        // Gagal simpan (mis. memori penuh) biasanya datang sebagai "abort", bukan "error" — dulu tidak ditangani sehingga
+        // proses menunggu selamanya tanpa pesan. Sekarang selalu ditolak dan dilaporkan ke pengguna.
+        const gagal = (err) => {
+            try { laporGagalSimpan(namaDataDariStore(storeName), err); } catch (_) {}
+            reject(err || new Error('Penyimpanan dibatalkan'));
+        };
         tx.oncomplete = () => resolve();
-        tx.onerror = () => reject(tx.error);
+        tx.onerror = () => gagal(tx.error);
+        tx.onabort = () => gagal(tx.error);
     });
+}
+function namaDataDariStore(storeName) {
+    const peta = { [STORE_JAMAAH]: 'Data jamaah', [STORE_JAMAAH_KITA]: 'Data Jamaah on Proses', [STORE_KAS]: 'Data kas', [STORE_PEMBAYARAN]: 'Data pembayaran',
+        [STORE_FOLDER]: 'Data folder', [STORE_PENGELUARAN]: 'Data pengeluaran', [STORE_PROGRAM]: 'Data program', [STORE_PROSPEK]: 'Data prospek',
+        [STORE_KONFIGURASI]: 'Konfigurasi', [STORE_CATATAN]: 'Catatan/agenda', [STORE_ABSENSI]: 'Data absensi', [STORE_MASTER]: 'Data Multi Event' };
+    return peta[storeName] || 'Data';
 }
 
 // Helper: baca dari IndexedDB
@@ -25966,6 +25988,7 @@ async function restoreFromZip(input) {
     if (!file) return; 
     if (!(await konfirmasiTimpa('Semua data akan ditimpa dengan isi file ZIP ini, termasuk foto & dokumen.', ['Pastikan file ZIP yang dipilih sudah benar']))) { input.value = ''; return; }
     showToast('Memulihkan data...'); 
+    _restoreDilewati = [];
     tampilkanProgresRestore('Membaca file ZIP...');
     const reader = new FileReader(); 
     reader.onload = async function(e) { 
@@ -26115,14 +26138,14 @@ async function restoreFromZip(input) {
                 await idbSet(STORE_CATATAN, 'agenda_kantor_list', agendaKantorList);
             }
             // Restore data generik terdaftar (extra.json)
-            try { const fx = zip.file('extra.json'); if (fx) await terapkanDataGenerik(JSON.parse(await fx.async('string'))); } catch (e) { /* berkas extra rusak: lewati */ }
+            try { const fx = zip.file('extra.json'); if (fx) await terapkanDataGenerik(JSON.parse(await fx.async('string'))); } catch (e) { _restoreDilewati.push('data tambahan (extra.json)'); console.error(e); }
             // Restore Saldo Kantor
             const saldoKantorFile = zip.file('saldo_kantor.json');
             if (saldoKantorFile) {
                 try {
                     const dSaldo = JSON.parse(await saldoKantorFile.async('string'));
                     if (dSaldo && Array.isArray(dSaldo.rekening) && Array.isArray(dSaldo.mutasi)) { saldoKantorData = normalSaldo(dSaldo); await idbSet(STORE_CATATAN, 'saldo_kantor', saldoKantorData); }
-                } catch (e) { /* berkas saldo rusak: lewati, bagian lain tetap dipulihkan */ }
+                } catch (e) { _restoreDilewati.push('Saldo Kantor'); console.error(e); }
             }
             // Restore Buku Pinjaman + foto buktinya
             const bukuPinjamanFile = zip.file('buku_pinjaman.json');
@@ -26267,8 +26290,8 @@ async function restoreFromZip(input) {
             } 
 
             tampilkanProgresRestore('✅ Berhasil! Memuat ulang...');
-            showToast('✅ Restore berhasil! Memuat ulang...'); 
-            setTimeout(() => location.reload(), 2000); 
+            showToast(_restoreDilewati.length ? '⚠️ Restore selesai, tetapi BAGIAN INI dilewati (berkas rusak): ' + _restoreDilewati.join(', ') : '✅ Restore berhasil! Memuat ulang...'); 
+            setTimeout(() => location.reload(), _restoreDilewati.length ? 6000 : 2000); 
         } catch(err) { tutupProgresRestore(); showToast('❌ Gagal restore: ' + err.message); } 
     }; 
     reader.readAsArrayBuffer(file); 
@@ -28688,7 +28711,10 @@ async function pulihkanPengaturanDariTeks(teks, input) {
         daftar: ['Yang diganti: data instansi, logo, tanda tangan, laporan, template WA', 'Data jamaah, kas, pembayaran & data per-Program TIDAK tersentuh', 'Pengaturan saat ini dicadangkan otomatis dulu'],
     });
     if (!ok) { if (input) input.value = ''; return; }
-    try { await buatSnapshotData('Otomatis sebelum ganti pengaturan'); } catch (e) {}
+    try { await buatSnapshotData('Otomatis sebelum ganti pengaturan'); } catch (e) {
+        const lanjut = await tanyaKonfirmasi({ judul: 'Cadangan otomatis gagal', pesan: 'Pengaturan saat ini tidak berhasil dicadangkan dulu. Lanjutkan mengganti pengaturan?', ikon: '⚠️', tombolYa: 'Lanjutkan', tombolTidak: 'Batal', warnaYa: '#F59E0B' });
+        if (!lanjut) { if (input) input.value = ''; return; }
+    }
     konfigurasiPro = { ...konfigurasiPro, ...pengaturan };
     // Simpan ke KEDUA penyimpanan: pengaturan dimuat dari penyimpanan utama dulu, jadi kalau hanya
     // disimpan ke salah satu, hasilnya akan tertimpa pengaturan lama saat dimuat ulang.
