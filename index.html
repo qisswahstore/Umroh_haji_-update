@@ -2133,7 +2133,7 @@ https://github.com/nodeca/pako/blob/main/LICENSE
             <div id="homeMeningitisWarningList" style="font-size:12px;color:#92400E;line-height:1.7;"></div>
         </div>
         <div id="homeBufferWarningCard" style="display:none;background:#FEE2E2;border:1px solid #DC2626;border-radius:14px;padding:12px 14px;margin-bottom:12px;cursor:pointer;">
-            <div style="font-weight:700;font-size:13px;color:#991B1B;margin-bottom:6px;">📊 Sisa Buffer Minus — Cek Analisis Buffer</div>
+            <div style="font-weight:700;font-size:13px;color:#991B1B;margin-bottom:6px;">📊 Diskon Melebihi Buffer — Cek Analisis Buffer</div>
             <div id="homeBufferWarningList" style="font-size:12px;color:#991B1B;line-height:1.7;"></div>
         </div>
         <div id="homeCicilanWarningCard" onclick="openRekapCicilanModal()" style="display:none;background:#FEF3C7;border:1px solid #F59E0B;border-radius:14px;padding:12px 14px;margin-bottom:12px;cursor:pointer;">
@@ -4978,14 +4978,16 @@ function updateHomeDashboardExtra(totalJamaah, lunasCount, totalPiutang, komposi
             }
         }
 
-        // Peringatan Sisa Buffer Minus (B2C + B2B, kalau ada yang makan Profit asli)
+        // Peringatan diskon/komisi yang melebihi Buffer (B2C + B2B): kelebihan itu memakan Profit rencana
         const bufferCard = document.getElementById('homeBufferWarningCard');
         if(bufferCard) {
             const pesanBuffer = [];
-            const sisaB2C = hitungSisaBufferB2CRingan();
-            if(sisaB2C !== null && sisaB2C < 0) pesanBuffer.push(`B2C: Rp ${Math.round(Math.abs(sisaB2C)).toLocaleString('id-ID')} makan Profit`);
-            const sisaB2B = hitungSisaBufferB2BRingan();
-            if(sisaB2B !== null && sisaB2B < 0) pesanBuffer.push(`B2B: Rp ${Math.round(Math.abs(sisaB2B)).toLocaleString('id-ID')} makan Profit`);
+            const fR = n => 'Rp ' + Math.round(Math.abs(n)).toLocaleString('id-ID');
+            const dampak = b => Math.round(b) === 0 ? 'secara total impas dengan rencana' : (b > 0 ? `secara total masih untung ekstra ${fR(b)}` : `laba di bawah rencana ${fR(b)}`);
+            const a = analisisBufferB2C();
+            if(a && a.nLebih > 0) pesanBuffer.push(`B2C: ${a.nLebih} jamaah melebihi buffer (kelebihan ${fR(a.kelebihan)}); ${dampak(a.bersih)}`);
+            const b2b = analisisBufferB2BRingan();
+            if(b2b && b2b.nLebih > 0) pesanBuffer.push(`B2B: ${b2b.nLebih} travel melebihi buffer (kelebihan ${fR(b2b.kelebihan)}); ${dampak(b2b.bersih)}`);
             if(pesanBuffer.length > 0) {
                 bufferCard.style.display = 'block';
                 bufferCard.onclick = () => { showPage('estimasi'); setTimeout(() => switchCuanTab('rekap'), 300); };
@@ -5018,37 +5020,63 @@ function updateHomeDashboardExtra(totalJamaah, lunasCount, totalPiutang, komposi
     } catch(e) { console.log('Dashboard extra error:', e); }
 }
 
-// Versi ringan (cuma angka Sisa Buffer, tanpa rincian) untuk cek cepat di Home — dipakai bareng modal Analisis Buffer yang lebih lengkap
-function hitungSisaBufferB2CRingan() {
+// Analisis Buffer B2C (satu sumber hitungan untuk Home, modal, Rekap, Laporan).
+// Per jamaah: diskon lewat harga = max(0, Harga Brosur - Total Paket); komisi mitra = Diskon Tersedia bila Status "Diberikan ke Mitra".
+// Diskon dihitung lebih dulu terhadap buffer, sisa kelebihannya baru dari komisi. Tidak mengubah rumus laba/harga apa pun.
+function uangDiskonTersedia(j) {
+    return parseInt(String((j.additional_fields && j.additional_fields.diskon_tersedia) || '0').replace(/[^0-9]/g, ''), 10) || 0;
+}
+function analisisBufferB2C() {
     const est = hitungModalHargaEstimasiTerkini();
-    if(!est || !est.buffer) return null;
-    let totalBufferDisiapkan = 0, totalDiskonTerpakai = 0;
+    if(!est) return null;
+    const buf = est.buffer || 0; // Buffer 0 tetap dianalisis: seluruh diskon/komisi dihitung sebagai kelebihan
+    const r = { est, buffer: buf, n: 0, disiapkan: 0, diskon: 0, komisi: 0, dipakai: 0, kelebihan: 0, kelebihanDiskon: 0, kelebihanKomisi: 0, nLebih: 0, nLebihDiskon: 0, rinci: [] };
     jamaahList.filter(j => getTotalHargaPaket(j) > 0).forEach(j => {
         const diskon = Math.max(0, est.harga - getTotalHargaPaket(j));
-        totalBufferDisiapkan += est.buffer;
-        totalDiskonTerpakai += Math.min(diskon, est.buffer);
+        const komisi = (j.additional_fields && j.additional_fields.status_diskon === 'Diberikan ke Mitra') ? uangDiskonTersedia(j) : 0;
+        const total = diskon + komisi;
+        const kelebihan = Math.max(0, total - buf);
+        const kelDiskon = Math.max(0, diskon - buf);
+        r.n++; r.disiapkan += buf; r.diskon += diskon; r.komisi += komisi;
+        r.dipakai += Math.min(total, buf);
+        r.kelebihan += kelebihan; r.kelebihanDiskon += kelDiskon; r.kelebihanKomisi += kelebihan - kelDiskon;
+        if(kelebihan > 0) r.nLebih++;
+        if(kelDiskon > 0) r.nLebihDiskon++;
+        r.rinci.push({ nama: j.nama_lengkap, diskon, komisi, total, kelebihan });
     });
-    if(totalBufferDisiapkan === 0) return null;
-    return totalBufferDisiapkan - totalDiskonTerpakai;
+    if(r.n === 0) return null;
+    r.sisa = r.disiapkan - r.dipakai;                       // buffer yang benar-benar tidak terpakai
+    r.bersih = r.disiapkan - r.diskon - r.komisi;           // >0 untung ekstra, <0 di bawah laba rencana
+    return r;
 }
 
-function hitungSisaBufferB2BRingan() {
+function analisisBufferB2BRingan() {
     const komponen = ambilKomponenBiayaEstimasi();
     const list = ensureKonsorsiumList();
     const totalGabungan = list.reduce((s,x) => s + (x.jumlah||0), 0);
     if(!komponen || totalGabungan <= 0) return null;
-    let totalBufferDisiapkan = 0, totalDiskonTerpakai = 0;
+    let disiapkan = 0, diskon = 0, kelebihan = 0, nLebih = 0;
     list.filter(t => t.jumlah > 0 && (t.bufferB2B||0) > 0 && t.lunasFinal).forEach(t => {
         const ring = hitungRingkasanTravel(t, komponen, totalGabungan);
         if(!ring || !ring.punyaKebijakan) return;
         const totalDibayar = (t.pembayaran||[]).reduce((s,p) => s + (p.nominal||0), 0);
-        const bufferDisiapkanTravel = t.bufferB2B * (t.jumlah - (t.gratisTravel||0));
-        const diskon = Math.max(0, ring.totalTagihan - totalDibayar);
-        totalBufferDisiapkan += bufferDisiapkanTravel;
-        totalDiskonTerpakai += Math.min(diskon, bufferDisiapkanTravel);
+        const bufferTravel = t.bufferB2B * (t.jumlah - (t.gratisTravel||0));
+        const d = Math.max(0, ring.totalTagihan - totalDibayar);
+        disiapkan += bufferTravel; diskon += d;
+        if(d > bufferTravel) { kelebihan += d - bufferTravel; nLebih++; }
     });
-    if(totalBufferDisiapkan === 0) return null;
-    return totalBufferDisiapkan - totalDiskonTerpakai;
+    if(disiapkan === 0) return null;
+    return { disiapkan, diskon, kelebihan, nLebih, bersih: disiapkan - diskon };
+}
+
+// Ringkasan satu baris untuk Rekap / WA / Laporan: hanya diskon lewat HARGA yang melebihi buffer (sudah terhitung di laba)
+function ringkasDiskonMelebihiBuffer() {
+    const a = analisisBufferB2C();
+    if(!a || a.nLebihDiskon === 0) return null;
+    return { n: a.nLebihDiskon, jumlah: a.kelebihanDiskon };
+}
+function teksDiskonMelebihiBuffer(r) {
+    return 'Diskon melebihi buffer: ' + r.n + ' jamaah, Rp ' + Math.round(r.jumlah).toLocaleString('id-ID') + ' (sudah terhitung di laba).';
 }
 
 function openQuickTambahJamaah() {
@@ -9708,6 +9736,7 @@ function hitungRekapAktual() {
     const adaTanpaTagihan = (komposisiRekap.foc + komposisiRekap.tl + komposisiRekap.pembimbing) > 0;
     const kursiRekap = ringkasKursiTerisi(jamaahList);
     const pembulatanRekap = ringkasPembulatanHarga(jamaahList);
+    const diskonLebihRekap = ringkasDiskonMelebihiBuffer();
 
     // Grand Total
     const grandProfit = grandOmzet - grandModal;
@@ -9721,7 +9750,8 @@ function hitungRekapAktual() {
         tanpaTipe: tanpaTipe.slice(), tanpaTipeUang: tanpaTipeUang, hargaBawah: hargaBawahStandar.length,
         komposisi: adaTanpaTagihan ? teksKomposisiPeserta(komposisiRekap) : '',
         kursi: kursiRekap,
-        pembulatan: pembulatanRekap
+        pembulatan: pembulatanRekap,
+        diskonLebih: diskonLebihRekap
     };
     if(adaTanpaTagihan) {
         html += `<div style="background:#EDE9FE;border:1.5px solid #C4B5FD;border-radius:12px;padding:10px 12px;margin-bottom:10px;font-size:12px;color:#4C1D95;">
@@ -9760,6 +9790,7 @@ function hitungRekapAktual() {
         </div>
         ${kursiRekap ? `<div style="font-size:11px;opacity:0.85;margin-top:8px;text-align:right;">🪑 Kursi bayar terisi ${kursiRekap.terisi} dari ${kursiRekap.total} (${kursiRekap.persen}%)${kursiRekap.terisi < kursiRekap.total ? '. Laba Sementara baru mencerminkan kursi yang sudah terjual.' : ''}</div>` : ''}
         ${pembulatanRekap ? `<div style="font-size:11px;opacity:0.85;margin-top:8px;">🔸 ${escapeHtml(teksPembulatanHarga(pembulatanRekap, true))}</div>` : ''}
+        ${diskonLebihRekap ? `<div style="font-size:11px;opacity:0.85;margin-top:8px;">⚠️ ${escapeHtml(teksDiskonMelebihiBuffer(diskonLebihRekap))}</div>` : ''}
         <div style="font-size:11px;opacity:0.6;margin-top:6px;text-align:right;">
             ${adaTanpaTagihan ? `Total ${komposisiRekap.total} peserta (${teksKomposisiPeserta(komposisiRekap).split(' = ')[0]})` : `Total ${jamaahList.length} jamaah`} · ${Object.keys(tipeData).length} tipe
         </div>
@@ -9840,50 +9871,48 @@ function renderAnalisisBufferB2CModal(modalEl) {
     const f = n => 'Rp ' + Math.round(n).toLocaleString('id-ID');
     const est = hitungModalHargaEstimasiTerkini();
 
-    if(!est || !est.buffer) {
+    if(!est) {
         modalEl.innerHTML = `<div class="modal-content" style="max-width:420px;">
             <h3 style="color:var(--primary);margin-bottom:10px;">📊 Analisis Buffer</h3>
-            <p style="text-align:center;color:#888;padding:20px;font-size:13px;">${!est ? '⚠️ Hitung Estimasi Program dulu (tab Estimasi).' : 'Program ini tidak pakai Buffer Diskon (Buffer = 0), tidak ada yang perlu dianalisis.'}</p>
+            <p style="text-align:center;color:#888;padding:20px;font-size:13px;">⚠️ Hitung Estimasi Program dulu (tab Estimasi).</p>
             <button onclick="document.getElementById('analisisBufferB2CModal').style.display='none'" style="width:100%;padding:11px;background:#e2e8f0;color:#333;border:none;border-radius:10px;font-size:13px;cursor:pointer;">Tutup</button>
         </div>`;
         return;
     }
 
+    const a = analisisBufferB2C();
+    if(!a) {
+        modalEl.innerHTML = `<div class="modal-content" style="max-width:420px;">
+            <h3 style="color:var(--primary);margin-bottom:10px;">📊 Analisis Buffer</h3>
+            <p style="text-align:center;color:#888;padding:20px;font-size:13px;">Belum ada jamaah dengan harga paket.</p>
+            <button onclick="document.getElementById('analisisBufferB2CModal').style.display='none'" style="width:100%;padding:11px;background:#e2e8f0;color:#333;border:none;border-radius:10px;font-size:13px;cursor:pointer;">Tutup</button>
+        </div>`;
+        return;
+    }
     const hargaBrosur = est.harga;
-    const bufferPerOrang = est.buffer;
-    const jamaahRelevan = jamaahList.filter(j => getTotalHargaPaket(j) > 0);
-
-    let totalBufferDisiapkan = 0, totalDiskonTerpakai = 0, totalKelebihanMakanProfit = 0;
-    const rincianJamaah = [];
-    jamaahRelevan.forEach(j => {
-        const hargaPaketJamaah = getTotalHargaPaket(j);
-        const diskon = Math.max(0, hargaBrosur - hargaPaketJamaah);
-        totalBufferDisiapkan += bufferPerOrang;
-        const dipakai = Math.min(diskon, bufferPerOrang);
-        const kelebihan = Math.max(0, diskon - bufferPerOrang);
-        totalDiskonTerpakai += dipakai;
-        totalKelebihanMakanProfit += kelebihan;
-        rincianJamaah.push({ nama: j.nama_lengkap, diskon, kelebihan });
-    });
-
-    const sisaBuffer = totalBufferDisiapkan - totalDiskonTerpakai;
+    const bufferPerOrang = est.buffer || 0;
+    const totalBufferDisiapkan = a.disiapkan;
+    const rincianJamaah = a.rinci;
     const adaJamaahBermasalah = rincianJamaah.filter(x => x.kelebihan > 0);
 
     // Lapis 3: Peringatan
     let htmlPeringatan = '';
     if(adaJamaahBermasalah.length > 0) {
         htmlPeringatan = `<div style="background:#FEE2E2;border:1.5px solid #DC2626;border-radius:10px;padding:10px 12px;margin-bottom:12px;font-size:12px;color:#991B1B;">
-            ⚠️ ${adaJamaahBermasalah.length} jamaah diskonnya MELEBIHI Buffer (makan Profit asli, total ${f(totalKelebihanMakanProfit)})
+            ⚠️ ${adaJamaahBermasalah.length} jamaah diskon/komisinya MELEBIHI Buffer (kelebihan ${f(a.kelebihan)} memakan Profit rencana)
         </div>`;
     }
+    const barisM = (label, nilai, warna) => `<div style="display:flex;justify-content:space-between;padding:4px 0;font-size:13px;"><span style="opacity:0.8;">${label}</span><span style="font-weight:700;${warna ? 'color:' + warna + ';' : ''}">${nilai}</span></div>`;
+    const dampakWarna = a.bersih >= 0 ? '#4ADE80' : '#FCA5A5';
+    const dampakLabel = Math.round(a.bersih) === 0 ? 'Dampak bersih: impas dengan rencana' : (a.bersih > 0 ? 'Dampak bersih: untung ekstra' : 'Dampak bersih: di bawah laba rencana');
 
     // Lapis 2: Per Jamaah (yang ada diskon saja, biar tidak penuh dengan yang 0)
-    const jamaahDenganDiskon = rincianJamaah.filter(x => x.diskon > 0).sort((a,b) => b.diskon - a.diskon);
+    const jamaahDenganDiskon = rincianJamaah.filter(x => x.total > 0).sort((p,q) => q.total - p.total);
     const htmlPerJamaah = jamaahDenganDiskon.map(x => {
         const warnaBaris = x.kelebihan > 0 ? '#DC2626' : '#166534';
         return `<div style="display:flex;justify-content:space-between;font-size:12px;padding:5px 0;border-bottom:1px dashed #e2e8f0;">
             <span>${escapeHtml(x.nama)}</span>
-            <span style="color:${warnaBaris};font-weight:700;">${f(x.diskon)}${x.kelebihan > 0 ? ' ⚠️' : ''}</span>
+            <span style="color:${warnaBaris};font-weight:700;">${f(x.total)}${x.komisi > 0 ? ' (komisi mitra)' : ''}${x.kelebihan > 0 ? ' ⚠️' : ''}</span>
         </div>`;
     }).join('') || '<p style="color:#6B7280;text-align:center;padding:10px;font-size:12px;">Belum ada jamaah yang dapat diskon (semua bayar Harga Brosur penuh)</p>';
 
@@ -9892,10 +9921,14 @@ function renderAnalisisBufferB2CModal(modalEl) {
         <div style="font-size:11px;color:#888;margin-bottom:12px;">${escapeHtml(getCurrentProgram()?.nama || '-')} — Buffer/orang: ${f(bufferPerOrang)}, Harga Brosur: ${f(hargaBrosur)}</div>
         ${htmlPeringatan}
         <div style="background:linear-gradient(135deg,var(--primary),#0a3d31);border-radius:14px;padding:14px;color:white;margin-bottom:12px;">
-            <div style="display:flex;justify-content:space-between;padding:4px 0;font-size:13px;"><span style="opacity:0.8;">Total Buffer Disiapkan</span><span style="font-weight:700;">${f(totalBufferDisiapkan)}</span></div>
-            <div style="display:flex;justify-content:space-between;padding:4px 0;font-size:13px;"><span style="opacity:0.8;">Total Diskon Terpakai</span><span style="font-weight:700;">${f(totalDiskonTerpakai)}</span></div>
-            <div style="display:flex;justify-content:space-between;padding:6px 0 0;border-top:1px solid rgba(255,255,255,0.2);margin-top:4px;"><span style="font-weight:700;">Sisa Buffer (jadi untung ekstra)</span><span style="font-weight:900;color:#4ADE80;">${f(sisaBuffer)}</span></div>
+            ${barisM('Total Buffer Disiapkan', f(totalBufferDisiapkan))}
+            ${barisM('Diskon ke jamaah (lewat harga)', f(a.diskon))}
+            ${barisM('Komisi ke mitra', f(a.komisi))}
+            ${barisM('Diskon/komisi melebihi buffer', f(a.kelebihan), a.kelebihan > 0 ? '#FCA5A5' : '')}
+            <div style="display:flex;justify-content:space-between;padding:6px 0 0;border-top:1px solid rgba(255,255,255,0.2);margin-top:4px;"><span style="font-weight:700;">Sisa Buffer (jadi untung ekstra)</span><span style="font-weight:900;color:#4ADE80;">${f(a.sisa)}</span></div>
+            <div style="display:flex;justify-content:space-between;padding:4px 0;font-size:13px;"><span style="font-weight:700;">${dampakLabel}</span><span style="font-weight:900;color:${dampakWarna};">${f(Math.abs(a.bersih))}</span></div>
         </div>
+        <div style="font-size:11px;color:#6B7280;line-height:1.5;margin-bottom:10px;">Kelebihan di satu jamaah tidak ditutup otomatis oleh sisa buffer jamaah lain; "Dampak bersih" adalah gabungannya. Diskon lewat harga sudah terhitung di laba. Komisi mitra baru mengurangi laba setelah dicatat sebagai pengeluaran (tombol Catat di Rekap Komisi Mitra).</div>
         <div style="font-size:11px;color:#888;font-weight:700;text-transform:uppercase;margin-bottom:6px;">Rincian per Jamaah (yang dapat diskon)</div>
         <div style="max-height:280px;overflow-y:auto;margin-bottom:12px;">${htmlPerJamaah}</div>
         <button onclick="document.getElementById('analisisBufferB2CModal').style.display='none'" style="width:100%;padding:11px;background:#e2e8f0;color:#333;border:none;border-radius:10px;font-size:13px;cursor:pointer;">Tutup</button>
@@ -9933,6 +9966,7 @@ function shareRekapAktual() {
     if (data.komposisi) text += `\n🏷️ Peserta: ${data.komposisi}`;
     if (data.kursi) text += `\n🪑 Kursi bayar terisi ${data.kursi.terisi} dari ${data.kursi.total} (${data.kursi.persen}%)`;
     if (data.pembulatan) text += `\n🔸 ${teksPembulatanHarga(data.pembulatan, true)}`;
+    if (data.diskonLebih) text += `\n⚠️ ${teksDiskonMelebihiBuffer(data.diskonLebih)}`;
     if (data.hargaBawah > 0) text += `\n⚠️ ${data.hargaBawah} jamaah harga paketnya di bawah modal`;
     if (data.tanpaTipe.length > 0) text += `\n⚠️ ${data.tanpaTipe.length} jamaah belum ada tipe paket (tidak dihitung): ${data.tanpaTipe.join(', ')}${data.tanpaTipeUang > 0 ? `. Uang yang sudah mereka bayar ${f(data.tanpaTipeUang)} BELUM masuk total di atas` : ''}`;
     // Penutup mengikuti pengaturan: pengguna berlisensi memakai nama instansinya sendiri; versi gratis tetap "Navara App"
@@ -16639,8 +16673,14 @@ function sesuaikanHargaDariDiskonMitra(jamaahId) {
     const j = jamaahList.find(x => x.id === jamaahId);
     if(!j) return;
     const status = j.additional_fields?.status_diskon;
+    if(status === 'Diberikan ke Mitra') {
+        const komisi = uangDiskonTersedia(j);
+        const e = komisi > 0 ? hitungModalHargaEstimasiTerkini() : null;
+        if(e && komisi > (e.buffer || 0)) showToast(`⚠️ Komisi mitra Rp ${komisi.toLocaleString('id-ID')} melebihi Buffer ${(e.buffer||0).toLocaleString('id-ID')}: kelebihan Rp ${(komisi - (e.buffer||0)).toLocaleString('id-ID')} mengurangi laba rencana`);
+        return;
+    }
     if(status !== 'Diambil Jamaah') return;
-    const diskon = parseInt((j.additional_fields?.diskon_tersedia||'0').toString().replace(/\./g,'').replace(/[^0-9]/g,'')) || 0;
+    const diskon = uangDiskonTersedia(j);
     if(diskon <= 0) return;
 
     const hp = getKonfigurasiProData().harga_paket || { seragam: false };
@@ -16665,7 +16705,9 @@ function sesuaikanHargaDariDiskonMitra(jamaahId) {
     }
     j.additional_fields[targetField.name] = hargaBaru.toLocaleString('id-ID');
     saveJamaahData();
-    showToast(`✅ Harga Paket disesuaikan otomatis: Rp ${hargaBaru.toLocaleString('id-ID')} (Brosur ${est.harga.toLocaleString('id-ID')} − Diskon ${diskon.toLocaleString('id-ID')})`);
+    const bufferEst = est.buffer || 0;
+    showToast(`✅ Harga Paket disesuaikan otomatis: Rp ${hargaBaru.toLocaleString('id-ID')} (Brosur ${est.harga.toLocaleString('id-ID')} − Diskon ${diskon.toLocaleString('id-ID')})` +
+        (diskon > bufferEst ? `\n⚠️ Diskon melebihi Buffer ${bufferEst.toLocaleString('id-ID')} sebesar Rp ${(diskon - bufferEst).toLocaleString('id-ID')}: kelebihan ini mengurangi laba rencana.` : ''));
     if(typeof renderJamaahListWithPagination === 'function') renderJamaahListWithPagination();
 }
 
@@ -18242,6 +18284,8 @@ function cetakLaporanPenutupanMusim() {
         if (modalEst && modalEst.tanpaTipe > 0) catatanProyeksi += `<p class="lap-note">${modalEst.tanpaTipe} jamaah belum punya tipe kamar, modalnya dihitung dengan tarif Quad.</p>`;
         const bulatLap = ringkasPembulatanHarga(jamaahRelevan);
         if (bulatLap) catatanProyeksi += `<p class="lap-note">${escapeHtml(teksPembulatanHarga(bulatLap, false))}</p>`;
+        const diskonLebihLap = ringkasDiskonMelebihiBuffer();
+        if (diskonLebihLap) catatanProyeksi += `<p class="lap-note">${escapeHtml(teksDiskonMelebihiBuffer(diskonLebihLap))}</p>`;
         if (est.buffer > 0) catatanProyeksi += `<p class="lap-note">Proyeksi dihitung dari kontrak yang ada. Buffer diskon yang belum terpakai ikut menjadi laba (lihat Analisis Buffer).</p>`;
         blok2 = `<div class="lap-section"><h2>2. Proyeksi (dari Cuan Plan)</h2>
             <table class="lap-table"><tr><td>Total Kontrak</td><td>${f(totalKontrak)}</td></tr>
@@ -24325,7 +24369,7 @@ function openIndexedDB() {
 // dengan build baru, data MENTAH (langsung dari IndexedDB, bukan dari memori) disalin dulu sebelum
 // proses migrasi apapun berjalan — supaya kalau ada kesalahan di update, data lama masih bisa dipulihkan.
 // Dokumen & foto tidak ikut disalin (ukurannya besar, dan tidak pernah disentuh proses migrasi).
-const NAVARA_BUILD = '2026.10.10-97';
+const NAVARA_BUILD = '2026.10.10-99';
 const MAKS_SNAPSHOT = 3;
 
 // ==================== DAFTAR DATA PUSAT ====================
