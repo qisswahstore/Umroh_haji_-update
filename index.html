@@ -4837,6 +4837,7 @@ function updateHomeStats() {
 
     // Update dashboard extra
     const komposisiHome = hitungKomposisiPeserta(jamaahData);
+    komposisiHome.belumHarga = jamaahData.filter(j => !tanpaTagihan(j) && !(getTotalHargaPaket(j) > 0)).length; // wajib bayar tapi harga paket belum diisi — belum masuk Total Tagihan
     updateHomeDashboardExtra(komposisiHome.bayar, lunasCount, totalPiutang, komposisiHome);
 }
 
@@ -4862,7 +4863,9 @@ function updateHomeDashboardExtra(totalJamaah, lunasCount, totalPiutang, komposi
         const piutangLabel = document.getElementById('homePiutangLabel');
         if(piutangLabel) {
             const sisaJamaah = totalJamaah - lunasCount;
-            piutangLabel.textContent = sisaJamaah > 0 ? `dari ${sisaJamaah} jamaah` : '';
+            const belumHargaHome = (komposisi && komposisi.belumHarga) || 0;
+            const adaTagihanHome = Math.max(0, sisaJamaah - belumHargaHome);
+            piutangLabel.textContent = [adaTagihanHome > 0 ? `dari ${adaTagihanHome} jamaah` : '', belumHargaHome > 0 ? `${belumHargaHome} jamaah belum diisi harga` : ''].filter(Boolean).join(' · ');
         }
 
         // Countdown keberangkatan
@@ -6731,9 +6734,10 @@ function exportDashboardExcel() {
     const jamaahData = jamaahList;
     const kasData = dataKas;
     const paymentData = paymentTransaksiList;
-    const wsJamaah = XLSX.utils.json_to_sheet(jamaahData.map(j => ({ Nama: j.nama_lengkap, Tanggal: j.created_at })));
-    const wsKas = XLSX.utils.json_to_sheet(kasData);
-    const wsPayment = XLSX.utils.json_to_sheet(paymentData);
+    // Kolom diberi nama yang jelas (bukan nama teknis seperti nom/ket/id_jamaah) dan data internal (id, program) tidak ikut diekspor
+    const wsJamaah = XLSX.utils.json_to_sheet(jamaahData.map(j => ({ Nama: j.nama_lengkap, 'Tanggal Input': j.created_at })));
+    const wsKas = XLSX.utils.json_to_sheet(kasData.map(i => ({ Tanggal: i.tgl, Kegiatan: i.kegiatan, Keterangan: i.ket, Tipe: String(i.tipe || '').toUpperCase(), Nominal: i.nom })));
+    const wsPayment = XLSX.utils.json_to_sheet(paymentData.map(t => ({ Tanggal: t.tanggal, Jamaah: t.nama_jamaah, Keterangan: t.keterangan, Komponen: t.komponen || '', Metode: t.metode, Nominal: t.nominal })));
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, wsJamaah, 'Jamaah');
     XLSX.utils.book_append_sheet(wb, wsKas, 'Kas');
@@ -7294,6 +7298,7 @@ function hitungUmroh() {
     saveEstimasiData(); 
     const nJam=parseInt(document.getElementById('totJam').value)||0; 
     if(nJam<=0) return showToast("Isi jamaah!"); 
+    if((parseInt(document.getElementById('jamGratis').value)||0) >= nJam) return showToast("Jumlah FOC harus lebih kecil dari Total Jamaah!");
     const ids=['cTiket','cAsuransi','cHandling','cPIC','cAlat','cAplikasi','cLain'];
     const subBase=ids.map(id=>parseRupiah(document.getElementById(id).value)).reduce((a,b)=>a+b,0);
     // LA per tipe kamar
@@ -8205,8 +8210,9 @@ function hitungModalPerTipeKamar(komponen, komponenDicentang, totalGabungan, nFo
         if(k.key !== 'la' && komponenDicentang[k.key] !== false) nonLA += (komponen.rincian[k.key] || 0);
     });
     const laAktif = komponenDicentang.la !== false;
-    const laTripleEff = komponen.modeUpgrade ? (komponen.laQuad + komponen.laTriple) : komponen.laTriple;
-    const laDoubleEff = komponen.modeUpgrade ? (komponen.laQuad + komponen.laDouble) : komponen.laDouble;
+    // Tarif Triple/Double yang belum diisi memakai tarif Quad (sama dengan Rekap) — bukan Rp 0, supaya modal hotel tidak hilang
+    const laTripleEff = komponen.modeUpgrade ? (komponen.laQuad + komponen.laTriple) : (komponen.laTriple > 0 ? komponen.laTriple : komponen.laQuad);
+    const laDoubleEff = komponen.modeUpgrade ? (komponen.laQuad + komponen.laDouble) : (komponen.laDouble > 0 ? komponen.laDouble : komponen.laQuad);
     return {
         quad: (nonLA + (laAktif ? komponen.laQuad : 0)) * multiplier,
         triple: (nonLA + (laAktif ? laTripleEff : 0)) * multiplier,
@@ -8908,28 +8914,59 @@ function hitungPosisiDariData(d, modal, brosur, daftarTravel, sendiri) {
     const list = (daftarTravel || []).filter(t => t.jumlah > 0);
     const totalGabungan = list.reduce((a, t) => a + (t.jumlah||0), 0);
     let travelOrang = 0, tagihan = 0, belumHarga = [], dibawahBiaya = [], diAtasBrosur = [], untungTipis = [];
+    // Harga brosur B2C per tipe kamar (rumus sama dengan Estimasi): Quad = brosur; Triple/Double = mode upgrade (Quad + selisih) atau harga penuh
+    const profitPctB = (parseFloat(String(d.profitPct || '0').replace(',', '.')) || 0) / 100;
+    const subTanpaLA = sub - pr(d.cLAquad || d.cLA);
+    const brosurTipe = (label) => {
+        if(label === 'Quad') return brosur || 0;
+        const la = pr(label === 'Triple' ? d.cLAtriple : d.cLAdouble);
+        if(!(la > 0)) return brosur || 0; // tipe ini belum diisi di Estimasi: pakai harga Quad
+        if(d.modeLA === 'upgrade') return (brosur || 0) + la;
+        return ((subTanpaLA + la) * nJam * (1 + profitPctB)) / (nJam - nFoc) + buffer;
+    };
+    let biayaKamar = 0; // tambahan biaya hotel karena peserta travel partner memakai kamar Triple/Double (di atas modal Quad)
+    // Komponen yang DIMATIKAN di Travel Partner (mis. Handling diurus sendiri oleh travel itu) tidak jadi biaya kita.
+    // Bagian yang sudah hangus (Tiket/Hotel yang terlanjur dibayar) tetap biaya, jadi tidak ikut dihemat.
+    let biayaHemat = 0;
+    const hematKomponen = (t) => {
+        if(!komponen) return 0;
+        const ck = t.komponen || {};
+        let h = 0;
+        DAFTAR_KOMPONEN_KONSORSIUM.forEach(k => {
+            if(ck[k.key] !== false) return;
+            const nilai = k.key === 'la' ? komponen.laQuad : (komponen.rincian[k.key] || 0);
+            const hangus = k.key === 'tiket' ? (sp.tiket || 0) : (k.key === 'la' ? (sp.hotel || 0) : 0);
+            h += Math.max(0, nilai - hangus);
+        });
+        return Math.min(h, v);
+    };
     list.forEach(t => {
         travelOrang += t.jumlah;
         const ring = komponen ? hitungRingkasanTravel(t, komponen, totalGabungan) : null;
+        const biayaAsli = komponen ? hitungModalPerTipeKamar(komponen, t.komponen || {}, totalGabungan, 0) : null; // nFoc=0: biaya sungguhan per orang, tanpa pengali FOC
+        const lebihKamar = k => biayaAsli ? Math.max(0, biayaAsli[k] - biayaAsli.quad) : 0;
+        biayaKamar += (t.jumlahTriple || 0) * lebihKamar('triple') + (t.jumlahDouble || 0) * lebihKamar('double');
+        biayaHemat += (t.jumlah || 0) * hematKomponen(t);
         if(!ring || !ring.punyaKebijakan) { belumHarga.push(t.nama || 'Travel tanpa nama'); return; }
         tagihan += ring.totalTagihan;
         if(ring.totalProfit >= 0 && ring.totalModal > 0 && (ring.totalProfit / ring.totalModal) < 0.01) untungTipis.push(t.nama || 'Travel tanpa nama');
         ring.tipeData.forEach(x => {
             if(x.harga === null || x.harga === undefined) return;
-            if(x.harga < v) dibawahBiaya.push(`${t.nama || 'Travel'} (${x.label})`);
-            else if(hargaB2C > 0 && x.harga >= hargaB2C) diAtasBrosur.push(`${t.nama || 'Travel'} (${x.label})`);
+            const hargaB2CTipe = Math.max(0, brosurTipe(x.label) - buffer);
+            if(x.harga < v - hematKomponen(t) + lebihKamar(x.key)) dibawahBiaya.push(`${t.nama || 'Travel'} (${x.label})`);
+            else if(hargaB2CTipe > 0 && x.harga >= hargaB2CTipe) diAtasBrosur.push(`${t.nama || 'Travel'} (${x.label})`);
         });
     });
     const sisa = kursiBayar - sendiri - travelOrang;
     const kepala = sendiri + travelOrang + nFoc + nTL;
-    const biaya = tetapTotal + v * kepala;
+    const biaya = tetapTotal + v * kepala + biayaKamar - biayaHemat;
     const pendapatan = sendiri * hargaB2C + tagihan;
     const laba = pendapatan - biaya;
     const margin = hargaB2C - v; // kontribusi 1 kursi B2C setelah biaya yang masih mengikuti peserta
     const labaPenuh = laba + (sisa > 0 ? sisa * margin : 0);
-    const impasSendiri = margin > 0 ? Math.max(0, Math.ceil((tetapTotal + v * (travelOrang + nFoc + nTL) - tagihan) / margin - 1e-9)) : null;
+    const impasSendiri = margin > 0 ? Math.max(0, Math.ceil((tetapTotal + v * (travelOrang + nFoc + nTL) + biayaKamar - biayaHemat - tagihan) / margin - 1e-9)) : null;
     const impasSemuaB2C = margin > 0 ? Math.ceil((tetapTotal + v * (nFoc + nTL)) / margin - 1e-9) : null;
-    return { kursiBayar, sendiri, travelOrang, sisa, laba, labaPenuh, impasSendiri, impasSemuaB2C, hargaB2C, v, tetapPerKursi, tagihan, belumHarga, dibawahBiaya, diAtasBrosur, untungTipis, nTL, nFoc , tiketOtomatis: sp.otomatis };
+    return { kursiBayar, sendiri, travelOrang, sisa, laba, labaPenuh, impasSendiri, impasSemuaB2C, hargaB2C, v, tetapPerKursi, tagihan, belumHarga, dibawahBiaya, diAtasBrosur, untungTipis, nTL, nFoc , tiketOtomatis: sp.otomatis, biayaKamar, biayaHemat, modeUpgrade: d.modeLA === 'upgrade' };
 }
 
 function renderPosisiRombongan() {
@@ -8946,7 +8983,7 @@ function renderPosisiRombongan() {
     else if(!pos.belumHarga.length && pos.labaPenuh < 0) peringatan.push(kotak('#991B1B', '#FEE2E2', `⚠️ Bahkan bila semua sisa kursi terjual B2C di harga brosur, rombongan masih RUGI ${f(-pos.labaPenuh)}. Harga Travel Partner terlalu rendah atau FOC terlalu banyak.`));
     else if(!pos.belumHarga.length && pos.laba < 0) peringatan.push(kotak('#92400E', '#FEF3C7', `⚠️ Dengan jumlah terisi sekarang rombongan masih rugi ${f(-pos.laba)}. Jamaah sendiri minimal ${pos.impasSendiri} orang agar impas (sekarang ${pos.sendiri}, kurang ${Math.max(0, pos.impasSendiri - pos.sendiri)}).`));
     if(pos.dibawahBiaya.length) peringatan.push(kotak('#991B1B', '#FEE2E2', `⚠️ Harga di bawah biaya yang masih keluar per orang (${f(pos.v)}): ${pos.dibawahBiaya.join(', ')}. Lebih baik tidak dijual di harga ini.`));
-    if(pos.diAtasBrosur.length) peringatan.push(kotak('#92400E', '#FEF3C7', `⚠️ Harga tagihan sama atau lebih tinggi dari harga brosur B2C: ${pos.diAtasBrosur.join(', ')}. Travel Partner tidak punya keuntungan untuk dijual lagi.`));
+    if(pos.diAtasBrosur.length) peringatan.push(kotak('#92400E', '#FEF3C7', `⚠️ Harga tagihan sama atau lebih tinggi dari harga brosur B2C: ${pos.diAtasBrosur.join(', ')}. Travel Partner tidak punya keuntungan untuk dijual lagi.${pos.modeUpgrade ? ' (Mode Upgrade: selisih kamar pada tagihan Travel Partner ikut dikali pengali FOC dan markup, sedangkan brosur umum hanya ditambah selisih.)' : ''}`));
     if(pos.untungTipis.length) peringatan.push(kotak('#92400E', '#FEF3C7', `⚠️ Untung sangat tipis (di bawah 1% dari modal): ${pos.untungTipis.join(', ')}. Sedikit saja diskon atau FOC tambahan akan membuatnya rugi.`));
     if(pos.belumHarga.length) peringatan.push(kotak('#0369A1', '#E0F2FE', `ℹ️ Belum ada harga (markup atau profit tetap): ${pos.belumHarga.join(', ')}. Orangnya sudah dihitung sebagai peserta, pendapatannya belum.`));
     if(pos.sendiri === 0) peringatan.push(kotak('#0369A1', '#E0F2FE', 'ℹ️ Belum ada jamaah sendiri yang terdaftar di database program ini, jadi hitungan memakai 0 orang.'));
@@ -8960,7 +8997,7 @@ function renderPosisiRombongan() {
         baris('Jamaah sendiri minimal agar impas', pos.impasSendiri === null ? '-' : `${pos.impasSendiri} orang`) +
         (pos.impasSemuaB2C !== null ? baris('Impas bila semua pembayar B2C', `${pos.impasSemuaB2C} orang`) : '') +
         peringatan.join('') +
-        `<div style="font-size:11px;color:#888;margin-top:8px;line-height:1.5;">Perkiraan, bukan realisasi. Biaya yang dianggap hangus per kursi: ${f(pos.tetapPerKursi)} (${pos.nTL > 0 ? 'termasuk kursi TL' : ''})${pos.tiketOtomatis ? ', yaitu seluruh Tiket (skenario terburuk; isi kotak "Biaya yang Hangus" bila hanya DP yang hilang)' : ''}. Biaya lain dianggap mengikuti jumlah peserta (${f(pos.v)}/orang). Harga B2C dipakai: ${f(pos.hargaB2C)} (harga brosur dikurangi buffer).${catatanBulatKonsorsium()} Jamaah sendiri dihitung dari database jamaah program ini, tanpa FOC/TL/Pembimbing.</div>`;
+        `<div style="font-size:11px;color:#888;margin-top:8px;line-height:1.5;">Perkiraan, bukan realisasi. Biaya yang dianggap hangus per kursi: ${f(pos.tetapPerKursi)} (${pos.nTL > 0 ? 'termasuk kursi TL' : ''})${pos.tiketOtomatis ? ', yaitu seluruh Tiket (skenario terburuk; isi kotak "Biaya yang Hangus" bila hanya DP yang hilang)' : ''}. Biaya lain dianggap mengikuti jumlah peserta (${f(pos.v)}/orang). Harga B2C dipakai: ${f(pos.hargaB2C)} (harga brosur dikurangi buffer).${pos.biayaKamar > 0 ? ' Tambahan biaya hotel kamar Triple/Double milik Travel Partner ' + f(pos.biayaKamar) + ' sudah dihitung sebagai biaya.' : ''}${pos.biayaHemat > 0 ? ' Penghematan biaya dari komponen yang dimatikan di Travel Partner ' + f(pos.biayaHemat) + ' sudah dikurangkan dari biaya.' : ''}${catatanBulatKonsorsium()} Jamaah sendiri dihitung dari database jamaah program ini, tanpa FOC/TL/Pembimbing.</div>`;
     const adaPeringatan = peringatan.some(x => x.indexOf('⚠️') >= 0);
     const rk = document.getElementById('konPosisiRingkas');
     if(rk) rk.textContent = (adaPeringatan ? '⚠️ ' : '') + 'Sisa kursi ' + pos.sisa + ' · laba saat ini ' + f(pos.laba) + (pos.impasSendiri !== null ? ' · jamaah sendiri minimal ' + pos.impasSendiri : '');
@@ -9556,6 +9593,7 @@ function hitungRekapAktual() {
     // Kumpulkan data per tipe
     const tipeData = {};
     const tanpaTipe = [];
+    let tanpaTipeUang = 0; // uang yang sudah dibayar jamaah tanpa Tipe Paket — belum masuk total di bawah
     const hargaBawahStandar = [];
     const tanpaTagihanList = []; // FOC / TL / Pembimbing — tidak ditagih, tidak masuk hitungan kontrak (modalnya dari Cuan Plan)
 
@@ -9580,6 +9618,7 @@ function hitungRekapAktual() {
 
         if(!tipe) {
             tanpaTipe.push(j.nama_lengkap);
+            tanpaTipeUang += sudahDibayar;
             return;
         }
 
@@ -9620,6 +9659,7 @@ function hitungRekapAktual() {
     // Kalau ada FOC/TL, laba per tipe BELUM dikurangi modal FOC dan TL (itu baru dikurangkan di Total Keseluruhan)
     const _erAwal = est ? hitungModalHargaEstimasiTerkini() : null;
     const _adaModalFocTL = !!(_erAwal && ((_erAwal.foc || 0) + (_erAwal.tl || 0)) > 0);
+    if(_erAwal && _erAwal.nJamDefault) html += `<div style="background:#FEF3C7;border:1.5px solid #F59E0B;border-radius:12px;padding:10px 12px;margin-bottom:10px;font-size:12px;color:#92400E;font-weight:600;line-height:1.5;">⚠️ Total Pax di Estimasi belum diisi, jadi hitungan harga memakai angka cadangan ${_erAwal.nJam} pax. Isi Total Pax lalu Hitung Estimasi agar harga dan laba sesuai.</div>`;
     Object.keys(tipeData).forEach(tipe => {
         const d = tipeData[tipe];
         const profit = d.totalOmzet - d.totalModal;
@@ -9678,7 +9718,7 @@ function hitungRekapAktual() {
             modal: d.totalModal, profit: d.totalOmzet - d.totalModal, tanpaHarga: d.tanpaHarga?.length || 0 }; }),
         grand: { kontrak: grandKontrak, dibayar: grandOmzet, piutang: grandPiutang, modalJamaahBayar, modalFocTL,
                  nFoc: estRingkas?.foc || 0, nTL: estRingkas?.tl || 0, modal: grandModal, profit: grandProfit },
-        tanpaTipe: tanpaTipe.slice(), hargaBawah: hargaBawahStandar.length,
+        tanpaTipe: tanpaTipe.slice(), tanpaTipeUang: tanpaTipeUang, hargaBawah: hargaBawahStandar.length,
         komposisi: adaTanpaTagihan ? teksKomposisiPeserta(komposisiRekap) : '',
         kursi: kursiRekap,
         pembulatan: pembulatanRekap
@@ -9743,6 +9783,7 @@ function hitungRekapAktual() {
         html += `<div style="background:#f8fafc;border:1.5px solid #e2e8f0;border-radius:14px;padding:14px;margin-bottom:10px;">
             <div style="font-weight:700;color:#888;margin-bottom:6px;">⚠️ ${tanpaTipe.length} Jamaah Belum Ada Tipe Paket</div>
             <div style="font-size:12px;color:#888;">${tanpaTipe.map(n=>escapeHtml(n)).join(', ')}</div>
+            ${tanpaTipeUang > 0 ? `<div style="font-size:12px;color:#B45309;font-weight:700;margin-top:8px;line-height:1.5;">Uang yang sudah mereka bayar ${f(tanpaTipeUang)} BELUM masuk ke Total Dibayar, Piutang, dan Laba di atas. Isi Tipe Paket mereka agar ikut terhitung.</div>` : ''}
         </div>`;
     }
 
@@ -9893,7 +9934,7 @@ function shareRekapAktual() {
     if (data.kursi) text += `\n🪑 Kursi bayar terisi ${data.kursi.terisi} dari ${data.kursi.total} (${data.kursi.persen}%)`;
     if (data.pembulatan) text += `\n🔸 ${teksPembulatanHarga(data.pembulatan, true)}`;
     if (data.hargaBawah > 0) text += `\n⚠️ ${data.hargaBawah} jamaah harga paketnya di bawah modal`;
-    if (data.tanpaTipe.length > 0) text += `\n⚠️ ${data.tanpaTipe.length} jamaah belum ada tipe paket (tidak dihitung): ${data.tanpaTipe.join(', ')}`;
+    if (data.tanpaTipe.length > 0) text += `\n⚠️ ${data.tanpaTipe.length} jamaah belum ada tipe paket (tidak dihitung): ${data.tanpaTipe.join(', ')}${data.tanpaTipeUang > 0 ? `. Uang yang sudah mereka bayar ${f(data.tanpaTipeUang)} BELUM masuk total di atas` : ''}`;
     // Penutup mengikuti pengaturan: pengguna berlisensi memakai nama instansinya sendiri; versi gratis tetap "Navara App"
     text += `\n${garis}\n_${isLicensed() ? namaKBIH : 'Navara App'}_`;
     window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
@@ -13023,6 +13064,10 @@ const PEMERIKSA_KESEHATAN = [
         if (bayarYatim.length) out.push(T('jamaah.pembayaran_tanpa_jamaah', 'Jamaah', 'serius', 'Pembayaran tanpa jamaah', 'Ada pembayaran yang jamaahnya sudah tidak ada. Uangnya tercatat masuk tapi tidak milik siapa pun.', 'Periksa di menu Pembayaran; hapus bila salah, atau pulihkan jamaahnya dari cadangan.', bayarYatim, { label: 'Buka Pembayaran', halaman: 'pembayaran' }));
         const bayarBuruk = ctx.bayar.filter(t => !(Number(t.nominal) > 0)).map(t => `${t.tanggal || '?'} · ${rupiahSaldo(t.nominal || 0)}`);
         if (bayarBuruk.length) out.push(T('jamaah.pembayaran_tidak_valid', 'Jamaah', 'serius', 'Pembayaran dengan nominal nol atau negatif', 'Nominal pembayaran yang tidak valid merusak total terbayar.', 'Edit atau hapus pembayaran itu.', bayarBuruk, { label: 'Buka Pembayaran', halaman: 'pembayaran' }));
+        // Kolom tambahan yang labelnya mirip "harga": bisa ikut terbaca sebagai harga paket (lihat getTotalHargaPaket). Hanya peringatan, cara membaca harga TIDAK diubah.
+        const namaKolomHargaBaku = ['total_harga_paket', 'total_harga', 'harga_paket', 'paket', 'total harga', 'harga total', 'tagihan', 'nominal'];
+        const kolomMiripHarga = (ctx.fieldJamaah || []).filter(f => /harga|paket|tagihan|total/i.test(f.label || '') && !namaKolomHargaBaku.includes(f.name)).map(f => f.label || f.name);
+        if (kolomMiripHarga.length) out.push(T('jamaah.kolom_mirip_harga', 'Jamaah', 'perhatian', 'Kolom tambahan yang namanya mirip kolom harga', 'Harga paket dibaca dari kolom "Total Harga Paket". Bila jamaah belum punya nilai di sana, Navara mencoba kolom lain yang namanya mengandung "harga", "paket", "tagihan", atau "total". Kolom di bawah ini ikut dicoba, jadi bila berisi angka (misalnya jumlah anggota) angkanya bisa terbaca sebagai harga paket.', 'Simpan harga hanya di kolom "Total Harga Paket". Ganti nama kolom lain agar tidak memakai kata di atas (contoh: "Jumlah Anggota Keluarga"), atau hapus bila tidak dipakai.', kolomMiripHarga));
         const tanpaProgram = ctx.jamaah.filter(j => !j.program_id || !pIds.has(j.program_id)).map(j => j.nama_lengkap || '(tanpa nama)');
         if (tanpaProgram.length) out.push(T('jamaah.tanpa_program', 'Jamaah', 'serius', 'Jamaah tanpa Program yang valid', 'Jamaah ini tidak muncul di Program mana pun.', 'Buka Database Jamaah dan pindahkan ke Program yang benar.', tanpaProgram, { label: 'Buka Database Jamaah', halaman: 'jamaah' }));
         return out;
@@ -16271,10 +16316,22 @@ async function bersihkanDataTerkaitJamaah(jamaahId) {
 // tertinggal karena app ditutup/pindah halaman sebelum jendela Undo 5.5 detik selesai. Dijalankan sekali tiap
 // app dibuka, setelah SEMUA data (jamaah, pembayaran, absensi, dst) selesai dimuat — jadi otomatis "menyembuhkan diri".
 async function bersihkanDataYatimPiatuJamaah() {
+    // PENGAMAN (build -89): kalau daftar jamaah kosong (misal data jamaah gagal terbaca), JANGAN membersihkan apa pun —
+    // semua pembayaran akan dianggap yatim-piatu dan terhapus permanen.
+    if (!jamaahList || jamaahList.length === 0) return;
     const idValid = new Set(jamaahList.map(j => String(j.id)));
 
     // 1. Riwayat Pembayaran yang jamaahnya sudah tidak ada
     const jumlahSebelum = paymentTransaksiList.length;
+    const pembayaranYatim = paymentTransaksiList.filter(t => t.id_jamaah && !idValid.has(String(t.id_jamaah)));
+    if (pembayaranYatim.length > 0) {
+        // Simpan salinan dulu supaya bisa dipulihkan kalau ternyata keliru (maks. 500 terakhir)
+        try {
+            const lama = (await idbGet(STORE_PEMBAYARAN, 'pembayaran_yatim_cadangan')) || [];
+            const stempel = new Date().toISOString();
+            await idbSet(STORE_PEMBAYARAN, 'pembayaran_yatim_cadangan', lama.concat(pembayaranYatim.map(t => ({ ...t, _dibersihkan: stempel }))).slice(-500));
+        } catch (e) {}
+    }
     paymentTransaksiList = paymentTransaksiList.filter(t => !t.id_jamaah || idValid.has(String(t.id_jamaah)));
     if (paymentTransaksiList.length !== jumlahSebelum) {
         await savePaymentData();
@@ -16617,6 +16674,16 @@ function closeJamaahModal(){
     editingJamaahId=null; 
 }
 
+// Ubah teks uang dari Excel ("Rp 1.500.000,00", "1,500,000.00", "1500000") menjadi "1.500.000". Null bila bukan angka.
+function normalisasiUangImpor(val) {
+    let v = String(val == null ? '' : val).replace(/rp/ig, '').replace(/\s/g, '');
+    if (!/^[\d.,]+$/.test(v)) return null;
+    const m = v.match(/^(.*)[.,](\d{1,2})$/); // desimal 1-2 digit di paling akhir (kelompok ribuan selalu 3 digit)
+    if (m) v = m[1];
+    const angka = parseInt(v.replace(/[^0-9]/g, ''), 10);
+    return isNaN(angka) ? null : angka.toLocaleString('id-ID');
+}
+
 function downloadTemplateExcel() {
     const fieldsTampil = getDynamicFieldsJamaahTampil();
     // Header = Nama Lengkap + semua field dinamis (sesuai Jenis Program aktif — Umroh tidak ikut field khusus Haji)
@@ -16740,6 +16807,13 @@ function getDropdownFieldsJamaah() {
 function getTotalHargaPaketUntukProgram(jamaah, programId) {
     if (tanpaTagihan(jamaah)) return 0;
     const cfg = konfigurasiPro.per_program && konfigurasiPro.per_program[programId];
+    // Haji Reguler: total = jumlah Komponen Wajib Program itu (sama dengan getTotalHargaPaket). Tanpa ini Kontrak Haji tampil Rp 0 di rekap lintas Program.
+    const progHaji = programList.find(pr0 => pr0.id === programId);
+    if (progHaji && progHaji.jenis === 'haji_reguler') {
+        const overrideHaji = jamaah.harga_komponen_haji || {};
+        const totalHaji = ((cfg && cfg.komponen_haji) || []).reduce((t0, k) => t0 + (overrideHaji[k.jenis] !== undefined ? overrideHaji[k.jenis] : (k.harga || 0)), 0);
+        if (totalHaji > 0) return totalHaji;
+    }
     const hp = (cfg && cfg.harga_paket) || konfigurasiPro.harga_paket || { seragam: false, nominal: 0 };
     if (hp.seragam && hp.nominal > 0) return hp.nominal;
     const fields = jamaah.additional_fields || {};
@@ -16781,17 +16855,18 @@ function openBandingkanProgramModal() {
         const kasP = _allKasData.filter(k => k.program_id === p.id);
         const pengP = _allPengeluaranData.filter(x => x.program_id === p.id);
         const bayarP = _allPaymentData.filter(t => t.program_id === p.id);
-        let totalKontrak = 0, totalDibayar = 0;
+        let totalKontrak = 0, totalDibayar = 0, piutangProgram = 0;
         jList.forEach(j => {
             const hp = getTotalHargaPaketUntukProgram(j, p.id);
             const byr = bayarP.filter(t => t.id_jamaah == j.id).reduce((s,t) => s + t.nominal, 0);
             totalKontrak += hp;
             totalDibayar += byr;
+            if (hp > 0) piutangProgram += Math.max(0, hp - byr);
         });
         const kasMasuk = kasP.filter(k => k.tipe === 'masuk').reduce((s,k) => s + k.nom, 0);
         const kasKeluar = kasP.filter(k => k.tipe === 'keluar').reduce((s,k) => s + k.nom, 0);
         const totalPengeluaran = pengP.reduce((s,x) => s + x.nominal, 0);
-        return { p, jumlahJamaah: jList.length, totalKontrak, totalDibayar, piutang: Math.max(0, totalKontrak - totalDibayar), kasMasuk, kasKeluar, totalPengeluaran };
+        return { p, jumlahJamaah: jList.length, totalKontrak, totalDibayar, piutang: piutangProgram, kasMasuk, kasKeluar, totalPengeluaran };
     });
 
     rows.sort((a,b) => b.totalKontrak - a.totalKontrak);
@@ -16819,21 +16894,24 @@ function openBandingkanProgramModal() {
 // ==================== REKAP TAHUNAN GABUNGAN ====================
 function cetakRekapTahunanGabungan() {
     if(!cekIzinFitur('cetakRekapTahunanGabungan')) return showToast('🔒 Tidak punya izin. Gunakan tombol 🔓 Minta Akses di Home.');
-    let totalKontrak = 0, totalDibayar = 0, totalJamaah = 0, totalKasMasuk = 0, totalKasKeluar = 0, totalPengeluaran = 0;
+    let totalKontrak = 0, totalDibayar = 0, totalJamaah = 0, totalKasMasuk = 0, totalKasKeluar = 0, totalPengeluaran = 0, totalPiutang = 0;
     const perProgram = programList.map(p => {
         const jList = _allJamaahData.filter(j => j.program_id === p.id);
         const kasP = _allKasData.filter(k => k.program_id === p.id);
         const pengP = _allPengeluaranData.filter(x => x.program_id === p.id);
         const bayarP = _allPaymentData.filter(t => t.program_id === p.id);
-        let kontrak = 0, dibayar = 0;
+        let kontrak = 0, dibayar = 0, piutangP = 0;
         jList.forEach(j => {
-            kontrak += getTotalHargaPaketUntukProgram(j, p.id);
-            dibayar += bayarP.filter(t => t.id_jamaah == j.id).reduce((s,t) => s + t.nominal, 0);
+            const hargaJ = getTotalHargaPaketUntukProgram(j, p.id);
+            const bayarJ = bayarP.filter(t => t.id_jamaah == j.id).reduce((s,t) => s + t.nominal, 0);
+            kontrak += hargaJ;
+            dibayar += bayarJ;
+            if (hargaJ > 0) piutangP += Math.max(0, hargaJ - bayarJ); // per jamaah: kelebihan bayar satu orang tidak menutup tagihan orang lain
         });
         const masuk = kasP.filter(k => k.tipe === 'masuk').reduce((s,k) => s + k.nom, 0);
         const keluar = kasP.filter(k => k.tipe === 'keluar').reduce((s,k) => s + k.nom, 0);
         const peng = pengP.reduce((s,x) => s + x.nominal, 0);
-        totalKontrak += kontrak; totalDibayar += dibayar; totalJamaah += jList.length;
+        totalKontrak += kontrak; totalDibayar += dibayar; totalJamaah += jList.length; totalPiutang += piutangP;
         totalKasMasuk += masuk; totalKasKeluar += keluar; totalPengeluaran += peng;
         return { nama: p.nama, jenis: p.jenis, jumlahJamaah: jList.length, kontrak, dibayar, masuk, keluar, peng };
     });
@@ -16866,7 +16944,7 @@ function cetakRekapTahunanGabungan() {
         <div>👥 Total Jamaah: ${totalJamaah}</div>
         <div>💰 Total Kontrak/Omzet: Rp ${totalKontrak.toLocaleString('id-ID')}</div>
         <div>✅ Total Dibayar: Rp ${totalDibayar.toLocaleString('id-ID')}</div>
-        <div>⏳ Total Piutang: Rp ${Math.max(0,totalKontrak-totalDibayar).toLocaleString('id-ID')}</div>
+        <div>⏳ Total Piutang: Rp ${totalPiutang.toLocaleString('id-ID')}</div>
         <div>📊 Kas Masuk: Rp ${totalKasMasuk.toLocaleString('id-ID')} — Kas Keluar: Rp ${totalKasKeluar.toLocaleString('id-ID')}</div>
         <div>🧾 Total Pengeluaran: Rp ${totalPengeluaran.toLocaleString('id-ID')}</div>
     </div>
@@ -17413,18 +17491,19 @@ function hitungModalHargaEstimasiTerkini() {
     const est = getEstimasiData();
     if(!est) return null;
     const pr = v => parseInt((v||'0').toString().replace(/\./g,'').replace(/[^0-9]/g,'')) || 0;
-    const nJam = pr(est.totJam) || 45;
+    const nJamDiisi = pr(est.totJam);
+    const nJam = nJamDiisi || 45; // angka cadangan bila Total Pax belum diisi — laporan WAJIB memberi peringatan (lihat nJamDefault)
     const nFoc = pr(est.jamGratis) || 0;
     const nTL = pr(est.numTL) || 0;
     const sub = pr(est.cTiket) + pr(est.cLAquad || est.cLA) + pr(est.cAsuransi) + pr(est.cHandling) + pr(est.cPIC) + pr(est.cAlat) + pr(est.cAplikasi) + pr(est.cLain);
     const pPct = (parseFloat(est.profitPct)||0)/100;
     const buffer = pr(est.cBuffer);
     const profitKotor = sub * nJam * pPct;
-    const jualBase = ((sub*nJam) + profitKotor) / (nJam - nFoc);
-    const hargaHitung = jualBase + buffer;
+    const jualBase = nJam > nFoc ? ((sub*nJam) + profitKotor) / (nJam - nFoc) : 0; // FOC >= Total Pax: harga tidak bisa dihitung (bukan Infinity)
+    const hargaHitung = nJam > nFoc ? jualBase + buffer : 0;
     const hargaManual = pr(est.cHargaJual);
     const harga = hargaManual > 0 ? hargaManual : hargaHitung; // harga jual bulat yang diketik menggantikan hasil hitungan
-    return { modal: sub, harga, buffer, foc: nFoc, tl: nTL, nJam, hargaHitung, dibulatkan: hargaManual > 0 };
+    return { modal: sub, harga, buffer, foc: nFoc, tl: nTL, nJam, hargaHitung, dibulatkan: hargaManual > 0, nJamDefault: !nJamDiisi };
 }
 
 // Modal per jamaah menurut tipe kamar (Quad/Triple/Double) — SATU rumus yang dipakai tab Rekap DAN Laporan Penutupan Musim
@@ -17590,6 +17669,10 @@ function renderRekapKomisiMitraModal(modalEl) {
     const htmlMitra = namaMitraList.map(nama => {
         const d = perMitra[nama];
         const eligibleGratis = Math.floor(d.jumlah / (kebijakan.setiap||15)) * (kebijakan.dapat||1);
+        const komisiSudahDicatat = (typeof pengeluaranList !== 'undefined' ? pengeluaranList : []).filter(p => p.kategori === '🤝 Komisi Mitra' && String(p.keterangan || '').trim() === 'Komisi untuk ' + nama).reduce((a, p) => a + (parseInt(p.nominal) || 0), 0);
+        const komisiBelumDicatat = Math.max(0, d.komisi - komisiSudahDicatat);
+        const catatanDicatat = komisiSudahDicatat > 0
+            ? `<div style="font-size:12px;color:#555;margin-top:2px;">Sudah dicatat sebagai pengeluaran: ${f(komisiSudahDicatat)} · Belum dicatat: <b>${f(komisiBelumDicatat)}</b></div>${komisiSudahDicatat > d.komisi ? `<div style="font-size:11px;color:#991B1B;font-weight:700;margin-top:2px;">⚠️ Pengeluaran komisi tercatat melebihi Total Komisi Cash. Periksa agar tidak dobel.</div>` : ''}` : '';
         let perbandingan = '';
         if(eligibleGratis > 0 && est) {
             const biayaGratis = eligibleGratis * est.harga; // Harga Jual "hilang" per kursi gratis (Modal tetap keluar, tidak ada yang bayar)
@@ -17600,10 +17683,11 @@ function renderRekapKomisiMitraModal(modalEl) {
         return `<div style="background:#F8FAFC;border-radius:10px;padding:12px;margin-bottom:10px;">
             <div style="display:flex;justify-content:space-between;align-items:center;">
                 <div style="font-weight:700;font-size:14px;color:#7C3AED;">🤝 ${escapeHtml(nama)}</div>
-                <button onclick="catatKomisiSebagaiPengeluaran('${jsArg(nama)}', ${d.komisi})" style="background:#7C3AED;color:white;border:none;border-radius:20px;padding:5px 12px;font-size:11px;font-weight:700;cursor:pointer;">💸 Catat Pengeluaran</button>
+                <button onclick="catatKomisiSebagaiPengeluaran('${jsArg(nama)}', ${komisiBelumDicatat})" style="background:#7C3AED;color:white;border:none;border-radius:20px;padding:5px 12px;font-size:11px;font-weight:700;cursor:pointer;">💸 Catat ${komisiSudahDicatat > 0 ? 'Sisa' : 'Pengeluaran'}</button>
             </div>
             <div style="font-size:12px;color:#555;margin-top:4px;">${d.jumlah} jamaah dibawa${eligibleGratis > 0 ? ` — 🎉 Eligible ${eligibleGratis} FOC` : ''}</div>
             <div style="font-size:12px;color:#166534;font-weight:700;margin-top:2px;">Total Komisi Cash: ${f(d.komisi)}</div>
+            ${catatanDicatat}
             ${perbandingan}
         </div>`;
     }).join('');
@@ -17971,8 +18055,14 @@ function cetakLaporanPenutupanMusim() {
             totalDibayarSemua += dibayarKomponen;
             return `<tr><td>${escapeHtml(k.jenis)}</td><td>${f(targetKomponen)}</td><td>${f(dibayarKomponen)}</td><td>${f(targetKomponen - dibayarKomponen)}</td></tr>`;
         }).join('');
+        // Pembayaran yang tidak punya komponen (dicatat sebelum fitur komponen, atau komponennya sudah diganti nama/dihapus) tetap uang masuk — tampilkan supaya total cocok
+        const namaKomponenAda = new Set(komponenList.map(k => k.jenis));
+        const idJamaahLaporan = new Set(jamaahList.map(j => String(j.id)));
+        const uangTanpaKomponen = paymentTransaksiList.filter(t => idJamaahLaporan.has(String(t.id_jamaah)) && !namaKomponenAda.has(t.komponen)).reduce((s2,t) => s2 + (parseInt(t.nominal)||0), 0);
+        totalDibayarSemua += uangTanpaKomponen;
+        const barisTanpaKomponen = uangTanpaKomponen > 0 ? `<tr><td>Belum dipilah ke komponen</td><td>-</td><td>${f(uangTanpaKomponen)}</td><td>-</td></tr>` : '';
         sectionRekap = `<div class="lap-section"><h2>💰 Komponen Wajib (per Jenis)</h2>
-            <table class="lap-table"><thead><tr><th>Jenis</th><th>Target</th><th>Sudah Dibayar</th><th>Sisa</th></tr></thead><tbody>${rowsKomponen}</tbody></table>
+            <table class="lap-table"><thead><tr><th>Jenis</th><th>Target</th><th>Sudah Dibayar</th><th>Sisa</th></tr></thead><tbody>${rowsKomponen}${barisTanpaKomponen}</tbody></table>
             <table class="lap-table"><tr class="lap-total"><td>TOTAL TERKUMPUL</td><td>${f(totalDibayarSemua)}</td></tr>
             <tr class="lap-total" style="color:${(totalTargetSemua-totalDibayarSemua)>0?'#DC2626':'#166534'};"><td>TOTAL SISA</td><td>${f(totalTargetSemua - totalDibayarSemua)}</td></tr></table>
             <p class="lap-note">Program ini tidak memakai Estimasi/Modal (khas Haji Reguler) — angka di atas BUKAN Laba, lihat "LABA BERSIH (Realisasi)" dan "Layanan Tambahan" di bawah.</p></div>`;
@@ -17984,6 +18074,8 @@ function cetakLaporanPenutupanMusim() {
             <tr><td>Sudah Dibayar</td><td>${f(totalDibayarJamaah)}</td></tr></table>
             <p class="lap-note">Program ini tidak memakai Estimasi/Modal — angka di atas BUKAN Profit.</p></div>`;
     }
+
+    if(est && est.nJamDefault) sectionRekap = `<div class="lap-section"><p class="lap-note" style="background:#FEF3C7;color:#92400E;padding:6px 8px;border-radius:6px;">⚠️ Total Pax di Estimasi belum diisi, jadi hitungan harga memakai angka cadangan ${est.nJam} pax. Isi Total Pax lalu Hitung Estimasi agar harga dan laba sesuai.</p></div>` + sectionRekap;
 
     // 1b. Realisasi Pengeluaran + LABA BERSIH (Realisasi) — Haji Reguler baca dari KAS, Umroh/Haji Khusus tetap baca dari Pengeluaran (Cuan Plan)
     let totalPengeluaran = 0, rowsPengeluaran = '';
@@ -19019,12 +19111,13 @@ function importJamaahFromExcel(input){
             return; 
         }
         // Hitung dulu berapa baris valid (ada nama) sebelum tanya konfirmasi
-        let validCount = 0;
+        let validCount = 0, namaSudahAda = 0;
+        const namaAda = new Set(jamaahList.map(j => String(j.nama_lengkap || '').trim().toLowerCase()));
         for(let i=1;i<rows.length;i++){ 
             const row=rows[i]; 
             if(!row||row.length===0) continue; 
             const nama=row[namaIndex]?row[namaIndex].toString().trim():''; 
-            if(nama) validCount++;
+            if(nama) { validCount++; if(namaAda.has(nama.toLowerCase())) namaSudahAda++; }
         }
         if(validCount === 0){ 
             showToast('Tidak ada baris jamaah yang valid di file ini!'); 
@@ -19032,7 +19125,7 @@ function importJamaahFromExcel(input){
             return; 
         }
         const progNama = getCurrentProgram()?.nama || '-';
-        if(!(await tanyaKonfirmasi({ judul: 'Import Jamaah?', pesan: `${validCount} jamaah akan ditambahkan ke Program:`, daftar: [`📁 ${progNama}`], ikon: '📥', tombolYa: 'Import' }))){ 
+        if(!(await tanyaKonfirmasi({ judul: 'Import Jamaah?', pesan: `${validCount} jamaah akan ditambahkan ke Program:`, daftar: [`📁 ${progNama}`].concat(namaSudahAda > 0 ? [`⚠️ ${namaSudahAda} nama sudah ada di Program ini dan akan menjadi DOBEL`] : []), ikon: '📥', tombolYa: 'Import' }))){ 
             input.value=''; 
             return; 
         }
@@ -19084,6 +19177,12 @@ function importJamaahFromExcel(input){
                         // Konversi serial date Excel ke YYYY-MM-DD
                         if (field.type==='date' || field.name.includes('lahir') || field.name.includes('tgl')) {
                             val = excelSerialToDate(val);
+                        }
+                        // Kolom uang: buang desimal di akhir (",00" atau ".00") lalu simpan sebagai angka bulat berformat Indonesia.
+                        // Tanpa ini "1.500.000,00" terbaca 150000000 (100x lipat) oleh pembaca harga.
+                        if (field.type==='money' || ['total_harga_paket','total_harga','harga_paket','tagihan','nominal','diskon_tersedia'].includes(field.name)) {
+                            const uangBersih = normalisasiUangImpor(val);
+                            if (uangBersih !== null) val = uangBersih;
                         }
                         // Deteksi nomor WA/telepon yang kemungkinan rusak presisi karena notasi ilmiah
                         // Excel (angka panjang berakhiran banyak nol berturut-turut = tanda khasnya)
@@ -21477,17 +21576,17 @@ function prepareInvoice(idJamaah) {
             });
         }
     }
-    text += `${garis}\n💰 *Total Dibayar:* ${formatRupiah(totalBayar)}\n📌 *Sisa Tagihan:* ${formatRupiah(sisa > 0 ? sisa : 0)}\n✅ *Status:* ${sisa <= 0 ? 'LUNAS ✅' : 'BELUM LUNAS ⚠️'}\n`; 
+    text += `${garis}\n💰 *Total Dibayar:* ${formatRupiah(totalBayar)}\n📌 *Sisa Tagihan:* ${totalHargaPaket > 0 ? formatRupiah(sisa > 0 ? sisa : 0) : '-'}\n✅ *Status:* ${totalHargaPaket <= 0 ? 'HARGA PAKET BELUM DIISI ⚠️' : (sisa <= 0 ? 'LUNAS ✅' : 'BELUM LUNAS ⚠️')}\n`; 
     _invoiceBagian = { kepala: text, garis, ekor: `${garis}\n_${footerNama}_`, sisa };
     _rekPilihInvoice = null;
     currentInvoiceText = susunTeksInvoiceWA();
     renderChipRekInvoice(); 
-    let waNumber = '628123456789'; 
+    let waNumber = ''; // tanpa nomor: buka WhatsApp tanpa tujuan (pilih kontak sendiri), JANGAN kirim ke nomor contoh
     if (jamaah.additional_fields && jamaah.additional_fields.whatsapp) { 
         let num = bersihkanNomorWA(jamaah.additional_fields.whatsapp);
         if (num.length >= 10) waNumber = num; 
     } 
-    document.getElementById('invoiceWANumber').innerText = waNumber; 
+    document.getElementById('invoiceWANumber').innerText = waNumber || '(belum ada nomor WA — pilih kontak di WhatsApp)'; 
     document.getElementById('invoiceWAName').innerHTML = `Atas nama: ${jamaah.nama_lengkap}`; 
     document.getElementById('invoiceConfirmModal').classList.add('show'); 
 }
@@ -21497,7 +21596,7 @@ function closeInvoiceConfirmModal() {
 }
 
 function sendInvoiceWA() { 
-    if (currentInvoiceText) window.open(`https://wa.me/${document.getElementById('invoiceWANumber').innerText}?text=${encodeURIComponent(currentInvoiceText)}`, '_blank'); 
+    if (currentInvoiceText) { const noWA = (document.getElementById('invoiceWANumber').innerText || '').replace(/\D/g, ''); window.open(`https://wa.me/${noWA.length >= 10 ? noWA : ''}?text=${encodeURIComponent(currentInvoiceText)}`, '_blank'); } 
     closeInvoiceConfirmModal(); 
 }
 
@@ -21683,7 +21782,8 @@ async function shareInvoiceGambar(jamaahId) {
         const totalBayar = hitungTotalBayarJamaah(jamaahId);
         const totalHargaPaket = getTotalHargaPaket(jamaah) || 0;
         const sisa = totalHargaPaket - totalBayar;
-        const lunas = sisa <= 0;
+        const hargaKosong = totalHargaPaket <= 0; // harga paket belum diisi: jangan dinyatakan LUNAS
+        const lunas = !hargaKosong && sisa <= 0;
         const prefix = cfg.settings?.invoice_prefix || 'INV/NAVARA';
         const tglCetak = formatTanggalLengkap();
         const noInvoice = `${prefix}/${jamaah.id}/${new Date().toLocaleDateString('id-ID').replace(/\//g,'')}`;
@@ -21770,7 +21870,7 @@ async function shareInvoiceGambar(jamaahId) {
 
         doc.setFont('helvetica', 'normal'); doc.text('Sisa Tagihan', 20, y);
         doc.text(':', 55, y);
-        doc.setFont('helvetica', 'bold'); doc.text(formatRupiah(sisa > 0 ? sisa : 0), 58, y);
+        doc.setFont('helvetica', 'bold'); doc.text(hargaKosong ? '-' : formatRupiah(sisa > 0 ? sisa : 0), 58, y);
         y += 10;
 
         // ── Status Lunas — dengan box background seperti Cetak ──────────────
@@ -21785,7 +21885,7 @@ async function shareInvoiceGambar(jamaahId) {
         doc.roundedRect(14, y, hW, 12, 3, 3, 'FD');
         doc.setFontSize(13); doc.setFont('helvetica', 'bold');
         doc.setTextColor(lunas ? 22 : 185, lunas ? 163 : 28, lunas ? 74 : 28);
-        doc.text(lunas ? '✓  LUNAS' : '!  BELUM LUNAS', 105, y + 8, { align: 'center' });
+        doc.text(lunas ? '✓  LUNAS' : (hargaKosong ? '!  HARGA PAKET BELUM DIISI' : '!  BELUM LUNAS'), 105, y + 8, { align: 'center' });
         y += 16;
 
         // ── Rekening pembayaran (hanya bila masih ada sisa & rekening diisi) ──
@@ -21815,7 +21915,7 @@ async function shareInvoiceGambar(jamaahId) {
         doc.text(`Dicetak: ${tglCetak}`, 14, y);
 
         // QR pojok kanan bawah (sama persis dengan versi Cetak, termasuk info Status)
-        await gambarQRDokumenPDF(doc, cfg, `Invoice:${noInvoice}\nJamaah:${jamaah.nama_lengkap}\nStatus:${sisa<=0?'LUNAS':'BELUM LUNAS'}`, PW, 297);
+        await gambarQRDokumenPDF(doc, cfg, `Invoice:${noInvoice}\nJamaah:${jamaah.nama_lengkap}\nStatus:${totalHargaPaket<=0?'HARGA BELUM DIISI':(sisa<=0?'LUNAS':'BELUM LUNAS')}`, PW, 297);
         gambarWatermarkPDF(doc, cfg, PW, 297);
 
         // ── Share ──────────────────────────────────────────────────────────
@@ -21843,14 +21943,14 @@ async function cetakInvoiceAuto(jamaahId) {
         const totalBayar = hitungTotalBayarJamaah(jamaahId);
         const totalHargaPaket = getTotalHargaPaket(jamaah) || 0;
         const sisa = totalHargaPaket - totalBayar;
-        const statusColor = sisa <= 0 ? '#10B981' : '#EF4444';
+        const statusColor = (totalHargaPaket > 0 && sisa <= 0) ? '#10B981' : '#EF4444';
         const prefix = cfg.settings?.invoice_prefix || 'INV/NAVARA';
         const tglCetak = formatTanggalLengkap();
         const noInvoice = `${prefix}/${jamaah.id}/${new Date().toLocaleDateString('id-ID').replace(/\//g,'')}`;
         const headerHtml = buildPrintHeader(cfg, tglCetak);
         const watermarkHtml = buildPrintWatermark(cfg);
         const ttdHtml = buildPrintTandaTangan(cfg, tglCetak, true, true);
-        const qrHtml = await buildPrintQR(cfg, `Invoice:${noInvoice}\nJamaah:${jamaah.nama_lengkap}\nStatus:${sisa<=0?'LUNAS':'BELUM LUNAS'}`);
+        const qrHtml = await buildPrintQR(cfg, `Invoice:${noInvoice}\nJamaah:${jamaah.nama_lengkap}\nStatus:${totalHargaPaket<=0?'HARGA BELUM DIISI':(sisa<=0?'LUNAS':'BELUM LUNAS')}`);
         let rowsHtml = '';
         transaksiList.forEach((t,i) => {
             rowsHtml += `<tr><td style="padding:8px;border-bottom:1px solid #eee;text-align:center;">${i+1}</td><td style="padding:8px;border-bottom:1px solid #eee;">${t.tanggal}</td><td style="padding:8px;border-bottom:1px solid #eee;">${t.keterangan||'-'}</td><td style="padding:8px;border-bottom:1px solid #eee;">${t.metode||'-'}</td><td style="padding:8px;border-bottom:1px solid #eee;text-align:right;">${formatRupiah(t.nominal)}</td></tr>`;
@@ -21903,8 +22003,8 @@ async function cetakInvoiceAuto(jamaahId) {
                 <div class="summary">
                     <div>Total Paket &nbsp;&nbsp;: <strong>${formatRupiah(totalHargaPaket)}</strong></div>
                     <div>Total Dibayar : <strong>${formatRupiah(totalBayar)}</strong></div>
-                    <div>Sisa Tagihan &nbsp;: <strong>${formatRupiah(sisa>0?sisa:0)}</strong></div>
-                    <div class="status">${sisa<=0?'✅ LUNAS':'⚠️ BELUM LUNAS'}</div>
+                    <div>Sisa Tagihan &nbsp;: <strong>${totalHargaPaket>0?formatRupiah(sisa>0?sisa:0):'-'}</strong></div>
+                    <div class="status">${totalHargaPaket<=0?'⚠️ HARGA PAKET BELUM DIISI':(sisa<=0?'✅ LUNAS':'⚠️ BELUM LUNAS')}</div>
                 </div>
                 ${rekHtml}
                 ${ttdHtml}
@@ -24225,7 +24325,7 @@ function openIndexedDB() {
 // dengan build baru, data MENTAH (langsung dari IndexedDB, bukan dari memori) disalin dulu sebelum
 // proses migrasi apapun berjalan — supaya kalau ada kesalahan di update, data lama masih bisa dipulihkan.
 // Dokumen & foto tidak ikut disalin (ukurannya besar, dan tidak pernah disentuh proses migrasi).
-const NAVARA_BUILD = '2026.10.10-88';
+const NAVARA_BUILD = '2026.10.10-97';
 const MAKS_SNAPSHOT = 3;
 
 // ==================== DAFTAR DATA PUSAT ====================
@@ -24256,6 +24356,7 @@ const DAFTAR_DATA = [
     { id: 'saldo_kantor', label: 'Saldo Kantor', store: STORE_CATATAN, key: 'saldo_kantor', jsonField: 'saldo_kantor', zipFile: 'saldo_kantor.json' },
     // Data generik: otomatis ikut SEMUA jalur cadangan lewat bidang "extra" (tidak perlu menyentuh kode ekspor/restore)
     { id: 'cek_kesehatan', label: 'Cek Kesehatan Data (batas & temuan diabaikan)', store: STORE_CATATAN, key: KUNCI_CEK, generik: true },
+    { id: 'pembayaran_yatim', label: 'Salinan pembayaran yang dibersihkan otomatis', store: STORE_PEMBAYARAN, key: 'pembayaran_yatim_cadangan', generik: true },
 ];
 async function bacaDataGenerik() { const o = {}; for (const d of DAFTAR_DATA.filter(x => x.generik)) { const v = await idbGet(d.store, d.key); if (v !== null && v !== undefined) o[d.id] = v; } return o; }
 async function terapkanDataGenerik(extra) {
@@ -26920,7 +27021,7 @@ function kirimPengingatWAPerorangan(jamaahId) {
         const rekP = teksRekeningWA(rekeningTerpilih(kunciInstansiProgram(), _rekPilihPeng));
         if(rekP) msg = msg.replace(/\s+$/, '') + '\n\n' + rekP.replace(/\s+$/, '');
     }
-    let waNumber = '628123456789'; 
+    let waNumber = ''; // tanpa nomor: buka WhatsApp tanpa tujuan (pilih kontak sendiri), JANGAN kirim ke nomor contoh
     if(j.additional_fields && j.additional_fields.whatsapp) { 
         let num = bersihkanNomorWA(j.additional_fields.whatsapp);
         if(num.length >= 10) waNumber = num; 
