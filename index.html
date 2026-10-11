@@ -5032,17 +5032,32 @@ function updateHomeDashboardExtra(totalJamaah, lunasCount, totalPiutang, komposi
 // Analisis Buffer B2C (satu sumber hitungan untuk Home, modal, Rekap, Laporan).
 // Per jamaah: diskon lewat harga = max(0, Harga Brosur - Total Paket); komisi mitra = Diskon Tersedia bila Status "Diberikan ke Mitra".
 // Diskon dihitung lebih dulu terhadap buffer, sisa kelebihannya baru dari komisi. Tidak mengubah rumus laba/harga apa pun.
-function uangDiskonTersedia(j) {
-    return parseInt(String((j.additional_fields && j.additional_fields.diskon_tersedia) || '0').replace(/[^0-9]/g, ''), 10) || 0;
+function uangDariField(v) {
+    return parseInt(String(v || '0').replace(/[^0-9]/g, ''), 10) || 0;
+}
+// Dua kolom terpisah: "Diskon untuk Jamaah" (menurunkan harga) dan "Komisi Mitra" (uang untuk mitra). Boleh diisi salah satu atau keduanya.
+// Data lama (Diskon Tersedia + Status Diskon) dipindahkan oleh migrasiDiskonJamaahMitra(); bacaan lama tetap dikenali selama belum dipindah.
+function diskonUntukJamaah(af) {
+    af = af || {};
+    if('diskon_jamaah' in af) return uangDariField(af.diskon_jamaah);
+    return af.status_diskon === 'Diambil Jamaah' ? uangDariField(af.diskon_tersedia) : 0;
+}
+function komisiMitraDari(af) {
+    af = af || {};
+    if('komisi_mitra' in af) return uangDariField(af.komisi_mitra);
+    return af.status_diskon === 'Diberikan ke Mitra' ? uangDariField(af.diskon_tersedia) : 0;
 }
 function analisisBufferB2C() {
-    const est = hitungModalHargaEstimasiTerkini();
+    return analisisBufferB2CDari(hitungModalHargaEstimasiTerkini(), jamaahList.map(j => ({ nama: j.nama_lengkap, harga: getTotalHargaPaket(j), af: j.additional_fields })));
+}
+// Inti hitungan (murni): est = hasil hitungModalHargaDariEst, items = [{nama, harga, af}]
+function analisisBufferB2CDari(est, items) {
     if(!est) return null;
     const buf = est.buffer || 0; // Buffer 0 tetap dianalisis: seluruh diskon/komisi dihitung sebagai kelebihan
     const r = { est, buffer: buf, n: 0, disiapkan: 0, diskon: 0, komisi: 0, dipakai: 0, kelebihan: 0, kelebihanDiskon: 0, kelebihanKomisi: 0, nLebih: 0, nLebihDiskon: 0, rinci: [] };
-    jamaahList.filter(j => getTotalHargaPaket(j) > 0).forEach(j => {
-        const diskon = Math.max(0, est.harga - getTotalHargaPaket(j));
-        const komisi = (j.additional_fields && j.additional_fields.status_diskon === 'Diberikan ke Mitra') ? uangDiskonTersedia(j) : 0;
+    items.filter(j => j.harga > 0).forEach(j => {
+        const diskon = Math.max(0, est.harga - j.harga);
+        const komisi = komisiMitraDari(j.af);
         const total = diskon + komisi;
         const kelebihan = Math.max(0, total - buf);
         const kelDiskon = Math.max(0, diskon - buf);
@@ -5051,7 +5066,7 @@ function analisisBufferB2C() {
         r.kelebihan += kelebihan; r.kelebihanDiskon += kelDiskon; r.kelebihanKomisi += kelebihan - kelDiskon;
         if(kelebihan > 0) r.nLebih++;
         if(kelDiskon > 0) r.nLebihDiskon++;
-        r.rinci.push({ nama: j.nama_lengkap, diskon, komisi, total, kelebihan });
+        r.rinci.push({ nama: j.nama, diskon, komisi, total, kelebihan });
     });
     if(r.n === 0) return null;
     r.sisa = r.disiapkan - r.dipakai;                       // buffer yang benar-benar tidak terpakai
@@ -10358,8 +10373,21 @@ async function loadDynamicFieldsJamaah() {
         // Migrasi: tambahkan 3 field baru untuk Mitra/Referral kalau belum ada
         if (dynamicFieldsJamaah.length > 0 && !dynamicFieldsJamaah.some(f => f.name === 'mitra_referensi')) {
             dynamicFieldsJamaah.push({ name: 'mitra_referensi', label: 'Direferensikan oleh Mitra', type: 'text', icon: '🤝', isRequired: false });
-            dynamicFieldsJamaah.push({ name: 'diskon_tersedia', label: 'Diskon Tersedia (Rp)', type: 'money', icon: '💰', isRequired: false });
-            dynamicFieldsJamaah.push({ name: 'status_diskon', label: 'Status Diskon', type: 'dropdown', options: ['Diambil Jamaah', 'Diberikan ke Mitra'], icon: '🔀', isRequired: false });
+            dynamicFieldsJamaah.push({ name: 'diskon_jamaah', label: 'Diskon untuk Jamaah (Rp)', type: 'money', icon: '💰', isRequired: false });
+            dynamicFieldsJamaah.push({ name: 'komisi_mitra', label: 'Komisi Mitra (Rp)', type: 'money', icon: '🤝', isRequired: false });
+            await idbSet(STORE_JAMAAH, 'jamaah_fields', dynamicFieldsJamaah);
+        }
+        // Migrasi: "Diskon Tersedia" + "Status Diskon" diganti dua kolom terpisah (Diskon untuk Jamaah, Komisi Mitra).
+        // Hanya DEFINISI kolom yang diganti di sini; nilai di tiap jamaah dipindah oleh migrasiDiskonJamaahMitra() setelah loadJamaahData().
+        if (dynamicFieldsJamaah.length > 0 && !dynamicFieldsJamaah.some(f => f.name === 'diskon_jamaah')) {
+            const sisaDef = dynamicFieldsJamaah.filter(f => f.name !== 'diskon_tersedia' && f.name !== 'status_diskon');
+            const idxMitra = sisaDef.findIndex(f => f.name === 'mitra_referensi');
+            const defBaru = [
+                { name: 'diskon_jamaah', label: 'Diskon untuk Jamaah (Rp)', type: 'money', icon: '💰', isRequired: false },
+                { name: 'komisi_mitra', label: 'Komisi Mitra (Rp)', type: 'money', icon: '🤝', isRequired: false }
+            ];
+            if (idxMitra !== -1) sisaDef.splice(idxMitra + 1, 0, ...defBaru); else sisaDef.push(...defBaru);
+            dynamicFieldsJamaah = sisaDef;
             await idbSet(STORE_JAMAAH, 'jamaah_fields', dynamicFieldsJamaah);
         }
         // Migrasi PERBAIKAN: field 'status_proses_haji' (versi lama, sempat dobel karena reset sesi) —
@@ -10431,8 +10459,8 @@ async function loadDynamicFieldsJamaah() {
             { name: 'tgl_expired_paspor', label: 'Habis Berlaku Paspor', type: 'date', icon: '⏳', isRequired: false },
             { name: 'tgl_expired_meningitis', label: 'Habis Berlaku Vaksin Meningitis', type: 'date', icon: '💉', isRequired: false },
             { name: 'mitra_referensi', label: 'Direferensikan oleh Mitra', type: 'text', icon: '🤝', isRequired: false },
-            { name: 'diskon_tersedia', label: 'Diskon Tersedia (Rp)', type: 'money', icon: '💰', isRequired: false },
-            { name: 'status_diskon', label: 'Status Diskon', type: 'dropdown', options: ['Diambil Jamaah', 'Diberikan ke Mitra'], icon: '🔀', isRequired: false },
+            { name: 'diskon_jamaah', label: 'Diskon untuk Jamaah (Rp)', type: 'money', icon: '💰', isRequired: false },
+            { name: 'komisi_mitra', label: 'Komisi Mitra (Rp)', type: 'money', icon: '🤝', isRequired: false },
             { name: 'nik',           label: 'NIK',             type: 'text',     icon: '🪪', isRequired: false },
             { name: 'kk',            label: 'KK',              type: 'text',     icon: '📋', isRequired: false },
             { name: 'alamat',        label: 'Alamat',          type: 'text',     icon: '🏠', isRequired: false },
@@ -13186,6 +13214,12 @@ const PEMERIKSA_KESEHATAN = [
                 const bawah = berharga.filter(x => !idMurah.has(x.j.id) && String(x.j.additional_fields?.tipe_paket || '').trim()).map(x => ({ x, modal: modalPerJamaahMenurutTipe(est, x.j.additional_fields.tipe_paket) })).filter(y => y.modal > 0 && y.x.harga < y.modal);
                 bawah.forEach(y => idBawahModal.add(y.x.j.id));
                 if (bawah.length) out.push(T('jamaah.harga_bawah_modal:' + p.id, 'Jamaah', 'perhatian', 'Harga paket di bawah modal' + tag, 'Harga lebih kecil dari modal per jamaah di Cuan Plan, jadi jamaah ini merugi. Mungkin diskon yang disengaja, atau salah ketik.', 'Periksa harganya. Abaikan bila diskon memang disengaja.', bawah.map(y => `${nama(y.x)} · harga ${rp(y.x.harga)}, modal ${rp(y.modal)}`), { label: 'Buka Database Jamaah', halaman: 'jamaah' }));
+            }
+            // 2b. Diskon/komisi melebihi Buffer (hitungan yang sama dengan Analisis Buffer di Rekap)
+            if (est) {
+                const ab = analisisBufferB2CDari(hitungModalHargaDariEst(est), berharga.map(x => ({ nama: nama(x), harga: x.harga, af: x.j.additional_fields })));
+                const lebihBuf = ab ? ab.rinci.filter(r => r.kelebihan > 0) : [];
+                if (lebihBuf.length) out.push(T('jamaah.diskon_melebihi_buffer:' + p.id, 'Jamaah', 'perhatian', 'Diskon melebihi buffer' + tag, `Buffer ${rp(ab.buffer)} per orang. Kelebihan diskon/komisi di bawah ini memakan laba rencana (total ${rp(ab.kelebihan)}; dampak bersih gabungan ${ab.bersih >= 0 ? 'untung ekstra ' : 'di bawah rencana '}${rp(Math.abs(ab.bersih))}).`, 'Periksa apakah diskon ini memang disengaja. Abaikan bila sudah diperhitungkan.', lebihBuf.map(r => `${r.nama} · diskon/komisi ${rp(r.total)}, melebihi ${rp(r.kelebihan)}`), { label: 'Buka Pembayaran', halaman: 'pembayaran' }));
             }
             // 3. Harga jauh berbeda dari jamaah lain (hanya bila cukup banyak data pembanding)
             const pembanding = berharga.filter(x => !idMurah.has(x.j.id));
@@ -16258,6 +16292,23 @@ function formatKeluargaText(jamaah) {
 // Migrasi nilai data dari 'status_proses_haji' (field lama) ke 'status_proses' (field final) —
 // HARUS dipanggil SETELAH loadJamaahData() selesai, supaya jamaahList sudah terisi data asli,
 // bukan array kosong (itu penyebab bug data jamaah pernah tertimpa kosong).
+// Pindahkan nilai lama (Diskon Tersedia + Status Diskon) ke dua kolom baru, untuk SEMUA program. Aman diulang.
+async function migrasiDiskonJamaahMitra() {
+    let berubah = false;
+    (_allJamaahData || []).forEach(j => {
+        const af = j.additional_fields;
+        if(!af || !('status_diskon' in af || 'diskon_tersedia' in af)) return;
+        const nominal = uangDariField(af.diskon_tersedia);
+        if(!('diskon_jamaah' in af) && !('komisi_mitra' in af)) {
+            if(af.status_diskon === 'Diambil Jamaah' && nominal > 0) af.diskon_jamaah = nominal.toLocaleString('id-ID');
+            if(af.status_diskon === 'Diberikan ke Mitra' && nominal > 0) af.komisi_mitra = nominal.toLocaleString('id-ID');
+        }
+        delete af.status_diskon; delete af.diskon_tersedia;
+        berubah = true;
+    });
+    if(berubah) await idbSet(STORE_JAMAAH, 'jamaah_list', _allJamaahData);
+}
+
 async function migrasiKonsolidasiStatusProsesHaji() {
     const petaNilaiLama = { 'Mutasi': '🔄 Mutasi', 'Penggabungan': '🤝 Penggabungan', 'Pendampingan': '🧑‍🤝‍🧑 Pendampingan' };
     let adaPerubahan = false;
@@ -16681,20 +16732,18 @@ function saveJamaah(tetapBuka){
     }
 }
 
-// Kalau Status Diskon = "Diambil Jamaah", otomatis sesuaikan Harga Paket = Harga Brosur - Diskon Tersedia
+// Kalau kolom "Diskon untuk Jamaah" terisi, otomatis sesuaikan Harga Paket = Harga Brosur - diskon itu. "Komisi Mitra" tidak mengubah harga.
+// Peringatan Buffer membandingkan diskon + komisi (keduanya memakan buffer yang sama).
 function sesuaikanHargaDariDiskonMitra(jamaahId) {
     const j = jamaahList.find(x => x.id === jamaahId);
     if(!j) return;
-    const status = j.additional_fields?.status_diskon;
-    if(status === 'Diberikan ke Mitra') {
-        const komisi = uangDiskonTersedia(j);
+    const diskon = diskonUntukJamaah(j.additional_fields);
+    const komisi = komisiMitraDari(j.additional_fields);
+    if(diskon <= 0) {
         const e = komisi > 0 ? hitungModalHargaEstimasiTerkini() : null;
         if(e && komisi > (e.buffer || 0)) showToast(`⚠️ Komisi mitra Rp ${komisi.toLocaleString('id-ID')} melebihi Buffer ${(e.buffer||0).toLocaleString('id-ID')}: kelebihan Rp ${(komisi - (e.buffer||0)).toLocaleString('id-ID')} mengurangi laba rencana`);
         return;
     }
-    if(status !== 'Diambil Jamaah') return;
-    const diskon = uangDiskonTersedia(j);
-    if(diskon <= 0) return;
 
     const hp = getKonfigurasiProData().harga_paket || { seragam: false };
     if(hp.seragam) { showToast('⚠️ Diskon tidak diterapkan — Harga Seragam sedang aktif di Konfigurasi, harga per orang tidak bisa dibedakan'); return; }
@@ -16720,8 +16769,9 @@ function sesuaikanHargaDariDiskonMitra(jamaahId) {
     saveJamaahData();
     const bufferEst = est.buffer || 0;
     const fR = n => Math.round(n).toLocaleString('id-ID');
+    const totalPakai = diskon + komisi;
     showToast(`✅ Harga Paket disesuaikan: Rp ${fR(hargaBaru)}\n(Brosur ${fR(est.harga)} − Diskon ${fR(diskon)})` +
-        (diskon > bufferEst ? `\n⚠️ Melebihi Buffer ${fR(bufferEst)} sebesar Rp ${fR(diskon - bufferEst)}, mengurangi laba rencana` : ''));
+        (totalPakai > bufferEst ? `\n⚠️ ${komisi > 0 ? 'Diskon + komisi mitra ' + fR(totalPakai) : 'Diskon'} melebihi Buffer ${fR(bufferEst)} sebesar Rp ${fR(totalPakai - bufferEst)}, mengurangi laba rencana` : ''));
     if(typeof renderJamaahListWithPagination === 'function') renderJamaahListWithPagination();
 }
 
@@ -17544,7 +17594,10 @@ async function pindahkanKelompokPorsi(tahun, idsArr) {
 // ==================== ANTRIAN FOLLOW-UP PRIORITAS ====================
 // ==================== REKAP KOMISI MITRA ====================
 function hitungModalHargaEstimasiTerkini() {
-    const est = getEstimasiData();
+    return hitungModalHargaDariEst(getEstimasiData());
+}
+// Rumus yang sama, dari data estimasi program mana pun (dipakai juga oleh Kesehatan Data untuk program yang tidak sedang aktif)
+function hitungModalHargaDariEst(est) {
     if(!est) return null;
     const pr = v => parseInt((v||'0').toString().replace(/\./g,'').replace(/[^0-9]/g,'')) || 0;
     const nJamDiisi = pr(est.totJam);
@@ -17716,9 +17769,8 @@ function renderRekapKomisiMitraModal(modalEl) {
         if(!namaMitra) return;
         if(!perMitra[namaMitra]) perMitra[namaMitra] = { jumlah: 0, komisi: 0, diambilSendiri: 0 };
         perMitra[namaMitra].jumlah++;
-        const nominalDiskon = parseMoney(j.additional_fields?.diskon_tersedia);
-        if(j.additional_fields?.status_diskon === 'Diberikan ke Mitra') perMitra[namaMitra].komisi += nominalDiskon;
-        else if(j.additional_fields?.status_diskon === 'Diambil Jamaah') perMitra[namaMitra].diambilSendiri++;
+        perMitra[namaMitra].komisi += komisiMitraDari(j.additional_fields);
+        if(diskonUntukJamaah(j.additional_fields) > 0) perMitra[namaMitra].diambilSendiri++;
     });
     const namaMitraList = Object.keys(perMitra).sort((a,b) => perMitra[b].jumlah - perMitra[a].jumlah);
 
@@ -18212,9 +18264,7 @@ function cetakLaporanPenutupanMusim() {
         if(!nama) return;
         if(!perMitra[nama]) perMitra[nama] = { jumlah: 0, komisi: 0 };
         perMitra[nama].jumlah++;
-        if(j.additional_fields?.status_diskon === 'Diberikan ke Mitra') {
-            perMitra[nama].komisi += parseInt((j.additional_fields?.diskon_tersedia||'0').toString().replace(/\./g,'').replace(/[^0-9]/g,'')) || 0;
-        }
+        perMitra[nama].komisi += komisiMitraDari(j.additional_fields);
     });
     const namaMitraList = Object.keys(perMitra);
     if(namaMitraList.length > 0) {
@@ -21494,6 +21544,29 @@ function hitungStatusPerKomponenHaji(jamaahId) {
     });
 }
 
+// Label diskon di kartu tagihan: berapa potongan dari harga brosur dan apakah masih dalam Buffer. Hanya tampilan.
+function labelDiskonJamaah(j, est) {
+    if(!est || isHajiReguler()) return '';
+    const h = getTotalHargaPaket(j) || 0;
+    if(h <= 0) return '';
+    const fR = n => 'Rp ' + Math.round(n).toLocaleString('id-ID');
+    const buf = est.buffer || 0;
+    const diskon = Math.max(0, Math.round(est.harga) - Math.round(h));
+    const komisi = komisiMitraDari(j.additional_fields);
+    let out = '';
+    if(diskon > 0) {
+        const lebih = diskon - buf;
+        out += lebih > 0
+            ? `<div style="font-size:12px;font-weight:700;color:#DC2626;">⚠️ Diskon ${fR(diskon)} · melebihi buffer ${fR(lebih)}</div>`
+            : `<div style="font-size:12px;font-weight:700;color:#166534;">🏷️ Diskon ${fR(diskon)} · dalam buffer</div>`;
+    }
+    if(komisi > 0) {
+        const lebihK = diskon + komisi - buf;
+        out += `<div style="font-size:12px;font-weight:700;color:${lebihK > 0 ? '#DC2626' : '#92400E'};">🤝 Komisi mitra ${fR(komisi)}${lebihK > 0 && diskon === 0 ? ' · melebihi buffer ' + fR(lebihK) : ''}</div>`;
+    }
+    return out;
+}
+
 function renderPaymentJamaahList() { 
     const container = document.getElementById('paymentJamaahListContainer'); 
     if (!container) return; 
@@ -21523,6 +21596,7 @@ function renderPaymentJamaahList() {
     const start = (currentPaymentPage - 1) * perPage;
     const pageData = filteredJamaah.slice(start, start + perPage);
     let html = `<div style="margin-bottom:10px; font-size:0.8rem; color:var(--accent);">Total: ${filteredJamaah.length} jamaah (halaman ${currentPaymentPage} dari ${totalPages})</div>`; 
+    const estLabel = hitungModalHargaEstimasiTerkini();
     pageData.forEach(j => { 
         const { status, warna, sisa, lebih, totalBayar, totalHargaPaket, needInput, tanpaTagihan: tanpaTag } = getStatusPembayaran(j); 
         if (tanpaTag) {
@@ -21538,7 +21612,7 @@ function renderPaymentJamaahList() {
                     `<div style="font-size:11px;color:${warnaStatusKomponen[k.status]};">${ikonStatusKomponen[k.status]} ${escapeHtml(k.jenis)}: ${formatRupiah(k.dibayar)} / ${formatRupiah(k.target)}</div>`
                 ).join('') + '</div>';
             }
-            html += `<div class="payment-jamaah-card" style="border-left-color: ${warna};"><div class="payment-jamaah-info"><h4>${escapeHtml(j.nama_lengkap)}</h4><div class="payment-price-detail">💰 Total Paket: ${formatRupiah(totalHargaPaket)}<br>💸 Dibayar: ${formatRupiah(totalBayar)}</div>${rincianKomponen}</div><div style="text-align: right;"><div class="payment-sisa-badge" style="color: ${warna}; margin-bottom: 8px;">${status === 'LUNAS' ? '✅ LUNAS' : '💵 Sisa ' + formatRupiah(sisa)}${lebih > 0 ? `<div style="font-size:12px;font-weight:700;color:#B45309;margin-top:2px;">↩️ Kelebihan bayar ${formatRupiah(lebih)}</div>` : ''}</div><div><button class="payment-btn-bayar" onclick="openPaymentModalWithJamaah('${j.id}')"><i class="fas fa-plus-circle"></i> Bayar</button><button class="payment-btn-bayar" onclick="prepareInvoice('${j.id}')"><i class="fas fa-file-invoice"></i> WA</button><button class="payment-btn-bayar" onclick="shareInvoiceGambar('${j.id}')"><i class="fas fa-share-alt"></i> Share</button><button class="payment-btn-bayar" onclick="cetakInvoiceAuto('${j.id}')"><i class="fas fa-print"></i> Cetak</button><button class="payment-btn-bayar" onclick="openEditHargaModal('${j.id}')"><i class="fas fa-edit"></i> Harga</button><button class="payment-btn-bayar" onclick="openJadwalCicilanModal('${j.id}')"><i class="fas fa-calendar-alt"></i> Cicilan</button><button class="payment-btn-bayar" onclick="openRiwayatModal('${j.id}')"><i class="fas fa-history"></i> Riwayat</button></div></div></div>`; 
+            html += `<div class="payment-jamaah-card" style="border-left-color: ${warna};"><div class="payment-jamaah-info"><h4>${escapeHtml(j.nama_lengkap)}</h4><div class="payment-price-detail">💰 Total Paket: ${formatRupiah(totalHargaPaket)}<br>💸 Dibayar: ${formatRupiah(totalBayar)}</div>${labelDiskonJamaah(j, estLabel)}${rincianKomponen}</div><div style="text-align: right;"><div class="payment-sisa-badge" style="color: ${warna}; margin-bottom: 8px;">${status === 'LUNAS' ? '✅ LUNAS' : '💵 Sisa ' + formatRupiah(sisa)}${lebih > 0 ? `<div style="font-size:12px;font-weight:700;color:#B45309;margin-top:2px;">↩️ Kelebihan bayar ${formatRupiah(lebih)}</div>` : ''}</div><div><button class="payment-btn-bayar" onclick="openPaymentModalWithJamaah('${j.id}')"><i class="fas fa-plus-circle"></i> Bayar</button><button class="payment-btn-bayar" onclick="prepareInvoice('${j.id}')"><i class="fas fa-file-invoice"></i> WA</button><button class="payment-btn-bayar" onclick="shareInvoiceGambar('${j.id}')"><i class="fas fa-share-alt"></i> Share</button><button class="payment-btn-bayar" onclick="cetakInvoiceAuto('${j.id}')"><i class="fas fa-print"></i> Cetak</button><button class="payment-btn-bayar" onclick="openEditHargaModal('${j.id}')"><i class="fas fa-edit"></i> Harga</button><button class="payment-btn-bayar" onclick="openJadwalCicilanModal('${j.id}')"><i class="fas fa-calendar-alt"></i> Cicilan</button><button class="payment-btn-bayar" onclick="openRiwayatModal('${j.id}')"><i class="fas fa-history"></i> Riwayat</button></div></div></div>`; 
         }
     }); 
     container.innerHTML = html; 
@@ -24407,7 +24481,7 @@ function openIndexedDB() {
 // dengan build baru, data MENTAH (langsung dari IndexedDB, bukan dari memori) disalin dulu sebelum
 // proses migrasi apapun berjalan — supaya kalau ada kesalahan di update, data lama masih bisa dipulihkan.
 // Dokumen & foto tidak ikut disalin (ukurannya besar, dan tidak pernah disentuh proses migrasi).
-const NAVARA_BUILD = '2026.10.11-101';
+const NAVARA_BUILD = '2026.10.12-104';
 const MAKS_SNAPSHOT = 3;
 
 // ==================== DAFTAR DATA PUSAT ====================
@@ -29085,6 +29159,7 @@ async function initPremium() {
     await loadDynamicFieldsJamaah();
     await loadJamaahData();
     await migrasiKonsolidasiStatusProsesHaji();
+    await migrasiDiskonJamaahMitra();
     await loadJamaahKitaData();
     await loadKasData();
     await loadPaymentData();
