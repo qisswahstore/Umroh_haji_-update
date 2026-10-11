@@ -633,12 +633,17 @@
             background: var(--dark);
             color: white;
             padding: 10px 20px;
-            border-radius: 40px;
+            border-radius: 22px;
             font-size: 13px;
             opacity: 0;
             transition: all 0.3s;
             z-index: 1000;
-            white-space: nowrap;
+            white-space: pre-line;
+            width: max-content;
+            max-width: calc(100vw - 32px);
+            text-align: center;
+            line-height: 1.45;
+            overflow-wrap: anywhere;
         }
         .toast-premium.show {
             transform: translateX(-50%) translateY(0) scale(1);
@@ -4795,12 +4800,16 @@ function initHistoryState() {
     }
 })();
 
+let _toastTimer = null;
 function showToast(msg) { 
     const toast = document.getElementById('toastPremium'); 
     toast.textContent = msg; 
     toast.classList.toggle('success-pop', typeof msg === 'string' && msg.trim().startsWith('✅'));
     toast.classList.add('show'); 
-    setTimeout(() => toast.classList.remove('show'), 3000); 
+    // Pesan panjang ditampilkan lebih lama (3 dtk + 50 ms per karakter di atas 50, maks 9 dtk) dan timer lama dibatalkan
+    const lama = Math.min(9000, 3000 + Math.max(0, String(msg).length - 50) * 50);
+    clearTimeout(_toastTimer);
+    _toastTimer = setTimeout(() => toast.classList.remove('show'), lama); 
 }
 
 function updateHomeStats() {
@@ -9737,6 +9746,7 @@ function hitungRekapAktual() {
     const kursiRekap = ringkasKursiTerisi(jamaahList);
     const pembulatanRekap = ringkasPembulatanHarga(jamaahList);
     const diskonLebihRekap = ringkasDiskonMelebihiBuffer();
+    const lebihBayarRekap = ringkasKelebihanBayar(jamaahList);
 
     // Grand Total
     const grandProfit = grandOmzet - grandModal;
@@ -9751,7 +9761,8 @@ function hitungRekapAktual() {
         komposisi: adaTanpaTagihan ? teksKomposisiPeserta(komposisiRekap) : '',
         kursi: kursiRekap,
         pembulatan: pembulatanRekap,
-        diskonLebih: diskonLebihRekap
+        diskonLebih: diskonLebihRekap,
+        lebihBayar: lebihBayarRekap
     };
     if(adaTanpaTagihan) {
         html += `<div style="background:#EDE9FE;border:1.5px solid #C4B5FD;border-radius:12px;padding:10px 12px;margin-bottom:10px;font-size:12px;color:#4C1D95;">
@@ -9791,6 +9802,7 @@ function hitungRekapAktual() {
         ${kursiRekap ? `<div style="font-size:11px;opacity:0.85;margin-top:8px;text-align:right;">🪑 Kursi bayar terisi ${kursiRekap.terisi} dari ${kursiRekap.total} (${kursiRekap.persen}%)${kursiRekap.terisi < kursiRekap.total ? '. Laba Sementara baru mencerminkan kursi yang sudah terjual.' : ''}</div>` : ''}
         ${pembulatanRekap ? `<div style="font-size:11px;opacity:0.85;margin-top:8px;">🔸 ${escapeHtml(teksPembulatanHarga(pembulatanRekap, true))}</div>` : ''}
         ${diskonLebihRekap ? `<div style="font-size:11px;opacity:0.85;margin-top:8px;">⚠️ ${escapeHtml(teksDiskonMelebihiBuffer(diskonLebihRekap))}</div>` : ''}
+        ${lebihBayarRekap ? `<div style="font-size:11px;opacity:0.85;margin-top:8px;">↩️ ${escapeHtml(teksKelebihanBayar(lebihBayarRekap))}</div>` : ''}
         <div style="font-size:11px;opacity:0.6;margin-top:6px;text-align:right;">
             ${adaTanpaTagihan ? `Total ${komposisiRekap.total} peserta (${teksKomposisiPeserta(komposisiRekap).split(' = ')[0]})` : `Total ${jamaahList.length} jamaah`} · ${Object.keys(tipeData).length} tipe
         </div>
@@ -9967,6 +9979,7 @@ function shareRekapAktual() {
     if (data.kursi) text += `\n🪑 Kursi bayar terisi ${data.kursi.terisi} dari ${data.kursi.total} (${data.kursi.persen}%)`;
     if (data.pembulatan) text += `\n🔸 ${teksPembulatanHarga(data.pembulatan, true)}`;
     if (data.diskonLebih) text += `\n⚠️ ${teksDiskonMelebihiBuffer(data.diskonLebih)}`;
+    if (data.lebihBayar) text += `\n↩️ ${teksKelebihanBayar(data.lebihBayar)}`;
     if (data.hargaBawah > 0) text += `\n⚠️ ${data.hargaBawah} jamaah harga paketnya di bawah modal`;
     if (data.tanpaTipe.length > 0) text += `\n⚠️ ${data.tanpaTipe.length} jamaah belum ada tipe paket (tidak dihitung): ${data.tanpaTipe.join(', ')}${data.tanpaTipeUang > 0 ? `. Uang yang sudah mereka bayar ${f(data.tanpaTipeUang)} BELUM masuk total di atas` : ''}`;
     // Penutup mengikuti pengaturan: pengguna berlisensi memakai nama instansinya sendiri; versi gratis tetap "Navara App"
@@ -16706,8 +16719,9 @@ function sesuaikanHargaDariDiskonMitra(jamaahId) {
     j.additional_fields[targetField.name] = hargaBaru.toLocaleString('id-ID');
     saveJamaahData();
     const bufferEst = est.buffer || 0;
-    showToast(`✅ Harga Paket disesuaikan otomatis: Rp ${hargaBaru.toLocaleString('id-ID')} (Brosur ${est.harga.toLocaleString('id-ID')} − Diskon ${diskon.toLocaleString('id-ID')})` +
-        (diskon > bufferEst ? `\n⚠️ Diskon melebihi Buffer ${bufferEst.toLocaleString('id-ID')} sebesar Rp ${(diskon - bufferEst).toLocaleString('id-ID')}: kelebihan ini mengurangi laba rencana.` : ''));
+    const fR = n => Math.round(n).toLocaleString('id-ID');
+    showToast(`✅ Harga Paket disesuaikan: Rp ${fR(hargaBaru)}\n(Brosur ${fR(est.harga)} − Diskon ${fR(diskon)})` +
+        (diskon > bufferEst ? `\n⚠️ Melebihi Buffer ${fR(bufferEst)} sebesar Rp ${fR(diskon - bufferEst)}, mengurangi laba rencana` : ''));
     if(typeof renderJamaahListWithPagination === 'function') renderJamaahListWithPagination();
 }
 
@@ -18285,6 +18299,8 @@ function cetakLaporanPenutupanMusim() {
         const bulatLap = ringkasPembulatanHarga(jamaahRelevan);
         if (bulatLap) catatanProyeksi += `<p class="lap-note">${escapeHtml(teksPembulatanHarga(bulatLap, false))}</p>`;
         const diskonLebihLap = ringkasDiskonMelebihiBuffer();
+        const lebihBayarLap = ringkasKelebihanBayar(jamaahRelevan);
+        if (lebihBayarLap) catatanProyeksi += `<p class="lap-note">${escapeHtml(teksKelebihanBayar(lebihBayarLap))}</p>`;
         if (diskonLebihLap) catatanProyeksi += `<p class="lap-note">${escapeHtml(teksDiskonMelebihiBuffer(diskonLebihLap))}</p>`;
         if (est.buffer > 0) catatanProyeksi += `<p class="lap-note">Proyeksi dihitung dari kontrak yang ada. Buffer diskon yang belum terpakai ikut menjadi laba (lihat Analisis Buffer).</p>`;
         blok2 = `<div class="lap-section"><h2>2. Proyeksi (dari Cuan Plan)</h2>
@@ -21405,7 +21421,23 @@ function getStatusPembayaran(jamaah) {
         status = 'BELUM LUNAS'; 
         warna = '#e74c3c'; 
     } 
-    return { status, warna, sisa: sisa > 0 ? sisa : 0, totalBayar, totalHargaPaket, needInput: false }; 
+    return { status, warna, sisa: sisa > 0 ? sisa : 0, lebih: sisa < 0 ? -sisa : 0, totalBayar, totalHargaPaket, needInput: false }; 
+}
+
+// Kelebihan bayar: uang masuk > Total Paket (mis. jamaah sudah bayar penuh lalu diskon dicatat belakangan). Hanya penanda, tidak mengubah angka lain.
+function ringkasKelebihanBayar(daftarJamaah) {
+    let n = 0, jumlah = 0;
+    (daftarJamaah || []).forEach(j => {
+        if(tanpaTagihan(j)) return;
+        const h = getTotalHargaPaket(j) || 0;
+        if(h <= 0) return;
+        const lebih = hitungTotalBayarJamaah(j.id) - h;
+        if(lebih > 0) { n++; jumlah += lebih; }
+    });
+    return n > 0 ? { n, jumlah } : null;
+}
+function teksKelebihanBayar(r) {
+    return 'Kelebihan bayar: ' + r.n + ' jamaah, Rp ' + Math.round(r.jumlah).toLocaleString('id-ID') + ' (sudah masuk Dibayar; perlu dicek/dikembalikan).';
 }
 
 function renderPaymentDashboard() { 
@@ -21492,7 +21524,7 @@ function renderPaymentJamaahList() {
     const pageData = filteredJamaah.slice(start, start + perPage);
     let html = `<div style="margin-bottom:10px; font-size:0.8rem; color:var(--accent);">Total: ${filteredJamaah.length} jamaah (halaman ${currentPaymentPage} dari ${totalPages})</div>`; 
     pageData.forEach(j => { 
-        const { status, warna, sisa, totalBayar, totalHargaPaket, needInput, tanpaTagihan: tanpaTag } = getStatusPembayaran(j); 
+        const { status, warna, sisa, lebih, totalBayar, totalHargaPaket, needInput, tanpaTagihan: tanpaTag } = getStatusPembayaran(j); 
         if (tanpaTag) {
             const infoJ = infoJenisPeserta(j);
             html += `<div class="payment-jamaah-card" style="border-left-color: #8B5CF6;"><div class="payment-jamaah-info"><h4>${escapeHtml(j.nama_lengkap)} <span style="font-size:11px;background:#EDE9FE;color:#5B21B6;border-radius:6px;padding:2px 7px;font-weight:700;">${infoJ.ikon} ${infoJ.label}</span></h4><div class="payment-price-detail" style="color:#6D28D9;">Tidak ditagih${totalBayar > 0 ? ' · tercatat pembayaran ' + formatRupiah(totalBayar) : ''}</div></div></div>`;
@@ -21506,7 +21538,7 @@ function renderPaymentJamaahList() {
                     `<div style="font-size:11px;color:${warnaStatusKomponen[k.status]};">${ikonStatusKomponen[k.status]} ${escapeHtml(k.jenis)}: ${formatRupiah(k.dibayar)} / ${formatRupiah(k.target)}</div>`
                 ).join('') + '</div>';
             }
-            html += `<div class="payment-jamaah-card" style="border-left-color: ${warna};"><div class="payment-jamaah-info"><h4>${escapeHtml(j.nama_lengkap)}</h4><div class="payment-price-detail">💰 Total Paket: ${formatRupiah(totalHargaPaket)}<br>💸 Dibayar: ${formatRupiah(totalBayar)}</div>${rincianKomponen}</div><div style="text-align: right;"><div class="payment-sisa-badge" style="color: ${warna}; margin-bottom: 8px;">${status === 'LUNAS' ? '✅ LUNAS' : '💵 Sisa ' + formatRupiah(sisa)}</div><div><button class="payment-btn-bayar" onclick="openPaymentModalWithJamaah('${j.id}')"><i class="fas fa-plus-circle"></i> Bayar</button><button class="payment-btn-bayar" onclick="prepareInvoice('${j.id}')"><i class="fas fa-file-invoice"></i> WA</button><button class="payment-btn-bayar" onclick="shareInvoiceGambar('${j.id}')"><i class="fas fa-share-alt"></i> Share</button><button class="payment-btn-bayar" onclick="cetakInvoiceAuto('${j.id}')"><i class="fas fa-print"></i> Cetak</button><button class="payment-btn-bayar" onclick="openEditHargaModal('${j.id}')"><i class="fas fa-edit"></i> Harga</button><button class="payment-btn-bayar" onclick="openJadwalCicilanModal('${j.id}')"><i class="fas fa-calendar-alt"></i> Cicilan</button><button class="payment-btn-bayar" onclick="openRiwayatModal('${j.id}')"><i class="fas fa-history"></i> Riwayat</button></div></div></div>`; 
+            html += `<div class="payment-jamaah-card" style="border-left-color: ${warna};"><div class="payment-jamaah-info"><h4>${escapeHtml(j.nama_lengkap)}</h4><div class="payment-price-detail">💰 Total Paket: ${formatRupiah(totalHargaPaket)}<br>💸 Dibayar: ${formatRupiah(totalBayar)}</div>${rincianKomponen}</div><div style="text-align: right;"><div class="payment-sisa-badge" style="color: ${warna}; margin-bottom: 8px;">${status === 'LUNAS' ? '✅ LUNAS' : '💵 Sisa ' + formatRupiah(sisa)}${lebih > 0 ? `<div style="font-size:12px;font-weight:700;color:#B45309;margin-top:2px;">↩️ Kelebihan bayar ${formatRupiah(lebih)}</div>` : ''}</div><div><button class="payment-btn-bayar" onclick="openPaymentModalWithJamaah('${j.id}')"><i class="fas fa-plus-circle"></i> Bayar</button><button class="payment-btn-bayar" onclick="prepareInvoice('${j.id}')"><i class="fas fa-file-invoice"></i> WA</button><button class="payment-btn-bayar" onclick="shareInvoiceGambar('${j.id}')"><i class="fas fa-share-alt"></i> Share</button><button class="payment-btn-bayar" onclick="cetakInvoiceAuto('${j.id}')"><i class="fas fa-print"></i> Cetak</button><button class="payment-btn-bayar" onclick="openEditHargaModal('${j.id}')"><i class="fas fa-edit"></i> Harga</button><button class="payment-btn-bayar" onclick="openJadwalCicilanModal('${j.id}')"><i class="fas fa-calendar-alt"></i> Cicilan</button><button class="payment-btn-bayar" onclick="openRiwayatModal('${j.id}')"><i class="fas fa-history"></i> Riwayat</button></div></div></div>`; 
         }
     }); 
     container.innerHTML = html; 
@@ -21620,7 +21652,7 @@ function prepareInvoice(idJamaah) {
             });
         }
     }
-    text += `${garis}\n💰 *Total Dibayar:* ${formatRupiah(totalBayar)}\n📌 *Sisa Tagihan:* ${totalHargaPaket > 0 ? formatRupiah(sisa > 0 ? sisa : 0) : '-'}\n✅ *Status:* ${totalHargaPaket <= 0 ? 'HARGA PAKET BELUM DIISI ⚠️' : (sisa <= 0 ? 'LUNAS ✅' : 'BELUM LUNAS ⚠️')}\n`; 
+    text += `${garis}\n💰 *Total Dibayar:* ${formatRupiah(totalBayar)}\n📌 *Sisa Tagihan:* ${totalHargaPaket > 0 ? formatRupiah(sisa > 0 ? sisa : 0) : '-'}\n${(totalHargaPaket > 0 && sisa < 0) ? `↩️ *Kelebihan Bayar:* ${formatRupiah(-sisa)}\n` : ''}✅ *Status:* ${totalHargaPaket <= 0 ? 'HARGA PAKET BELUM DIISI ⚠️' : (sisa <= 0 ? 'LUNAS ✅' : 'BELUM LUNAS ⚠️')}\n`; 
     _invoiceBagian = { kepala: text, garis, ekor: `${garis}\n_${footerNama}_`, sisa };
     _rekPilihInvoice = null;
     currentInvoiceText = susunTeksInvoiceWA();
@@ -21916,6 +21948,12 @@ async function shareInvoiceGambar(jamaahId) {
         doc.text(':', 55, y);
         doc.setFont('helvetica', 'bold'); doc.text(hargaKosong ? '-' : formatRupiah(sisa > 0 ? sisa : 0), 58, y);
         y += 10;
+        if(!hargaKosong && sisa < 0) {
+            doc.setFont('helvetica', 'normal'); doc.text('Kelebihan Bayar', 20, y);
+            doc.text(':', 55, y);
+            doc.setFont('helvetica', 'bold'); doc.text(formatRupiah(-sisa), 58, y);
+            y += 10;
+        }
 
         // ── Status Lunas — dengan box background seperti Cetak ──────────────
         y += 2;
@@ -22047,7 +22085,7 @@ async function cetakInvoiceAuto(jamaahId) {
                 <div class="summary">
                     <div>Total Paket &nbsp;&nbsp;: <strong>${formatRupiah(totalHargaPaket)}</strong></div>
                     <div>Total Dibayar : <strong>${formatRupiah(totalBayar)}</strong></div>
-                    <div>Sisa Tagihan &nbsp;: <strong>${totalHargaPaket>0?formatRupiah(sisa>0?sisa:0):'-'}</strong></div>
+                    <div>Sisa Tagihan &nbsp;: <strong>${totalHargaPaket>0?formatRupiah(sisa>0?sisa:0):'-'}</strong></div>${(totalHargaPaket>0 && sisa<0) ? `<div>Kelebihan Bayar : <strong>${formatRupiah(-sisa)}</strong></div>` : ''}
                     <div class="status">${totalHargaPaket<=0?'⚠️ HARGA PAKET BELUM DIISI':(sisa<=0?'✅ LUNAS':'⚠️ BELUM LUNAS')}</div>
                 </div>
                 ${rekHtml}
@@ -24369,7 +24407,7 @@ function openIndexedDB() {
 // dengan build baru, data MENTAH (langsung dari IndexedDB, bukan dari memori) disalin dulu sebelum
 // proses migrasi apapun berjalan — supaya kalau ada kesalahan di update, data lama masih bisa dipulihkan.
 // Dokumen & foto tidak ikut disalin (ukurannya besar, dan tidak pernah disentuh proses migrasi).
-const NAVARA_BUILD = '2026.10.10-99';
+const NAVARA_BUILD = '2026.10.11-101';
 const MAKS_SNAPSHOT = 3;
 
 // ==================== DAFTAR DATA PUSAT ====================
