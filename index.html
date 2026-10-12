@@ -2339,7 +2339,7 @@ https://github.com/nodeca/pako/blob/main/LICENSE
         </div>
         <div class="row"><div class="input-group"><label>Asuransi</label><input type="text" id="cAsuransi" class="money-input" inputmode="numeric" value="60.000" oninput="saveEstimasiData()"></div><div class="input-group"><label>Handling</label><input type="text" id="cHandling" class="money-input" inputmode="numeric" value="100.000" oninput="saveEstimasiData()"></div></div>
         <div class="row"><div class="input-group"><label>Perlengkapan</label><input type="text" id="cAlat" class="money-input" inputmode="numeric" value="1.000.000" oninput="saveEstimasiData()"></div><div class="input-group"><label>Aplikasi</label><input type="text" id="cAplikasi" class="money-input" inputmode="numeric" value="60.000" oninput="saveEstimasiData()"></div></div>
-        <div class="row"><div class="input-group"><label>Diskon/PIC</label><input type="text" id="cPIC" class="money-input" inputmode="numeric" value="0" oninput="saveEstimasiData()"></div><div class="input-group"><label>Lain-lain</label><input type="text" id="cLain" class="money-input" inputmode="numeric" value="0" oninput="saveEstimasiData()"></div></div>
+        <div class="row"><div class="input-group"><label>PIC</label><input type="text" id="cPIC" class="money-input" inputmode="numeric" value="0" oninput="saveEstimasiData()"></div><div class="input-group"><label>Lain-lain</label><input type="text" id="cLain" class="money-input" inputmode="numeric" value="0" oninput="saveEstimasiData()"></div></div>
         <div class="section-title"><span>Margin</span></div>
         <div class="input-group"><label>Profit (%)</label><input type="number" id="profitPct" value="5" oninput="saveEstimasiData()"></div>
         <div class="section-title"><span>Buffer Diskon <small style="font-weight:normal;color:#888;">(Opsional)</small></span></div>
@@ -2412,17 +2412,21 @@ https://github.com/nodeca/pako/blob/main/LICENSE
                 <label style="font-size:12px;color:#666;display:block;margin-bottom:4px;">Kategori</label>
                 <select id="pengeluaranKategori" onchange="perbaruiRujukanEstimasiPengeluaran()" style="width:100%;padding:10px;border-radius:10px;border:1.5px solid #e2e8f0;font-size:14px;background:var(--input-bg);color:var(--text);">
                     <option value="">-- Pilih Kategori --</option>
-                    <option value="✈️ Maskapai">✈️ Maskapai</option>
-                    <option value="🏨 Hotel">🏨 Hotel</option>
+                    <option value="✈️ Maskapai">✈️ Tiket (Maskapai)</option>
+                    <option value="🏨 Hotel">🏨 LA / Hotel</option>
+                    <option value="🛡️ Asuransi">🛡️ Asuransi</option>
+                    <option value="🚌 Handling">🚌 Handling</option>
+                    <option value="🧳 Perlengkapan">🧳 Perlengkapan</option>
+                    <option value="📱 Aplikasi">📱 Aplikasi</option>
+                    <option value="👤 PIC">👤 PIC</option>
+                    <option value="📦 Lain-lain">📦 Lain-lain</option>
                     <option value="🍱 Konsumsi">🍱 Konsumsi</option>
                     <option value="⛽ Transport">⛽ Transport</option>
-                    <option value="🧳 Perlengkapan">🧳 Perlengkapan</option>
-                    <option value="📋 Administrasi">📋 Administrasi</option>
-                    <option value="🕌 Muthawif/Guide">🕌 Muthawif/Guide</option>
-                    <option value="💼 Operasional">💼 Operasional</option>
                     <option value="💊 Kesehatan">💊 Kesehatan</option>
+                    <option value="🕌 Muthawif/Guide">🕌 Muthawif/Guide</option>
+                    <option value="📋 Administrasi">📋 Administrasi</option>
+                    <option value="💼 Operasional">💼 Operasional</option>
                     <option value="🤝 Komisi Mitra">🤝 Komisi Mitra</option>
-                    <option value="📦 Lain-lain">📦 Lain-lain</option>
                 </select>
             </div>
             <div id="pengRujukanEstimasi" style="display:none;margin:-4px 0 10px;"></div>
@@ -2568,7 +2572,7 @@ https://github.com/nodeca/pako/blob/main/LICENSE
                 <div class="input-group"><label>Aplikasi</label><input type="text" id="konCAplikasi" class="money-input" inputmode="numeric" value="0" oninput="saveKonsorsiumEstimasiData()"></div>
             </div>
             <div class="row">
-                <div class="input-group"><label>PIC / Diskon</label><input type="text" id="konCPIC" class="money-input" inputmode="numeric" value="0" oninput="saveKonsorsiumEstimasiData()"></div>
+                <div class="input-group"><label>PIC</label><input type="text" id="konCPIC" class="money-input" inputmode="numeric" value="0" oninput="saveKonsorsiumEstimasiData()"></div>
                 <div class="input-group"><label>Lain-lain</label><input type="text" id="konCLain" class="money-input" inputmode="numeric" value="0" oninput="saveKonsorsiumEstimasiData()"></div>
             </div>
             <div class="row">
@@ -7619,7 +7623,7 @@ async function cetakEstimasiPDFInternal() {
         ['LA/Hotel Triple', pr(est.cLAtriple||'0')],
         ['LA/Hotel Double', pr(est.cLAdouble||'0')],
     ].filter(([,v]) => v > 0);
-    const items = [['Tiket',pr(est.cTiket)],...laItems,['Asuransi',pr(est.cAsuransi)],['Handling',pr(est.cHandling)],['PIC/Guide',pr(est.cPIC)],['Perlengkapan',pr(est.cAlat)],['Biaya Aplikasi',pr(est.cAplikasi)],['Lain-lain',pr(est.cLain)]];
+    const items = [['Tiket',pr(est.cTiket)],...laItems,['Asuransi',pr(est.cAsuransi)],['Handling',pr(est.cHandling)],['PIC',pr(est.cPIC)],['Perlengkapan',pr(est.cAlat)],['Biaya Aplikasi',pr(est.cAplikasi)],['Lain-lain',pr(est.cLain)]];
     let komponenHtml = '';
     items.forEach(([label, val]) => {
         if(val > 0) komponenHtml += `<tr><td style="padding:8px;border-bottom:1px solid #eee;">${label}</td><td style="padding:8px;border-bottom:1px solid #eee;text-align:right;">${f(val)}</td></tr>`;
@@ -7724,7 +7728,7 @@ async function shareEstimasiInternalPDF() {
             ['LA/Hotel Triple', pr(est.cLAtriple||'0')],
             ['LA/Hotel Double', pr(est.cLAdouble||'0')],
         ].filter(([,v]) => v > 0);
-        const items = [['Tiket',pr(est.cTiket)],...laItems,['Asuransi',pr(est.cAsuransi)],['Handling',pr(est.cHandling)],['PIC/Guide',pr(est.cPIC)],['Perlengkapan',pr(est.cAlat)],['Biaya Aplikasi',pr(est.cAplikasi)],['Lain-lain',pr(est.cLain)]]
+        const items = [['Tiket',pr(est.cTiket)],...laItems,['Asuransi',pr(est.cAsuransi)],['Handling',pr(est.cHandling)],['PIC',pr(est.cPIC)],['Perlengkapan',pr(est.cAlat)],['Biaya Aplikasi',pr(est.cAplikasi)],['Lain-lain',pr(est.cLain)]]
             .filter(([,v]) => v > 0);
 
         const {jsPDF} = window.jspdf;
@@ -8387,7 +8391,7 @@ const DAFTAR_KOMPONEN_KONSORSIUM = [
     { key: 'tiket', label: 'Tiket' }, { key: 'la', label: 'LA/Hotel' },
     { key: 'asuransi', label: 'Asuransi' }, { key: 'handling', label: 'Handling' },
     { key: 'alat', label: 'Perlengkapan' }, { key: 'aplikasi', label: 'Aplikasi' },
-    { key: 'pic', label: 'PIC/Diskon' }, { key: 'lain', label: 'Lain-lain' }
+    { key: 'pic', label: 'PIC' }, { key: 'lain', label: 'Lain-lain' }
 ];
 
 function ensureKonsorsiumList() {
@@ -9449,16 +9453,19 @@ function pakaiKomisiMitraPengeluaran(nama, nominal) {
 // Memilih kategori -> tampil angka biaya (modal) dari Cuan Plan sebagai tombol + sisa anggarannya. Mengetuk tombol mengisi Nominal; tidak ada yang terisi sendiri.
 // Tombol memakai biaya per orang di Estimasi (bukan harga brosur). Hanya informasi: tidak memblokir penyimpanan.
 const KATEGORI_PENGELUARAN_ESTIMASI = {
-    '✈️ Maskapai':       { grup: 'maskapai',  komponen: [{ label: 'Tiket', key: 'cTiket' }] },
-    '🏨 Hotel':          { grup: 'hotel',     hotel: true },
-    '🧳 Perlengkapan':   { grup: 'alat',      komponen: [{ label: 'Perlengkapan', key: 'cAlat' }] },
-    '📋 Administrasi':   { grup: 'admin',     komponen: [{ label: 'Asuransi', key: 'cAsuransi' }, { label: 'Aplikasi', key: 'cAplikasi' }] },
-    '💼 Operasional':    { grup: 'operasional', komponen: [{ label: 'Handling', key: 'cHandling' }, { label: 'PIC', key: 'cPIC' }] },
-    '🕌 Muthawif/Guide': { grup: 'operasional', komponen: [{ label: 'Handling', key: 'cHandling' }, { label: 'PIC', key: 'cPIC' }] },
+    // Satu kategori = satu baris Estimasi (nama dan urutan sama dengan tab Estimasi)
+    '✈️ Maskapai':       { grup: 'tiket',      komponen: [{ label: 'Tiket', key: 'cTiket' }] },
+    '🏨 Hotel':          { grup: 'hotel',      hotel: true },
+    '🛡️ Asuransi':       { grup: 'asuransi',   komponen: [{ label: 'Asuransi', key: 'cAsuransi' }] },
+    '🚌 Handling':       { grup: 'handling',   komponen: [{ label: 'Handling', key: 'cHandling' }] },
+    '🧳 Perlengkapan':   { grup: 'alat',       komponen: [{ label: 'Perlengkapan', key: 'cAlat' }] },
+    '📱 Aplikasi':       { grup: 'aplikasi',   komponen: [{ label: 'Aplikasi', key: 'cAplikasi' }] },
+    '👤 PIC':            { grup: 'pic',        komponen: [{ label: 'PIC', key: 'cPIC' }] },
+    // Dana Lain-lain di Estimasi: dibandingkan dengan gabungan empat kategori ini. Muthawif/Guide, Administrasi, Operasional, dan Komisi Mitra tidak punya anggaran di Estimasi.
+    '📦 Lain-lain':      { grup: 'lain', lain: true },
     '🍱 Konsumsi':       { grup: 'lain', lain: true },
     '⛽ Transport':      { grup: 'lain', lain: true },
-    '💊 Kesehatan':      { grup: 'lain', lain: true },
-    '📦 Lain-lain':      { grup: 'lain', lain: true }
+    '💊 Kesehatan':      { grup: 'lain', lain: true }
 };
 function hitungRujukanEstimasiPengeluaran(kategori) {
     const def = KATEGORI_PENGELUARAN_ESTIMASI[kategori];
@@ -9508,6 +9515,9 @@ function perbaruiRujukanEstimasiPengeluaran() {
         return;
     }
     const r = kat ? hitungRujukanEstimasiPengeluaran(kat) : null;
+    if (!r && ['🕌 Muthawif/Guide', '📋 Administrasi', '💼 Operasional'].includes(kat)) {
+        box.innerHTML = '<div style="font-size:11px;color:#94a3b8;padding:2px 4px;">Kategori ini tidak punya baris anggaran di Estimasi. Tercatat sebagai pengeluaran biasa.</div>'; box.style.display = 'block'; return;
+    }
     if (!r) { box.style.display = 'none'; box.innerHTML = ''; return; }
     const fR = n => 'Rp ' + Math.round(n).toLocaleString('id-ID');
     const lebih = r.sisa < 0;
@@ -9519,7 +9529,7 @@ function perbaruiRujukanEstimasiPengeluaran() {
     }
     html += `<div style="font-size:12px;color:${warna};margin-top:6px;">${r.lain ? '' : '📋 '}${escapeHtml(r.namaAnggaran)}: anggaran ${fR(r.anggaran)} · tercatat ${fR(r.terpakai)} · ` +
         (lebih ? `<b>melebihi ${fR(-r.sisa)}</b>` : `sisa <b>${fR(r.sisa)}</b>`) + '</div>';
-    if (r.lain) html += '<div style="font-size:11px;color:#94a3b8;margin-top:2px;">Gabungan Konsumsi, Transport, Kesehatan, dan Lain-lain. Hanya informasi.</div>';
+    if (r.lain) html += '<div style="font-size:11px;color:#94a3b8;margin-top:2px;">Gabungan Lain-lain, Konsumsi, Transport, dan Kesehatan. Hanya informasi.</div>';
     box.innerHTML = html + '</div>';
     box.style.display = 'block';
 }
@@ -24761,7 +24771,7 @@ function openIndexedDB() {
 // dengan build baru, data MENTAH (langsung dari IndexedDB, bukan dari memori) disalin dulu sebelum
 // proses migrasi apapun berjalan — supaya kalau ada kesalahan di update, data lama masih bisa dipulihkan.
 // Dokumen & foto tidak ikut disalin (ukurannya besar, dan tidak pernah disentuh proses migrasi).
-const NAVARA_BUILD = '2026.10.12-110';
+const NAVARA_BUILD = '2026.10.12-112';
 const MAKS_SNAPSHOT = 3;
 
 // ==================== DAFTAR DATA PUSAT ====================
