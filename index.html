@@ -2410,7 +2410,7 @@ https://github.com/nodeca/pako/blob/main/LICENSE
             <div style="font-weight:700;font-size:14px;color:var(--primary);margin-bottom:12px;">➕ Tambah Pengeluaran</div>
             <div style="margin-bottom:10px;">
                 <label style="font-size:12px;color:#666;display:block;margin-bottom:4px;">Kategori</label>
-                <select id="pengeluaranKategori" style="width:100%;padding:10px;border-radius:10px;border:1.5px solid #e2e8f0;font-size:14px;background:var(--input-bg);color:var(--text);">
+                <select id="pengeluaranKategori" onchange="perbaruiRujukanEstimasiPengeluaran()" style="width:100%;padding:10px;border-radius:10px;border:1.5px solid #e2e8f0;font-size:14px;background:var(--input-bg);color:var(--text);">
                     <option value="">-- Pilih Kategori --</option>
                     <option value="✈️ Maskapai">✈️ Maskapai</option>
                     <option value="🏨 Hotel">🏨 Hotel</option>
@@ -2425,6 +2425,7 @@ https://github.com/nodeca/pako/blob/main/LICENSE
                     <option value="📦 Lain-lain">📦 Lain-lain</option>
                 </select>
             </div>
+            <div id="pengRujukanEstimasi" style="display:none;margin:-4px 0 10px;"></div>
             <div style="margin-bottom:10px;">
                 <label style="font-size:12px;color:#666;display:block;margin-bottom:4px;">Keterangan</label>
                 <input type="text" id="pengeluaranKeterangan" placeholder="Contoh: Termin 1 Garuda Indonesia"
@@ -4301,7 +4302,7 @@ https://github.com/nodeca/pako/blob/main/LICENSE
 
 <div id="paymentModal" class="modal"><div class="modal-content"><h3> Input Pembayaran</h3><div class="input-group"><label> Tanggal</label><input type="date" id="paymentTanggal"></div><div class="input-group"><label> Nama Jamaah *</label><select id="paymentJamaahSelect"><option value="">-- Pilih Jamaah --</option></select></div><div class="input-group" id="paymentKomponenWrap" style="display:none;"><label> Untuk Komponen</label><select id="paymentKomponen"></select></div><div class="input-group"><label> Nominal (Rp)</label><input type="text" class="money-input" inputmode="numeric" id="paymentNominal" placeholder="Contoh: 5.000.000"></div><div class="input-group"><label> Metode</label><select id="paymentMetode"><option value="Transfer">Transfer</option><option value="Cash">Cash</option><option value="QRIS">QRIS</option></select></div><div class="input-group"><label> Keterangan</label><input type="text" id="paymentKeterangan" placeholder="DP / Cicilan / Pelunasan"></div><div class="row"><button class="btn btn-secondary" onclick="closePaymentModal()" style="flex:1">Batal</button><button class="btn btn-primary" onclick="simpanPembayaran()" style="flex:1">Simpan</button></div></div></div>
 <div id="invoiceConfirmModal" class="modal"><div class="modal-content"><h3> Konfirmasi Kirim Invoice</h3><p>Akan dikirim ke nomor WhatsApp:</p><p id="invoiceWANumber" style="font-weight:bold; font-size:18px; background:#f0f0f0; padding:10px; border-radius:10px;"></p><p id="invoiceWAName" style="color:#666;"></p><div id="invoiceRekPilih"></div><div class="row" style="margin-top:20px;"><button class="btn btn-secondary" onclick="closeInvoiceConfirmModal()" style="flex:1">Batal</button><button class="btn btn-wa" onclick="sendInvoiceWA()" style="flex:1">Kirim via WA</button><button class="btn btn-orange" onclick="copyInvoiceText()" style="flex:1">Salin Teks</button></div></div></div>
-<div id="editHargaModal" class="modal"><div class="modal-content"><h3> Edit Harga Paket</h3><p id="editHargaNama" style="font-weight:bold;"></p><div class="input-group" id="editHargaTotalWrap"><label> Total Harga Paket (Rp)</label><input type="text" class="money-input" inputmode="numeric" id="editHargaValue" placeholder="Contoh: 35.000.000"></div><div id="editHargaKomponenWrap" style="display:none;"></div><div class="row"><button class="btn btn-secondary" onclick="closeEditHargaModal()" style="flex:1">Batal</button><button class="btn btn-primary" onclick="saveEditHarga()" style="flex:1">Simpan</button></div></div></div>
+<div id="editHargaModal" class="modal"><div class="modal-content"><h3> Edit Harga Paket</h3><p id="editHargaNama" style="font-weight:bold;"></p><div class="input-group" id="editHargaTotalWrap"><label> Total Harga Paket (Rp)</label><input type="text" class="money-input" inputmode="numeric" id="editHargaValue" placeholder="Contoh: 35.000.000"><div id="editHargaInfo" style="font-size:12px;color:#64748B;margin-top:6px;line-height:1.5;"></div><label style="display:flex;align-items:center;gap:8px;margin-top:10px;font-size:13px;"><input type="checkbox" id="editHargaAnak" style="width:18px;height:18px;"> 👶 Tarif anak/bayi (harga hasil nego, bukan diskon)</label><button type="button" id="editHargaResetBtn" class="btn btn-secondary" style="display:none;width:100%;margin-top:10px;" onclick="kembaliKeHargaSeragam()">↩️ Kembali ke harga seragam</button></div><div id="editHargaKomponenWrap" style="display:none;"></div><div class="row"><button class="btn btn-secondary" onclick="closeEditHargaModal()" style="flex:1">Batal</button><button class="btn btn-primary" onclick="saveEditHarga()" style="flex:1">Simpan</button></div></div></div>
 <div id="riwayatModal" class="modal"><div class="modal-content"><h3> Riwayat Pembayaran</h3><p id="riwayatNama" style="font-weight:bold;"></p><div id="riwayatListContainer" style="max-height:400px; overflow-y:auto;"></div><div class="row" style="margin-top:15px;"><button class="btn btn-secondary" onclick="closeRiwayatModal()" style="flex:1">Tutup</button></div></div></div>
 <div id="masterFieldModal" class="modal"><div class="modal-content"><h3>Kelola Field Dinamis</h3><div class="dynamic-field"><label>Nama Field</label><input type="text" id="masterNewFieldName" placeholder="contoh: alamat, no_hp"></div><div class="dynamic-field"><label>Label Field</label><input type="text" id="masterNewFieldLabel" placeholder="Contoh: Alamat, No HP"></div><div class="dynamic-field"><label>Tipe</label><select id="masterNewFieldType"><option value="text">Text</option><option value="date">Tanggal</option><option value="tel">Telepon</option><option value="textarea">Text Area</option></select></div><button class="btn btn-primary" onclick="addMasterDynamicField()"> TAMBAH FIELD</button><div id="masterFieldsList" style="margin-top:15px;"></div><button class="btn btn-secondary mt-2" onclick="closeMasterFieldModal()">TUTUP</button></div></div>
 <div id="masterItemModal" class="modal"><div class="modal-content"><h3>Kelola Daftar Item</h3><div class="row"><div class="input-group"><label>Nama Item</label><input type="text" id="masterNewItem" placeholder="Contoh: Kain Ihram"></div><button class="btn-small" onclick="addMasterItem()" style="background:var(--primary); color:white; padding:0 15px;">+ Tambah</button></div><div id="masterItemList" style="margin-top:15px;"></div><button class="btn btn-secondary mt-2" onclick="closeMasterItemModal()">TUTUP</button></div></div>
@@ -5047,6 +5048,89 @@ function komisiMitraDari(af) {
     if('komisi_mitra' in af) return uangDariField(af.komisi_mitra);
     return af.status_diskon === 'Diberikan ke Mitra' ? uangDariField(af.diskon_tersedia) : 0;
 }
+
+// ===== HARGA PAKET: SATU INTI HITUNGAN =====
+// Urutan: (1) Harga khusus yang diketik per jamaah  (2) Harga Seragam - Diskon untuk Jamaah  (3) kosong.
+// Komisi Mitra TIDAK pernah mengubah harga. Tarif Anak/Bayi = penanda pada Harga khusus (dikecualikan dari analisis diskon vs buffer).
+// Semua layar (Pembayaran, Invoice, Rekap, Laporan, Beranda, Kesehatan Data) memakai getTotalHargaPaket / getTotalHargaPaketUntukProgram yang memanggil fungsi ini.
+const NAMA_FIELD_HARGA_BAKU = ['total_harga_paket', 'total_harga', 'harga_paket', 'paket', 'total harga', 'harga total', 'tagihan', 'nominal'];
+function fieldHargaManualJamaah(jamaah) {
+    const fields = jamaah.additional_fields || {};
+    const nama = [];
+    for (const n of NAMA_FIELD_HARGA_BAKU) if (n in fields) nama.push(n);
+    for (const f of dynamicFieldsJamaah) {
+        const label = (f.label || '').toLowerCase();
+        if ((label.includes('harga') || label.includes('paket') || label.includes('tagihan') || label.includes('total')) && f.name in fields && !nama.includes(f.name)) nama.push(f.name);
+    }
+    return nama;
+}
+function bacaHargaManualJamaah(jamaah) {
+    const fields = jamaah.additional_fields || {};
+    for (const name of NAMA_FIELD_HARGA_BAKU) {
+        if (fields[name] !== undefined && fields[name] !== null && fields[name] !== '') {
+            let val = fields[name];
+            if (typeof val === 'string') val = val.replace(/\./g, '').replace(/[^0-9]/g, '');
+            const num = parseInt(val);
+            if (!isNaN(num) && num > 0) return num;
+        }
+    }
+    for (const field of dynamicFieldsJamaah) {
+        const label = (field.label || '').toLowerCase();
+        if (label.includes('harga') || label.includes('paket') || label.includes('tagihan') || label.includes('total')) {
+            const val = fields[field.name];
+            if (val) {
+                const num = parseInt(val.toString().replace(/\./g, '').replace(/[^0-9]/g, ''));
+                if (!isNaN(num) && num > 0) return num;
+            }
+        }
+    }
+    return 0;
+}
+function isTarifAnak(af) { af = af || {}; return af.tarif_anak === 'Ya' || af.tarif_anak === true; }
+// hp = pengaturan Harga Seragam program ({seragam, nominal}). sumber: 'seragam' | 'diskon' | 'khusus' | 'anak' | 'manual' | 'kosong'
+function hargaPaketRinci(jamaah, hp) {
+    const af = jamaah.additional_fields || {};
+    const khusus = bacaHargaManualJamaah(jamaah);
+    const diskon = diskonUntukJamaah(af);
+    const anak = isTarifAnak(af);
+    if (hp && hp.seragam && hp.nominal > 0) {
+        if (khusus > 0) return { total: khusus, sumber: anak ? 'anak' : 'khusus', dasar: hp.nominal, diskon: 0, diskonDiabaikan: diskon, khusus };
+        const total = Math.max(0, hp.nominal - diskon);
+        return { total, sumber: diskon > 0 ? 'diskon' : 'seragam', dasar: hp.nominal, diskon: hp.nominal - total, diskonDiabaikan: 0, khusus: 0 };
+    }
+    if (khusus > 0) return { total: khusus, sumber: anak ? 'anak' : 'manual', dasar: 0, diskon: 0, diskonDiabaikan: 0, khusus };
+    return { total: 0, sumber: 'kosong', dasar: 0, diskon: 0, diskonDiabaikan: 0, khusus: 0 };
+}
+function hapusHargaManualJamaah(jamaah) {
+    fieldHargaManualJamaah(jamaah).forEach(n => { delete jamaah.additional_fields[n]; });
+}
+// Komposisi harga untuk Rekap / WA / Laporan (hanya bila Harga Seragam aktif). Jamaah FOC/TL/Pembimbing tidak dihitung.
+function ringkasKomposisiHarga(list) {
+    const hp = getKonfigurasiProData().harga_paket;
+    if (!hp || !hp.seragam || !(hp.nominal > 0) || isHajiReguler()) return null;
+    const k = { dasar: hp.nominal, nSeragam: 0, nDiskon: 0, nAnak: 0, nKhusus: 0, totalDiskon: 0, totalKomisi: 0, n: 0 };
+    (list || []).forEach(j => {
+        if (tanpaTagihan(j)) return;
+        const r = hargaPaketRinci(j, hp);
+        k.n++;
+        k.totalKomisi += komisiMitraDari(j.additional_fields);
+        if (r.sumber === 'anak') k.nAnak++;
+        else if (r.sumber === 'khusus') k.nKhusus++;
+        else if (r.sumber === 'diskon') { k.nDiskon++; k.totalDiskon += r.diskon; }
+        else k.nSeragam++;
+    });
+    return k.n ? k : null;
+}
+function teksKomposisiHarga(k) {
+    const fR = n => 'Rp ' + Math.round(n).toLocaleString('id-ID');
+    const b = ['Harga seragam ' + fR(k.dasar) + ': ' + k.nSeragam + ' jamaah'];
+    if (k.nDiskon) b.push('Diskon: ' + k.nDiskon + ' jamaah (total ' + fR(k.totalDiskon) + ')');
+    if (k.nAnak) b.push('Tarif anak: ' + k.nAnak);
+    if (k.nKhusus) b.push('Harga khusus: ' + k.nKhusus);
+    if (k.totalKomisi) b.push('Komisi mitra ' + fR(k.totalKomisi));
+    return b.join(' · ');
+}
+
 function analisisBufferB2C() {
     return analisisBufferB2CDari(hitungModalHargaEstimasiTerkini(), jamaahList.map(j => ({ nama: j.nama_lengkap, harga: getTotalHargaPaket(j), af: j.additional_fields })));
 }
@@ -5054,9 +5138,10 @@ function analisisBufferB2C() {
 function analisisBufferB2CDari(est, items) {
     if(!est) return null;
     const buf = est.buffer || 0; // Buffer 0 tetap dianalisis: seluruh diskon/komisi dihitung sebagai kelebihan
-    const r = { est, buffer: buf, n: 0, disiapkan: 0, diskon: 0, komisi: 0, dipakai: 0, kelebihan: 0, kelebihanDiskon: 0, kelebihanKomisi: 0, nLebih: 0, nLebihDiskon: 0, rinci: [] };
+    const r = { est, buffer: buf, n: 0, disiapkan: 0, diskon: 0, komisi: 0, dipakai: 0, kelebihan: 0, kelebihanDiskon: 0, kelebihanKomisi: 0, nLebih: 0, nLebihDiskon: 0, nAnak: 0, rinci: [] };
     items.filter(j => j.harga > 0).forEach(j => {
-        const diskon = Math.max(0, est.harga - j.harga);
+        const anak = isTarifAnak(j.af);
+        const diskon = anak ? 0 : Math.max(0, est.harga - j.harga); // Tarif anak bukan diskon dari brosur
         const komisi = komisiMitraDari(j.af);
         const total = diskon + komisi;
         const kelebihan = Math.max(0, total - buf);
@@ -5066,7 +5151,8 @@ function analisisBufferB2CDari(est, items) {
         r.kelebihan += kelebihan; r.kelebihanDiskon += kelDiskon; r.kelebihanKomisi += kelebihan - kelDiskon;
         if(kelebihan > 0) r.nLebih++;
         if(kelDiskon > 0) r.nLebihDiskon++;
-        r.rinci.push({ nama: j.nama, diskon, komisi, total, kelebihan });
+        if(anak) r.nAnak++;
+        r.rinci.push({ nama: j.nama, diskon, komisi, total, kelebihan, anak });
     });
     if(r.n === 0) return null;
     r.sisa = r.disiapkan - r.dipakai;                       // buffer yang benar-benar tidak terpakai
@@ -7813,6 +7899,7 @@ function reloadHargaSeragamUI() {
     if(el) el.value = hp.nominal ? hp.nominal.toLocaleString('id-ID') : '';
     const preview = document.getElementById('previewHargaSeragam');
     if(preview) preview.textContent = hp.nominal ? 'Rp ' + hp.nominal.toLocaleString('id-ID') : '';
+    if(el && hp.nominal && typeof formatHargaInput === 'function') formatHargaInput(el);
 }
 
 let editingSplashQuoteIndex = null;
@@ -9275,7 +9362,7 @@ function switchCuanTab(tab) {
     if(tab === 'pengeluaran') {
         renderPengeluaranList();
         updateRingkasanKeuangan();
-        isiPilihanJumlahPengeluaran(); perbaruiHitungPeng();
+        isiPilihanJumlahPengeluaran(); perbaruiHitungPeng(); perbaruiRujukanEstimasiPengeluaran();
         // Set tanggal hari ini kalau kosong
         const tglEl = document.getElementById('pengeluaranTanggal');
         if(tglEl && !tglEl.value) tglEl.value = new Date().toISOString().split('T')[0];
@@ -9330,6 +9417,119 @@ async function savePengeluaran() {
         _allPengeluaranData = [...otherProgramData, ...pengeluaranList];
         await idbSet(STORE_PENGELUARAN, 'pengeluaran_data', _allPengeluaranData); 
     } catch(e) { laporGagalSimpan('Data pengeluaran', e); }
+}
+
+
+
+// Komisi mitra yang sudah dicatat = pengeluaran kategori Komisi Mitra dengan keterangan "Komisi untuk <nama>".
+// SATU aturan untuk Rekap Komisi Mitra dan form Pengeluaran, supaya keduanya selalu sama.
+function komisiMitraTercatat(namaMitra) {
+    return (typeof pengeluaranList !== 'undefined' ? pengeluaranList : []).filter(p => p.kategori === '🤝 Komisi Mitra' && String(p.keterangan || '').trim() === 'Komisi untuk ' + namaMitra).reduce((a, p) => a + (parseInt(p.nominal) || 0), 0);
+}
+function daftarKomisiMitra() {
+    const per = {};
+    jamaahList.forEach(j => {
+        const nama = ((j.additional_fields && j.additional_fields.mitra_referensi) || '').trim();
+        if (!nama) return;
+        if (!per[nama]) per[nama] = { nama, jumlah: 0, komisi: 0 };
+        per[nama].jumlah++;
+        per[nama].komisi += komisiMitraDari(j.additional_fields);
+    });
+    return Object.values(per).map(m => { const dicatat = komisiMitraTercatat(m.nama); return Object.assign(m, { dicatat, belum: Math.max(0, m.komisi - dicatat) }); }).sort((a, b) => b.belum - a.belum || b.jumlah - a.jumlah);
+}
+function pakaiKomisiMitraPengeluaran(nama, nominal) {
+    const kat = document.getElementById('pengeluaranKategori'), ket = document.getElementById('pengeluaranKeterangan'), nom = document.getElementById('pengeluaranNominal');
+    if (kat) kat.value = '🤝 Komisi Mitra';
+    if (ket) { ket.value = 'Komisi untuk ' + nama; delete ket.dataset.rumus; delete ket.dataset.rumusTotal; }
+    if (nom) nom.value = nominal.toLocaleString('id-ID');
+    showToast('Terisi: komisi ' + nama + ' Rp ' + nominal.toLocaleString('id-ID') + '. Cek lalu Simpan');
+}
+
+// ===== RUJUKAN ESTIMASI DI FORM PENGELUARAN =====
+// Memilih kategori -> tampil angka biaya (modal) dari Cuan Plan sebagai tombol + sisa anggarannya. Mengetuk tombol mengisi Nominal; tidak ada yang terisi sendiri.
+// Tombol memakai biaya per orang di Estimasi (bukan harga brosur). Hanya informasi: tidak memblokir penyimpanan.
+const KATEGORI_PENGELUARAN_ESTIMASI = {
+    '✈️ Maskapai':       { grup: 'maskapai',  komponen: [{ label: 'Tiket', key: 'cTiket' }] },
+    '🏨 Hotel':          { grup: 'hotel',     hotel: true },
+    '🧳 Perlengkapan':   { grup: 'alat',      komponen: [{ label: 'Perlengkapan', key: 'cAlat' }] },
+    '📋 Administrasi':   { grup: 'admin',     komponen: [{ label: 'Asuransi', key: 'cAsuransi' }, { label: 'Aplikasi', key: 'cAplikasi' }] },
+    '💼 Operasional':    { grup: 'operasional', komponen: [{ label: 'Handling', key: 'cHandling' }, { label: 'PIC', key: 'cPIC' }] },
+    '🕌 Muthawif/Guide': { grup: 'operasional', komponen: [{ label: 'Handling', key: 'cHandling' }, { label: 'PIC', key: 'cPIC' }] },
+    '🍱 Konsumsi':       { grup: 'lain', lain: true },
+    '⛽ Transport':      { grup: 'lain', lain: true },
+    '💊 Kesehatan':      { grup: 'lain', lain: true },
+    '📦 Lain-lain':      { grup: 'lain', lain: true }
+};
+function hitungRujukanEstimasiPengeluaran(kategori) {
+    const def = KATEGORI_PENGELUARAN_ESTIMASI[kategori];
+    const est = getEstimasiData();
+    if (!def || !est || isHajiReguler()) return null;
+    const pr = v => parseInt((v || '0').toString().replace(/\./g, '').replace(/[^0-9]/g, '')) || 0;
+    const nJam = pr(est.totJam), tl = pr(est.numTL);
+    const kursi = nJam + tl; // tiket dan biaya lain juga keluar untuk FOC dan TL
+    if (kursi <= 0) return null;
+    const jml = { Quad: 0, Triple: 0, Double: 0 };
+    jamaahList.forEach(j => { const t = j.additional_fields && j.additional_fields.tipe_paket; if (t === 'Triple' || t === 'Double') jml[t]++; });
+    jml.Quad = Math.max(0, kursi - jml.Triple - jml.Double);
+    const laQuad = pr(est.cLAquad || est.cLA);
+    const laTipe = t => modalPerJamaahMenurutTipe(est, t) - modalPerJamaahMenurutTipe(est, 'Quad') + laQuad;
+    let chips = [], anggaran = 0, namaAnggaran = '';
+    if (def.hotel) {
+        ['Quad', 'Triple', 'Double'].forEach(t => { const h = laTipe(t); if (h > 0 && jml[t] > 0) { chips.push({ label: t, harga: h, n: jml[t] }); anggaran += h * jml[t]; } });
+        namaAnggaran = 'Hotel';
+    } else if (def.lain) {
+        const h = pr(est.cLain);
+        if (h > 0) { anggaran = h * kursi; namaAnggaran = 'Dana lain-lain'; }
+    } else {
+        def.komponen.forEach(k => { const h = pr(est[k.key]); if (h > 0) { chips.push({ label: k.label, harga: h, n: kursi }); anggaran += h * kursi; } });
+        namaAnggaran = def.komponen.map(k => k.label).join(' + ');
+    }
+    if (anggaran <= 0 && !chips.length) return null;
+    const terpakai = pengeluaranList.filter(x => { const d = KATEGORI_PENGELUARAN_ESTIMASI[x.kategori]; return d && d.grup === def.grup; }).reduce((a, x) => a + (x.nominal || 0), 0);
+    return { kategori, chips, anggaran, terpakai, sisa: anggaran - terpakai, namaAnggaran, lain: !!def.lain, kursi };
+}
+function perbaruiRujukanEstimasiPengeluaran() {
+    const box = document.getElementById('pengRujukanEstimasi');
+    if (!box) return;
+    const kat = document.getElementById('pengeluaranKategori')?.value || '';
+    if (kat === '🤝 Komisi Mitra') {
+        const fRk = n => 'Rp ' + Math.round(n).toLocaleString('id-ID');
+        const dm = daftarKomisiMitra().filter(m => m.komisi > 0);
+        let h = '<div style="background:#f8fafc;border-radius:10px;padding:8px 10px;">';
+        if (!dm.length) h += '<div style="font-size:12px;color:#64748b;">Belum ada Komisi Mitra di database jamaah program ini. Isi nominal langsung di bawah.</div>';
+        else {
+            h += '<div style="font-size:11px;color:#64748b;margin-bottom:6px;">Komisi dari database jamaah. Ketuk mitra untuk mengisi:</div><div style="display:flex;flex-direction:column;gap:6px;">';
+            h += dm.map(m => m.belum > 0
+                ? `<button type="button" onclick="pakaiKomisiMitraPengeluaran('${jsArg(m.nama)}',${m.belum})" style="text-align:left;padding:8px 10px;border:1.5px solid #7C3AED;background:white;color:#6D28D9;border-radius:10px;font-size:12px;font-weight:700;cursor:pointer;">🤝 ${escapeHtml(m.nama)} · ${fRk(m.belum)} <span style="font-weight:400;color:#64748b;">(${m.jumlah} jamaah${m.dicatat > 0 ? ', sisa dari ' + fRk(m.komisi) : ''})</span></button>`
+                : `<div style="padding:7px 10px;border-radius:10px;background:#f1f5f9;color:#64748b;font-size:12px;">✓ ${escapeHtml(m.nama)} · ${fRk(m.komisi)} sudah dicatat${m.dicatat > m.komisi ? ' <b style="color:#991B1B;">(tercatat lebih ' + fRk(m.dicatat - m.komisi) + ')</b>' : ''}</div>`).join('');
+            h += '</div>';
+        }
+        box.innerHTML = h + '</div>'; box.style.display = 'block';
+        return;
+    }
+    const r = kat ? hitungRujukanEstimasiPengeluaran(kat) : null;
+    if (!r) { box.style.display = 'none'; box.innerHTML = ''; return; }
+    const fR = n => 'Rp ' + Math.round(n).toLocaleString('id-ID');
+    const lebih = r.sisa < 0;
+    const warna = lebih ? '#B45309' : '#475569';
+    let html = '<div style="background:#f8fafc;border-radius:10px;padding:8px 10px;">';
+    if (r.chips.length) {
+        html += '<div style="font-size:11px;color:#64748b;margin-bottom:6px;">Biaya di Estimasi. Ketuk untuk mengisi Nominal:</div><div style="display:flex;flex-wrap:wrap;gap:6px;">' +
+            r.chips.map((c, i) => `<button type="button" onclick="pakaiAngkaEstimasiPengeluaran(${c.harga},${c.n})" style="padding:6px 10px;border:1.5px solid #1D4ED8;background:white;color:#1D4ED8;border-radius:14px;font-size:12px;font-weight:700;cursor:pointer;">${escapeHtml(c.label)} ${fR(c.harga)} × ${c.n}</button>`).join('') + '</div>';
+    }
+    html += `<div style="font-size:12px;color:${warna};margin-top:6px;">${r.lain ? '' : '📋 '}${escapeHtml(r.namaAnggaran)}: anggaran ${fR(r.anggaran)} · tercatat ${fR(r.terpakai)} · ` +
+        (lebih ? `<b>melebihi ${fR(-r.sisa)}</b>` : `sisa <b>${fR(r.sisa)}</b>`) + '</div>';
+    if (r.lain) html += '<div style="font-size:11px;color:#94a3b8;margin-top:2px;">Gabungan Konsumsi, Transport, Kesehatan, dan Lain-lain. Hanya informasi.</div>';
+    box.innerHTML = html + '</div>';
+    box.style.display = 'block';
+}
+function pakaiAngkaEstimasiPengeluaran(harga, n) {
+    const h = document.getElementById('hitPengHarga'), j = document.getElementById('hitPengJumlah'), box = document.getElementById('hitPengBox');
+    if (h) h.value = harga.toLocaleString('id-ID');
+    if (j) j.value = n;
+    if (box) box.open = true;
+    perbaruiHitungPeng();
+    terapkanHitungPeng();
 }
 
 // Bantu hitung (opsional): harga per orang x jumlah -> mengisi Nominal. Yang disimpan tetap satu angka total.
@@ -9419,6 +9619,7 @@ async function simpanPengeluaran() {
     delete ketEl.dataset.rumus; delete ketEl.dataset.rumusTotal;
     document.getElementById('pengeluaranNominal').value = '';
     resetHitungPeng();
+    perbaruiRujukanEstimasiPengeluaran();
     showToast('✅ Pengeluaran disimpan!');
 }
 
@@ -9428,6 +9629,7 @@ async function hapusPengeluaran(id) {
     await savePengeluaran();
     renderPengeluaranList();
     updateRingkasanKeuangan();
+    perbaruiRujukanEstimasiPengeluaran();
     showToast('🗑️ Pengeluaran dihapus');
 }
 
@@ -9761,6 +9963,7 @@ function hitungRekapAktual() {
     const kursiRekap = ringkasKursiTerisi(jamaahList);
     const pembulatanRekap = ringkasPembulatanHarga(jamaahList);
     const diskonLebihRekap = ringkasDiskonMelebihiBuffer();
+    const komposisiHargaRekap = ringkasKomposisiHarga(jamaahList);
     const lebihBayarRekap = ringkasKelebihanBayar(jamaahList);
 
     // Grand Total
@@ -9777,6 +9980,7 @@ function hitungRekapAktual() {
         kursi: kursiRekap,
         pembulatan: pembulatanRekap,
         diskonLebih: diskonLebihRekap,
+        komposisiHarga: komposisiHargaRekap,
         lebihBayar: lebihBayarRekap
     };
     if(adaTanpaTagihan) {
@@ -9816,6 +10020,7 @@ function hitungRekapAktual() {
         </div>
         ${kursiRekap ? `<div style="font-size:11px;opacity:0.85;margin-top:8px;text-align:right;">🪑 Kursi bayar terisi ${kursiRekap.terisi} dari ${kursiRekap.total} (${kursiRekap.persen}%)${kursiRekap.terisi < kursiRekap.total ? '. Laba Sementara baru mencerminkan kursi yang sudah terjual.' : ''}</div>` : ''}
         ${pembulatanRekap ? `<div style="font-size:11px;opacity:0.85;margin-top:8px;">🔸 ${escapeHtml(teksPembulatanHarga(pembulatanRekap, true))}</div>` : ''}
+        ${komposisiHargaRekap ? `<div style="font-size:11px;opacity:0.85;margin-top:8px;">🏷️ ${escapeHtml(teksKomposisiHarga(komposisiHargaRekap))}</div>` : ''}
         ${diskonLebihRekap ? `<div style="font-size:11px;opacity:0.85;margin-top:8px;">⚠️ ${escapeHtml(teksDiskonMelebihiBuffer(diskonLebihRekap))}</div>` : ''}
         ${lebihBayarRekap ? `<div style="font-size:11px;opacity:0.85;margin-top:8px;">↩️ ${escapeHtml(teksKelebihanBayar(lebihBayarRekap))}</div>` : ''}
         <div style="font-size:11px;opacity:0.6;margin-top:6px;text-align:right;">
@@ -9993,6 +10198,7 @@ function shareRekapAktual() {
     if (data.komposisi) text += `\n🏷️ Peserta: ${data.komposisi}`;
     if (data.kursi) text += `\n🪑 Kursi bayar terisi ${data.kursi.terisi} dari ${data.kursi.total} (${data.kursi.persen}%)`;
     if (data.pembulatan) text += `\n🔸 ${teksPembulatanHarga(data.pembulatan, true)}`;
+    if (data.komposisiHarga) text += `\n🏷️ ${teksKomposisiHarga(data.komposisiHarga)}`;
     if (data.diskonLebih) text += `\n⚠️ ${teksDiskonMelebihiBuffer(data.diskonLebih)}`;
     if (data.lebihBayar) text += `\n↩️ ${teksKelebihanBayar(data.lebihBayar)}`;
     if (data.hargaBawah > 0) text += `\n⚠️ ${data.hargaBawah} jamaah harga paketnya di bawah modal`;
@@ -10390,6 +10596,13 @@ async function loadDynamicFieldsJamaah() {
             dynamicFieldsJamaah = sisaDef;
             await idbSet(STORE_JAMAAH, 'jamaah_fields', dynamicFieldsJamaah);
         }
+        // Migrasi: tambahkan penanda "Tarif Anak/Bayi" (harga hasil nego, bukan diskon) kalau belum ada
+        if (dynamicFieldsJamaah.length > 0 && !dynamicFieldsJamaah.some(f => f.name === 'tarif_anak')) {
+            const defAnak = { name: 'tarif_anak', label: 'Tarif Anak/Bayi', type: 'dropdown', options: ['Tidak', 'Ya'], icon: '👶', isRequired: false };
+            const idxK = dynamicFieldsJamaah.findIndex(f => f.name === 'komisi_mitra');
+            if (idxK !== -1) dynamicFieldsJamaah.splice(idxK + 1, 0, defAnak); else dynamicFieldsJamaah.push(defAnak);
+            await idbSet(STORE_JAMAAH, 'jamaah_fields', dynamicFieldsJamaah);
+        }
         // Migrasi PERBAIKAN: field 'status_proses_haji' (versi lama, sempat dobel karena reset sesi) —
         // definisi field-nya dihapus di sini (aman, tidak menyentuh data jamaah). Pemindahan NILAI datanya
         // dilakukan terpisah oleh migrasiKonsolidasiStatusProsesHaji(), dipanggil SETELAH loadJamaahData()
@@ -10461,6 +10674,7 @@ async function loadDynamicFieldsJamaah() {
             { name: 'mitra_referensi', label: 'Direferensikan oleh Mitra', type: 'text', icon: '🤝', isRequired: false },
             { name: 'diskon_jamaah', label: 'Diskon untuk Jamaah (Rp)', type: 'money', icon: '💰', isRequired: false },
             { name: 'komisi_mitra', label: 'Komisi Mitra (Rp)', type: 'money', icon: '🤝', isRequired: false },
+            { name: 'tarif_anak', label: 'Tarif Anak/Bayi', type: 'dropdown', options: ['Tidak', 'Ya'], icon: '👶', isRequired: false },
             { name: 'nik',           label: 'NIK',             type: 'text',     icon: '🪪', isRequired: false },
             { name: 'kk',            label: 'KK',              type: 'text',     icon: '📋', isRequired: false },
             { name: 'alamat',        label: 'Alamat',          type: 'text',     icon: '🏠', isRequired: false },
@@ -13214,6 +13428,21 @@ const PEMERIKSA_KESEHATAN = [
                 const bawah = berharga.filter(x => !idMurah.has(x.j.id) && String(x.j.additional_fields?.tipe_paket || '').trim()).map(x => ({ x, modal: modalPerJamaahMenurutTipe(est, x.j.additional_fields.tipe_paket) })).filter(y => y.modal > 0 && y.x.harga < y.modal);
                 bawah.forEach(y => idBawahModal.add(y.x.j.id));
                 if (bawah.length) out.push(T('jamaah.harga_bawah_modal:' + p.id, 'Jamaah', 'perhatian', 'Harga paket di bawah modal' + tag, 'Harga lebih kecil dari modal per jamaah di Cuan Plan, jadi jamaah ini merugi. Mungkin diskon yang disengaja, atau salah ketik.', 'Periksa harganya. Abaikan bila diskon memang disengaja.', bawah.map(y => `${nama(y.x)} · harga ${rp(y.x.harga)}, modal ${rp(y.modal)}`), { label: 'Buka Database Jamaah', halaman: 'jamaah' }));
+            }
+            // 2a. Harga Seragam: beda dari brosur, Harga khusus, Tarif anak tanpa harga khusus, diskon yang tidak dipakai
+            const hpK = ctx.konfig.per_program?.[p.id]?.harga_paket;
+            if (hpK && hpK.seragam && hpK.nominal > 0) {
+                if (est) {
+                    const hb = hitungModalHargaDariEst(est);
+                    if (hb && Math.round(hb.harga) !== hpK.nominal) out.push(T('jamaah.seragam_beda_brosur:' + p.id, 'Jamaah', 'perhatian', 'Harga Seragam berbeda dari Harga Brosur' + tag, `Harga Seragam ${rp(hpK.nominal)}, Harga Brosur Cuan Plan ${rp(hb.harga)}. Selisihnya ikut dihitung sebagai ${hpK.nominal < hb.harga ? 'diskon' : 'harga di atas brosur'} pada Analisis Buffer.`, 'Samakan keduanya di Konfigurasi atau Cuan Plan, atau abaikan bila memang disengaja.', [], { label: 'Buka Konfigurasi', halaman: 'konfigurasi' }));
+                }
+                const rinciK = list.filter(j => !tanpaTagihan(j)).map(j => ({ j, r: hargaPaketRinci(j, hpK) }));
+                const khususK = rinciK.filter(x => x.r.sumber === 'khusus');
+                if (khususK.length) out.push(T('jamaah.harga_khusus:' + p.id, 'Jamaah', 'info', `${khususK.length} jamaah memakai Harga khusus` + tag, 'Harga ketikan per jamaah mengalahkan Harga Seragam dan diskon di database. Pastikan memang disengaja (bukan sisa harga lama).', '', khususK.map(x => `${x.j.nama_lengkap || '(tanpa nama)'} · ${rp(x.r.total)} (seragam ${rp(x.r.dasar)})`)));
+                const anakK = rinciK.filter(x => isTarifAnak(x.j.additional_fields) && x.r.sumber !== 'anak');
+                if (anakK.length) out.push(T('jamaah.tarif_anak_tanpa_harga:' + p.id, 'Jamaah', 'perhatian', 'Tarif anak/bayi belum ada harganya' + tag, 'Ditandai tarif anak, tetapi Harga khusus belum diisi sehingga tagihannya masih harga seragam.', 'Isi Harga khusus lewat tombol Harga di Pembayaran.', anakK.map(x => x.j.nama_lengkap || '(tanpa nama)')));
+                const abaiK = rinciK.filter(x => x.r.diskonDiabaikan > 0);
+                if (abaiK.length) out.push(T('jamaah.diskon_diabaikan:' + p.id, 'Jamaah', 'perhatian', 'Diskon tidak dipakai karena ada Harga khusus' + tag, 'Kolom Diskon untuk Jamaah terisi, tetapi harga khusus yang diketik yang dipakai.', 'Pilih salah satu: hapus Harga khusus (tombol "Kembali ke harga seragam") atau kosongkan kolom Diskon.', abaiK.map(x => `${x.j.nama_lengkap || '(tanpa nama)'} · diskon ${rp(x.r.diskonDiabaikan)}, harga ${rp(x.r.total)}`)));
             }
             // 2b. Diskon/komisi melebihi Buffer (hitungan yang sama dengan Analisis Buffer di Rekap)
             if (est) {
@@ -16746,7 +16975,19 @@ function sesuaikanHargaDariDiskonMitra(jamaahId) {
     }
 
     const hp = getKonfigurasiProData().harga_paket || { seragam: false };
-    if(hp.seragam) { showToast('⚠️ Diskon tidak diterapkan — Harga Seragam sedang aktif di Konfigurasi, harga per orang tidak bisa dibedakan'); return; }
+    if(hp.seragam && hp.nominal > 0) {
+        // Harga Seragam aktif: harga dihitung otomatis (seragam − diskon) di semua layar, tidak ada yang perlu ditulis ke database
+        const rr = hargaPaketRinci(j, hp);
+        const fS = n => Math.round(n).toLocaleString('id-ID');
+        const estS = hitungModalHargaEstimasiTerkini();
+        const bufS = estS ? (estS.buffer || 0) : 0;
+        const pakaiS = (isTarifAnak(j.additional_fields) ? 0 : Math.max(0, (estS ? estS.harga : rr.dasar) - rr.total)) + komisi;
+        showToast(rr.diskonDiabaikan > 0
+            ? `⚠️ Diskon ${fS(diskon)} tidak dipakai karena jamaah ini punya Harga khusus Rp ${fS(rr.total)}`
+            : `✅ Harga otomatis: Rp ${fS(rr.total)}\n(Seragam ${fS(rr.dasar)} − Diskon ${fS(diskon)})` + (estS && pakaiS > bufS ? `\n⚠️ Diskon + komisi melebihi Buffer ${fS(bufS)} sebesar Rp ${fS(pakaiS - bufS)}, mengurangi laba rencana` : ''));
+        if(typeof renderJamaahListWithPagination === 'function') renderJamaahListWithPagination();
+        return;
+    }
 
     const est = hitungModalHargaEstimasiTerkini();
     if(!est) { showToast('⚠️ Diskon belum diterapkan — Hitung Estimasi Program dulu'); return; }
@@ -16921,29 +17162,7 @@ function getTotalHargaPaketUntukProgram(jamaah, programId) {
         if (totalHaji > 0) return totalHaji;
     }
     const hp = (cfg && cfg.harga_paket) || konfigurasiPro.harga_paket || { seragam: false, nominal: 0 };
-    if (hp.seragam && hp.nominal > 0) return hp.nominal;
-    const fields = jamaah.additional_fields || {};
-    const possibleNames = ['total_harga_paket', 'total_harga', 'harga_paket', 'paket', 'total harga', 'harga total', 'tagihan', 'nominal'];
-    for (const name of possibleNames) {
-        if (fields[name] !== undefined && fields[name] !== null && fields[name] !== '') {
-            let val = fields[name];
-            if (typeof val === 'string') val = val.replace(/\./g, '').replace(/[^0-9]/g, '');
-            const num = parseInt(val);
-            if (!isNaN(num) && num > 0) return num;
-        }
-    }
-    for (const field of dynamicFieldsJamaah) {
-        const label = field.label.toLowerCase();
-        if (label.includes('harga') || label.includes('paket') || label.includes('tagihan') || label.includes('total')) {
-            const val = fields[field.name];
-            if (val) {
-                const cleaned = val.toString().replace(/\./g, '').replace(/[^0-9]/g, '');
-                const num = parseInt(cleaned);
-                if (!isNaN(num) && num > 0) return num;
-            }
-        }
-    }
-    return 0;
+    return hargaPaketRinci(jamaah, hp).total;
 }
 
 function openBandingkanProgramModal() {
@@ -17777,7 +17996,7 @@ function renderRekapKomisiMitraModal(modalEl) {
     const htmlMitra = namaMitraList.map(nama => {
         const d = perMitra[nama];
         const eligibleGratis = Math.floor(d.jumlah / (kebijakan.setiap||15)) * (kebijakan.dapat||1);
-        const komisiSudahDicatat = (typeof pengeluaranList !== 'undefined' ? pengeluaranList : []).filter(p => p.kategori === '🤝 Komisi Mitra' && String(p.keterangan || '').trim() === 'Komisi untuk ' + nama).reduce((a, p) => a + (parseInt(p.nominal) || 0), 0);
+        const komisiSudahDicatat = komisiMitraTercatat(nama);
         const komisiBelumDicatat = Math.max(0, d.komisi - komisiSudahDicatat);
         const catatanDicatat = komisiSudahDicatat > 0
             ? `<div style="font-size:12px;color:#555;margin-top:2px;">Sudah dicatat sebagai pengeluaran: ${f(komisiSudahDicatat)} · Belum dicatat: <b>${f(komisiBelumDicatat)}</b></div>${komisiSudahDicatat > d.komisi ? `<div style="font-size:11px;color:#991B1B;font-weight:700;margin-top:2px;">⚠️ Pengeluaran komisi tercatat melebihi Total Komisi Cash. Periksa agar tidak dobel.</div>` : ''}` : '';
@@ -17823,6 +18042,7 @@ function catatKomisiSebagaiPengeluaran(namaMitra, nominal) {
             if(kat) kat.value = '🤝 Komisi Mitra';
             if(ket) ket.value = 'Komisi untuk ' + namaMitra;
             if(nom) nom.value = nominal.toLocaleString('id-ID');
+            perbaruiRujukanEstimasiPengeluaran();
             showToast('📋 Form Pengeluaran terisi otomatis, cek & simpan');
         }, 200);
     }, 300);
@@ -18349,6 +18569,8 @@ function cetakLaporanPenutupanMusim() {
         const bulatLap = ringkasPembulatanHarga(jamaahRelevan);
         if (bulatLap) catatanProyeksi += `<p class="lap-note">${escapeHtml(teksPembulatanHarga(bulatLap, false))}</p>`;
         const diskonLebihLap = ringkasDiskonMelebihiBuffer();
+        const komposisiHargaLap = ringkasKomposisiHarga(jamaahRelevan);
+        if (komposisiHargaLap) catatanProyeksi += `<p class="lap-note">${escapeHtml(teksKomposisiHarga(komposisiHargaLap))}</p>`;
         const lebihBayarLap = ringkasKelebihanBayar(jamaahRelevan);
         if (lebihBayarLap) catatanProyeksi += `<p class="lap-note">${escapeHtml(teksKelebihanBayar(lebihBayarLap))}</p>`;
         if (diskonLebihLap) catatanProyeksi += `<p class="lap-note">${escapeHtml(teksDiskonMelebihiBuffer(diskonLebihLap))}</p>`;
@@ -21408,7 +21630,15 @@ function formatHargaInput(el) {
     formatMoneyInput(el);
     const num = parseInt(el.value.replace(/\./g,'')) || 0;
     const preview = document.getElementById('previewHargaSeragam');
-    if (preview) preview.textContent = num > 0 ? 'Rp ' + num.toLocaleString('id-ID') : '';
+    if (preview) {
+        preview.textContent = num > 0 ? 'Rp ' + num.toLocaleString('id-ID') : '';
+        try {
+            const e = num > 0 ? hitungModalHargaEstimasiTerkini() : null;
+            if (e && Math.round(e.harga) !== num) {
+                preview.innerHTML = 'Rp ' + num.toLocaleString('id-ID') + `<br><span style="color:#B45309;">⚠️ Beda dengan Harga Brosur Cuan Plan (Rp ${Math.round(e.harga).toLocaleString('id-ID')}). Selisihnya dihitung sebagai diskon pada Analisis Buffer.</span>`;
+            }
+        } catch(err) {}
+    }
 }
 
 // ==================== JENIS PESERTA (Bayar / FOC / TL / Pembimbing) ====================
@@ -21453,35 +21683,8 @@ function getTotalHargaPaket(jamaah) {
         const total = komponenList.reduce((s,k) => s + (override[k.jenis] !== undefined ? override[k.jenis] : (k.harga||0)), 0);
         if(total > 0) return total;
     }
-    // Cek dulu apakah harga seragam aktif di konfigurasi
-    const hp = getKonfigurasiProData().harga_paket || { seragam: false, nominal: 0 };
-    if (hp.seragam && hp.nominal > 0) return hp.nominal;
-
-    // Kalau tidak seragam, baca dari field jamaah
-    const fields = jamaah.additional_fields || {}; 
-    const possibleNames = ['total_harga_paket', 'total_harga', 'harga_paket', 'paket', 'total harga', 'harga total', 'tagihan', 'nominal']; 
-    for (const name of possibleNames) { 
-        if (fields[name] !== undefined && fields[name] !== null && fields[name] !== '') { 
-            let val = fields[name]; 
-            if (typeof val === 'string') { 
-                val = val.replace(/\./g, '').replace(/[^0-9]/g, ''); 
-            } 
-            const num = parseInt(val); 
-            if (!isNaN(num) && num > 0) return num; 
-        } 
-    } 
-    for (const field of dynamicFieldsJamaah) { 
-        const label = field.label.toLowerCase(); 
-        if (label.includes('harga') || label.includes('paket') || label.includes('tagihan') || label.includes('total')) { 
-            const val = fields[field.name]; 
-            if (val) { 
-                let cleaned = val.toString().replace(/\./g, '').replace(/[^0-9]/g, ''); 
-                const num = parseInt(cleaned); 
-                if (!isNaN(num) && num > 0) return num; 
-            } 
-        } 
-    } 
-    return null; 
+    const rinci = hargaPaketRinci(jamaah, getKonfigurasiProData().harga_paket || { seragam: false, nominal: 0 });
+    return rinci.total > 0 ? rinci.total : null;
 }
 
 function hitungTotalBayarJamaah(idJamaah) { 
@@ -21586,14 +21789,23 @@ function labelDiskonJamaah(j, est) {
     if(h <= 0) return '';
     const fR = n => 'Rp ' + Math.round(n).toLocaleString('id-ID');
     const buf = est.buffer || 0;
-    const diskon = Math.max(0, Math.round(est.harga) - Math.round(h));
+    const rinciL = hargaPaketRinci(j, getKonfigurasiProData().harga_paket);
+    const anakL = isTarifAnak(j.additional_fields);
+    const diskon = anakL ? 0 : Math.max(0, Math.round(est.harga) - Math.round(h));
     const komisi = komisiMitraDari(j.additional_fields);
     let out = '';
+    if(anakL) out += `<div style="font-size:12px;font-weight:700;color:#7C3AED;">👶 Tarif anak/bayi ${fR(h)} (bukan diskon)</div>`;
+    if(rinciL.diskonDiabaikan > 0) out += `<div style="font-size:12px;font-weight:700;color:#B45309;">⚠️ Diskon ${fR(rinciL.diskonDiabaikan)} tidak dipakai: ada Harga khusus</div>`;
     if(diskon > 0) {
         const lebih = diskon - buf;
+        // Kata "Diskon" hanya bila kolom Diskon untuk Jamaah di database memang terisi; selain itu hanya selisih harga dari brosur (mis. harga lama)
+        const adaDiskonTercatat = diskonUntukJamaah(j.additional_fields) > 0 && rinciL.sumber !== 'khusus';
+        const khususL = rinciL.sumber === 'khusus';
+        const kata = khususL ? 'Harga khusus' : (adaDiskonTercatat ? 'Diskon' : 'Harga di bawah brosur');
+        const nilaiL = khususL ? `${fR(h)} (${fR(diskon)} di bawah brosur)` : fR(diskon);
         out += lebih > 0
-            ? `<div style="font-size:12px;font-weight:700;color:#DC2626;">⚠️ Diskon ${fR(diskon)} · melebihi buffer ${fR(lebih)}</div>`
-            : `<div style="font-size:12px;font-weight:700;color:#166534;">🏷️ Diskon ${fR(diskon)} · dalam buffer</div>`;
+            ? `<div style="font-size:12px;font-weight:700;color:#DC2626;">⚠️ ${kata} ${nilaiL} · melebihi buffer ${fR(lebih)}</div>`
+            : `<div style="font-size:12px;font-weight:700;color:${adaDiskonTercatat ? '#166534' : '#64748B'};">${adaDiskonTercatat ? '🏷️' : 'ℹ️'} ${kata} ${nilaiL} · dalam buffer</div>`;
     }
     if(komisi > 0) {
         const lebihK = diskon + komisi - buf;
@@ -22235,6 +22447,17 @@ function openEditHargaModal(jamaahId) {
         document.getElementById('editHargaKomponenWrap').style.display = 'none';
         let currentHarga = getTotalHargaPaket(jamaah) || 0; 
         document.getElementById('editHargaValue').value = currentHarga.toLocaleString('id-ID'); 
+        const rinciE = hargaPaketRinci(jamaah, getKonfigurasiProData().harga_paket);
+        const fRE = n => 'Rp ' + Math.round(n).toLocaleString('id-ID');
+        let infoE = '';
+        if (rinciE.dasar > 0) {
+            infoE = rinciE.khusus > 0
+                ? `Saat ini memakai <b>Harga khusus</b>. Harga seragam program: ${fRE(rinciE.dasar)}.` + (rinciE.diskonDiabaikan > 0 ? ` Diskon ${fRE(rinciE.diskonDiabaikan)} di database <b>tidak dipakai</b> selama ada Harga khusus.` : '')
+                : `Memakai harga seragam ${fRE(rinciE.dasar)}` + (rinciE.diskon > 0 ? ` − diskon ${fRE(rinciE.diskon)}` : '') + `. Mengubah angka di sini membuatnya menjadi <b>Harga khusus</b>.`;
+        }
+        document.getElementById('editHargaInfo').innerHTML = infoE;
+        document.getElementById('editHargaAnak').checked = isTarifAnak(jamaah.additional_fields);
+        document.getElementById('editHargaResetBtn').style.display = rinciE.dasar > 0 && rinciE.khusus > 0 ? 'block' : 'none';
     }
     document.getElementById('editHargaModal').classList.add('show'); 
 }
@@ -22264,26 +22487,48 @@ function saveEditHarga() {
 
     const newHarga = parseInt(document.getElementById('editHargaValue').value.replace(/\./g, '')); 
     if (isNaN(newHarga) || newHarga <= 0) { showToast('⚠️ Masukkan harga yang valid!'); return; } 
-    let targetField = null; 
-    for (const field of dynamicFieldsJamaah) { 
-        const label = field.label.toLowerCase(); 
-        if (label.includes('harga') || label.includes('paket') || label.includes('tagihan') || label.includes('total')) { 
-            targetField = field; 
-            break; 
-        } 
-    } 
-    if (!targetField) { 
-        dynamicFieldsJamaah.push({ name: 'total_harga_paket', label: 'Total Harga Paket', type: 'text' }); 
-        saveDynamicFieldsJamaah(); 
-        targetField = dynamicFieldsJamaah[dynamicFieldsJamaah.length - 1]; 
-    } 
     if (!jamaah.additional_fields) jamaah.additional_fields = {}; 
-    jamaah.additional_fields[targetField.name] = newHarga.toLocaleString('id-ID'); 
+    const anakDicentang = !!document.getElementById('editHargaAnak')?.checked;
+    const hpE = getKonfigurasiProData().harga_paket;
+    const seragamAktif = !!(hpE && hpE.seragam && hpE.nominal > 0);
+    // Angka yang sama dengan harga otomatis (seragam − diskon) dan bukan tarif anak: tidak perlu disimpan sebagai Harga khusus
+    const hargaOtomatis = seragamAktif ? Math.max(0, hpE.nominal - diskonUntukJamaah(jamaah.additional_fields)) : 0;
+    const jadiKhusus = !(seragamAktif && newHarga === hargaOtomatis && !anakDicentang);
+    if (jadiKhusus) {
+        let targetField = null; 
+        for (const field of dynamicFieldsJamaah) { 
+            const label = field.label.toLowerCase(); 
+            if (label.includes('harga') || label.includes('paket') || label.includes('tagihan') || label.includes('total')) { targetField = field; break; } 
+        } 
+        if (!targetField) { 
+            dynamicFieldsJamaah.push({ name: 'total_harga_paket', label: 'Total Harga Paket', type: 'text' }); 
+            saveDynamicFieldsJamaah(); 
+            targetField = dynamicFieldsJamaah[dynamicFieldsJamaah.length - 1]; 
+        } 
+        hapusHargaManualJamaah(jamaah);
+        jamaah.additional_fields[targetField.name] = newHarga.toLocaleString('id-ID'); 
+    } else {
+        hapusHargaManualJamaah(jamaah);
+    }
+    if (anakDicentang) jamaah.additional_fields.tarif_anak = 'Ya'; else delete jamaah.additional_fields.tarif_anak;
     saveJamaahData(); 
     renderPaymentJamaahList(); 
     renderPaymentDashboard(); 
-    showToast(`✅ Harga paket diatur ke ${formatRupiah(newHarga)}`); 
+    let pesanE = jadiKhusus ? `✅ Harga ${anakDicentang ? 'tarif anak' : 'khusus'} ${formatRupiah(newHarga)}` : `✅ Memakai harga seragam ${formatRupiah(newHarga)}`;
+    if (anakDicentang && !seragamAktif) pesanE += '\n(Harga Seragam tidak aktif: penanda tarif anak tetap tersimpan)';
+    showToast(pesanE); 
     closeEditHargaModal(); 
+}
+function kembaliKeHargaSeragam() {
+    const jamaah = jamaahList.find(j => j.id == currentEditJamaahId);
+    if (!jamaah) return;
+    hapusHargaManualJamaah(jamaah);
+    if (jamaah.additional_fields) delete jamaah.additional_fields.tarif_anak;
+    saveJamaahData();
+    renderPaymentJamaahList();
+    renderPaymentDashboard();
+    showToast('✅ Kembali ke harga seragam' + (diskonUntukJamaah(jamaah.additional_fields) > 0 ? ' (diskon di database dipakai lagi)' : ''));
+    closeEditHargaModal();
 }
 
 // ==================== CICILAN TERJADWAL ====================
@@ -24516,7 +24761,7 @@ function openIndexedDB() {
 // dengan build baru, data MENTAH (langsung dari IndexedDB, bukan dari memori) disalin dulu sebelum
 // proses migrasi apapun berjalan — supaya kalau ada kesalahan di update, data lama masih bisa dipulihkan.
 // Dokumen & foto tidak ikut disalin (ukurannya besar, dan tidak pernah disentuh proses migrasi).
-const NAVARA_BUILD = '2026.10.12-106';
+const NAVARA_BUILD = '2026.10.12-110';
 const MAKS_SNAPSHOT = 3;
 
 // ==================== DAFTAR DATA PUSAT ====================
@@ -28896,10 +29141,20 @@ async function saveKonfigurasiPro() {
     // Simpan harga paket (per-Program)
     const nominalRaw = (document.getElementById('cfg_harga_seragam_nominal')?.value || '0').replace(/\./g,'').replace(/[^0-9]/g,'');
     const slot = ensureProgramConfigSlot();
-    slot.harga_paket = {
+    const hargaBaruCfg = {
         seragam: document.getElementById('cfg_harga_seragam_aktif')?.checked || false,
         nominal: parseInt(nominalRaw) || 0
     };
+    const hargaLamaCfg = slot.harga_paket || { seragam: false, nominal: 0 };
+    if (hargaBaruCfg.seragam !== !!hargaLamaCfg.seragam || (hargaBaruCfg.seragam && hargaBaruCfg.nominal !== (hargaLamaCfg.nominal || 0))) {
+        const terkena = jamaahList.filter(j => !tanpaTagihan(j));
+        const adaKhusus = terkena.filter(j => bacaHargaManualJamaah(j) > 0).length;
+        const sudahBayar = terkena.filter(j => paymentTransaksiList.some(t => String(t.id_jamaah) === String(j.id))).length;
+        const fRc = n => 'Rp ' + Math.round(n).toLocaleString('id-ID');
+        const ok = await konfirmasi(`Ubah Harga Seragam program ini?\n\n${hargaLamaCfg.seragam ? 'Sekarang: ' + fRc(hargaLamaCfg.nominal) : 'Sekarang: tidak aktif'}\nMenjadi: ${hargaBaruCfg.seragam ? fRc(hargaBaruCfg.nominal) : 'tidak aktif'}\n\nTagihan ${terkena.length - (hargaBaruCfg.seragam ? adaKhusus : 0)} jamaah ikut berubah (${sudahBayar} di antaranya sudah ada pembayaran).${hargaBaruCfg.seragam && adaKhusus ? `\n${adaKhusus} jamaah punya Harga khusus dan tidak berubah.` : ''}\nProgram yang sudah diarsipkan tidak terpengaruh.`);
+        if (!ok) { showToast('Perubahan Harga Seragam dibatalkan'); return; }
+    }
+    slot.harga_paket = hargaBaruCfg;
     konfigurasiPro.wa_template = { laporan: document.getElementById('cfg_wa_laporan').value };
     slot.keberangkatan = {
         tanggal: document.getElementById('cfg_tgl_keberangkatan')?.value || '',
