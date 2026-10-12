@@ -20676,7 +20676,8 @@ function renderRekeningRiyal() {
                     <span style="flex:1;min-width:0;word-break:break-word;"><b>${escapeHtml(r.bank)}</b> · ${escapeHtml(r.nomor)}<br><span style="color:#64748b;">a.n. ${escapeHtml(r.nama || '-')}</span>${aktif ? '<br><span style="color:var(--primary);font-weight:700;">dipakai di pesan WA</span>' : ''}</span>
                 </label>
                 <div style="display:flex;flex-shrink:0;">
-                    <button onclick="salinNomorRekeningRiyal(${r.id})" title="Salin nomor" style="border:none;background:none;color:#0D5C4A;font-size:14px;cursor:pointer;padding:4px 6px;"><i class="fas fa-copy"></i></button>
+                    <button onclick="salinRekeningRiyal(${r.id})" title="Salin bank, nomor, dan nama" style="border:none;background:none;color:#0D5C4A;font-size:14px;cursor:pointer;padding:4px 6px;"><i class="fas fa-copy"></i></button>
+                    <button onclick="salinNomorRekeningRiyal(${r.id})" title="Salin nomor saja" style="border:none;background:none;color:#0D5C4A;font-size:11px;font-weight:800;cursor:pointer;padding:4px 6px;">123</button>
                     <button onclick="editRekeningRiyal(${r.id})" title="Edit" style="border:none;background:none;color:#0D5C4A;font-size:14px;cursor:pointer;padding:4px 6px;"><i class="fas fa-pen"></i></button>
                     <button onclick="hapusRekeningRiyal(${r.id})" title="Hapus" style="border:none;background:none;color:#DC2626;font-size:14px;cursor:pointer;padding:4px 6px;"><i class="fas fa-trash-alt"></i></button>
                 </div>
@@ -20737,6 +20738,16 @@ function pilihRekeningRiyal(id) {
     simpanKonfigRiyal();
     renderRekeningRiyal();
 }
+// Salin lengkap: bank, nomor, dan atas nama (siap ditempel ke chat)
+function salinRekeningRiyal(id) {
+    const r = getRekeningRiyal().find(x => x.id === id);
+    if(!r) return;
+    const teks = `${r.bank}\nNo. Rek: ${r.nomor}${r.nama ? '\na.n. ' + r.nama : ''}`;
+    try {
+        if(navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(teks).then(() => showToast('Rekening disalin:\n' + teks), () => showToast(teks));
+        else showToast(teks);
+    } catch(e) { showToast(teks); }
+}
 function salinNomorRekeningRiyal(id) {
     const r = getRekeningRiyal().find(x => x.id === id);
     if(!r) return;
@@ -20744,6 +20755,17 @@ function salinNomorRekeningRiyal(id) {
         if(navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(r.nomor).then(() => showToast('Nomor disalin: ' + r.nomor), () => showToast(r.nomor));
         else showToast(r.nomor);
     } catch(e) { showToast(r.nomor); }
+}
+// Rekening tujuan transfer Riyal (yang dipilih) untuk dicantumkan di bukti dan laporan, supaya penerima tidak perlu menanyakan lagi
+function teksRekeningRiyalWA() {
+    const r = getRekeningRiyalDipilih();
+    if(!r) return '';
+    return `💳 *Rekening tujuan transfer:*\n🏦 *${r.bank}*\nNo. Rek: *${r.nomor}*${r.nama ? '\na.n. ' + r.nama : ''}`;
+}
+function htmlRekeningRiyalCetak() {
+    const r = getRekeningRiyalDipilih();
+    if(!r) return '';
+    return `<div style="margin-top:14px;padding:9px 12px;border:1.5px solid #0D5C4A;border-radius:8px;background:#f0f7f4;font-size:12px;-webkit-print-color-adjust:exact;print-color-adjust:exact;"><div style="color:#666;font-size:11px;margin-bottom:2px;">Rekening tujuan transfer</div><b>${escapeHtml(r.bank)}</b> · No. Rek <b>${escapeHtml(r.nomor)}</b>${r.nama ? ' · a.n. ' + escapeHtml(r.nama) : ''}</div>`;
 }
 // Pesan WA: nominal transfer pas + rekening tujuan, sekali kirim
 function teksPesanTransferRiyal(riyal, kurs) {
@@ -20795,7 +20817,8 @@ function teksBuktiTukarRiyal(t) {
     return `💱 *BUKTI TUKAR RIYAL*\n*${getNamaInstansiUtama()}*\n${garis}\n` +
         `Atas nama: ${t.keterangan || '-'}\nTanggal: ${t.tanggalTampil}\n${garis}\n` +
         `Uang diterima: ${f(t.uang)}\nKurs: ${t.kurs.toLocaleString('id-ID')}\nRiyal diberikan: *${t.riyal.toLocaleString('id-ID')} SAR*\n` +
-        `Kembalian: ${f(t.kembalian)}\nAdmin: ${t.admin}${t.diedit ? '\n(transaksi ini pernah diedit)' : ''}`;
+        `Kembalian: ${f(t.kembalian)}\nAdmin: ${t.admin}${t.diedit ? '\n(transaksi ini pernah diedit)' : ''}` +
+        (teksRekeningRiyalWA() ? `\n${garis}\n${teksRekeningRiyalWA()}` : '');
 }
 function shareBuktiTukarRiyalWA(id) {
     const t = getRiwayatTukarRiyal().find(x => x.id === id);
@@ -20831,6 +20854,7 @@ async function cetakBuktiTukarRiyal(id) {
         ${baris('Admin', escapeHtml(t.admin))}
     </table>
     ${t.diedit ? '<div class="edit">Catatan: transaksi ini pernah diedit. Angka di atas adalah nilai terbaru.</div>' : ''}
+    ${htmlRekeningRiyalCetak()}
     <div class="ttd"><div>Penerima<div class="gr">( ${escapeHtml(t.keterangan || '........................')} )</div></div><div>Admin<div class="gr">( ${escapeHtml(t.admin)} )</div></div></div>
     </body></html>`;
     const win = tampilkanJendelaCetak(html);
@@ -21067,7 +21091,7 @@ async function cetakLaporanTukarRiyal() {
     <table><thead><tr><th class="ctr">No</th><th>Tanggal</th><th>Ket.</th><th class="num">Uang Masuk</th><th class="num">Kurs</th><th class="num">Riyal</th><th class="num">Kembalian</th><th>Admin</th></tr></thead>
     <tbody>${rowsHtml}</tbody>
     <tfoot><tr><td colspan="3">TOTAL (${r.jumlah} transaksi)</td><td class="num">${f(r.uang)}</td><td></td><td class="num">${r.riyal.toLocaleString('id-ID')} SAR</td><td class="num">${f(r.kembalian)}</td><td></td></tr></tfoot></table>
-    ${ttdHtml}${qrHtml}
+    ${htmlRekeningRiyalCetak()}${ttdHtml}${qrHtml}
     `;
     const win = tampilkanJendelaCetak(html);
     injectWatermarkToPrintWin(win);
@@ -21136,6 +21160,16 @@ async function shareTukarRiyalPDF() {
         });
 
         y = doc.lastAutoTable.finalY + 10;
+        const rekRiyalPdf = getRekeningRiyalDipilih();
+        if (rekRiyalPdf) {
+            if (y + 18 > PH - 20) { doc.addPage(); y = 20; }
+            gambarKotakInfoPDF(doc, 14, y, PW-28, 16);
+            doc.setFontSize(8); doc.setTextColor(110,110,110); doc.setFont('helvetica','normal');
+            doc.text('Rekening tujuan transfer', 18, y + 5);
+            doc.setFontSize(9.5); doc.setTextColor(40,40,40); doc.setFont('helvetica','bold');
+            doc.text(`${rekRiyalPdf.bank} · No. Rek ${rekRiyalPdf.nomor}${rekRiyalPdf.nama ? ' · a.n. ' + rekRiyalPdf.nama : ''}`, 18, y + 11.5);
+            y += 22;
+        }
         // TTD & QR dijaga tidak bertabrakan dengan tabel: kalau sisa halaman sempit, pindah ke halaman baru
         const butuhTTD = (cfg.settings?.show_pimpinan === true) ? 50 : 0;
         if (y + butuhTTD > PH - 45) { doc.addPage(); y = 20; }
@@ -21175,7 +21209,8 @@ function shareTukarRiyalWA() {
     const r = ringkasLaporanTukarRiyal(list);
     const kepala = `💱 *LAPORAN TUKAR RIYAL*\n*${namaInstansi}*\n${tgl}\n${garis}\nTotal Transaksi: ${r.jumlah}\nTotal Rupiah Masuk: ${f(r.uang)}\nTotal Riyal Keluar: *${r.riyal.toLocaleString('id-ID')} SAR*\nTotal Kembalian: ${f(r.kembalian)}\n${garis}\n`;
     // Penutup mengikuti pengaturan: berlisensi memakai nama instansinya sendiri; versi gratis tetap "Navara App"
-    const penutup = `\n${garis}\n_${isLicensed() ? namaInstansi : 'Navara App'}_`;
+    const rekWA = teksRekeningRiyalWA();
+    const penutup = `${rekWA ? '\n' + garis + '\n' + rekWA : ''}\n${garis}\n_${isLicensed() ? namaInstansi : 'Navara App'}_`;
     const BATAS = 3000; // sama dengan batas aman pesan WA di fitur lain
     const baris = list.map((t, i) => `${i+1}. ${t.tanggalTampil} · ${t.keterangan || '-'}${t.diedit ? ' (diedit)' : ''}\n   ${f(t.uang)} @${t.kurs.toLocaleString('id-ID')} → *${t.riyal.toLocaleString('id-ID')} SAR* (kembali ${f(t.kembalian)})`);
     let isi = '', dipakai = 0;
@@ -24481,7 +24516,7 @@ function openIndexedDB() {
 // dengan build baru, data MENTAH (langsung dari IndexedDB, bukan dari memori) disalin dulu sebelum
 // proses migrasi apapun berjalan — supaya kalau ada kesalahan di update, data lama masih bisa dipulihkan.
 // Dokumen & foto tidak ikut disalin (ukurannya besar, dan tidak pernah disentuh proses migrasi).
-const NAVARA_BUILD = '2026.10.12-104';
+const NAVARA_BUILD = '2026.10.12-106';
 const MAKS_SNAPSHOT = 3;
 
 // ==================== DAFTAR DATA PUSAT ====================
