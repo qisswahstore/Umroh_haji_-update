@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <script>(function(){try{var k=localStorage.getItem("navara_ukuran_teks");if(k==="besar"||k==="sangat_besar")document.documentElement.classList.add(k==="besar"?"uk-besar":"uk-sangat");}catch(e){}})();</script>
     <meta name="theme-color" content="#0D5C4A">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -59,6 +60,10 @@
         #menuGridPremium.mode-keterangan, .semua-menu-grid.mode-keterangan { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
         #menuGridPremium.mode-keterangan .menu-tile, .semua-menu-grid.mode-keterangan .menu-tile { background: var(--card-bg); border-radius: 18px; padding: 14px 6px 12px; min-height: 124px; border: 1px solid rgba(0,0,0,0.05); box-shadow: 0 2px 8px rgba(0,0,0,0.03); }
         .menu-tile-ket { font-size: 10.5px; color: var(--gray); text-align: center; line-height: 1.3; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+        #entryModal .input-group { margin-bottom: 12px; } #entryModal .input-group > label { display: block; margin-bottom: 6px; }
+        body.dark-mode #entryAksiBar { background: #2A2A3A; }
+        html.uk-besar { zoom: 1.15; } html.uk-sangat { zoom: 1.3; }
+        @media print { html.uk-besar, html.uk-sangat { zoom: 1 !important; } }
         .pilih-tampilan { flex: 1; border: 1.5px solid #e5e7eb; background: #fff; border-radius: 12px; padding: 10px 8px; font-family: inherit; font-size: 13px; font-weight: 700; color: #374151; cursor: pointer; display: flex; flex-direction: column; gap: 2px; align-items: center; }
         .pilih-tampilan small { font-size: 11px; font-weight: 500; color: #6b7280; }
         .pilih-tampilan.aktif { border-color: var(--primary); background: var(--primary-muda); color: var(--primary); }
@@ -3722,8 +3727,16 @@ https://github.com/nodeca/pako/blob/main/LICENSE
     <div class="header-premium header-premium-small"><div class="back-header"><i class="fas fa-arrow-left" onclick="showPage('home')"></i><h2>Atur Menu Utama</h2><div style="width:30px;"></div></div></div>
     <div class="container">
         <div class="card-premium" style="font-size:12.5px;color:#374151;line-height:1.55;">
-            Ketuk <b>−</b> untuk mengeluarkan menu dari Home, ketuk <b>+</b> untuk memasukkannya. Menu yang dikeluarkan otomatis pindah ke <b>Menu Lengkap</b>.
-            Untuk mengubah urutan, ketuk menu di bagian "Tampil di Home", lalu pakai tombol <b>◀ ▶</b>.
+            Ketuk <b>−</b> untuk keluarkan menu dari Home, <b>+</b> untuk masukkan. Menu yang dikeluarkan tetap ada di <b>Menu Lengkap</b>.
+        </div>
+        <div class="card-premium">
+            <b style="font-size:15px;">Ukuran Teks</b>
+            <div style="font-size:12px;color:#6b7280;margin:4px 0 0;line-height:1.5;">Membesarkan seluruh tulisan dan angka di aplikasi ini. Berlaku di perangkat ini saja, jadi HP dan tablet bisa berbeda. Langsung aktif.</div>
+            <div style="display:flex;gap:8px;margin-top:10px;">
+                <button type="button" id="ukNormal" class="pilih-tampilan" onclick="setUkuranTeks('normal')">Normal<small>bawaan</small></button>
+                <button type="button" id="ukBesar" class="pilih-tampilan" onclick="setUkuranTeks('besar')">Besar<small>+15%</small></button>
+                <button type="button" id="ukSangat" class="pilih-tampilan" onclick="setUkuranTeks('sangat_besar')">Sangat Besar<small>+30%</small></button>
+            </div>
         </div>
         <div class="card-premium">
             <b style="font-size:15px;">Tampilan di Home</b>
@@ -3737,6 +3750,7 @@ https://github.com/nodeca/pako/blob/main/LICENSE
                 <b style="font-size:15px;">Tampil di Home</b>
                 <span id="aturMenuJumlah" style="font-size:12px;font-weight:700;color:var(--primary);"></span>
             </div>
+            <div style="font-size:11.5px;color:#6b7280;margin:2px 0 6px;">Ubah urutan: ketuk satu menu, lalu pakai tombol ◀ ▶ yang muncul.</div>
             <div id="aturMenuHome" class="atur-menu-grid"></div>
             <div id="aturMenuGeser" style="display:none;align-items:center;justify-content:space-between;gap:8px;margin-top:10px;background:var(--primary-muda);border-radius:12px;padding:8px;">
                 <button type="button" onclick="geserMenuHome(-1)" style="border:none;background:#fff;color:var(--primary);font-weight:700;border-radius:10px;padding:10px 12px;cursor:pointer;">◀ Kiri</button>
@@ -4382,11 +4396,11 @@ https://github.com/nodeca/pako/blob/main/LICENSE
     </div>
     <div class="input-group" style="position:relative;">
         <label>Isi Catatan</label>
-        <textarea id="entryIsi" rows="12" placeholder="Tulis catatan di sini..." style="resize:vertical;min-height:180px;" oninput="autoSaveDraftCatatan()"></textarea>
+        <textarea id="entryIsi" rows="6" placeholder="Tulis catatan di sini..." style="resize:none;min-height:120px;max-height:38vh;overflow-y:auto;" oninput="autoSaveDraftCatatan()"></textarea>
         <div id="entryCharCount" style="position:absolute;bottom:8px;right:12px;font-size:10px;color:#bbb;">0 karakter</div>
     </div>
     <div class="input-group" style="margin-bottom:12px;">
-        <label>Warna Label <span style="color:#6B7280;font-size:11px;">(pilih setelah selesai menulis)</span></label>
+        <label>Warna Label <span style="color:#6B7280;font-size:11px;">(bawaan: Umum)</span></label>
         <div style="display:flex;gap:10px;margin-top:6px;">
             <div style="display:flex;flex-direction:column;align-items:center;gap:4px;">
                 <span id="colorOpt_default" onclick="pilihWarnaCatatan('default')" style="width:28px;height:28px;border-radius:50%;background:var(--primary);cursor:pointer;border:3px solid #333;display:inline-block;"></span>
@@ -4412,7 +4426,7 @@ https://github.com/nodeca/pako/blob/main/LICENSE
         <input type="hidden" id="entryWarna" value="default">
     </div>
     <div id="draftIndicator" style="display:none;background:#FEF9E7;border:1px solid #F3E5AB;border-radius:10px;padding:8px 10px;font-size:11px;color:#8a6d1f;margin-bottom:10px;">💾 Draft tersimpan otomatis</div>
-    <div style="display:flex;gap:8px;">
+    <div id="entryAksiBar" style="display:flex;gap:8px;position:sticky;bottom:-24px;background:#fff;padding:10px 0 24px;margin:0 0 -24px;z-index:2;">
         <button class="btn btn-primary" style="flex:1;" onclick="saveCatatanEntry()">💾 SIMPAN</button>
         <button class="btn" style="flex:1;background:#e2e8f0;color:#333;" onclick="closeEntryModal()">Batal</button>
     </div>
@@ -6389,7 +6403,7 @@ const FITUR_LENGKAP = [
 
 const MENU_HOME_KUNCI = 'navara_menu_home';
 const MENU_TAMPILAN_KUNCI = 'navara_menu_tampilan';
-const MAKS_MENU_HOME = 11;
+const MAKS_MENU_HOME = 12;
 
 function menuHomeBawaan() { return menuItemsPremium.map(m => m.id); }
 
@@ -6492,9 +6506,28 @@ let aturMenuDraf = [], aturMenuDipilih = null, aturMenuTampilanDraf = 'keteranga
 function bukaAturMenu() {
     aturMenuDraf = [...getMenuHomeTerpilih()];
     aturMenuTampilanDraf = getMenuTampilan();
+    tandaiUkuranTeks();
     aturMenuDipilih = null;
     document.getElementById('aturMenuPesan').textContent = '';
     renderAturMenu();
+}
+
+// Ukuran Teks: per perangkat (localStorage), langsung berlaku, tidak ikut Backup/data program.
+function getUkuranTeks() { try { const k = localStorage.getItem('navara_ukuran_teks'); return (k === 'besar' || k === 'sangat_besar') ? k : 'normal'; } catch(e) { return 'normal'; } }
+function setUkuranTeks(mode) {
+    const m = (mode === 'besar' || mode === 'sangat_besar') ? mode : 'normal';
+    try { if (m === 'normal') localStorage.removeItem('navara_ukuran_teks'); else localStorage.setItem('navara_ukuran_teks', m); } catch(e) {}
+    const root = document.documentElement;
+    root.classList.remove('uk-besar', 'uk-sangat');
+    if (m === 'besar') root.classList.add('uk-besar');
+    if (m === 'sangat_besar') root.classList.add('uk-sangat');
+    tandaiUkuranTeks();
+}
+function tandaiUkuranTeks() {
+    const m = getUkuranTeks();
+    [['ukNormal','normal'],['ukBesar','besar'],['ukSangat','sangat_besar']].forEach(([id, v]) => {
+        const el = document.getElementById(id); if (el) el.classList.toggle('aktif', m === v);
+    });
 }
 
 function pilihTampilanMenu(mode) {
@@ -24181,6 +24214,7 @@ function updateCharCount() {
     const el = document.getElementById('entryIsi');
     const counter = document.getElementById('entryCharCount');
     if(el && counter) counter.textContent = el.value.length + ' karakter';
+    if(el) { el.style.height = 'auto'; el.style.height = Math.min(Math.max(el.scrollHeight, 120), Math.round(window.innerHeight * 0.38)) + 'px'; }
 }
 
 function getDraftCatatan() {
@@ -24931,7 +24965,7 @@ function openIndexedDB() {
 // dengan build baru, data MENTAH (langsung dari IndexedDB, bukan dari memori) disalin dulu sebelum
 // proses migrasi apapun berjalan — supaya kalau ada kesalahan di update, data lama masih bisa dipulihkan.
 // Dokumen & foto tidak ikut disalin (ukurannya besar, dan tidak pernah disentuh proses migrasi).
-const NAVARA_BUILD = '2026.10.14-115';
+const NAVARA_BUILD = '2026.10.14-118';
 const MAKS_SNAPSHOT = 3;
 
 // ==================== DAFTAR DATA PUSAT ====================
