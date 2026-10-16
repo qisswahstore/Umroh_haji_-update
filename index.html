@@ -4332,7 +4332,7 @@ https://github.com/nodeca/pako/blob/main/LICENSE
 
 <div id="paymentModal" class="modal"><div class="modal-content"><h3> Input Pembayaran</h3><div class="input-group"><label> Tanggal</label><input type="date" id="paymentTanggal"></div><div class="input-group"><label> Nama Jamaah *</label><select id="paymentJamaahSelect"><option value="">-- Pilih Jamaah --</option></select></div><div class="input-group" id="paymentKomponenWrap" style="display:none;"><label> Untuk Komponen</label><select id="paymentKomponen"></select></div><div class="input-group"><label> Nominal (Rp)</label><input type="text" class="money-input" inputmode="numeric" id="paymentNominal" placeholder="Contoh: 5.000.000"></div><div class="input-group"><label> Metode</label><select id="paymentMetode"><option value="Transfer">Transfer</option><option value="Cash">Cash</option><option value="QRIS">QRIS</option></select></div><div class="input-group"><label> Keterangan</label><input type="text" id="paymentKeterangan" placeholder="DP / Cicilan / Pelunasan"></div><div class="row"><button class="btn btn-secondary" onclick="closePaymentModal()" style="flex:1">Batal</button><button class="btn btn-primary" onclick="simpanPembayaran()" style="flex:1">Simpan</button></div></div></div>
 <div id="invoiceConfirmModal" class="modal"><div class="modal-content"><h3> Konfirmasi Kirim Invoice</h3><p>Akan dikirim ke nomor WhatsApp:</p><p id="invoiceWANumber" style="font-weight:bold; font-size:18px; background:#f0f0f0; padding:10px; border-radius:10px;"></p><p id="invoiceWAName" style="color:#666;"></p><div id="invoiceRekPilih"></div><div class="row" style="margin-top:20px;"><button class="btn btn-secondary" onclick="closeInvoiceConfirmModal()" style="flex:1">Batal</button><button class="btn btn-wa" onclick="sendInvoiceWA()" style="flex:1">Kirim via WA</button><button class="btn btn-orange" onclick="copyInvoiceText()" style="flex:1">Salin Teks</button></div></div></div>
-<div id="editHargaModal" class="modal"><div class="modal-content"><h3> Edit Harga Paket</h3><p id="editHargaNama" style="font-weight:bold;"></p><div class="input-group" id="editHargaTotalWrap"><label> Total Harga Paket (Rp)</label><input type="text" class="money-input" inputmode="numeric" id="editHargaValue" placeholder="Contoh: 35.000.000"><div id="editHargaInfo" style="font-size:12px;color:#64748B;margin-top:6px;line-height:1.5;"></div><label style="display:block;margin-top:10px;font-size:12px;color:#666;">👶 Tarif anak/bayi (harga hasil nego, bukan diskon)</label><select id="editHargaJenisAnak" onchange="perbaruiEditHargaAnak()" style="width:100%;padding:10px;border-radius:10px;border:1.5px solid #e2e8f0;font-size:14px;"><option value="">Bukan anak/bayi</option><option value="anak">Anak (pakai kursi)</option><option value="bayi">Bayi (tanpa kursi)</option></select><div id="editHargaModalAnakWrap" style="display:none;margin-top:8px;"><label style="font-size:12px;color:#666;">Modal anak/bayi (Rp, opsional)</label><input type="text" class="money-input" inputmode="numeric" id="editHargaModalAnak" placeholder="Kosong = otomatis"><div id="editHargaModalAnakInfo" style="font-size:11px;color:#64748b;margin-top:4px;"></div></div><label style="display:block;margin-top:10px;font-size:12px;color:#666;">🧳 Perlengkapan</label><select id="editHargaPerleng" onchange="perbaruiEditHargaPerleng(true)" style="width:100%;padding:10px;border-radius:10px;border:1.5px solid #e2e8f0;font-size:14px;"><option value="">Ambil perlengkapan</option><option value="tidak">Tidak ambil (pakai milik sebelumnya)</option></select><div id="editHargaPerlengWrap" style="display:none;margin-top:8px;"><label style="font-size:12px;color:#666;">Potongan harga (Rp), sesuai kesepakatan</label><div style="display:flex;gap:6px;margin:4px 0 6px;flex-wrap:wrap;"><button type="button" onclick="pilihPotonganPerleng(1000000)" style="padding:6px 12px;border:1.5px solid #0F766E;background:white;color:#0F766E;border-radius:14px;font-size:12px;font-weight:700;cursor:pointer;">1.000.000</button><button type="button" onclick="pilihPotonganPerleng(1500000)" style="padding:6px 12px;border:1.5px solid #0F766E;background:white;color:#0F766E;border-radius:14px;font-size:12px;font-weight:700;cursor:pointer;">1.500.000</button></div><input type="text" class="money-input" inputmode="numeric" id="editHargaPotongan" placeholder="Ketik angka lain" oninput="perbaruiEditHargaPerleng(true)"><label style="display:block;margin-top:8px;font-size:12px;color:#666;">Modal yang dihemat (Rp, opsional)</label><input type="text" class="money-input" inputmode="numeric" id="editHargaModalHemat" placeholder="Kosong = otomatis dari Estimasi" oninput="perbaruiEditHargaPerleng(false)"><div id="editHargaPerlengInfo" style="font-size:11.5px;color:#475569;margin-top:6px;line-height:1.5;"></div></div><button type="button" id="editHargaResetBtn" class="btn btn-secondary" style="display:none;width:100%;margin-top:10px;" onclick="kembaliKeHargaSeragam()">↩️ Kembali ke harga seragam</button></div><div id="editHargaKomponenWrap" style="display:none;"></div><div class="row"><button class="btn btn-secondary" onclick="closeEditHargaModal()" style="flex:1">Batal</button><button class="btn btn-primary" onclick="saveEditHarga()" style="flex:1">Simpan</button></div></div></div>
+<div id="editHargaModal" class="modal"><div class="modal-content"><h3> Edit Harga Paket</h3><p id="editHargaNama" style="font-weight:bold;"></p><div class="input-group" id="editHargaTotalWrap"><label> Total Harga Paket (Rp)</label><input type="text" class="money-input" inputmode="numeric" id="editHargaValue" placeholder="Contoh: 35.000.000"><div id="editHargaInfo" style="font-size:12px;color:#64748B;margin-top:6px;line-height:1.5;"></div><label style="display:block;margin-top:10px;font-size:12px;color:#666;">👶 Tarif anak/bayi (harga hasil nego, bukan diskon)</label><select id="editHargaJenisAnak" onchange="perbaruiEditHargaAnak()" style="width:100%;padding:10px;border-radius:10px;border:1.5px solid #e2e8f0;font-size:14px;"><option value="">Bukan anak/bayi</option><option value="anak">Anak (pakai kursi)</option><option value="bayi">Bayi (tanpa kursi)</option></select><div id="editHargaModalAnakWrap" style="display:none;margin-top:8px;"><label style="font-size:12px;color:#666;">Modal anak/bayi (Rp, opsional)</label><input type="text" class="money-input" inputmode="numeric" id="editHargaModalAnak" placeholder="Kosong = otomatis" oninput="perbaruiEditHargaPerleng(false)"><div id="editHargaModalAnakInfo" style="font-size:11px;color:#64748b;margin-top:4px;"></div></div><div id="editHargaPerlengBlok"><label style="display:block;margin-top:10px;font-size:12px;color:#666;">🧳 Perlengkapan</label><select id="editHargaPerleng" onchange="perbaruiEditHargaPerleng(true)" style="width:100%;padding:10px;border-radius:10px;border:1.5px solid #e2e8f0;font-size:14px;"><option value="">Ambil perlengkapan</option><option value="tidak">Tidak ambil (pakai milik sebelumnya)</option></select><div id="editHargaPerlengWrap" style="display:none;margin-top:8px;"><label style="font-size:12px;color:#666;">Potongan harga (Rp), sesuai kesepakatan</label><div style="display:flex;gap:6px;margin:4px 0 6px;flex-wrap:wrap;"><button type="button" onclick="pilihPotonganPerleng(1000000)" style="padding:6px 12px;border:1.5px solid #0F766E;background:white;color:#0F766E;border-radius:14px;font-size:12px;font-weight:700;cursor:pointer;">1.000.000</button><button type="button" onclick="pilihPotonganPerleng(1500000)" style="padding:6px 12px;border:1.5px solid #0F766E;background:white;color:#0F766E;border-radius:14px;font-size:12px;font-weight:700;cursor:pointer;">1.500.000</button></div><input type="text" class="money-input" inputmode="numeric" id="editHargaPotongan" placeholder="Ketik angka lain" oninput="perbaruiEditHargaPerleng(true)"><label style="display:block;margin-top:8px;font-size:12px;color:#666;">Modal yang dihemat (Rp, opsional)</label><input type="text" class="money-input" inputmode="numeric" id="editHargaModalHemat" placeholder="Kosong = otomatis dari Estimasi" oninput="perbaruiEditHargaPerleng(false)"><div id="editHargaPerlengInfo" style="font-size:11.5px;color:#475569;margin-top:6px;line-height:1.5;"></div></div></div><button type="button" id="editHargaResetBtn" class="btn btn-secondary" style="display:none;width:100%;margin-top:10px;" onclick="kembaliKeHargaSeragam()">↩️ Kembali ke harga seragam</button></div><div id="editHargaKomponenWrap" style="display:none;"></div><div class="row"><button class="btn btn-secondary" onclick="closeEditHargaModal()" style="flex:1">Batal</button><button class="btn btn-primary" onclick="saveEditHarga()" style="flex:1">Simpan</button></div></div></div>
 <div id="riwayatModal" class="modal"><div class="modal-content"><h3> Riwayat Pembayaran</h3><p id="riwayatNama" style="font-weight:bold;"></p><div id="riwayatListContainer" style="max-height:400px; overflow-y:auto;"></div><div class="row" style="margin-top:15px;"><button class="btn btn-secondary" onclick="closeRiwayatModal()" style="flex:1">Tutup</button></div></div></div>
 <div id="masterFieldModal" class="modal"><div class="modal-content"><h3>Kelola Field Dinamis</h3><div class="dynamic-field"><label>Nama Field</label><input type="text" id="masterNewFieldName" placeholder="contoh: alamat, no_hp"></div><div class="dynamic-field"><label>Label Field</label><input type="text" id="masterNewFieldLabel" placeholder="Contoh: Alamat, No HP"></div><div class="dynamic-field"><label>Tipe</label><select id="masterNewFieldType"><option value="text">Text</option><option value="date">Tanggal</option><option value="tel">Telepon</option><option value="textarea">Text Area</option></select></div><button class="btn btn-primary" onclick="addMasterDynamicField()"> TAMBAH FIELD</button><div id="masterFieldsList" style="margin-top:15px;"></div><button class="btn btn-secondary mt-2" onclick="closeMasterFieldModal()">TUTUP</button></div></div>
 <div id="masterItemModal" class="modal"><div class="modal-content"><h3>Kelola Daftar Item</h3><div class="row"><div class="input-group"><label>Nama Item</label><input type="text" id="masterNewItem" placeholder="Contoh: Kain Ihram"></div><button class="btn-small" onclick="addMasterItem()" style="background:var(--primary); color:white; padding:0 15px;">+ Tambah</button></div><div id="masterItemList" style="margin-top:15px;"></div><button class="btn btn-secondary mt-2" onclick="closeMasterItemModal()">TUTUP</button></div></div>
@@ -5154,7 +5154,7 @@ function modalJamaahRinci(j, est, tipe, modalBayiProg) {
         else r = { modal: dewasa, sumber: 'dewasa', jenis };
     }
     r.hemat = 0;
-    if (r.sumber === 'dewasa' && est && tidakAmbilPerlengkapan(af)) { // modal yang diketik/diperkirakan dianggap sudah final: tidak dikurangi lagi
+    if (r.sumber === 'dewasa' && jenis !== 'bayi' && est && tidakAmbilPerlengkapan(af)) { // modal yang diketik/diperkirakan dianggap sudah final, dan bayi punya modal tersendiri: tidak dikurangi lagi
         r.hemat = Math.min(modalHematPerlengkapan(af, est), r.modal);
         r.modal -= r.hemat;
     }
@@ -5163,12 +5163,13 @@ function modalJamaahRinci(j, est, tipe, modalBayiProg) {
 // Efek perlengkapan satu jamaah: pot = potongan yang benar-benar masuk ke harga, hemat = modal yang turun. est/hp boleh diberikan (laporan per program).
 function perlengkapanJamaah(j, est, hp) {
     const af = (j && j.additional_fields) || {};
-    if (!tidakAmbilPerlengkapan(af)) return { tidak: false, pot: 0, hemat: 0 };
+    if (!tidakAmbilPerlengkapan(af) || isBayi(af)) return { tidak: false, pot: 0, hemat: 0 }; // bayi: modalnya tersendiri, perlengkapan tidak ikut dihitung
     if (est === undefined) { try { est = getEstimasiData(); } catch(e) { est = null; } }
     if (hp === undefined) { try { hp = getKonfigurasiProData().harga_paket; } catch(e) { hp = null; } }
-    const pot = hargaPaketRinci(j, hp || { seragam: false, nominal: 0 }).potongan || 0;
-    const hemat = est ? modalHematPerlengkapan(af, est) : 0;
-    return { tidak: true, pot, hemat };
+    const rinci = hargaPaketRinci(j, hp || { seragam: false, nominal: 0 });
+    const hemat = est ? modalJamaahRinci(j, est, af.tipe_paket || '', modalBayiProgram()).hemat : 0; // sama persis dengan modal yang dipakai Rekap
+    const hargaDiketik = rinci.khusus > 0 || rinci.sumber === 'manual' || rinci.sumber === 'anak';
+    return { tidak: true, pot: rinci.potongan || 0, hemat, hargaDiketik };
 }
 function teksSumberModalAnak(sumber) { return sumber === 'diisi' ? 'modal diisi' : (sumber === 'perkiraan' ? 'modal perkiraan' : 'modal seperti dewasa'); }
 // hp = pengaturan Harga Seragam program ({seragam, nominal}). sumber: 'seragam' | 'diskon' | 'khusus' | 'anak' | 'manual' | 'kosong'
@@ -5241,10 +5242,11 @@ function ringkasPerlengkapanDari(list) {
     const hp = getKonfigurasiProData().harga_paket || { seragam: false, nominal: 0 }, mb = modalBayiProgram();
     let n = 0, pot = 0, hemat = 0, semua = true;
     (list || []).forEach(j => {
-        if (tanpaTagihan(j) || !tidakAmbilPerlengkapan(j.additional_fields)) return;
+        if (tanpaTagihan(j) || !tidakAmbilPerlengkapan(j.additional_fields) || isBayi(j.additional_fields)) return;
         if (!(getTotalHargaPaket(j) > 0)) return;
         const mr = modalJamaahRinci(j, est, (j.additional_fields && j.additional_fields.tipe_paket) || '', mb);
         const r = hargaPaketRinci(j, hp);
+        if (!(mr.hemat > 0) && !(r.potongan > 0)) return; // modal anak diketik sendiri & harga diketik: tidak ada efek perlengkapan yang bisa dihitung
         n++; pot += r.potongan || 0; hemat += mr.hemat || 0;
         if (!(r.potongan > 0)) semua = false;
     });
@@ -9632,7 +9634,7 @@ function hitungRujukanEstimasiPengeluaran(kategori) {
     const kursi = nJam + tl; // tiket dan biaya lain juga keluar untuk FOC dan TL
     if (kursi <= 0) return null;
     // Perlengkapan hanya dibeli untuk yang mengambil: kursi dikurangi jamaah yang tidak ambil
-    const nTanpaPerleng = def.grup === 'alat' ? jamaahList.filter(j => !tanpaTagihan(j) && tidakAmbilPerlengkapan(j.additional_fields)).length : 0;
+    const nTanpaPerleng = def.grup === 'alat' ? jamaahList.filter(j => !tanpaTagihan(j) && tidakAmbilPerlengkapan(j.additional_fields) && !isBayi(j.additional_fields)).length : 0;
     const nBeli = Math.max(0, kursi - nTanpaPerleng);
     const jml = { Quad: 0, Triple: 0, Double: 0 };
     jamaahList.forEach(j => { const t = j.additional_fields && j.additional_fields.tipe_paket; if (t === 'Triple' || t === 'Double') jml[t]++; });
@@ -13756,10 +13758,10 @@ const PEMERIKSA_KESEHATAN = [
                 if (abaiK.length) out.push(T('jamaah.diskon_diabaikan:' + p.id, 'Jamaah', 'perhatian', 'Diskon tidak dipakai karena ada Harga khusus' + tag, 'Kolom Diskon untuk Jamaah terisi, tetapi harga khusus yang diketik yang dipakai.', 'Pilih salah satu: hapus Harga khusus (tombol "Kembali ke harga seragam") atau kosongkan kolom Diskon.', abaiK.map(x => `${x.j.nama_lengkap || '(tanpa nama)'} · diskon ${rp(x.r.diskonDiabaikan)}, harga ${rp(x.r.total)}`)));
             }
             // 2a'. Perlengkapan: tidak ambil tetapi potongan belum diisi (modal turun, harga belum) / potongan tidak terpakai
-            { const perlK = list.filter(j => !tanpaTagihan(j) && tidakAmbilPerlengkapan(j.additional_fields));
+            { const perlK = list.filter(j => !tanpaTagihan(j) && tidakAmbilPerlengkapan(j.additional_fields) && !isBayi(j.additional_fields));
               if (perlK.length) {
                   const seragamOnP = !!(hpK && hpK.seragam && hpK.nominal > 0);
-                  const tanpaPot = seragamOnP ? perlK.filter(j => !(potonganPerlengkapanDiisi(j.additional_fields) > 0) && !(bacaHargaManualJamaah(j) > 0)) : [];
+                  const tanpaPot = seragamOnP ? perlK.filter(j => !(potonganPerlengkapanDiisi(j.additional_fields) > 0) && !(bacaHargaManualJamaah(j) > 0) && !isTarifAnak(j.additional_fields)) : [];
                   if (tanpaPot.length) out.push(T('jamaah.perlengkapan_tanpa_potongan:' + p.id, 'Jamaah', 'perhatian', `${tanpaPot.length} jamaah tidak ambil perlengkapan, potongan belum diisi` + tag, 'Modalnya sudah dikurangi biaya perlengkapan, tetapi harganya belum dipotong, sehingga laba terlihat lebih besar dari kenyataan.', 'Isi potongan lewat tombol Harga di Pembayaran (pilih Perlengkapan: Tidak ambil).', tanpaPot.map(j => nama({ j }))));
                   const abaiP = perlK.filter(j => potonganPerlengkapanDiisi(j.additional_fields) > 0 && (!seragamOnP || bacaHargaManualJamaah(j) > 0));
                   if (abaiP.length) out.push(T('jamaah.perlengkapan_potongan_diabaikan:' + p.id, 'Jamaah', 'info', `${abaiP.length} potongan perlengkapan tidak dipakai` + tag, 'Potongan hanya dipakai di harga otomatis (Harga Seragam). Bila Harga khusus diketik atau Harga Seragam mati, harga yang diketik yang berlaku, jadi pastikan angkanya sudah memuat potongan.', '', abaiP.map(j => nama({ j }))));
@@ -22171,8 +22173,12 @@ function labelDiskonJamaah(j, est) {
     let out = '';
     if(plL.tidak) {
         const efekL = plL.hemat - plL.pot;
-        const ketL = plL.pot <= 0 ? ' · ⚠️ potongan belum diisi' : (efekL === 0 ? ' · untung tidak berubah' : (efekL < 0 ? ' · untung turun ' + fR(-efekL) : ' · untung naik ' + fR(efekL)));
-        out += `<div style="font-size:12px;font-weight:700;color:${plL.pot <= 0 || efekL < 0 ? '#B45309' : '#0F766E'};">🧳 Tanpa perlengkapan: potongan ${fR(plL.pot)} · modal turun ${fR(plL.hemat)}${ketL}</div>`;
+        if (plL.hargaDiketik) {
+            out += `<div style="font-size:12px;font-weight:700;color:#0F766E;">🧳 Tanpa perlengkapan: ${plL.hemat > 0 ? 'modal turun ' + fR(plL.hemat) + ' · ' : 'modal sudah diisi sendiri · '}harga mengikuti yang diketik</div>`;
+        } else {
+            const ketL = plL.pot <= 0 ? ' · ⚠️ potongan belum diisi' : (efekL === 0 ? ' · untung tidak berubah' : (efekL < 0 ? ' · untung turun ' + fR(-efekL) : ' · untung naik ' + fR(efekL)));
+            out += `<div style="font-size:12px;font-weight:700;color:${plL.pot <= 0 || efekL < 0 ? '#B45309' : '#0F766E'};">🧳 Tanpa perlengkapan: potongan ${fR(plL.pot)} · modal turun ${fR(plL.hemat)}${ketL}</div>`;
+        }
     }
     if(anakL) out += `<div style="font-size:12px;font-weight:700;color:#7C3AED;">👶 Tarif anak/bayi ${fR(h)} (bukan diskon)</div>`;
     if(rinciL.diskonDiabaikan > 0) out += `<div style="font-size:12px;font-weight:700;color:#B45309;">⚠️ Diskon ${fR(rinciL.diskonDiabaikan)} tidak dipakai: ada Harga khusus</div>`;
@@ -22861,12 +22867,15 @@ function hargaOtomatisEditHarga() {
     const hp = getKonfigurasiProData().harga_paket;
     if (!(hp && hp.seragam && hp.nominal > 0)) return null;
     const diskon = Math.min(diskonUntukJamaah(jamaah.additional_fields), hp.nominal);
-    const tidak = document.getElementById('editHargaPerleng')?.value === 'tidak';
+    const tidak = document.getElementById('editHargaJenisAnak')?.value !== 'bayi' && document.getElementById('editHargaPerleng')?.value === 'tidak';
     const pot = tidak ? Math.min(uangDariField(document.getElementById('editHargaPotongan')?.value), hp.nominal - diskon) : 0;
     return { total: hp.nominal - diskon - pot, dasar: hp.nominal, diskon, pot };
 }
 function perbaruiEditHargaPerleng(ikutiHarga) {
-    const tidak = document.getElementById('editHargaPerleng')?.value === 'tidak';
+    const jenisA = document.getElementById('editHargaJenisAnak')?.value || '';
+    const blok = document.getElementById('editHargaPerlengBlok');
+    if (blok) blok.style.display = jenisA === 'bayi' ? 'none' : 'block'; // bayi: modalnya tersendiri, tidak ada pilihan perlengkapan
+    const tidak = jenisA !== 'bayi' && document.getElementById('editHargaPerleng')?.value === 'tidak';
     const wrap = document.getElementById('editHargaPerlengWrap'), info = document.getElementById('editHargaPerlengInfo');
     if (wrap) wrap.style.display = tidak ? 'block' : 'none';
     const oto = hargaOtomatisEditHarga();
@@ -22876,14 +22885,15 @@ function perbaruiEditHargaPerleng(ikutiHarga) {
     if (!tidak) { info.innerHTML = ''; return; }
     const fR = n => 'Rp ' + Math.round(n).toLocaleString('id-ID');
     let est = null; try { est = getEstimasiData(); } catch(e) {}
-    const hemat = uangDariField(document.getElementById('editHargaModalHemat')?.value) || modalPerlengkapanEstimasi(est);
+    const modalAnakDiisi = jenisA !== '' && uangDariField(document.getElementById('editHargaModalAnak')?.value) > 0;
+    const hemat = modalAnakDiisi ? 0 : (uangDariField(document.getElementById('editHargaModalHemat')?.value) || modalPerlengkapanEstimasi(est));
     const potIn = uangDariField(document.getElementById('editHargaPotongan')?.value);
     let t = '';
     if (oto && !_ehHargaManual) t += `Harga: ${fR(oto.dasar)}${oto.diskon > 0 ? ' − diskon ' + fR(oto.diskon) : ''} − potongan ${fR(oto.pot)} = <b>${fR(oto.total)}</b><br>`;
     else if (oto) t += `<span style="color:#B45309;">Harga yang diketik di atas yang berlaku; potongan tidak ikut dihitung otomatis.</span><br>`;
     else t += `<span style="color:#B45309;">Harga Seragam tidak aktif: ketik sendiri harga jamaah ini di kolom Total.</span><br>`;
-    t += `Modal turun ${fR(hemat)}${uangDariField(document.getElementById('editHargaModalHemat')?.value) ? '' : ' (dari Perlengkapan di Estimasi)'}`;
-    if (oto && !_ehHargaManual) {
+    t += modalAnakDiisi ? 'Modal anak sudah Bapak isi sendiri, jadi modal tidak dikurangi lagi.' : `Modal turun ${fR(hemat)}${uangDariField(document.getElementById('editHargaModalHemat')?.value) ? '' : ' (dari Perlengkapan di Estimasi)'}`;
+    if (oto && !_ehHargaManual && !modalAnakDiisi) {
         if (potIn <= 0) t += `<br><span style="color:#B45309;">⚠️ Potongan belum diisi: modal turun tapi harga belum.</span>`;
         else { const e = hemat - potIn; t += e === 0 ? '<br>Untung tidak berubah.' : `<br>Untung ${e < 0 ? '<b style="color:#B45309;">turun ' + fR(-e) + '</b>' : '<b style="color:#0F766E;">naik ' + fR(e) + '</b>'} dibanding jamaah yang ambil perlengkapan.`; }
     }
@@ -22899,6 +22909,7 @@ function perbaruiEditHargaAnak() {
             ? (mb > 0 ? `Kosong = perkiraan modal bayi program ini (Rp ${mb.toLocaleString('id-ID')}). Bayi tidak memakai kursi.` : 'Kosong = modal dihitung seperti dewasa (perkiraan modal bayi belum diisi di Konfigurasi). Bayi tidak memakai kursi.')
             : 'Kosong = modal dihitung seperti dewasa. Anak memakai kursi.';
     }
+    if (typeof perbaruiEditHargaPerleng === 'function') perbaruiEditHargaPerleng(false);
 }
 function closeEditHargaModal() { 
     document.getElementById('editHargaModal').classList.remove('show'); 
@@ -22931,7 +22942,7 @@ function saveEditHarga() {
     const hpE = getKonfigurasiProData().harga_paket;
     const seragamAktif = !!(hpE && hpE.seragam && hpE.nominal > 0);
     // Angka yang sama dengan harga otomatis (seragam − diskon) dan bukan tarif anak: tidak perlu disimpan sebagai Harga khusus
-    const tidakAmbilP = document.getElementById('editHargaPerleng')?.value === 'tidak';
+    const tidakAmbilP = jenisAnakDipilih !== 'bayi' && document.getElementById('editHargaPerleng')?.value === 'tidak';
     const potonganP = tidakAmbilP ? uangDariField(document.getElementById('editHargaPotongan')?.value) : 0;
     const diskonE = seragamAktif ? Math.min(diskonUntukJamaah(jamaah.additional_fields), hpE.nominal) : 0;
     const hargaOtomatis = seragamAktif ? hpE.nominal - diskonE - Math.min(potonganP, hpE.nominal - diskonE) : 0;
@@ -25218,7 +25229,7 @@ function openIndexedDB() {
 // dengan build baru, data MENTAH (langsung dari IndexedDB, bukan dari memori) disalin dulu sebelum
 // proses migrasi apapun berjalan — supaya kalau ada kesalahan di update, data lama masih bisa dipulihkan.
 // Dokumen & foto tidak ikut disalin (ukurannya besar, dan tidak pernah disentuh proses migrasi).
-const NAVARA_BUILD = '2026.10.17-122';
+const NAVARA_BUILD = '2026.10.17-123';
 const MAKS_SNAPSHOT = 3;
 
 // ==================== DAFTAR DATA PUSAT ====================
