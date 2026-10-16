@@ -3602,6 +3602,10 @@ https://github.com/nodeca/pako/blob/main/LICENSE
         </div>
         <div class="setting-card"><div class="setting-row"><span><i class="fas fa-user"></i>  Nama Anda saat ini: <b id="namaAdminSaatIni">Admin</b></span><button onclick="gantiNamaAdmin()" style="background:var(--primary);color:white;border:none;border-radius:8px;padding:6px 12px;font-size:12px;cursor:pointer;">Ganti</button></div>
             <button class="btn btn-small mt-2" onclick="openKelolaAdminModal()" style="background:#7C3AED;color:white;width:100%;"><i class="fas fa-user-shield"></i> Kelola Admin (Multi-Admin + PIN)</button>
+            <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:10px;">
+                <span style="font-size:13px;"><i class="fas fa-key"></i> Hapus data penting wajib PIN<br><small style="color:#6b7280;font-size:11px;">Pembayaran, pengeluaran, kas, pinjaman, jamaah, reset. Hapus berikutnya bebas PIN 3 menit.</small></span>
+                <label class="switch"><input type="checkbox" id="cfg_hapus_wajib_pin" checked onchange="setHapusWajibPIN(this.checked)"><span class="slider"></span></label>
+            </div>
             <div style="display:flex;align-items:center;justify-content:space-between;margin-top:10px;">
                 <span style="font-size:13px;"><i class="fas fa-lock"></i> Kunci Otomatis</span>
                 <input type="checkbox" id="cfgKunciOtomatisAktif" onchange="ubahPengaturanKunciOtomatis()" style="width:20px;height:20px;">
@@ -4328,7 +4332,7 @@ https://github.com/nodeca/pako/blob/main/LICENSE
 
 <div id="paymentModal" class="modal"><div class="modal-content"><h3> Input Pembayaran</h3><div class="input-group"><label> Tanggal</label><input type="date" id="paymentTanggal"></div><div class="input-group"><label> Nama Jamaah *</label><select id="paymentJamaahSelect"><option value="">-- Pilih Jamaah --</option></select></div><div class="input-group" id="paymentKomponenWrap" style="display:none;"><label> Untuk Komponen</label><select id="paymentKomponen"></select></div><div class="input-group"><label> Nominal (Rp)</label><input type="text" class="money-input" inputmode="numeric" id="paymentNominal" placeholder="Contoh: 5.000.000"></div><div class="input-group"><label> Metode</label><select id="paymentMetode"><option value="Transfer">Transfer</option><option value="Cash">Cash</option><option value="QRIS">QRIS</option></select></div><div class="input-group"><label> Keterangan</label><input type="text" id="paymentKeterangan" placeholder="DP / Cicilan / Pelunasan"></div><div class="row"><button class="btn btn-secondary" onclick="closePaymentModal()" style="flex:1">Batal</button><button class="btn btn-primary" onclick="simpanPembayaran()" style="flex:1">Simpan</button></div></div></div>
 <div id="invoiceConfirmModal" class="modal"><div class="modal-content"><h3> Konfirmasi Kirim Invoice</h3><p>Akan dikirim ke nomor WhatsApp:</p><p id="invoiceWANumber" style="font-weight:bold; font-size:18px; background:#f0f0f0; padding:10px; border-radius:10px;"></p><p id="invoiceWAName" style="color:#666;"></p><div id="invoiceRekPilih"></div><div class="row" style="margin-top:20px;"><button class="btn btn-secondary" onclick="closeInvoiceConfirmModal()" style="flex:1">Batal</button><button class="btn btn-wa" onclick="sendInvoiceWA()" style="flex:1">Kirim via WA</button><button class="btn btn-orange" onclick="copyInvoiceText()" style="flex:1">Salin Teks</button></div></div></div>
-<div id="editHargaModal" class="modal"><div class="modal-content"><h3> Edit Harga Paket</h3><p id="editHargaNama" style="font-weight:bold;"></p><div class="input-group" id="editHargaTotalWrap"><label> Total Harga Paket (Rp)</label><input type="text" class="money-input" inputmode="numeric" id="editHargaValue" placeholder="Contoh: 35.000.000"><div id="editHargaInfo" style="font-size:12px;color:#64748B;margin-top:6px;line-height:1.5;"></div><label style="display:block;margin-top:10px;font-size:12px;color:#666;">👶 Tarif anak/bayi (harga hasil nego, bukan diskon)</label><select id="editHargaJenisAnak" onchange="perbaruiEditHargaAnak()" style="width:100%;padding:10px;border-radius:10px;border:1.5px solid #e2e8f0;font-size:14px;"><option value="">Bukan anak/bayi</option><option value="anak">Anak (pakai kursi)</option><option value="bayi">Bayi (tanpa kursi)</option></select><div id="editHargaModalAnakWrap" style="display:none;margin-top:8px;"><label style="font-size:12px;color:#666;">Modal anak/bayi (Rp, opsional)</label><input type="text" class="money-input" inputmode="numeric" id="editHargaModalAnak" placeholder="Kosong = otomatis"><div id="editHargaModalAnakInfo" style="font-size:11px;color:#64748b;margin-top:4px;"></div></div><button type="button" id="editHargaResetBtn" class="btn btn-secondary" style="display:none;width:100%;margin-top:10px;" onclick="kembaliKeHargaSeragam()">↩️ Kembali ke harga seragam</button></div><div id="editHargaKomponenWrap" style="display:none;"></div><div class="row"><button class="btn btn-secondary" onclick="closeEditHargaModal()" style="flex:1">Batal</button><button class="btn btn-primary" onclick="saveEditHarga()" style="flex:1">Simpan</button></div></div></div>
+<div id="editHargaModal" class="modal"><div class="modal-content"><h3> Edit Harga Paket</h3><p id="editHargaNama" style="font-weight:bold;"></p><div class="input-group" id="editHargaTotalWrap"><label> Total Harga Paket (Rp)</label><input type="text" class="money-input" inputmode="numeric" id="editHargaValue" placeholder="Contoh: 35.000.000"><div id="editHargaInfo" style="font-size:12px;color:#64748B;margin-top:6px;line-height:1.5;"></div><label style="display:block;margin-top:10px;font-size:12px;color:#666;">👶 Tarif anak/bayi (harga hasil nego, bukan diskon)</label><select id="editHargaJenisAnak" onchange="perbaruiEditHargaAnak()" style="width:100%;padding:10px;border-radius:10px;border:1.5px solid #e2e8f0;font-size:14px;"><option value="">Bukan anak/bayi</option><option value="anak">Anak (pakai kursi)</option><option value="bayi">Bayi (tanpa kursi)</option></select><div id="editHargaModalAnakWrap" style="display:none;margin-top:8px;"><label style="font-size:12px;color:#666;">Modal anak/bayi (Rp, opsional)</label><input type="text" class="money-input" inputmode="numeric" id="editHargaModalAnak" placeholder="Kosong = otomatis"><div id="editHargaModalAnakInfo" style="font-size:11px;color:#64748b;margin-top:4px;"></div></div><label style="display:block;margin-top:10px;font-size:12px;color:#666;">🧳 Perlengkapan</label><select id="editHargaPerleng" onchange="perbaruiEditHargaPerleng(true)" style="width:100%;padding:10px;border-radius:10px;border:1.5px solid #e2e8f0;font-size:14px;"><option value="">Ambil perlengkapan</option><option value="tidak">Tidak ambil (pakai milik sebelumnya)</option></select><div id="editHargaPerlengWrap" style="display:none;margin-top:8px;"><label style="font-size:12px;color:#666;">Potongan harga (Rp), sesuai kesepakatan</label><div style="display:flex;gap:6px;margin:4px 0 6px;flex-wrap:wrap;"><button type="button" onclick="pilihPotonganPerleng(1000000)" style="padding:6px 12px;border:1.5px solid #0F766E;background:white;color:#0F766E;border-radius:14px;font-size:12px;font-weight:700;cursor:pointer;">1.000.000</button><button type="button" onclick="pilihPotonganPerleng(1500000)" style="padding:6px 12px;border:1.5px solid #0F766E;background:white;color:#0F766E;border-radius:14px;font-size:12px;font-weight:700;cursor:pointer;">1.500.000</button></div><input type="text" class="money-input" inputmode="numeric" id="editHargaPotongan" placeholder="Ketik angka lain" oninput="perbaruiEditHargaPerleng(true)"><label style="display:block;margin-top:8px;font-size:12px;color:#666;">Modal yang dihemat (Rp, opsional)</label><input type="text" class="money-input" inputmode="numeric" id="editHargaModalHemat" placeholder="Kosong = otomatis dari Estimasi" oninput="perbaruiEditHargaPerleng(false)"><div id="editHargaPerlengInfo" style="font-size:11.5px;color:#475569;margin-top:6px;line-height:1.5;"></div></div><button type="button" id="editHargaResetBtn" class="btn btn-secondary" style="display:none;width:100%;margin-top:10px;" onclick="kembaliKeHargaSeragam()">↩️ Kembali ke harga seragam</button></div><div id="editHargaKomponenWrap" style="display:none;"></div><div class="row"><button class="btn btn-secondary" onclick="closeEditHargaModal()" style="flex:1">Batal</button><button class="btn btn-primary" onclick="saveEditHarga()" style="flex:1">Simpan</button></div></div></div>
 <div id="riwayatModal" class="modal"><div class="modal-content"><h3> Riwayat Pembayaran</h3><p id="riwayatNama" style="font-weight:bold;"></p><div id="riwayatListContainer" style="max-height:400px; overflow-y:auto;"></div><div class="row" style="margin-top:15px;"><button class="btn btn-secondary" onclick="closeRiwayatModal()" style="flex:1">Tutup</button></div></div></div>
 <div id="masterFieldModal" class="modal"><div class="modal-content"><h3>Kelola Field Dinamis</h3><div class="dynamic-field"><label>Nama Field</label><input type="text" id="masterNewFieldName" placeholder="contoh: alamat, no_hp"></div><div class="dynamic-field"><label>Label Field</label><input type="text" id="masterNewFieldLabel" placeholder="Contoh: Alamat, No HP"></div><div class="dynamic-field"><label>Tipe</label><select id="masterNewFieldType"><option value="text">Text</option><option value="date">Tanggal</option><option value="tel">Telepon</option><option value="textarea">Text Area</option></select></div><button class="btn btn-primary" onclick="addMasterDynamicField()"> TAMBAH FIELD</button><div id="masterFieldsList" style="margin-top:15px;"></div><button class="btn btn-secondary mt-2" onclick="closeMasterFieldModal()">TUTUP</button></div></div>
 <div id="masterItemModal" class="modal"><div class="modal-content"><h3>Kelola Daftar Item</h3><div class="row"><div class="input-group"><label>Nama Item</label><input type="text" id="masterNewItem" placeholder="Contoh: Kain Ihram"></div><button class="btn-small" onclick="addMasterItem()" style="background:var(--primary); color:white; padding:0 15px;">+ Tambah</button></div><div id="masterItemList" style="margin-top:15px;"></div><button class="btn btn-secondary mt-2" onclick="closeMasterItemModal()">TUTUP</button></div></div>
@@ -4668,6 +4672,7 @@ function internalShowPage(pageId) {
     if (pageId === 'agenda-kantor') { if(typeof loadAgendaKantorData === 'function') loadAgendaKantorData(); }
     if (pageId === 'kalender-pejabat') { if(typeof loadPejabatData === 'function') loadPejabatData(); }
     if (pageId === 'atur-menu') { if(typeof bukaAturMenu === 'function') bukaAturMenu(); }
+    if (pageId === 'setting') { if(typeof tandaiHapusWajibPIN === 'function') tandaiHapusWajibPIN(); }
     if (pageId === 'fitur') { if(typeof bukaSemuaMenu === 'function') bukaSemuaMenu(); }
     if (pageId === 'pinjaman') { if(typeof loadPinjamanData === 'function') loadPinjamanData(); }
     if (pageId === 'saldokantor') { if(typeof loadSaldoKantor === 'function') loadSaldoKantor(); }
@@ -5124,16 +5129,46 @@ function jenisTarifAnak(af) {
 function isTarifAnak(af) { return jenisTarifAnak(af) !== ''; }
 function isBayi(af) { return jenisTarifAnak(af) === 'bayi'; }
 function modalBayiProgram() { try { return parseInt(ensureProgramConfigSlot().modal_bayi) || 0; } catch(e) { return 0; } }
-// Modal satu jamaah: dewasa (menurut tipe kamar) kecuali anak/bayi. sumber: 'dewasa' | 'diisi' | 'perkiraan'
+// Perlengkapan: jamaah yang TIDAK mengambil (mis. pakai koper/perlengkapan tahun lalu). Dua efek yang dijaga seimbang:
+//   harga turun sebesar potongan (af.potongan_perlengkapan, kesepakatan kantor, beda tiap jamaah) dan modal turun sebesar biaya Perlengkapan di Estimasi
+//   (atau af.modal_hemat_perlengkapan bila diisi). Selisih keduanya yang mengubah untung; tidak ada yang disembunyikan.
+function tidakAmbilPerlengkapan(af) { return String((af || {}).perlengkapan || '').indexOf('Tidak') === 0; }
+function potonganPerlengkapanDiisi(af) { return tidakAmbilPerlengkapan(af) ? uangDariField((af || {}).potongan_perlengkapan) : 0; }
+function modalPerlengkapanEstimasi(est) { return est ? (parseInt(String(est.cAlat || '0').replace(/[^0-9]/g, ''), 10) || 0) : 0; }
+function modalHematPerlengkapan(af, est) {
+    if (!tidakAmbilPerlengkapan(af)) return 0;
+    const ov = uangDariField((af || {}).modal_hemat_perlengkapan);
+    return ov > 0 ? ov : modalPerlengkapanEstimasi(est);
+}
+// Modal satu jamaah: dewasa (menurut tipe kamar) kecuali anak/bayi. sumber: 'dewasa' | 'diisi' | 'perkiraan'. hemat = modal yang berkurang karena tidak ambil perlengkapan.
 function modalJamaahRinci(j, est, tipe, modalBayiProg) {
     const af = (j && j.additional_fields) || {};
     const jenis = jenisTarifAnak(af);
     const dewasa = est ? modalPerJamaahMenurutTipe(est, tipe || 'Quad') : 0;
-    if (!jenis) return { modal: dewasa, sumber: 'dewasa', jenis: '' };
-    const ov = uangDariField(af.modal_anak);
-    if (ov > 0) return { modal: ov, sumber: 'diisi', jenis };
-    if (jenis === 'bayi' && modalBayiProg > 0) return { modal: modalBayiProg, sumber: 'perkiraan', jenis };
-    return { modal: dewasa, sumber: 'dewasa', jenis };
+    let r;
+    if (!jenis) r = { modal: dewasa, sumber: 'dewasa', jenis: '' };
+    else {
+        const ov = uangDariField(af.modal_anak);
+        if (ov > 0) r = { modal: ov, sumber: 'diisi', jenis };
+        else if (jenis === 'bayi' && modalBayiProg > 0) r = { modal: modalBayiProg, sumber: 'perkiraan', jenis };
+        else r = { modal: dewasa, sumber: 'dewasa', jenis };
+    }
+    r.hemat = 0;
+    if (r.sumber === 'dewasa' && est && tidakAmbilPerlengkapan(af)) { // modal yang diketik/diperkirakan dianggap sudah final: tidak dikurangi lagi
+        r.hemat = Math.min(modalHematPerlengkapan(af, est), r.modal);
+        r.modal -= r.hemat;
+    }
+    return r;
+}
+// Efek perlengkapan satu jamaah: pot = potongan yang benar-benar masuk ke harga, hemat = modal yang turun. est/hp boleh diberikan (laporan per program).
+function perlengkapanJamaah(j, est, hp) {
+    const af = (j && j.additional_fields) || {};
+    if (!tidakAmbilPerlengkapan(af)) return { tidak: false, pot: 0, hemat: 0 };
+    if (est === undefined) { try { est = getEstimasiData(); } catch(e) { est = null; } }
+    if (hp === undefined) { try { hp = getKonfigurasiProData().harga_paket; } catch(e) { hp = null; } }
+    const pot = hargaPaketRinci(j, hp || { seragam: false, nominal: 0 }).potongan || 0;
+    const hemat = est ? modalHematPerlengkapan(af, est) : 0;
+    return { tidak: true, pot, hemat };
 }
 function teksSumberModalAnak(sumber) { return sumber === 'diisi' ? 'modal diisi' : (sumber === 'perkiraan' ? 'modal perkiraan' : 'modal seperti dewasa'); }
 // hp = pengaturan Harga Seragam program ({seragam, nominal}). sumber: 'seragam' | 'diskon' | 'khusus' | 'anak' | 'manual' | 'kosong'
@@ -5142,13 +5177,16 @@ function hargaPaketRinci(jamaah, hp) {
     const khusus = bacaHargaManualJamaah(jamaah);
     const diskon = diskonUntukJamaah(af);
     const anak = isTarifAnak(af);
+    const potDiisi = potonganPerlengkapanDiisi(af); // potongan perlengkapan hanya dipakai di harga otomatis (seragam); Harga khusus yang diketik sudah final
     if (hp && hp.seragam && hp.nominal > 0) {
-        if (khusus > 0) return { total: khusus, sumber: anak ? 'anak' : 'khusus', dasar: hp.nominal, diskon: 0, diskonDiabaikan: diskon, khusus };
-        const total = Math.max(0, hp.nominal - diskon);
-        return { total, sumber: diskon > 0 ? 'diskon' : 'seragam', dasar: hp.nominal, diskon: hp.nominal - total, diskonDiabaikan: 0, khusus: 0 };
+        if (khusus > 0) return { total: khusus, sumber: anak ? 'anak' : 'khusus', dasar: hp.nominal, diskon: 0, diskonDiabaikan: diskon, khusus, potongan: 0, potonganDiabaikan: potDiisi };
+        const diskonEf = Math.min(diskon, hp.nominal);
+        const potEf = Math.min(potDiisi, hp.nominal - diskonEf);
+        const total = hp.nominal - diskonEf - potEf;
+        return { total, sumber: diskonEf > 0 ? 'diskon' : 'seragam', dasar: hp.nominal, diskon: diskonEf, diskonDiabaikan: 0, khusus: 0, potongan: potEf, potonganDiabaikan: 0 };
     }
-    if (khusus > 0) return { total: khusus, sumber: anak ? 'anak' : 'manual', dasar: 0, diskon: 0, diskonDiabaikan: 0, khusus };
-    return { total: 0, sumber: 'kosong', dasar: 0, diskon: 0, diskonDiabaikan: 0, khusus: 0 };
+    if (khusus > 0) return { total: khusus, sumber: anak ? 'anak' : 'manual', dasar: 0, diskon: 0, diskonDiabaikan: 0, khusus, potongan: 0, potonganDiabaikan: potDiisi };
+    return { total: 0, sumber: 'kosong', dasar: 0, diskon: 0, diskonDiabaikan: 0, khusus: 0, potongan: 0, potonganDiabaikan: 0 };
 }
 function hapusHargaManualJamaah(jamaah) {
     fieldHargaManualJamaah(jamaah).forEach(n => { delete jamaah.additional_fields[n]; });
@@ -5196,6 +5234,28 @@ function ringkasKomposisiHarga(list) {
     });
     return k.n ? k : null;
 }
+// Ringkasan jamaah yang tidak mengambil perlengkapan: potongan harga, modal yang turun, dan efek ke untung (efek hanya bila semua punya potongan di harga otomatis)
+function ringkasPerlengkapanDari(list) {
+    let est = null; try { est = getEstimasiData(); } catch(e) {}
+    if (!est || isHajiReguler()) return null;
+    const hp = getKonfigurasiProData().harga_paket || { seragam: false, nominal: 0 }, mb = modalBayiProgram();
+    let n = 0, pot = 0, hemat = 0, semua = true;
+    (list || []).forEach(j => {
+        if (tanpaTagihan(j) || !tidakAmbilPerlengkapan(j.additional_fields)) return;
+        if (!(getTotalHargaPaket(j) > 0)) return;
+        const mr = modalJamaahRinci(j, est, (j.additional_fields && j.additional_fields.tipe_paket) || '', mb);
+        const r = hargaPaketRinci(j, hp);
+        n++; pot += r.potongan || 0; hemat += mr.hemat || 0;
+        if (!(r.potongan > 0)) semua = false;
+    });
+    return n ? { n, pot, hemat, efek: semua ? hemat - pot : null } : null;
+}
+function teksPerlengkapanRingkas(r) {
+    const f = x => 'Rp ' + Math.round(Math.abs(x)).toLocaleString('id-ID');
+    let t = 'Tanpa perlengkapan: ' + r.n + ' jamaah · ' + (r.pot > 0 ? 'potongan harga ' + f(r.pot) : 'harga mengikuti yang diketik') + ' · modal turun ' + f(r.hemat);
+    if (r.efek !== null) t += r.efek === 0 ? ' · untung tidak berubah' : ' · untung ' + (r.efek < 0 ? 'turun ' : 'naik ') + f(r.efek);
+    return t + ' (sudah terhitung di laba)';
+}
 function teksKomposisiHarga(k) {
     const fR = n => 'Rp ' + Math.round(n).toLocaleString('id-ID');
     const b = ['Harga seragam ' + fR(k.dasar) + ': ' + k.nSeragam + ' jamaah'];
@@ -5207,16 +5267,21 @@ function teksKomposisiHarga(k) {
 }
 
 function analisisBufferB2C() {
-    return analisisBufferB2CDari(hitungModalHargaEstimasiTerkini(), jamaahList.map(j => ({ nama: j.nama_lengkap, harga: getTotalHargaPaket(j), af: j.additional_fields })));
+    return analisisBufferB2CDari(hitungModalHargaEstimasiTerkini(), jamaahList.map(j => ({ nama: j.nama_lengkap, harga: getTotalHargaPaket(j), af: j.additional_fields, perl: perlengkapanJamaah(j) })));
 }
 // Inti hitungan (murni): est = hasil hitungModalHargaDariEst, items = [{nama, harga, af}]
 function analisisBufferB2CDari(est, items) {
     if(!est) return null;
     const buf = est.buffer || 0; // Buffer 0 tetap dianalisis: seluruh diskon/komisi dihitung sebagai kelebihan
-    const r = { est, buffer: buf, n: 0, disiapkan: 0, diskon: 0, komisi: 0, dipakai: 0, kelebihan: 0, kelebihanDiskon: 0, kelebihanKomisi: 0, nLebih: 0, nLebihDiskon: 0, nAnak: 0, rinci: [] };
+    const r = { est, buffer: buf, n: 0, disiapkan: 0, diskon: 0, komisi: 0, dipakai: 0, kelebihan: 0, kelebihanDiskon: 0, kelebihanKomisi: 0, nLebih: 0, nLebihDiskon: 0, nAnak: 0, untungPerleng: 0, rinci: [] };
     items.filter(j => j.harga > 0 && !isBayi(j.af)).forEach(j => { // bayi tanpa kursi: tidak punya jatah buffer
         const anak = isTarifAnak(j.af);
-        const diskon = anak ? 0 : Math.max(0, Math.round(est.harga) - Math.round(j.harga)); // Tarif anak bukan diskon dari brosur. Dibulatkan agar sisa pecahan sen tidak dihitung sebagai diskon
+        // Perlengkapan: potongan harga diimbangi modal yang turun. Yang dihitung sebagai diskon hanya potongan yang LEBIH BESAR dari modal yang dihemat; kelebihan hemat masuk ke untung (bukan ke buffer).
+        const pl = j.perl || { tidak: false, pot: 0, hemat: 0 };
+        const diskonKotor = anak ? 0 : Math.max(0, Math.round(est.harga) - Math.round(j.harga)); // Tarif anak bukan diskon dari brosur. Dibulatkan agar sisa pecahan sen tidak dihitung sebagai diskon
+        const rugiPerl = pl.tidak ? Math.max(0, pl.pot - pl.hemat) : 0, untungPerl = pl.tidak ? Math.max(0, pl.hemat - pl.pot) : 0;
+        const diskon = Math.max(0, diskonKotor - pl.pot) + rugiPerl;
+        r.untungPerleng += untungPerl;
         const komisi = komisiMitraDari(j.af);
         const total = diskon + komisi;
         const kelebihan = Math.max(0, total - buf);
@@ -5227,11 +5292,11 @@ function analisisBufferB2CDari(est, items) {
         if(kelebihan > 0) r.nLebih++;
         if(kelDiskon > 0) r.nLebihDiskon++;
         if(anak) r.nAnak++;
-        r.rinci.push({ nama: j.nama, diskon, komisi, total, kelebihan, anak });
+        r.rinci.push({ nama: j.nama, diskon, komisi, total, kelebihan, anak, perlRugi: rugiPerl });
     });
     if(r.n === 0) return null;
     r.sisa = r.disiapkan - r.dipakai;                       // buffer yang benar-benar tidak terpakai
-    r.bersih = r.disiapkan - r.diskon - r.komisi;           // >0 untung ekstra, <0 di bawah laba rencana
+    r.bersih = r.disiapkan - r.diskon - r.komisi + r.untungPerleng;           // >0 untung ekstra, <0 di bawah laba rencana
     return r;
 }
 
@@ -8901,10 +8966,11 @@ function renderRiwayatPembayaranTravelModal(id, modalEl) {
     </div>`;
 }
 
-function hapusPembayaranTravel(travelId, paymentId) {
+async function hapusPembayaranTravel(travelId, paymentId) {
     const list = ensureKonsorsiumList();
     const t = list.find(x => x.id === travelId);
     if(!t || !t.pembayaran) return;
+    { const pb = t.pembayaran.find(p => p.id === paymentId); if(!(await konfirmasiHapusPIN(pb && pb.nominal ? `Pembayaran Rp ${Number(pb.nominal).toLocaleString('id-ID')} ke travel akan dihapus.` : 'Pembayaran ke travel ini akan dihapus.', 'Hapus Pembayaran Travel?'))) return; }
     t.pembayaran = t.pembayaran.filter(p => p.id !== paymentId);
     simpanKonsorsium();
     renderRiwayatPembayaranTravelModal(travelId);
@@ -9565,6 +9631,9 @@ function hitungRujukanEstimasiPengeluaran(kategori) {
     const nJam = pr(est.totJam), tl = pr(est.numTL);
     const kursi = nJam + tl; // tiket dan biaya lain juga keluar untuk FOC dan TL
     if (kursi <= 0) return null;
+    // Perlengkapan hanya dibeli untuk yang mengambil: kursi dikurangi jamaah yang tidak ambil
+    const nTanpaPerleng = def.grup === 'alat' ? jamaahList.filter(j => !tanpaTagihan(j) && tidakAmbilPerlengkapan(j.additional_fields)).length : 0;
+    const nBeli = Math.max(0, kursi - nTanpaPerleng);
     const jml = { Quad: 0, Triple: 0, Double: 0 };
     jamaahList.forEach(j => { const t = j.additional_fields && j.additional_fields.tipe_paket; if (t === 'Triple' || t === 'Double') jml[t]++; });
     jml.Quad = Math.max(0, kursi - jml.Triple - jml.Double);
@@ -9578,12 +9647,12 @@ function hitungRujukanEstimasiPengeluaran(kategori) {
         const h = pr(est.cLain);
         if (h > 0) { anggaran = h * kursi; namaAnggaran = 'Dana lain-lain'; }
     } else {
-        def.komponen.forEach(k => { const h = pr(est[k.key]); if (h > 0) { chips.push({ label: k.label, harga: h, n: kursi }); anggaran += h * kursi; } });
+        def.komponen.forEach(k => { const h = pr(est[k.key]); if (h > 0) { const nk = def.grup === 'alat' ? nBeli : kursi; chips.push({ label: k.label, harga: h, n: nk }); anggaran += h * nk; } });
         namaAnggaran = def.komponen.map(k => k.label).join(' + ');
     }
     if (anggaran <= 0 && !chips.length) return null;
     const terpakai = pengeluaranList.filter(x => { const d = KATEGORI_PENGELUARAN_ESTIMASI[x.kategori]; return d && d.grup === def.grup; }).reduce((a, x) => a + (x.nominal || 0), 0);
-    return { kategori, chips, anggaran, terpakai, sisa: anggaran - terpakai, namaAnggaran, lain: !!def.lain, kursi };
+    return { kategori, chips, anggaran, terpakai, sisa: anggaran - terpakai, namaAnggaran, lain: !!def.lain, kursi, nTanpaPerleng };
 }
 function perbaruiRujukanEstimasiPengeluaran() {
     const box = document.getElementById('pengRujukanEstimasi');
@@ -9620,6 +9689,7 @@ function perbaruiRujukanEstimasiPengeluaran() {
     html += `<div style="font-size:12px;color:${warna};margin-top:6px;">${r.lain ? '' : '📋 '}${escapeHtml(r.namaAnggaran)}: anggaran ${fR(r.anggaran)} · tercatat ${fR(r.terpakai)} · ` +
         (lebih ? `<b>melebihi ${fR(-r.sisa)}</b>` : `sisa <b>${fR(r.sisa)}</b>`) + '</div>';
     if (r.lain) html += '<div style="font-size:11px;color:#94a3b8;margin-top:2px;">Gabungan Lain-lain, Konsumsi, Transport, dan Kesehatan. Hanya informasi.</div>';
+    if (r.nTanpaPerleng > 0) html += `<div style="font-size:11px;color:#0F766E;margin-top:2px;">🧳 ${r.nTanpaPerleng} jamaah tidak ambil perlengkapan, jadi yang dibeli ${r.kursi - r.nTanpaPerleng} set (bukan ${r.kursi}).</div>`;
     box.innerHTML = html + '</div>';
     box.style.display = 'block';
 }
@@ -9724,7 +9794,8 @@ async function simpanPengeluaran() {
 }
 
 async function hapusPengeluaran(id) {
-    if(!(await konfirmasiHapus('Data pengeluaran ini akan dihapus.', 'Hapus Pengeluaran?'))) return;
+    { const p0 = pengeluaranList.find(p => p.id === id); const info0 = p0 ? `Pengeluaran Rp ${(Number(p0.jumlah || p0.nominal || 0)).toLocaleString('id-ID')}${p0.keterangan ? ' — ' + p0.keterangan : ''} akan dihapus.` : 'Data pengeluaran ini akan dihapus.';
+    if(!(await konfirmasiHapusPIN(info0, 'Hapus Pengeluaran?'))) return; }
     pengeluaranList = pengeluaranList.filter(p => p.id !== id);
     await savePengeluaran();
     renderPengeluaranList();
@@ -10068,6 +10139,7 @@ function hitungRekapAktual() {
     const pembulatanRekap = ringkasPembulatanHarga(jamaahList);
     const diskonLebihRekap = ringkasDiskonMelebihiBuffer();
     const komposisiHargaRekap = ringkasKomposisiHarga(jamaahList);
+    const perlengkapanRekap = ringkasPerlengkapanDari(jamaahList);
     const lebihBayarRekap = ringkasKelebihanBayar(jamaahList);
 
     // Grand Total
@@ -10086,6 +10158,7 @@ function hitungRekapAktual() {
         pembulatan: pembulatanRekap,
         diskonLebih: diskonLebihRekap,
         komposisiHarga: komposisiHargaRekap,
+        perlengkapan: perlengkapanRekap,
         lebihBayar: lebihBayarRekap
     };
     if(adaTanpaTagihan) {
@@ -10126,6 +10199,7 @@ function hitungRekapAktual() {
         ${kursiRekap ? `<div style="font-size:11px;opacity:0.85;margin-top:8px;text-align:right;">🪑 Kursi bayar terisi ${kursiRekap.terisi} dari ${kursiRekap.total} (${kursiRekap.persen}%)${kursiRekap.terisi < kursiRekap.total ? '. Laba Sementara baru mencerminkan kursi yang sudah terjual.' : ''}</div>` : ''}
         ${pembulatanRekap ? `<div style="font-size:11px;opacity:0.85;margin-top:8px;">🔸 ${escapeHtml(teksPembulatanHarga(pembulatanRekap, true))}</div>` : ''}
         ${komposisiHargaRekap ? `<div style="font-size:11px;opacity:0.85;margin-top:8px;">🏷️ ${escapeHtml(teksKomposisiHarga(komposisiHargaRekap))}</div>` : ''}
+        ${perlengkapanRekap ? `<div style="font-size:11px;opacity:0.85;margin-top:6px;">🧳 ${escapeHtml(teksPerlengkapanRingkas(perlengkapanRekap))}</div>` : ''}
         ${diskonLebihRekap ? `<div style="font-size:11px;opacity:0.85;margin-top:8px;">⚠️ ${escapeHtml(teksDiskonMelebihiBuffer(diskonLebihRekap))}</div>` : ''}
         ${lebihBayarRekap ? `<div style="font-size:11px;opacity:0.85;margin-top:8px;">↩️ ${escapeHtml(teksKelebihanBayar(lebihBayarRekap))}</div>` : ''}
         <div style="font-size:11px;opacity:0.6;margin-top:6px;text-align:right;">
@@ -10318,6 +10392,7 @@ function shareRekapAktual() {
     if (data.kursi) text += `\n🪑 Kursi bayar terisi ${data.kursi.terisi} dari ${data.kursi.total} (${data.kursi.persen}%)`;
     if (data.pembulatan) text += `\n🔸 ${teksPembulatanHarga(data.pembulatan, true)}`;
     if (data.komposisiHarga) text += `\n🏷️ ${teksKomposisiHarga(data.komposisiHarga)}`;
+    if (data.perlengkapan) text += `\n🧳 ${teksPerlengkapanRingkas(data.perlengkapan)}`;
     if (data.diskonLebih) text += `\n⚠️ ${teksDiskonMelebihiBuffer(data.diskonLebih)}`;
     if (data.lebihBayar) text += `\n↩️ ${teksKelebihanBayar(data.lebihBayar)}`;
     if (data.hargaBawah > 0) text += `\n⚠️ ${data.hargaBawah} jamaah harga paketnya di bawah modal`;
@@ -10511,7 +10586,7 @@ async function editTransaksi(id) {
 }
 
 async function confirmHapusTransaksi(id) {
-    if(await konfirmasiHapus('Transaksi kas ini akan dihapus.', 'Hapus Transaksi?')) {
+    if(await konfirmasiHapusPIN('Transaksi kas ini akan dihapus.', 'Hapus Transaksi?')) {
         dataKas = dataKas.filter(i => i.id !== id);
         saveKasData();
         renderKasTable();
@@ -10635,7 +10710,7 @@ function exportKasExcel() {
 
 async function confirmResetKas() { 
     if(!cekIzinAdmin('bolehReset')) return showToast('🔒 Anda tidak punya izin mereset data');
-    if(await konfirmasiHapus(`Semua ${dataKas.length} transaksi kas akan dihapus permanen.`, 'Kosongkan Buku Kas?', 'Kosongkan')) { 
+    if(await konfirmasiHapusPIN(`Semua ${dataKas.length} transaksi kas akan dihapus permanen.`, 'Kosongkan Buku Kas?', 'Kosongkan')) { 
         dataKas=[]; 
         saveKasData(); 
         const hasilWA=document.getElementById('hasilWA'); 
@@ -10723,6 +10798,17 @@ async function loadDynamicFieldsJamaah() {
             if (idxK !== -1) dynamicFieldsJamaah.splice(idxK + 1, 0, defAnak); else dynamicFieldsJamaah.push(defAnak);
             await idbSet(STORE_JAMAAH, 'jamaah_fields', dynamicFieldsJamaah);
         }
+        // Migrasi: tambahkan kolom Perlengkapan (Ambil/Tidak ambil) + Potongan kalau belum ada
+        if (dynamicFieldsJamaah.length > 0 && !dynamicFieldsJamaah.some(f => f.name === 'perlengkapan')) {
+            const defPerl = [
+                { name: 'perlengkapan', label: 'Perlengkapan', type: 'dropdown', options: ['Ambil', 'Tidak ambil'], icon: '🧳', isRequired: false },
+                { name: 'potongan_perlengkapan', label: 'Potongan Tanpa Perlengkapan (Rp)', type: 'money', icon: '🧳', isRequired: false }
+            ];
+            const idxA = dynamicFieldsJamaah.findIndex(f => f.name === 'tarif_anak');
+            const idxP = idxA !== -1 ? idxA : dynamicFieldsJamaah.findIndex(f => f.name === 'komisi_mitra');
+            if (idxP !== -1) dynamicFieldsJamaah.splice(idxP + 1, 0, ...defPerl); else dynamicFieldsJamaah.push(...defPerl);
+            await idbSet(STORE_JAMAAH, 'jamaah_fields', dynamicFieldsJamaah);
+        }
         // Migrasi: pilihan Tarif Anak/Bayi dibedakan jadi Anak (pakai kursi) dan Bayi (tanpa kursi)
         { const dAnak = dynamicFieldsJamaah.find(f => f.name === 'tarif_anak');
           if (dAnak && (dAnak.options || []).includes('Ya')) { dAnak.options = ['Tidak', 'Anak (pakai kursi)', 'Bayi (tanpa kursi)']; await idbSet(STORE_JAMAAH, 'jamaah_fields', dynamicFieldsJamaah); } }
@@ -10801,6 +10887,8 @@ async function loadDynamicFieldsJamaah() {
             { name: 'diskon_jamaah', label: 'Diskon untuk Jamaah (Rp)', type: 'money', icon: '💰', isRequired: false },
             { name: 'komisi_mitra', label: 'Komisi Mitra (Rp)', type: 'money', icon: '🤝', isRequired: false },
             { name: 'tarif_anak', label: 'Tarif Anak/Bayi', type: 'dropdown', options: ['Tidak', 'Anak (pakai kursi)', 'Bayi (tanpa kursi)'], icon: '👶', isRequired: false },
+            { name: 'perlengkapan', label: 'Perlengkapan', type: 'dropdown', options: ['Ambil', 'Tidak ambil'], icon: '🧳', isRequired: false },
+            { name: 'potongan_perlengkapan', label: 'Potongan Tanpa Perlengkapan (Rp)', type: 'money', icon: '🧳', isRequired: false },
             { name: 'nik',           label: 'NIK',             type: 'text',     icon: '🪪', isRequired: false },
             { name: 'kk',            label: 'No KK',           type: 'text',     icon: '📋', isRequired: false },
             { name: 'alamat',        label: 'Alamat',          type: 'text',     icon: '🏠', isRequired: false },
@@ -11690,6 +11778,92 @@ function konfirmasiHapus(pesan, judul = 'Hapus Data?', tombolYa = 'Hapus') {
     return tanyaKonfirmasi({ judul, pesan, ikon: '🗑️', tombolYa, tombolTidak: 'Batal', warnaYa: '#DC2626' });
 }
 
+// ==================== HAPUS DATA PENTING WAJIB PIN ====================
+// Untuk angka/data penting (pembayaran, pengeluaran, kas, pinjaman, jamaah, reset). Satu dialog: pesan + kolom PIN.
+// Setelah PIN benar, hapus berikutnya TIDAK minta PIN lagi selama PIN_HAPUS_JEDA_MENIT (tetap ada konfirmasi biasa).
+// Memakai PIN akun yang sedang masuk (atau Admin Utama bila belum memilih nama) dan pengunci salah-5-kali yang sudah ada.
+// Kalau belum ada admin ber-PIN, atau fitur dimatikan, perilakunya sama seperti konfirmasi hapus biasa.
+const PIN_HAPUS_KUNCI = 'navara_hapus_wajib_pin';   // '0' = dimatikan; selain itu aktif
+const PIN_HAPUS_JEDA_MENIT = 3;
+let _pinHapusLolosSampai = 0, _pinHapusLolosOleh = '';
+function hapusWajibPINAktif() { try { return localStorage.getItem(PIN_HAPUS_KUNCI) !== '0'; } catch (e) { return true; } }
+function akunPINUntukHapus() {
+    const ber = getAdminList().filter(a => a.pinHash);
+    if (!ber.length) return [];
+    const sekarang = ber.find(a => a.nama === currentAdminNama);
+    return sekarang ? [sekarang] : ber.filter(a => a.isPemilik);
+}
+function setHapusWajibPIN(aktif) {
+    const ada = getAdminList().length > 0;
+    if (ada && !currentAdminIsPemilik) { showToast('🔒 Hanya Admin Utama yang boleh mengubah ini'); tandaiHapusWajibPIN(); return; }
+    try { if (aktif) localStorage.removeItem(PIN_HAPUS_KUNCI); else localStorage.setItem(PIN_HAPUS_KUNCI, '0'); } catch (e) {}
+    _pinHapusLolosSampai = 0;
+    try { catatAktivitas(aktif ? '🔐' : '🔓', `Hapus data penting wajib PIN: ${aktif ? 'DIAKTIFKAN' : 'DIMATIKAN'}`); } catch (e) {}
+    showToast(aktif ? '🔐 Hapus data penting wajib PIN: aktif' : '🔓 Hapus data penting wajib PIN: dimatikan');
+}
+function tandaiHapusWajibPIN() { const c = document.getElementById('cfg_hapus_wajib_pin'); if (c) c.checked = hapusWajibPINAktif(); }
+
+function konfirmasiHapusPIN(pesan, judul = 'Hapus Data?', tombolYa = 'Hapus') {
+    const akun = akunPINUntukHapus();
+    if (!hapusWajibPINAktif() || !akun.length) return konfirmasiHapus(pesan, judul, tombolYa);
+    const kodeAkun = akun.map(a => a.nama).join('|');
+    if (_pinHapusLolosOleh === kodeAkun && Date.now() < _pinHapusLolosSampai) return konfirmasiHapus(pesan, judul, tombolYa);
+    return new Promise(resolve => {
+        const lama = document.getElementById('konfirmasiNavaraOverlay'); if (lama) lama.remove();
+        const overlay = document.createElement('div');
+        overlay.id = 'konfirmasiNavaraOverlay';
+        overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:10050;display:flex;align-items:center;justify-content:center;padding:20px;';
+        overlay.innerHTML = `<div style="background:var(--card-bg, #fff);border-radius:18px;padding:22px 20px 16px;width:100%;max-width:360px;box-shadow:0 10px 40px rgba(0,0,0,0.25);">
+            <div style="text-align:center;font-size:34px;line-height:1;margin-bottom:8px;">🔐</div>
+            <div style="text-align:center;font-weight:800;font-size:16px;color:var(--primary);margin-bottom:8px;">${escapeHtml(judul)}</div>
+            <div style="text-align:center;font-size:13px;color:#555;line-height:1.5;white-space:pre-line;">${escapeHtml(pesan)}</div>
+            <div style="font-size:12px;color:#6b7280;text-align:center;margin:14px 0 6px;">Masukkan PIN <b>${escapeHtml(akun.length === 1 ? akun[0].nama : 'Admin Utama')}</b> untuk menghapus</div>
+            <input type="password" inputmode="numeric" maxlength="8" id="pinHapusInput" placeholder="PIN" autocomplete="off" style="width:100%;padding:12px;border-radius:10px;border:1.5px solid #ddd;font-size:18px;text-align:center;letter-spacing:6px;box-sizing:border-box;">
+            <div id="pinHapusPesan" style="min-height:18px;font-size:12px;color:#DC2626;text-align:center;margin-top:6px;"></div>
+            <div style="display:flex;gap:10px;margin-top:8px;">
+                <button data-jawab="0" style="flex:1;padding:12px;border:none;border-radius:12px;background:#E2E8F0;color:#333;font-weight:700;font-size:14px;cursor:pointer;">Batal</button>
+                <button data-jawab="1" style="flex:1;padding:12px;border:none;border-radius:12px;background:#DC2626;color:white;font-weight:700;font-size:14px;cursor:pointer;">${escapeHtml(tombolYa)}</button>
+            </div>
+            <div style="font-size:11px;color:#9ca3af;text-align:center;margin-top:10px;">Setelah PIN benar, hapus berikutnya tidak minta PIN selama ${PIN_HAPUS_JEDA_MENIT} menit.</div>
+        </div>`;
+        const selesai = (jawab) => { overlay.remove(); resolve(jawab); };
+        const pesanErr = (t) => { const e = document.getElementById('pinHapusPesan'); if (e) e.textContent = t; };
+        let sibuk = false;
+        const coba = async () => {
+            if (sibuk) return;
+            const pin = document.getElementById('pinHapusInput').value;
+            if (!pin) return pesanErr('Masukkan PIN dulu.');
+            const kunci = akun.map(a => pesanKunciPIN(a.nama)).find(Boolean);
+            if (kunci) return pesanErr(kunci);
+            sibuk = true;
+            try {
+                const hash = await hashPIN(pin);
+                const cocok = akun.find(a => a.pinHash === hash);
+                if (!cocok) {
+                    let r = { salah: 0, terkunci: false };
+                    akun.forEach(a => { r = catatPINSalah(a.nama); });
+                    document.getElementById('pinHapusInput').value = '';
+                    return pesanErr(r.terkunci ? `🔒 PIN salah ${PIN_MAKS_SALAH} kali. Dikunci ${PIN_DURASI_KUNCI_MENIT} menit.` : `❌ PIN salah (${r.salah}/${PIN_MAKS_SALAH})`);
+                }
+                resetPINSalah(cocok.nama);
+                _pinHapusLolosOleh = kodeAkun;
+                _pinHapusLolosSampai = Date.now() + PIN_HAPUS_JEDA_MENIT * 60000;
+                selesai(true);
+            } finally { sibuk = false; }
+        };
+        overlay.addEventListener('click', e => {
+            if (e.target === overlay) return selesai(false);
+            const btn = e.target.closest('button[data-jawab]');
+            if (!btn) return;
+            if (btn.dataset.jawab === '1') coba(); else selesai(false);
+        });
+        document.body.appendChild(overlay);
+        const inp = document.getElementById('pinHapusInput');
+        inp.addEventListener('keydown', e => { if (e.key === 'Enter') coba(); });
+        setTimeout(() => inp.focus(), 80);
+    });
+}
+
 async function simpanAgendaKantor() {
     const pembahasan = document.getElementById('agendaPembahasan').value.trim();
     const tanggal = document.getElementById('agendaTanggal').value;
@@ -12104,6 +12278,7 @@ async function hapusPengecualian() {
     document.getElementById('pengecualianModal').style.display = 'none';
     showToast('Kembali ke jadwal normal');
 }
+
 // ---------------- CATATAN TANGGAL: tambah / edit / hapus ----------------
 function openTambahCatatanTanggalModal(id) {
     document.getElementById('catatanTanggalEditingId').value = id || '';
@@ -13555,7 +13730,7 @@ const PEMERIKSA_KESEHATAN = [
             const est = ctx.konfig.per_program?.[p.id]?.estimasi_data;
             const idBawahModal = new Set();
             if (est) {
-                const bawah = berharga.filter(x => !idMurah.has(x.j.id) && !isTarifAnak(x.j.additional_fields) && String(x.j.additional_fields?.tipe_paket || '').trim()).map(x => ({ x, modal: modalPerJamaahMenurutTipe(est, x.j.additional_fields.tipe_paket) })).filter(y => y.modal > 0 && y.x.harga < y.modal);
+                const bawah = berharga.filter(x => !idMurah.has(x.j.id) && !isTarifAnak(x.j.additional_fields) && String(x.j.additional_fields?.tipe_paket || '').trim()).map(x => ({ x, modal: Math.max(0, modalPerJamaahMenurutTipe(est, x.j.additional_fields.tipe_paket) - modalHematPerlengkapan(x.j.additional_fields, est)) })).filter(y => y.modal > 0 && y.x.harga < y.modal);
                 const mbK = parseInt(ctx.konfig.per_program?.[p.id]?.modal_bayi) || 0;
                 const anakBawah = berharga.filter(x => isTarifAnak(x.j.additional_fields) && String(x.j.additional_fields?.tipe_paket || '').trim()).map(x => ({ x, modal: modalJamaahRinci(x.j, est, x.j.additional_fields.tipe_paket, mbK).modal })).filter(y => y.modal > 0 && y.x.harga < y.modal);
                 const bayiTanpaModal = berharga.filter(x => isBayi(x.j.additional_fields) && !(uangDariField(x.j.additional_fields.modal_anak) > 0));
@@ -13580,9 +13755,18 @@ const PEMERIKSA_KESEHATAN = [
                 const abaiK = rinciK.filter(x => x.r.diskonDiabaikan > 0);
                 if (abaiK.length) out.push(T('jamaah.diskon_diabaikan:' + p.id, 'Jamaah', 'perhatian', 'Diskon tidak dipakai karena ada Harga khusus' + tag, 'Kolom Diskon untuk Jamaah terisi, tetapi harga khusus yang diketik yang dipakai.', 'Pilih salah satu: hapus Harga khusus (tombol "Kembali ke harga seragam") atau kosongkan kolom Diskon.', abaiK.map(x => `${x.j.nama_lengkap || '(tanpa nama)'} · diskon ${rp(x.r.diskonDiabaikan)}, harga ${rp(x.r.total)}`)));
             }
+            // 2a'. Perlengkapan: tidak ambil tetapi potongan belum diisi (modal turun, harga belum) / potongan tidak terpakai
+            { const perlK = list.filter(j => !tanpaTagihan(j) && tidakAmbilPerlengkapan(j.additional_fields));
+              if (perlK.length) {
+                  const seragamOnP = !!(hpK && hpK.seragam && hpK.nominal > 0);
+                  const tanpaPot = seragamOnP ? perlK.filter(j => !(potonganPerlengkapanDiisi(j.additional_fields) > 0) && !(bacaHargaManualJamaah(j) > 0)) : [];
+                  if (tanpaPot.length) out.push(T('jamaah.perlengkapan_tanpa_potongan:' + p.id, 'Jamaah', 'perhatian', `${tanpaPot.length} jamaah tidak ambil perlengkapan, potongan belum diisi` + tag, 'Modalnya sudah dikurangi biaya perlengkapan, tetapi harganya belum dipotong, sehingga laba terlihat lebih besar dari kenyataan.', 'Isi potongan lewat tombol Harga di Pembayaran (pilih Perlengkapan: Tidak ambil).', tanpaPot.map(j => nama({ j }))));
+                  const abaiP = perlK.filter(j => potonganPerlengkapanDiisi(j.additional_fields) > 0 && (!seragamOnP || bacaHargaManualJamaah(j) > 0));
+                  if (abaiP.length) out.push(T('jamaah.perlengkapan_potongan_diabaikan:' + p.id, 'Jamaah', 'info', `${abaiP.length} potongan perlengkapan tidak dipakai` + tag, 'Potongan hanya dipakai di harga otomatis (Harga Seragam). Bila Harga khusus diketik atau Harga Seragam mati, harga yang diketik yang berlaku, jadi pastikan angkanya sudah memuat potongan.', '', abaiP.map(j => nama({ j }))));
+              } }
             // 2b. Diskon/komisi melebihi Buffer (hitungan yang sama dengan Analisis Buffer di Rekap)
             if (est) {
-                const ab = analisisBufferB2CDari(hitungModalHargaDariEst(est), berharga.map(x => ({ nama: nama(x), harga: x.harga, af: x.j.additional_fields })));
+                const ab = analisisBufferB2CDari(hitungModalHargaDariEst(est), berharga.map(x => ({ nama: nama(x), harga: x.harga, af: x.j.additional_fields, perl: perlengkapanJamaah(x.j, est, hpK) })));
                 const lebihBuf = ab ? ab.rinci.filter(r => r.kelebihan > 0) : [];
                 if (lebihBuf.length) out.push(T('jamaah.diskon_melebihi_buffer:' + p.id, 'Jamaah', 'perhatian', 'Diskon melebihi buffer' + tag, `Buffer ${rp(ab.buffer)} per orang. Kelebihan diskon/komisi di bawah ini memakan laba rencana (total ${rp(ab.kelebihan)}; dampak bersih gabungan ${ab.bersih >= 0 ? 'untung ekstra ' : 'di bawah rencana '}${rp(Math.abs(ab.bersih))}).`, 'Periksa apakah diskon ini memang disengaja. Abaikan bila sudah diperhitungkan.', lebihBuf.map(r => `${r.nama} · diskon/komisi ${rp(r.total)}, melebihi ${rp(r.kelebihan)}`), { label: 'Buka Pembayaran', halaman: 'pembayaran' }));
             }
@@ -14375,7 +14559,7 @@ async function hapusTransaksiPinjaman(id) {
     const t = pinjamanData.transaksi.find(x => x.id === id);
     if (!t) return;
     if (t.saldoMutasiId && !adalahAdminPenuh()) return showToast('🔒 Catatan ini terhubung ke Saldo Kantor — hanya Admin Utama yang bisa menghapusnya');
-    const ok = await konfirmasiHapus(`${t.jenis === 'kembali' ? 'Pengembalian' : 'Pinjaman'} ${formatRupiah(t.nominal)} tanggal ${tglPendekPinjaman(t.tanggal)} akan dihapus beserta foto buktinya.${t.saldoMutasiId ? ' Catatan di Saldo Kantor juga ikut terhapus.' : ''}`, 'Hapus Catatan?');
+    const ok = await konfirmasiHapusPIN(`${t.jenis === 'kembali' ? 'Pengembalian' : 'Pinjaman'} ${formatRupiah(t.nominal)} tanggal ${tglPendekPinjaman(t.tanggal)} akan dihapus beserta foto buktinya.${t.saldoMutasiId ? ' Catatan di Saldo Kantor juga ikut terhapus.' : ''}`, 'Hapus Catatan?');
     if (!ok) return;
     if (t.saldoMutasiId) await hapusMutasiTerkaitPinjaman([id]);
     pinjamanData.transaksi = pinjamanData.transaksi.filter(x => x.id !== id);
@@ -14414,7 +14598,7 @@ async function hapusOrangPinjaman(id) {
     const trx = pinjamanData.transaksi.filter(t => t.orangId === id);
     const tertaut = trx.filter(t => t.saldoMutasiId);
     if (tertaut.length && !adalahAdminPenuh()) return showToast('🔒 Ada catatan yang terhubung ke Saldo Kantor — hanya Admin Utama yang bisa menghapus peminjam ini');
-    const ok = await konfirmasiHapus(`${o.nama} beserta ${trx.length} catatan pinjaman & pengembaliannya akan dihapus permanen.${tertaut.length ? ' Catatan terkait di Saldo Kantor juga ikut terhapus.' : ''}`, 'Hapus Peminjam?');
+    const ok = await konfirmasiHapusPIN(`${o.nama} beserta ${trx.length} catatan pinjaman & pengembaliannya akan dihapus permanen.${tertaut.length ? ' Catatan terkait di Saldo Kantor juga ikut terhapus.' : ''}`, 'Hapus Peminjam?');
     if (!ok) return;
     if (tertaut.length) await hapusMutasiTerkaitPinjaman(tertaut.map(t => t.id));
     for (const t of trx) { try { await idbDelete(STORE_CATATAN, 'pinjaman_bukti_' + t.id); } catch (e) {} }
@@ -16702,7 +16886,7 @@ async function migrasiKonsolidasiStatusProsesHaji() {
 async function confirmDeleteJamaahById(id){ 
     if(cekProgramArsip()) return;
     const namaDihapus = jamaahList.find(j=>j.id==id)?.nama_lengkap || 'jamaah ini';
-    if(await konfirmasiHapus(`Data "${namaDihapus}" akan dihapus. Masih bisa dibatalkan beberapa detik setelahnya.`, 'Hapus Jamaah?')){ 
+    if(await konfirmasiHapusPIN(`Data "${namaDihapus}" akan dihapus. Masih bisa dibatalkan beberapa detik setelahnya.`, 'Hapus Jamaah?')){ 
         const index=jamaahList.findIndex(j=>j.id==id); 
         if(index!==-1){ 
             const namaJamaah = jamaahList[index].nama_lengkap;
@@ -17118,7 +17302,7 @@ function sesuaikanHargaDariDiskonMitra(jamaahId) {
         const fS = n => Math.round(n).toLocaleString('id-ID');
         const estS = hitungModalHargaEstimasiTerkini();
         const bufS = estS ? (estS.buffer || 0) : 0;
-        const pakaiS = (isTarifAnak(j.additional_fields) ? 0 : Math.max(0, (estS ? estS.harga : rr.dasar) - rr.total)) + komisi;
+        const pakaiS = (isTarifAnak(j.additional_fields) ? 0 : Math.max(0, (estS ? estS.harga : rr.dasar) - rr.total - (rr.potongan || 0))) + komisi;
         showToast(rr.diskonDiabaikan > 0
             ? `⚠️ Diskon ${fS(diskon)} tidak dipakai karena jamaah ini punya Harga khusus Rp ${fS(rr.total)}`
             : `✅ Harga otomatis: Rp ${fS(rr.total)}\n(Seragam ${fS(rr.dasar)} − Diskon ${fS(diskon)})` + (estS && pakaiS > bufS ? `\n⚠️ Diskon + komisi melebihi Buffer ${fS(bufS)} sebesar Rp ${fS(pakaiS - bufS)}, mengurangi laba rencana` : ''));
@@ -17999,18 +18183,19 @@ function hitungTotalModalEstimasi(daftarJamaah) {
     const ringkas = hitungModalHargaEstimasiTerkini();
     if(!raw || !ringkas) return null;
     const modalQuad = modalPerJamaahMenurutTipe(raw, 'Quad');
-    let bayar = 0, tanpaTipe = 0, nBayi = 0, bayiModalDewasa = 0;
+    let bayar = 0, tanpaTipe = 0, nBayi = 0, bayiModalDewasa = 0, nTanpaPerleng = 0, hematPerleng = 0;
     const mb = modalBayiProgram();
     daftarJamaah.forEach(j => {
         const tipe = j.additional_fields?.tipe_paket || '';
         if(!tipe) tanpaTipe++;
         const mr = modalJamaahRinci(j, raw, tipe, mb); // belum ada tipe kamar: pakai tarif Quad
         bayar += mr.modal;
+        if(mr.hemat > 0) { nTanpaPerleng++; hematPerleng += mr.hemat; }
         if(mr.jenis === 'bayi') { nBayi++; if(mr.sumber === 'dewasa') bayiModalDewasa++; }
     });
     const nFoc = ringkas.foc || 0, nTL = ringkas.tl || 0;
     const modalFoc = nFoc * modalQuad, modalTL = nTL * modalQuad;
-    return { bayar, nBayar: daftarJamaah.length, nFoc, nTL, modalFoc, modalTL, total: bayar + modalFoc + modalTL, tanpaTipe, modalQuad, nBayi, bayiModalDewasa };
+    return { bayar, nBayar: daftarJamaah.length, nFoc, nTL, modalFoc, modalTL, total: bayar + modalFoc + modalTL, tanpaTipe, modalQuad, nBayi, bayiModalDewasa, nTanpaPerleng, hematPerleng };
 }
 
 // ===== Penjelasan untuk laporan (build -67): HANYA teks penjelas, tidak mengubah angka/rumus apa pun =====
@@ -18711,6 +18896,8 @@ function cetakLaporanPenutupanMusim() {
         const diskonLebihLap = ringkasDiskonMelebihiBuffer();
         const komposisiHargaLap = ringkasKomposisiHarga(jamaahRelevan);
         if (komposisiHargaLap) catatanProyeksi += `<p class="lap-note">${escapeHtml(teksKomposisiHarga(komposisiHargaLap))}</p>`;
+        const perlLap = ringkasPerlengkapanDari(jamaahRelevan);
+        if (perlLap) catatanProyeksi += `<p class="lap-note">🧳 ${escapeHtml(teksPerlengkapanRingkas(perlLap))}</p>`;
         const anakBayiLap = ringkasAnakBayiDari(jamaahRelevan);
         if (anakBayiLap) catatanProyeksi += `<p class="lap-note">👶 ${escapeHtml(teksAnakBayiRingkas(anakBayiLap))}</p>`;
         const lebihBayarLap = ringkasKelebihanBayar(jamaahRelevan);
@@ -20730,7 +20917,7 @@ async function confirmDeleteJamaahKitaDynamicField(idx) {
 async function confirmDeleteAllJamaahKita() {
     if(!cekIzinAdmin('bolehHapus')) return showToast('🔒 Anda tidak punya izin menghapus data');
     if (jamaahKitaList.length === 0) return showToast('Tidak ada data Jamaah on proses!');
-    if (await konfirmasiHapus(`SEMUA ${jamaahKitaList.length} data Jamaah on proses akan dihapus PERMANEN.`, 'Hapus Semua On Proses?', 'Hapus Semua')) {
+    if (await konfirmasiHapusPIN(`SEMUA ${jamaahKitaList.length} data Jamaah on proses akan dihapus PERMANEN.`, 'Hapus Semua On Proses?', 'Hapus Semua')) {
         jamaahKitaList = [];
         selectedJamaahKitaIds = [];
         saveJamaahKitaData();
@@ -21426,7 +21613,8 @@ function simpanEditTransaksiRiyal(id) {
 
 function hapusTransaksiRiyal(id) {
     if (!cekIzinAdmin('bolehHapus')) return showToast('🔒 Anda tidak punya izin menghapus data');
-    konfirmasiBertema('Hapus transaksi ini?', 'Riwayat transaksi tukar Riyal ini akan dihapus permanen.', () => {
+    konfirmasiHapusPIN('Riwayat transaksi tukar Riyal ini akan dihapus permanen.', 'Hapus transaksi ini?').then(ok => {
+        if (!ok) return;
         const list = getRiwayatTukarRiyal().filter(t => t.id !== id);
         simpanRiwayatTukarRiyalList(list);
         renderRiwayatTukarRiyal();
@@ -21976,13 +22164,20 @@ function labelDiskonJamaah(j, est) {
     const buf = est.buffer || 0;
     const rinciL = hargaPaketRinci(j, getKonfigurasiProData().harga_paket);
     const anakL = isTarifAnak(j.additional_fields);
-    const diskon = anakL ? 0 : Math.max(0, Math.round(est.harga) - Math.round(h));
+    const plL = perlengkapanJamaah(j);
+    const diskon = anakL ? 0 : Math.max(0, Math.round(est.harga) - Math.round(h) - plL.pot); // potongan perlengkapan bukan diskon: diimbangi modal yang turun
+    const rugiL = plL.tidak ? Math.max(0, plL.pot - plL.hemat) : 0;
     const komisi = komisiMitraDari(j.additional_fields);
     let out = '';
+    if(plL.tidak) {
+        const efekL = plL.hemat - plL.pot;
+        const ketL = plL.pot <= 0 ? ' · ⚠️ potongan belum diisi' : (efekL === 0 ? ' · untung tidak berubah' : (efekL < 0 ? ' · untung turun ' + fR(-efekL) : ' · untung naik ' + fR(efekL)));
+        out += `<div style="font-size:12px;font-weight:700;color:${plL.pot <= 0 || efekL < 0 ? '#B45309' : '#0F766E'};">🧳 Tanpa perlengkapan: potongan ${fR(plL.pot)} · modal turun ${fR(plL.hemat)}${ketL}</div>`;
+    }
     if(anakL) out += `<div style="font-size:12px;font-weight:700;color:#7C3AED;">👶 Tarif anak/bayi ${fR(h)} (bukan diskon)</div>`;
     if(rinciL.diskonDiabaikan > 0) out += `<div style="font-size:12px;font-weight:700;color:#B45309;">⚠️ Diskon ${fR(rinciL.diskonDiabaikan)} tidak dipakai: ada Harga khusus</div>`;
     if(diskon > 0) {
-        const lebih = diskon - buf;
+        const lebih = diskon + rugiL - buf;
         // Kata "Diskon" hanya bila kolom Diskon untuk Jamaah di database memang terisi; selain itu hanya selisih harga dari brosur (mis. harga lama)
         const adaDiskonTercatat = diskonUntukJamaah(j.additional_fields) > 0 && rinciL.sumber !== 'khusus';
         const khususL = rinciL.sumber === 'khusus';
@@ -21993,7 +22188,7 @@ function labelDiskonJamaah(j, est) {
             : `<div style="font-size:12px;font-weight:700;color:${adaDiskonTercatat ? '#166534' : '#64748B'};">${adaDiskonTercatat ? '🏷️' : 'ℹ️'} ${kata} ${nilaiL} · dalam buffer</div>`;
     }
     if(komisi > 0) {
-        const lebihK = diskon + komisi - buf;
+        const lebihK = diskon + rugiL + komisi - buf;
         out += `<div style="font-size:12px;font-weight:700;color:${lebihK > 0 ? '#DC2626' : '#92400E'};">🤝 Komisi mitra ${fR(komisi)}${lebihK > 0 && diskon === 0 ? ' · melebihi buffer ' + fR(lebihK) : ''}</div>`;
     }
     return out;
@@ -22644,11 +22839,56 @@ function openEditHargaModal(jamaahId) {
         document.getElementById('editHargaJenisAnak').value = jenisTarifAnak(jamaah.additional_fields);
         { const ma = uangDariField(jamaah.additional_fields.modal_anak); document.getElementById('editHargaModalAnak').value = ma > 0 ? ma.toLocaleString('id-ID') : ''; }
         perbaruiEditHargaAnak();
+        { const afP = jamaah.additional_fields || {};
+          document.getElementById('editHargaPerleng').value = tidakAmbilPerlengkapan(afP) ? 'tidak' : '';
+          const pP = uangDariField(afP.potongan_perlengkapan), hP = uangDariField(afP.modal_hemat_perlengkapan);
+          document.getElementById('editHargaPotongan').value = pP > 0 ? pP.toLocaleString('id-ID') : '';
+          document.getElementById('editHargaModalHemat').value = hP > 0 ? hP.toLocaleString('id-ID') : '';
+          _ehHargaManual = rinciE.khusus > 0;
+          const inpH = document.getElementById('editHargaValue'); inpH.oninput = () => { _ehHargaManual = true; perbaruiEditHargaPerleng(false); };
+          perbaruiEditHargaPerleng(false); }
         document.getElementById('editHargaResetBtn').style.display = rinciE.dasar > 0 && rinciE.khusus > 0 ? 'block' : 'none';
     }
     document.getElementById('editHargaModal').classList.add('show'); 
 }
 
+// ----- Perlengkapan di Edit Harga -----
+let _ehHargaManual = false;
+function pilihPotonganPerleng(n) { const el = document.getElementById('editHargaPotongan'); if (el) el.value = n.toLocaleString('id-ID'); perbaruiEditHargaPerleng(true); }
+// Harga otomatis (seragam − diskon − potongan) untuk jamaah yang sedang diedit, memakai isi form. null bila Harga Seragam tidak aktif.
+function hargaOtomatisEditHarga() {
+    const jamaah = jamaahList.find(j => j.id == currentEditJamaahId); if (!jamaah) return null;
+    const hp = getKonfigurasiProData().harga_paket;
+    if (!(hp && hp.seragam && hp.nominal > 0)) return null;
+    const diskon = Math.min(diskonUntukJamaah(jamaah.additional_fields), hp.nominal);
+    const tidak = document.getElementById('editHargaPerleng')?.value === 'tidak';
+    const pot = tidak ? Math.min(uangDariField(document.getElementById('editHargaPotongan')?.value), hp.nominal - diskon) : 0;
+    return { total: hp.nominal - diskon - pot, dasar: hp.nominal, diskon, pot };
+}
+function perbaruiEditHargaPerleng(ikutiHarga) {
+    const tidak = document.getElementById('editHargaPerleng')?.value === 'tidak';
+    const wrap = document.getElementById('editHargaPerlengWrap'), info = document.getElementById('editHargaPerlengInfo');
+    if (wrap) wrap.style.display = tidak ? 'block' : 'none';
+    const oto = hargaOtomatisEditHarga();
+    // Selama harga belum diketik manual / bukan Harga khusus, kolom Total ikut harga otomatis
+    if (ikutiHarga && oto && !_ehHargaManual) document.getElementById('editHargaValue').value = oto.total.toLocaleString('id-ID');
+    if (!info) return;
+    if (!tidak) { info.innerHTML = ''; return; }
+    const fR = n => 'Rp ' + Math.round(n).toLocaleString('id-ID');
+    let est = null; try { est = getEstimasiData(); } catch(e) {}
+    const hemat = uangDariField(document.getElementById('editHargaModalHemat')?.value) || modalPerlengkapanEstimasi(est);
+    const potIn = uangDariField(document.getElementById('editHargaPotongan')?.value);
+    let t = '';
+    if (oto && !_ehHargaManual) t += `Harga: ${fR(oto.dasar)}${oto.diskon > 0 ? ' − diskon ' + fR(oto.diskon) : ''} − potongan ${fR(oto.pot)} = <b>${fR(oto.total)}</b><br>`;
+    else if (oto) t += `<span style="color:#B45309;">Harga yang diketik di atas yang berlaku; potongan tidak ikut dihitung otomatis.</span><br>`;
+    else t += `<span style="color:#B45309;">Harga Seragam tidak aktif: ketik sendiri harga jamaah ini di kolom Total.</span><br>`;
+    t += `Modal turun ${fR(hemat)}${uangDariField(document.getElementById('editHargaModalHemat')?.value) ? '' : ' (dari Perlengkapan di Estimasi)'}`;
+    if (oto && !_ehHargaManual) {
+        if (potIn <= 0) t += `<br><span style="color:#B45309;">⚠️ Potongan belum diisi: modal turun tapi harga belum.</span>`;
+        else { const e = hemat - potIn; t += e === 0 ? '<br>Untung tidak berubah.' : `<br>Untung ${e < 0 ? '<b style="color:#B45309;">turun ' + fR(-e) + '</b>' : '<b style="color:#0F766E;">naik ' + fR(e) + '</b>'} dibanding jamaah yang ambil perlengkapan.`; }
+    }
+    info.innerHTML = t;
+}
 function perbaruiEditHargaAnak() {
     const jenis = document.getElementById('editHargaJenisAnak')?.value || '';
     const wrap = document.getElementById('editHargaModalAnakWrap'), info = document.getElementById('editHargaModalAnakInfo');
@@ -22691,7 +22931,10 @@ function saveEditHarga() {
     const hpE = getKonfigurasiProData().harga_paket;
     const seragamAktif = !!(hpE && hpE.seragam && hpE.nominal > 0);
     // Angka yang sama dengan harga otomatis (seragam − diskon) dan bukan tarif anak: tidak perlu disimpan sebagai Harga khusus
-    const hargaOtomatis = seragamAktif ? Math.max(0, hpE.nominal - diskonUntukJamaah(jamaah.additional_fields)) : 0;
+    const tidakAmbilP = document.getElementById('editHargaPerleng')?.value === 'tidak';
+    const potonganP = tidakAmbilP ? uangDariField(document.getElementById('editHargaPotongan')?.value) : 0;
+    const diskonE = seragamAktif ? Math.min(diskonUntukJamaah(jamaah.additional_fields), hpE.nominal) : 0;
+    const hargaOtomatis = seragamAktif ? hpE.nominal - diskonE - Math.min(potonganP, hpE.nominal - diskonE) : 0;
     const jadiKhusus = !(seragamAktif && newHarga === hargaOtomatis && !anakDicentang);
     if (jadiKhusus) {
         let targetField = null; 
@@ -22714,11 +22957,21 @@ function saveEditHarga() {
         const maIn = uangDariField(document.getElementById('editHargaModalAnak')?.value);
         if (maIn > 0) jamaah.additional_fields.modal_anak = maIn.toLocaleString('id-ID'); else delete jamaah.additional_fields.modal_anak;
     } else { delete jamaah.additional_fields.tarif_anak; delete jamaah.additional_fields.modal_anak; }
+    if (tidakAmbilP) {
+        jamaah.additional_fields.perlengkapan = 'Tidak ambil';
+        if (potonganP > 0) jamaah.additional_fields.potongan_perlengkapan = potonganP.toLocaleString('id-ID'); else delete jamaah.additional_fields.potongan_perlengkapan;
+        const hmIn = uangDariField(document.getElementById('editHargaModalHemat')?.value);
+        if (hmIn > 0) jamaah.additional_fields.modal_hemat_perlengkapan = hmIn.toLocaleString('id-ID'); else delete jamaah.additional_fields.modal_hemat_perlengkapan;
+    } else {
+        if (tidakAmbilPerlengkapan(jamaah.additional_fields)) jamaah.additional_fields.perlengkapan = 'Ambil';
+        delete jamaah.additional_fields.potongan_perlengkapan; delete jamaah.additional_fields.modal_hemat_perlengkapan;
+    }
     saveJamaahData(); 
     renderPaymentJamaahList(); 
     renderPaymentDashboard(); 
     let pesanE = jadiKhusus ? `✅ Harga ${anakDicentang ? (jenisAnakDipilih === 'bayi' ? 'tarif bayi' : 'tarif anak') : 'khusus'} ${formatRupiah(newHarga)}` : `✅ Memakai harga seragam ${formatRupiah(newHarga)}`;
     if (anakDicentang && !seragamAktif) pesanE += '\n(Harga Seragam tidak aktif: penanda tarif anak tetap tersimpan)';
+    if (tidakAmbilP) pesanE += `\n🧳 Tanpa perlengkapan${potonganP > 0 ? ': potongan ' + formatRupiah(potonganP) : ' (potongan belum diisi)'}`;
     showToast(pesanE); 
     closeEditHargaModal(); 
 }
@@ -22986,7 +23239,7 @@ function closeRiwayatModal() {
 async function deletePaymentTransaction(trxId) { 
     const trxDihapus = paymentTransaksiList.find(t => t.id == trxId);
     const infoTrx = trxDihapus ? `Pembayaran Rp ${(trxDihapus.nominal||0).toLocaleString('id-ID')} atas nama ${trxDihapus.nama_jamaah||'-'} akan dihapus.` : 'Transaksi pembayaran ini akan dihapus.';
-    if (await konfirmasiHapus(infoTrx, 'Hapus Pembayaran?')) { 
+    if (await konfirmasiHapusPIN(infoTrx, 'Hapus Pembayaran?')) { 
         const trx = paymentTransaksiList.find(t => t.id == trxId);
         paymentTransaksiList = paymentTransaksiList.filter(t => t.id != trxId); 
         savePaymentData(); 
@@ -24965,7 +25218,7 @@ function openIndexedDB() {
 // dengan build baru, data MENTAH (langsung dari IndexedDB, bukan dari memori) disalin dulu sebelum
 // proses migrasi apapun berjalan — supaya kalau ada kesalahan di update, data lama masih bisa dipulihkan.
 // Dokumen & foto tidak ikut disalin (ukurannya besar, dan tidak pernah disentuh proses migrasi).
-const NAVARA_BUILD = '2026.10.14-120';
+const NAVARA_BUILD = '2026.10.17-122';
 const MAKS_SNAPSHOT = 3;
 
 // ==================== DAFTAR DATA PUSAT ====================
@@ -25015,6 +25268,7 @@ function bacaPengaturanLokal() {
         menu_tampilan: localStorage.getItem('navara_menu_tampilan') || null, pengingat_cicilan_hari: localStorage.getItem('navara_pengingat_cicilan_hari') || null,
         master_modes: j('navara_master_modes'), kita_ignored_fields: j('navara_kita_ignored_fields'),
         last_zakat_total: localStorage.getItem('navara_last_zakat_total') || null,
+        hapus_wajib_pin: localStorage.getItem('navara_hapus_wajib_pin') || null,
         dark_mode: localStorage.getItem('navara_dark_mode') || null, tema_warna: localStorage.getItem('premium_theme_primary') || null,
     };
 }
@@ -25036,6 +25290,7 @@ function terapkanPengaturanLokal(pl) {
     json('navara_master_modes', pl.master_modes);
     json('navara_kita_ignored_fields', pl.kita_ignored_fields);
     teks('navara_last_zakat_total', pl.last_zakat_total);
+    teks('navara_hapus_wajib_pin', pl.hapus_wajib_pin);
     teks('navara_dark_mode', pl.dark_mode);
     teks('premium_theme_primary', pl.tema_warna);
 }
@@ -27704,7 +27959,7 @@ async function hapusPengingat(id) {
 async function confirmResetAllData() { 
     if(!cekIzinAdmin('bolehReset')) return showToast('🔒 Anda tidak punya izin mereset data');
     if(!(await tanyaKonfirmasi({ judul: 'Reset Semua Data?', pesan: 'Aplikasi akan kembali seperti pertama kali dipasang. Yang dihapus permanen:', daftar: ['Jamaah & dokumen', 'Kas & pembayaran', 'On Proses & Folder', 'Konfigurasi instansi', 'Absensi, foto profil, catatan', 'Pengeluaran (Cuan Plan)'], ikon: '⚠️', tombolYa: 'Lanjut', warnaYa: '#DC2626' }))) return;
-    if(!(await konfirmasiHapus('Tindakan ini TIDAK BISA dibatalkan. Lisensi & Device ID tetap tersimpan.', 'Yakin Reset?', 'Ya, Reset Semua'))) return;
+    if(!(await konfirmasiHapusPIN('Tindakan ini TIDAK BISA dibatalkan. Lisensi & Device ID tetap tersimpan.', 'Yakin Reset?', 'Ya, Reset Semua'))) return;
 
     // Selamatkan lisensi & device ID sebelum reset
     const savedLicense = localStorage.getItem('navara_license');
@@ -29995,4 +30250,3 @@ function cetakDariPreviewAlternatif() {
 
 </body>
     </html>
-
