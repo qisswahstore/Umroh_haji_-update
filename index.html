@@ -46,6 +46,19 @@
             --card-bg: #FFFFFF;
             --primary-muda: rgba(13, 92, 74, 0.11);
         }
+        /* Halaman Cara Pakai */
+        .cp-intro { font-size: 13px; color: var(--gray); line-height: 1.5; margin: 0 0 10px; }
+        .cp-cari { width: 100%; box-sizing: border-box; padding: 11px 14px; border-radius: 12px; border: 1.5px solid #e2e8f0; font-size: 14px; font-family: inherit; background: var(--input-bg, #fff); color: var(--dark); }
+        .cp-bagian { font-size: 12px; font-weight: 800; letter-spacing: .04em; color: var(--primary); margin: 18px 2px 8px; display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+        .cp-label { font-size: 10px; font-weight: 700; background: #FEF3C7; color: #92400E; padding: 2px 8px; border-radius: 10px; letter-spacing: 0; }
+        .cp-kartu { background: var(--card-bg); border-radius: 16px; box-shadow: 0 2px 10px rgba(0,0,0,.07); margin-bottom: 10px; overflow: hidden; border: 1px solid rgba(0,0,0,.04); }
+        .cp-judul { width: 100%; display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 14px 16px; background: none; border: none; font-family: inherit; font-size: 15px; font-weight: 800; color: var(--dark); text-align: left; cursor: pointer; min-height: 48px; }
+        .cp-panah { color: var(--gray); font-size: 11px; flex-shrink: 0; transition: transform .2s; }
+        .cp-kartu.buka .cp-panah { transform: rotate(180deg); }
+        .cp-isi { padding: 0 16px 16px; font-size: 14px; line-height: 1.65; color: var(--dark); }
+        .cp-isi b { font-weight: 800; }
+        .cp-tombol { display: block; width: 100%; margin-top: 10px; padding: 13px; border: none; border-radius: 14px; background: var(--primary); color: #fff; font-family: inherit; font-size: 14px; font-weight: 800; cursor: pointer; }
+        .cp-kosong { text-align: center; color: var(--gray); padding: 28px 10px; font-size: 13px; }
         /* Menu Utama ringkas 4 kolom: ikon dalam lingkaran warna muda dari tema + nama menu */
         #menuGridPremium.menu-grid-premium, .semua-menu-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 4px 2px; }
         .menu-tile { border: none; background: transparent; font-family: inherit; display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 6px 2px; min-height: 88px; cursor: pointer; position: relative; -webkit-tap-highlight-color: transparent; }
@@ -2026,6 +2039,7 @@ https://github.com/nodeca/pako/blob/main/LICENSE
         <div class="greeting">
             <div><h2>Selamat datang, Admin</h2><p id="homeDate">Memuat...</p></div>
             <div class="greeting-actions">
+                <button type="button" class="dark-mode-toggle" id="btnCaraPakaiHeader" onclick="showPage('carapakai')" aria-label="Cara Pakai" title="Cara Pakai" style="font-size:19px;"><i class="fas fa-circle-question"></i></button>
                 <button id="darkModeToggle" class="dark-mode-toggle">🌙</button>
                 <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px;">
                     <a href="#" id="adminModeToggleBtn" class="admin-toggle-link" onclick="event.preventDefault(); toggleAdminMode();"><i class="fas fa-shield-alt"></i> Mode Admin</a>
@@ -2183,6 +2197,15 @@ https://github.com/nodeca/pako/blob/main/LICENSE
 </div>
 
 <!-- DASHBOARD PAGE -->
+<div id="page-carapakai" class="page">
+    <div class="header-premium header-premium-small"><div class="back-header"><i class="fas fa-arrow-left" onclick="showPage('home')"></i><h2>Cara Pakai</h2><div style="width:30px;"></div></div></div>
+    <div class="card-premium">
+        <p class="cp-intro">Ketuk judul untuk membuka langkahnya. Tombol hijau membawa langsung ke halaman yang dibahas.</p>
+        <input type="search" id="caraPakaiCari" class="cp-cari" placeholder="Cari panduan, mis. bayar" oninput="renderCaraPakai()" autocomplete="off">
+        <div id="caraPakaiList"></div>
+    </div>
+</div>
+
 <div id="page-riwayataktivitas" class="page">
     <div class="header-premium header-premium-small">
         <div class="back-header"><i class="fas fa-arrow-left" onclick="showPage('setting')"></i><h2> Riwayat Aktivitas</h2><div style="width:30px;"></div></div>
@@ -2502,6 +2525,10 @@ https://github.com/nodeca/pako/blob/main/LICENSE
                     <button onclick="cetakLaporanGabungan('semua')"
                         style="flex:1;padding:9px 8px;background:#1d4ed8;color:white;border:none;border-radius:10px;font-size:12px;font-weight:700;cursor:pointer;">
                         📄 Cetak Lengkap
+                    </button>
+                    <button onclick="exportPengeluaranExcel()"
+                        style="flex:1;padding:9px 8px;background:#15803d;color:white;border:none;border-radius:10px;font-size:12px;font-weight:700;cursor:pointer;">
+                        📊 Excel
                     </button>
                 </div>
             </div>
@@ -3594,6 +3621,12 @@ https://github.com/nodeca/pako/blob/main/LICENSE
             </div>
         </div>
         <div class="setting-card" id="modePenyimpananCard" style="display:none;"></div>
+        <div class="setting-card" onclick="showPage('carapakai')" style="cursor:pointer;">
+            <div style="display:flex;align-items:center;justify-content:space-between;">
+                <div><div style="font-weight:700;font-size:15px;"><i class="fas fa-circle-question"></i> Cara Pakai</div><div style="font-size:11px;color:#888;margin-top:2px;">Panduan langkah demi langkah</div></div>
+                <i class="fas fa-chevron-right" style="color:var(--primary);"></i>
+            </div>
+        </div>
         <div class="setting-card" onclick="showPage('riwayataktivitas')" style="cursor:pointer;">
             <div style="display:flex;align-items:center;justify-content:space-between;">
                 <div><div style="font-weight:700;font-size:15px;"><i class="fas fa-clock-rotate-left"></i> Riwayat Aktivitas</div></div>
@@ -4673,6 +4706,7 @@ function internalShowPage(pageId) {
     if (pageId === 'kalender-pejabat') { if(typeof loadPejabatData === 'function') loadPejabatData(); }
     if (pageId === 'atur-menu') { if(typeof bukaAturMenu === 'function') bukaAturMenu(); }
     if (pageId === 'setting') { if(typeof tandaiHapusWajibPIN === 'function') tandaiHapusWajibPIN(); }
+    if (pageId === 'carapakai') { if(typeof bukaCaraPakai === 'function') bukaCaraPakai(); }
     if (pageId === 'fitur') { if(typeof bukaSemuaMenu === 'function') bukaSemuaMenu(); }
     if (pageId === 'pinjaman') { if(typeof loadPinjamanData === 'function') loadPinjamanData(); }
     if (pageId === 'saldokantor') { if(typeof loadSaldoKantor === 'function') loadSaldoKantor(); }
@@ -5699,6 +5733,7 @@ function adalahAdminPenuh() {
 // Izin per fitur di Menu Lengkap. Peran baru memakai daftar centang (peran.fiturAllowed). Peran lama yang belum
 // punya daftar itu mengikuti izin "Menu Lengkap" seperti dulu (semua fitur atau tidak sama sekali).
 function cekIzinFiturDasar(id) {
+    if (id === 'carapakai') return true; // panduan boleh dibaca semua orang
     if (currentAdminIsPemilik) return true;
     if (MODUL_HANYA_PEMILIK.includes(id)) return adalahAdminPenuh();
     const admin = getAdminList().find(a => a.nama === currentAdminNama);
@@ -6338,9 +6373,9 @@ function openTambahPeranForm(peranId) {
 }
 
 // Fitur Menu Lengkap yang TIDAK muncul di daftar centang Peran: Buku Pinjaman (izin modul sendiri) dan Backup & Restore (hanya Admin Utama)
-const FITUR_TIDAK_BISA_DICENTANG = ['pinjaman', 'cloudstorage', 'saldokantor', 'cekkesehatan'];
+const FITUR_TIDAK_BISA_DICENTANG = ['carapakai', 'pinjaman', 'cloudstorage', 'saldokantor', 'cekkesehatan'];
 // Fitur yang memperlihatkan laba/omzet — ditandai 🔒 dan tidak ikut "Pilih semua"
-const FITUR_SENSITIF = ['cetakLaporanPenutupanMusim', 'cetakRekapTahunanGabungan', 'openProyeksiKasModal', 'openBandingkanProgramModal', 'openDashboardTrenModal'];
+const FITUR_SENSITIF = ['cetakLaporanPenutupanMusim', 'excelLaporanPenutupanMusim', 'cetakRekapTahunanGabungan', 'openProyeksiKasModal', 'openBandingkanProgramModal', 'openDashboardTrenModal'];
 
 function htmlCentangFiturPeran(aktif) {
     return KELOMPOK_MENU.map(k => {
@@ -6460,6 +6495,8 @@ const FITUR_LENGKAP = [
     { id: "openBandingkanProgramModal", label: "Bandingkan Program", ket: "Performa semua Program sekaligus", kelompok: "laporan", aksi: "openBandingkanProgramModal()", halaman: null, icon: "<i class=\"fas fa-chart-column\"></i>" },
     { id: "openDashboardTrenModal", label: "Dashboard Tren", ket: "Perbandingan antar tahun", kelompok: "laporan", aksi: "openDashboardTrenModal()", halaman: null, icon: "<i class=\"fas fa-arrow-trend-up\"></i>" },
     { id: "cetakLaporanPenutupanMusim", label: "Laporan Penutupan Musim", ket: "Gabungan semua laporan akhir", kelompok: "laporan", aksi: "cetakLaporanPenutupanMusim()", halaman: null, icon: "<i class=\"fas fa-book\"></i>" },
+    { id: "carapakai", label: "Cara Pakai", ket: "Panduan langkah demi langkah", kelompok: "pengaturan", aksi: "showPage('carapakai')", halaman: "carapakai", icon: "<i class=\"fas fa-circle-question\"></i>" },
+    { id: "excelLaporanPenutupanMusim", label: "Excel Laporan Penutupan", ket: "Laporan akhir musim dalam Excel", kelompok: "laporan", aksi: "cetakLaporanPenutupanMusim('excel')", halaman: null, icon: "<i class=\"fas fa-file-excel\"></i>" },
     { id: "itinerary", label: "Itinerary", ket: "Jadwal harian perjalanan", kelompok: "perjalanan", aksi: "showPage('itinerary')", halaman: "itinerary", icon: "<i class=\"fas fa-route\"></i>" },
     { id: "arsipprogram", label: "Program Arsip", ket: "Program lama, read-only", kelompok: "laporan", aksi: "showPage('arsipprogram')", halaman: "arsipprogram", icon: "<i class=\"fas fa-box-archive\"></i>" },
     { id: "alumni", label: "Database Alumni", ket: "Jamaah lama untuk remarketing", kelompok: "jamaah", aksi: "showPage('alumni')", halaman: "alumni", icon: "<i class=\"fas fa-graduation-cap\"></i>" },
@@ -9780,6 +9817,7 @@ async function simpanPengeluaran() {
         id: Date.now(),
         kategori, keterangan: ketFinal, nominal,
         tanggal: tanggal || new Date().toISOString().split('T')[0],
+        dicatat_oleh: currentAdminNama,
         program_id: currentProgramId
     });
     await savePengeluaran();
@@ -9920,6 +9958,41 @@ function updateRingkasanKeuangan() {
             }
         } catch(e) {}
     }
+}
+
+function exportPengeluaranExcel() {
+    if (typeof XLSX === 'undefined') { showToast('Library Excel belum siap, coba lagi sebentar.'); return; }
+    if (pengeluaranList.length === 0) { showToast('Belum ada pengeluaran!'); return; }
+    const hariIni = new Date().toLocaleDateString('id-ID').replace(/\//g,'-');
+    const prog = getCurrentProgram();
+    const namaProg = prog ? (prog.nama || 'Program') : 'Program';
+    const nom = p => Number(p.nominal != null ? p.nominal : p.jumlah) || 0;
+    const urut = [...pengeluaranList].sort((a, b) => String(a.tanggal || '').localeCompare(String(b.tanggal || '')) || (Number(a.id) || 0) - (Number(b.id) || 0));
+    let total = 0;
+    const baris = urut.map((p, i) => { total += nom(p); return { No: i + 1, Tanggal: p.tanggal || '', Kategori: p.kategori || '(tanpa kategori)', Keterangan: p.keterangan || '', Nominal: nom(p), 'Dicatat oleh': p.dicatat_oleh || '' }; });
+    baris.push({ No: '', Tanggal: '', Kategori: '', Keterangan: 'TOTAL PENGELUARAN', Nominal: total, 'Dicatat oleh': '' });
+    const per = {};
+    urut.forEach(p => { const k = p.kategori || '(tanpa kategori)'; if (!per[k]) per[k] = { n: 0, t: 0 }; per[k].n++; per[k].t += nom(p); });
+    const kat = Object.keys(per).sort((a, b) => per[b].t - per[a].t).map(k => ({ Kategori: k, 'Jumlah Item': per[k].n, Total: per[k].t, Persen: total > 0 ? Math.round(per[k].t / total * 1000) / 10 + '%' : '' }));
+    kat.push({ Kategori: 'TOTAL', 'Jumlah Item': urut.length, Total: total, Persen: total > 0 ? '100%' : '' });
+    const tgls = urut.map(p => p.tanggal).filter(Boolean);
+    const ring = [
+        ['Laporan Pengeluaran', namaProg],
+        ['Dibuat', hariIni],
+        ['Periode', tgls.length ? tgls[0] + ' s/d ' + tgls[tgls.length - 1] : '-'],
+        [],
+        ['Jumlah pengeluaran (item)', urut.length],
+        ['Total pengeluaran', total]
+    ];
+    const wb = XLSX.utils.book_new();
+    const w1 = XLSX.utils.json_to_sheet(baris); w1['!cols'] = [{wch:5},{wch:12},{wch:26},{wch:46},{wch:18},{wch:14}];
+    const w2 = XLSX.utils.json_to_sheet(kat); w2['!cols'] = [{wch:28},{wch:12},{wch:18},{wch:10}];
+    const w3 = XLSX.utils.aoa_to_sheet(ring); w3['!cols'] = [{wch:30},{wch:36}];
+    XLSX.utils.book_append_sheet(wb, w1, 'Pengeluaran');
+    XLSX.utils.book_append_sheet(wb, w2, 'Per Kategori');
+    XLSX.utils.book_append_sheet(wb, w3, 'Ringkasan');
+    XLSX.writeFile(wb, 'Laporan_Pengeluaran_' + namaProg.replace(/[^A-Za-z0-9]+/g,'_') + '_' + hariIni + '.xlsx');
+    showToast('Excel berhasil di-export');
 }
 
 function cetakPengeluaran() {
@@ -18650,7 +18723,7 @@ function bangunTTDLaporan(cfg, tglCetak) {
         <div style="display:flex;gap:24px;">${kolom('Mengetahui,', gambarPimpinan, inst.pimpinan, inst.jabatan || 'Pimpinan')}${kolom('Dibuat oleh,', gambarBendahara, bendahara.nama, 'Bendahara')}</div>`;
 }
 
-function cetakLaporanPenutupanMusim() {
+function cetakLaporanPenutupanMusim(mode) {
     if(!cekIzinFitur('cetakLaporanPenutupanMusim')) return showToast('🔒 Tidak punya izin. Gunakan tombol 🔓 Minta Akses di Home.');
     const f = n => (Math.round(n) < 0 ? '-' : '') + 'Rp ' + Math.abs(Math.round(n)).toLocaleString('id-ID');
     const fKurang = n => (Math.round(n) > 0 ? '-' : '') + f(n); // tanda minus hanya kalau nilainya > 0, supaya tidak tampil "-Rp 0"
@@ -18960,7 +19033,174 @@ function cetakLaporanPenutupanMusim() {
     ${sectionRekap}${sectionPengeluaran}${sectionBufferB2C}${sectionBufferB2B}${sectionMitra}${sectionPiutang}${sectionLayanan}
     </div>
     `;
+    if(mode === 'excel') { exportLaporanPenutupanExcel(html, progNama, namaKBIH); return; }
     tampilkanJendelaCetak(html);
+}
+
+// Excel Laporan Penutupan Musim: isinya DIAMBIL dari laporan yang sama dengan versi cetak (tabel per bagian), jadi angkanya pasti cocok dengan PDF/cetak.
+function exportLaporanPenutupanExcel(html, progNama, namaKBIH) {
+    if (typeof XLSX === 'undefined') { showToast('Library Excel belum siap, coba lagi sebentar.'); return; }
+    const doc = new DOMParser().parseFromString(html, 'text/html');
+    const rapi = t => String(t || '').replace(/\s+/g, ' ').trim();
+    const angka = t => {
+        const m = rapi(t).match(/^([+-]?)\s*(-?)Rp\s*([\d.]+)$/);
+        if (!m) return rapi(t);
+        const v = parseInt(m[3].replace(/\./g, ''), 10);
+        return (m[1] === '-' || m[2] === '-') ? -v : v;
+    };
+    const hariIni = new Date().toLocaleDateString('id-ID');
+    const aoa = [['LAPORAN PENUTUPAN MUSIM'], [namaKBIH || ''], ['Program', progNama], ['Dibuat', hariIni], []];
+    const bagian = [];
+    doc.querySelectorAll('.lap-depan .lap-section, .lap-halaman2 .lap-section').forEach(sec => {
+        const judul = rapi(sec.querySelector('h2')?.textContent);
+        if (!judul) return;
+        bagian.push(judul);
+        aoa.push([judul.toUpperCase()]);
+        Array.from(sec.children).forEach(el => {
+            if (el.tagName === 'TABLE') {
+                el.querySelectorAll('tr').forEach(tr => {
+                    const sel = Array.from(tr.children).map(td => angka(td.textContent));
+                    if (sel.some(x => x !== '')) aoa.push(sel);
+                });
+            } else if (el.classList && el.classList.contains('lap-note')) {
+                const t = rapi(el.textContent); if (t) aoa.push(['Catatan: ' + t]);
+            }
+        });
+        aoa.push([]);
+    });
+    if (bagian.length === 0) { showToast('Tidak ada isi laporan untuk diexport.'); return; }
+    const lebar = aoa.reduce((m, r) => Math.max(m, r.length), 2);
+    const ws = XLSX.utils.aoa_to_sheet(aoa);
+    const kol = [{ wch: 58 }]; for (let i = 1; i < lebar; i++) kol.push({ wch: 20 });
+    ws['!cols'] = kol;
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'Laporan Penutupan');
+    XLSX.writeFile(wb, 'Laporan_Penutupan_Musim_' + String(progNama).replace(/[^A-Za-z0-9]+/g, '_') + '_' + hariIni.replace(/\//g, '-') + '.xlsx');
+    showToast('Excel berhasil di-export');
+}
+
+
+// ==================== CARA PAKAI (panduan langkah demi langkah) ====================
+// Satu sumber isi panduan. Tombol hijau di tiap langkah hanya muncul kalau peran yang sedang login boleh membuka halamannya.
+let _cpBuka = null;
+function daftarCaraPakai() {
+    const bukaMod = (nm, h, extra) => Object.assign({ t: 'Buka ' + nm, a: () => showPage(h), h: h }, extra || {});
+    return [
+        { id: 'mulai', judul: '🌱 SEKALI SAJA, SAAT MULAI', items: [
+            { judul: 'Isi data instansi dan rekening',
+              isi: 'Buka <b>Konfigurasi</b> → <b>Data Instansi Utama</b>: isi nama, alamat, dan logo. Data ini tampil di kop laporan, kuitansi, dan surat. Isi juga <b>Rekening Penerimaan Pembayaran</b> dan nama <b>Bendahara</b> untuk tanda tangan laporan. Terakhir ketuk <b>SIMPAN KONFIGURASI</b>.',
+              tombol: [bukaMod('Konfigurasi', 'konfigurasi')] },
+            { judul: 'Buat Program (satu keberangkatan)',
+              isi: 'Ketuk bar <b>Program Aktif</b> di bagian atas Home → <b>+ Buat Program Baru</b>. Satu Program berarti satu keberangkatan, misalnya Umroh Januari. Jamaah, pembayaran, dan pengeluaran dicatat per Program, jadi pastikan Program yang aktif sudah benar sebelum mencatat apa pun.',
+              tombol: [{ t: 'Pilih atau buat Program', a: () => { showPage('home'); openProgramPickerModal(); } }] },
+            { judul: 'Isi Cuan Plan dan harga paket',
+              isi: 'Buka <b>Cuan Plan</b> → tab <b>Estimasi</b>: isi data rombongan dan komponen biaya, atur <b>Margin</b>, lalu ketuk <b>HITUNG ESTIMASI</b>. Hasilnya adalah modal dan harga paket. Supaya semua jamaah memakai harga itu, buka <b>Konfigurasi</b> → <b>Harga Paket Seragam</b>, nyalakan, lalu isi harga paketnya. Untuk Haji Reguler, Cuan Plan tidak dipakai; isi <b>Harga per Komponen</b> di Konfigurasi.',
+              tombol: [bukaMod('Cuan Plan', 'estimasi', { noHaji: true }), bukaMod('Konfigurasi', 'konfigurasi')] },
+            { judul: 'Atur admin dan PIN',
+              isi: 'Buka <b>Setting</b> → <b>Kelola Admin (Multi-Admin + PIN)</b>: tambahkan admin staf dan pilih <b>Peran</b> (hak akses) untuk tiap orang. Biarkan <b>Hapus data penting wajib PIN</b> menyala supaya pembayaran dan pengeluaran tidak terhapus sembarangan. Atur juga <b>Kunci Otomatis</b> kalau tablet dipakai bersama.',
+              tombol: [bukaMod('Setting', 'setting')] }
+        ] },
+        { id: 'harian', judul: '📅 PEKERJAAN SEHARI-HARI', items: [
+            { judul: 'Menambah jamaah',
+              isi: 'Cepat: di Home ketuk <b>➕ Jamaah</b>. Untuk banyak jamaah: buka <b>Jamaah</b> → <b>Download Template Excel</b>, isi di Excel, lalu <b>IMPORT EXCEL</b>. Di kolom <b>Jenis peserta</b> pilih Bayar, FOC, TL, atau Pembimbing (selain Bayar tidak ditagih). Periksa daftar setelah impor sebelum mencatat pembayaran.',
+              tombol: [{ t: 'Tambah jamaah sekarang', a: () => { showPage('home'); openQuickTambahJamaah(); }, h: 'jamaah' }, bukaMod('Database Jamaah', 'jamaah')] },
+            { judul: 'Menerima pembayaran',
+              isi: 'Di Home ketuk <b>💳 Bayar</b>, atau buka <b>Pembayaran</b> lalu ketuk tombol <b>+</b>. Pilih jamaah, isi nominal, tanggal, dan metode, lalu <b>Simpan</b>. Sisa tagihan dan status Lunas berubah otomatis. Kalau salah catat, ketuk <b>Riwayat</b> pada kartu jamaah dan hapus transaksinya (perlu PIN).',
+              tombol: [bukaMod('Pembayaran', 'pembayaran')] },
+            { judul: 'Mencatat pengeluaran',
+              isi: 'Umroh dan Haji Khusus: buka <b>Cuan Plan</b> → tab <b>Pengeluaran</b>, pilih kategori, isi keterangan dan nominal, lalu <b>💾 Simpan Pengeluaran</b>. Haji Reguler: catat di <b>Kas</b> → <b>TAMBAH TRANSAKSI</b>. Catat setiap pengeluaran supaya Laba Bersih di laporan tidak terlihat lebih besar dari kenyataan.',
+              tombol: [bukaMod('Cuan Plan', 'estimasi', { noHaji: true }), bukaMod('Kas', 'kas')] },
+            { judul: 'Mengecek siapa yang belum lunas',
+              isi: 'Buka <b>Pembayaran</b>: tiap kartu jamaah menunjukkan Total Paket, Dibayar, dan Sisa. Pakai filter <b>Belum Lunas</b> untuk melihat yang masih punya sisa. Jadwal cicilan ada di tombol <b>Cicilan</b> pada kartu, atau lihat kotak <b>Cicilan Perlu Perhatian</b> di Home. Pengingat lewat WhatsApp ada di <b>Pengingat WA</b>.',
+              tombol: [bukaMod('Pembayaran', 'pembayaran'), { t: 'Buka Pengingat WA', a: () => showPage('pengingatwa'), h: 'pengingatwa', f: 'pengingatwa' }] },
+            { judul: 'Mencetak atau mengunduh laporan',
+              isi: 'Pembayaran: ketuk <b>Export</b> → Cetak atau Excel (isinya Tagihan, Transaksi, dan Ringkasan). Pengeluaran: di Cuan Plan → tab Pengeluaran ada <b>🖨️ Cetak Pengeluaran</b> dan <b>📊 Excel</b>. Rekap akhir musim ada di <b>Laporan Penutupan Musim</b> (Menu Lengkap). Angka di Excel sama dengan yang tampil di layar.',
+              tombol: [bukaMod('Pembayaran', 'pembayaran'), { t: 'Buka Laporan Penutupan Musim', a: () => cetakLaporanPenutupanMusim(), f: 'cetakLaporanPenutupanMusim' }] },
+            { judul: 'Backup data',
+              isi: 'Buka <b>Backup &amp; Restore</b> → <b>Download ZIP</b>, lalu simpan file ZIP di tempat aman (misalnya kirim ke WhatsApp sendiri atau Google Drive). Lakukan setiap selesai input banyak data, dan <b>wajib sebelum mengganti versi aplikasi</b>. Fitur ini hanya untuk Admin Utama.',
+              tombol: [bukaMod('Backup & Restore', 'cloudstorage')] }
+        ] },
+        { id: 'khusus', judul: '🧭 KASUS KHUSUS', items: [
+            { judul: 'Anak, bayi, FOC, TL, dan pembimbing',
+              isi: 'FOC, TL, dan pembimbing dipilih di <b>Jenis peserta</b> pada data jamaah; mereka tidak ditagih. Modal FOC dan TL tetap dihitung di laporan. Untuk anak atau bayi: buka <b>Pembayaran</b> → <b>Harga</b> pada kartu jamaah, pilih <b>Tarif anak/bayi</b>, lalu ketik harga hasil nego. Bayi tidak memakai kursi dan modalnya diisi sendiri di kolom <b>Modal anak/bayi</b>; kalau dikosongkan, dipakai perkiraan modal bayi Program. Tarif anak/bayi bukan diskon.',
+              tombol: [bukaMod('Pembayaran', 'pembayaran')] },
+            { judul: 'Jamaah tidak mengambil perlengkapan',
+              isi: 'Buka <b>Pembayaran</b> → <b>Harga</b> pada kartu jamaah → <b>Perlengkapan</b> → pilih <b>Tidak ambil</b>, lalu isi potongan harga (pilih cepat 1.000.000 atau 1.500.000, atau ketik sendiri). Harga paket otomatis berkurang sebesar potongan, dan modal ikut turun sesuai biaya perlengkapan di Estimasi. Kalau harga jamaah itu sudah diketik sendiri (Harga khusus), potongan tidak ikut mengurangi harga. Pilihan ini tidak muncul untuk bayi.',
+              tombol: [bukaMod('Pembayaran', 'pembayaran')] },
+            { judul: 'Diskon, harga khusus, dan komisi mitra',
+              isi: 'Untuk harga khusus: <b>Pembayaran</b> → <b>Harga</b> → ketik <b>Total Harga Paket</b> jamaah itu. Selisih di bawah harga seragam dibaca sebagai diskon dan dibandingkan dengan Buffer. Ketuk <b>Kembali ke harga seragam</b> untuk membatalkan. Mitra dan komisinya diisi di data jamaah; rekapnya ada di <b>Jamaah</b> → <b>🤝 Rekap Komisi Mitra</b>.',
+              tombol: [bukaMod('Pembayaran', 'pembayaran'), bukaMod('Database Jamaah', 'jamaah')] },
+            { judul: 'Tukar riyal',
+              isi: 'Buka <b>Tukar Riyal</b> (Menu Lengkap) untuk menghitung kembalian tukar SAR. Hasilnya bisa disimpan, dilihat lagi di <b>Riwayat Transaksi</b>, dicetak, atau dibagikan.',
+              tombol: [{ t: 'Buka Tukar Riyal', a: () => showPage('kalkulatorriyal'), h: 'kalkulatorriyal', f: 'kalkulatorriyal' }] },
+            { judul: 'Menutup musim',
+              isi: 'Setelah semua pembayaran dan pengeluaran tercatat: (1) jalankan <b>Cek Kesehatan Data</b>, (2) cetak <b>Laporan Penutupan Musim</b> atau unduh <b>Excel Laporan Penutupan</b>, (3) <b>Download ZIP</b> di Backup &amp; Restore. Program yang sudah diarsipkan dapat dilihat di <b>Program Arsip</b> (hanya baca).',
+              tombol: [{ t: 'Buka Cek Kesehatan Data', a: () => showPage('cekkesehatan'), h: 'cekkesehatan' }, { t: 'Buka Laporan Penutupan Musim', a: () => cetakLaporanPenutupanMusim(), f: 'cetakLaporanPenutupanMusim' }, { t: 'Buka Excel Laporan Penutupan', a: () => cetakLaporanPenutupanMusim('excel'), f: 'excelLaporanPenutupanMusim' }] }
+        ] },
+        { id: 'angka', pemilik: true, judul: '📊 ARTI ANGKA DAN PERINGATAN', items: [
+            { judul: 'Proyeksi Laba dan Laba Bersih',
+              isi: '<b>Proyeksi Laba</b> = Total Kontrak − Modal Estimasi. Ini angka rencana, dihitung dari jamaah yang sudah punya harga paket. <b>Laba Bersih (Realisasi)</b> = uang yang benar-benar masuk − pengeluaran yang tercatat. Kalau pengeluaran belum lengkap, Laba Bersih diberi tanda <b>sementara</b>. <b>Selisih Laba</b> = Realisasi − Proyeksi; tanda minus berarti lebih rendah dari rencana.' },
+            { judul: 'Buffer dan diskon',
+              isi: '<b>Buffer</b> adalah ruang diskon yang disiapkan di Estimasi. Harga jamaah di bawah harga seragam dihitung sebagai diskon dan memakai Buffer. Diskon yang <b>melebihi buffer</b> ditandai merah karena mengurangi laba. Buffer yang tidak terpakai ikut menjadi laba.' },
+            { judul: 'Tarif anak/bayi dan tanpa perlengkapan',
+              isi: 'Tarif anak/bayi adalah harga hasil nego, <b>bukan diskon</b>, jadi tidak memakai Buffer. Selisihnya dengan modal anak/bayi menjadi laba. Untuk jamaah yang tidak ambil perlengkapan, efek ke laba = modal yang dihemat − potongan harga. Kalau sama besar, untung tidak berubah; kalau potongan lebih besar, kelebihannya dihitung sebagai diskon dan mengurangi laba.' },
+            { judul: 'Kelebihan bayar dan piutang',
+              isi: '<b>Kelebihan bayar</b> berarti uang masuk lebih besar dari Total Paket (misalnya diskon dicatat setelah jamaah melunasi). Ini hanya penanda untuk dicek atau dikembalikan, dan tidak mengubah angka lain. <b>Belum Dibayar</b> di laporan = Total Kontrak − Sudah Dibayar, sedangkan <b>Piutang</b> dihitung dari jadwal cicilan, jadi keduanya bisa berbeda.' },
+            { judul: 'Cek Kesehatan Data',
+              isi: 'Fitur ini memeriksa data uang dan jamaah yang janggal, misalnya harga di bawah modal atau perlengkapan "tidak ambil" tanpa potongan. Jalankan sebelum menutup musim dan setelah impor Excel yang besar.',
+              tombol: [{ t: 'Buka Cek Kesehatan Data', a: () => showPage('cekkesehatan'), h: 'cekkesehatan' }] }
+        ] }
+    ];
+}
+function bukaCaraPakai() {
+    _cpBuka = null;
+    const c = document.getElementById('caraPakaiCari'); if (c) c.value = '';
+    renderCaraPakai();
+    window.scrollTo(0, 0);
+}
+function renderCaraPakai() {
+    const box = document.getElementById('caraPakaiList'); if (!box) return;
+    const q = (document.getElementById('caraPakaiCari')?.value || '').trim().toLowerCase();
+    const hr = isHajiReguler();
+    const penuh = adalahAdminPenuh();
+    const polos = h => String(h).replace(/<[^>]+>/g, ' ').replace(/&amp;/g, '&').replace(/\s+/g, ' ').toLowerCase();
+    window._cpAksi = [];
+    let html = '', ada = false;
+    daftarCaraPakai().forEach(bag => {
+        if (bag.pemilik && !penuh) return;
+        const tampil = [];
+        bag.items.forEach((it, i) => { if (!q || (it.judul + ' ' + polos(it.isi)).toLowerCase().includes(q)) tampil.push({ it, no: i + 1 }); });
+        if (!tampil.length) return;
+        ada = true;
+        html += `<div class="cp-bagian">${bag.judul}${bag.pemilik ? '<span class="cp-label">Hanya pemilik dan admin penuh</span>' : ''}</div>`;
+        tampil.forEach(({ it, no }) => {
+            const id = bag.id + '-' + no;
+            const buka = q ? true : _cpBuka === id;
+            let tombol = '';
+            (it.tombol || []).forEach(t => {
+                if (t.noHaji && hr) return;
+                if (t.h && !cekIzinModul(t.h)) return;
+                if (t.f && !cekIzinFitur(t.f)) return;
+                window._cpAksi.push(t.a);
+                tombol += `<button type="button" class="cp-tombol" onclick="caraPakaiJalankan(${window._cpAksi.length - 1})">${escapeHtml(t.t)}</button>`;
+            });
+            html += `<div class="cp-kartu${buka ? ' buka' : ''}" id="cp-${id}">
+                <button type="button" class="cp-judul" onclick="caraPakaiToggle('${id}')" aria-expanded="${buka}"><span>${no}. ${escapeHtml(it.judul)}</span><i class="fas fa-chevron-down cp-panah"></i></button>
+                ${buka ? `<div class="cp-isi">${it.isi}${tombol}</div>` : ''}
+            </div>`;
+        });
+    });
+    box.innerHTML = ada ? html : '<div class="cp-kosong">Tidak ada panduan yang cocok. Coba kata lain, misalnya "bayar" atau "backup".</div>';
+}
+function caraPakaiToggle(id) {
+    _cpBuka = (_cpBuka === id) ? null : id;
+    renderCaraPakai();
+    const el = document.getElementById('cp-' + id);
+    if (el && _cpBuka === id) el.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+}
+function caraPakaiJalankan(i) {
+    const fn = (window._cpAksi || [])[i];
+    if (typeof fn === 'function') fn();
 }
 
 // ==================== ITINERARY ====================
@@ -22321,6 +22561,7 @@ function simpanPembayaran() {
         metode: metode, 
         keterangan: keterangan,
         komponen: komponen,
+        dicatat_oleh: currentAdminNama,
         program_id: currentProgramId
     }; 
     paymentTransaksiList.push(newTrx); 
@@ -23321,15 +23562,74 @@ async function cetakPembayaranHTML() {
 }
 
 
-function exportPaymentExcel() { 
-    if (paymentTransaksiList.length === 0) { showToast('Tidak ada data transaksi!'); return; } 
-    const totalMasuk = paymentTransaksiList.reduce((s,t)=>s+t.nominal,0); 
-    const wsData = paymentTransaksiList.map(t => ({ Tanggal: t.tanggal, Jamaah: t.nama_jamaah, Keterangan: t.keterangan, Metode: t.metode, Nominal: t.nominal })); 
-    wsData.push({ Tanggal: '', Jamaah: '', Keterangan: 'TOTAL', Metode: '', Nominal: totalMasuk }); 
-    const wb = XLSX.utils.book_new(); 
-    XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(wsData), "Laporan Pembayaran"); 
-    XLSX.writeFile(wb, `Laporan_Pembayaran_${new Date().toLocaleDateString('id-ID').replace(/\//g,'-')}.xlsx`); 
-    showToast('Excel berhasil di-export'); 
+function exportPaymentExcel() {
+    if (typeof XLSX === 'undefined') { showToast('Library Excel belum siap, coba lagi sebentar.'); return; }
+    if (jamaahList.length === 0 && paymentTransaksiList.length === 0) { showToast('Tidak ada data!'); return; }
+    const hariIni = new Date().toLocaleDateString('id-ID').replace(/\//g,'-');
+    const prog = getCurrentProgram();
+    const namaProg = prog ? (prog.nama || 'Program') : 'Program';
+    const aktif = new Set(jamaahList.map(j => String(j.id)));
+    const jamNama = {}; jamaahList.forEach(j => { jamNama[String(j.id)] = j.nama_lengkap; });
+    const polos = h => String(h || '').replace(/<br\s*\/?>/gi,' | ').replace(/<\/(div|span|p)>/gi,' ').replace(/<[^>]+>/g,'').replace(/\s+/g,' ').trim();
+    let estL = null; try { estL = isHajiReguler() ? null : hitungModalHargaEstimasiTerkini(); } catch(e) {}
+    // Sheet 1: Tagihan per jamaah (angka sama dengan kartu di layar)
+    let tertagih = 0, masukAktif = 0, sisaTot = 0, nLunas = 0, nSebagian = 0, nBelum = 0, nBelumDiisi = 0, nTanpa = 0, lebihTot = 0;
+    const tagihan = jamaahList.map((j, i) => {
+        const st = getStatusPembayaran(j);
+        const bayar = hitungTotalBayarJamaah(j.id);
+        masukAktif += bayar;
+        let statusTeks, total = st.totalHargaPaket || 0, sisa = 0, lebih = 0;
+        if (st.tanpaTagihan) { statusTeks = 'TANPA TAGIHAN'; nTanpa++; }
+        else if (st.needInput) { statusTeks = 'BELUM DIISI'; nBelumDiisi++; }
+        else {
+            sisa = st.sisa || 0; lebih = st.lebih || 0; tertagih += total; sisaTot += sisa; lebihTot += lebih;
+            if (sisa <= 0) { statusTeks = 'LUNAS'; nLunas++; }
+            else if (bayar > 0) { statusTeks = 'SEBAGIAN'; nSebagian++; }
+            else { statusTeks = 'BELUM BAYAR'; nBelum++; }
+        }
+        let cat = '';
+        try { cat = st.tanpaTagihan ? '' : polos(labelDiskonJamaah(j, estL)); } catch(e) {}
+        return { No: i + 1, Nama: j.nama_lengkap || '', 'Total Paket': total, 'Sudah Dibayar': bayar, 'Sisa Tagihan': sisa, 'Kelebihan Bayar': lebih, Status: statusTeks, Catatan: cat };
+    });
+    tagihan.push({ No: '', Nama: 'TOTAL', 'Total Paket': tertagih, 'Sudah Dibayar': masukAktif, 'Sisa Tagihan': sisaTot, 'Kelebihan Bayar': lebihTot, Status: '', Catatan: '' });
+    // Sheet 2: Transaksi
+    const urut = [...paymentTransaksiList].sort((a, b) => String(a.tanggal || '').localeCompare(String(b.tanggal || '')));
+    let masukSemua = 0, yatim = 0, nYatim = 0;
+    const trx = urut.map((t, i) => {
+        const hidup = aktif.has(String(t.id_jamaah));
+        masukSemua += t.nominal;
+        if (!hidup) { yatim += t.nominal; nYatim++; }
+        return { No: i + 1, Tanggal: t.tanggal || '', Jamaah: hidup ? jamNama[String(t.id_jamaah)] : ((t.nama_jamaah || '') + ' (tidak ada di daftar)'), Komponen: t.komponen || '', Keterangan: t.keterangan || '', Metode: t.metode || '', Nominal: t.nominal, 'Dicatat oleh': t.dicatat_oleh || '', 'ID Transaksi': t.id || '' };
+    });
+    trx.push({ No: '', Tanggal: '', Jamaah: '', Komponen: '', Keterangan: 'TOTAL SEMUA TRANSAKSI', Metode: '', Nominal: masukSemua, 'Dicatat oleh': '', 'ID Transaksi': '' });
+    // Sheet 3: Ringkasan (sama dengan Dashboard Pembayaran: hanya jamaah yang ada di daftar)
+    const ring = [
+        ['Laporan Pembayaran', namaProg],
+        ['Dibuat', hariIni],
+        [],
+        ['Total tertagih (Total Paket)', tertagih],
+        ['Total masuk (jamaah di daftar)', masukAktif],
+        ['Sisa tagihan', sisaTot],
+        ['Kelebihan bayar', lebihTot],
+        [],
+        ['Jumlah LUNAS', nLunas],
+        ['Jumlah SEBAGIAN', nSebagian],
+        ['Jumlah BELUM BAYAR', nBelum],
+        ['Jumlah BELUM DIISI (harga belum ada)', nBelumDiisi],
+        ['Jumlah TANPA TAGIHAN (FOC/TL/Pembimbing)', nTanpa],
+        []
+    ];
+    if (nYatim > 0) ring.push(['Transaksi tanpa jamaah di daftar', nYatim + ' transaksi, Rp ' + Math.round(yatim).toLocaleString('id-ID') + ' (tidak masuk Total masuk di atas; ada di sheet Transaksi)']);
+    ring.push(['Total semua transaksi (sheet Transaksi)', masukSemua]);
+    const wb = XLSX.utils.book_new();
+    const w1 = XLSX.utils.json_to_sheet(tagihan); w1['!cols'] = [{wch:5},{wch:30},{wch:16},{wch:16},{wch:16},{wch:16},{wch:16},{wch:60}];
+    const w2 = XLSX.utils.json_to_sheet(trx); w2['!cols'] = [{wch:5},{wch:12},{wch:30},{wch:14},{wch:28},{wch:12},{wch:16},{wch:14},{wch:26}];
+    const w3 = XLSX.utils.aoa_to_sheet(ring); w3['!cols'] = [{wch:44},{wch:40}];
+    XLSX.utils.book_append_sheet(wb, w1, 'Tagihan');
+    XLSX.utils.book_append_sheet(wb, w2, 'Transaksi');
+    XLSX.utils.book_append_sheet(wb, w3, 'Ringkasan');
+    XLSX.writeFile(wb, 'Laporan_Pembayaran_' + namaProg.replace(/[^A-Za-z0-9]+/g,'_') + '_' + hariIni + '.xlsx');
+    showToast('Excel berhasil di-export');
 }
 
 // ==================== PROGRAM (Tahap 1: struktur + pemilih + migrasi data lama) ====================
@@ -25229,7 +25529,7 @@ function openIndexedDB() {
 // dengan build baru, data MENTAH (langsung dari IndexedDB, bukan dari memori) disalin dulu sebelum
 // proses migrasi apapun berjalan — supaya kalau ada kesalahan di update, data lama masih bisa dipulihkan.
 // Dokumen & foto tidak ikut disalin (ukurannya besar, dan tidak pernah disentuh proses migrasi).
-const NAVARA_BUILD = '2026.10.17-123';
+const NAVARA_BUILD = '2026.10.18-127';
 const MAKS_SNAPSHOT = 3;
 
 // ==================== DAFTAR DATA PUSAT ====================
