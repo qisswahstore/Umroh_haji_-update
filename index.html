@@ -7329,9 +7329,18 @@ function rhBaris(l, v, o) {
 }
 function rhJudul(t) { return `<div style="font-size:11px;font-weight:800;letter-spacing:.05em;color:${RH_WARNA};margin:14px 0 4px;">${t}</div>`; }
 
-function rhHtmlRincian(est) {
+function rhHtmlRincian(est, opt) {
     const r = rhRincian(est); if(!r) return '';
+    opt = opt || {};
     let x = '';
+    if(opt.hargaCatat > 0 && Math.abs(r.h.harga - opt.hargaCatat) >= 1) {
+        x += `<div style="background:#FEF3C7;color:#92400E;border:1px solid #F59E0B;border-radius:10px;padding:10px 12px;margin:10px 0;font-size:13px;line-height:1.6;">
+            <div style="font-weight:800;">⚠️ Rincian ini belum cocok dengan harga yang tercatat</div>
+            <div style="display:flex;justify-content:space-between;gap:10px;margin-top:4px;"><span>Harga tercatat (cetakan lama)</span><b>${rhRp(opt.hargaCatat)}</b></div>
+            <div style="display:flex;justify-content:space-between;gap:10px;"><span>Hasil hitungan rincian ini</span><b>${rhRp(r.h.harga)}</b></div>
+            <div style="display:flex;justify-content:space-between;gap:10px;"><span>Selisih</span><b>${rhRp(Math.abs(r.h.harga - opt.hargaCatat))}</b></div>
+            <div style="font-size:12px;margin-top:4px;">Rincian diisi manual, jadi angka komponen di bawah belum tentu sama dengan cetakan lama.</div></div>`;
+    }
     const paket = [['Paket', est.lokasiPaket], ['Maskapai', est.namaMaskapai], ['Hotel Makkah', est.namaHotelMakkah], ['Hotel Madinah', est.namaHotelMadinah]].filter(a => a[1]);
     if(paket.length) { x += rhJudul('PAKET'); paket.forEach(a => { x += rhBaris(a[0], rhE(a[1])); }); }
     x += rhJudul('ROMBONGAN') + rhBaris('Total Pax', r.nJam + (r.h.nJamDefault ? ' (belum diisi, dipakai 45)' : '')) + rhBaris('FOC', r.nFoc) + rhBaris('TL', r.nTL);
@@ -7350,10 +7359,11 @@ function rhHtmlRincian(est) {
     if(r.tipe.length > 1) { x += rhJudul('HARGA BROSUR PER TIPE KAMAR'); r.tipe.forEach(t => { x += rhBaris(t.nama, rhRp(t.harga)); }); }
     return x;
 }
-function rhTeksRincian(est, tanggal, nama) {
+function rhTeksRincian(est, tanggal, nama, hargaCatat) {
     const r = rhRincian(est); if(!r) return '';
     const g = '━━━━━━━━━━━━━━━━━━━';
     let t = `📋 *Rincian Harga Paket*\n${nama ? nama + '\n' : ''}📌 ${tanggal}\n${g}\n`;
+    if(hargaCatat > 0 && Math.abs(r.h.harga - hargaCatat) >= 1) t += `⚠️ _Rincian belum cocok: harga tercatat ${rhRp(hargaCatat)}, hasil hitungan rincian ${rhRp(r.h.harga)}_\n${g}\n`;
     if(est.lokasiPaket) t += `📍 ${est.lokasiPaket}\n`;
     if(est.namaMaskapai) t += `✈️ ${est.namaMaskapai}\n`;
     if(est.namaHotelMakkah) t += `🏨 Makkah: ${est.namaHotelMakkah}\n`;
@@ -7370,7 +7380,7 @@ function rhCetakHtml(judul, subjudul, isiHtml) {
     const cfg = getKonfigurasiProData();
     const tgl = formatTanggalLengkap();
     let kop = ''; try { kop = buildPrintHeader(cfg, tgl); } catch(e) { kop = ''; }
-    tampilkanJendelaCetak(`<!DOCTYPE html><html><head><meta charset="utf-8"><title>${rhE(judul)}</title><style>body{font-family:Arial,sans-serif;padding:24px;color:#222;} h1{color:${RH_WARNA};font-size:19px;margin:8px 0 2px;} @page{size:A4;margin:12mm;} @media print{.no-print{display:none!important;}}</style></head><body>${kop}<h1>${rhE(judul)}</h1><p style="font-size:12px;color:#666;margin:0 0 6px;">${rhE(subjudul)} — ${tgl}</p>${isiHtml}`);
+    tampilkanJendelaCetak(`<!DOCTYPE html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>${rhE(judul)}</title><style>body{font-family:Arial,sans-serif;padding:16px;color:#222;font-size:15px;line-height:1.5;max-width:820px;margin:0 auto;} h1{color:${RH_WARNA};font-size:21px;margin:10px 0 2px;} table{border-collapse:collapse;width:100%;} @page{size:A4;margin:12mm;} @media print{.no-print{display:none!important;} body{font-size:12px;padding:0;}}</style></head><body>${kop}<h1>${rhE(judul)}</h1><p style="font-size:13px;color:#666;margin:0 0 6px;">${rhE(subjudul)} — ${tgl}</p>${isiHtml}`);
 }
 function rhKirimWA(teks) { window.open('https://wa.me/?text=' + encodeURIComponent(teks), '_blank'); }
 
@@ -7385,7 +7395,8 @@ function rhHitungBanding(a, b) {
     const pembulatan = (hb.harga - hb.hargaHitung) - (ha.harga - ha.hargaHitung);
     return { ha, hb, dampak, pembulatan, selisih: hb.harga - ha.harga };
 }
-function rhBangunBanding(a, b, ketA, ketB) {
+function rhBangunBanding(a, b, ketA, ketB, opt) {
+    opt = opt || {};
     const r = rhHitungBanding(a, b);
     const label = { totJam: 'Total Pax', jamGratis: 'FOC', profitPct: 'Margin (%)', cBuffer: 'Buffer diskon' };
     RH_KOMPONEN.forEach(([k, l]) => { label[k] = l; });
@@ -7395,12 +7406,14 @@ function rhBangunBanding(a, b, ketA, ketB) {
         const v = rhPr(est[k]); return v ? rhRp(v) : '-';
     };
     const angka = (k, est) => k === 'profitPct' ? (parseFloat(est.profitPct) || 0) : rhPr(est[k]);
-    const kartu = [], sama = [];
+    const baris = [], kartu = [], sama = [];
     Object.keys(r.dampak).forEach(k => {
         const x = angka(k, a), y = angka(k, b);
-        if(x === y) { sama.push(label[k]); return; }
+        const ada = x !== 0 || y !== 0;
+        if(x === y) { sama.push(label[k]); if(ada) baris.push({ k, label: label[k], lama: nilai(k, a), baru: nilai(k, b), beda: '', dampak: 0, berubah: false }); return; }
         const beda = (k === 'totJam' || k === 'jamGratis' || k === 'profitPct') ? ((y - x > 0 ? '+' : '') + (Math.round((y - x) * 100) / 100) + (k === 'profitPct' ? '%' : '')) : rhTanda(y - x);
-        kartu.push({ k, label: label[k], lama: nilai(k, a), baru: nilai(k, b), beda, dampak: r.dampak[k] });
+        const c = { k, label: label[k], lama: nilai(k, a), baru: nilai(k, b), beda, dampak: r.dampak[k], berubah: true };
+        kartu.push(c); baris.push(c);
     });
     const ket = [];
     [['lokasiPaket','Nama paket'],['namaMaskapai','Maskapai'],['namaHotelMakkah','Hotel Makkah'],['namaHotelMadinah','Hotel Madinah']].forEach(([k, l]) => { if(String(a[k] || '').trim() !== String(b[k] || '').trim()) ket.push(`${l}: ${a[k] || '-'} → ${b[k] || '-'}`); });
@@ -7408,53 +7421,97 @@ function rhBangunBanding(a, b, ketA, ketB) {
     const ra = rhRincian(a), rb = rhRincian(b);
     const tipe = [];
     ['Triple','Double'].forEach(n => { const x = ra.tipe.find(t => t.nama === n), y = rb.tipe.find(t => t.nama === n); if(x || y) tipe.push({ nama: n, lama: x ? rhRp(x.harga) : '-', baru: y ? rhRp(y.harga) : '-' }); });
+    // Harga yang dipakai di judul = harga TERCATAT tiap versi (angka yang benar-benar dicetak/dikunci); kalau tidak ada, hasil hitungan rincian
+    const hargaA = opt.hargaA > 0 ? opt.hargaA : r.ha.harga;
+    const hargaB = opt.hargaB > 0 ? opt.hargaB : r.hb.harga;
+    const sel = Math.round(hargaB) - Math.round(hargaA);
+    let sisa = 0;
+    const belumA = !!opt.belumA, belumB = !!opt.belumB;
+    const identik = rhSama(a, b) && Math.abs(sel) >= 1;
+    kartu.forEach(c => { c.dampak = Math.round(c.dampak); });
+    let pem = Math.round(r.pembulatan);
+    let sisaH = sel - (kartu.reduce((a, c) => a + c.dampak, 0) + pem);
+    if(!belumA && !belumB && !identik && Math.abs(sisaH) <= 2 && sisaH !== 0) {
+        const besar = kartu.slice().sort((p, q) => Math.abs(q.dampak) - Math.abs(p.dampak))[0];
+        if(besar && besar.dampak !== 0) besar.dampak += sisaH; else pem += sisaH;
+        sisaH = 0;
+    }
+    sisa = sisaH;
     const urutDampak = kartu.filter(c => Math.round(c.dampak) !== 0).sort((p, q) => Math.abs(q.dampak) - Math.abs(p.dampak));
+    const kata = sel > 0 ? 'naik' : 'turun';
     const ringkas = [];
-    const sel = Math.round(r.selisih);
-    ringkas.push(sel === 0 ? `Harga per pax (Quad) sama: ${rhRp(r.hb.harga)}.` : `Harga per pax (Quad) ${sel > 0 ? 'naik' : 'turun'} ${rhRp(Math.abs(sel))}: dari ${rhRp(r.ha.harga)} menjadi ${rhRp(r.hb.harga)}.`);
+    ringkas.push(sel === 0 ? `Harga per pax (Quad) sama: ${rhRp(hargaB)}.` : `Harga per pax (Quad) ${kata} ${rhRp(Math.abs(sel))}: dari ${rhRp(hargaA)} menjadi ${rhRp(hargaB)}.`);
     urutDampak.forEach(c => ringkas.push(`${c.label}: ${rhTanda(c.dampak)}/pax`));
-    if(Math.round(r.pembulatan) !== 0) ringkas.push(`Pembulatan harga jual: ${rhTanda(r.pembulatan)}/pax`);
-    return { r, kartu, sama, ket, tipe, ringkas, ketA, ketB, sel };
+    if(pem !== 0) ringkas.push(`Pembulatan harga jual: ${rhTanda(pem)}/pax`);
+    return { r, baris, kartu, sama, ket, tipe, ringkas, ketA, ketB, sel, hargaA, hargaB, sisa, belumA, belumB, identik, hargaHitungA: r.ha.harga, hargaHitungB: r.hb.harga, urutDampak, kata, pem };
+}
+function rhPeringatanBanding(bd) {
+    const p = [];
+    if(bd.identik) p.push({ merah: true, t: 'Rincian kedua versi sama persis, padahal harga tercatatnya berbeda. Artinya rincian versi lama belum diisi dengan angka dari cetakan lama, jadi penyebab kenaikan belum bisa ditampilkan. Buka Riwayat Harga, pilih versi lama, lalu ketuk "Ubah rincian".' });
+    else {
+        if(bd.belumA) p.push({ t: `Rincian versi lama (${bd.ketA}) belum cocok dengan harga tercatat: hasil hitungan ${rhRp(bd.hargaHitungA)}, tercatat ${rhRp(bd.hargaA)}.` });
+        if(bd.belumB) p.push({ t: `Rincian versi baru (${bd.ketB}) belum cocok dengan harga tercatat: hasil hitungan ${rhRp(bd.hargaHitungB)}, tercatat ${rhRp(bd.hargaB)}.` });
+        if(p.length) p.push({ t: 'Selisih total di atas tetap benar karena memakai harga tercatat. Penyebab per komponen hanya perkiraan dari rincian yang tersimpan.' });
+    }
+    return p;
 }
 function rhHtmlBanding(bd) {
     const warna = bd.sel > 0 ? '#B91C1C' : (bd.sel < 0 ? '#166534' : '#334155');
-    let x = `<div style="background:#F8FAFC;border:1px solid #e2e8f0;border-radius:12px;padding:10px 12px;margin:10px 0;">`;
-    x += `<div style="font-size:13px;font-weight:800;color:${warna};margin-bottom:4px;">${rhE(bd.ringkas[0])}</div>`;
-    bd.ringkas.slice(1).forEach(t => { x += `<div style="font-size:12px;color:#334155;line-height:1.6;">• ${rhE(t)}</div>`; });
-    x += `<div style="font-size:11px;color:#888;margin-top:6px;">Dampak tiap komponen dihitung berurutan (komponen biaya, lalu jumlah pax, margin, buffer), jumlahnya sama dengan selisih harga.</div></div>`;
-    if(bd.kartu.length) {
-        x += rhJudul('YANG BERUBAH');
-        bd.kartu.forEach(c => {
-            const naik = Math.round(c.dampak) > 0, turun = Math.round(c.dampak) < 0;
-            x += `<div style="padding:8px 0;border-bottom:1px solid #eef2f6;"><div style="display:flex;justify-content:space-between;gap:8px;font-size:13px;font-weight:700;"><span>${rhE(c.label)}</span><span>${rhE(c.beda)}</span></div><div style="font-size:12px;color:#64748B;">${rhE(c.lama)} → ${rhE(c.baru)}</div><div style="font-size:12px;font-weight:700;color:${naik ? '#B91C1C' : (turun ? '#166534' : '#64748B')};">${naik ? 'Menaikkan' : (turun ? 'Menurunkan' : 'Tidak mengubah')} harga ${Math.round(c.dampak) !== 0 ? rhRp(Math.abs(c.dampak)) + '/pax' : 'per pax'}</div></div>`;
+    const sisaTampil = Math.abs(bd.sisa) >= 1;
+    let x = `<table style="margin:12px 0;text-align:center;border:1px solid #e2e8f0;border-radius:12px;overflow:hidden;"><tr>
+        <td style="width:33%;padding:10px 6px;background:#F8FAFC;vertical-align:top;"><div style="font-size:11px;color:#64748B;font-weight:700;">HARGA LAMA</div><div style="font-size:11px;color:#94A3B8;">${rhE(bd.ketA)}</div><div style="font-size:15px;white-space:nowrap;font-weight:800;color:#334155;margin-top:3px;">${rhRp(bd.hargaA)}</div></td>
+        <td style="width:33%;padding:10px 6px;background:#F8FAFC;vertical-align:top;"><div style="font-size:11px;color:#64748B;font-weight:700;">HARGA BARU</div><div style="font-size:11px;color:#94A3B8;">${rhE(bd.ketB)}</div><div style="font-size:15px;white-space:nowrap;font-weight:800;color:#334155;margin-top:3px;">${rhRp(bd.hargaB)}</div></td>
+        <td style="width:34%;padding:10px 6px;background:${bd.sel > 0 ? '#FEE2E2' : (bd.sel < 0 ? '#DCFCE7' : '#F1F5F9')};vertical-align:top;"><div style="font-size:11px;color:${warna};font-weight:800;">${bd.sel === 0 ? 'TIDAK BERUBAH' : (bd.sel > 0 ? 'NAIK' : 'TURUN')}</div><div style="font-size:11px;color:#94A3B8;">per pax (Quad)</div><div style="font-size:15px;white-space:nowrap;font-weight:800;color:${warna};margin-top:3px;">${bd.sel === 0 ? rhRp(0) : rhRp(Math.abs(bd.sel))}</div></td></tr></table>`;
+    rhPeringatanBanding(bd).forEach(p => {
+        x += `<div style="background:${p.merah ? '#FEE2E2' : '#FEF3C7'};color:${p.merah ? '#991B1B' : '#92400E'};border:1px solid ${p.merah ? '#F87171' : '#F59E0B'};border-radius:10px;padding:9px 11px;margin:8px 0;font-size:13px;line-height:1.55;">⚠️ ${rhE(p.t)}</div>`;
+    });
+    if(bd.urutDampak.length || sisaTampil) {
+        x += rhJudul(bd.sel >= 0 ? 'KENAPA HARGANYA NAIK?' : 'KENAPA HARGANYA TURUN?');
+        bd.urutDampak.forEach(c => {
+            const naik = Math.round(c.dampak) > 0;
+            x += `<div style="padding:8px 0;border-bottom:1px solid #eef2f6;"><div style="display:flex;justify-content:space-between;gap:8px;font-size:14px;font-weight:800;"><span>${rhE(c.label)}</span><span style="color:${naik ? '#B91C1C' : '#166534'};">${naik ? '+' : '-'}${rhRp(Math.abs(c.dampak))}</span></div><div style="font-size:12.5px;color:#64748B;">${rhE(c.lama)} → ${rhE(c.baru)}${c.beda ? ' (' + rhE(c.beda) + ')' : ''}</div></div>`;
         });
+        if(bd.pem !== 0) x += `<div style="padding:8px 0;border-bottom:1px solid #eef2f6;"><div style="display:flex;justify-content:space-between;gap:8px;font-size:14px;font-weight:800;"><span>Pembulatan harga jual</span><span style="color:${bd.pem > 0 ? '#B91C1C' : '#166534'};">${bd.pem > 0 ? '+' : '-'}${rhRp(Math.abs(bd.pem))}</span></div></div>`;
+        if(sisaTampil) x += `<div style="padding:8px 0;border-bottom:1px solid #eef2f6;"><div style="display:flex;justify-content:space-between;gap:8px;font-size:14px;font-weight:800;color:#92400E;"><span>Belum bisa dijelaskan</span><span>${bd.sisa > 0 ? '+' : '-'}${rhRp(Math.abs(bd.sisa))}</span></div><div style="font-size:12px;color:#92400E;">Karena rincian salah satu versi belum cocok dengan harga tercatat.</div></div>`;
+        x += `<div style="display:flex;justify-content:space-between;gap:8px;padding:9px 0;font-size:14px;font-weight:800;border-top:2px solid #334155;margin-top:2px;"><span>Total selisih harga per pax</span><span style="color:${warna};">${bd.sel > 0 ? '+' : (bd.sel < 0 ? '-' : '')}${rhRp(Math.abs(bd.sel))}</span></div>`;
     }
-    if(Math.round(bd.r.pembulatan) !== 0) x += `<div style="padding:8px 0;border-bottom:1px solid #eef2f6;font-size:13px;"><b>Pembulatan harga jual</b><div style="font-size:12px;font-weight:700;color:${bd.r.pembulatan > 0 ? '#B91C1C' : '#166534'};">${rhTanda(bd.r.pembulatan)}/pax</div></div>`;
-    bd.ket.forEach(t => { x += `<div style="font-size:12px;color:#475569;padding:6px 0;">${rhE(t)}</div>`; });
+    if(bd.baris.length) {
+        x += rhJudul('PERBANDINGAN TIAP KOMPONEN');
+        x += `<table style="font-size:12px;white-space:nowrap;"><tr style="background:#F1F5F9;color:#475569;font-weight:800;"><td style="padding:6px 4px;">Komponen</td><td style="padding:6px 4px;text-align:right;">Lama</td><td style="padding:6px 4px;text-align:right;">Baru</td><td style="padding:6px 4px;text-align:right;">Selisih</td></tr>`;
+        bd.baris.forEach(c => {
+            const naik = Math.round(c.dampak) > 0, turun = Math.round(c.dampak) < 0;
+            x += `<tr style="border-bottom:1px solid #eef2f6;${c.berubah ? 'background:' + (naik ? '#FEF2F2' : (turun ? '#F0FDF4' : '#F8FAFC')) + ';font-weight:700;' : 'color:#94A3B8;'}"><td style="padding:6px 4px;">${rhE(c.label)}</td><td style="padding:6px 4px;text-align:right;">${rhE(c.lama)}</td><td style="padding:6px 4px;text-align:right;">${rhE(c.baru)}</td><td style="padding:6px 4px;text-align:right;${c.berubah ? 'color:' + (naik ? '#B91C1C' : (turun ? '#166534' : '#334155')) + ';' : ''}">${c.berubah ? rhE(c.beda) : '-'}</td></tr>`;
+        });
+        x += `</table><div style="font-size:11px;color:#94A3B8;margin-top:4px;">Baris berwarna = berubah. Baris abu-abu = tidak berubah.</div>`;
+    }
+    bd.ket.forEach(t => { x += `<div style="font-size:13px;color:#475569;padding:6px 0;">${rhE(t)}</div>`; });
     if(bd.tipe.length) { x += rhJudul('HARGA BROSUR TIPE LAIN'); bd.tipe.forEach(t => { x += rhBaris(t.nama, rhE(t.lama) + ' → ' + rhE(t.baru)); }); }
-    if(bd.sama.length) x += `<div style="font-size:12px;color:#64748B;margin-top:10px;line-height:1.6;"><b>Tidak berubah:</b> ${rhE(bd.sama.join(', '))}</div>`;
+    x += `<div style="font-size:11px;color:#94A3B8;margin-top:10px;line-height:1.5;">Angka "kenapa naik" dihitung berurutan (komponen biaya, lalu jumlah pax, margin, buffer) memakai rumus Estimasi yang sama, sehingga jumlahnya sama dengan selisih harga.</div>`;
     return x;
 }
 function rhTeksBanding(bd) {
     const g = '━━━━━━━━━━━━━━━━━━━';
-    let t = `📊 *Perbandingan Harga Paket*\n${bd.ketA} → ${bd.ketB}\n${g}\n${bd.ringkas[0]}\n`;
-    if(bd.kartu.length) {
-        t += `${g}\n*Yang berubah*\n`;
-        bd.kartu.forEach(c => { t += `• ${c.label}: ${c.lama} → ${c.baru} (${c.beda})${Math.round(c.dampak) !== 0 ? ' · efek ' + rhTanda(c.dampak) + '/pax' : ''}\n`; });
+    let t = `📊 *Perbandingan Harga Paket*\n${g}\n• Lama (${bd.ketA}): ${rhRp(bd.hargaA)}\n• Baru (${bd.ketB}): ${rhRp(bd.hargaB)}\n*${bd.sel === 0 ? 'Tidak berubah' : (bd.sel > 0 ? 'NAIK ' : 'TURUN ') + rhRp(Math.abs(bd.sel)) + '/pax'}*\n`;
+    rhPeringatanBanding(bd).forEach(p => { t += `⚠️ _${p.t}_\n`; });
+    if(bd.urutDampak.length) {
+        t += `${g}\n*${bd.sel >= 0 ? 'Kenapa naik' : 'Kenapa turun'}*\n`;
+        bd.urutDampak.forEach(c => { t += `• ${c.label}: ${c.lama} → ${c.baru} (${c.beda}) · ${rhTanda(c.dampak)}/pax\n`; });
+        if(bd.pem !== 0) t += `• Pembulatan harga jual: ${rhTanda(bd.pem)}/pax\n`;
+        if(Math.abs(bd.sisa) >= 1) t += `• Belum bisa dijelaskan: ${rhTanda(bd.sisa)}/pax\n`;
     }
-    if(Math.round(bd.r.pembulatan) !== 0) t += `• Pembulatan harga jual: ${rhTanda(bd.r.pembulatan)}/pax\n`;
     bd.ket.forEach(k => { t += `• ${k}\n`; });
     if(bd.sama.length) t += `${g}\nTidak berubah: ${bd.sama.join(', ')}\n`;
     return t;
 }
 
 // ---------- Pemilihan versi untuk perbandingan ----------
+function rhBelumCocok(r) { return !!(r && r.data && r.harga && Math.abs(rhHarga(r.data) - r.harga) >= 1); }
 function rhPilihanVersi() {
     const slot = ensureProgramConfigSlot();
     const hist = slot.estimasi_history || [];
-    const opsi = hist.map((r, i) => ({ id: 'h' + i, label: r.tanggal + ' — ' + rhRp(r.harga) + (r.data ? '' : ' (rincian belum ada)'), data: r.data || null, tanggal: r.tanggal }));
+    const opsi = hist.map((r, i) => ({ id: 'h' + i, label: r.tanggal + ' — ' + rhRp(r.harga) + (r.data ? (rhBelumCocok(r) ? ' ⚠️ rincian belum cocok' : '') : ' (rincian belum ada)'), data: r.data || null, tanggal: r.tanggal, harga: r.harga || 0, belum: rhBelumCocok(r) }));
     const now = rhAmbil(getEstimasiData());
-    if(now) opsi.push({ id: 'now', label: 'Estimasi saat ini' + (slot.estimasi_locked ? ' (terkunci)' : ' (belum dikunci)') + ' — ' + rhRp(rhHarga(now)), data: now, tanggal: 'Estimasi saat ini' });
+    if(now) opsi.push({ id: 'now', label: 'Estimasi saat ini' + (slot.estimasi_locked ? ' (terkunci)' : ' (belum dikunci)') + ' — ' + rhRp(rhHarga(now)), data: now, tanggal: 'Estimasi saat ini', harga: rhHarga(now), belum: false });
     return opsi;
 }
 function rhVersiAwal(opsi) {
@@ -7501,6 +7558,7 @@ function renderRiwayatEstimasiModal(modal) {
     const v = _rhView || { mode: 'list' };
     if(v.mode === 'rincian') return rhRenderRincian(modal, v.idx);
     if(v.mode === 'banding') return rhRenderBanding(modal);
+    if(v.mode === 'lini') return rhRenderLini(modal);
     if(v.mode === 'isi') return rhRenderIsi(modal, v.idx);
     rhRenderDaftar(modal);
 }
@@ -7508,23 +7566,26 @@ function renderRiwayatEstimasiModal(modal) {
 function rhRenderDaftar(modal) {
     const riwayat = rhRiwayat();
     const progNama = getCurrentProgram()?.nama || '-';
-    const html = riwayat.map((r, i) => `
-        <div onclick="rhBuka(${i})" style="cursor:pointer;display:flex;justify-content:space-between;align-items:center;gap:8px;background:#F8FAFC;border:1px solid #e8eef4;border-radius:12px;padding:11px 12px;margin-bottom:8px;">
+    const html = riwayat.map((r, i) => {
+        const belum = rhBelumCocok(r);
+        const status = !r.data ? ['#B45309', 'Rincian belum ada · ketuk untuk melengkapi'] : (belum ? ['#B45309', '⚠️ Rincian belum cocok dengan harga · ketuk untuk memperbaiki'] : ['#166534', '✓ Rincian tersimpan · ketuk untuk melihat']);
+        return `
+        <div onclick="rhBuka(${i})" style="cursor:pointer;display:flex;justify-content:space-between;align-items:center;gap:8px;background:#F8FAFC;border:1px solid ${belum ? '#F59E0B' : '#e8eef4'};border-radius:12px;padding:11px 12px;margin-bottom:8px;">
             <div style="min-width:0;">
                 <div style="font-size:11px;color:#888;">📌 ${rhE(r.tanggal)}</div>
                 <div style="font-size:15px;font-weight:700;color:${RH_WARNA};">${r.harga ? rhRp(r.harga) + '/pax' : '-'}</div>
-                <div style="font-size:11px;margin-top:2px;color:${r.data ? '#166534' : '#B45309'};">${r.data ? '✓ Rincian tersimpan · ketuk untuk melihat' : 'Rincian belum ada · ketuk untuk melengkapi'}</div>
+                <div style="font-size:11px;margin-top:2px;color:${status[0]};">${status[1]}</div>
                 ${r.catatan ? `<div style="font-size:11px;color:#475569;margin-top:2px;">📝 ${rhE(String(r.catatan).slice(0, 70))}</div>` : ''}
             </div>
             <div style="display:flex;align-items:center;gap:10px;flex-shrink:0;">
                 <button type="button" onclick="event.stopPropagation();hapusRiwayatEstimasi(${i})" style="border:none;background:none;color:#DC2626;font-size:15px;cursor:pointer;" aria-label="Hapus"><i class="fas fa-trash-alt"></i></button>
                 <i class="fas fa-chevron-right" style="color:${RH_WARNA};font-size:12px;"></i>
             </div>
-        </div>`).join('');
+        </div>`; }).join('');
     rhBungkus(modal, `
         <h3 style="color:var(--primary);margin-bottom:4px;">🕐 Riwayat Harga</h3>
         <div style="font-size:11px;color:#888;margin-bottom:12px;">${rhE(progNama)} — tercatat tiap kali harga dikunci. Ketuk satu baris untuk melihat rincian hitungannya.</div>
-        ${riwayat.length ? rhTombol('⚖️ Bandingkan dua versi', 'rhBukaBanding()', 'background:#EEF6F3;color:' + RH_WARNA + ';width:100%;margin-bottom:10px;') : ''}
+        ${riwayat.length ? `<div style="display:flex;gap:8px;margin-bottom:10px;">${rhTombol('⚖️ Bandingkan dua versi', 'rhBukaBanding()', 'background:#EEF6F3;color:' + RH_WARNA + ';')}${rhRantai().length >= 3 ? rhTombol('🕒 Lini masa', 'rhBukaLini()', 'background:#EEF6F3;color:' + RH_WARNA + ';') : ''}</div>` : ''}
         <div style="max-height:52vh;overflow-y:auto;">${html || '<p style="color:#6B7280;text-align:center;">Belum ada riwayat</p>'}</div>
         <button type="button" onclick="rhTutup()" style="width:100%;padding:11px;background:#e2e8f0;color:#333;border:none;border-radius:10px;font-size:13px;cursor:pointer;margin-top:10px;">Tutup</button>`);
 }
@@ -7538,11 +7599,11 @@ function rhRenderRincian(modal, idx) {
         <div style="font-size:11px;color:#888;">${rhE(progNama)}</div>
         <div style="font-size:12px;color:#475569;margin-top:6px;">📌 ${rhE(r.tanggal)}</div>
         <div style="font-size:22px;font-weight:800;color:${RH_WARNA};">${r.harga ? rhRp(r.harga) + '/pax' : '-'}</div>`;
+    const belum = rhBelumCocok(r);
     if(r.data) {
         isi += `<div style="font-size:11px;color:#888;margin-top:2px;">${rhE(RH_SUMBER[r.sumber] || 'Tersimpan')}</div>`;
-        if(r.belumCocok) isi += `<div style="background:#FEF3C7;color:#92400E;border-radius:8px;padding:7px 9px;font-size:12px;margin-top:8px;">⚠️ Rincian ini diisi manual dan hasil hitungannya belum sama dengan harga riwayat (selisih ${rhRp(Math.abs(rhHarga(r.data) - (r.harga || 0)))}).</div>`;
-        else if(r.harga && Math.abs(rhHarga(r.data) - r.harga) >= 1) isi += `<div style="background:#FEF3C7;color:#92400E;border-radius:8px;padding:7px 9px;font-size:12px;margin-top:8px;">⚠️ Hasil hitungan rincian (${rhRp(rhHarga(r.data))}) berbeda dari harga yang tercatat.</div>`;
-        isi += rhHtmlRincian(r.data);
+        isi += rhHtmlRincian(r.data, { hargaCatat: r.harga || 0 });
+        if(belum || r.sumber === 'manual') isi += `<div style="margin-top:10px;">${rhTombol('✍️ Ubah rincian (isi ulang dari cetakan lama)', 'rhBukaIsi(' + idx + ')', 'background:' + (belum ? '#F59E0B;color:#fff;' : '#EEF6F3;color:' + RH_WARNA + ';') + 'width:100%;')}</div>`;
     } else {
         isi += `<div style="background:#FEF3C7;color:#92400E;border-radius:10px;padding:10px 12px;font-size:13px;line-height:1.55;margin-top:10px;">Versi ini dicatat sebelum rincian ikut disimpan, jadi komponennya belum ada. Bapak bisa melengkapinya:</div>
         <div style="display:flex;flex-direction:column;gap:8px;margin-top:10px;">
@@ -7566,10 +7627,10 @@ function rhSimpanCatatan(idx) {
     if(t) r.catatan = t; else delete r.catatan;
     rhSimpan(); showToast('📝 Catatan disimpan');
 }
-function rhBagikanRincian(idx) { const r = rhRiwayat()[idx]; if(!r || !r.data) return; rhKirimWA(rhTeksRincian(r.data, r.tanggal, getCurrentProgram()?.nama || '') + (r.catatan ? '\n📝 ' + r.catatan : '')); }
+function rhBagikanRincian(idx) { const r = rhRiwayat()[idx]; if(!r || !r.data) return; rhKirimWA(rhTeksRincian(r.data, r.tanggal, getCurrentProgram()?.nama || '', r.harga || 0) + (r.catatan ? '\n📝 ' + r.catatan : '')); }
 function rhCetakRincian(idx) {
     const r = rhRiwayat()[idx]; if(!r || !r.data) return;
-    rhCetakHtml('RINCIAN HARGA PAKET', (getCurrentProgram()?.nama || '-') + ' — versi ' + r.tanggal, rhHtmlRincian(r.data) + (r.catatan ? `<p style="font-size:12px;color:#475569;margin-top:12px;">Catatan: ${rhE(r.catatan)}</p>` : ''));
+    rhCetakHtml('RINCIAN HARGA PAKET', (getCurrentProgram()?.nama || '-') + ' — versi ' + r.tanggal, `<div style="font-size:20px;font-weight:800;color:${RH_WARNA};margin:6px 0;">${r.harga ? rhRp(r.harga) + '/pax' : ''}</div>` + rhHtmlRincian(r.data, { hargaCatat: r.harga || 0 }) + (r.catatan ? `<p style="font-size:13px;color:#475569;margin-top:12px;">Catatan: ${rhE(r.catatan)}</p>` : ''));
 }
 function rhBandingkanDengan(idx) {
     const opsi = rhPilihanVersi();
@@ -7581,6 +7642,7 @@ function rhBandingkanDengan(idx) {
     rhBukaBanding(dia.id, now ? now.id : null);
 }
 
+function rhOptBanding(A, B) { return { hargaA: A.harga, hargaB: B.harga, belumA: A.belum, belumB: B.belum }; }
 function rhRenderBanding(modal) {
     const opsi = rhPilihanVersi();
     const v = _rhView;
@@ -7593,7 +7655,7 @@ function rhRenderBanding(modal) {
     let bd = null;
     if(A && B && A.data && B.data) {
         if(A.id === B.id) isi += `<div style="font-size:13px;color:#B45309;margin-top:12px;">Pilih dua versi yang berbeda.</div>`;
-        else { bd = rhBangunBanding(A.data, B.data, A.tanggal, B.tanggal); isi += rhHtmlBanding(bd); }
+        else { bd = rhBangunBanding(A.data, B.data, A.tanggal, B.tanggal, rhOptBanding(A, B)); isi += rhHtmlBanding(bd); }
     } else {
         isi += `<div style="font-size:13px;color:#64748B;margin-top:12px;line-height:1.55;">${opsi.filter(o => o.data).length < 2 ? 'Perbandingan butuh minimal dua versi yang rinciannya sudah tersimpan (termasuk Estimasi saat ini). Lengkapi rincian versi lama dulu dari daftar riwayat.' : 'Pilih versi lama dan versi baru di atas.'}</div>`;
     }
@@ -7607,13 +7669,100 @@ function rhBandingAktif() {
     const opsi = rhPilihanVersi();
     const A = opsi.find(o => o.id === _rhView.a), B = opsi.find(o => o.id === _rhView.b);
     if(!A || !B || !A.data || !B.data || A.id === B.id) return null;
-    return rhBangunBanding(A.data, B.data, A.tanggal, B.tanggal);
+    return rhBangunBanding(A.data, B.data, A.tanggal, B.tanggal, rhOptBanding(A, B));
 }
 function rhBagikanBanding() { const bd = rhBandingAktif(); if(bd) rhKirimWA(rhTeksBanding(bd)); }
 function rhCetakBanding() {
     const bd = rhBandingAktif(); if(!bd) return;
     rhCetakHtml('PERBANDINGAN HARGA PAKET', (getCurrentProgram()?.nama || '-') + ' — ' + bd.ketA + ' → ' + bd.ketB, rhHtmlBanding(bd));
 }
+
+// ---------- Lini masa: semua tahap perubahan harga berurutan, tiap tahap dengan penyebabnya ----------
+function rhTglPendek(t) {
+    const m = String(t || '').match(/^(\d{1,2}) (\S+) (\d{4})(?: pukul ([\d.:]+))?/);
+    if(!m) return /saat ini/i.test(t) ? 'Sekarang' : String(t || '');
+    return m[1] + ' ' + m[2].slice(0, 3) + ' ' + m[3] + (m[4] ? ' ' + m[4] : '');
+}
+function rhRantai() {
+    const opsi = rhPilihanVersi();
+    const lama = opsi.filter(o => o.id !== 'now' && o.data).reverse();
+    const now = opsi.find(o => o.id === 'now' && o.data);
+    const rantai = [];
+    lama.concat(now ? [now] : []).forEach(o => {
+        const harga = o.harga > 0 ? o.harga : rhHarga(o.data);
+        const v = Object.assign({}, o, { harga });
+        const p = rantai[rantai.length - 1];
+        if(p && rhSama(p.data, v.data) && Math.abs(p.harga - harga) < 1) return;
+        rantai.push(v);
+    });
+    return rantai;
+}
+function rhBangunLini() {
+    const rantai = rhRantai(); if(rantai.length < 2) return null;
+    const langkah = [];
+    for(let i = 1; i < rantai.length; i++) { const A = rantai[i - 1], B = rantai[i]; langkah.push({ A, B, bd: rhBangunBanding(A.data, B.data, A.tanggal, B.tanggal, rhOptBanding(A, B)) }); }
+    const awal = Math.round(rantai[0].harga), akhir = Math.round(rantai[rantai.length - 1].harga);
+    const dilewati = rhRiwayat().filter(r => !r.data).length;
+    return { rantai, langkah, awal, akhir, total: akhir - awal, dilewati };
+}
+function rhHtmlLini(L) {
+    const warnaTotal = L.total > 0 ? '#B91C1C' : (L.total < 0 ? '#166534' : '#334155');
+    const kataTotal = L.total > 0 ? 'NAIK' : (L.total < 0 ? 'TURUN' : 'TIDAK BERUBAH');
+    const f = rhTanda;
+    let x = `<table style="margin:12px 0;text-align:center;border:1px solid #e2e8f0;"><tr>
+        <td style="width:33%;padding:10px 6px;background:#F8FAFC;vertical-align:top;"><div style="font-size:11px;color:#64748B;font-weight:700;">HARGA AWAL</div><div style="font-size:11px;color:#94A3B8;">${rhE(rhTglPendek(L.rantai[0].tanggal))}</div><div style="font-size:15px;white-space:nowrap;font-weight:800;color:#334155;margin-top:3px;">${rhRp(L.awal)}</div></td>
+        <td style="width:33%;padding:10px 6px;background:#F8FAFC;vertical-align:top;"><div style="font-size:11px;color:#64748B;font-weight:700;">HARGA TERAKHIR</div><div style="font-size:11px;color:#94A3B8;">${rhE(rhTglPendek(L.rantai[L.rantai.length - 1].tanggal))}</div><div style="font-size:15px;white-space:nowrap;font-weight:800;color:#334155;margin-top:3px;">${rhRp(L.akhir)}</div></td>
+        <td style="width:34%;padding:10px 6px;background:${L.total > 0 ? '#FEE2E2' : (L.total < 0 ? '#DCFCE7' : '#F1F5F9')};vertical-align:top;"><div style="font-size:11px;color:${warnaTotal};font-weight:800;">TOTAL ${kataTotal}</div><div style="font-size:11px;color:#94A3B8;">${L.langkah.length} tahap</div><div style="font-size:15px;white-space:nowrap;font-weight:800;color:${warnaTotal};margin-top:3px;">${rhRp(Math.abs(L.total))}</div></td></tr></table>`;
+    x += rhJudul('RINGKASAN TIAP TAHAP');
+    x += `<table style="font-size:12px;"><tr style="background:#F1F5F9;color:#475569;font-weight:800;"><td style="padding:6px 4px;">Tahap</td><td style="padding:6px 4px;text-align:right;">Harga</td><td style="padding:6px 4px;text-align:right;">Selisih</td></tr>`;
+    L.langkah.forEach((k, i) => {
+        const sel = k.bd.sel, w = sel > 0 ? '#B91C1C' : (sel < 0 ? '#166534' : '#334155');
+        x += `<tr style="border-bottom:1px solid #eef2f6;"><td style="padding:6px 4px;"><b>${i + 1}.</b> ${rhE(rhTglPendek(k.A.tanggal))} → ${rhE(rhTglPendek(k.B.tanggal))}</td><td style="padding:6px 4px;text-align:right;white-space:nowrap;">${rhRp(k.bd.hargaA)} → ${rhRp(k.bd.hargaB)}</td><td style="padding:6px 4px;text-align:right;white-space:nowrap;font-weight:800;color:${w};">${f(sel)}</td></tr>`;
+    });
+    x += `<tr style="border-top:2px solid #334155;font-weight:800;"><td style="padding:7px 4px;">Total</td><td style="padding:7px 4px;text-align:right;white-space:nowrap;">${rhRp(L.awal)} → ${rhRp(L.akhir)}</td><td style="padding:7px 4px;text-align:right;white-space:nowrap;color:${warnaTotal};">${f(L.total)}</td></tr></table>`;
+    x += rhJudul('PENYEBAB DI TIAP TAHAP');
+    L.langkah.forEach((k, i) => {
+        const bd = k.bd, sel = bd.sel, w = sel > 0 ? '#B91C1C' : (sel < 0 ? '#166534' : '#334155');
+        x += `<div style="border:1px solid #e2e8f0;border-radius:12px;padding:10px 12px;margin:8px 0;">
+            <div style="display:flex;justify-content:space-between;gap:8px;font-size:14px;font-weight:800;"><span>Tahap ${i + 1}</span><span style="color:${w};white-space:nowrap;">${sel === 0 ? 'tidak berubah' : f(sel)}</span></div>
+            <div style="font-size:12px;color:#64748B;">${rhE(rhTglPendek(k.A.tanggal))} → ${rhE(rhTglPendek(k.B.tanggal))} · ${rhRp(bd.hargaA)} → ${rhRp(bd.hargaB)}</div>`;
+        rhPeringatanBanding(bd).slice(0, bd.identik ? 1 : 2).forEach(p => { x += `<div style="background:${p.merah ? '#FEE2E2' : '#FEF3C7'};color:${p.merah ? '#991B1B' : '#92400E'};border-radius:8px;padding:6px 8px;margin-top:6px;font-size:12px;line-height:1.5;">⚠️ ${rhE(p.t.length > 150 ? p.t.slice(0, 147) + '...' : p.t)}</div>`; });
+        bd.urutDampak.forEach(c => { x += `<div style="display:flex;justify-content:space-between;gap:8px;font-size:13px;margin-top:6px;"><span><b>${rhE(c.label)}</b><br><span style="font-size:12px;color:#64748B;">${rhE(c.lama)} → ${rhE(c.baru)}${c.beda ? ' (' + rhE(c.beda) + ')' : ''}</span></span><b style="color:${c.dampak > 0 ? '#B91C1C' : '#166534'};white-space:nowrap;">${f(c.dampak)}</b></div>`; });
+        if(bd.pem !== 0) x += `<div style="display:flex;justify-content:space-between;gap:8px;font-size:13px;margin-top:6px;"><b>Pembulatan harga jual</b><b style="color:${bd.pem > 0 ? '#B91C1C' : '#166534'};">${f(bd.pem)}</b></div>`;
+        if(Math.abs(bd.sisa) >= 1) x += `<div style="display:flex;justify-content:space-between;gap:8px;font-size:13px;margin-top:6px;color:#92400E;"><b>Belum bisa dijelaskan</b><b>${f(bd.sisa)}</b></div>`;
+        if(!bd.urutDampak.length && !bd.pem && Math.abs(bd.sisa) < 1) x += `<div style="font-size:12px;color:#64748B;margin-top:6px;">Tidak ada komponen yang berubah.</div>`;
+        bd.ket.forEach(t => { x += `<div style="font-size:12px;color:#475569;margin-top:4px;">${rhE(t)}</div>`; });
+        x += `</div>`;
+    });
+    if(L.dilewati) x += `<div style="font-size:12px;color:#92400E;background:#FEF3C7;border-radius:8px;padding:7px 9px;margin:8px 0;">${L.dilewati} versi di riwayat belum punya rincian, jadi tidak ikut lini masa. Tahap di sekitarnya digabung. Lengkapi rinciannya dari daftar riwayat bila ingin lebih detail.</div>`;
+    x += `<div style="font-size:11px;color:#94A3B8;margin-top:8px;line-height:1.5;">Jumlah selisih semua tahap sama dengan total. Angka penyebab dihitung berurutan dengan rumus Estimasi yang sama.</div>`;
+    return x;
+}
+function rhTeksLini(L) {
+    const g = '━━━━━━━━━━━━━━━━━━━';
+    const f = rhTanda;
+    let t = `🕒 *Lini Masa Harga Paket*\n${getCurrentProgram()?.nama || ''}\n${g}\n• Awal (${rhTglPendek(L.rantai[0].tanggal)}): ${rhRp(L.awal)}\n• Terakhir (${rhTglPendek(L.rantai[L.rantai.length - 1].tanggal)}): ${rhRp(L.akhir)}\n*Total ${L.total > 0 ? 'NAIK ' : (L.total < 0 ? 'TURUN ' : 'tidak berubah ')}${L.total ? rhRp(Math.abs(L.total)) + '/pax' : ''}*\n`;
+    L.langkah.forEach((k, i) => {
+        const bd = k.bd;
+        t += `${g}\n*Tahap ${i + 1}: ${rhTglPendek(k.A.tanggal)} → ${rhTglPendek(k.B.tanggal)}*\n${rhRp(bd.hargaA)} → ${rhRp(bd.hargaB)} (${bd.sel === 0 ? 'tidak berubah' : f(bd.sel)})\n`;
+        rhPeringatanBanding(bd).slice(0, 1).forEach(p => { t += `⚠️ _${p.t}_\n`; });
+        bd.urutDampak.forEach(c => { t += `• ${c.label}: ${c.lama} → ${c.baru} (${c.beda}) · ${f(c.dampak)}\n`; });
+        if(bd.pem !== 0) t += `• Pembulatan harga jual: ${f(bd.pem)}\n`;
+        if(Math.abs(bd.sisa) >= 1) t += `• Belum bisa dijelaskan: ${f(bd.sisa)}\n`;
+    });
+    return t;
+}
+function rhBukaLini() { _rhView = { mode: 'lini' }; renderRiwayatEstimasiModal(); const c = document.querySelector('#riwayatEstimasiModal .modal-content'); if(c) c.scrollTop = 0; }
+function rhRenderLini(modal) {
+    const L = rhBangunLini();
+    let isi = `<h3 style="color:var(--primary);margin-bottom:4px;">🕒 Lini Masa Harga</h3><div style="font-size:11px;color:#888;margin-bottom:6px;">${rhE(getCurrentProgram()?.nama || '-')} — semua tahap perubahan harga berurutan dari yang paling lama.</div>`;
+    if(!L) isi += `<div style="font-size:13px;color:#64748B;line-height:1.55;margin-top:12px;">Lini masa butuh minimal dua versi yang rinciannya sudah tersimpan.</div>`;
+    else isi += rhHtmlLini(L);
+    isi += `<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:14px;">${L ? rhTombol('📲 Bagikan WA', 'rhBagikanLini()', 'background:#25D366;color:#fff;') + rhTombol('🖨️ Cetak', 'rhCetakLini()', 'background:' + RH_WARNA + ';color:#fff;') : ''}${rhTombol('Kembali', 'rhKembali()')}</div>`;
+    rhBungkus(modal, isi);
+}
+function rhBagikanLini() { const L = rhBangunLini(); if(L) rhKirimWA(rhTeksLini(L)); }
+function rhCetakLini() { const L = rhBangunLini(); if(!L) return; rhCetakHtml('LINI MASA HARGA PAKET', (getCurrentProgram()?.nama || '-') + ' — ' + L.langkah.length + ' tahap', rhHtmlLini(L)); }
 
 // ---------- Pemulihan versi lama ----------
 function rhPasangDariSekarang(idx) {
@@ -7665,19 +7814,34 @@ function rhCekForm(idxBaru) {
     const est = rhBacaForm();
     const h = rhHarga(est);
     const tujuan = r.harga || 0;
-    if(!(tujuan > 0)) { box.style.background = '#F1F5F9'; box.style.color = '#334155'; box.textContent = 'Hasil hitungan: ' + rhRp(h) + '/pax (harga tercatat kosong, tidak ada pembanding)'; return; }
-    const selisih = h - tujuan;
-    if(Math.abs(selisih) < 1) { box.style.background = '#DCFCE7'; box.style.color = '#166534'; box.textContent = '✓ Cocok: hasil hitungan ' + rhRp(h) + ' = harga tercatat'; }
-    else { box.style.background = '#FEF3C7'; box.style.color = '#92400E'; box.textContent = 'Hasil hitungan ' + rhRp(h) + ' · selisih ' + rhTanda(selisih) + ' dari ' + rhRp(tujuan); }
-    if(btn) btn.textContent = Math.abs(selisih) < 1 || !(tujuan > 0) ? 'Simpan rincian' : 'Simpan walau belum cocok';
+    box.style.whiteSpace = 'pre-line';
+    let tombolAktif = true, tombolTeks = 'Simpan rincian';
+    if(!(tujuan > 0)) { box.style.background = '#F1F5F9'; box.style.color = '#334155'; box.textContent = 'Hasil hitungan: ' + rhRp(h) + '/pax (harga tercatat kosong, tidak ada pembanding)'; }
+    else {
+        const selisih = h - tujuan;
+        if(Math.abs(selisih) < 1) { box.style.background = '#DCFCE7'; box.style.color = '#166534'; box.textContent = '✓ Cocok: hasil hitungan ' + rhRp(h) + ' = harga tercatat'; }
+        else {
+            const sama = rhSama(est, rhAmbil(getEstimasiData()));
+            box.style.background = '#FEF3C7'; box.style.color = '#92400E';
+            let t = 'Hasil hitungan ' + rhRp(h) + ' · selisih ' + rhTanda(selisih) + ' dari ' + rhRp(tujuan);
+            const hh = hitungModalHargaDariEst(est), p = parseFloat(est.profitPct) || 0;
+            if(hh && !hh.dibulatkan && hh.nJam > hh.foc) { const dm = Math.round(selisih * (hh.nJam - hh.foc) / (hh.nJam * (1 + p / 100))); if(dm !== 0) t += '\nPetunjuk: modal per pax masih kira-kira ' + rhRp(Math.abs(dm)) + (dm > 0 ? ' terlalu tinggi' : ' terlalu rendah') + ' dibanding cetakan lama (bila pax, FOC, margin, buffer sudah benar).'; }
+            if(sama) { t += '\nIsian masih sama dengan Estimasi sekarang. Ubah angka sesuai cetakan lama dulu.'; tombolAktif = false; }
+            box.textContent = t;
+            tombolTeks = 'Simpan walau belum cocok';
+        }
+    }
+    if(btn) { btn.textContent = tombolTeks; btn.style.opacity = tombolAktif ? '1' : '.45'; }
 }
 function rhSimpanIsi(idx) {
     const r = rhRiwayat()[idx]; if(!r) return;
     const est = rhBacaForm();
     if(!(rhPr(est.totJam) > 0)) return showToast('Isi Total Pax dulu');
     const h = rhHarga(est);
+    const cocok = !(r.harga && Math.abs(h - r.harga) >= 1);
+    if(!cocok && rhSama(est, rhAmbil(getEstimasiData()))) return showToast('Belum ada angka yang diubah dari Estimasi sekarang. Isi dengan angka dari cetakan lama.');
     r.data = rhAmbil(est); r.sumber = 'manual';
-    if(r.harga && Math.abs(h - r.harga) >= 1) r.belumCocok = true; else delete r.belumCocok;
+    if(!cocok) r.belumCocok = true; else delete r.belumCocok;
     rhSimpan();
     try { catatAktivitas('🕐', 'Rincian riwayat harga ' + r.tanggal + ' dilengkapi dari catatan'); } catch(e) {}
     showToast(r.belumCocok ? '⚠️ Disimpan, tapi belum cocok dengan harga tercatat' : '✅ Rincian disimpan (harga cocok)');
@@ -25941,7 +26105,7 @@ function openIndexedDB() {
 // dengan build baru, data MENTAH (langsung dari IndexedDB, bukan dari memori) disalin dulu sebelum
 // proses migrasi apapun berjalan — supaya kalau ada kesalahan di update, data lama masih bisa dipulihkan.
 // Dokumen & foto tidak ikut disalin (ukurannya besar, dan tidak pernah disentuh proses migrasi).
-const NAVARA_BUILD = '2026.10.19-128';
+const NAVARA_BUILD = '2026.10.19-130';
 const MAKS_SNAPSHOT = 3;
 
 // ==================== DAFTAR DATA PUSAT ====================
