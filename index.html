@@ -2372,7 +2372,7 @@ https://github.com/nodeca/pako/blob/main/LICENSE
         <div class="row"><div class="input-group"><label>Perlengkapan</label><input type="text" id="cAlat" class="money-input" inputmode="numeric" value="1.000.000" oninput="saveEstimasiData()"></div><div class="input-group"><label>Aplikasi</label><input type="text" id="cAplikasi" class="money-input" inputmode="numeric" value="60.000" oninput="saveEstimasiData()"></div></div>
         <div class="row"><div class="input-group"><label>PIC</label><input type="text" id="cPIC" class="money-input" inputmode="numeric" value="0" oninput="saveEstimasiData()"></div><div class="input-group"><label>Lain-lain</label><input type="text" id="cLain" class="money-input" inputmode="numeric" value="0" oninput="saveEstimasiData()"></div></div>
         <div class="section-title"><span>Margin</span></div>
-        <div class="input-group"><label>Profit (%)</label><input type="number" id="profitPct" value="5" oninput="saveEstimasiData()"></div>
+        <div class="input-group"><label>Profit (%)</label><div style="display:flex;gap:8px;align-items:stretch;"><input type="number" id="profitPct" value="5" oninput="saveEstimasiData()" style="flex:1;min-width:0;width:auto;"><button type="button" id="btnCariPersen" onclick="cpBuka()" style="flex-shrink:0;padding:0 12px;border:1.5px solid var(--primary);background:white;color:var(--primary);border-radius:10px;font-size:12px;font-weight:700;cursor:pointer;">🎯 Cari persen</button></div></div>
         <div class="section-title"><span>Buffer Diskon <small style="font-weight:normal;color:#888;">(Opsional)</small></span></div>
         <div class="input-group">
             <input type="text" id="cBuffer" class="money-input" inputmode="numeric" value="0" oninput="saveEstimasiData()">
@@ -2413,6 +2413,7 @@ https://github.com/nodeca/pako/blob/main/LICENSE
         <button class="mt-2" onclick="openSimulasiKebijakanGratisModal()" style="width:100%;padding:11px;background:#0369A1;color:white;border:none;border-radius:10px;font-size:14px;font-weight:bold;cursor:pointer;">🧮 Simulasi FOC Mitra</button>
     </div>
     <div id="hasilEstimasi" class="res-card" style="display:none;"></div>
+    <div id="kartuHargaBeda" style="display:none;"></div>
     <div id="kartuImpasEstimasi" style="display:none;background:#F8FAFC;border:1.5px solid #CBD5E1;border-radius:16px;padding:14px;margin-top:14px;"></div>
     </div><!-- end cuanTabEstimasi -->
 
@@ -7339,7 +7340,7 @@ function rhHtmlRincian(est, opt) {
             <div style="display:flex;justify-content:space-between;gap:10px;margin-top:4px;"><span>Harga tercatat (cetakan lama)</span><b>${rhRp(opt.hargaCatat)}</b></div>
             <div style="display:flex;justify-content:space-between;gap:10px;"><span>Hasil hitungan rincian ini</span><b>${rhRp(r.h.harga)}</b></div>
             <div style="display:flex;justify-content:space-between;gap:10px;"><span>Selisih</span><b>${rhRp(Math.abs(r.h.harga - opt.hargaCatat))}</b></div>
-            <div style="font-size:12px;margin-top:4px;">Rincian diisi manual, jadi angka komponen di bawah belum tentu sama dengan cetakan lama.</div></div>`;
+            <div style="font-size:12px;margin-top:4px;">Rincian diisi manual, jadi angka komponen di bawah belum tentu sama dengan cetakan lama.${rhE(rhKalimatPetunjuk(rhPetunjukCocok(est, opt.hargaCatat)))}</div></div>`;
     }
     const paket = [['Paket', est.lokasiPaket], ['Maskapai', est.namaMaskapai], ['Hotel Makkah', est.namaHotelMakkah], ['Hotel Madinah', est.namaHotelMadinah]].filter(a => a[1]);
     if(paket.length) { x += rhJudul('PAKET'); paket.forEach(a => { x += rhBaris(a[0], rhE(a[1])); }); }
@@ -7383,6 +7384,26 @@ function rhCetakHtml(judul, subjudul, isiHtml) {
     tampilkanJendelaCetak(`<!DOCTYPE html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>${rhE(judul)}</title><style>body{font-family:Arial,sans-serif;padding:16px;color:#222;font-size:15px;line-height:1.5;max-width:820px;margin:0 auto;} h1{color:${RH_WARNA};font-size:21px;margin:10px 0 2px;} table{border-collapse:collapse;width:100%;} @page{size:A4;margin:12mm;} @media print{.no-print{display:none!important;} body{font-size:12px;padding:0;}}</style></head><body>${kop}<h1>${rhE(judul)}</h1><p style="font-size:13px;color:#666;margin:0 0 6px;">${rhE(subjudul)} — ${tgl}</p>${isiHtml}`);
 }
 function rhKirimWA(teks) { window.open('https://wa.me/?text=' + encodeURIComponent(teks), '_blank'); }
+
+// Petunjuk: coba ubah SATU isian (Pax, FOC, margin) lalu hitung ulang dengan rumus Estimasi. Hanya ditampilkan bila hasilnya persis sama dengan harga tercatat. Tidak pernah mengubah angka.
+function rhPetunjukCocok(est, tujuan) {
+    if(!est || !(tujuan > 0)) return [];
+    const base = hitungModalHargaDariEst(est);
+    if(!base || base.dibulatkan || Math.abs(base.harga - tujuan) < 1) return [];
+    const hasil = [];
+    const coba = (k, nilai, label, dari, ke) => {
+        if(hasil.length >= 3) return;
+        const h = hitungModalHargaDariEst(Object.assign({}, est, { [k]: String(nilai) }));
+        if(h && Math.abs(h.harga - tujuan) < 1) hasil.push(label + ' ' + dari + ' → ' + ke);
+    };
+    const paxNow = rhPr(est.totJam), focNow = rhPr(est.jamGratis), pctNow = parseFloat(est.profitPct) || 0;
+    for(let n = 1; n <= 600; n++) if(n !== base.nJam) coba('totJam', n, 'Total Pax', base.nJam, n);
+    for(let n = 0; n <= 20; n++) if(n !== focNow) coba('jamGratis', n, 'FOC', focNow, n);
+    for(let p = 0; p <= 50; p += 0.5) if(p !== pctNow) coba('profitPct', p, 'Margin', String(pctNow).replace('.', ',') + '%', String(p).replace('.', ',') + '%');
+    void paxNow;
+    return hasil;
+}
+function rhKalimatPetunjuk(arr) { return arr && arr.length ? ' Petunjuk: bila ' + arr.join(' atau ') + ', hasil hitungan persis cocok (periksa dulu dengan cetakan lama).' : ''; }
 
 // ---------- Perbandingan dua versi: selisih tiap komponen + dampaknya ke harga per pax (jumlahnya tepat sama dengan selisih harga) ----------
 function rhHitungBanding(a, b) {
@@ -7443,14 +7464,14 @@ function rhBangunBanding(a, b, ketA, ketB, opt) {
     ringkas.push(sel === 0 ? `Harga per pax (Quad) sama: ${rhRp(hargaB)}.` : `Harga per pax (Quad) ${kata} ${rhRp(Math.abs(sel))}: dari ${rhRp(hargaA)} menjadi ${rhRp(hargaB)}.`);
     urutDampak.forEach(c => ringkas.push(`${c.label}: ${rhTanda(c.dampak)}/pax`));
     if(pem !== 0) ringkas.push(`Pembulatan harga jual: ${rhTanda(pem)}/pax`);
-    return { r, baris, kartu, sama, ket, tipe, ringkas, ketA, ketB, sel, hargaA, hargaB, sisa, belumA, belumB, identik, hargaHitungA: r.ha.harga, hargaHitungB: r.hb.harga, urutDampak, kata, pem };
+    return { r, baris, kartu, sama, ket, tipe, ringkas, ketA, ketB, sel, hargaA, hargaB, sisa, belumA, belumB, identik, hargaHitungA: r.ha.harga, hargaHitungB: r.hb.harga, urutDampak, kata, pem, petA: opt.petA || [], petB: opt.petB || [] };
 }
 function rhPeringatanBanding(bd) {
     const p = [];
     if(bd.identik) p.push({ merah: true, t: 'Rincian kedua versi sama persis, padahal harga tercatatnya berbeda. Artinya rincian versi lama belum diisi dengan angka dari cetakan lama, jadi penyebab kenaikan belum bisa ditampilkan. Buka Riwayat Harga, pilih versi lama, lalu ketuk "Ubah rincian".' });
     else {
-        if(bd.belumA) p.push({ t: `Rincian versi lama (${bd.ketA}) belum cocok dengan harga tercatat: hasil hitungan ${rhRp(bd.hargaHitungA)}, tercatat ${rhRp(bd.hargaA)}.` });
-        if(bd.belumB) p.push({ t: `Rincian versi baru (${bd.ketB}) belum cocok dengan harga tercatat: hasil hitungan ${rhRp(bd.hargaHitungB)}, tercatat ${rhRp(bd.hargaB)}.` });
+        if(bd.belumA) p.push({ t: `Rincian versi lama (${bd.ketA}) belum cocok dengan harga tercatat: hasil hitungan ${rhRp(bd.hargaHitungA)}, tercatat ${rhRp(bd.hargaA)}.${rhKalimatPetunjuk(bd.petA)}` });
+        if(bd.belumB) p.push({ t: `Rincian versi baru (${bd.ketB}) belum cocok dengan harga tercatat: hasil hitungan ${rhRp(bd.hargaHitungB)}, tercatat ${rhRp(bd.hargaB)}.${rhKalimatPetunjuk(bd.petB)}` });
         if(p.length) p.push({ t: 'Selisih total di atas tetap benar karena memakai harga tercatat. Penyebab per komponen hanya perkiraan dari rincian yang tersimpan.' });
     }
     return p;
@@ -7642,7 +7663,7 @@ function rhBandingkanDengan(idx) {
     rhBukaBanding(dia.id, now ? now.id : null);
 }
 
-function rhOptBanding(A, B) { return { hargaA: A.harga, hargaB: B.harga, belumA: A.belum, belumB: B.belum }; }
+function rhOptBanding(A, B) { return { hargaA: A.harga, hargaB: B.harga, belumA: A.belum, belumB: B.belum, petA: A.belum ? rhPetunjukCocok(A.data, A.harga) : [], petB: B.belum ? rhPetunjukCocok(B.data, B.harga) : [] }; }
 function rhRenderBanding(modal) {
     const opsi = rhPilihanVersi();
     const v = _rhView;
@@ -7782,19 +7803,19 @@ function rhRenderIsi(modal, idx) {
     const r = rhRiwayat()[idx];
     if(!r) { _rhView = { mode: 'list' }; return rhRenderDaftar(modal); }
     const awal = (r.data && rhAmbil(r.data)) || rhAmbil(getEstimasiData()) || rhAmbil({});
-    const uang = (k, l) => `<div style="margin-bottom:8px;"><label style="font-size:12px;color:#475569;font-weight:600;">${l}</label><input type="text" inputmode="numeric" id="rhF_${k}" value="${rhE(awal[k] || '')}" oninput="formatMoneyInput(this);rhCekForm()" style="width:100%;box-sizing:border-box;padding:9px 10px;border:1.5px solid #e2e8f0;border-radius:10px;font-size:14px;font-family:inherit;"></div>`;
-    const angka = (k, l) => `<div style="margin-bottom:8px;"><label style="font-size:12px;color:#475569;font-weight:600;">${l}</label><input type="text" inputmode="decimal" id="rhF_${k}" value="${rhE(awal[k] || '')}" oninput="rhCekForm()" style="width:100%;box-sizing:border-box;padding:9px 10px;border:1.5px solid #e2e8f0;border-radius:10px;font-size:14px;font-family:inherit;"></div>`;
-    const teks = (k, l) => `<div style="margin-bottom:8px;"><label style="font-size:12px;color:#475569;font-weight:600;">${l}</label><input type="text" id="rhF_${k}" value="${rhE(awal[k] || '')}" style="width:100%;box-sizing:border-box;padding:9px 10px;border:1.5px solid #e2e8f0;border-radius:10px;font-size:14px;font-family:inherit;"></div>`;
+    const uang = (k, l) => `<div style="margin-bottom:8px;"><label style="font-size:12px;color:#475569;font-weight:600;">${l}<span id="rhS_${k}" style="font-size:11px;font-weight:600;margin-left:6px;"></span></label><input type="text" inputmode="numeric" id="rhF_${k}" value="${rhE(awal[k] || '')}" oninput="formatMoneyInput(this);rhCekForm()" style="width:100%;box-sizing:border-box;padding:9px 10px;border:1.5px solid #e2e8f0;border-radius:10px;font-size:14px;font-family:inherit;"></div>`;
+    const angka = (k, l) => `<div style="margin-bottom:8px;"><label style="font-size:12px;color:#475569;font-weight:600;">${l}<span id="rhS_${k}" style="font-size:11px;font-weight:600;margin-left:6px;"></span></label><input type="text" inputmode="decimal" id="rhF_${k}" value="${rhE(awal[k] || '')}" oninput="rhCekForm()" style="width:100%;box-sizing:border-box;padding:9px 10px;border:1.5px solid #e2e8f0;border-radius:10px;font-size:14px;font-family:inherit;"></div>`;
+    const teks = (k, l) => `<div style="margin-bottom:8px;"><label style="font-size:12px;color:#475569;font-weight:600;">${l}<span id="rhS_${k}" style="font-size:11px;font-weight:600;margin-left:6px;"></span></label><input type="text" id="rhF_${k}" value="${rhE(awal[k] || '')}" oninput="rhCekForm()" style="width:100%;box-sizing:border-box;padding:9px 10px;border:1.5px solid #e2e8f0;border-radius:10px;font-size:14px;font-family:inherit;"></div>`;
     rhBungkus(modal, `<h3 style="color:var(--primary);margin-bottom:4px;">✍️ Isi Rincian dari Catatan</h3>
         <div style="font-size:12px;color:#475569;margin-bottom:4px;">Versi: ${rhE(r.tanggal)} — harga tercatat <b>${r.harga ? rhRp(r.harga) : '-'}</b>/pax</div>
-        <div style="font-size:11px;color:#888;margin-bottom:10px;line-height:1.5;">Kolom sudah terisi dengan Estimasi sekarang. Ubah hanya yang berbeda dari cetakan lama. Hasilnya langsung dicocokkan dengan harga tercatat.</div>
+        <div style="font-size:11px;color:#888;margin-bottom:10px;line-height:1.5;">Kolom awalnya terisi angka Estimasi sekarang. Ubah hanya yang berbeda dari cetakan lama. Tiap kolom diberi tanda <b>sama dengan sekarang</b> atau <b>diubah</b>, dan hasilnya langsung dicocokkan dengan harga tercatat. Aplikasi tidak mengubah angka sendiri.</div>
         <div id="rhCekBox" style="position:sticky;top:0;z-index:2;border-radius:10px;padding:9px 11px;font-size:13px;font-weight:700;margin-bottom:10px;"></div>
         ${teks('lokasiPaket', 'Nama paket')}${teks('namaMaskapai', 'Maskapai')}${teks('namaHotelMakkah', 'Hotel Makkah')}${teks('namaHotelMadinah', 'Hotel Madinah')}
         ${angka('totJam', 'Total Pax')}${angka('jamGratis', 'FOC')}${angka('numTL', 'TL')}
         ${uang('cTiket', 'Tiket')}${uang('cLAquad', 'LA / Hotel (Quad)')}${uang('cLAtriple', 'LA / Hotel (Triple), kosongkan kalau tidak ada')}${uang('cLAdouble', 'LA / Hotel (Double), kosongkan kalau tidak ada')}
         ${uang('cAsuransi', 'Asuransi')}${uang('cHandling', 'Handling')}${uang('cAlat', 'Perlengkapan')}${uang('cAplikasi', 'Aplikasi')}${uang('cPIC', 'PIC')}${uang('cLain', 'Lain-lain')}
         ${angka('profitPct', 'Profit / Margin (%)')}${uang('cBuffer', 'Buffer diskon')}${uang('cHargaJual', 'Harga Jual Brosur bulat (kosongkan kalau tidak ada)')}
-        <div style="margin-bottom:8px;"><label style="font-size:12px;color:#475569;font-weight:600;">Mode tipe kamar</label><select id="rhF_modeLA" onchange="rhCekForm()" style="width:100%;padding:9px 10px;border:1.5px solid #e2e8f0;border-radius:10px;font-size:14px;font-family:inherit;background:#fff;"><option value="penuh" ${awal.modeLA !== 'upgrade' ? 'selected' : ''}>Harga penuh per tipe</option><option value="upgrade" ${awal.modeLA === 'upgrade' ? 'selected' : ''}>Upgrade (Triple/Double = selisih dari Quad)</option></select></div>
+        <div style="margin-bottom:8px;"><label style="font-size:12px;color:#475569;font-weight:600;">Mode tipe kamar<span id="rhS_modeLA" style="font-size:11px;font-weight:600;margin-left:6px;"></span></label><select id="rhF_modeLA" onchange="rhCekForm()" style="width:100%;padding:9px 10px;border:1.5px solid #e2e8f0;border-radius:10px;font-size:14px;font-family:inherit;background:#fff;"><option value="penuh" ${awal.modeLA !== 'upgrade' ? 'selected' : ''}>Harga penuh per tipe</option><option value="upgrade" ${awal.modeLA === 'upgrade' ? 'selected' : ''}>Upgrade (Triple/Double = selisih dari Quad)</option></select></div>
         <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px;">
             <button type="button" id="rhSimpanIsi" onclick="rhSimpanIsi(${idx})" style="flex:1;min-width:140px;padding:12px;border:none;border-radius:10px;font-size:14px;font-weight:800;cursor:pointer;font-family:inherit;background:${RH_WARNA};color:#fff;">Simpan rincian</button>
             ${rhTombol('Batal', 'rhBuka(' + idx + ')')}
@@ -7807,30 +7828,65 @@ function rhBacaForm() {
     if(!o.modeLA) o.modeLA = 'penuh';
     return o;
 }
+const RH_NAMA_ISIAN = { lokasiPaket: 'Nama paket', namaMaskapai: 'Maskapai', namaHotelMakkah: 'Hotel Makkah', namaHotelMadinah: 'Hotel Madinah', totJam: 'Total Pax', jamGratis: 'FOC', numTL: 'TL', cTiket: 'Tiket', cLAquad: 'LA / Hotel (Quad)', cLAtriple: 'LA / Hotel (Triple)', cLAdouble: 'LA / Hotel (Double)', cAsuransi: 'Asuransi', cHandling: 'Handling', cAlat: 'Perlengkapan', cAplikasi: 'Aplikasi', cPIC: 'PIC', cLain: 'Lain-lain', profitPct: 'Margin', cBuffer: 'Buffer diskon', cHargaJual: 'Harga Jual Brosur', modeLA: 'Mode tipe kamar' };
+function rhNormIsian(k, v) {
+    if(['lokasiPaket','namaMaskapai','namaHotelMakkah','namaHotelMadinah'].includes(k)) return String(v == null ? '' : v).trim();
+    if(k === 'modeLA') return v === 'upgrade' ? 'upgrade' : 'penuh';
+    if(k === 'profitPct') return String(parseFloat(v) || 0);
+    return String(rhPr(v));
+}
+function rhTampilIsian(k, v) {
+    if(k === 'modeLA') return v === 'upgrade' ? 'Upgrade' : 'Harga penuh';
+    if(['lokasiPaket','namaMaskapai','namaHotelMakkah','namaHotelMadinah'].includes(k)) return String(v || '').trim() || '-';
+    if(k === 'profitPct') return (parseFloat(v) || 0) + '%';
+    if(k === 'totJam' || k === 'jamGratis' || k === 'numTL') return String(rhPr(v));
+    return rhPr(v) ? rhRp(rhPr(v)) : '-';
+}
 function rhCekForm(idxBaru) {
     const idx = idxBaru !== undefined ? idxBaru : _rhView.idx;
     const r = rhRiwayat()[idx]; const box = document.getElementById('rhCekBox'); const btn = document.getElementById('rhSimpanIsi');
     if(!r || !box) return;
     const est = rhBacaForm();
+    const sekarang = rhAmbil(getEstimasiData()) || rhAmbil({});
+    // tanda tiap isian: sama dengan Estimasi sekarang / diubah
+    const diubah = [];
+    RH_KUNCI.forEach(k => {
+        const el = document.getElementById('rhF_' + k), tanda = document.getElementById('rhS_' + k);
+        if(!el || !tanda) return;
+        const beda = rhNormIsian(k, est[k]) !== rhNormIsian(k, sekarang[k]);
+        if(beda) {
+            diubah.push(RH_NAMA_ISIAN[k] || k);
+            tanda.textContent = '● diubah (sekarang: ' + rhTampilIsian(k, sekarang[k]) + ')'; tanda.style.color = '#0F766E';
+            el.style.borderColor = '#14B8A6'; el.style.background = '#F0FDFA';
+        } else {
+            tanda.textContent = 'sama dengan sekarang'; tanda.style.color = '#94A3B8';
+            el.style.borderColor = '#e2e8f0'; el.style.background = '';
+        }
+    });
     const h = rhHarga(est);
     const tujuan = r.harga || 0;
     box.style.whiteSpace = 'pre-line';
     let tombolAktif = true, tombolTeks = 'Simpan rincian';
-    if(!(tujuan > 0)) { box.style.background = '#F1F5F9'; box.style.color = '#334155'; box.textContent = 'Hasil hitungan: ' + rhRp(h) + '/pax (harga tercatat kosong, tidak ada pembanding)'; }
+    let t, bg, fg;
+    if(!(tujuan > 0)) { bg = '#F1F5F9'; fg = '#334155'; t = 'Hasil hitungan: ' + rhRp(h) + '/pax (harga tercatat kosong, tidak ada pembanding)'; }
     else {
         const selisih = h - tujuan;
-        if(Math.abs(selisih) < 1) { box.style.background = '#DCFCE7'; box.style.color = '#166534'; box.textContent = '✓ Cocok: hasil hitungan ' + rhRp(h) + ' = harga tercatat'; }
+        if(Math.abs(selisih) < 1) { bg = '#DCFCE7'; fg = '#166534'; t = '✓ Cocok: hasil hitungan ' + rhRp(h) + ' = harga tercatat'; }
         else {
-            const sama = rhSama(est, rhAmbil(getEstimasiData()));
-            box.style.background = '#FEF3C7'; box.style.color = '#92400E';
-            let t = 'Hasil hitungan ' + rhRp(h) + ' · selisih ' + rhTanda(selisih) + ' dari ' + rhRp(tujuan);
-            const hh = hitungModalHargaDariEst(est), p = parseFloat(est.profitPct) || 0;
-            if(hh && !hh.dibulatkan && hh.nJam > hh.foc) { const dm = Math.round(selisih * (hh.nJam - hh.foc) / (hh.nJam * (1 + p / 100))); if(dm !== 0) t += '\nPetunjuk: modal per pax masih kira-kira ' + rhRp(Math.abs(dm)) + (dm > 0 ? ' terlalu tinggi' : ' terlalu rendah') + ' dibanding cetakan lama (bila pax, FOC, margin, buffer sudah benar).'; }
-            if(sama) { t += '\nIsian masih sama dengan Estimasi sekarang. Ubah angka sesuai cetakan lama dulu.'; tombolAktif = false; }
-            box.textContent = t;
+            bg = '#FEF3C7'; fg = '#92400E';
+            t = 'Belum cocok. Hasil hitungan ' + rhRp(h) + ' · selisih ' + rhTanda(selisih) + ' dari ' + rhRp(tujuan);
+            const pet = rhPetunjukCocok(est, tujuan);
+            if(pet.length) t += '\nPetunjuk (hasil hitungan, belum diterapkan): bila ' + pet.join(' atau ') + ', hasilnya persis cocok. Periksa dulu dengan cetakan lama.';
+            else {
+                const hh = hitungModalHargaDariEst(est), p = parseFloat(est.profitPct) || 0;
+                if(hh && !hh.dibulatkan && hh.nJam > hh.foc) { const dm = Math.round(selisih * (hh.nJam - hh.foc) / (hh.nJam * (1 + p / 100))); if(dm !== 0) t += '\nPetunjuk: modal per pax masih kira-kira ' + rhRp(Math.abs(dm)) + (dm > 0 ? ' terlalu tinggi' : ' terlalu rendah') + ' dibanding cetakan lama (bila pax, FOC, margin, buffer sudah benar).'; }
+            }
+            if(!diubah.length) { t += '\nIsian masih sama semua dengan Estimasi sekarang. Ubah angka sesuai cetakan lama dulu.'; tombolAktif = false; }
             tombolTeks = 'Simpan walau belum cocok';
         }
     }
+    t += '\nDiubah dari Estimasi sekarang: ' + (diubah.length ? diubah.join(', ') : 'belum ada');
+    box.style.background = bg; box.style.color = fg; box.textContent = t;
     if(btn) { btn.textContent = tombolTeks; btn.style.opacity = tombolAktif ? '1' : '.45'; }
 }
 function rhSimpanIsi(idx) {
@@ -7972,6 +8028,7 @@ function perbaruiPetunjukHargaJual() {
     const el = document.getElementById('hargaJualInfo');
     if(!el) return;
     try { perbaruiKartuImpas(); } catch(e) {}
+    try { kbJadwal(); } catch(e) {}
     const f = n => 'Rp ' + Math.round(n).toLocaleString('id-ID');
     const d = hitungDasarEstimasiDariForm();
     const manual = parseRupiah(document.getElementById('cHargaJual')?.value || '0');
@@ -8194,6 +8251,199 @@ function bulatkanHargaJual(step) {
     const el = document.getElementById('cHargaJual');
     el.value = (Math.ceil(Math.round(d.jual) / step) * step).toLocaleString('id-ID');
     saveEstimasiData();
+}
+
+
+// ==================== CARI PERSEN PROFIT UNTUK HARGA TETAP ====================
+// Menyelesaikan rumus harga terbalik: harga = modal × pax × (1 + persen) ÷ pax bayar + buffer, lalu mencari persennya.
+// Hasil SELALU dicek ulang dengan rumus Estimasi asli (hitungModalHargaDariEst). Tidak mengubah apa pun sebelum "Pakai persen ini" ditekan.
+let _cp = { target: 0, hasil: null };
+function cpBacaForm() {
+    const v = id => document.getElementById(id)?.value || '';
+    return { totJam: v('totJam'), jamGratis: v('jamGratis'), numTL: v('numTL'), cTiket: v('cTiket'), cLAquad: v('cLAquad'), cAsuransi: v('cAsuransi'), cHandling: v('cHandling'), cAlat: v('cAlat'), cAplikasi: v('cAplikasi'), cPIC: v('cPIC'), cLain: v('cLain'), profitPct: v('profitPct'), cBuffer: v('cBuffer'), cHargaJual: '' };
+}
+function cpLabaDari(est, pctStr) {
+    const h = hitungModalHargaDariEst(Object.assign({}, est, { profitPct: String(pctStr) }));
+    const bay = h.nJam - h.foc;
+    const kotor = h.modal * h.nJam * ((parseFloat(pctStr) || 0) / 100);
+    const bersih = kotor - h.modal * h.tl;
+    return { harga: h.hargaHitung, bersih, perPax: bay > 0 ? bersih / bay : 0 };
+}
+function cpHitung(target) {
+    const est = cpBacaForm();
+    const h = hitungModalHargaDariEst(est);
+    if(!(rhPr(est.totJam) > 0)) return { galat: 'Isi Total Pax di Cuan Plan dulu.' };
+    if(h.nJam <= h.foc) return { galat: 'FOC harus lebih kecil dari Total Pax.' };
+    if(!(h.modal > 0)) return { galat: 'Isi komponen biaya di Cuan Plan dulu.' };
+    if(!(target > 0)) return { galat: 'Isi harga yang mau dipertahankan.' };
+    if(!(target > h.buffer)) return { galat: 'Harga itu tidak lebih besar dari buffer (' + rhRp(h.buffer) + '), jadi tidak ada bagian untuk profit.' };
+    const bay = h.nJam - h.foc;
+    const pct = ((target - h.buffer) * bay / (h.modal * h.nJam) - 1) * 100;
+    let pctStr = null, laba = null;
+    for(let d = 0; d <= 8; d++) {
+        let kand = (Math.round(pct * Math.pow(10, d)) / Math.pow(10, d)).toFixed(d); if(kand.indexOf('.') >= 0) kand = kand.replace(/\.?0+$/, ''); if(!kand || kand === '-') kand = '0';
+        const l = cpLabaDari(est, kand);
+        pctStr = kand; laba = l;
+        if(Math.abs(l.harga - target) < 0.1) break;
+    }
+    const sekarangStr = String(parseFloat(est.profitPct) || 0);
+    return { est, h, bay, pct, pctStr, laba, selisih: laba.harga - target, sekarangStr, labaSekarang: cpLabaDari(est, sekarangStr), negatif: pct < 0 };
+}
+function cpPersenTampil(str) { return (parseFloat(str) || 0).toLocaleString('id-ID', { maximumFractionDigits: 8 }) + '%'; }
+function cpSumberHarga(utamakanSeragam) {
+    const slot = ensureProgramConfigSlot();
+    const out = [];
+    const hpS = (getKonfigurasiProData() || {}).harga_paket;
+    if(hpS && hpS.seragam && hpS.nominal > 0 && utamakanSeragam) out.push({ label: 'Harga Seragam (dipakai jamaah)', harga: Math.round(hpS.nominal) });
+    const manual = parseRupiah(document.getElementById('cHargaJual')?.value || '0');
+    if(manual > 0) out.push({ label: 'Harga Jual Brosur di kolom', harga: manual });
+    const r = (slot.estimasi_history || []).find(x => x.harga > 0);
+    if(r) out.push({ label: 'Riwayat terbaru (' + rhTglPendek(r.tanggal) + ')', harga: Math.round(r.harga) });
+    const now = hitungModalHargaDariEst(cpBacaForm());
+    if(now && now.hargaHitung > 0) out.push({ label: 'Hasil hitungan sekarang', harga: Math.round(now.hargaHitung) });
+    if(hpS && hpS.seragam && hpS.nominal > 0 && !utamakanSeragam) out.push({ label: 'Harga Seragam (dipakai jamaah)', harga: Math.round(hpS.nominal) });
+    return out;
+}
+function cpBuka(utamakanSeragam) {
+    let modal = document.getElementById('cariPersenModal');
+    if(!modal) { modal = document.createElement('div'); modal.id = 'cariPersenModal'; modal.className = 'modal'; document.body.appendChild(modal); }
+    const sumber = cpSumberHarga(utamakanSeragam === true);
+    _cp = { target: sumber.length ? sumber[0].harga : 0, hasil: null, sumber };
+    modal.innerHTML = `<div class="modal-content" style="max-width:440px;max-height:90vh;overflow-y:auto;">
+        <h3 style="color:var(--primary);margin-bottom:4px;">🎯 Cari Persen Profit</h3>
+        <div style="font-size:12px;color:#64748B;line-height:1.5;margin-bottom:10px;">Mencari persen profit yang membuat harga jual sama dengan harga yang mau dipertahankan, memakai komponen biaya dan buffer yang sedang tertulis di Cuan Plan.</div>
+        <label style="font-size:12px;font-weight:700;color:#475569;">Harga yang mau dipertahankan (per pax, Quad)</label>
+        <input type="text" id="cpTarget" class="money-input" inputmode="numeric" value="${_cp.target ? _cp.target.toLocaleString('id-ID') : ''}" oninput="formatMoneyInput(this);cpUbahTarget()" style="width:100%;box-sizing:border-box;margin-top:4px;">
+        <div style="display:flex;flex-direction:column;gap:6px;margin:8px 0 12px;">${sumber.map((x, i) => `<button type="button" onclick="cpPilihSumber(${i})" style="text-align:left;padding:9px 11px;border:1.5px solid #e2e8f0;background:#F8FAFC;border-radius:10px;font-size:12.5px;cursor:pointer;font-family:inherit;color:#334155;"><span style="color:#64748B;">${rhE(x.label)}</span><br><b style="font-size:14px;">${rhRp(x.harga)}</b></button>`).join('')}</div>
+        <div id="cpHasil"></div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:14px;">
+            <button type="button" id="cpPakai" onclick="cpPakai()" style="flex:1;min-width:140px;padding:12px;border:none;border-radius:10px;font-size:14px;font-weight:800;cursor:pointer;font-family:inherit;background:${RH_WARNA};color:#fff;">Pakai persen ini</button>
+            <button type="button" onclick="cpTutup()" style="flex:1;min-width:100px;padding:12px;border:none;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;background:#e2e8f0;color:#333;">Batal</button>
+        </div></div>`;
+    modal.style.display = 'flex';
+    cpRender();
+}
+function cpTutup() { const m = document.getElementById('cariPersenModal'); if(m) m.style.display = 'none'; }
+function cpPilihSumber(i) { const x = (_cp.sumber || [])[i]; if(!x) return; const el = document.getElementById('cpTarget'); if(el) el.value = x.harga.toLocaleString('id-ID'); cpUbahTarget(); }
+function cpUbahTarget() { cpRender(); }
+function cpBaris(l, v, o) { o = o || {}; return `<div style="padding:7px 0;border-bottom:1px solid #eef2f6;"><div style="font-size:12px;color:#64748B;">${l}</div><div style="font-size:14px;font-weight:${o.tebal ? 800 : 600};line-height:1.45;${o.warna ? 'color:' + o.warna + ';' : ''}">${v}</div></div>`; }
+function cpRender() {
+    const box = document.getElementById('cpHasil'), btn = document.getElementById('cpPakai'); if(!box) return;
+    const target = parseRupiah(document.getElementById('cpTarget')?.value || '0');
+    const r = cpHitung(target); _cp.hasil = r;
+    const slot = ensureProgramConfigSlot();
+    const terkunci = !!slot.estimasi_locked;
+    let aktif = true, x = '';
+    if(r.galat) { aktif = false; x = `<div style="background:#F1F5F9;color:#334155;border-radius:10px;padding:10px 12px;font-size:13px;">${rhE(r.galat)}</div>`; }
+    else {
+        const persis = Math.abs(r.selisih) < 0.5;
+        let bg = '#DCFCE7', fg = '#166534', status = '✓ Harga persis ' + rhRp(target);
+        if(r.negatif) { bg = '#FEE2E2'; fg = '#991B1B'; status = '⚠️ Persen negatif: dengan buffer ini harga itu tidak cukup untuk menutup modal. Naikkan harga atau turunkan buffer.'; aktif = false; }
+        else if(!persis) { bg = '#FEF3C7'; fg = '#92400E'; status = '⚠️ Masih selisih ' + rhRp(Math.abs(r.selisih)) + ' dari harga yang diminta'; }
+        x = `<div style="background:${bg};color:${fg};border-radius:12px;padding:12px;text-align:center;">
+            <div style="font-size:11px;font-weight:800;letter-spacing:.05em;">PERSEN YANG PAS</div>
+            <div style="font-size:26px;font-weight:800;margin:2px 0;white-space:nowrap;">${r.negatif ? rhE(cpPersenTampil(r.pctStr)) : rhE(cpPersenTampil(r.pctStr))}</div>
+            <div style="font-size:12.5px;font-weight:700;line-height:1.5;">${rhE(status)}</div></div>`;
+        if(!r.negatif) {
+            const selP = r.laba.perPax - r.labaSekarang.perPax, selT = r.laba.bersih - r.labaSekarang.bersih;
+            const turunNaik = v => Math.round(v) === 0 ? 'tidak berubah' : (v < 0 ? 'turun ' : 'naik ') + rhRp(Math.abs(v));
+            x += `<div style="margin-top:10px;">
+                ${cpBaris('Dasar hitungan', 'Modal ' + rhRp(r.h.modal) + ' · Pax ' + r.h.nJam + ' (' + r.bay + ' bayar) · Buffer ' + rhRp(r.h.buffer))}
+                ${cpBaris('Bila persen di kolom tetap ' + rhE(cpPersenTampil(r.sekarangStr)), 'harga ' + rhRp(r.labaSekarang.harga))}
+                ${cpBaris('Profit per pax bayar', '<span style="white-space:nowrap;">' + rhRp(r.labaSekarang.perPax) + ' → <b>' + rhRp(r.laba.perPax) + '</b></span><br><span style="font-size:12px;color:' + (selP < 0 ? '#B45309' : '#166534') + ';">' + turunNaik(selP) + '</span>')}
+                ${cpBaris('Profit bersih total', '<span style="white-space:nowrap;">' + rhRp(r.labaSekarang.bersih) + ' → <b>' + rhRp(r.laba.bersih) + '</b></span><br><span style="font-size:12px;color:' + (selT < 0 ? '#B45309' : '#166534') + ';">' + turunNaik(selT) + '</span>')}
+            </div>`;
+            if(r.sekarangStr !== '0' && r.pct < (parseFloat(r.sekarangStr) || 0) / 2) x += `<div style="background:#FEF3C7;color:#92400E;border-radius:10px;padding:8px 10px;margin-top:8px;font-size:12px;line-height:1.5;">⚠️ Profit turun lebih dari separuh dibanding persen sekarang. Periksa dulu apakah itu memang yang Bapak mau.</div>`;
+            const manual = parseRupiah(document.getElementById('cHargaJual')?.value || '0');
+            if(manual > 0 && Math.abs(manual - target) >= 1) x += `<div style="background:#EFF6FF;color:#1E3A8A;border-radius:10px;padding:8px 10px;margin-top:8px;font-size:12px;line-height:1.5;">Catatan: kolom Harga Jual Brosur berisi ${rhRp(manual)} dan tidak diubah. Harga brosur yang dipakai tetap angka di kolom itu.</div>`;
+        }
+        x += `<div style="font-size:11px;color:#94A3B8;margin-top:8px;line-height:1.5;">Persen dicari memakai rumus Estimasi yang sama dengan tombol Hitung, lalu dicek ulang. Angka di Cuan Plan baru berubah setelah Bapak menekan "Pakai persen ini".</div>`;
+    }
+    if(terkunci && aktif) { aktif = false; x += `<div style="background:#FEF3C7;color:#92400E;border-radius:10px;padding:8px 10px;margin-top:8px;font-size:12px;">🔒 Harga program sedang terkunci. Buka kunci dulu di Cuan Plan kalau mau memakai persen ini.</div>`; }
+    box.innerHTML = x;
+    if(btn) { btn.disabled = !aktif; btn.style.opacity = aktif ? '1' : '.45'; }
+}
+function cpPakai() {
+    if(cekProgramArsip()) return;
+    const slot = ensureProgramConfigSlot();
+    if(slot.estimasi_locked) return showToast('🔒 Harga program terkunci — buka kunci dulu');
+    const r = _cp.hasil; if(!r || r.galat || r.negatif) return;
+    const el = document.getElementById('profitPct'); if(!el) return;
+    el.value = r.pctStr;
+    saveEstimasiData();
+    try { catatAktivitas('🎯', 'Persen profit diisi ' + cpPersenTampil(r.pctStr) + ' (harga dipertahankan ' + rhRp(parseRupiah(document.getElementById('cpTarget')?.value || '0')) + ')'); } catch(e) {}
+    cpTutup();
+    showToast('🎯 Profit diisi ' + cpPersenTampil(r.pctStr) + '. Ketuk HITUNG ESTIMASI untuk melihat hasilnya.');
+}
+
+// ==================== KARTU: HARGA CUAN PLAN BERBEDA DARI HARGA SERAGAM JAMAAH ====================
+// Hanya memberi tahu dan menawarkan. Tidak mengubah tagihan jamaah dan tidak mengubah angka apa pun sebelum tombolnya ditekan.
+let _kbTimer = null;
+function kbJadwal() { clearTimeout(_kbTimer); _kbTimer = setTimeout(perbaruiKartuHargaBeda, 250); }
+function kbBacaEst() { const e = cpBacaForm(); e.cHargaJual = document.getElementById('cHargaJual')?.value || ''; return e; }
+function perbaruiKartuHargaBeda() {
+    const el = document.getElementById('kartuHargaBeda'); if(!el) return;
+    el.style.display = 'none'; el.innerHTML = '';
+    try {
+        if(typeof isHajiReguler === 'function' && isHajiReguler()) return;
+        const hp = (getKonfigurasiProData() || {}).harga_paket;
+        if(!hp || !hp.seragam || !(hp.nominal > 0)) return;
+        const est = kbBacaEst();
+        const h = hitungModalHargaDariEst(est);
+        if(!h || !(rhPr(est.totJam) > 0) || h.nJam <= h.foc || !(h.modal > 0) || !(h.harga > 0)) return;
+        const seragam = Math.round(hp.nominal), brosur = Math.round(h.harga);
+        if(brosur === seragam) return;
+        const lebihTinggi = brosur > seragam, bay = h.nJam - h.foc;
+        const slot = ensureProgramConfigSlot(), terkunci = !!slot.estimasi_locked;
+        // Jamaah
+        const daftar = (typeof jamaahList !== 'undefined' ? jamaahList : []).filter(j => String(j.program_id) === String(currentProgramId) && !tanpaTagihan(j));
+        let lunas = 0, khusus = 0;
+        daftar.forEach(j => { try { if(getStatusPembayaran(j).status === 'LUNAS') lunas++; if(hargaPaketRinci(j, hp).sumber === 'khusus') khusus++; } catch(e) {} });
+        // Dampak: bandingkan dengan versi riwayat terbaru yang rinciannya cocok dan modalnya berbeda
+        const base = (slot.estimasi_history || []).find(r => r.data && !rhBelumCocok(r) && Math.round(hitungModalHargaDariEst(r.data).modal) !== Math.round(h.modal));
+        const labaSeragam = (seragam - h.buffer) * bay - h.modal * (h.nJam + h.tl);
+        let barisModal = '', barisLaba = '';
+        if(base) {
+            const hb = hitungModalHargaDariEst(base.data), dm = h.modal - hb.modal;
+            barisModal = kbBaris('Modal per pax (dibanding versi ' + rhE(rhTglPendek(base.tanggal)) + ')', rhRp(hb.modal) + ' → <b>' + rhRp(h.modal) + '</b><br><span style="font-size:12px;color:' + (dm > 0 ? '#B45309' : '#166534') + ';">' + (dm > 0 ? 'naik ' : 'turun ') + rhRp(Math.abs(dm)) + ' per pax</span>');
+            const sebanding = hb.nJam === h.nJam && hb.foc === h.foc && hb.tl === h.tl && hb.buffer === h.buffer && Math.round(hb.harga) === seragam;
+            if(sebanding) { const labaLama = (seragam - hb.buffer) * (hb.nJam - hb.foc) - hb.modal * (hb.nJam + hb.tl); const dl = labaSeragam - labaLama; barisLaba = kbBaris('Profit bersih bila harga seragam tetap dipakai', rhRp(labaLama) + ' → <b>' + rhRp(labaSeragam) + '</b><br><span style="font-size:12px;color:' + (dl < 0 ? '#B45309' : '#166534') + ';">' + (Math.round(dl) === 0 ? 'tidak berubah' : (dl < 0 ? 'turun ' : 'naik ') + rhRp(Math.abs(dl))) + '</span>'); }
+        }
+        if(!barisLaba) barisLaba = kbBaris('Profit bersih bila harga seragam dipakai', '<b>' + rhRp(labaSeragam) + '</b>');
+        const judul = lebihTinggi ? 'Harga di Cuan Plan lebih tinggi dari harga yang dipakai jamaah' : 'Harga di Cuan Plan lebih rendah dari harga yang dipakai jamaah';
+        const warna = lebihTinggi ? { bg: '#FFFBEB', bd: '#F59E0B', fg: '#92400E' } : { bg: '#EFF6FF', bd: '#93C5FD', fg: '#1E3A8A' };
+        const buf = lebihTinggi ? 'Selisih ini ikut terbaca sebagai diskon ' + rhRp(brosur - seragam) + ' per jamaah di Analisis Buffer, padahal bukan diskon.' : 'Selisih ini ikut terbaca sebagai harga di atas brosur di Analisis Buffer.';
+        el.innerHTML = `<div style="background:${warna.bg};border:1.5px solid ${warna.bd};border-radius:16px;padding:14px;margin-top:14px;">
+            <div style="font-size:14px;font-weight:800;color:${warna.fg};line-height:1.4;">${lebihTinggi ? '⚠️' : 'ℹ️'} ${judul}</div>
+            <div style="margin-top:8px;">
+                ${kbBaris('Harga Brosur Cuan Plan', '<b>' + rhRp(brosur) + '</b>' + (h.dibulatkan ? '<br><span style="font-size:12px;color:#64748B;">(Harga Jual Brosur yang diketik)</span>' : ''))}
+                ${kbBaris('Harga Seragam yang dipakai jamaah', '<b>' + rhRp(seragam) + '</b>')}
+                ${kbBaris('Selisih per pax', '<b style="color:' + warna.fg + ';">' + rhRp(Math.abs(brosur - seragam)) + '</b> ' + (lebihTinggi ? 'lebih tinggi' : 'lebih rendah'))}
+            </div>
+            <div style="font-size:13px;color:#334155;line-height:1.55;margin-top:8px;"><b>${lunas}</b> dari <b>${daftar.length}</b> jamaah sudah lunas. Tagihan jamaah <b>tidak berubah</b>, karena mengikuti Harga Seragam di Konfigurasi.${khusus ? ' ' + khusus + ' jamaah memakai harga khusus.' : ''}</div>
+            <div style="margin-top:8px;">${barisModal}${barisLaba}</div>
+            <div style="font-size:12px;color:#64748B;line-height:1.5;margin-top:8px;">${rhE(buf)}</div>
+            <div style="display:flex;flex-direction:column;gap:8px;margin-top:12px;">
+                <button type="button" onclick="cpBuka(true)" style="width:100%;padding:12px;border:none;border-radius:10px;background:${RH_WARNA};color:#fff;font-size:13px;font-weight:800;cursor:pointer;font-family:inherit;">🎯 Cari persen profit untuk harga ${rhRp(seragam)}</button>
+                <div style="font-size:11.5px;color:#64748B;line-height:1.45;margin-top:-2px;">Persen profit diturunkan agar harga hitungan sama dengan harga jamaah. Angka baru terisi setelah Bapak menekannya.</div>
+                <button type="button" onclick="kbSamakanBrosur()" ${terkunci ? 'disabled' : ''} style="width:100%;padding:11px;border:1.5px solid ${RH_WARNA};border-radius:10px;background:#fff;color:${RH_WARNA};font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;${terkunci ? 'opacity:.45;' : ''}">Isi Harga Jual Brosur = ${rhRp(seragam)}</button>
+                <div style="font-size:11.5px;color:#64748B;line-height:1.45;margin-top:-2px;">Persen profit tidak diubah. Harga yang dipakai Cuan Plan disamakan dengan harga jamaah, dan bisa dibatalkan lewat tombol Hapus di kolom itu.${terkunci ? ' 🔒 Harga program sedang terkunci, buka kunci dulu.' : ''}</div>
+            </div></div>`;
+        el.style.display = 'block';
+    } catch(e) { el.style.display = 'none'; }
+}
+function kbBaris(l, v) { return `<div style="padding:7px 0;border-bottom:1px solid rgba(100,116,139,.18);"><div style="font-size:12px;color:#64748B;">${l}</div><div style="font-size:14px;line-height:1.45;">${v}</div></div>`; }
+function kbSamakanBrosur() {
+    if(cekProgramArsip()) return;
+    const slot = ensureProgramConfigSlot();
+    if(slot.estimasi_locked) return showToast('🔒 Harga program terkunci — buka kunci dulu');
+    const hp = (getKonfigurasiProData() || {}).harga_paket;
+    if(!hp || !hp.seragam || !(hp.nominal > 0)) return;
+    const el = document.getElementById('cHargaJual'); if(!el) return;
+    el.value = Math.round(hp.nominal).toLocaleString('id-ID');
+    saveEstimasiData();
+    try { catatAktivitas('🎯', 'Harga Jual Brosur disamakan dengan Harga Seragam ' + rhRp(hp.nominal)); } catch(e) {}
+    showToast('Harga Jual Brosur diisi ' + rhRp(hp.nominal) + '. Ketuk HITUNG ESTIMASI untuk memperbarui hasil.');
 }
 
 function hapusHargaJual() {
@@ -10530,7 +10780,12 @@ function updateRingkasanKeuangan() {
             if(lbl) lbl.textContent = 'LABA BERSIH (Realisasi' + (st ? ', sementara' : '') + ')';
             if(cat) {
                 if(st) { cat.style.display = 'block'; cat.textContent = '⚠️ Belum final: pengeluaran tercatat baru ' + f(st.pengeluaran) + ' dari modal estimasi ' + f(st.modal) + ' (' + st.persen + '%). Catat semua biaya (terutama tiket maskapai, hotel, handling) sebelum angka ini dijadikan acuan.'; }
-                else { cat.style.display = 'none'; cat.textContent = ''; }
+                else {
+                    const lb = ringkasPengeluaranLebih(jamaahList, totalPengeluaran), nk = ringkasModalNaik(jamaahList);
+                    const tx = [lb ? teksPengeluaranLebih(lb) : '', nk ? teksModalNaik(nk) : ''].filter(Boolean).join(' ');
+                    if(tx) { cat.style.display = 'block'; cat.textContent = '⚠️ ' + tx; }
+                    else { cat.style.display = 'none'; cat.textContent = ''; }
+                }
             }
         } catch(e) {}
     }
@@ -10788,6 +11043,7 @@ function hitungRekapAktual() {
     const adaTanpaTagihan = (komposisiRekap.foc + komposisiRekap.tl + komposisiRekap.pembimbing) > 0;
     const kursiRekap = ringkasKursiTerisi(jamaahList);
     const pembulatanRekap = ringkasPembulatanHarga(jamaahList);
+    const modalNaikRekap = ringkasModalNaik(jamaahList);
     const diskonLebihRekap = ringkasDiskonMelebihiBuffer();
     const komposisiHargaRekap = ringkasKomposisiHarga(jamaahList);
     const perlengkapanRekap = ringkasPerlengkapanDari(jamaahList);
@@ -10848,6 +11104,7 @@ function hitungRekapAktual() {
             <span style="font-size:18px;font-weight:900;color:${grandProfit>=0?'#2ecc71':'#ef4444'};">${f(grandProfit)}</span>
         </div>
         ${kursiRekap ? `<div style="font-size:11px;opacity:0.85;margin-top:8px;text-align:right;">🪑 Kursi bayar terisi ${kursiRekap.terisi} dari ${kursiRekap.total} (${kursiRekap.persen}%)${kursiRekap.terisi < kursiRekap.total ? '. Laba Sementara baru mencerminkan kursi yang sudah terjual.' : ''}</div>` : ''}
+        ${modalNaikRekap ? `<div style="font-size:11px;opacity:0.95;margin-top:8px;background:rgba(245,158,11,.2);padding:6px 8px;border-radius:8px;">⚠️ ${escapeHtml(teksModalNaik(modalNaikRekap))}</div>` : ''}
         ${pembulatanRekap ? `<div style="font-size:11px;opacity:0.85;margin-top:8px;">🔸 ${escapeHtml(teksPembulatanHarga(pembulatanRekap, true))}</div>` : ''}
         ${komposisiHargaRekap ? `<div style="font-size:11px;opacity:0.85;margin-top:8px;">🏷️ ${escapeHtml(teksKomposisiHarga(komposisiHargaRekap))}</div>` : ''}
         ${perlengkapanRekap ? `<div style="font-size:11px;opacity:0.85;margin-top:6px;">🧳 ${escapeHtml(teksPerlengkapanRingkas(perlengkapanRekap))}</div>` : ''}
@@ -18915,6 +19172,55 @@ function statusLabaBelumFinal(daftarJamaah, totalPengeluaran) {
     if(rasio >= 0.8) return null;
     return { modal: tm.total, pengeluaran: totalPengeluaran, persen: Math.round(rasio * 100) };
 }
+// ===== Build -134: keterangan "modal naik" & peringatan "pengeluaran melebihi Estimasi" (HANYA teks, tidak mengubah angka) =====
+// Modal naik setelah versi awal Estimasi, sementara jamaah tetap memakai Harga Seragam lama.
+function ringkasModalNaik(daftarJamaah) {
+    try {
+        if(isHajiReguler()) return null;
+        const h = hitungModalHargaEstimasiTerkini();
+        if(!h || !(h.modal > 0)) return null;
+        const hist = (ensureProgramConfigSlot().estimasi_history || []).filter(r => r && r.data && !rhBelumCocok(r));
+        if(!hist.length) return null;
+        const awal = hist[hist.length - 1]; // versi tersimpan paling awal
+        const ha = hitungModalHargaDariEst(awal.data);
+        if(!ha || !(ha.modal > 0)) return null;
+        const dm = Math.round(h.modal) - Math.round(ha.modal);
+        if(dm < 1) return null;
+        const hp = (getKonfigurasiProData() || {}).harga_paket;
+        const seragam = hp && hp.seragam && hp.nominal > 0 ? Math.round(hp.nominal) : 0;
+        const daftar = (daftarJamaah || []).filter(j => !tanpaTagihan(j));
+        let lunas = 0;
+        daftar.forEach(j => { try { if(getStatusPembayaran(j).status === 'LUNAS') lunas++; } catch(e) {} });
+        return { tanggal: awal.tanggal || '', modalAwal: Math.round(ha.modal), modalSkrg: Math.round(h.modal), dm, kursi: (h.nJam || 0) + (h.tl || 0), dampak: dm * ((h.nJam || 0) + (h.tl || 0)), seragam, lunas, nJamaah: daftar.length };
+    } catch(e) { return null; }
+}
+function teksModalNaik(r) {
+    if(!r) return '';
+    const f = x => 'Rp ' + Math.round(Math.abs(x)).toLocaleString('id-ID');
+    let t = 'Modal per pax naik ' + f(r.dm) + ' (' + f(r.modalAwal) + ' → ' + f(r.modalSkrg) + ')' + (r.tanggal ? ' dibanding versi Estimasi ' + r.tanggal : '') + '.';
+    if(r.seragam > 0) t += ' Harga jamaah tetap ' + f(r.seragam) + ' (Harga Seragam).';
+    t += ' Profit turun sekitar ' + f(r.dampak) + ' dari rencana awal (' + f(r.dm) + ' × ' + r.kursi + ' kursi).';
+    if(r.nJamaah > 0) t += ' ' + r.lunas + ' dari ' + r.nJamaah + ' jamaah sudah lunas di harga lama.';
+    return t;
+}
+// Pengeluaran tercatat sudah melampaui seluruh modal Estimasi: biasanya ada kenaikan biaya yang belum dimasukkan ke Estimasi.
+function ringkasPengeluaranLebih(daftarJamaah, totalPengeluaran) {
+    try {
+        if(isHajiReguler()) return null;
+        const bayar = (daftarJamaah || []).filter(j => getTotalHargaPaket(j) > 0);
+        if(!bayar.length) return null;
+        const tm = hitungTotalModalEstimasi(bayar);
+        if(!tm || !(tm.total > 0)) return null;
+        const lebih = Math.round(totalPengeluaran) - Math.round(tm.total);
+        if(lebih < 1) return null;
+        return { modal: Math.round(tm.total), pengeluaran: Math.round(totalPengeluaran), lebih };
+    } catch(e) { return null; }
+}
+function teksPengeluaranLebih(r) {
+    if(!r) return '';
+    const f = x => 'Rp ' + Math.round(x).toLocaleString('id-ID');
+    return 'Pengeluaran tercatat ' + f(r.pengeluaran) + ' sudah melebihi modal Estimasi ' + f(r.modal) + ' sebesar ' + f(r.lebih) + '. Cek apakah ada kenaikan biaya yang belum dimasukkan ke Estimasi, atau pengeluaran di luar modal jamaah. Proyeksi Laba memakai modal Estimasi, jadi bisa lebih besar dari laba sebenarnya.';
+}
 function teksJamaahEstimasi(nJam, nFoc, nTL) {
     nJam = Number(nJam) || 0; nFoc = Number(nFoc) || 0; nTL = Number(nTL) || 0;
     let t = nJam + ' pax';
@@ -19400,13 +19706,15 @@ function cetakLaporanPenutupanMusim(mode) {
     const stBelumFinal = est ? statusLabaBelumFinal(jamaahList, totalPengeluaran) : null;
     const labelLabaBersih = 'LABA BERSIH (Realisasi' + (stBelumFinal ? ', sementara' : '') + ')';
     const catBelumFinal = (stBelumFinal && totalPengeluaran > 0) ? `<p class="lap-note" style="background:#FEF3C7;color:#92400E;padding:6px 8px;border-radius:6px;">⚠️ Laba Bersih belum final: pengeluaran tercatat baru ${f(stBelumFinal.pengeluaran)} dari modal estimasi ${f(stBelumFinal.modal)} (${stBelumFinal.persen}%). Catat semua biaya (terutama tiket maskapai, hotel, dan handling) sebelum angka ini dipakai sebagai acuan.</p>` : '';
+    const lebihLap = est ? ringkasPengeluaranLebih(jamaahList, totalPengeluaran) : null;
+    const catLebihLap = lebihLap ? `<p class="lap-note" style="background:#FEE2E2;color:#991B1B;padding:6px 8px;border-radius:6px;">⚠️ ${escapeHtml(teksPengeluaranLebih(lebihLap))}</p>` : '';
     let sectionPengeluaran = `<div class="lap-section"><h2>💸 Realisasi Pengeluaran${isHajiReguler() ? ' (dari Kas)' : ''}</h2>
         <table class="lap-table">${rowsPengeluaran || '<tr><td colspan="2" style="color:#888;">Belum ada Pengeluaran tercatat</td></tr>'}
         <tr class="lap-total"><td>TOTAL PENGELUARAN</td><td>${fKurang(totalPengeluaran)}</td></tr></table>
         <table class="lap-table" style="margin-top:10px;">
         <tr><td>Total Pemasukan Jamaah (Sudah Dibayar)</td><td>${f(totalUangMasuk)}</td></tr>${barisUangTanpaHarga}
         <tr><td>Total Pengeluaran</td><td>${fKurang(totalPengeluaran)}</td></tr>
-        <tr class="lap-total" style="color:${profitRiil<0?'#DC2626':'#166534'};"><td>${labelLabaBersih}</td><td>${f(profitRiil)}</td></tr></table></div>`;
+        <tr class="lap-total" style="color:${profitRiil<0?'#DC2626':'#166534'};"><td>${labelLabaBersih}</td><td>${f(profitRiil)}</td></tr></table>${catLebihLap}</div>`;
 
     // 2. Analisis Buffer B2C
     let sectionBufferB2C = '';
@@ -19542,6 +19850,8 @@ function cetakLaporanPenutupanMusim(mode) {
         const adaFocTL = modalEst && (modalEst.nFoc + modalEst.nTL) > 0;
         let catatanProyeksi = '';
         if (modalEst && modalEst.tanpaTipe > 0) catatanProyeksi += `<p class="lap-note">${modalEst.tanpaTipe} jamaah belum punya tipe kamar, modalnya dihitung dengan tarif Quad.</p>`;
+        const modalNaikLap = ringkasModalNaik(jamaahRelevan);
+        if (modalNaikLap) catatanProyeksi += `<p class="lap-note" style="background:#FEF3C7;color:#92400E;padding:6px 8px;border-radius:6px;">⚠️ ${escapeHtml(teksModalNaik(modalNaikLap))}</p>`;
         const bulatLap = ringkasPembulatanHarga(jamaahRelevan);
         if (bulatLap) catatanProyeksi += `<p class="lap-note">${escapeHtml(teksPembulatanHarga(bulatLap, false))}</p>`;
         const diskonLebihLap = ringkasDiskonMelebihiBuffer();
@@ -19716,6 +20026,9 @@ function daftarCaraPakai() {
         { id: 'angka', pemilik: true, judul: '📊 ARTI ANGKA DAN PERINGATAN', items: [
             { judul: 'Proyeksi Laba dan Laba Bersih',
               isi: '<b>Proyeksi Laba</b> = Total Kontrak − Modal Estimasi. Ini angka rencana, dihitung dari jamaah yang sudah punya harga paket. <b>Laba Bersih (Realisasi)</b> = uang yang benar-benar masuk − pengeluaran yang tercatat. Kalau pengeluaran belum lengkap, Laba Bersih diberi tanda <b>sementara</b>. <b>Selisih Laba</b> = Realisasi − Proyeksi; tanda minus berarti lebih rendah dari rencana.' },
+            { judul: 'Biaya naik setelah brosur beredar',
+              isi: 'Jamaah tetap ditagih <b>Harga Seragam</b> (harga lama), jadi kalau modal naik, yang turun adalah <b>profit</b>, bukan tagihan jamaah. Masukkan biaya baru di <b>Cuan Plan</b> (Estimasi) secepatnya, lalu ketuk <b>HITUNG ESTIMASI</b>. Aplikasi menampilkan kartu kuning berisi kenaikan modal dan dampaknya. Di <b>Rekap</b> dan <b>Laporan Penutupan Musim</b> muncul satu baris keterangan: modal naik berapa, harga jamaah tetap berapa, profit turun berapa, dan berapa jamaah yang sudah lunas di harga lama. Kalau <b>pengeluaran tercatat sudah melebihi modal Estimasi</b>, muncul peringatan merah: artinya Estimasi kemungkinan belum diperbarui, dan Proyeksi Laba bisa lebih besar dari laba sebenarnya. Aplikasi hanya memberi petunjuk dan tidak mengubah angka sendiri.',
+              tombol: [bukaMod('Cuan Plan', 'estimasi', { noHaji: true })] },
             { judul: 'Buffer dan diskon',
               isi: '<b>Buffer</b> adalah ruang diskon yang disiapkan di Estimasi. Harga jamaah di bawah harga seragam dihitung sebagai diskon dan memakai Buffer. Diskon yang <b>melebihi buffer</b> ditandai merah karena mengurangi laba. Buffer yang tidak terpakai ikut menjadi laba.' },
             { judul: 'Tarif anak/bayi dan tanpa perlengkapan',
@@ -26105,7 +26418,7 @@ function openIndexedDB() {
 // dengan build baru, data MENTAH (langsung dari IndexedDB, bukan dari memori) disalin dulu sebelum
 // proses migrasi apapun berjalan — supaya kalau ada kesalahan di update, data lama masih bisa dipulihkan.
 // Dokumen & foto tidak ikut disalin (ukurannya besar, dan tidak pernah disentuh proses migrasi).
-const NAVARA_BUILD = '2026.10.19-130';
+const NAVARA_BUILD = '2026.10.20-134';
 const MAKS_SNAPSHOT = 3;
 
 // ==================== DAFTAR DATA PUSAT ====================
