@@ -7476,6 +7476,23 @@ function rhPeringatanBanding(bd) {
     }
     return p;
 }
+// Build -136: satu kalimat dampak profit di Bandingkan Versi (hanya teks; angka sama dengan keterangan "modal naik" di Rekap)
+function rhCatatanProfit(A, B) {
+    try {
+        if(isHajiReguler() || !A || !B || !A.data || !B.data) return '';
+        const hp = (getKonfigurasiProData() || {}).harga_paket;
+        if(!hp || !hp.seragam || !(hp.nominal > 0)) return '';
+        const ha = hitungModalHargaDariEst(A.data), hb = hitungModalHargaDariEst(B.data);
+        if(!ha || !hb) return '';
+        const dm = Math.round(hb.modal) - Math.round(ha.modal);
+        if(dm < 1) return '';
+        const kursi = (hb.nJam || 0) + (hb.tl || 0);
+        const f = x => 'Rp ' + Math.round(x).toLocaleString('id-ID');
+        const seragam = Math.round(hp.nominal);
+        const bulat = ha.dibulatkan && Math.round(ha.harga) !== Math.round(ha.hargaHitung) && seragam === Math.round(ha.harga);
+        return 'Kalau harga jamaah tetap ' + f(seragam) + (bulat ? ' (sudah termasuk pembulatan)' : '') + ', hanya biaya yang naik: profit turun ' + f(dm * kursi) + ' (' + f(dm) + ' × ' + kursi + ' kursi). Angka yang sama ada di Rekap.';
+    } catch(e) { return ''; }
+}
 function rhHtmlBanding(bd) {
     const warna = bd.sel > 0 ? '#B91C1C' : (bd.sel < 0 ? '#166534' : '#334155');
     const sisaTampil = Math.abs(bd.sisa) >= 1;
@@ -7496,6 +7513,7 @@ function rhHtmlBanding(bd) {
         if(sisaTampil) x += `<div style="padding:8px 0;border-bottom:1px solid #eef2f6;"><div style="display:flex;justify-content:space-between;gap:8px;font-size:14px;font-weight:800;color:#92400E;"><span>Belum bisa dijelaskan</span><span>${bd.sisa > 0 ? '+' : '-'}${rhRp(Math.abs(bd.sisa))}</span></div><div style="font-size:12px;color:#92400E;">Karena rincian salah satu versi belum cocok dengan harga tercatat.</div></div>`;
         x += `<div style="display:flex;justify-content:space-between;gap:8px;padding:9px 0;font-size:14px;font-weight:800;border-top:2px solid #334155;margin-top:2px;"><span>Total selisih harga per pax</span><span style="color:${warna};">${bd.sel > 0 ? '+' : (bd.sel < 0 ? '-' : '')}${rhRp(Math.abs(bd.sel))}</span></div>`;
     }
+    if(bd.catProfit) x += `<div style="background:#FFFBEB;border:1px solid #F59E0B;color:#92400E;border-radius:10px;padding:9px 11px;margin:10px 0;font-size:13px;line-height:1.5;">💡 ${rhE(bd.catProfit)}</div>`;
     if(bd.baris.length) {
         x += rhJudul('PERBANDINGAN TIAP KOMPONEN');
         x += `<table style="font-size:12px;white-space:nowrap;"><tr style="background:#F1F5F9;color:#475569;font-weight:800;"><td style="padding:6px 4px;">Komponen</td><td style="padding:6px 4px;text-align:right;">Lama</td><td style="padding:6px 4px;text-align:right;">Baru</td><td style="padding:6px 4px;text-align:right;">Selisih</td></tr>`;
@@ -7520,6 +7538,7 @@ function rhTeksBanding(bd) {
         if(bd.pem !== 0) t += `• Pembulatan harga jual: ${rhTanda(bd.pem)}/pax\n`;
         if(Math.abs(bd.sisa) >= 1) t += `• Belum bisa dijelaskan: ${rhTanda(bd.sisa)}/pax\n`;
     }
+    if(bd.catProfit) t += `${g}\n💡 ${bd.catProfit}\n`;
     bd.ket.forEach(k => { t += `• ${k}\n`; });
     if(bd.sama.length) t += `${g}\nTidak berubah: ${bd.sama.join(', ')}\n`;
     return t;
@@ -7676,7 +7695,7 @@ function rhRenderBanding(modal) {
     let bd = null;
     if(A && B && A.data && B.data) {
         if(A.id === B.id) isi += `<div style="font-size:13px;color:#B45309;margin-top:12px;">Pilih dua versi yang berbeda.</div>`;
-        else { bd = rhBangunBanding(A.data, B.data, A.tanggal, B.tanggal, rhOptBanding(A, B)); isi += rhHtmlBanding(bd); }
+        else { bd = rhBangunBanding(A.data, B.data, A.tanggal, B.tanggal, rhOptBanding(A, B)); bd.catProfit = rhCatatanProfit(A, B); isi += rhHtmlBanding(bd); }
     } else {
         isi += `<div style="font-size:13px;color:#64748B;margin-top:12px;line-height:1.55;">${opsi.filter(o => o.data).length < 2 ? 'Perbandingan butuh minimal dua versi yang rinciannya sudah tersimpan (termasuk Estimasi saat ini). Lengkapi rincian versi lama dulu dari daftar riwayat.' : 'Pilih versi lama dan versi baru di atas.'}</div>`;
     }
@@ -7690,7 +7709,7 @@ function rhBandingAktif() {
     const opsi = rhPilihanVersi();
     const A = opsi.find(o => o.id === _rhView.a), B = opsi.find(o => o.id === _rhView.b);
     if(!A || !B || !A.data || !B.data || A.id === B.id) return null;
-    return rhBangunBanding(A.data, B.data, A.tanggal, B.tanggal, rhOptBanding(A, B));
+    const bd = rhBangunBanding(A.data, B.data, A.tanggal, B.tanggal, rhOptBanding(A, B)); bd.catProfit = rhCatatanProfit(A, B); return bd;
 }
 function rhBagikanBanding() { const bd = rhBandingAktif(); if(bd) rhKirimWA(rhTeksBanding(bd)); }
 function rhCetakBanding() {
@@ -9445,6 +9464,30 @@ function hapusKonsorsiumTravel(id) {
     renderKonsorsiumList();
 }
 
+// ===== Build -136: kartu Travel Partner — bagian jarang diubah dilipat, ringkasannya tetap terlihat di judul (hanya tampilan) =====
+const _ktBuka = {};
+function ktToggle(el, kunci) { _ktBuka[kunci] = !!el.open; }
+function ktRingkasKomponen(t) {
+    const kom = (t && t.komponen) || {}, tanpa = DAFTAR_KOMPONEN_KONSORSIUM.filter(k => kom[k.key] === false).map(k => k.label);
+    const n = DAFTAR_KOMPONEN_KONSORSIUM.length;
+    return tanpa.length ? (n - tanpa.length) + ' dari ' + n + ' (tanpa ' + tanpa.join(', ') + ')' : 'semua (' + n + ')';
+}
+function ktRingkasOpsional(t) {
+    const rp = x => 'Rp ' + Math.round(x).toLocaleString('id-ID'), b = [];
+    if((t.gratisTravel || 0) > 0) b.push('FOC ' + t.gratisTravel);
+    if((t.bulat || 0) > 0) b.push('pembulatan ' + rp(t.bulat));
+    if((t.bufferB2B || 0) > 0) b.push('buffer ' + rp(t.bufferB2B));
+    return b.length ? b.join(', ') : 'FOC, pembulatan, buffer: kosong';
+}
+function ktPerbaruiRingkas(id) {
+    const t = ensureKonsorsiumList().find(x => x.id === id); if(!t) return;
+    const a = document.getElementById('ktRk_' + id), c = document.getElementById('ktRo_' + id);
+    if(a) a.textContent = ktRingkasKomponen(t);
+    if(c) c.textContent = ktRingkasOpsional(t);
+}
+function ktRingkasJudul(idEl, judul, isi) {
+    return `<summary style="cursor:pointer;list-style:none;padding:9px 10px;background:#F1F5F9;border-radius:8px;font-size:12.5px;line-height:1.4;display:flex;justify-content:space-between;gap:8px;align-items:center;"><span><b>${judul}</b>: <span id="${idEl}" style="color:#475569;">${isi}</span></span><span style="color:#64748B;font-size:11px;white-space:nowrap;">ubah ▾</span></summary>`;
+}
 function toggleKonsorsiumKomponen(id, key) {
     const list = ensureKonsorsiumList();
     const t = list.find(x => x.id === id);
@@ -9452,6 +9495,7 @@ function toggleKonsorsiumKomponen(id, key) {
     if(!t.komponen) { t.komponen = {}; DAFTAR_KOMPONEN_KONSORSIUM.forEach(k => t.komponen[k.key] = true); }
     t.komponen[key] = !(t.komponen[key] !== false);
     simpanKonsorsium();
+    ktPerbaruiRingkas(id);
     renderSatuKartuKonsorsiumInfo(id);
     renderKonsorsiumRingkasan();
 }
@@ -9505,6 +9549,7 @@ function updateKonsorsiumTravel(id, field, value) {
         }
     }
     simpanKonsorsium();
+    ktPerbaruiRingkas(id);
     if(field === 'jumlah') {
         // Modal Gabungan berubah — refresh SEMUA kartu (bukan cuma yang diedit)
         list.forEach(x => renderSatuKartuKonsorsiumInfo(x.id));
@@ -9596,10 +9641,11 @@ function renderKonsorsiumList() {
         <div class="zakat-sumber-item">
             <div class="sumber-header"><strong>Travel Partner</strong><button class="btn-remove-sumber" onclick="hapusKonsorsiumTravel(${t.id})">Hapus</button></div>
             <div class="dynamic-field"><label>Nama Travel</label><input type="text" value="${escapeHtml(t.nama)}" placeholder="Contoh: Travel A" oninput="updateKonsorsiumTravel(${t.id}, 'nama', this.value)"></div>
-            <div class="dynamic-field">
-                <label>Komponen yang Diikuti <span style="color:#6B7280;font-weight:400;">— hilangkan centang kalau Travel ini urus sendiri</span></label>
+            <details class="dynamic-field" ${_ktBuka[t.id + 'k'] ? 'open' : ''} ontoggle="ktToggle(this, '${t.id}k')">
+                ${ktRingkasJudul('ktRk_' + t.id, 'Komponen yang diikuti', escapeHtml(ktRingkasKomponen(t)))}
+                <div style="font-size:11.5px;color:#6B7280;margin:8px 0 4px;">Hilangkan centang kalau Travel ini urus sendiri.</div>
                 <div style="display:grid;grid-template-columns:1fr 1fr;background:#F8FAFC;border-radius:8px;padding:6px 10px;">${checkboxHtml}</div>
-            </div>
+            </details>
             <div class="dynamic-field">
                 <label>Komposisi Kamar</label>
                 <div class="row">
@@ -9609,7 +9655,6 @@ function renderKonsorsiumList() {
                 </div>
                 <div id="konsorsiumTotalOrang_${t.id}" style="font-size:11px;color:var(--primary);font-weight:600;margin-top:4px;">Total: ${(t.jumlah||0)} orang</div>
             </div>
-            <div class="dynamic-field"><label>FOC dari Travel Ini <span style="color:#6B7280;font-weight:400;">— opsional, kalau Travel ini minta kursi FOC (beda dari FOC B2C di atas)</span></label><input type="text" inputmode="numeric" value="${t.gratisTravel || ''}" placeholder="0" oninput="updateKonsorsiumTravel(${t.id}, 'gratisTravel', this.value)"></div>
             <div style="background:#EFF6FF;border-radius:10px;padding:10px;margin:10px 0;">
                 <div style="display:flex;align-items:center;gap:6px;margin-bottom:8px;">
                     <span style="background:#1E40AF;color:white;font-size:9px;font-weight:700;padding:2px 7px;border-radius:10px;">B2B</span>
@@ -9617,8 +9662,14 @@ function renderKonsorsiumList() {
                 </div>
                 <div class="dynamic-field" style="margin-bottom:8px;"><label style="font-size:12px;">Markup (%)</label><input type="text" id="konsorsiumPersenInput_${t.id}" inputmode="decimal" value="${t.persen || ''}" placeholder="Contoh: 6.7" oninput="updateKonsorsiumTravel(${t.id}, 'persen', this.value)"></div>
                 <div class="dynamic-field" style="margin-bottom:0;"><label style="font-size:12px;">Atau Profit Tetap (Rp)</label><input type="text" id="konsorsiumProfitRpInput_${t.id}" class="money-input" inputmode="numeric" value="${t.profitRp ? t.profitRp.toLocaleString('id-ID') : ''}" placeholder="Contoh: 2.500.000 (B2B)" oninput="updateKonsorsiumTravel(${t.id}, 'profitRp', this.value)"></div>
+                <details ${_ktBuka[t.id + 'o'] ? 'open' : ''} ontoggle="ktToggle(this, '${t.id}o')" style="margin-top:10px;">
+                    ${ktRingkasJudul('ktRo_' + t.id, 'Opsional', escapeHtml(ktRingkasOpsional(t)))}
+                    <div style="padding-top:8px;">
+            <div class="dynamic-field"><label>FOC dari Travel Ini <span style="color:#6B7280;font-weight:400;">— opsional, kalau Travel ini minta kursi FOC (beda dari FOC B2C di atas)</span></label><input type="text" inputmode="numeric" value="${t.gratisTravel || ''}" placeholder="0" oninput="updateKonsorsiumTravel(${t.id}, 'gratisTravel', this.value)"></div>
                 <div class="dynamic-field" style="margin:8px 0;"><label style="font-size:12px;">Pembulatan harga ke atas <span style="color:#6B7280;font-weight:400;">— opsional, per orang</span></label><select onchange="updateKonsorsiumTravel(${t.id}, 'bulat', this.value)" style="width:100%;padding:10px;border:1.5px solid #cbd5e1;border-radius:10px;font-size:13px;background:white;">${[[0,'Tanpa pembulatan'],[100000,'Ke atas, kelipatan Rp 100 rb'],[250000,'Ke atas, kelipatan Rp 250 rb'],[500000,'Ke atas, kelipatan Rp 500 rb']].map(o => `<option value="${o[0]}" ${(t.bulat || 0) === o[0] ? 'selected' : ''}>${o[1]}</option>`).join('')}</select></div>
                 <div class="dynamic-field" style="margin-bottom:0;"><label style="font-size:12px;">Buffer / Cadangan Nego (Rp) <span style="color:#6B7280;font-weight:400;">— opsional, ditambahkan ke Harga, tidak dihitung Profit</span></label><input type="text" class="money-input" inputmode="numeric" value="${t.bufferB2B ? t.bufferB2B.toLocaleString('id-ID') : ''}" placeholder="Contoh: 500.000" oninput="updateKonsorsiumTravel(${t.id}, 'bufferB2B', this.value)"></div>
+                    </div>
+                </details>
             </div>
             <div id="konsorsiumInfo_${t.id}" style="margin-top:8px;"></div>
             <div id="konsorsiumPembayaran_${t.id}" style="margin-top:8px;"></div>
@@ -11104,7 +11155,7 @@ function hitungRekapAktual() {
             <span style="font-size:18px;font-weight:900;color:${grandProfit>=0?'#2ecc71':'#ef4444'};">${f(grandProfit)}</span>
         </div>
         ${kursiRekap ? `<div style="font-size:11px;opacity:0.85;margin-top:8px;text-align:right;">🪑 Kursi bayar terisi ${kursiRekap.terisi} dari ${kursiRekap.total} (${kursiRekap.persen}%)${kursiRekap.terisi < kursiRekap.total ? '. Laba Sementara baru mencerminkan kursi yang sudah terjual.' : ''}</div>` : ''}
-        ${modalNaikRekap ? `<div style="font-size:11px;opacity:0.95;margin-top:8px;background:rgba(245,158,11,.2);padding:6px 8px;border-radius:8px;">⚠️ ${escapeHtml(teksModalNaik(modalNaikRekap))}</div>` : ''}
+        ${modalNaikRekap ? `<div style="font-size:11px;opacity:0.95;margin-top:8px;background:rgba(245,158,11,.2);padding:6px 8px;border-radius:8px;">⚠️ ${barisModalNaik(modalNaikRekap).map(escapeHtml).join('<br>')}</div>` : ''}
         ${pembulatanRekap ? `<div style="font-size:11px;opacity:0.85;margin-top:8px;">🔸 ${escapeHtml(teksPembulatanHarga(pembulatanRekap, true))}</div>` : ''}
         ${komposisiHargaRekap ? `<div style="font-size:11px;opacity:0.85;margin-top:8px;">🏷️ ${escapeHtml(teksKomposisiHarga(komposisiHargaRekap))}</div>` : ''}
         ${perlengkapanRekap ? `<div style="font-size:11px;opacity:0.85;margin-top:6px;">🧳 ${escapeHtml(teksPerlengkapanRingkas(perlengkapanRekap))}</div>` : ''}
@@ -19191,18 +19242,21 @@ function ringkasModalNaik(daftarJamaah) {
         const daftar = (daftarJamaah || []).filter(j => !tanpaTagihan(j));
         let lunas = 0;
         daftar.forEach(j => { try { if(getStatusPembayaran(j).status === 'LUNAS') lunas++; } catch(e) {} });
-        return { tanggal: awal.tanggal || '', modalAwal: Math.round(ha.modal), modalSkrg: Math.round(h.modal), dm, kursi: (h.nJam || 0) + (h.tl || 0), dampak: dm * ((h.nJam || 0) + (h.tl || 0)), seragam, lunas, nJamaah: daftar.length };
+        const bulat = !!(seragam > 0 && ha.dibulatkan && Math.round(ha.harga) !== Math.round(ha.hargaHitung) && seragam === Math.round(ha.harga));
+        return { bulat, nFoc: h.foc || 0, nBayar: Math.max(0, (h.nJam || 0) - (h.foc || 0)), tanggal: awal.tanggal || '', modalAwal: Math.round(ha.modal), modalSkrg: Math.round(h.modal), dm, kursi: (h.nJam || 0) + (h.tl || 0), dampak: dm * ((h.nJam || 0) + (h.tl || 0)), seragam, lunas, nJamaah: daftar.length };
     } catch(e) { return null; }
 }
-function teksModalNaik(r) {
-    if(!r) return '';
+function barisModalNaik(r) {
+    if(!r) return [];
     const f = x => 'Rp ' + Math.round(Math.abs(x)).toLocaleString('id-ID');
-    let t = 'Modal per pax naik ' + f(r.dm) + ' (' + f(r.modalAwal) + ' → ' + f(r.modalSkrg) + ')' + (r.tanggal ? ' dibanding versi Estimasi ' + r.tanggal : '') + '.';
-    if(r.seragam > 0) t += ' Harga jamaah tetap ' + f(r.seragam) + ' (Harga Seragam).';
-    t += ' Profit turun sekitar ' + f(r.dampak) + ' dari rencana awal (' + f(r.dm) + ' × ' + r.kursi + ' kursi).';
-    if(r.nJamaah > 0) t += ' ' + r.lunas + ' dari ' + r.nJamaah + ' jamaah sudah lunas di harga lama.';
-    return t;
+    const b = [];
+    b.push('Modal per pax naik ' + f(r.dm) + ' (' + f(r.modalAwal) + ' → ' + f(r.modalSkrg) + ')' + (r.tanggal ? ' dibanding versi Estimasi ' + r.tanggal : ''));
+    if(r.seragam > 0) b.push('Harga jamaah tetap ' + f(r.seragam) + (r.bulat ? ', sudah termasuk pembulatan' : ''));
+    b.push('Profit turun ' + f(r.dampak) + ' (' + f(r.dm) + ' × ' + r.kursi + ' kursi' + (r.nFoc > 0 ? ', ' + r.nBayar + ' bayar + ' + r.nFoc + ' FOC' : '') + ')');
+    if(r.nJamaah > 0) b.push(r.lunas + ' dari ' + r.nJamaah + ' jamaah sudah lunas di harga lama');
+    return b;
 }
+function teksModalNaik(r) { return barisModalNaik(r).join('. ') + '.'; }
 // Pengeluaran tercatat sudah melampaui seluruh modal Estimasi: biasanya ada kenaikan biaya yang belum dimasukkan ke Estimasi.
 function ringkasPengeluaranLebih(daftarJamaah, totalPengeluaran) {
     try {
@@ -19851,7 +19905,7 @@ function cetakLaporanPenutupanMusim(mode) {
         let catatanProyeksi = '';
         if (modalEst && modalEst.tanpaTipe > 0) catatanProyeksi += `<p class="lap-note">${modalEst.tanpaTipe} jamaah belum punya tipe kamar, modalnya dihitung dengan tarif Quad.</p>`;
         const modalNaikLap = ringkasModalNaik(jamaahRelevan);
-        if (modalNaikLap) catatanProyeksi += `<p class="lap-note" style="background:#FEF3C7;color:#92400E;padding:6px 8px;border-radius:6px;">⚠️ ${escapeHtml(teksModalNaik(modalNaikLap))}</p>`;
+        if (modalNaikLap) catatanProyeksi += `<p class="lap-note" style="background:#FEF3C7;color:#92400E;padding:6px 8px;border-radius:6px;">⚠️ ${barisModalNaik(modalNaikLap).map(escapeHtml).join('<br>')}</p>`;
         const bulatLap = ringkasPembulatanHarga(jamaahRelevan);
         if (bulatLap) catatanProyeksi += `<p class="lap-note">${escapeHtml(teksPembulatanHarga(bulatLap, false))}</p>`;
         const diskonLebihLap = ringkasDiskonMelebihiBuffer();
@@ -26418,7 +26472,7 @@ function openIndexedDB() {
 // dengan build baru, data MENTAH (langsung dari IndexedDB, bukan dari memori) disalin dulu sebelum
 // proses migrasi apapun berjalan — supaya kalau ada kesalahan di update, data lama masih bisa dipulihkan.
 // Dokumen & foto tidak ikut disalin (ukurannya besar, dan tidak pernah disentuh proses migrasi).
-const NAVARA_BUILD = '2026.10.20-134';
+const NAVARA_BUILD = '2026.10.20-136';
 const MAKS_SNAPSHOT = 3;
 
 // ==================== DAFTAR DATA PUSAT ====================
