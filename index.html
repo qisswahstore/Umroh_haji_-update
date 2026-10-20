@@ -3428,6 +3428,7 @@ https://github.com/nodeca/pako/blob/main/LICENSE
 <div id="page-konfigurasi" class="page">
     <div class="header-premium header-premium-small"><div class="back-header"><i class="fas fa-arrow-left" onclick="showPage('home')"></i><h2> Konfigurasi Pro</h2><div style="width:30px;"></div></div></div>
     <div class="card-premium">
+        <div id="infoProgramKonfigurasi" style="display:none;font-size:12px;line-height:1.5;color:#475569;background:#F1F5F9;border-radius:10px;padding:9px 12px;margin-bottom:12px;"></div>
         <div class="config-section"><h3><i class="fas fa-building"></i> Data Instansi Utama</h3>
             <div class="config-row"><label>Logo Instansi</label><input type="file" id="cfg_logo1" accept="image/*" onchange="previewLogo(this, 'previewLogo1')"><img id="previewLogo1" class="logo-preview"><small style="display:block; color:var(--gray); margin-top:4px;">Logo akan tampil di header HOME</small></div>
             <div class="config-row"><label>Nama Instansi</label><input type="text" id="cfg_nama1" placeholder="Navara"></div>
@@ -3447,7 +3448,7 @@ https://github.com/nodeca/pako/blob/main/LICENSE
                 <div id="previewTTDInstansi1" style="margin-top:8px;"></div>
             </div>
         </div>
-        <div class="config-section"><h3><i class="fas fa-mosque"></i> Data Instansi Kedua</h3>
+        <div class="config-section" id="instansiKeduaConfigSection"><h3><i class="fas fa-mosque"></i> Data Instansi Kedua</h3>
             <div class="config-row" style="display:flex; justify-content:space-between; align-items:center;"><label>Aktifkan Instansi Kedua</label><label class="switch"><input type="checkbox" id="cfg_instansi2_aktif" onchange="updateStatusInstansi2Dominan()"><span class="slider"></span></label></div>
             <p style="font-size:11px;color:#888;margin:-6px 0 10px;">Otomatis jadi instansi utama (termasuk tanda tangan) saat Program yang sedang aktif berjenis <b>Haji Reguler</b>. Di luar itu, Instansi Pertama tetap utama.</p>
             <div id="statusInstansi2Dominan" style="font-size:11px;font-weight:600;padding:6px 10px;border-radius:6px;margin-bottom:10px;"></div>
@@ -3484,7 +3485,7 @@ https://github.com/nodeca/pako/blob/main/LICENSE
                 <button onclick="tambahTipePaket()" style="padding:10px 16px;background:var(--primary);color:white;border:none;border-radius:8px;font-size:13px;cursor:pointer;white-space:nowrap;">+ Tambah</button>
             </div>
         </div>
-        <div class="config-section"><h3><i class="fas fa-handshake"></i> Kebijakan FOC Mitra</h3>
+        <div class="config-section" id="focMitraConfigSection"><h3><i class="fas fa-handshake"></i> Kebijakan FOC Mitra</h3>
             <div style="font-size:12px;color:#888;margin-bottom:10px;">Aturan berapa jamaah yang harus dibawa Mitra/Agen supaya dia dapat 1 kursi FOC. Bisa beda tiap Program/musim.</div>
             <div style="display:flex;align-items:center;gap:8px;">
                 <span style="font-size:13px;">Setiap</span>
@@ -3622,6 +3623,11 @@ https://github.com/nodeca/pako/blob/main/LICENSE
             </div>
         </div>
         <div class="setting-card" id="modePenyimpananCard" style="display:none;"></div>
+        <div class="setting-card" id="kartuJenisUsaha">
+            <div style="font-weight:700;font-size:15px;"><i class="fas fa-briefcase"></i> Jenis Usaha</div>
+            <div style="font-size:11px;color:#888;margin:3px 0 8px;line-height:1.5;">Centang jenis program yang dijalankan. Pilihan jenis program dan kartu pengaturan yang tidak dipakai akan disembunyikan. Data tidak dihapus.</div>
+            <div id="isiJenisUsaha"></div>
+        </div>
         <div class="setting-card" onclick="showPage('carapakai')" style="cursor:pointer;">
             <div style="display:flex;align-items:center;justify-content:space-between;">
                 <div><div style="font-weight:700;font-size:15px;"><i class="fas fa-circle-question"></i> Cara Pakai</div><div style="font-size:11px;color:#888;margin-top:2px;">Panduan langkah demi langkah</div></div>
@@ -4740,6 +4746,7 @@ function internalShowPage(pageId) {
             if(logoEl && logoSrc) logoEl.src = logoSrc;
         } catch(e) {}
     }
+    if (pageId === 'setting') { try { renderKartuJenisUsaha(); } catch(e) {} }
     if (pageId === 'setting') { updateLicenseSummary(); const na = document.getElementById('namaAdminSaatIni'); if(na) na.textContent = currentAdminNama; const kuncipengaturan = getPengaturanKunciOtomatis(); const elAktif = document.getElementById('cfgKunciOtomatisAktif'); const elMenit = document.getElementById('cfgKunciOtomatisMenit'); if(elAktif) elAktif.checked = kuncipengaturan.aktif; if(elMenit) elMenit.value = kuncipengaturan.menit; }
     if (pageId === 'riwayataktivitas') { renderRiwayatAktivitas(); }
     if (pageId === 'konfigurasi') { if(window.loadKonfigurasiPro) window.loadKonfigurasiPro(); setTimeout(applyKonfigurasiLock, 400); applyModeHajiReguler(); setTimeout(() => { if(window.siapkanRekeningPenerimaanUI) siapkanRekeningPenerimaanUI(); }, 600); }
@@ -6376,7 +6383,7 @@ function openTambahPeranForm(peranId) {
 // Fitur Menu Lengkap yang TIDAK muncul di daftar centang Peran: Buku Pinjaman (izin modul sendiri) dan Backup & Restore (hanya Admin Utama)
 const FITUR_TIDAK_BISA_DICENTANG = ['carapakai', 'pinjaman', 'cloudstorage', 'saldokantor', 'cekkesehatan'];
 // Fitur yang memperlihatkan laba/omzet — ditandai 🔒 dan tidak ikut "Pilih semua"
-const FITUR_SENSITIF = ['cetakLaporanPenutupanMusim', 'excelLaporanPenutupanMusim', 'cetakRekapTahunanGabungan', 'openProyeksiKasModal', 'openBandingkanProgramModal', 'openDashboardTrenModal'];
+const FITUR_SENSITIF = ['cetakLaporanPenutupanMusim', 'excelLaporanPenutupanMusim', 'cetakRekapTahunanGabungan', 'excelRekapTahunan', 'excelBandingkanProgram', 'openProyeksiKasModal', 'openBandingkanProgramModal', 'openDashboardTrenModal'];
 
 function htmlCentangFiturPeran(aktif) {
     return KELOMPOK_MENU.map(k => {
@@ -6493,6 +6500,7 @@ const FITUR_LENGKAP = [
     { id: "saldokantor", label: "Saldo Kantor", ket: "Saldo rekening & kas per entitas", kelompok: "keuangan", aksi: "showPage('saldokantor')", halaman: "saldokantor", icon: "<i class=\"fas fa-building-columns\"></i>" },
     { id: "cloudstorage", label: "Backup & Restore", ket: "Cadangkan, pulihkan & salin pengaturan", kelompok: "pengaturan", aksi: "showPage('cloudstorage')", halaman: "cloudstorage", icon: "<i class=\"fas fa-cloud\"></i>" },
     { id: "dashboard", label: "Dashboard", ket: "Grafik statistik data", kelompok: "laporan", aksi: "showPage('dashboard')", halaman: "dashboard", icon: "<i class=\"fas fa-chart-line\"></i>" },
+    { id: "excelBandingkanProgram", label: "Excel Bandingkan Program", ket: "Performa semua Program dalam Excel", kelompok: "laporan", aksi: "exportPerProgramExcel('bandingkan')", halaman: null, icon: "<i class=\"fas fa-file-excel\"></i>" },
     { id: "openBandingkanProgramModal", label: "Bandingkan Program", ket: "Performa semua Program sekaligus", kelompok: "laporan", aksi: "openBandingkanProgramModal()", halaman: null, icon: "<i class=\"fas fa-chart-column\"></i>" },
     { id: "openDashboardTrenModal", label: "Dashboard Tren", ket: "Perbandingan antar tahun", kelompok: "laporan", aksi: "openDashboardTrenModal()", halaman: null, icon: "<i class=\"fas fa-arrow-trend-up\"></i>" },
     { id: "cetakLaporanPenutupanMusim", label: "Laporan Penutupan Musim", ket: "Gabungan semua laporan akhir", kelompok: "laporan", aksi: "cetakLaporanPenutupanMusim()", halaman: null, icon: "<i class=\"fas fa-book\"></i>" },
@@ -6502,6 +6510,7 @@ const FITUR_LENGKAP = [
     { id: "arsipprogram", label: "Program Arsip", ket: "Program lama, read-only", kelompok: "laporan", aksi: "showPage('arsipprogram')", halaman: "arsipprogram", icon: "<i class=\"fas fa-box-archive\"></i>" },
     { id: "alumni", label: "Database Alumni", ket: "Jamaah lama untuk remarketing", kelompok: "jamaah", aksi: "showPage('alumni')", halaman: "alumni", icon: "<i class=\"fas fa-graduation-cap\"></i>" },
     { id: "layanantambahan", label: "Layanan Tambahan", ket: "Badal Haji, Dam, dll", kelompok: "jamaah", aksi: "showPage('layanantambahan')", halaman: "layanantambahan", icon: "<i class=\"fas fa-kaaba\"></i>" },
+    { id: "excelRekapTahunan", label: "Excel Rekap Tahunan", ket: "Rekap semua keberangkatan dalam Excel", kelompok: "keuangan", aksi: "exportPerProgramExcel('tahunan')", halaman: null, icon: "<i class=\"fas fa-file-excel\"></i>" },
     { id: "cetakRekapTahunanGabungan", label: "Rekap Tahunan", ket: "Total omzet semua keberangkatan", kelompok: "keuangan", aksi: "cetakRekapTahunanGabungan()", halaman: null, icon: "<i class=\"fas fa-file-invoice\"></i>" },
     { id: "openKalenderProgramModal", label: "Kalender Program", ket: "Semua jadwal keberangkatan", kelompok: "perjalanan", aksi: "openKalenderProgramModal()", halaman: null, icon: "<i class=\"fas fa-calendar-days\"></i>" },
     { id: "openProyeksiKasModal", label: "Proyeksi Kas", ket: "Estimasi dana yang masih masuk", kelompok: "keuangan", aksi: "openProyeksiKasModal()", halaman: null, icon: "<i class=\"fas fa-sack-dollar\"></i>" },
@@ -6537,6 +6546,7 @@ function getMenuTampilan() { return localStorage.getItem(MENU_TAMPILAN_KUNCI) ==
 // Aturan yang TETAP berlaku apa pun pilihan pengguna: izin Peran staf, dan Cuan Plan tidak untuk Haji Reguler
 function bolehTampilMenu(item, hajiReg) {
     if (hajiReg && item.id === 'estimasi') return false;
+    if (hajiReg && item.id === 'evaluasihotelmaskapai') return false; // Haji Reguler: hotel & maskapai ditentukan pemerintah (build -140)
     if (item.halaman && !cekIzinModul(item.halaman)) return false;
     // Fitur dari halaman Lengkap ikut izin "Menu Lengkap" — supaya staf yang dilarang tidak bisa
     // menembus larangan itu dengan memasukkan fiturnya ke Home lewat Atur Menu
@@ -7464,7 +7474,7 @@ function rhBangunBanding(a, b, ketA, ketB, opt) {
     ringkas.push(sel === 0 ? `Harga per pax (Quad) sama: ${rhRp(hargaB)}.` : `Harga per pax (Quad) ${kata} ${rhRp(Math.abs(sel))}: dari ${rhRp(hargaA)} menjadi ${rhRp(hargaB)}.`);
     urutDampak.forEach(c => ringkas.push(`${c.label}: ${rhTanda(c.dampak)}/pax`));
     if(pem !== 0) ringkas.push(`Pembulatan harga jual: ${rhTanda(pem)}/pax`);
-    return { r, baris, kartu, sama, ket, tipe, ringkas, ketA, ketB, sel, hargaA, hargaB, sisa, belumA, belumB, identik, hargaHitungA: r.ha.harga, hargaHitungB: r.hb.harga, urutDampak, kata, pem, petA: opt.petA || [], petB: opt.petB || [] };
+    return { r, baris, kartu, sama, ket, tipe, ringkas, ketA, ketB, sel, hargaA, hargaB, sisa, belumA, belumB, identik, hargaHitungA: r.ha.harga, hargaHitungB: r.hb.harga, bulatA: Math.round(r.ha.harga - r.ha.hargaHitung), bulatB: Math.round(r.hb.harga - r.hb.hargaHitung), urutDampak, kata, pem, petA: opt.petA || [], petB: opt.petB || [] };
 }
 function rhPeringatanBanding(bd) {
     const p = [];
@@ -7476,21 +7486,32 @@ function rhPeringatanBanding(bd) {
     }
     return p;
 }
+// Build -137: baris Pembulatan netral (bukan untung/rugi) + keterangan arahnya. Hanya teks, angka tidak berubah.
+function rhKetPembulatan(bd) {
+    const A = bd.bulatA || 0, B = bd.bulatB || 0;
+    if(A === 0 && B === 0) return '';
+    const f = x => 'Rp ' + Math.round(Math.abs(x)).toLocaleString('id-ID');
+    let t;
+    if(A > 0 && B <= 0) t = 'Harga lama dibulatkan naik ' + f(A) + ' per pax, harga baru ' + (B < 0 ? 'diatur lebih rendah ' + f(B) : 'tidak dibulatkan') + '.';
+    else if(B > 0 && A <= 0) t = 'Harga baru dibulatkan naik ' + f(B) + ' per pax, harga lama ' + (A < 0 ? 'diatur lebih rendah ' + f(A) : 'tidak dibulatkan') + '.';
+    else t = 'Pembulatan harga lama ' + f(A) + ', harga baru ' + f(B) + ' per pax.';
+    return t + ' Ini cara menetapkan harga, bukan biaya.';
+}
 // Build -136: satu kalimat dampak profit di Bandingkan Versi (hanya teks; angka sama dengan keterangan "modal naik" di Rekap)
 function rhCatatanProfit(A, B) {
     try {
         if(isHajiReguler() || !A || !B || !A.data || !B.data) return '';
-        const hp = (getKonfigurasiProData() || {}).harga_paket;
-        if(!hp || !hp.seragam || !(hp.nominal > 0)) return '';
         const ha = hitungModalHargaDariEst(A.data), hb = hitungModalHargaDariEst(B.data);
         if(!ha || !hb) return '';
         const dm = Math.round(hb.modal) - Math.round(ha.modal);
         if(dm < 1) return '';
         const kursi = (hb.nJam || 0) + (hb.tl || 0);
         const f = x => 'Rp ' + Math.round(x).toLocaleString('id-ID');
-        const seragam = Math.round(hp.nominal);
-        const bulat = ha.dibulatkan && Math.round(ha.harga) !== Math.round(ha.hargaHitung) && seragam === Math.round(ha.harga);
-        return 'Kalau harga jamaah tetap ' + f(seragam) + (bulat ? ' (sudah termasuk pembulatan)' : '') + ', hanya biaya yang naik: profit turun ' + f(dm * kursi) + ' (' + f(dm) + ' × ' + kursi + ' kursi). Angka yang sama ada di Rekap.';
+        const hp = (getKonfigurasiProData() || {}).harga_paket;
+        const seragam = hp && hp.seragam && hp.nominal > 0 ? Math.round(hp.nominal) : 0;
+        const bulat = seragam > 0 && ha.dibulatkan && Math.round(ha.harga) !== Math.round(ha.hargaHitung) && seragam === Math.round(ha.harga);
+        const awal = seragam > 0 ? 'Kalau harga jamaah tetap ' + f(seragam) + (bulat ? ' (sudah termasuk pembulatan)' : '') : 'Kalau harga jamaah tidak berubah';
+        return awal + ', hanya biaya yang naik: profit turun [[' + f(dm * kursi) + ']] (' + f(dm) + ' × ' + kursi + ' kursi). Angka yang sama ada di Rekap.';
     } catch(e) { return ''; }
 }
 function rhHtmlBanding(bd) {
@@ -7509,11 +7530,11 @@ function rhHtmlBanding(bd) {
             const naik = Math.round(c.dampak) > 0;
             x += `<div style="padding:8px 0;border-bottom:1px solid #eef2f6;"><div style="display:flex;justify-content:space-between;gap:8px;font-size:14px;font-weight:800;"><span>${rhE(c.label)}</span><span style="color:${naik ? '#B91C1C' : '#166534'};">${naik ? '+' : '-'}${rhRp(Math.abs(c.dampak))}</span></div><div style="font-size:12.5px;color:#64748B;">${rhE(c.lama)} → ${rhE(c.baru)}${c.beda ? ' (' + rhE(c.beda) + ')' : ''}</div></div>`;
         });
-        if(bd.pem !== 0) x += `<div style="padding:8px 0;border-bottom:1px solid #eef2f6;"><div style="display:flex;justify-content:space-between;gap:8px;font-size:14px;font-weight:800;"><span>Pembulatan harga jual</span><span style="color:${bd.pem > 0 ? '#B91C1C' : '#166534'};">${bd.pem > 0 ? '+' : '-'}${rhRp(Math.abs(bd.pem))}</span></div></div>`;
+        if(bd.pem !== 0) x += `<div style="padding:8px 0;border-bottom:1px solid #eef2f6;"><div style="display:flex;justify-content:space-between;gap:8px;font-size:14px;font-weight:800;"><span>Pembulatan harga jual</span><span style="color:#475569;">${bd.pem > 0 ? '+' : '-'}${rhRp(Math.abs(bd.pem))}</span></div>${rhKetPembulatan(bd) ? `<div style="font-size:12px;color:#64748B;line-height:1.45;margin-top:3px;">${rhE(rhKetPembulatan(bd))}</div>` : ''}</div>`;
         if(sisaTampil) x += `<div style="padding:8px 0;border-bottom:1px solid #eef2f6;"><div style="display:flex;justify-content:space-between;gap:8px;font-size:14px;font-weight:800;color:#92400E;"><span>Belum bisa dijelaskan</span><span>${bd.sisa > 0 ? '+' : '-'}${rhRp(Math.abs(bd.sisa))}</span></div><div style="font-size:12px;color:#92400E;">Karena rincian salah satu versi belum cocok dengan harga tercatat.</div></div>`;
         x += `<div style="display:flex;justify-content:space-between;gap:8px;padding:9px 0;font-size:14px;font-weight:800;border-top:2px solid #334155;margin-top:2px;"><span>Total selisih harga per pax</span><span style="color:${warna};">${bd.sel > 0 ? '+' : (bd.sel < 0 ? '-' : '')}${rhRp(Math.abs(bd.sel))}</span></div>`;
     }
-    if(bd.catProfit) x += `<div style="background:#FFFBEB;border:1px solid #F59E0B;color:#92400E;border-radius:10px;padding:9px 11px;margin:10px 0;font-size:13px;line-height:1.5;">💡 ${rhE(bd.catProfit)}</div>`;
+    if(bd.catProfit) x += `<div style="background:#FFFBEB;border:1px solid #F59E0B;color:#92400E;border-radius:10px;padding:9px 11px;margin:10px 0;font-size:13px;line-height:1.5;">💡 ${rhE(bd.catProfit).replace(/\[\[(.+?)\]\]/g, '<b>$1</b>')}</div>`;
     if(bd.baris.length) {
         x += rhJudul('PERBANDINGAN TIAP KOMPONEN');
         x += `<table style="font-size:12px;white-space:nowrap;"><tr style="background:#F1F5F9;color:#475569;font-weight:800;"><td style="padding:6px 4px;">Komponen</td><td style="padding:6px 4px;text-align:right;">Lama</td><td style="padding:6px 4px;text-align:right;">Baru</td><td style="padding:6px 4px;text-align:right;">Selisih</td></tr>`;
@@ -7535,10 +7556,10 @@ function rhTeksBanding(bd) {
     if(bd.urutDampak.length) {
         t += `${g}\n*${bd.sel >= 0 ? 'Kenapa naik' : 'Kenapa turun'}*\n`;
         bd.urutDampak.forEach(c => { t += `• ${c.label}: ${c.lama} → ${c.baru} (${c.beda}) · ${rhTanda(c.dampak)}/pax\n`; });
-        if(bd.pem !== 0) t += `• Pembulatan harga jual: ${rhTanda(bd.pem)}/pax\n`;
+        if(bd.pem !== 0) t += `• Pembulatan harga jual: ${rhTanda(bd.pem)}/pax${rhKetPembulatan(bd) ? '\n  _' + rhKetPembulatan(bd) + '_' : ''}\n`;
         if(Math.abs(bd.sisa) >= 1) t += `• Belum bisa dijelaskan: ${rhTanda(bd.sisa)}/pax\n`;
     }
-    if(bd.catProfit) t += `${g}\n💡 ${bd.catProfit}\n`;
+    if(bd.catProfit) t += `${g}\n💡 ${bd.catProfit.replace(/\[\[(.+?)\]\]/g, '*$1*')}\n`;
     bd.ket.forEach(k => { t += `• ${k}\n`; });
     if(bd.sama.length) t += `${g}\nTidak berubah: ${bd.sama.join(', ')}\n`;
     return t;
@@ -7768,7 +7789,7 @@ function rhHtmlLini(L) {
             <div style="font-size:12px;color:#64748B;">${rhE(rhTglPendek(k.A.tanggal))} → ${rhE(rhTglPendek(k.B.tanggal))} · ${rhRp(bd.hargaA)} → ${rhRp(bd.hargaB)}</div>`;
         rhPeringatanBanding(bd).slice(0, bd.identik ? 1 : 2).forEach(p => { x += `<div style="background:${p.merah ? '#FEE2E2' : '#FEF3C7'};color:${p.merah ? '#991B1B' : '#92400E'};border-radius:8px;padding:6px 8px;margin-top:6px;font-size:12px;line-height:1.5;">⚠️ ${rhE(p.t.length > 150 ? p.t.slice(0, 147) + '...' : p.t)}</div>`; });
         bd.urutDampak.forEach(c => { x += `<div style="display:flex;justify-content:space-between;gap:8px;font-size:13px;margin-top:6px;"><span><b>${rhE(c.label)}</b><br><span style="font-size:12px;color:#64748B;">${rhE(c.lama)} → ${rhE(c.baru)}${c.beda ? ' (' + rhE(c.beda) + ')' : ''}</span></span><b style="color:${c.dampak > 0 ? '#B91C1C' : '#166534'};white-space:nowrap;">${f(c.dampak)}</b></div>`; });
-        if(bd.pem !== 0) x += `<div style="display:flex;justify-content:space-between;gap:8px;font-size:13px;margin-top:6px;"><b>Pembulatan harga jual</b><b style="color:${bd.pem > 0 ? '#B91C1C' : '#166534'};">${f(bd.pem)}</b></div>`;
+        if(bd.pem !== 0) x += `<div style="display:flex;justify-content:space-between;gap:8px;font-size:13px;margin-top:6px;"><b>Pembulatan harga jual</b><b style="color:#475569;">${f(bd.pem)}</b></div>`;
         if(Math.abs(bd.sisa) >= 1) x += `<div style="display:flex;justify-content:space-between;gap:8px;font-size:13px;margin-top:6px;color:#92400E;"><b>Belum bisa dijelaskan</b><b>${f(bd.sisa)}</b></div>`;
         if(!bd.urutDampak.length && !bd.pem && Math.abs(bd.sisa) < 1) x += `<div style="font-size:12px;color:#64748B;margin-top:6px;">Tidak ada komponen yang berubah.</div>`;
         bd.ket.forEach(t => { x += `<div style="font-size:12px;color:#475569;margin-top:4px;">${rhE(t)}</div>`; });
@@ -10959,6 +10980,12 @@ function cetakLaporanGabungan(mode = 'semua') {
     win.document.close();
 }
 
+// Build -138: keterangan dampak jamaah tanpa tipe kamar bila dihitung tarif Quad (seperti Laporan Penutupan). Hanya teks; total Rekap tidak berubah.
+function teksEfekTanpaTipe(e, f) {
+    if(!e || !(e.n > 0)) return '';
+    const laba = e.uang - e.modal, tanda = x => (x < 0 ? '−' : '+') + f(Math.abs(x));
+    return 'Kalau ' + (e.n > 1 ? e.n + ' jamaah itu ' : 'jamaah itu ') + 'dihitung dengan tarif Quad (seperti di Laporan Penutupan Musim): kontrak ' + tanda(e.kontrak) + ', sudah dibayar ' + tanda(e.uang) + ', modal ' + tanda(e.modal) + ', laba sementara ' + tanda(laba) + '. Total di Rekap ini belum memuatnya.';
+}
 function hitungRekapAktual() {
     window._rekapAktualData = null; // diisi ulang di bawah; dipakai pesan WhatsApp supaya tidak bergantung pada tampilan
     const container = document.getElementById('rekapAktualContent');
@@ -10976,6 +11003,7 @@ function hitungRekapAktual() {
     const tipeData = {};
     const tanpaTipe = [];
     let tanpaTipeUang = 0; // uang yang sudah dibayar jamaah tanpa Tipe Paket — belum masuk total di bawah
+    const tanpaTipeEfek = { n: 0, kontrak: 0, uang: 0, modal: 0 }; // build -138: dampak bila mereka dihitung tarif Quad (sama dengan Laporan Penutupan). Hanya keterangan, tidak masuk total
     const hargaBawahStandar = [];
     const hargaAnakBawah = []; // semua tarif anak/bayi (bukan salah harga): ditampilkan terpisah dengan modalnya, tetap terhitung di laba
     const tanpaTagihanList = []; // FOC / TL / Pembimbing — tidak ditagih, tidak masuk hitungan kontrak (modalnya dari Cuan Plan)
@@ -11002,6 +11030,10 @@ function hitungRekapAktual() {
         if(!tipe) {
             tanpaTipe.push(j.nama_lengkap);
             tanpaTipeUang += sudahDibayar;
+            if(hargaPaket > 0) {
+                tanpaTipeEfek.n++; tanpaTipeEfek.kontrak += hargaPaket; tanpaTipeEfek.uang += sudahDibayar;
+                if(est) tanpaTipeEfek.modal += modalJamaahRinci(j, est, 'Quad', modalBayiProgram()).modal;
+            }
             return;
         }
 
@@ -11109,7 +11141,7 @@ function hitungRekapAktual() {
             modal: d.totalModal, profit: d.totalOmzet - d.totalModal, tanpaHarga: d.tanpaHarga?.length || 0 }; }),
         grand: { kontrak: grandKontrak, dibayar: grandOmzet, piutang: grandPiutang, modalJamaahBayar, modalFocTL,
                  nFoc: estRingkas?.foc || 0, nTL: estRingkas?.tl || 0, modal: grandModal, profit: grandProfit },
-        tanpaTipe: tanpaTipe.slice(), tanpaTipeUang: tanpaTipeUang, hargaBawah: hargaBawahStandar.length,
+        tanpaTipe: tanpaTipe.slice(), tanpaTipeUang: tanpaTipeUang, tanpaTipeEfek: tanpaTipeEfek, hargaBawah: hargaBawahStandar.length,
         anakBawah: hargaAnakBawah.length ? { n: hargaAnakBawah.length, nBayi: hargaAnakBawah.filter(h => h.jenis === 'bayi').length, pemasukan: hargaAnakBawah.reduce((a, h) => a + h.harga, 0), modal: hargaAnakBawah.reduce((a, h) => a + h.modal, 0), perkiraan: hargaAnakBawah.some(h => h.sumber !== 'diisi'), selisih: hargaAnakBawah.reduce((a, h) => a + h.selisih, 0) } : null,
         komposisi: adaTanpaTagihan ? teksKomposisiPeserta(komposisiRekap) : '',
         kursi: kursiRekap,
@@ -11199,6 +11231,7 @@ function hitungRekapAktual() {
             <div style="font-weight:700;color:#888;margin-bottom:6px;">⚠️ ${tanpaTipe.length} Jamaah Belum Ada Tipe Paket</div>
             <div style="font-size:12px;color:#888;">${tanpaTipe.map(n=>escapeHtml(n)).join(', ')}</div>
             ${tanpaTipeUang > 0 ? `<div style="font-size:12px;color:#B45309;font-weight:700;margin-top:8px;line-height:1.5;">Uang yang sudah mereka bayar ${f(tanpaTipeUang)} BELUM masuk ke Total Dibayar, Piutang, dan Laba di atas. Isi Tipe Paket mereka agar ikut terhitung.</div>` : ''}
+            ${teksEfekTanpaTipe(tanpaTipeEfek, f) ? `<div style="font-size:12px;color:#475569;margin-top:8px;line-height:1.5;">${escapeHtml(teksEfekTanpaTipe(tanpaTipeEfek, f))}</div>` : ''}
         </div>`;
     }
 
@@ -11356,7 +11389,7 @@ function shareRekapAktual() {
     if (data.lebihBayar) text += `\n↩️ ${teksKelebihanBayar(data.lebihBayar)}`;
     if (data.hargaBawah > 0) text += `\n⚠️ ${data.hargaBawah} jamaah harga paketnya di bawah modal`;
     if (data.anakBawah) text += `\n👶 ${teksAnakBayiRingkas(data.anakBawah)}`;
-    if (data.tanpaTipe.length > 0) text += `\n⚠️ ${data.tanpaTipe.length} jamaah belum ada tipe paket (tidak dihitung): ${data.tanpaTipe.join(', ')}${data.tanpaTipeUang > 0 ? `. Uang yang sudah mereka bayar ${f(data.tanpaTipeUang)} BELUM masuk total di atas` : ''}`;
+    if (data.tanpaTipe.length > 0) text += `\n⚠️ ${data.tanpaTipe.length} jamaah belum ada tipe paket (tidak dihitung): ${data.tanpaTipe.join(', ')}${data.tanpaTipeUang > 0 ? `. Uang yang sudah mereka bayar ${f(data.tanpaTipeUang)} BELUM masuk total di atas` : ''}${teksEfekTanpaTipe(data.tanpaTipeEfek, f) ? '. ' + teksEfekTanpaTipe(data.tanpaTipeEfek, f) : ''}`;
     // Penutup mengikuti pengaturan: pengguna berlisensi memakai nama instansinya sendiri; versi gratis tetap "Navara App"
     text += `\n${garis}\n_${isLicensed() ? namaKBIH : 'Navara App'}_`;
     window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
@@ -18489,11 +18522,64 @@ function openBandingkanProgramModal() {
 
     modal.innerHTML = `<div class="modal-content" style="max-width:440px;">
         <h3 style="color:var(--primary);margin-bottom:4px;">📊 Bandingkan Performa Program</h3>
+        <button onclick="exportPerProgramExcel('bandingkan')" style="width:100%;padding:10px;background:#166534;color:#fff;border:none;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;margin-bottom:10px;">📥 Unduh Excel</button>
         <div style="font-size:11px;color:#888;margin-bottom:12px;">Diurutkan dari total kontrak terbesar</div>
         <div style="max-height:420px;overflow-y:auto;">${html || '<p style="color:#6B7280;text-align:center;">Belum ada Program</p>'}</div>
         <button onclick="document.getElementById('bandingkanProgramModal').style.display='none'" style="width:100%;padding:11px;background:#e2e8f0;color:#333;border:none;border-radius:10px;font-size:13px;cursor:pointer;margin-top:10px;">Tutup</button>
     </div>`;
     modal.style.display = 'flex';
+}
+
+// ==================== EXCEL REKAP TAHUNAN & BANDINGKAN PROGRAM (build -139) ====================
+// Angka dihitung dengan cara yang sama persis seperti tampilan Rekap Tahunan dan Bandingkan Program; Excel hanya menambah kolom Piutang dan % Terbayar.
+function exportPerProgramExcel(mode) {
+    const kunci = mode === 'bandingkan' ? 'excelBandingkanProgram' : 'excelRekapTahunan';
+    if(!cekIzinFitur(kunci)) return showToast('🔒 Tidak punya izin. Gunakan tombol 🔓 Minta Akses di Home.');
+    if (typeof XLSX === 'undefined') { showToast('Library Excel belum siap, coba lagi sebentar.'); return; }
+    if(!programList.length) return showToast('Belum ada Program!');
+    const rows = programList.map(p => {
+        const jList = _allJamaahData.filter(j => j.program_id === p.id);
+        const kasP = _allKasData.filter(k => k.program_id === p.id);
+        const pengP = _allPengeluaranData.filter(x => x.program_id === p.id);
+        const bayarP = _allPaymentData.filter(t => t.program_id === p.id);
+        let kontrak = 0, dibayar = 0, piutang = 0;
+        jList.forEach(j => {
+            const hargaJ = getTotalHargaPaketUntukProgram(j, p.id) || 0;
+            const bayarJ = bayarP.filter(t => t.id_jamaah == j.id).reduce((s, t) => s + (Number(t.nominal) || 0), 0);
+            kontrak += hargaJ; dibayar += bayarJ;
+            if(hargaJ > 0) piutang += Math.max(0, hargaJ - bayarJ); // per jamaah: kelebihan bayar satu orang tidak menutup tagihan orang lain
+        });
+        const masuk = kasP.filter(k => k.tipe === 'masuk').reduce((s, k) => s + (Number(k.nom) || 0), 0);
+        const keluar = kasP.filter(k => k.tipe === 'keluar').reduce((s, k) => s + (Number(k.nom) || 0), 0);
+        const peng = pengP.reduce((s, x) => s + (Number(x.nominal) || 0), 0);
+        return { nama: p.nama || '-', jenis: p.jenis || '', jamaah: jList.length, kontrak, dibayar, piutang, masuk, keluar, peng };
+    });
+    if(mode === 'bandingkan') rows.sort((a, b) => b.kontrak - a.kontrak);
+    const jumlah = k => rows.reduce((s, r) => s + r[k], 0);
+    const persen = r => r.kontrak > 0 ? Math.round(r.dibayar / r.kontrak * 1000) / 10 : '';
+    const hariIni = new Date().toLocaleDateString('id-ID').replace(/\//g, '-');
+    const judul = mode === 'bandingkan' ? 'Bandingkan Performa Program' : 'Rekap Tahunan Gabungan';
+    const kepala = ['Program', 'Jenis', 'Jumlah Jamaah', 'Total Kontrak', 'Total Dibayar', 'Piutang', '% Terbayar', 'Kas Masuk', 'Kas Keluar', 'Total Pengeluaran'];
+    const data = [kepala].concat(rows.map(r => [r.nama, r.jenis, r.jamaah, r.kontrak, r.dibayar, r.piutang, persen(r), r.masuk, r.keluar, r.peng]));
+    const totK = jumlah('kontrak'), totD = jumlah('dibayar');
+    data.push(['TOTAL (' + rows.length + ' Program)', '', jumlah('jamaah'), totK, totD, jumlah('piutang'), totK > 0 ? Math.round(totD / totK * 1000) / 10 : '', jumlah('masuk'), jumlah('keluar'), jumlah('peng')]);
+    const info = [
+        [judul], [getNamaInstansiUtama()], ['Dibuat', hariIni], [],
+        ['Catatan'],
+        ['Total Kontrak', 'Jumlah harga paket semua jamaah di program itu (sama dengan layar Rekap Tahunan / Bandingkan Program).'],
+        ['Total Dibayar', 'Jumlah pembayaran jamaah yang tercatat.'],
+        ['Piutang', 'Sisa tagihan per jamaah. Kelebihan bayar satu jamaah tidak menutup tagihan jamaah lain.'],
+        ['Kas Masuk / Keluar', 'Dari menu Kas program itu.'],
+        ['Total Pengeluaran', 'Dari catatan Pengeluaran program itu.'],
+        ['Laba', 'Tidak dihitung di sini. Lihat Rekap atau Laporan Penutupan Musim tiap program.']
+    ];
+    const wb = XLSX.utils.book_new();
+    const w1 = XLSX.utils.aoa_to_sheet(data); w1['!cols'] = [{wch:30},{wch:14},{wch:14},{wch:18},{wch:18},{wch:18},{wch:12},{wch:18},{wch:18},{wch:18}];
+    const w2 = XLSX.utils.aoa_to_sheet(info); w2['!cols'] = [{wch:22},{wch:90}];
+    XLSX.utils.book_append_sheet(wb, w1, mode === 'bandingkan' ? 'Perbandingan' : 'Per Program');
+    XLSX.utils.book_append_sheet(wb, w2, 'Keterangan');
+    XLSX.writeFile(wb, (mode === 'bandingkan' ? 'Bandingkan_Program_' : 'Rekap_Tahunan_') + hariIni + '.xlsx');
+    showToast('Excel berhasil di-export');
 }
 
 // ==================== REKAP TAHUNAN GABUNGAN ====================
@@ -20033,7 +20119,13 @@ function daftarCaraPakai() {
             { judul: 'Buat Program (satu keberangkatan)',
               isi: 'Ketuk bar <b>Program Aktif</b> di bagian atas Home → <b>+ Buat Program Baru</b>. Satu Program berarti satu keberangkatan, misalnya Umroh Januari. Jamaah, pembayaran, dan pengeluaran dicatat per Program, jadi pastikan Program yang aktif sudah benar sebelum mencatat apa pun.',
               tombol: [{ t: 'Pilih atau buat Program', a: () => { showPage('home'); openProgramPickerModal(); } }] },
-            { judul: 'Isi Cuan Plan dan harga paket',
+            { judul: 'Pilih jenis usaha',
+              isi: 'Buka <b>Setting</b> → <b>Jenis Usaha</b>, lalu centang jenis program yang dijalankan kantor Anda: <b>Umroh</b>, <b>Haji Khusus/Plus</b>, dan atau <b>Haji Reguler</b>. Pilihan jenis program dan kartu pengaturan yang tidak dipakai akan disembunyikan, jadi tampilan lebih sederhana. Data tidak dihapus, dan pilihan ini bisa diubah kapan saja. Jenis yang masih punya Program tidak bisa dimatikan.',
+              tombol: [bukaMod('Setting', 'setting')] },
+            { judul: 'Isi harga per komponen (Haji Reguler)', jenis: ['haji_reguler'],
+              isi: 'Program Haji Reguler tidak memakai Cuan Plan. Buka <b>Konfigurasi</b> lalu isi <b>Harga per Komponen (Haji Reguler)</b>, misalnya Bimbingan dan Touring/Ziarah, beserta harganya. Jumlah semua komponen menjadi tagihan jamaah. Pengeluaran dicatat di <b>Kas</b>.',
+              tombol: [bukaMod('Konfigurasi', 'konfigurasi')] },
+            { judul: 'Isi Cuan Plan dan harga paket', jenis: ['umroh', 'haji'],
               isi: 'Buka <b>Cuan Plan</b> → tab <b>Estimasi</b>: isi data rombongan dan komponen biaya, atur <b>Margin</b>, lalu ketuk <b>HITUNG ESTIMASI</b>. Hasilnya adalah modal dan harga paket. Supaya semua jamaah memakai harga itu, buka <b>Konfigurasi</b> → <b>Harga Paket Seragam</b>, nyalakan, lalu isi harga paketnya. Untuk Haji Reguler, Cuan Plan tidak dipakai; isi <b>Harga per Komponen</b> di Konfigurasi.',
               tombol: [bukaMod('Cuan Plan', 'estimasi', { noHaji: true }), bukaMod('Konfigurasi', 'konfigurasi')] },
             { judul: 'Atur admin dan PIN',
@@ -20078,14 +20170,14 @@ function daftarCaraPakai() {
               tombol: [{ t: 'Buka Cek Kesehatan Data', a: () => showPage('cekkesehatan'), h: 'cekkesehatan' }, { t: 'Buka Laporan Penutupan Musim', a: () => cetakLaporanPenutupanMusim(), f: 'cetakLaporanPenutupanMusim' }, { t: 'Buka Excel Laporan Penutupan', a: () => cetakLaporanPenutupanMusim('excel'), f: 'excelLaporanPenutupanMusim' }] }
         ] },
         { id: 'angka', pemilik: true, judul: '📊 ARTI ANGKA DAN PERINGATAN', items: [
-            { judul: 'Proyeksi Laba dan Laba Bersih',
+            { judul: 'Proyeksi Laba dan Laba Bersih', jenis: ['umroh', 'haji'],
               isi: '<b>Proyeksi Laba</b> = Total Kontrak − Modal Estimasi. Ini angka rencana, dihitung dari jamaah yang sudah punya harga paket. <b>Laba Bersih (Realisasi)</b> = uang yang benar-benar masuk − pengeluaran yang tercatat. Kalau pengeluaran belum lengkap, Laba Bersih diberi tanda <b>sementara</b>. <b>Selisih Laba</b> = Realisasi − Proyeksi; tanda minus berarti lebih rendah dari rencana.' },
-            { judul: 'Biaya naik setelah brosur beredar',
+            { judul: 'Biaya naik setelah brosur beredar', jenis: ['umroh', 'haji'],
               isi: 'Jamaah tetap ditagih <b>Harga Seragam</b> (harga lama), jadi kalau modal naik, yang turun adalah <b>profit</b>, bukan tagihan jamaah. Masukkan biaya baru di <b>Cuan Plan</b> (Estimasi) secepatnya, lalu ketuk <b>HITUNG ESTIMASI</b>. Aplikasi menampilkan kartu kuning berisi kenaikan modal dan dampaknya. Di <b>Rekap</b> dan <b>Laporan Penutupan Musim</b> muncul satu baris keterangan: modal naik berapa, harga jamaah tetap berapa, profit turun berapa, dan berapa jamaah yang sudah lunas di harga lama. Kalau <b>pengeluaran tercatat sudah melebihi modal Estimasi</b>, muncul peringatan merah: artinya Estimasi kemungkinan belum diperbarui, dan Proyeksi Laba bisa lebih besar dari laba sebenarnya. Aplikasi hanya memberi petunjuk dan tidak mengubah angka sendiri.',
               tombol: [bukaMod('Cuan Plan', 'estimasi', { noHaji: true })] },
-            { judul: 'Buffer dan diskon',
+            { judul: 'Buffer dan diskon', jenis: ['umroh', 'haji'],
               isi: '<b>Buffer</b> adalah ruang diskon yang disiapkan di Estimasi. Harga jamaah di bawah harga seragam dihitung sebagai diskon dan memakai Buffer. Diskon yang <b>melebihi buffer</b> ditandai merah karena mengurangi laba. Buffer yang tidak terpakai ikut menjadi laba.' },
-            { judul: 'Tarif anak/bayi dan tanpa perlengkapan',
+            { judul: 'Tarif anak/bayi dan tanpa perlengkapan', jenis: ['umroh', 'haji'],
               isi: 'Tarif anak/bayi adalah harga hasil nego, <b>bukan diskon</b>, jadi tidak memakai Buffer. Selisihnya dengan modal anak/bayi menjadi laba. Untuk jamaah yang tidak ambil perlengkapan, efek ke laba = modal yang dihemat − potongan harga. Kalau sama besar, untung tidak berubah; kalau potongan lebih besar, kelebihannya dihitung sebagai diskon dan mengurangi laba.' },
             { judul: 'Kelebihan bayar dan piutang',
               isi: '<b>Kelebihan bayar</b> berarti uang masuk lebih besar dari Total Paket (misalnya diskon dicatat setelah jamaah melunasi). Ini hanya penanda untuk dicek atau dikembalikan, dan tidak mengubah angka lain. <b>Belum Dibayar</b> di laporan = Total Kontrak − Sudah Dibayar, sedangkan <b>Piutang</b> dihitung dari jadwal cicilan, jadi keduanya bisa berbeda.' },
@@ -20112,7 +20204,7 @@ function renderCaraPakai() {
     daftarCaraPakai().forEach(bag => {
         if (bag.pemilik && !penuh) return;
         const tampil = [];
-        bag.items.forEach((it, i) => { if (!q || (it.judul + ' ' + polos(it.isi)).toLowerCase().includes(q)) tampil.push({ it, no: i + 1 }); });
+        bag.items.forEach((it, i) => { if (it.jenis && !it.jenis.some(k => getJenisUsaha()[k])) return; if (!q || (it.judul + ' ' + polos(it.isi)).toLowerCase().includes(q)) tampil.push({ it, no: i + 1 }); });
         if (!tampil.length) return;
         ada = true;
         html += `<div class="cp-bagian">${bag.judul}${bag.pemilik ? '<span class="cp-label">Hanya pemilik dan admin penuh</span>' : ''}</div>`;
@@ -24684,6 +24776,65 @@ function isJenisHaji() {
     return p && (p.jenis === 'haji' || p.jenis === 'haji_reguler');
 }
 
+// ==================== JENIS USAHA (build -141) ====================
+// Jenis program yang dijalankan kantor ini. Bawaan: semua tercentang (tampilan lama tidak berubah). Hanya menyaring TAMPILAN; tidak ada data yang dihapus.
+// Disimpan di konfigurasiPro.jenis_usaha, ikut Backup ZIP.
+const JENIS_PROGRAM_OPSI = [['haji', '🕋 Haji Khusus/Plus'], ['haji_reguler', '🕋 Haji Reguler'], ['umroh', '🕌 Umroh'], ['lainnya', '📁 Lainnya']];
+function getJenisUsaha() {
+    const o = { umroh: true, haji: true, haji_reguler: true };
+    const j = (typeof konfigurasiPro !== 'undefined' && konfigurasiPro && konfigurasiPro.jenis_usaha) || null;
+    if(j && typeof j === 'object') {
+        const t = { umroh: 'umroh' in j ? !!j.umroh : true, haji: 'haji' in j ? !!j.haji : true, haji_reguler: 'haji_reguler' in j ? !!j.haji_reguler : true };
+        if(t.umroh || t.haji || t.haji_reguler) return t;
+    }
+    return o;
+}
+// Pilihan Jenis di form Program: hanya jenis yang dijalankan (+ jenis program yang sedang diedit, supaya tidak hilang)
+function filterJenisProgram(selectId, jenisSaatIni) {
+    const sel = document.getElementById(selectId); if(!sel) return;
+    const u = getJenisUsaha();
+    const boleh = JENIS_PROGRAM_OPSI.filter(([k]) => k === 'lainnya' || u[k] || k === jenisSaatIni);
+    sel.innerHTML = boleh.map(([k, l]) => `<option value="${k}">${l}</option>`).join('');
+    sel.value = (jenisSaatIni && boleh.some(([k]) => k === jenisSaatIni)) ? jenisSaatIni : (u.umroh ? 'umroh' : (u.haji ? 'haji' : (u.haji_reguler ? 'haji_reguler' : 'lainnya')));
+}
+// Kartu Instansi Kedua hanya dipakai kantor yang punya dua entitas (Haji Reguler + Umroh/Haji Khusus). Yang sudah terisi tidak pernah disembunyikan.
+function perluKartuInstansiKedua() {
+    try {
+        const cfg = getKonfigurasiProData() || {};
+        if(cfg.instansi2 && (cfg.instansi2.aktif || cfg.instansi2.nama)) return true;
+    } catch(e) { return true; }
+    const u = getJenisUsaha();
+    return !!(u.haji_reguler && (u.umroh || u.haji));
+}
+function renderKartuJenisUsaha() {
+    const wadah = document.getElementById('isiJenisUsaha'); if(!wadah) return;
+    const u = getJenisUsaha();
+    const baris = [['umroh', '🕌 Umroh'], ['haji', '🕋 Haji Khusus/Plus'], ['haji_reguler', '🕋 Haji Reguler']].map(([k, l]) => {
+        const n = (programList || []).filter(p => p.jenis === k).length;
+        return `<label style="display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid #eef2f6;font-size:14px;cursor:pointer;">
+            <input type="checkbox" ${u[k] ? 'checked' : ''} onchange="simpanJenisUsaha('${k}', this.checked)" style="width:18px;height:18px;">
+            <span style="flex:1;">${l}</span><span style="font-size:11px;color:#888;">${n ? n + ' program' : ''}</span></label>`;
+    }).join('');
+    wadah.innerHTML = baris;
+}
+function simpanJenisUsaha(kunci, cek) {
+    if(typeof adalahAdminPenuh === 'function' && !adalahAdminPenuh()) { showToast('🔒 Hanya Admin Utama yang boleh mengubah Jenis Usaha'); renderKartuJenisUsaha(); return; }
+    const u = getJenisUsaha();
+    if(!cek) {
+        const nama = { umroh: 'Umroh', haji: 'Haji Khusus/Plus', haji_reguler: 'Haji Reguler' }[kunci] || kunci;
+        const n = (programList || []).filter(p => p.jenis === kunci).length;
+        if(n > 0) { showToast('Masih ada ' + n + ' program ' + nama + ', jadi jenis ini tetap dipakai'); renderKartuJenisUsaha(); return; }
+        if(!Object.keys(u).some(k => k !== kunci && u[k])) { showToast('Minimal satu jenis usaha harus dicentang'); renderKartuJenisUsaha(); return; }
+    }
+    u[kunci] = !!cek;
+    konfigurasiPro.jenis_usaha = u;
+    localStorage.setItem('navara_konfigurasi_pro', JSON.stringify(konfigurasiPro));
+    try { idbSet(STORE_KONFIGURASI, 'konfigurasi_pro', konfigurasiPro); } catch(e) {}
+    renderKartuJenisUsaha();
+    try { applyModeHajiReguler(); } catch(e) {}
+    showToast('Jenis Usaha disimpan');
+}
+
 function applyModeHajiReguler() {
     const hajiReg = isHajiReguler();
 
@@ -24694,6 +24845,29 @@ function applyModeHajiReguler() {
     if(btnKamar) btnKamar.style.display = hajiReg ? 'none' : 'block';
     const btnManifest = document.querySelector('button[onclick="cetakManifestRooming()"]');
     if(btnManifest) btnManifest.style.display = hajiReg ? 'none' : 'block';
+
+    // 3b. (build -140) Rekap Komisi Mitra & Kebijakan FOC Mitra: hanya Umroh/Haji Khusus. Kelompok Porsi: hanya Haji (Reguler & Khusus).
+    const btnKomisi = document.querySelector('button[onclick="openRekapKomisiMitraModal()"]');
+    if(btnKomisi) btnKomisi.style.display = hajiReg ? 'none' : 'block';
+    const btnPorsi = document.querySelector('button[onclick="openKelompokPorsiModal()"]');
+    if(btnPorsi) btnPorsi.style.display = isJenisHaji() ? 'block' : 'none';
+    const focMitraConfig = document.getElementById('focMitraConfigSection');
+    if(focMitraConfig) focMitraConfig.style.display = hajiReg ? 'none' : 'block';
+
+    // 3d. (build -143) Petunjuk di atas Konfigurasi: kartu tertentu mengikuti jenis program yang sedang dibuka
+    const infoProg = document.getElementById('infoProgramKonfigurasi');
+    if(infoProg) {
+        const pr = getCurrentProgram();
+        if(pr) {
+            const lbl = { umroh: 'Umroh', haji: 'Haji Khusus/Plus', haji_reguler: 'Haji Reguler', lainnya: 'Lainnya' }[pr.jenis] || '';
+            infoProg.innerHTML = '📁 Menampilkan pengaturan untuk program: <b>' + escapeHtml(pr.nama || '-') + '</b>' + (lbl ? ' (' + lbl + ')' : '') + '. Beberapa kartu berubah mengikuti jenis program.';
+            infoProg.style.display = 'block';
+        } else infoProg.style.display = 'none';
+    }
+
+    // 3c. (build -141) Kartu Instansi Kedua: hanya untuk kantor dengan dua entitas
+    const instansiKedua = document.getElementById('instansiKeduaConfigSection');
+    if(instansiKedua) instansiKedua.style.display = perluKartuInstansiKedua() ? 'block' : 'none';
 
     // 4. Dropdown Tipe Paket di form Tambah/Edit Jamaah — ditangani di renderJamaahForm() saat form dibuat
 
@@ -25333,7 +25507,7 @@ function openEditProgramForm(id) {
     if(!p) return;
     document.getElementById('editProgramId').value = p.id;
     document.getElementById('editProgramNama').value = p.nama;
-    document.getElementById('editProgramJenis').value = p.jenis || 'lainnya';
+    filterJenisProgram('editProgramJenis', p.jenis || 'lainnya');
     closeProgramModal();
     document.getElementById('editProgramModal').classList.add('show');
 }
@@ -25458,6 +25632,7 @@ async function refilterAllProgramData() {
 function openCreateProgramForm() {
     document.getElementById('newProgramNama').value = '';
     document.getElementById('newProgramJenis').value = 'umroh';
+    filterJenisProgram('newProgramJenis', null);
     const salinSelect = document.getElementById('newProgramSalinDari');
     if(salinSelect) {
         salinSelect.innerHTML = '<option value="">— Mulai kosong —</option>' +
@@ -26472,7 +26647,7 @@ function openIndexedDB() {
 // dengan build baru, data MENTAH (langsung dari IndexedDB, bukan dari memori) disalin dulu sebelum
 // proses migrasi apapun berjalan — supaya kalau ada kesalahan di update, data lama masih bisa dipulihkan.
 // Dokumen & foto tidak ikut disalin (ukurannya besar, dan tidak pernah disentuh proses migrasi).
-const NAVARA_BUILD = '2026.10.20-136';
+const NAVARA_BUILD = '2026.10.20-143';
 const MAKS_SNAPSHOT = 3;
 
 // ==================== DAFTAR DATA PUSAT ====================
@@ -31259,6 +31434,52 @@ setTimeout(() => {
 }, 5000);
 
 document.addEventListener('DOMContentLoaded', initPremium);
+
+// ==================== PERTANYAAN JENIS USAHA UNTUK PENGGUNA BARU (build -142) ====================
+// Muncul sekali, hanya untuk pengguna yang benar-benar baru (belum pernah memilih, belum ada data, hanya program kosong bawaan). Pengguna lama tidak pernah melihatnya.
+let _percobaanTanyaJenisUsaha = 0;
+function cekTanyaJenisUsahaAwal() {
+    try {
+        if(konfigurasiPro && konfigurasiPro.jenis_usaha) return;
+        if(document.getElementById('jenisUsahaAwalOverlay')) return;
+        const splash = document.getElementById('splashScreen');
+        if((splash && getComputedStyle(splash).display !== 'none') && _percobaanTanyaJenisUsaha++ < 6) { setTimeout(cekTanyaJenisUsahaAwal, 2000); return; }
+        const programBaru = Array.isArray(programList) && programList.length === 1 && programList[0].jenis === 'lainnya' && String(programList[0].id || '').indexOf('default_') === 0;
+        const adaData = [typeof _allJamaahData !== 'undefined' ? _allJamaahData : [], typeof jamaahList !== 'undefined' ? jamaahList : [], typeof _allPaymentData !== 'undefined' ? _allPaymentData : [], typeof _allPengeluaranData !== 'undefined' ? _allPengeluaranData : [], typeof _allKasData !== 'undefined' ? _allKasData : []].some(a => a && a.length > 0);
+        if(!programBaru || adaData) return;
+        const ov = document.createElement('div');
+        ov.id = 'jenisUsahaAwalOverlay';
+        ov.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:10040;display:flex;align-items:center;justify-content:center;padding:20px;';
+        ov.innerHTML = `<div style="background:var(--card-bg,#fff);border-radius:18px;padding:22px 20px 16px;width:100%;max-width:360px;">
+            <div style="text-align:center;font-size:34px;line-height:1;margin-bottom:8px;">🕋</div>
+            <div style="text-align:center;font-weight:800;font-size:16px;color:var(--primary);margin-bottom:6px;">Usaha Anda menjalankan apa?</div>
+            <div style="text-align:center;font-size:12.5px;color:#555;line-height:1.5;margin-bottom:10px;">Centang yang dijalankan. Menu dan pilihan yang tidak dipakai akan disembunyikan. Bisa diubah kapan saja di Setting → Jenis Usaha.</div>
+            ${[['umroh', '🕌 Umroh'], ['haji', '🕋 Haji Khusus/Plus'], ['haji_reguler', '🕋 Haji Reguler']].map(([k, l]) => `<label style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid #eef2f6;font-size:14px;cursor:pointer;"><input type="checkbox" data-jenis="${k}" style="width:18px;height:18px;"><span>${l}</span></label>`).join('')}
+            <div style="display:flex;gap:10px;margin-top:16px;">
+                <button type="button" id="jenisUsahaAwalLewati" style="flex:1;padding:12px;border:none;border-radius:12px;background:#E2E8F0;color:#333;font-weight:700;font-size:14px;cursor:pointer;">Pilih semua</button>
+                <button type="button" id="jenisUsahaAwalSimpan" style="flex:1;padding:12px;border:none;border-radius:12px;background:var(--primary);color:#fff;font-weight:700;font-size:14px;cursor:pointer;">Simpan</button>
+            </div></div>`;
+        const simpan = (semua) => {
+            const u = { umroh: true, haji: true, haji_reguler: true };
+            if(!semua) {
+                ['umroh', 'haji', 'haji_reguler'].forEach(k => { u[k] = !!ov.querySelector('input[data-jenis="' + k + '"]').checked; });
+                if(!u.umroh && !u.haji && !u.haji_reguler) { showToast('Centang minimal satu jenis, atau ketuk Pilih semua'); return; }
+            }
+            (programList || []).forEach(p => { if(p.jenis in u) u[p.jenis] = true; }); // jenis yang sudah punya program tidak boleh hilang
+            konfigurasiPro.jenis_usaha = u;
+            localStorage.setItem('navara_konfigurasi_pro', JSON.stringify(konfigurasiPro));
+            try { idbSet(STORE_KONFIGURASI, 'konfigurasi_pro', konfigurasiPro); } catch(e) {}
+            ov.remove();
+            try { renderKartuJenisUsaha(); applyModeHajiReguler(); } catch(e) {}
+            showToast('Jenis Usaha disimpan');
+        };
+        ov.querySelector('#jenisUsahaAwalSimpan').onclick = () => simpan(false);
+        ov.querySelector('#jenisUsahaAwalLewati').onclick = () => simpan(true);
+        document.body.appendChild(ov);
+    } catch(e) {}
+}
+document.addEventListener('DOMContentLoaded', () => setTimeout(cekTanyaJenisUsahaAwal, 4000));
+
 
 // ===== EXPORT DROPDOWN HANDLER =====
 function toggleExportDropdown(id) {
