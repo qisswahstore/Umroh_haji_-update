@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <script>(function(){try{var k=localStorage.getItem("navara_ukuran_teks");if(k==="besar"||k==="sangat_besar")document.documentElement.classList.add(k==="besar"?"uk-besar":"uk-sangat");}catch(e){}})();</script>
+    <script>(function(){try{var k=localStorage.getItem("navara_ukuran_teks"),r=document.documentElement,p=k==="besar"?115:k==="sangat_besar"?130:parseInt(k,10);if(p>100&&p<=150){var b=Math.floor(window.innerWidth/300*100);if(b<p)p=b;if(p>100){r.classList.add("uk-kustom");r.style.setProperty("--uk-zoom",String(p/100));}}}catch(e){}})();</script>
     <meta name="theme-color" content="#0D5C4A">
     <script>["gesturestart","gesturechange","gestureend"].forEach(function(n){document.addEventListener(n,function(e){e.preventDefault();},{passive:false});});</script>
     <meta name="mobile-web-app-capable" content="yes">
@@ -76,8 +76,9 @@
         .menu-tile-ket { font-size: 10.5px; color: var(--gray); text-align: center; line-height: 1.3; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
         #entryModal .input-group { margin-bottom: 12px; } #entryModal .input-group > label { display: block; margin-bottom: 6px; }
         body.dark-mode #entryAksiBar { background: #2A2A3A; }
-        html.uk-besar { zoom: 1.15; } html.uk-sangat { zoom: 1.3; }
-        @media print { html.uk-besar, html.uk-sangat { zoom: 1 !important; } }
+        html.uk-besar { zoom: 1.15; } html.uk-sangat { zoom: 1.3; } html.uk-kustom { zoom: var(--uk-zoom, 1); }
+        @media print { html.uk-besar, html.uk-sangat, html.uk-kustom { zoom: 1 !important; } }
+        #ukGeser { width: 100%; accent-color: var(--primary); }
         .pilih-tampilan { flex: 1; border: 1.5px solid #e5e7eb; background: #fff; border-radius: 12px; padding: 10px 8px; font-family: inherit; font-size: 13px; font-weight: 700; color: #374151; cursor: pointer; display: flex; flex-direction: column; gap: 2px; align-items: center; }
         .pilih-tampilan small { font-size: 11px; font-weight: 500; color: #6b7280; }
         .pilih-tampilan.aktif { border-color: var(--primary); background: var(--primary-muda); color: var(--primary); }
@@ -3473,7 +3474,7 @@ https://github.com/nodeca/pako/blob/main/LICENSE
             <div id="rekPenContainer"></div>
         </div>
         <div class="config-section" id="komponenHajiConfigSection" style="display:none;"><h3><i class="fas fa-money-bill-wave"></i> Harga per Komponen (Haji Reguler)</h3>
-            <div style="font-size:12px;color:#888;margin-bottom:10px;">Khusus Haji Reguler — pecah Harga Seragam jadi beberapa komponen (Bimbingan, Touring/Ziarah, dll). Umroh tidak terpengaruh sama sekali.</div>
+            <div style="font-size:12px;color:#888;margin-bottom:10px;">Khusus Haji Reguler — pecah Harga Seragam jadi beberapa komponen (Bimbingan, Tour/Ziarah, dll). Umroh tidak terpengaruh sama sekali.</div>
             <div id="komponenHajiListContainer"></div>
             <button class="btn btn-small mt-2" onclick="tambahJenisKomponenHaji()" style="background:#0369A1;color:white;">+ Tambah Jenis Komponen</button>
         </div>
@@ -3789,6 +3790,11 @@ https://github.com/nodeca/pako/blob/main/LICENSE
                 <button type="button" id="ukNormal" class="pilih-tampilan" onclick="setUkuranTeks('normal')">Normal<small>bawaan</small></button>
                 <button type="button" id="ukBesar" class="pilih-tampilan" onclick="setUkuranTeks('besar')">Besar<small>+15%</small></button>
                 <button type="button" id="ukSangat" class="pilih-tampilan" onclick="setUkuranTeks('sangat_besar')">Sangat Besar<small>+30%</small></button>
+            </div>
+            <div style="margin-top:14px;">
+                <div style="display:flex;justify-content:space-between;align-items:baseline;font-size:13px;font-weight:700;color:#374151;"><span>Atur sendiri</span><span id="ukNilai" style="color:var(--primary);">100%</span></div>
+                <input type="range" id="ukGeser" min="100" max="150" step="1" value="100" oninput="ukTampilNilai(this.value)" onchange="setUkuranTeks(Number(this.value))">
+                <div id="ukBatas" style="font-size:11px;color:#6b7280;line-height:1.5;margin-top:2px;"></div>
             </div>
         </div>
         <div class="card-premium">
@@ -6637,22 +6643,49 @@ function bukaAturMenu() {
 }
 
 // Ukuran Teks: per perangkat (localStorage), langsung berlaku, tidak ikut Backup/data program.
-function getUkuranTeks() { try { const k = localStorage.getItem('navara_ukuran_teks'); return (k === 'besar' || k === 'sangat_besar') ? k : 'normal'; } catch(e) { return 'normal'; } }
-function setUkuranTeks(mode) {
-    const m = (mode === 'besar' || mode === 'sangat_besar') ? mode : 'normal';
-    try { if (m === 'normal') localStorage.removeItem('navara_ukuran_teks'); else localStorage.setItem('navara_ukuran_teks', m); } catch(e) {}
+// Ukuran teks (build -148): persen 100-150, disimpan per perangkat. Nilai lama 'besar' (115) dan 'sangat_besar' (130) tetap terbaca.
+// Batas aman: lebar layar yang tersisa tidak boleh kurang dari ±300 px, jadi HP sempit tidak bisa memilih ukuran yang merusak tampilan.
+function ukBatasMaks() { return Math.max(100, Math.min(150, Math.floor(window.innerWidth / 300 * 100))); }
+function getUkuranPersen() {
+    try {
+        const k = localStorage.getItem('navara_ukuran_teks');
+        const p = k === 'besar' ? 115 : (k === 'sangat_besar' ? 130 : parseInt(k, 10));
+        return (p > 100 && p <= 150) ? p : 100;
+    } catch(e) { return 100; }
+}
+function getUkuranTeks() { const p = getUkuranPersen(); return p === 115 ? 'besar' : (p === 130 ? 'sangat_besar' : (p === 100 ? 'normal' : 'kustom')); }
+function terapkanUkuranTeks() {
     const root = document.documentElement;
-    root.classList.remove('uk-besar', 'uk-sangat');
-    if (m === 'besar') root.classList.add('uk-besar');
-    if (m === 'sangat_besar') root.classList.add('uk-sangat');
+    const p = Math.min(getUkuranPersen(), ukBatasMaks());
+    root.classList.remove('uk-besar', 'uk-sangat', 'uk-kustom');
+    if(p > 100) { root.classList.add('uk-kustom'); root.style.setProperty('--uk-zoom', String(p / 100)); }
+    else root.style.removeProperty('--uk-zoom');
+    return p;
+}
+function setUkuranTeks(mode) {
+    let p = mode === 'besar' ? 115 : (mode === 'sangat_besar' ? 130 : Number(mode));
+    if(!(p > 100)) p = 100;
+    p = Math.min(Math.round(p), 150);
+    const maks = ukBatasMaks();
+    if(p > maks) { p = maks; showToast('Layar ini hanya aman sampai ' + maks + '%'); }
+    try { if(p <= 100) localStorage.removeItem('navara_ukuran_teks'); else localStorage.setItem('navara_ukuran_teks', p === 115 ? 'besar' : (p === 130 ? 'sangat_besar' : String(p))); } catch(e) {}
+    terapkanUkuranTeks();
     tandaiUkuranTeks();
+    try { sesuaikanNamaInstansiHeader(); } catch(e) {}
 }
+function ukTampilNilai(v) { const el = document.getElementById('ukNilai'); if(el) el.textContent = v + '%'; }
 function tandaiUkuranTeks() {
-    const m = getUkuranTeks();
-    [['ukNormal','normal'],['ukBesar','besar'],['ukSangat','sangat_besar']].forEach(([id, v]) => {
-        const el = document.getElementById(id); if (el) el.classList.toggle('aktif', m === v);
+    const p = getUkuranPersen(), maks = ukBatasMaks();
+    [['ukNormal', 100], ['ukBesar', 115], ['ukSangat', 130]].forEach(([id, v]) => {
+        const el = document.getElementById(id); if(el) el.classList.toggle('aktif', p === v);
     });
+    const g = document.getElementById('ukGeser');
+    if(g) { g.max = String(Math.max(maks, 101)); g.disabled = maks <= 100; g.value = String(Math.min(p, maks)); }
+    ukTampilNilai(Math.min(p, maks));
+    const b = document.getElementById('ukBatas');
+    if(b) b.textContent = maks <= 100 ? 'Layar ini terlalu sempit untuk dibesarkan.' : 'Batas aman untuk layar ini: ' + maks + '%. Angka di atasnya dapat membuat tampilan terpotong.';
 }
+window.addEventListener('resize', () => { try { terapkanUkuranTeks(); tandaiUkuranTeks(); } catch(e) {} });
 
 function pilihTampilanMenu(mode) {
     aturMenuTampilanDraf = mode === 'ringkas' ? 'ringkas' : 'keterangan';
@@ -19797,7 +19830,7 @@ function cetakLaporanPenutupanMusim(mode) {
             <tr class="lap-total"><td>PROYEKSI LABA (Kontrak − Modal Estimasi)</td><td>${f(profitAktual)}</td></tr></table>
             ${modalEst && (modalEst.nFoc + modalEst.nTL) > 0 ? `<p class="lap-note">Total Modal sudah termasuk modal ${[modalEst.nFoc > 0 ? modalEst.nFoc + ' peserta FOC' : '', modalEst.nTL > 0 ? modalEst.nTL + ' TL' : ''].filter(Boolean).join(' dan ')}, karena biaya mereka tetap keluar.</p>` : ''}</div>`;
     } else if(isHajiReguler()) {
-        // Haji Reguler dengan Komponen — pecah per Jenis (Bimbingan, Touring/Ziarah, dst)
+        // Haji Reguler dengan Komponen — pecah per Jenis (Bimbingan, Tour/Ziarah, dst)
         const komponenList = ensureKomponenHaji();
         let totalTargetSemua = 0, totalDibayarSemua = 0;
         const rowsKomponen = komponenList.map(k => {
@@ -20130,7 +20163,7 @@ function daftarCaraPakai() {
               isi: 'Buka <b>Setting</b> → <b>Jenis Usaha</b>, lalu centang jenis program yang dijalankan kantor Anda: <b>Umroh</b>, <b>Haji Khusus/Plus</b>, dan atau <b>Haji Reguler</b>. Pilihan jenis program dan kartu pengaturan yang tidak dipakai akan disembunyikan, jadi tampilan lebih sederhana. Data tidak dihapus, dan pilihan ini bisa diubah kapan saja. Jenis yang masih punya Program tidak bisa dimatikan.',
               tombol: [bukaMod('Setting', 'setting')] },
             { judul: 'Isi harga per komponen (Haji Reguler)', jenis: ['haji_reguler'],
-              isi: 'Program Haji Reguler tidak memakai Cuan Plan. Buka <b>Konfigurasi</b> lalu isi <b>Harga per Komponen (Haji Reguler)</b>, misalnya Bimbingan dan Touring/Ziarah, beserta harganya. Jumlah semua komponen menjadi tagihan jamaah. Pengeluaran dicatat di <b>Kas</b>.',
+              isi: 'Program Haji Reguler tidak memakai Cuan Plan. Buka <b>Konfigurasi</b> lalu isi <b>Harga per Komponen (Haji Reguler)</b>, misalnya Bimbingan dan Tour/Ziarah, beserta harganya. Jumlah semua komponen menjadi tagihan jamaah. Pengeluaran dicatat di <b>Kas</b>.',
               tombol: [bukaMod('Konfigurasi', 'konfigurasi')] },
             { judul: 'Isi Cuan Plan dan harga paket', jenis: ['umroh', 'haji'],
               isi: 'Buka <b>Cuan Plan</b> → tab <b>Estimasi</b>: isi data rombongan dan komponen biaya, atur <b>Margin</b>, lalu ketuk <b>HITUNG ESTIMASI</b>. Hasilnya adalah modal dan harga paket. Supaya semua jamaah memakai harga itu, buka <b>Konfigurasi</b> → <b>Harga Paket Seragam</b>, nyalakan, lalu isi harga paketnya. Untuk Haji Reguler, Cuan Plan tidak dipakai; isi <b>Harga per Komponen</b> di Konfigurasi.',
@@ -23333,7 +23366,7 @@ function teksKomposisiPeserta(k) {
 
 function getTotalHargaPaket(jamaah) { 
     if (tanpaTagihan(jamaah)) return 0; // FOC / TL / Pembimbing: tidak pernah ditagih, apa pun pengaturan harga
-    // Haji Reguler: total = jumlah semua Komponen (Bimbingan+Touring+dst), pakai nilai per-jamaah kalau ada override, kalau tidak pakai Harga Seragam komponen itu
+    // Haji Reguler: total = jumlah semua Komponen (Bimbingan+Tour+dst), pakai nilai per-jamaah kalau ada override, kalau tidak pakai Harga Seragam komponen itu
     if(isHajiReguler()) {
         const komponenList = ensureKomponenHaji();
         const override = jamaah.harga_komponen_haji || {};
@@ -24951,13 +24984,13 @@ function kfGambar() {
     const rp = kfRingkas('profil', tp), rd = kfRingkas('dokumen', td);
     const total = (cp ? rp.hematMB : 0) + (cd ? rd.hematMB : 0), nn = (cp ? rp.n : 0) + (cd ? rd.n : 0);
     const ok = document.getElementById('kfMengerti') ? document.getElementById('kfMengerti').checked : false;
-    const bisa = nn > 0 && ok && kfBackupBaru();
+    const bisa = nn > 0 && ok;
     const blok = (jenis, judul, r, awal, cek) => `<div style="border:1.5px solid #e2e8f0;border-radius:12px;padding:10px;margin-bottom:10px;"><label style="display:flex;gap:8px;align-items:center;font-weight:700;font-size:14px;"><input type="checkbox" id="kfC_${jenis}" ${cek ? 'checked' : ''} onchange="kfGambar()" style="width:18px;height:18px;"> ${judul}</label><div style="font-size:12px;margin-top:4px;color:#64748B;">${r.total} foto tersimpan (±${formatUkuranMB(r.totalMB)}). ${r.n > 0 ? '<b style="color:#0F766E;">' + r.n + ' bisa dikecilkan, hemat ±' + formatUkuranMB(r.hematMB) + '</b>' : 'Tidak ada yang perlu dikecilkan.'}</div>${sel(jenis, awal)}</div>`;
     isi.innerHTML = `<div style="font-weight:800;font-size:16px;color:var(--primary);margin-bottom:4px;">🧹 Kecilkan Foto yang Sudah Tersimpan</div>
         <div style="font-size:12px;color:#64748B;margin-bottom:10px;">Foto yang lebih besar dari ukuran target diganti versi yang lebih kecil. Foto yang sudah kecil tidak disentuh, dan file PDF tidak diubah.</div>
         ${blok('profil', '📷 Foto Profil', rp, 'seimbang', cp)}${blok('dokumen', '📄 Foto Dokumen', rd, 'hemat', cd)}
         <div style="background:#FEF3C7;color:#92400E;border-radius:10px;padding:9px 11px;font-size:12px;line-height:1.5;margin-bottom:10px;"><b>Perhatian:</b> foto lama diganti dan <b>tidak bisa dikembalikan</b>. Foto yang dikecilkan tidak bisa dibuat tajam lagi. Perkiraan hemat total: <b>±${formatUkuranMB(total)}</b>.</div>
-        <div style="margin-bottom:10px;"><div style="font-weight:700;margin-bottom:4px;">1. Backup ZIP dulu</div>${kfBackupBaru() ? '<div style="background:#DCFCE7;color:#166534;border-radius:10px;padding:8px 10px;font-size:12px;">✅ Backup ZIP sudah dibuat dalam 1 jam terakhir.</div>' : '<button onclick="kfBackup()" style="width:100%;padding:10px;border:none;border-radius:10px;background:#3B82F6;color:#fff;font-weight:700;font-size:13px;cursor:pointer;">💾 Backup ZIP sekarang</button><div style="font-size:11px;color:#888;margin-top:4px;">Tombol Mulai baru aktif setelah backup selesai.</div>'}</div>
+        <div style="margin-bottom:10px;"><div style="font-weight:700;margin-bottom:4px;">1. Backup ZIP (disarankan)</div>${kfBackupBaru() ? '<div style="background:#DCFCE7;color:#166534;border-radius:10px;padding:8px 10px;font-size:12px;">✅ Backup ZIP sudah dibuat dalam 1 jam terakhir.</div>' : '<button onclick="kfBackup()" style="width:100%;padding:10px;border:none;border-radius:10px;background:#3B82F6;color:#fff;font-weight:700;font-size:13px;cursor:pointer;">💾 Backup ZIP sekarang</button><div style="font-size:11px;color:#888;margin-top:4px;">Sangat disarankan, supaya foto asli bisa dipulihkan kalau perlu.</div>'}</div>
         <label style="display:flex;gap:8px;align-items:flex-start;font-size:12px;margin-bottom:12px;"><input type="checkbox" id="kfMengerti" ${ok ? 'checked' : ''} onchange="kfGambar()" style="width:18px;height:18px;flex-shrink:0;"> <span>Saya mengerti foto lama diganti dan tidak bisa dikembalikan.</span></label>
         <div id="kfProgres" style="display:none;margin-bottom:10px;"><div style="background:#e2e8f0;border-radius:6px;height:8px;overflow:hidden;"><div id="kfBar" style="height:8px;width:0%;background:var(--primary);"></div></div><div id="kfTeks" style="font-size:12px;margin-top:4px;color:#64748B;"></div></div>
         <div style="display:flex;gap:8px;"><button onclick="kfTutup()" style="flex:1;padding:11px;border:none;border-radius:10px;background:#e2e8f0;color:#334155;font-weight:700;cursor:pointer;">Tutup</button><button id="kfMulai" onclick="kfMulai()" ${bisa ? '' : 'disabled'} style="flex:1;padding:11px;border:none;border-radius:10px;background:var(--primary);color:#fff;font-weight:700;cursor:pointer;opacity:${bisa ? 1 : .45};">Mulai</button></div>`;
@@ -24967,7 +25000,11 @@ async function kfBackup() {
     kfGambar();
 }
 async function kfMulai() {
-    if(_kfJalan || !kfBackupBaru()) return;
+    if(_kfJalan) return;
+    if(!kfBackupBaru()) {
+        const mau = await tanyaKonfirmasi({ judul: 'Belum ada Backup ZIP', pesan: 'Anda belum membuat Backup ZIP dalam 1 jam terakhir.\nFoto lama yang dikecilkan tidak bisa dikembalikan. Tetap lanjut tanpa backup?', ikon: '⚠️', tombolYa: 'Lanjut tanpa backup', tombolTidak: 'Backup dulu', warnaYa: '#DC2626' });
+        if(!mau) { kfBackup(); return; }
+    }
     const cp = document.getElementById('kfC_profil').checked, cd = document.getElementById('kfC_dokumen').checked;
     const tp = KUALITAS_FOTO.profil[document.getElementById('kfT_profil').value], td = KUALITAS_FOTO.dokumen[document.getElementById('kfT_dokumen').value];
     _kfJalan = true;
@@ -25020,6 +25057,33 @@ function teksKualitasFoto(jenis) {
     const o = getKualitasFoto(jenis);
     return 'Kualitas: ' + o.nama + ' (' + o.px + ' px) · ' + (jenis === 'profil' ? 'ubah di Setting → Kualitas Foto dan Dokumen' : 'ubah di Setting → Kualitas Foto dan Dokumen');
 }
+
+// (build -147) Nama instansi di header Home: kalau tidak muat satu baris, huruf dikecilkan secukupnya (minimal 15px). Kalau sudah muat, ukuran asli dipakai.
+function sesuaikanNamaInstansiHeader() {
+    try {
+        const h = document.getElementById('headerInstansi1'); if(!h) return;
+        const la = h.closest('.logo-area'), hdr = h.closest('.header-premium'); if(!la || !hdr || !hdr.clientWidth) return;
+        h.style.fontSize = '';
+        const asli = parseFloat(getComputedStyle(h).fontSize);
+        const ikon = la.firstElementChild, cs = getComputedStyle(la), cH = getComputedStyle(hdr);
+        const gap = parseFloat(cs.columnGap) || parseFloat(cs.gap) || 0;
+        const tersedia = hdr.clientWidth - parseFloat(cH.paddingLeft) - parseFloat(cH.paddingRight) - (ikon ? ikon.offsetWidth : 0) - gap;
+        const lama = h.style.whiteSpace; h.style.whiteSpace = 'nowrap';
+        const alami = h.scrollWidth; h.style.whiteSpace = lama;
+        if(alami > tersedia && tersedia > 0) h.style.fontSize = Math.max(15, Math.floor(asli * tersedia / alami * 0.94 * 10) / 10) + 'px';
+    } catch(e) {}
+}
+(function() {
+    const jalan = () => sesuaikanNamaInstansiHeader();
+    window.addEventListener('resize', jalan);
+    window.addEventListener('orientationchange', () => setTimeout(jalan, 250));
+    document.addEventListener('DOMContentLoaded', () => {
+        const h = document.getElementById('headerInstansi1');
+        if(h && window.MutationObserver) new MutationObserver(jalan).observe(h, { childList: true, characterData: true, subtree: true });
+        jalan(); setTimeout(jalan, 1500);
+        if(document.fonts && document.fonts.ready) document.fonts.ready.then(jalan);
+    });
+})();
 
 function applyModeHajiReguler() {
     const hajiReg = isHajiReguler();
@@ -25095,7 +25159,7 @@ function applyModeHajiReguler() {
 // ==================== KOMPONEN BIAYA HAJI REGULER (terpisah TOTAL dari Harga Seragam Umroh) ====================
 function ensureKomponenHaji() {
     const slot = ensureProgramConfigSlot();
-    if(!slot.komponen_haji) slot.komponen_haji = [{ jenis: 'Bimbingan', harga: 0 }, { jenis: 'Touring/Ziarah', harga: 0 }];
+    if(!slot.komponen_haji) slot.komponen_haji = [{ jenis: 'Bimbingan', harga: 0 }, { jenis: 'Tour/Ziarah', harga: 0 }];
     return slot.komponen_haji;
 }
 
@@ -26833,7 +26897,7 @@ function openIndexedDB() {
 // dengan build baru, data MENTAH (langsung dari IndexedDB, bukan dari memori) disalin dulu sebelum
 // proses migrasi apapun berjalan — supaya kalau ada kesalahan di update, data lama masih bisa dipulihkan.
 // Dokumen & foto tidak ikut disalin (ukurannya besar, dan tidak pernah disentuh proses migrasi).
-const NAVARA_BUILD = '2026.10.21-145';
+const NAVARA_BUILD = '2026.10.21-148';
 const MAKS_SNAPSHOT = 3;
 
 // ==================== DAFTAR DATA PUSAT ====================
