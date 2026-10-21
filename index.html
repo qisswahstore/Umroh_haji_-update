@@ -3628,6 +3628,12 @@ https://github.com/nodeca/pako/blob/main/LICENSE
             <div style="font-size:11px;color:#888;margin:3px 0 8px;line-height:1.5;">Centang jenis program yang dijalankan. Pilihan jenis program dan kartu pengaturan yang tidak dipakai akan disembunyikan. Data tidak dihapus.</div>
             <div id="isiJenisUsaha"></div>
         </div>
+        <div class="setting-card" id="kartuKualitasFoto">
+            <div style="font-weight:700;font-size:15px;"><i class="fas fa-image"></i> Kualitas Foto dan Dokumen</div>
+            <div style="font-size:11px;color:#888;margin:3px 0 8px;line-height:1.5;">Berlaku untuk foto yang diunggah setelah ini. Foto yang sudah tersimpan tidak berubah.</div>
+            <div id="isiKualitasFoto"></div>
+            <button onclick="bukaKecilkanFoto()" style="width:100%;margin-top:10px;padding:10px;border-radius:10px;border:1.5px solid var(--primary);background:#fff;color:var(--primary);font-size:13px;font-weight:700;cursor:pointer;">🧹 Kecilkan foto yang sudah tersimpan</button>
+        </div>
         <div class="setting-card" onclick="showPage('carapakai')" style="cursor:pointer;">
             <div style="display:flex;align-items:center;justify-content:space-between;">
                 <div><div style="font-weight:700;font-size:15px;"><i class="fas fa-circle-question"></i> Cara Pakai</div><div style="font-size:11px;color:#888;margin-top:2px;">Panduan langkah demi langkah</div></div>
@@ -4746,7 +4752,7 @@ function internalShowPage(pageId) {
             if(logoEl && logoSrc) logoEl.src = logoSrc;
         } catch(e) {}
     }
-    if (pageId === 'setting') { try { renderKartuJenisUsaha(); } catch(e) {} }
+    if (pageId === 'setting') { try { renderKartuJenisUsaha(); } catch(e) {} try { renderKartuKualitasFoto(); } catch(e) {} }
     if (pageId === 'setting') { updateLicenseSummary(); const na = document.getElementById('namaAdminSaatIni'); if(na) na.textContent = currentAdminNama; const kuncipengaturan = getPengaturanKunciOtomatis(); const elAktif = document.getElementById('cfgKunciOtomatisAktif'); const elMenit = document.getElementById('cfgKunciOtomatisMenit'); if(elAktif) elAktif.checked = kuncipengaturan.aktif; if(elMenit) elMenit.value = kuncipengaturan.menit; }
     if (pageId === 'riwayataktivitas') { renderRiwayatAktivitas(); }
     if (pageId === 'konfigurasi') { if(window.loadKonfigurasiPro) window.loadKonfigurasiPro(); setTimeout(applyKonfigurasiLock, 400); applyModeHajiReguler(); setTimeout(() => { if(window.siapkanRekeningPenerimaanUI) siapkanRekeningPenerimaanUI(); }, 600); }
@@ -17619,7 +17625,8 @@ function previewFotoProfil(event, jamaahId) {
     const file = event.target.files[0];
     if (!file) return;
     document.getElementById('fotoStatusText').textContent = 'Mengompres foto...';
-    kompresiFoto(file, 300, 0.70, (dataUrl) => {
+    const kualProfil = getKualitasFoto('profil');
+    kompresiFoto(file, kualProfil.px, kualProfil.q, (dataUrl) => {
         _fotoPreviewData = dataUrl;
         window._currentFotoData = dataUrl;
         document.getElementById('fotoPreviewImg').src = dataUrl;
@@ -17627,7 +17634,7 @@ function previewFotoProfil(event, jamaahId) {
         document.getElementById('fotoPlaceholder').style.display = 'none';
         // Tampilkan ukuran setelah kompres
         const kb = Math.round(dataUrl.length * 0.75 / 1024);
-        document.getElementById('fotoStatusText').textContent = 'Preview (' + kb + ' KB) — belum disimpan';
+        document.getElementById('fotoStatusText').innerHTML = 'Preview (' + kb + ' KB) — belum disimpan<br><span style="font-size:10px;">' + teksKualitasFoto('profil') + '</span>';
         document.getElementById('btnSimpanFoto').style.display = 'block';
         document.getElementById('btnBatalFoto').style.display = 'block';
         document.getElementById('btnHapusFoto').style.display = 'none';
@@ -24835,6 +24842,185 @@ function simpanJenisUsaha(kunci, cek) {
     showToast('Jenis Usaha disimpan');
 }
 
+// ===== Kualitas foto profil & dokumen (build -144) =====
+const KUALITAS_FOTO = {
+    profil:  { hemat: { px: 300, q: 0.70, kb: 12, nama: 'Hemat' },  seimbang: { px: 450,  q: 0.75, kb: 25,  nama: 'Seimbang' }, tajam: { px: 600,  q: 0.80, kb: 45,  nama: 'Tajam' } },
+    dokumen: { hemat: { px: 800, q: 0.75, kb: 100, nama: 'Hemat' }, seimbang: { px: 1200, q: 0.80, kb: 200, nama: 'Seimbang' }, tajam: { px: 1600, q: 0.85, kb: 375, nama: 'Tajam' } }
+};
+function getKualitasFoto(jenis) {
+    const awal = { profil: 'tajam', dokumen: 'hemat' };
+    const k = (konfigurasiPro && konfigurasiPro.kualitas_foto && konfigurasiPro.kualitas_foto[jenis]) || awal[jenis];
+    return KUALITAS_FOTO[jenis][k] ? { kunci: k, ...KUALITAS_FOTO[jenis][k] } : { kunci: awal[jenis], ...KUALITAS_FOTO[jenis][awal[jenis]] };
+}
+function simpanKualitasFoto(jenis, kunci) {
+    if(!KUALITAS_FOTO[jenis] || !KUALITAS_FOTO[jenis][kunci]) return;
+    konfigurasiPro.kualitas_foto = Object.assign({}, konfigurasiPro.kualitas_foto || {}, { [jenis]: kunci });
+    localStorage.setItem('navara_konfigurasi_pro', JSON.stringify(konfigurasiPro));
+    try { idbSet(STORE_KONFIGURASI, 'konfigurasi_pro', konfigurasiPro); } catch(e) {}
+    renderKartuKualitasFoto();
+    showToast('Kualitas ' + (jenis === 'profil' ? 'foto profil' : 'foto dokumen') + ': ' + KUALITAS_FOTO[jenis][kunci].nama);
+}
+async function renderKartuKualitasFoto() {
+    const wadah = document.getElementById('isiKualitasFoto'); if(!wadah) return;
+    const nJam = (Array.isArray(_allJamaahData) ? _allJamaahData.length : 0);
+    const blok = (jenis, judul, ket) => {
+        const cur = getKualitasFoto(jenis).kunci;
+        const tombol = Object.keys(KUALITAS_FOTO[jenis]).map(k => {
+            const o = KUALITAS_FOTO[jenis][k], aktif = k === cur;
+            return `<button onclick="simpanKualitasFoto('${jenis}','${k}')" style="flex:1;padding:8px 4px;border-radius:10px;border:2px solid ${aktif ? 'var(--primary)' : '#e2e8f0'};background:${aktif ? 'var(--primary)' : '#fff'};color:${aktif ? '#fff' : '#334155'};font-size:12px;font-weight:700;cursor:pointer;line-height:1.35;">${o.nama}<br><span style="font-weight:500;font-size:10px;">${o.px} px · ±${o.kb} KB</span></button>`;
+        }).join('');
+        const perk = nJam > 0 ? `Perkiraan untuk ${nJam} jamaah${jenis === 'dokumen' ? ' (4 dokumen tiap orang)' : ''}: ±${formatUkuranMB(getKualitasFoto(jenis).kb * nJam * (jenis === 'dokumen' ? 4 : 1) / 1024)}` : '';
+        return `<div style="margin-bottom:12px;"><div style="font-weight:600;font-size:13px;">${judul}</div><div style="font-size:11px;color:#888;margin:1px 0 6px;">${ket}</div><div style="display:flex;gap:6px;">${tombol}</div>${perk ? `<div style="font-size:11px;color:#64748B;margin-top:5px;">${perk}</div>` : ''}</div>`;
+    };
+    wadah.innerHTML = blok('profil', '📷 Foto Profil', 'Dipakai untuk mengenali dan dikirim ke orang lain.') + blok('dokumen', '📄 Foto Dokumen', 'KTP, paspor, dan lainnya. Foto di bawah 512 KB dan file PDF tidak diubah.') + '<div id="infoMemoriFoto" style="font-size:12px;line-height:1.5;border-radius:10px;padding:9px 11px;background:#F1F5F9;color:#475569;">Memeriksa ruang penyimpanan...</div>';
+    const info = document.getElementById('infoMemoriFoto');
+    if(!(navigator.storage && navigator.storage.estimate)) { info.textContent = 'Ruang penyimpanan tidak bisa dibaca di perangkat ini. Pilih kualitas sesuai kebutuhan.'; return; }
+    try {
+        const { usage = 0, quota = 0 } = await navigator.storage.estimate();
+        const sisaMB = Math.max(0, (quota - usage) / 1048576), persen = quota > 0 ? usage / quota * 100 : 0;
+        let saran, warna = '#DCFCE7', tulisan = '#166534', status;
+        if(sisaMB < 500 || persen >= 80) { status = 'sempit'; saran = 'Hemat untuk foto profil dan Hemat untuk dokumen. Sebaiknya Backup ZIP dan rapikan data yang tidak dipakai.'; warna = '#FEE2E2'; tulisan = '#991B1B'; }
+        else if(sisaMB < 2048 || persen >= 50) { status = 'mulai menipis'; saran = 'Tajam untuk foto profil dan Hemat untuk dokumen. Hati-hati menaikkan kualitas dokumen.'; warna = '#FEF3C7'; tulisan = '#92400E'; }
+        else { status = 'masih luas'; saran = 'Tajam untuk foto profil dan Seimbang untuk dokumen.'; }
+        info.style.background = warna; info.style.color = tulisan;
+        info.innerHTML = `<b>Ruang penyimpanan ${status}.</b> Navara memakai ±${formatUkuranMB(usage / 1048576)}, perkiraan sisa ±${formatUkuranMB(sisaMB)}.<br>Saran: ${saran}${status !== 'masih luas' ? '<br><a href="#" onclick="bukaKecilkanFoto();return false;" style="font-weight:700;color:inherit;text-decoration:underline;">Kecilkan foto yang sudah tersimpan →</a>' : ''}<br><span style="font-size:10px;opacity:.8;">Angka dari perkiraan browser, bukan hitungan pasti memori HP.</span>`;
+    } catch(e) { info.textContent = 'Ruang penyimpanan tidak bisa dibaca.'; }
+}
+function formatUkuranMB(mb) { return mb >= 1024 ? (mb / 1024).toFixed(1) + ' GB' : (mb >= 10 ? Math.round(mb) : mb.toFixed(1)) + ' MB'; }
+// ===== Kecilkan foto lama (build -145) =====
+// Mengganti foto/dokumen yang SUDAH tersimpan dengan versi lebih kecil. Tidak bisa dikembalikan → backup ZIP wajib, proses satu per satu, hanya diganti kalau hasilnya benar-benar lebih kecil.
+let _kfScan = null, _kfJalan = false;
+function kfMuatGambar(dataUrl) {
+    return new Promise(res => { const im = new Image(); im.onload = () => res(im); im.onerror = () => res(null); im.src = dataUrl; });
+}
+async function kfPerkecil(dataUrl, px, q, lebarSaja) {
+    const im = await kfMuatGambar(dataUrl); if(!im) return null;
+    let w = im.width, h = im.height;
+    const sisi = lebarSaja ? w : Math.max(w, h);
+    if(sisi > px) { const f = px / sisi; w = Math.max(1, Math.round(w * f)); h = Math.max(1, Math.round(h * f)); }
+    const c = document.createElement('canvas'); c.width = w; c.height = h;
+    const x = c.getContext('2d'); x.fillStyle = '#fff'; x.fillRect(0, 0, w, h); x.drawImage(im, 0, 0, w, h);
+    const out = c.toDataURL('image/jpeg', q);
+    return (out && out.startsWith('data:image/jpeg') && out.length > 200) ? out : null;
+}
+const kfByte = d => Math.round(d.length * 0.75);
+async function kfPindai() {
+    const hasil = { profil: [], dokumen: [] };
+    const kunci = (await idbDaftarKunci(STORE_FOTO)) || [];
+    for (const k of kunci) {
+        const v = await idbGet(STORE_FOTO, k);
+        if(typeof v !== 'string' || !v.startsWith('data:image/')) continue;
+        const im = await kfMuatGambar(v); if(!im) continue;
+        hasil.profil.push({ key: k, bytes: kfByte(v), sisi: Math.max(im.width, im.height), lebar: im.width });
+    }
+    try { await loadDokumenDataFromIndexedDB(); } catch(e) {}
+    for (const jid of Object.keys(dokumenData || {})) {
+        const data = dokumenData[jid] || {};
+        for (const jenis of Object.keys(data)) {
+            (Array.isArray(data[jenis]) ? data[jenis] : []).forEach((v, i) => { if(typeof v === 'string' && v.startsWith('data:image/')) hasil.dokumen.push({ jid, jenis, i, v, bytes: kfByte(v) }); });
+        }
+    }
+    for (const d of hasil.dokumen) { const im = await kfMuatGambar(d.v); d.lebar = im ? im.width : 0; d.sisi = im ? Math.max(im.width, im.height) : 0; delete d.v; }
+    return hasil;
+}
+function kfRingkas(jenis, kunciTarget) {
+    const t = KUALITAS_FOTO[jenis][kunciTarget], daftar = _kfScan[jenis];
+    const cocok = daftar.filter(d => (jenis === 'dokumen' ? d.lebar : d.sisi) > t.px);
+    let hemat = 0;
+    cocok.forEach(d => { const sisi = jenis === 'dokumen' ? d.lebar : d.sisi; hemat += d.bytes * (1 - Math.min(1, Math.pow(t.px / sisi, 2) * 1.1)); });
+    return { total: daftar.length, n: cocok.length, hematMB: hemat / 1048576, totalMB: daftar.reduce((a, d) => a + d.bytes, 0) / 1048576 };
+}
+async function bukaKecilkanFoto() {
+    if(typeof adalahAdminPenuh === 'function' && !adalahAdminPenuh()) return showToast('🔒 Hanya Admin Utama yang boleh mengecilkan foto lama');
+    if(_kfJalan) return;
+    document.getElementById('kecilkanFotoModal')?.remove();
+    const m = document.createElement('div'); m.id = 'kecilkanFotoModal';
+    m.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:10040;display:flex;align-items:center;justify-content:center;padding:16px;';
+    m.innerHTML = '<div id="kfIsi" style="background:#fff;border-radius:18px;padding:20px;width:100%;max-width:400px;max-height:90vh;overflow:auto;font-size:13px;color:#334155;"><div style="text-align:center;padding:20px;">⏳ Memeriksa foto yang tersimpan...</div></div>';
+    document.body.appendChild(m);
+    try { _kfScan = await kfPindai(); } catch(e) { m.remove(); return showToast('❌ Gagal memeriksa foto: ' + e.message); }
+    kfGambar();
+}
+function kfTutup() { if(_kfJalan) return; document.getElementById('kecilkanFotoModal')?.remove(); try { renderKartuKualitasFoto(); } catch(e) {} }
+function kfBackupBaru() { const t = Number(localStorage.getItem('navara_zip_backup_ts') || 0); return t && (Date.now() - t) < 60 * 60 * 1000; }
+function kfGambar() {
+    const isi = document.getElementById('kfIsi'); if(!isi) return;
+    const sel = (jenis, awal) => `<select id="kfT_${jenis}" onchange="kfGambar()" style="width:100%;padding:8px;border-radius:8px;border:1.5px solid #cbd5e1;font-size:13px;margin-top:6px;">` + ['seimbang', 'hemat'].map(k => `<option value="${k}" ${((document.getElementById('kfT_' + jenis) || {}).value || awal) === k ? 'selected' : ''}>Kecilkan ke ${KUALITAS_FOTO[jenis][k].nama} (${KUALITAS_FOTO[jenis][k].px} px)</option>`).join('') + '</select>';
+    const tp = (document.getElementById('kfT_profil') || {}).value || 'seimbang', td = (document.getElementById('kfT_dokumen') || {}).value || 'hemat';
+    const cp = (document.getElementById('kfC_profil') || { checked: true }).checked, cd = (document.getElementById('kfC_dokumen') || { checked: true }).checked;
+    const rp = kfRingkas('profil', tp), rd = kfRingkas('dokumen', td);
+    const total = (cp ? rp.hematMB : 0) + (cd ? rd.hematMB : 0), nn = (cp ? rp.n : 0) + (cd ? rd.n : 0);
+    const ok = document.getElementById('kfMengerti') ? document.getElementById('kfMengerti').checked : false;
+    const bisa = nn > 0 && ok && kfBackupBaru();
+    const blok = (jenis, judul, r, awal, cek) => `<div style="border:1.5px solid #e2e8f0;border-radius:12px;padding:10px;margin-bottom:10px;"><label style="display:flex;gap:8px;align-items:center;font-weight:700;font-size:14px;"><input type="checkbox" id="kfC_${jenis}" ${cek ? 'checked' : ''} onchange="kfGambar()" style="width:18px;height:18px;"> ${judul}</label><div style="font-size:12px;margin-top:4px;color:#64748B;">${r.total} foto tersimpan (±${formatUkuranMB(r.totalMB)}). ${r.n > 0 ? '<b style="color:#0F766E;">' + r.n + ' bisa dikecilkan, hemat ±' + formatUkuranMB(r.hematMB) + '</b>' : 'Tidak ada yang perlu dikecilkan.'}</div>${sel(jenis, awal)}</div>`;
+    isi.innerHTML = `<div style="font-weight:800;font-size:16px;color:var(--primary);margin-bottom:4px;">🧹 Kecilkan Foto yang Sudah Tersimpan</div>
+        <div style="font-size:12px;color:#64748B;margin-bottom:10px;">Foto yang lebih besar dari ukuran target diganti versi yang lebih kecil. Foto yang sudah kecil tidak disentuh, dan file PDF tidak diubah.</div>
+        ${blok('profil', '📷 Foto Profil', rp, 'seimbang', cp)}${blok('dokumen', '📄 Foto Dokumen', rd, 'hemat', cd)}
+        <div style="background:#FEF3C7;color:#92400E;border-radius:10px;padding:9px 11px;font-size:12px;line-height:1.5;margin-bottom:10px;"><b>Perhatian:</b> foto lama diganti dan <b>tidak bisa dikembalikan</b>. Foto yang dikecilkan tidak bisa dibuat tajam lagi. Perkiraan hemat total: <b>±${formatUkuranMB(total)}</b>.</div>
+        <div style="margin-bottom:10px;"><div style="font-weight:700;margin-bottom:4px;">1. Backup ZIP dulu</div>${kfBackupBaru() ? '<div style="background:#DCFCE7;color:#166534;border-radius:10px;padding:8px 10px;font-size:12px;">✅ Backup ZIP sudah dibuat dalam 1 jam terakhir.</div>' : '<button onclick="kfBackup()" style="width:100%;padding:10px;border:none;border-radius:10px;background:#3B82F6;color:#fff;font-weight:700;font-size:13px;cursor:pointer;">💾 Backup ZIP sekarang</button><div style="font-size:11px;color:#888;margin-top:4px;">Tombol Mulai baru aktif setelah backup selesai.</div>'}</div>
+        <label style="display:flex;gap:8px;align-items:flex-start;font-size:12px;margin-bottom:12px;"><input type="checkbox" id="kfMengerti" ${ok ? 'checked' : ''} onchange="kfGambar()" style="width:18px;height:18px;flex-shrink:0;"> <span>Saya mengerti foto lama diganti dan tidak bisa dikembalikan.</span></label>
+        <div id="kfProgres" style="display:none;margin-bottom:10px;"><div style="background:#e2e8f0;border-radius:6px;height:8px;overflow:hidden;"><div id="kfBar" style="height:8px;width:0%;background:var(--primary);"></div></div><div id="kfTeks" style="font-size:12px;margin-top:4px;color:#64748B;"></div></div>
+        <div style="display:flex;gap:8px;"><button onclick="kfTutup()" style="flex:1;padding:11px;border:none;border-radius:10px;background:#e2e8f0;color:#334155;font-weight:700;cursor:pointer;">Tutup</button><button id="kfMulai" onclick="kfMulai()" ${bisa ? '' : 'disabled'} style="flex:1;padding:11px;border:none;border-radius:10px;background:var(--primary);color:#fff;font-weight:700;cursor:pointer;opacity:${bisa ? 1 : .45};">Mulai</button></div>`;
+}
+async function kfBackup() {
+    try { await downloadFullZip(); } catch(e) {}
+    kfGambar();
+}
+async function kfMulai() {
+    if(_kfJalan || !kfBackupBaru()) return;
+    const cp = document.getElementById('kfC_profil').checked, cd = document.getElementById('kfC_dokumen').checked;
+    const tp = KUALITAS_FOTO.profil[document.getElementById('kfT_profil').value], td = KUALITAS_FOTO.dokumen[document.getElementById('kfT_dokumen').value];
+    _kfJalan = true;
+    const prog = document.getElementById('kfProgres'), bar = document.getElementById('kfBar'), teks = document.getElementById('kfTeks');
+    document.getElementById('kfMulai').disabled = true; document.getElementById('kfMulai').style.opacity = .45; prog.style.display = 'block';
+    const antrianP = cp ? _kfScan.profil.filter(d => d.sisi > tp.px) : [];
+    const antrianD = cd ? _kfScan.dokumen.filter(d => d.lebar > td.px) : [];
+    const perJamaah = {}; antrianD.forEach(d => { (perJamaah[d.jid] = perJamaah[d.jid] || []).push(d); });
+    const jumlah = antrianP.length + antrianD.length; let selesai = 0, ok = 0, lewat = 0, gagal = 0, hemat = 0;
+    const maju = () => { bar.style.width = (jumlah ? Math.round(selesai / jumlah * 100) : 100) + '%'; teks.textContent = selesai + ' dari ' + jumlah + ' foto diproses...'; };
+    maju();
+    for (const d of antrianP) {
+        try {
+            const lama = await idbGet(STORE_FOTO, d.key);
+            const baru = (typeof lama === 'string') ? await kfPerkecil(lama, tp.px, tp.q, false) : null;
+            if(baru && kfByte(baru) < kfByte(lama) * 0.9) { await idbSet(STORE_FOTO, d.key, baru); hemat += kfByte(lama) - kfByte(baru); ok++; } else lewat++;
+        } catch(e) { gagal++; }
+        selesai++; if(selesai % 3 === 0) { maju(); await new Promise(r => setTimeout(r, 0)); }
+    }
+    for (const jid of Object.keys(perJamaah)) {
+        const data = dokumenData[jid]; const salinan = {}; let berubah = false;
+        if(!data) { gagal += perJamaah[jid].length; selesai += perJamaah[jid].length; continue; }
+        Object.keys(data).forEach(k => { salinan[k] = Array.isArray(data[k]) ? data[k].slice() : data[k]; });
+        for (const d of perJamaah[jid]) {
+            try {
+                const lama = salinan[d.jenis] && salinan[d.jenis][d.i];
+                const baru = (typeof lama === 'string' && lama.startsWith('data:image/')) ? await kfPerkecil(lama, td.px, td.q, true) : null;
+                if(baru && kfByte(baru) < kfByte(lama) * 0.9) { salinan[d.jenis][d.i] = baru; hemat += kfByte(lama) - kfByte(baru); berubah = true; ok++; } else lewat++;
+            } catch(e) { gagal++; }
+            selesai++; if(selesai % 3 === 0) { maju(); await new Promise(r => setTimeout(r, 0)); }
+        }
+        if(berubah) {
+            try {
+                const db = await openIndexedDB();
+                await new Promise((res, rej) => { const rq = db.transaction([STORE_NAME], 'readwrite').objectStore(STORE_NAME).put({ id: 'jamaah_' + jid, jamaahId: isNaN(Number(jid)) ? jid : Number(jid), data: salinan }); rq.onsuccess = res; rq.onerror = () => rej(rq.error); });
+                dokumenData[jid] = salinan;
+            } catch(e) { gagal++; }
+        }
+    }
+    _kfJalan = false;
+    maju();
+    const isi = document.getElementById('kfIsi');
+    isi.innerHTML = `<div style="text-align:center;font-size:40px;">✅</div><div style="font-weight:800;font-size:16px;text-align:center;color:var(--primary);margin-bottom:8px;">Selesai</div>
+        <div style="background:#F1F5F9;border-radius:10px;padding:10px 12px;font-size:13px;line-height:1.7;">Berhasil dikecilkan: <b>${ok}</b> foto<br>Dilewati (sudah cukup kecil): <b>${lewat}</b><br>Gagal: <b>${gagal}</b>${gagal ? ' (foto aslinya tetap utuh)' : ''}<br>Ruang yang dihemat: <b>±${formatUkuranMB(hemat / 1048576)}</b></div>
+        <button onclick="kfTutup()" style="width:100%;margin-top:12px;padding:11px;border:none;border-radius:10px;background:var(--primary);color:#fff;font-weight:700;cursor:pointer;">Tutup</button>`;
+    try { renderDokumenList(); updateDokumenStats(); } catch(e) {}
+    showToast('✅ Foto dikecilkan: ' + ok);
+}
+function teksKualitasFoto(jenis) {
+    const o = getKualitasFoto(jenis);
+    return 'Kualitas: ' + o.nama + ' (' + o.px + ' px) · ' + (jenis === 'profil' ? 'ubah di Setting → Kualitas Foto dan Dokumen' : 'ubah di Setting → Kualitas Foto dan Dokumen');
+}
+
 function applyModeHajiReguler() {
     const hajiReg = isHajiReguler();
 
@@ -26647,7 +26833,7 @@ function openIndexedDB() {
 // dengan build baru, data MENTAH (langsung dari IndexedDB, bukan dari memori) disalin dulu sebelum
 // proses migrasi apapun berjalan — supaya kalau ada kesalahan di update, data lama masih bisa dipulihkan.
 // Dokumen & foto tidak ikut disalin (ukurannya besar, dan tidak pernah disentuh proses migrasi).
-const NAVARA_BUILD = '2026.10.20-143';
+const NAVARA_BUILD = '2026.10.21-145';
 const MAKS_SNAPSHOT = 3;
 
 // ==================== DAFTAR DATA PUSAT ====================
@@ -27838,7 +28024,8 @@ async function uploadDokumen(jamaahId, jenisId, jenisNama) {
                 <div style="font-size:11px;margin-top:4px;">JPG, PNG</div>
             </div>
         </div>
-        <div id="_fileInfo" style="font-size:12px;color:#888;text-align:center;margin-bottom:12px;"></div>
+        <div id="_fileInfo" style="font-size:12px;color:#888;text-align:center;margin-bottom:4px;"></div>
+        <div style="font-size:10px;color:#94a3b8;text-align:center;margin-bottom:12px;">${teksKualitasFoto('dokumen')}</div>
         <div style="display:flex;gap:10px;">
             <button onclick="this.closest('[style*=fixed]').remove()" 
                 style="flex:1;padding:12px;background:#fee2e2;color:#ef4444;border:none;border-radius:40px;font-weight:600;cursor:pointer;">
@@ -27876,7 +28063,8 @@ async function uploadDokumen(jamaahId, jenisId, jenisNama) {
         btn.disabled = true; btn.textContent = '⏳ Menyimpan...';
         try {
             let fileToUpload = selectedFile;
-            if(selectedFile.size > 512*1024) fileToUpload = await kompresGambar(selectedFile, 800, 0.75);
+            const kualDok = getKualitasFoto('dokumen');
+            if(selectedFile.size > 512*1024) fileToUpload = await kompresGambar(selectedFile, kualDok.px, kualDok.q);
             const reader = new FileReader();
             reader.onload = async (ev) => {
                 await saveDokumenToIndexedDB(jamaahId, jenisId, ev.target.result);
@@ -28163,6 +28351,7 @@ async function downloadFullZip() {
         const content = await buildFullBackupZip();
         const date = new Date().toISOString().slice(0,10); 
         saveAs(content, `Navara_Full_Backup_${date}.zip`); 
+        try { localStorage.setItem('navara_zip_backup_ts', String(Date.now())); } catch(e) {}
         showToast('✅ Backup ZIP berhasil! Termasuk semua data.'); 
     } catch(e) { showToast('❌ Gagal membuat ZIP: ' + e.message); } 
 }
