@@ -160,7 +160,6 @@
         body.dark-mode .jamaah-card,
         body.dark-mode .dokumen-card,
         body.dark-mode .folder-card,
-        body.dark-mode .catatan-card,
         body.dark-mode .payment-jamaah-card,
         body.dark-mode .rekap-card,
         body.dark-mode .semua-menu-grid.mode-keterangan .menu-tile,
@@ -596,10 +595,6 @@
             color: var(--primary);
             border: 1.5px solid rgba(13,92,74,0.18);
         }
-        .btn-blue {
-            background: var(--blue);
-            color: white;
-        }
         .btn-orange {
             background: var(--orange);
             color: white;
@@ -936,14 +931,6 @@
             font-size: 18px;
             cursor: pointer;
             color: var(--red);
-        }
-        .backup-info {
-            background: #E3F2FD;
-            padding: 12px;
-            border-radius: 16px;
-            margin: 12px 0;
-            font-size: 12px;
-            color: #1565C0;
         }
         .field-item {
             background: var(--gray-light);
@@ -1366,54 +1353,11 @@
             margin: 0 3px;
         }
         
-        .catatan-card {
-            background: white;
-            border-radius: 20px;
-            padding: 16px;
-            margin-bottom: 12px;
-            border-left: 4px solid var(--primary);
-            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
-        }
-        .catatan-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            margin-bottom: 10px;
-        }
-        .catatan-judul {
-            font-size: 1rem;
-            font-weight: bold;
-            color: var(--primary);
-        }
-        .catatan-tgl {
-            font-size: 0.7rem;
-            color: var(--gray);
-        }
-        .catatan-isi {
-            font-size: 0.8rem;
-            color: var(--dark);
-            margin-top: 8px;
-            padding-top: 8px;
-            border-top: 1px solid var(--gray-light);
-            white-space: pre-wrap;
-        }
-        .catatan-actions button {
-            background: none;
-            border: none;
-            cursor: pointer;
-            font-size: 1.1rem;
-            padding: 5px;
-            border-radius: 6px;
-        }
-        
         .text-center {
             text-align: center;
         }
         .mt-2 {
             margin-top: 8px;
-        }
-        .mb-2 {
-            margin-bottom: 8px;
         }
         
         .dokumen-card {
@@ -1491,24 +1435,6 @@
             cursor: pointer;
             margin-top: 6px;
         }
-        .btn-preview-doc {
-            background: none;
-            border: none;
-            color: var(--blue);
-            font-size: 14px;
-            cursor: pointer;
-            margin-top: 6px;
-            margin-right: 6px;
-        }
-        .btn-print-doc {
-            background: none;
-            border: none;
-            color: var(--teal);
-            font-size: 14px;
-            cursor: pointer;
-            margin-top: 6px;
-            margin-right: 6px;
-        }
         .btn-print-all-doc {
             background: var(--teal);
             color: white;
@@ -1518,15 +1444,6 @@
             font-size: 11px;
             cursor: pointer;
             margin-left: 8px;
-        }
-        .btn-delete-doc {
-            background: none;
-            border: none;
-            color: var(--red);
-            font-size: 14px;
-            cursor: pointer;
-            margin-top: 6px;
-            margin-left: 4px;
         }
         
         .folder-card {
@@ -1566,26 +1483,6 @@
             margin-left: 5px;
         }
         
-        .label-preview {
-            background: white;
-            border-radius: 16px;
-            padding: 20px;
-            text-align: center;
-            margin-bottom: 20px;
-            border: 1px dashed var(--primary);
-        }
-        .label-name {
-            font-size: 18px;
-            font-weight: bold;
-            color: var(--primary);
-            text-transform: uppercase;
-        }
-        .label-detail {
-            font-size: 12px;
-            color: var(--gray);
-            margin-top: 8px;
-        }
-        
         .tiket-card {
             background: linear-gradient(135deg, white, #F8FAFC);
             border-radius: 24px;
@@ -1594,16 +1491,6 @@
             border: 1px solid var(--primary);
             position: relative;
             overflow: hidden;
-        }
-        .tiket-header {
-            border-bottom: 2px dashed var(--gray-light);
-            padding-bottom: 12px;
-            margin-bottom: 12px;
-        }
-        .tiket-title {
-            font-weight: bold;
-            font-size: 18px;
-            color: var(--primary);
         }
         .tiket-qr {
             text-align: center;
@@ -1692,9 +1579,6 @@
             font-size: 11px;
             margin-top: 4px;
         }
-        .status-connected {
-            color: var(--green);
-        }
         .status-disconnected {
             color: var(--gray);
         }
@@ -1734,41 +1618,6 @@
                 display: none !important;
             }
         }
-    
-.batch-action-bar {
-    position: fixed;
-    bottom: 20px;
-    left: 50%;
-    transform: translateX(-50%) translateY(20px);
-    background: white;
-    padding: 10px 20px;
-    border-radius: 50px;
-    box-shadow: 0 10px 25px rgba(0,0,0,0.2);
-    display: none;
-    z-index: 1000;
-    gap: 15px;
-    align-items: center;
-    border: 2px solid var(--primary);
-    opacity: 0;
-    transition: 0.25s ease;
-}
-.batch-action-bar.show {
-    opacity: 1;
-    transform: translateX(-50%) translateY(0);
-}
-.btn-action {
-    background: var(--primary);
-    color: white;
-    border: none;
-    border-radius: 50%;
-    width: 38px;
-    height: 38px;
-    font-size: 16px;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
 .jamaah-card.selected-card {
     border: 2px solid var(--primary);
     background: #f0f7f4;
@@ -1788,15 +1637,6 @@
 .batch-floating-bar.show { display:flex; }
 .btn-batch-wa { background:var(--wa) !important; color:white !important; padding:8px 16px !important; width:auto !important; font-size:13px !important; }
 .btn-batch-cancel { background:var(--red) !important; color:white !important; padding:8px 14px !important; width:auto !important; font-size:13px !important; }
-.jamaahkita-modal { display:none; position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.5); z-index:9999; justify-content:center; align-items:center; padding:20px; }
-.jamaahkita-modal.show { display:flex; }
-.jamaahkita-modal-content { background:white; border-radius:28px; padding:24px; width:90%; max-width:400px; max-height:80vh; overflow-y:auto; }
-.jamaahkita-modal-content h3 { color:var(--primary); margin-bottom:16px; }
-.jamaahkita-edit-field { margin-bottom:12px; }
-.jamaahkita-edit-field label { font-size:12px; font-weight:bold; color:var(--primary); display:block; margin-bottom:4px; }
-.jamaahkita-edit-field input { width:100%; padding:10px 14px; border-radius:12px; border:1.5px solid #E2E8F0; font-size:14px; }
-.admin-field-item { display:flex; justify-content:space-between; align-items:center; padding:10px 0; border-bottom:1px solid var(--gray-light); }
-.default-badge { background:var(--accent); color:var(--primary-dark); padding:2px 8px; border-radius:20px; font-size:10px; font-weight:bold; }
 
 /* ===== EXPORT DROPDOWN ===== */
 .export-dropdown-wrapper {
@@ -1804,6 +1644,7 @@
     display: inline-block;
     width: 100%;
 }
+.btn-export-std { background: linear-gradient(135deg, var(--primary), #1a7a63); color: white; border: none; border-radius: 50px; padding: 13px 20px; font-size: 14px; font-weight: bold; cursor: pointer; width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px; margin-top: 10px; }
 .export-dropdown-wrapper .btn-export {
     background: linear-gradient(135deg, var(--primary), #1a7a63);
     color: white;
@@ -1937,7 +1778,6 @@
     
     <script src="https://cdn.sheetjs.com/xlsx-0.20.2/package/dist/xlsx.full.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.1/build/qrcode.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script>/* JSZip 3.10.1 ditanam langsung (agar backup ZIP jalan walau offline) */
@@ -2247,11 +2087,7 @@ https://github.com/nodeca/pako/blob/main/LICENSE
             <div class="chart-container"><canvas id="paymentChart"></canvas></div>
             <div class="section-title"><span> 5 JAMAAH DENGAN TAGIHAN TERBESAR</span></div>
             <div id="topPiutangList"></div>
-            <div class="row" style="margin-top:16px;">
-                <button class="btn btn-purple btn-small" onclick="downloadDashboardPDF()" style="flex:1"><i class="fas fa-share-nodes"></i> BAGIKAN PDF</button>
-                <button class="btn btn-teal btn-small" onclick="exportDashboardExcel()" style="flex:1"><i class="fas fa-file-excel"></i> EXCEL</button>
-                <button class="btn btn-primary btn-small" onclick="cetakDashboardHTML()" style="flex:1"><i class="fas fa-print"></i> CETAK</button>
-            </div>
+            <button class="btn-export-std" style="margin-top:16px;" onclick="bukaExportHalaman('dashboard')"><i class="fas fa-download"></i> Export</button>
         </div>
     </div>
 </div>
@@ -2530,20 +2366,7 @@ https://github.com/nodeca/pako/blob/main/LICENSE
         <div style="background:white;border-radius:16px;padding:16px;box-shadow:0 2px 8px rgba(0,0,0,0.06);">
             <div style="margin-bottom:12px;">
                 <div style="font-weight:700;font-size:14px;color:var(--primary);margin-bottom:8px;">📋 Daftar Pengeluaran</div>
-                <div style="display:flex;gap:8px;">
-                    <button onclick="cetakPengeluaran()"
-                        style="flex:1;padding:9px 8px;background:var(--primary);color:white;border:none;border-radius:10px;font-size:12px;font-weight:700;cursor:pointer;">
-                        🖨️ Cetak Pengeluaran
-                    </button>
-                    <button onclick="cetakLaporanGabungan('semua')"
-                        style="flex:1;padding:9px 8px;background:#1d4ed8;color:white;border:none;border-radius:10px;font-size:12px;font-weight:700;cursor:pointer;">
-                        📄 Cetak Lengkap
-                    </button>
-                    <button onclick="exportPengeluaranExcel()"
-                        style="flex:1;padding:9px 8px;background:#15803d;color:white;border:none;border-radius:10px;font-size:12px;font-weight:700;cursor:pointer;">
-                        📊 Excel
-                    </button>
-                </div>
+                <button class="btn-export-std" style="margin-top:0;" onclick="bukaExportHalaman('pengeluaran')"><i class="fas fa-download"></i> Export</button>
             </div>
             <div id="pengeluaranList">
                 <div style="text-align:center;color:#888;padding:20px;font-size:13px;">Belum ada pengeluaran</div>
@@ -2746,10 +2569,7 @@ https://github.com/nodeca/pako/blob/main/LICENSE
                 <span id="konsorsiumTotalProfit" style="font-weight:900;font-size:18px;color:#4ADE80;">Rp 0</span>
             </div>
         </div>
-        <div style="display:flex;gap:8px;margin-top:10px;">
-            <button onclick="cetakLaporanKonsorsium()" style="flex:1;padding:11px;background:#F59E0B;color:white;border:none;border-radius:10px;font-size:12px;font-weight:700;cursor:pointer;">🖨️ Cetak Laporan (Internal)</button>
-            <button onclick="bagikanKonsorsiumWA()" style="flex:1;padding:11px;background:#25D366;color:white;border:none;border-radius:10px;font-size:12px;font-weight:700;cursor:pointer;">📲 Bagikan WA</button>
-        </div>
+        <button class="btn-export-std" onclick="bukaExportHalaman('konsorsium')"><i class="fas fa-download"></i> Export</button>
         <button onclick="openAnalisisBufferB2BModal()" style="width:100%;margin-top:8px;padding:11px;background:#0369A1;color:white;border:none;border-radius:10px;font-size:12px;font-weight:700;cursor:pointer;">📊 Analisis Buffer (B2B)</button>
     </div>
 
@@ -2773,19 +2593,19 @@ https://github.com/nodeca/pako/blob/main/LICENSE
             <div class="export-dropdown-menu" id="exportMenuKas">
                 <div class="export-menu-item" onclick="cetakKasHTML(); toggleExportDropdown('exportMenuKas')">
                     <div class="export-icon export-icon-cetak">🖨️</div>
-                    <div><div class="export-label">Cetak</div><div class="export-desc">Buka window cetak</div></div>
+                    <div><div class="export-label">Cetak / Simpan PDF</div><div class="export-desc">Lihat dulu, lalu cetak atau simpan PDF</div></div>
                 </div>
-                <div class="export-menu-item" onclick="toggleExportDropdown('exportMenuKas'); shareKasPDF();">
+                <div class="export-menu-item" onclick="toggleExportDropdown('exportMenuKas'); bagikanDariCetak(()=>cetakKasHTML(),'Laporan_Kas');">
                     <div class="export-icon export-icon-pdf">📲</div>
-                    <div><div class="export-label">Share / Bagikan</div><div class="export-desc">Bagikan PDF via WA/aplikasi lain</div></div>
+                    <div><div class="export-label">Bagikan PDF</div><div class="export-desc">Kirim file PDF lewat WhatsApp atau aplikasi lain</div></div>
                 </div>
                 <div class="export-menu-item" onclick="exportKasExcel(); toggleExportDropdown('exportMenuKas')">
                     <div class="export-icon export-icon-excel">📊</div>
-                    <div><div class="export-label">Excel</div><div class="export-desc">Laporan kas format Excel</div></div>
+                    <div><div class="export-label">Excel</div><div class="export-desc">Langsung unduh file Excel</div></div>
                 </div>
                 <div class="export-menu-item" onclick="buatLaporanWA(); toggleExportDropdown('exportMenuKas')">
                     <div class="export-icon export-icon-wa">💬</div>
-                    <div><div class="export-label">WhatsApp</div><div class="export-desc">Kirim laporan via WA</div></div>
+                    <div><div class="export-label">WhatsApp</div><div class="export-desc">Kirim laporan lewat WhatsApp</div></div>
                 </div>
             </div>
         </div>
@@ -2865,10 +2685,7 @@ https://github.com/nodeca/pako/blob/main/LICENSE
         <div style="font-size:11px;color:#888;margin-top:4px;margin-bottom:14px;">Otomatis buat Hari 1 s/d Hari N sesuai "Jumlah Hari Program" di Konfigurasi, tanggal dihitung dari Tanggal Keberangkatan. Aman ditekan berkali-kali — Hari yang sudah ada isinya tidak akan hilang.</div>
         <div id="itineraryContainer"></div>
         <button class="btn btn-accent mt-2" onclick="tambahHariItinerary()"><i class="fas fa-plus-circle"></i> Tambah Hari</button>
-        <div style="display:flex;gap:8px;margin-top:14px;">
-            <button onclick="cetakItinerary('internal')" style="flex:1;padding:11px;background:#F59E0B;color:white;border:none;border-radius:10px;font-size:12px;font-weight:700;cursor:pointer;">🖨️ Cetak Internal</button>
-            <button onclick="cetakItinerary('jamaah')" style="flex:1;padding:11px;background:#2980b9;color:white;border:none;border-radius:10px;font-size:12px;font-weight:700;cursor:pointer;">🖨️ Cetak untuk Jamaah</button>
-        </div>
+        <button class="btn-export-std" style="margin-top:14px;" onclick="bukaExportHalaman('itinerary')"><i class="fas fa-download"></i> Export</button>
     </div>
 </div>
 
@@ -2882,10 +2699,7 @@ https://github.com/nodeca/pako/blob/main/LICENSE
             <button onclick="gantiBulanAgenda(1)" style="border:none;background:none;color:var(--primary);font-size:18px;cursor:pointer;padding:4px 10px;"><i class="fas fa-chevron-right"></i></button>
         </div>
         <button class="btn btn-primary" onclick="openTambahAgendaModal()"><i class="fas fa-plus-circle"></i> Tambah Agenda</button>
-        <div style="display:flex;gap:8px;margin-top:10px;">
-            <button onclick="cetakAgendaKantor()" style="flex:1;padding:8px;background:var(--orange);color:white;border:none;border-radius:8px;font-size:12px;cursor:pointer;">🖨️ Cetak</button>
-            <button onclick="shareAgendaKantorPDF()" style="flex:1;padding:8px;background:#8B5CF6;color:white;border:none;border-radius:8px;font-size:12px;cursor:pointer;">📤 Bagikan</button>
-        </div>
+        <button class="btn-export-std" onclick="bukaExportHalaman('agenda')"><i class="fas fa-download"></i> Export</button>
         <div id="agendaKantorListContainer" style="margin-top:14px;"></div>
     </div>
 </div>
@@ -2935,10 +2749,7 @@ https://github.com/nodeca/pako/blob/main/LICENSE
             <button class="btn btn-utility btn-small" style="flex:1;" onclick="openTambahJadwalRutinModal()"><i class="fas fa-repeat"></i> Jadwal Rutin</button>
             <button class="btn btn-utility btn-small" style="flex:1;" onclick="openTambahCatatanTanggalModal()"><i class="fas fa-calendar-plus"></i> Catatan Tanggal</button>
         </div>
-        <div class="row" style="margin-bottom:10px;">
-            <button onclick="cetakKalenderPejabat('internal')" style="flex:1;padding:8px;background:var(--orange);color:white;border:none;border-radius:8px;font-size:12px;cursor:pointer;">🖨️ Cetak Internal</button>
-            <button onclick="cetakKalenderPejabat('promosi')" style="flex:1;padding:8px;background:#8B5CF6;color:white;border:none;border-radius:8px;font-size:12px;cursor:pointer;">✨ Cetak Promosi</button>
-        </div>
+        <button class="btn-export-std" onclick="bukaExportHalaman('kalenderpejabat')"><i class="fas fa-download"></i> Export</button>
         <div id="kalenderPejabatListContainer"></div>
     </div>
 </div>
@@ -3285,15 +3096,15 @@ https://github.com/nodeca/pako/blob/main/LICENSE
                 <div class="export-dropdown-menu" id="exportMenuOnProses">
                     <div class="export-menu-item" onclick="cetakRekapOnProses(); toggleExportDropdown('exportMenuOnProses')">
                         <div class="export-icon export-icon-cetak">📄</div>
-                        <div><div class="export-label">Cetak PDF Rekap</div><div class="export-desc">Satu tabel urut sesuai sort dipilih</div></div>
+                        <div><div class="export-label">Cetak · Rekap</div><div class="export-desc">Satu tabel urut sesuai sort dipilih</div></div>
                     </div>
                     <div class="export-menu-item" onclick="showGroupDialogJamaahKita(); toggleExportDropdown('exportMenuOnProses')">
                         <div class="export-icon export-icon-cetak">🖨️</div>
-                        <div><div class="export-label">Cetak PDF Per Kelompok</div><div class="export-desc">Kelompokkan berdasarkan field</div></div>
+                        <div><div class="export-label">Cetak · Per Kelompok</div><div class="export-desc">Kelompokkan berdasarkan field</div></div>
                     </div>
                     <div class="export-menu-item" onclick="shareAllJamaahKitaToWA(); toggleExportDropdown('exportMenuOnProses')">
                         <div class="export-icon export-icon-wa">💬</div>
-                        <div><div class="export-label">WhatsApp</div><div class="export-desc">Share semua jamaah ke WA</div></div>
+                        <div><div class="export-label">WhatsApp</div><div class="export-desc">Kirim semua jamaah lewat WhatsApp</div></div>
                     </div>
                 </div>
             </div>
@@ -3347,7 +3158,7 @@ https://github.com/nodeca/pako/blob/main/LICENSE
         <div id="sumberHartaContainer"></div>
         <button class="btn btn-accent" onclick="tambahSumberHarta()"><i class="fas fa-plus-circle"></i> + TAMBAH SUMBER HARTA</button>
         <button class="btn btn-primary mt-2" onclick="hitungZakat()"><i class="fas fa-calculator"></i> HITUNG ZAKAT</button>
-        <button class="btn btn-teal btn-small mt-2" onclick="cetakLaporanZakat()"><i class="fas fa-print"></i> CETAK LAPORAN ZAKAT</button>
+        <button class="btn-export-std" onclick="bukaExportHalaman('zakat')"><i class="fas fa-download"></i> Export</button>
     </div>
     <div id="hasilZakat" class="res-card" style="display:none;"></div>
 </div>
@@ -3369,11 +3180,11 @@ https://github.com/nodeca/pako/blob/main/LICENSE
             <div class="export-dropdown-menu" id="exportMenuPembayaran">
                 <div class="export-menu-item" onclick="cetakPembayaranHTML(); toggleExportDropdown('exportMenuPembayaran')">
                     <div class="export-icon export-icon-cetak">🖨️</div>
-                    <div><div class="export-label">Cetak</div><div class="export-desc">Buka window cetak</div></div>
+                    <div><div class="export-label">Cetak / Simpan PDF</div><div class="export-desc">Lihat dulu, lalu cetak atau simpan PDF</div></div>
                 </div>
                 <div class="export-menu-item" onclick="exportPaymentExcel(); toggleExportDropdown('exportMenuPembayaran')">
                     <div class="export-icon export-icon-excel">📊</div>
-                    <div><div class="export-label">Excel</div><div class="export-desc">Laporan pembayaran format Excel</div></div>
+                    <div><div class="export-label">Excel</div><div class="export-desc">Langsung unduh file Excel</div></div>
                 </div>
             </div>
         </div>
@@ -3405,19 +3216,19 @@ https://github.com/nodeca/pako/blob/main/LICENSE
             <div class="export-dropdown-menu" id="exportMenuMaster">
                 <div class="export-menu-item" onclick="cetakMasterHTML(); toggleExportDropdown('exportMenuMaster')">
                     <div class="export-icon export-icon-cetak">🖨️</div>
-                    <div><div class="export-label">Cetak / Simpan PDF</div><div class="export-desc">Buka window cetak, bisa disimpan sebagai PDF</div></div>
+                    <div><div class="export-label">Cetak / Simpan PDF</div><div class="export-desc">Lihat dulu, lalu cetak atau simpan PDF</div></div>
                 </div>
                 <div class="export-menu-item" onclick="openPilihItemKontrolModal(); toggleExportDropdown('exportMenuMaster')">
                     <div class="export-icon export-icon-cetak">📋</div>
-                    <div><div class="export-label">Cetak Kontrol Lapangan</div><div class="export-desc">Kolom ceklis kosong untuk dicentang manual di lapangan</div></div>
+                    <div><div class="export-label">Cetak · Kontrol Lapangan</div><div class="export-desc">Kolom ceklis kosong untuk dicentang manual di lapangan</div></div>
                 </div>
                 <div class="export-menu-item" onclick="exportMasterExcel(); toggleExportDropdown('exportMenuMaster')">
                     <div class="export-icon export-icon-excel">📊</div>
-                    <div><div class="export-label">Excel</div><div class="export-desc">Data multi event format Excel</div></div>
+                    <div><div class="export-label">Excel</div><div class="export-desc">Langsung unduh file Excel</div></div>
                 </div>
                 <div class="export-menu-item" onclick="shareAllMasterToWA(); toggleExportDropdown('exportMenuMaster')">
                     <div class="export-icon export-icon-wa">💬</div>
-                    <div><div class="export-label">WhatsApp</div><div class="export-desc">Share semua data ke WA</div></div>
+                    <div><div class="export-label">WhatsApp</div><div class="export-desc">Kirim semua data lewat WhatsApp</div></div>
                 </div>
             </div>
         </div>
@@ -3490,6 +3301,8 @@ https://github.com/nodeca/pako/blob/main/LICENSE
             <div style="font-size:12px;color:#888;margin-bottom:10px;">Khusus Haji Reguler — pecah Harga Seragam jadi beberapa komponen (Bimbingan, Tour/Ziarah, dll). Umroh tidak terpengaruh sama sekali.</div>
             <div id="komponenHajiListContainer"></div>
             <button class="btn btn-small mt-2" onclick="tambahJenisKomponenHaji()" style="background:#0369A1;color:white;">+ Tambah Jenis Komponen</button>
+            <button class="btn btn-small mt-2" onclick="periksaNamaKomponenHaji()" style="background:#fff;color:#0369A1;border:1.5px solid #0369A1;">🔍 Periksa Nama Komponen</button>
+            <div style="font-size:11px;color:#888;margin-top:6px;">Mengganti nama komponen otomatis memindahkan harga khusus jamaah dan catatan pembayarannya, jadi angkanya tidak berubah. Gunakan "Periksa" bila ada pembayaran atau harga khusus yang tidak muncul di komponen mana pun.</div>
         </div>
         <div class="config-section" id="tipePaketConfigSection"><h3><i class="fas fa-bed"></i> Tipe Paket</h3>
             <div style="font-size:12px;color:#888;margin-bottom:10px;">Digunakan sebagai pilihan tipe kamar di database jamaah dan rekap profit Cuan Plan.</div>
@@ -3853,7 +3666,7 @@ https://github.com/nodeca/pako/blob/main/LICENSE
             </div>
             <input type="text" id="cariRekananHotel" placeholder="🔍 Cari nama Hotel/Maskapai..." oninput="renderRekananHotelList()" style="width:100%;padding:9px 12px;margin-bottom:10px;border:1.5px solid #ddd;border-radius:10px;font-size:13px;">
             <div id="rekananHotelListArea"></div>
-            <button class="btn btn-teal btn-small mt-2" onclick="cetakLaporanEvaluasiRekanan()"><i class="fas fa-print"></i> CETAK LAPORAN</button>
+            <button class="btn-export-std" onclick="bukaExportHalaman('evaluasi')"><i class="fas fa-download"></i> Export</button>
         </div>
     </div>
 </div>
@@ -3901,11 +3714,7 @@ https://github.com/nodeca/pako/blob/main/LICENSE
         <div class="section-title"><span>Riwayat Transaksi</span></div>
         <input type="text" id="cariRiwayatTukarRiyal" placeholder="🔍 Cari tanggal, keterangan, atau admin..." oninput="renderRiwayatTukarRiyal()" style="width:100%;padding:9px 12px;margin-bottom:10px;border:1.5px solid #ddd;border-radius:10px;font-size:13px;">
         <div id="riwayatTukarRiyalList"></div>
-        <div class="row mt-2">
-            <button class="btn btn-teal btn-small" onclick="cetakLaporanTukarRiyal()" style="flex:1"><i class="fas fa-print"></i> CETAK</button>
-            <button class="btn btn-accent btn-small" onclick="shareTukarRiyalPDF()" style="flex:1"><i class="fas fa-share-nodes"></i> BAGIKAN</button>
-            <button class="btn btn-small" onclick="shareTukarRiyalWA()" style="flex:1;background:#25D366;color:white;"><i class="fab fa-whatsapp"></i> WA</button>
-        </div>
+        <button class="btn-export-std" onclick="bukaExportHalaman('tukarriyal')"><i class="fas fa-download"></i> Export</button>
     </div>
 </div>
 
@@ -4000,10 +3809,7 @@ https://github.com/nodeca/pako/blob/main/LICENSE
             <div style="font-size:11px;color:#888;margin-bottom:8px;">Isi surat bisa diedit sebelum cetak/share</div>
             <input type="text" id="suratJudulEdit" placeholder="Judul Surat" style="width:100%;padding:10px;border-radius:8px;border:1px solid #ddd;background:var(--input-bg);color:var(--text);font-size:13px;font-weight:bold;text-align:center;margin-bottom:8px;">
             <textarea id="suratIsiEdit" rows="14" style="width:100%;padding:10px;border-radius:8px;border:1px solid #ddd;background:var(--input-bg);color:var(--text);font-size:13px;line-height:1.8;resize:vertical;font-family:'Times New Roman',serif;"></textarea>
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px;">
-                <button onclick="shareSuratPDF()" style="padding:10px 8px;background:#10B981;color:white;border:none;border-radius:10px;font-weight:bold;cursor:pointer;font-size:12px;">📤 Bagikan PDF</button>
-                <button onclick="cetakSurat()" style="padding:10px 8px;background:var(--primary);color:white;border:none;border-radius:10px;font-weight:bold;cursor:pointer;font-size:12px;">🖨️ Cetak</button>
-            </div>
+            <button class="btn-export-std" onclick="bukaExportHalaman('surat')"><i class="fas fa-download"></i> Export</button>
         </div>
 
         <!-- Kelola Template -->
@@ -4036,10 +3842,7 @@ https://github.com/nodeca/pako/blob/main/LICENSE
                 <button id="manasikBtnTambah" onclick="showTambahJadwalManasikModal()" style="padding:6px 12px;background:var(--primary);color:white;border:none;border-radius:8px;font-size:12px;cursor:pointer;">+ Tambah</button>
             </div>
             <div id="jadwalManasikListArea"></div>
-            <div class="row" style="margin-top:8px;">
-                <button onclick="cetakJadwalManasikLengkap()" style="flex:1;padding:8px;background:var(--orange);color:white;border:none;border-radius:8px;font-size:12px;cursor:pointer;">🖨️ Cetak Jadwal Lengkap</button>
-                <button onclick="shareJadwalManasikPDF()" style="flex:1;padding:8px;background:#8B5CF6;color:white;border:none;border-radius:8px;font-size:12px;cursor:pointer;">📤 Bagikan</button>
-            </div>
+            <button class="btn-export-std" onclick="bukaExportHalaman('manasik')"><i class="fas fa-download"></i> Export</button>
         </div>
 
         <!-- Kelola Sesi -->
@@ -4149,8 +3952,7 @@ https://github.com/nodeca/pako/blob/main/LICENSE
                 <div id="multiTiketJamaahSelect" style="max-height:220px;overflow-y:auto;border:1px solid #ddd;border-radius:10px;padding:8px;background:var(--card-bg);"></div>
                 <div id="jumlahDipilihTiket" style="font-size:12px;color:var(--primary);margin-top:6px;font-weight:bold;"></div>
             </div>
-            <button class="btn btn-primary mt-2" onclick="cetakTiketMulti()"><i class="fas fa-print"></i> CETAK KARTU</button>
-            <button class="btn btn-wa mt-2" onclick="shareTiketWAMulti()"><i class="fab fa-whatsapp"></i> Kirim ke WA</button>
+            <button class="btn-export-std" onclick="bukaExportHalaman('tiket')"><i class="fas fa-download"></i> Export</button>
         </div>
     </div>
 </div>
@@ -4678,7 +4480,6 @@ async function cetakDokumenPerJenis(jamaahId, jenisId, jenisNama, jamaahNama, id
 
 // ==================== SCRIPT ASLI (DIPERBAIKI UNTUK PWA INSTALL) ====================
 // Cache buster version
-const APP_VERSION = '2025.01.15.006-FINAL';
 
 // Helper functions
 let lastPage = 'home';
@@ -4785,7 +4586,6 @@ function internalShowPage(pageId) {
             window.loadJamaahData ? window.loadJamaahData() : Promise.resolve(),
             window.loadDokumenDataFromIndexedDB ? window.loadDokumenDataFromIndexedDB() : Promise.resolve()
         ]).then(() => {
-            console.log('✅ Upload Dokumen Page - Jamaah loaded:', jamaahList.length);
             if(window.renderDokumenList) window.renderDokumenList(); 
             if(window.renderDokumenFieldsList) window.renderDokumenFieldsList(); 
             if(window.updateDokumenStats) window.updateDokumenStats(); 
@@ -6411,7 +6211,7 @@ function openTambahPeranForm(peranId) {
 // Fitur Menu Lengkap yang TIDAK muncul di daftar centang Peran: Buku Pinjaman (izin modul sendiri) dan Backup & Restore (hanya Admin Utama)
 const FITUR_TIDAK_BISA_DICENTANG = ['carapakai', 'pinjaman', 'cloudstorage', 'saldokantor', 'cekkesehatan'];
 // Fitur yang memperlihatkan laba/omzet — ditandai 🔒 dan tidak ikut "Pilih semua"
-const FITUR_SENSITIF = ['cetakLaporanPenutupanMusim', 'excelLaporanPenutupanMusim', 'cetakRekapTahunanGabungan', 'excelRekapTahunan', 'excelBandingkanProgram', 'openProyeksiKasModal', 'openBandingkanProgramModal', 'openDashboardTrenModal'];
+const FITUR_SENSITIF = ['cetakLaporanPenutupanMusim', 'cetakRekapTahunanGabungan', 'openProyeksiKasModal', 'openBandingkanProgramModal', 'openDashboardTrenModal'];
 
 function htmlCentangFiturPeran(aktif) {
     return KELOMPOK_MENU.map(k => {
@@ -6515,7 +6315,7 @@ const KELOMPOK_MENU = [
     { id: 'laporan', judul: 'Laporan & Arsip' },
     { id: 'pengaturan', judul: 'Pengaturan & Data' },
 ];
-const FITUR_LENGKAP = [
+const FITUR_LENGKAP_MENTAH = [
     { id: "uploaddokumen", label: "Upload Dokumen", ket: "Simpan KTP, Paspor, Foto", kelompok: "jamaah", aksi: "showPage('uploaddokumen')", halaman: "uploaddokumen", icon: "<i class=\"fas fa-file-arrow-up\"></i>" },
     { id: "foldervirtual", label: "Folder Virtual", ket: "Pisah per rombongan", kelompok: "jamaah", aksi: "showPage('foldervirtual')", halaman: "foldervirtual", icon: "<i class=\"fas fa-folder-open\"></i>" },
     { id: "pengingatwa", label: "Pengingat WA", ket: "Kirim pengingat otomatis", kelompok: "kantor", aksi: "showPage('pengingatwa')", halaman: "pengingatwa", icon: "<i class=\"fab fa-whatsapp\"></i>" },
@@ -6528,23 +6328,21 @@ const FITUR_LENGKAP = [
     { id: "saldokantor", label: "Saldo Kantor", ket: "Saldo rekening & kas per entitas", kelompok: "keuangan", aksi: "showPage('saldokantor')", halaman: "saldokantor", icon: "<i class=\"fas fa-building-columns\"></i>" },
     { id: "cloudstorage", label: "Backup & Restore", ket: "Cadangkan, pulihkan & salin pengaturan", kelompok: "pengaturan", aksi: "showPage('cloudstorage')", halaman: "cloudstorage", icon: "<i class=\"fas fa-cloud\"></i>" },
     { id: "dashboard", label: "Dashboard", ket: "Grafik statistik data", kelompok: "laporan", aksi: "showPage('dashboard')", halaman: "dashboard", icon: "<i class=\"fas fa-chart-line\"></i>" },
-    { id: "excelBandingkanProgram", label: "Bandingkan Program (Excel)", ket: "Langsung unduh file Excel", kelompok: "laporan", aksi: "exportPerProgramExcel('bandingkan')", halaman: null, icon: "<i class=\"fas fa-file-excel\"></i>" },
     { id: "openBandingkanProgramModal", label: "Bandingkan Program", ket: "Lihat di layar, semua program berdampingan", kelompok: "laporan", aksi: "openBandingkanProgramModal()", halaman: null, icon: "<i class=\"fas fa-chart-column\"></i>" },
     { id: "openDashboardTrenModal", label: "Dashboard Tren", ket: "Perbandingan antar tahun", kelompok: "laporan", aksi: "openDashboardTrenModal()", halaman: null, icon: "<i class=\"fas fa-arrow-trend-up\"></i>" },
-    { id: "cetakLaporanPenutupanMusim", label: "Laporan Penutupan Musim", ket: "Lihat & cetak PDF, program yang aktif", kelompok: "laporan", aksi: "cetakLaporanPenutupanMusim()", halaman: null, icon: "<i class=\"fas fa-book\"></i>" },
+    { id: "cetakLaporanPenutupanMusim", label: "Laporan Penutupan Musim", ket: "Cetak/PDF atau Excel, program yang aktif", kelompok: "laporan", aksi: "bukaPilihanExportLaporan('penutupan')", halaman: null, icon: "<i class=\"fas fa-book\"></i>" },
     { id: "carapakai", label: "Cara Pakai", ket: "Panduan langkah demi langkah", kelompok: "pengaturan", aksi: "showPage('carapakai')", halaman: "carapakai", icon: "<i class=\"fas fa-circle-question\"></i>" },
-    { id: "excelLaporanPenutupanMusim", label: "Laporan Penutupan (Excel)", ket: "Langsung unduh file Excel", kelompok: "laporan", aksi: "cetakLaporanPenutupanMusim('excel')", halaman: null, icon: "<i class=\"fas fa-file-excel\"></i>" },
     { id: "itinerary", label: "Itinerary", ket: "Jadwal harian perjalanan", kelompok: "perjalanan", aksi: "showPage('itinerary')", halaman: "itinerary", icon: "<i class=\"fas fa-route\"></i>" },
     { id: "arsipprogram", label: "Program Arsip", ket: "Program lama, read-only", kelompok: "laporan", aksi: "showPage('arsipprogram')", halaman: "arsipprogram", icon: "<i class=\"fas fa-box-archive\"></i>" },
     { id: "alumni", label: "Database Alumni", ket: "Jamaah lama untuk remarketing", kelompok: "jamaah", aksi: "showPage('alumni')", halaman: "alumni", icon: "<i class=\"fas fa-graduation-cap\"></i>" },
     { id: "layanantambahan", label: "Layanan Tambahan", ket: "Badal Haji, Dam, dll", kelompok: "jamaah", aksi: "showPage('layanantambahan')", halaman: "layanantambahan", icon: "<i class=\"fas fa-kaaba\"></i>" },
-    { id: "excelRekapTahunan", label: "Rekap Tahunan (Excel)", ket: "Langsung unduh file Excel", kelompok: "keuangan", aksi: "exportPerProgramExcel('tahunan')", halaman: null, icon: "<i class=\"fas fa-file-excel\"></i>" },
-    { id: "cetakRekapTahunanGabungan", label: "Rekap Tahunan", ket: "Lihat & cetak, total semua keberangkatan", kelompok: "keuangan", aksi: "cetakRekapTahunanGabungan()", halaman: null, icon: "<i class=\"fas fa-file-invoice\"></i>" },
+    { id: "cetakRekapTahunanGabungan", label: "Rekap Tahunan", ket: "Cetak/PDF atau Excel, semua keberangkatan", kelompok: "keuangan", aksi: "bukaPilihanExportLaporan('rekap')", halaman: null, icon: "<i class=\"fas fa-file-invoice\"></i>" },
     { id: "openKalenderProgramModal", label: "Kalender Program", ket: "Semua jadwal keberangkatan", kelompok: "perjalanan", aksi: "openKalenderProgramModal()", halaman: null, icon: "<i class=\"fas fa-calendar-days\"></i>" },
     { id: "openProyeksiKasModal", label: "Proyeksi Kas", ket: "Estimasi dana yang masih masuk", kelompok: "keuangan", aksi: "openProyeksiKasModal()", halaman: null, icon: "<i class=\"fas fa-sack-dollar\"></i>" },
     { id: "kalkulatorriyal", label: "Tukar Riyal", ket: "Hitung kembalian tukar SAR", kelompok: "keuangan", aksi: "showPage('kalkulatorriyal')", halaman: "kalkulatorriyal", icon: "<i class=\"fas fa-right-left\"></i>" },
     { id: "evaluasihotelmaskapai", label: "Evaluasi Hotel & Maskapai", ket: "Catatan penilaian tiap musim", kelompok: "perjalanan", aksi: "showPage('evaluasihotelmaskapai')", halaman: "evaluasihotelmaskapai", icon: "<i class=\"fas fa-star-half-stroke\"></i>" },
 ];
+const FITUR_LENGKAP = FITUR_LENGKAP_MENTAH;
 
 const MENU_HOME_KUNCI = 'navara_menu_home';
 const MENU_TAMPILAN_KUNCI = 'navara_menu_tampilan';
@@ -6669,7 +6467,6 @@ function getUkuranPersen() {
         return (p > 100 && p <= 150) ? p : 100;
     } catch(e) { return 100; }
 }
-function getUkuranTeks() { const p = getUkuranPersen(); return p === 115 ? 'besar' : (p === 130 ? 'sangat_besar' : (p === 100 ? 'normal' : 'kustom')); }
 function terapkanUkuranTeks() {
     const root = document.documentElement;
     const p = Math.min(getUkuranPersen(), ukBatasMaks());
@@ -7114,58 +6911,7 @@ async function cetakDashboardHTML() {
     printWindow.document.close();
 }
 
-async function downloadDashboardPDF() {
-    showToast('Menyiapkan...');
-    try {
-        const cfg = getKonfigurasiProData();
-        const { jsPDF } = window.jspdf;
-        const [wr, wg, wb] = getWarnaTemaRGB();
-        const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
-        await applyPDFConfig(doc, { landscape: false, skipHeader: true, skipWatermark: true, skipQR: true });
-        const { totalKas, totalJamaah, totalLunas, totalPiutang, topPiutang } = hitungRingkasDashboard();
-        const tgl = formatTanggalLengkap();
-        const prog = getCurrentProgram()?.nama || '-';
-        const rp = n => 'Rp ' + formatAngka(n);
-        let y = await gambarHeaderRoundedPDF(doc, cfg, 210);
-        doc.setFontSize(8); doc.setFont('helvetica', 'normal'); doc.setTextColor(107, 114, 128);
-        doc.text(`Program: ${prog}  |  Tanggal Cetak: ${tgl}`, 14, y); y += 6;
-        // 4 kartu ringkasan
-        const kartu = [['TOTAL KAS', rp(totalKas)], ['TOTAL JAMAAH', String(totalJamaah)], ['JAMAAH LUNAS', String(totalLunas)], ['TOTAL TAGIHAN', rp(totalPiutang)]];
-        const lebar = (210 - 28 - 3 * 4) / 4, tinggi = 20;
-        kartu.forEach((k, i) => {
-            const x = 14 + i * (lebar + 4);
-            doc.setFillColor(240, 247, 244); doc.roundedRect(x, y, lebar, tinggi, 2, 2, 'F');
-            doc.setFillColor(wr, wg, wb); doc.rect(x, y + 1, 1.2, tinggi - 2, 'F');
-            doc.setFontSize(7); doc.setFont('helvetica', 'normal'); doc.setTextColor(102, 102, 102);
-            doc.text(k[0], x + lebar / 2, y + 7, { align: 'center' });
-            doc.setFontSize(k[1].length > 13 ? 9 : 11); doc.setFont('helvetica', 'bold'); doc.setTextColor(wr, wg, wb);
-            doc.text(k[1], x + lebar / 2, y + 14.5, { align: 'center' });
-        });
-        y += tinggi + 9;
-        doc.setFontSize(10); doc.setFont('helvetica', 'bold'); doc.setTextColor(wr, wg, wb);
-        doc.text('5 JAMAAH DENGAN TAGIHAN TERBESAR', 14, y);
-        doc.setDrawColor(wr, wg, wb); doc.setLineWidth(0.5); doc.line(14, y + 2, 196, y + 2); y += 5;
-        doc.autoTable({
-            startY: y,
-            head: [['No', 'Nama Jamaah', 'Total Paket', 'Sisa Tagihan']],
-            body: topPiutang.map((j, i) => [i + 1, j.nama, rp(j.paket), rp(j.sisa)]),
-            theme: 'striped', headStyles: { fillColor: [wr, wg, wb] }, styles: { fontSize: 9 },
-            columnStyles: { 0: { cellWidth: 12 }, 3: { textColor: [231, 76, 60], fontStyle: 'bold' } }
-        });
-        await gambarQRDokumenPDF(doc, cfg, `Dashboard ${getNamaInstansiUtama()}\nTotal Jamaah: ${totalJamaah}\nTanggal: ${tgl}`, 210, 297);
-        gambarWatermarkPDF(doc, cfg, 210, 297);
-        const namaFile = `Dashboard_${(getNamaInstansiUtama() || 'Dashboard').replace(/\s+/g, '_')}.pdf`;
-        const file = new File([doc.output('blob')], namaFile, { type: 'application/pdf' });
-        if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
-            await navigator.share({ files: [file], title: 'Dashboard' });
-        } else {
-            doc.save(namaFile);
-            showToast('📥 PDF didownload (Bagikan tidak didukung di perangkat ini)');
-        }
-    } catch(e) {
-        if (e.name !== 'AbortError') showToast('Gagal: ' + e.message);
-    }
-}
+
 
 function exportDashboardExcel() {
     const jamaahData = jamaahList;
@@ -7806,7 +7552,7 @@ function rhRenderRincian(modal, idx) {
     isi += rhJudul('CATATAN (OPSIONAL)') + `<textarea id="rhCatatan" rows="2" maxlength="300" placeholder="Contoh: tiket naik karena maskapai menaikkan tarif" style="width:100%;box-sizing:border-box;padding:9px 10px;border:1.5px solid #e2e8f0;border-radius:10px;font-size:13px;font-family:inherit;resize:none;">${rhE(r.catatan || '')}</textarea>
         <button type="button" onclick="rhSimpanCatatan(${idx})" style="margin-top:6px;padding:8px 14px;border:none;border-radius:8px;background:#EEF6F3;color:${RH_WARNA};font-size:12px;font-weight:700;cursor:pointer;">Simpan catatan</button>`;
     isi += `<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:14px;">
-        ${r.data ? rhTombol('📲 Bagikan WA', 'rhBagikanRincian(' + idx + ')', 'background:#25D366;color:#fff;') + rhTombol('🖨️ Cetak', 'rhCetakRincian(' + idx + ')', 'background:' + RH_WARNA + ';color:#fff;') : ''}
+        ${r.data ? rhTombol('⬇️ Export', "bukaMenuExport('Rincian Harga','',{cetak:'rhCetakRincian(" + idx + ")',wa:'rhBagikanRincian(" + idx + ")'})", 'background:' + RH_WARNA + ';color:#fff;') : ''}
         ${r.data ? rhTombol('⚖️ Bandingkan', 'rhBandingkanDengan(' + idx + ')', 'background:#EEF6F3;color:' + RH_WARNA + ';') : ''}
         ${rhTombol('Kembali', 'rhKembali()')}
     </div>`;
@@ -7851,7 +7597,7 @@ function rhRenderBanding(modal) {
         isi += `<div style="font-size:13px;color:#64748B;margin-top:12px;line-height:1.55;">${opsi.filter(o => o.data).length < 2 ? 'Perbandingan butuh minimal dua versi yang rinciannya sudah tersimpan (termasuk Estimasi saat ini). Lengkapi rincian versi lama dulu dari daftar riwayat.' : 'Pilih versi lama dan versi baru di atas.'}</div>`;
     }
     isi += `<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:14px;">
-        ${bd ? rhTombol('📲 Bagikan WA', 'rhBagikanBanding()', 'background:#25D366;color:#fff;') + rhTombol('🖨️ Cetak', 'rhCetakBanding()', 'background:' + RH_WARNA + ';color:#fff;') : ''}
+        ${bd ? rhTombol('⬇️ Export', "bukaMenuExport('Perbandingan Harga','',{cetak:'rhCetakBanding()',wa:'rhBagikanBanding()'})", 'background:' + RH_WARNA + ';color:#fff;') : ''}
         ${rhTombol('Kembali', 'rhKembali()')}
     </div>`;
     rhBungkus(modal, isi);
@@ -7953,7 +7699,7 @@ function rhRenderLini(modal) {
     let isi = `<h3 style="color:var(--primary);margin-bottom:4px;">🕒 Lini Masa Harga</h3><div style="font-size:11px;color:#888;margin-bottom:6px;">${rhE(getCurrentProgram()?.nama || '-')} — semua tahap perubahan harga berurutan dari yang paling lama.</div>`;
     if(!L) isi += `<div style="font-size:13px;color:#64748B;line-height:1.55;margin-top:12px;">Lini masa butuh minimal dua versi yang rinciannya sudah tersimpan.</div>`;
     else isi += rhHtmlLini(L);
-    isi += `<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:14px;">${L ? rhTombol('📲 Bagikan WA', 'rhBagikanLini()', 'background:#25D366;color:#fff;') + rhTombol('🖨️ Cetak', 'rhCetakLini()', 'background:' + RH_WARNA + ';color:#fff;') : ''}${rhTombol('Kembali', 'rhKembali()')}</div>`;
+    isi += `<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:14px;">${L ? rhTombol('⬇️ Export', "bukaMenuExport('Lini Masa Harga','',{cetak:'rhCetakLini()',wa:'rhBagikanLini()'})", 'background:' + RH_WARNA + ';color:#fff;') : ''}${rhTombol('Kembali', 'rhKembali()')}</div>`;
     rhBungkus(modal, isi);
 }
 function rhBagikanLini() { const L = rhBangunLini(); if(L) rhKirimWA(rhTeksLini(L)); }
@@ -8739,10 +8485,7 @@ function hitungUmroh() {
     <div class="res-item" style="color:#2ecc71"><span>PROFIT BERSIH setelah pembulatan</span><div style="display:flex;align-items:center;gap:6px;"><b>${f(bersih+tambahanBulat)}</b>${cp(f(bersih+tambahanBulat),'Profit Bersih setelah pembulatan')}</div></div>` : ''}
     ${hargaBrosurRows}
     <div class="action-buttons" style="display:flex;gap:10px;margin-top:15px;">
-        <button class="btn" onclick="salinRingkasan()" style="background:#34495e;margin-top:0;flex:1;">SALIN</button>
-        <button class="btn" onclick="cetakEstimasiPDFJamaah()" style="background:#2980b9;margin-top:0;flex:1;font-size:11px;">🖨️ CETAK JAMAAH</button>
-        <button class="btn" onclick="cetakEstimasiPDFInternal()" style="background:var(--orange);margin-top:0;flex:1;font-size:11px;">🖨️ CETAK INTERNAL</button>
-        <button class="btn" onclick="shareEstimasiInternalPDF()" style="background:#8B5CF6;margin-top:0;flex:1;font-size:11px;">📤 BAGIKAN</button>
+        <button class="btn" onclick="bukaMenuExport('Hasil Estimasi','',{cetak:[{aksi:'cetakEstimasiPDFJamaah()',sub:'Jamaah',ket:'Versi untuk jamaah. Lihat dulu, lalu cetak atau simpan PDF'},{aksi:'cetakEstimasiPDFInternal()',sub:'Internal',ket:'Versi untuk tim, lengkap dengan modal dan margin. Lihat dulu, lalu cetak atau simpan PDF'}],bagikan:[{aksi:'bagikanDariCetak(()=>cetakEstimasiPDFInternal(),\'Estimasi_Internal\')',sub:'Internal',ket:'Kirim PDF versi internal lewat WhatsApp atau aplikasi lain'}],salin:'salinRingkasan()'})" style="background:var(--primary);margin-top:0;flex:1;"><i class="fas fa-download"></i> Export</button>
     </div>`; 
     hasil.style.display='block'; 
     hasil.scrollIntoView({behavior:"smooth"}); 
@@ -8895,135 +8638,7 @@ async function cetakEstimasiPDFInternal() {
     win.document.write(applyPrintTheme(html)); injectWatermarkToPrintWin(win); win.document.close();
 }
 
-async function shareEstimasiInternalPDF() {
-    if(!lastCalculatedPrice) { showToast('Silakan hitung estimasi dulu!'); return; }
-    showToast('Menyiapkan...');
-    try {
-        const f = n => 'Rp ' + Math.round(n).toLocaleString('id-ID');
-        const cfg = getKonfigurasiProData();
-        const namaInstansi = getNamaInstansiUtama();
-        const tgl = formatTanggalLengkap();
-        const tglBerangkat = cfg.keberangkatan?.tanggal ? formatTanggalLengkap(cfg.keberangkatan.tanggal) : '';
-        const est = getEstimasiData() || {};
-        const pr = v => parseInt((v||'0').toString().replace(/\./g,'').replace(/[^0-9]/g,'')) || 0;
-        const nJam = lastCalculatedTotalJam;
-        const nFoc = parseInt(est.jamGratis)||0;
-        const nTL = parseInt(est.numTL)||0;
-        const sub = pr(est.cTiket)+pr(est.cLAquad||est.cLA||'0')+pr(est.cAsuransi)+pr(est.cHandling)+pr(est.cPIC)+pr(est.cAlat)+pr(est.cAplikasi)+pr(est.cLain);
-        const pPct = (parseFloat(est.profitPct)||0)/100;
-        const profitKotor = (sub*nJam)*pPct;
-        const biayaTL = sub*nTL;
-        const profitBersih = profitKotor - biayaTL;
-        const profitPerPax = profitBersih/(nJam-nFoc);
-        const buffer = pr(est.cBuffer||'0');
-        const jualBase = ((sub*nJam)+profitKotor)/(nJam-nFoc);
-        const jualHitungan = jualBase + buffer;
-        const hargaJualManual = pr(est.cHargaJual||'0');
-        const jual = hargaJualManual > 0 ? hargaJualManual : jualHitungan;
-        const selisihBulat = jual - jualHitungan, tambahanBulat = selisihBulat*(nJam-nFoc);
-        const totalOmzet = jual*(nJam-nFoc);
-        const laItems = [
-            ['LA/Hotel Quad', pr(est.cLAquad||est.cLA||'0')],
-            ['LA/Hotel Triple', pr(est.cLAtriple||'0')],
-            ['LA/Hotel Double', pr(est.cLAdouble||'0')],
-        ].filter(([,v]) => v > 0);
-        const items = [['Tiket',pr(est.cTiket)],...laItems,['Asuransi',pr(est.cAsuransi)],['Handling',pr(est.cHandling)],['PIC',pr(est.cPIC)],['Perlengkapan',pr(est.cAlat)],['Biaya Aplikasi',pr(est.cAplikasi)],['Lain-lain',pr(est.cLain)]]
-            .filter(([,v]) => v > 0);
 
-        const {jsPDF} = window.jspdf;
-        const [wr, wg, wb] = getWarnaTemaRGB();
-        const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
-        const PW = 210, PH = 297;
-        await applyPDFConfig(doc, { landscape: false, skipHeader: true, skipWatermark: true, skipQR: true });
-
-        let yInfo = await gambarHeaderRoundedPDF(doc, cfg, PW);
-
-        doc.setFontSize(15); doc.setTextColor(wr,wg,wb); doc.setFont('helvetica','bold');
-        doc.text('RINCIAN ESTIMASI INTERNAL', 14, yInfo); yInfo += 6;
-        doc.setFontSize(9); doc.setTextColor(220,60,60); doc.setFont('helvetica','italic');
-        doc.text('Hanya Untuk Internal', 14, yInfo); yInfo += 8;
-
-        const jumlahBarisInfo = 3 + (est.namaHotelMakkah||est.namaHotelMadinah?1:0) + (est.namaMaskapai?1:0) + (tglBerangkat?1:0);
-        const tinggiKotakInfo = jumlahBarisInfo * 5 + 6;
-        gambarKotakInfoPDF(doc, 14, yInfo, PW-28, tinggiKotakInfo);
-        yInfo += 6;
-        doc.setFontSize(9); doc.setTextColor(70,70,70);
-        const tulisBarisInfo = (label, isi) => {
-            doc.setFont('helvetica','bold');
-            doc.text(label, 18, yInfo);
-            const lebarLabel = doc.getTextWidth(label);
-            doc.setFont('helvetica','normal');
-            doc.text(isi, 18 + lebarLabel, yInfo);
-            yInfo += 5;
-        };
-        tulisBarisInfo('Paket: ', lastCalculatedPaket);
-        if (est.namaHotelMakkah || est.namaHotelMadinah) {
-            const hotelTxt = [est.namaHotelMakkah ? est.namaHotelMakkah + ' (Makkah)' : '', est.namaHotelMadinah ? est.namaHotelMadinah + ' (Madinah)' : ''].filter(x=>x).join(', ');
-            tulisBarisInfo('Hotel: ', hotelTxt);
-        }
-        if (est.namaMaskapai) tulisBarisInfo('Maskapai: ', est.namaMaskapai);
-        tulisBarisInfo('Jamaah: ', teksJamaahEstimasi(nJam, nFoc, nTL));
-        if (tglBerangkat) tulisBarisInfo('Tgl Keberangkatan: ', tglBerangkat);
-        tulisBarisInfo('Dicetak: ', tgl);
-        yInfo += 3;
-
-        const tableData = items.map(([label, val]) => [label, f(val)]);
-        tableData.push(['Modal Pokok / Pax', f(sub)]);
-        doc.autoTable({
-            startY: yInfo,
-            head: [['Komponen Biaya', 'Per Pax']],
-            body: tableData,
-            theme: 'striped',
-            headStyles: { fillColor: [wr,wg,wb] },
-            styles: { fontSize: 9 },
-            columnStyles: { 1: { halign: 'right' } },
-            didParseCell: (h) => { if (h.section === 'body' && h.row.index === tableData.length - 1) { h.cell.styles.fontStyle = 'bold'; h.cell.styles.fillColor = [240,247,244]; } }
-        });
-
-        let y = doc.lastAutoTable.finalY + 6;
-        const tinggiRingkasan = 6 * 6 + (buffer > 0 ? 6 : 0) + (hargaJualManual > 0 ? 12 : 0) + 6;
-        gambarKotakInfoPDF(doc, 14, y, PW-28, tinggiRingkasan);
-        y += 8;
-        doc.setFontSize(10); doc.setFont('helvetica','normal'); doc.setTextColor(0,0,0);
-        doc.text(`Total Omzet Grup: ${f(totalOmzet)}`, 18, y); y += 6;
-        doc.text(`Profit (${est.profitPct||0}%): ${f(profitKotor)}`, 18, y); y += 6;
-        doc.setTextColor(220,60,60);
-        doc.text(`Biaya TL (${nTL} orang): - ${f(biayaTL)}`, 18, y); y += 6;
-        doc.setTextColor(16,185,129);
-        doc.text(`Profit Bersih: ${f(profitBersih)}`, 18, y); y += 6;
-        doc.text(`Profit Per Pax: ${f(profitPerPax)}`, 18, y); y += 6;
-        if (buffer > 0) { doc.setTextColor(245,158,11); doc.text(`+ Buffer Diskon (langsung ke Harga Jual, bukan Modal): ${f(buffer)}`, 18, y); y += 6; }
-        if (hargaJualManual > 0) {
-            doc.setTextColor(245,158,11); doc.text(`Pembulatan harga jual: ${selisihBulat>=0?'+':'-'} ${f(Math.abs(selisihBulat))} /pax`, 18, y); y += 6;
-            doc.setTextColor(16,185,129); doc.text(`Profit Bersih setelah pembulatan: ${f(profitBersih+tambahanBulat)}`, 18, y); y += 6;
-        }
-        y += 4;
-        doc.setDrawColor(wr,wg,wb); doc.setLineWidth(0.5); doc.line(14, y, PW-14, y); y += 8;
-        doc.setFontSize(13); doc.setFont('helvetica','bold'); doc.setTextColor(wr,wg,wb);
-        doc.text(`HARGA JUAL PER PAX: ${f(lastCalculatedPrice)}`, 14, y);
-        y += 10;
-
-        // Disamakan dengan versi Cetak — ikut Pimpinan/Bendahara & QR dokumen, tidak lagi dikecualikan
-        y = gambarTandaTanganPDF(doc, cfg, tgl, y, PW, true);
-        await gambarQRDokumenPDF(doc, cfg, `Estimasi Internal: ${lastCalculatedPaket}\nHarga Jual: ${f(lastCalculatedPrice)}\nTanggal: ${tgl}`, PW, PH);
-        // Watermark digambar PALING AKHIR (di atas semua isi) — sama seperti versi HTML yang
-        // menambahkan watermark setelah seluruh konten selesai ditulis, supaya tetap terlihat
-        // menembus di atas tabel/kotak info, bukan tertutup di bawahnya.
-        gambarWatermarkPDF(doc, cfg, PW, PH);
-
-        const namaFile = `Estimasi_Internal_${lastCalculatedPaket.replace(/\s+/g,'_')}.pdf`;
-        const blob = doc.output('blob');
-        const file = new File([blob], namaFile, { type: 'application/pdf' });
-        if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
-            await navigator.share({ files: [file], title: 'Rincian Estimasi Internal' });
-        } else {
-            doc.save(namaFile);
-            showToast('📥 PDF didownload');
-        }
-    } catch(e) {
-        if (e.name !== 'AbortError') showToast('Gagal: ' + e.message);
-    }
-}
 
 // ==================== TIPE PAKET ====================
 function getTipePaket() {
@@ -9838,10 +9453,7 @@ function renderKonsorsiumList() {
             </div>
             <div id="konsorsiumInfo_${t.id}" style="margin-top:8px;"></div>
             <div id="konsorsiumPembayaran_${t.id}" style="margin-top:8px;"></div>
-            <div style="display:flex;gap:8px;margin-top:8px;">
-                <button onclick="salinRingkasanTravel(${t.id})" style="flex:1;padding:9px;background:#0369A1;color:white;border:none;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;">📋 Salin Ringkasan</button>
-                <button onclick="cetakTagihanTravelPartner(${t.id})" style="flex:1;padding:9px;background:#0D9488;color:white;border:none;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;">🖨️ Cetak Tagihan</button>
-            </div>
+            <button class="btn-export-std" style="margin-top:8px;" onclick="bukaMenuExport('Tagihan Travel Partner','',{cetak:'cetakTagihanTravelPartner(${t.id})',salin:'salinRingkasanTravel(${t.id})'})"><i class="fas fa-download"></i> Export</button>
         </div>`;
     });
     container.innerHTML = html;
@@ -11381,21 +10993,7 @@ function hitungRekapAktual() {
 
     // Tombol di paling bawah hasil
     html += `<div style="display:flex;gap:8px;margin-top:4px;margin-bottom:16px;flex-wrap:wrap;">
-        <button onclick="cetakRekapAktual()"
-            style="flex:1;padding:11px;background:var(--primary);color:white;border:none;
-            border-radius:12px;font-size:13px;font-weight:700;cursor:pointer;min-width:100px;">
-            🖨️ Cetak Rekap
-        </button>
-        <button onclick="cetakLaporanGabungan('semua')"
-            style="flex:1;padding:11px;background:#1d4ed8;color:white;border:none;
-            border-radius:12px;font-size:13px;font-weight:700;cursor:pointer;min-width:100px;">
-            📄 Cetak Lengkap
-        </button>
-        <button onclick="shareRekapAktual()"
-            style="flex:1;padding:11px;background:#25d366;color:white;border:none;
-            border-radius:12px;font-size:13px;font-weight:700;cursor:pointer;min-width:100px;">
-            📲 Share WA
-        </button>
+        <button class="btn-export-std" style="flex:1;margin-top:0;min-width:100px;padding:11px;" onclick="bukaExportHalaman('rekapaktual')"><i class="fas fa-download"></i> Export</button>
         <button onclick="openAnalisisBufferB2CModal()"
             style="flex:1;padding:11px;background:#0369A1;color:white;border:none;
             border-radius:12px;font-size:13px;font-weight:700;cursor:pointer;min-width:100px;">
@@ -12451,131 +12049,11 @@ function cetakSurat() {
     win.document.close();
 }
 
-// Generate PDF surat dengan jsPDF (simple & reliable)
-async function generateSuratPDFSimple() {
-    const jamaahId = document.getElementById('suratJamaahSelect')?.value;
-    const judul = document.getElementById('suratJudulEdit')?.value || 'SURAT';
-    const isi = document.getElementById('suratIsiEdit')?.value;
-    if (!isi) { showToast('Buat surat dulu!'); return null; }
-    if (!jamaahId) { showToast('Pilih jamaah dulu!'); return null; }
-    const jamaah = jamaahList.find(j => j.id == jamaahId);
-    if (!jamaah) return null;
-    
-    try {
-        const { jsPDF } = window.jspdf;
-        const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
-        const nomorSurat = document.getElementById('suratNomor')?.value;
-        const vars = getSuratVariables(jamaah, nomorSurat, '');
-        const cfg = getKonfigurasiProData();
-        const iDominan = getInstansiDominanObj(cfg);
-        
-        let y = 20;
-        
-        // Logo (jika ada)
-        if (iDominan.logo) {
-            try {
-                doc.addImage(iDominan.logo, 'PNG', 85, y, 40, 20);
-                y += 25;
-            } catch(e) {
-                // Skip logo jika gagal
-                console.log('Logo gagal dimuat');
-            }
-        }
-        
-        // Kop Surat
-        doc.setFont('times', 'bold');
-        doc.setFontSize(16);
-        doc.text(iDominan.nama || 'KBIHU', 105, y, { align: 'center' });
-        y += 7;
-        
-        doc.setFont('times', 'normal');
-        doc.setFontSize(10);
-        doc.text(iDominan.alamat || '', 105, y, { align: 'center' });
-        y += 5;
-        
-        // Garis
-        doc.setLineWidth(0.5);
-        doc.line(20, y, 190, y);
-        y += 0.5;
-        doc.setLineWidth(0.2);
-        doc.line(20, y, 190, y);
-        y += 8;
-        
-        // Nomor dan Tanggal
-        doc.setFontSize(11);
-        doc.text('Nomor: ' + (nomorSurat || '___/KBIHU/___/2026'), 20, y);
-        doc.text(vars.kota_tanggal, 190, y, { align: 'right' });
-        y += 10;
-        
-        // Judul
-        doc.setFont('times', 'bold');
-        doc.setFontSize(12);
-        const judulLines = doc.splitTextToSize(judul, 170);
-        doc.text(judulLines, 105, y, { align: 'center' });
-        y += judulLines.length * 7;
-        doc.setLineWidth(0.3);
-        doc.line(70, y, 140, y);
-        y += 8;
-        
-        // Isi
-        doc.setFont('times', 'normal');
-        doc.setFontSize(11);
-        const isiLines = doc.splitTextToSize(isi, 170);
-        for (let line of isiLines) {
-            if (y > 270) { doc.addPage(); y = 20; }
-            doc.text(line, 20, y);
-            y += 6;
-        }
-        
-        // Tanda tangan
-        if (y > 250) { doc.addPage(); y = 20; }
-        y += 10;
-        doc.text('Hormat kami,', 190, y, { align: 'right' });
-        y += 25;
-        doc.setFont('times', 'bold');
-        const ttd = iDominan.nama || 'KBIHU';
-        doc.text(ttd, 190, y, { align: 'right' });
-        const w = doc.getTextWidth(ttd);
-        doc.line(190 - w, y + 1, 190, y + 1);
-        
-        return { doc, filename: 'Surat_' + jamaah.nama_lengkap.replace(/[^a-zA-Z0-9]/g, '_') + '.pdf' };
-    } catch(e) {
-        showToast('Error: ' + e.message);
-        return null;
-    }
-}
 
-async function shareSuratPDF() {
-    showToast('⏳ Membuat PDF...');
-    const result = await generateSuratPDFSimple();
-    if (!result) return;
-    
-    try {
-        const blob = result.doc.output('blob');
-        const file = new File([blob], result.filename, { type: 'application/pdf' });
-        
-        if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
-            await navigator.share({ files: [file], title: 'Surat' });
-            showToast('✅ PDF dibagikan!');
-        } else {
-            result.doc.save(result.filename);
-            showToast('📥 PDF didownload (share tidak didukung)');
-        }
-    } catch(e) {
-        if (e.name !== 'AbortError') {
-            result.doc.save(result.filename);
-            showToast('📥 PDF didownload');
-        }
-    }
-}
 
-async function downloadSuratPDF() {
-    showToast('⏳ Membuat PDF...');
-    const result = await generateSuratPDFSimple();
-    if (!result) return;
-    result.doc.save(result.filename);
-    showToast('✅ PDF berhasil didownload!');
-}
+
+
+
 
 function simpanTemplateSuratKustom() {
     const val = document.getElementById('suratKustomTemplate')?.value;
@@ -13712,7 +13190,6 @@ function tutupRekeningSaldo(id) {
     { const mdl = document.getElementById('rekeningSaldoModal'); if (mdl) mdl.style.display = 'none'; }
     simpanSaldoKantor(); showToast('Rekening ditutup');
 }
-const sembunyikanRekeningSaldo = tutupRekeningSaldo; // nama lama, dipertahankan agar tidak ada yang rusak
 function bukaKembaliRekeningSaldo(id) {
     if (!bolehSaldoKantor()) return;
     const r = saldoKantorData.rekening.find(x => x.id === id); if (!r) return;
@@ -14494,11 +13971,7 @@ async function bukaLaporanSaldo() {
         <div id="lsTanggal" style="display:none;gap:8px;margin-bottom:6px;"><div style="flex:1;"><div style="font-size:11px;color:#888;">Dari (boleh kosong)</div><input type="date" id="lsDari" onchange="aturLaporanSaldo('dari',this.value)"></div><div style="flex:1;"><div style="font-size:11px;color:#888;">Sampai</div><input type="date" id="lsSampai" onchange="aturLaporanSaldo('sampai',this.value)"></div></div>
         <label style="display:flex;align-items:center;justify-content:space-between;font-size:12px;margin:4px 0 8px;cursor:pointer;"><span>Sertakan rincian mutasi</span><input type="checkbox" id="lsRincian" onchange="aturLaporanSaldo('rincian',this.checked)" style="width:18px;height:18px;"></label>
         <div id="lsPratinjau" style="background:#F8FAFC;border-radius:12px;padding:10px 12px;font-size:12px;max-height:46vh;overflow-y:auto;margin-bottom:10px;">Memuat...</div>
-        <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;">
-            <button onclick="cetakLaporanSaldo()" style="padding:10px 2px;border:none;border-radius:10px;font-size:12px;font-weight:700;background:var(--primary);color:#fff;cursor:pointer;">Cetak</button>
-            <button onclick="shareLaporanSaldoPDF()" style="padding:10px 2px;border:none;border-radius:10px;font-size:12px;font-weight:700;background:#1d4ed8;color:#fff;cursor:pointer;">Bagikan PDF</button>
-            <button onclick="shareLaporanSaldoWA()" style="padding:10px 2px;border:none;border-radius:10px;font-size:12px;font-weight:700;background:#25D366;color:#fff;cursor:pointer;">WA</button>
-        </div>
+        <button class="btn-export-std" onclick="bukaExportHalaman('saldo')"><i class="fas fa-download"></i> Export</button>
         <button onclick="document.getElementById('laporanSaldoModal').style.display='none'" style="width:100%;padding:10px;background:#e2e8f0;color:#333;border:none;border-radius:10px;font-size:13px;cursor:pointer;margin-top:8px;">Tutup</button>
     </div>`;
     modal.style.display = 'flex';
@@ -14594,72 +14067,7 @@ async function cetakLaporanSaldo() {
     await catatLaporanTerakhirSaldo(data);
 }
 
-// ---------- Bagikan PDF (komponen bersama yang sama dengan Cuan Plan, Kas, Tukar Riyal) ----------
-async function shareLaporanSaldoPDF() {
-    if (!bolehSaldoKantor()) return;
-    const data = await susunLaporanSaldo(laporanSaldoState);
-    if (!adaDataLaporan(data)) return showToast('Belum ada data untuk dibagikan');
-    showToast('Menyiapkan...');
-    try {
-        const f = rupiahSaldo, tgl = formatTanggalLengkap(), waktuTxt = teksWaktuLaporan(Date.now()), rincianOn = laporanSaldoState.rincian;
-        const { jsPDF } = window.jspdf; const [wr, wg, wb] = getWarnaTemaRGB();
-        const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
-        const PW = 210, PH = 297; let mulai = true;
-        await applyPDFConfig(doc, { landscape: false, skipHeader: true, skipWatermark: true, skipQR: true });
-        const cfgDasar = getKonfigurasiProData();
-        for (const d of data.entitas) {
-            await denganKopEntitas(d.ent.id, async (cfg) => {
-                if (!mulai) doc.addPage(); mulai = false;
-                let y = await gambarHeaderRoundedPDF(doc, cfg, PW);
-                doc.setFontSize(15); doc.setTextColor(wr, wg, wb); doc.setFont('helvetica', 'bold'); doc.text('LAPORAN SALDO KANTOR', 14, y); y += 6;
-                doc.setFontSize(9); doc.setTextColor(120, 120, 120); doc.setFont('helvetica', 'normal'); doc.text(`${d.ent.nama} - ${teksPeriodeLaporan(d)}`, 14, y); y += 4.5; doc.text(`Dicetak: ${waktuTxt}`, 14, y); y += 6;
-                if (d.tanpaAcuan) { doc.setTextColor(70, 70, 70); doc.text('Belum ada laporan sebelumnya untuk entitas ini.', 14, y); return; }
-                const kanan = (n) => (h) => { if (n.includes(h.column.index)) h.cell.styles.halign = 'right'; };
-                const posisi = d.per.posisi, R = d.ringkas, jml = k => d.rek.reduce((a, r) => a + r[k], 0);
-                const bodyRek = posisi ? d.rek.map(r => [r.label, f(r.akhir)]).concat([['TOTAL ENTITAS', f(R.akhir)]])
-                    : d.rek.map(r => [r.label + (r.perubahan ? ' *' : ''), f(r.awal), f(r.masuk), f(r.keluar), f(r.akhir)]).concat([['TOTAL ENTITAS', f(R.awal), f(jml('masuk')), f(jml('keluar')), f(R.akhir)]]);
-                const gayaTotal = (n) => (h) => { if (h.section === 'body' && h.row.index === n - 1) { h.cell.styles.fontStyle = 'bold'; h.cell.styles.fillColor = [240, 247, 244]; } };
-                doc.autoTable({ startY: y, head: [posisi ? ['Rekening / kas', 'Saldo'] : ['Rekening / kas', 'Saldo awal', 'Masuk', 'Keluar', 'Saldo akhir']], body: bodyRek, theme: 'striped', headStyles: { fillColor: [wr, wg, wb] }, styles: { fontSize: 8.5, lineWidth: 0.1 },
-                    didParseCell: (h) => { kanan(posisi ? [1] : [1, 2, 3, 4])(h); gayaTotal(bodyRek.length)(h); } });
-                y = doc.lastAutoTable.finalY + 2;
-                if (!posisi) {
-                    if (d.rek.some(r => r.perubahan)) { doc.setFontSize(7.5); doc.setTextColor(120, 120, 120); doc.text('* termasuk perubahan dari catatan lama yang diedit atau dihapus sejak laporan terakhir', 14, y + 3); y += 5; }
-                    const br = barisRingkasLaporan(d).map(([t, v, tebal, tanda]) => [t, tanda ? fTandaSaldo(v) : f(v), tebal]);
-                    doc.autoTable({ startY: y + 3, head: [['Ringkasan', '']], body: br.map(b => [b[0], b[1]]), theme: 'plain', headStyles: { fillColor: [wr, wg, wb], textColor: 255 }, styles: { fontSize: 8.5 },
-                        didParseCell: (h) => { kanan([1])(h); if (h.section === 'body' && br[h.row.index] && br[h.row.index][2]) { h.cell.styles.fontStyle = 'bold'; h.cell.styles.fillColor = [240, 247, 244]; } } });
-                    y = doc.lastAutoTable.finalY + 2;
-                }
-                const bu = barisUtangLaporan(d);
-                if (bu.length) {
-                    doc.autoTable({ startY: y + 3, head: [['Utang-piutang', '']], body: bu.map(([t, v]) => [t, f(v)]), theme: 'plain', headStyles: { fillColor: [180, 83, 9], textColor: 255 }, styles: { fontSize: 8.5, textColor: [146, 64, 14] }, didParseCell: kanan([1]) });
-                    y = doc.lastAutoTable.finalY + 2;
-                    if (d.orangPerHariIni) { doc.setFontSize(7.5); doc.setTextColor(120, 120, 120); doc.text('Daftar orang yang meminjam adalah posisi hari ini, bukan per akhir periode.', 14, y + 3); y += 5; }
-                }
-                if (rincianOn && !posisi && d.mutasi.length) {
-                    doc.autoTable({ startY: y + 3, head: [['Tanggal', 'Rekening', 'Uraian', 'Masuk', 'Keluar', 'Saldo']], body: d.mutasi.map(m => [m.tanggal ? tglSaldoTampil(m.tanggal) : '', m.rek, m.uraian + (m.ket ? ' - ' + m.ket : ''), m.masuk ? f(m.masuk) : '', m.keluar ? f(m.keluar) : '', f(m.saldo)]),
-                        theme: 'striped', headStyles: { fillColor: [wr, wg, wb] }, styles: { fontSize: 7.5, lineWidth: 0.1 }, didParseCell: kanan([3, 4, 5]) });
-                    y = doc.lastAutoTable.finalY;
-                }
-                y += 10;
-                const butuhTTD = (cfg.settings?.show_pimpinan === true) ? 50 : 0;
-                if (y + butuhTTD > PH - 45) { doc.addPage(); y = 20; }
-                gambarTandaTanganPDF(doc, cfg, tgl, y, PW, true);
-                doc.setPage(doc.getNumberOfPages());
-                await gambarQRDokumenPDF(doc, cfg, `Laporan Saldo ${d.ent.nama}\n${teksPeriodeLaporan(d)}\nSaldo akhir: ${f(R.akhir)}\nDicetak: ${waktuTxt}`, PW, PH);
-            });
-        }
-        const total = doc.getNumberOfPages();
-        for (let i = 1; i <= total; i++) {
-            doc.setPage(i); gambarWatermarkPDF(doc, cfgDasar, PW, PH);
-            if (total > 1) { doc.setFontSize(8); doc.setTextColor(150, 150, 150); doc.setFont('helvetica', 'normal'); doc.text(`Halaman ${i} dari ${total}`, PW / 2, PH - 8, { align: 'center' }); }
-        }
-        const namaFile = `Laporan_Saldo_Kantor_${new Date().toLocaleDateString('id-ID').replace(/\//g, '-')}.pdf`;
-        const blob = doc.output('blob'), file = new File([blob], namaFile, { type: 'application/pdf' });
-        if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) await navigator.share({ files: [file], title: 'Laporan Saldo Kantor' });
-        else { doc.save(namaFile); showToast('📥 PDF didownload'); }
-        await catatLaporanTerakhirSaldo(data);
-    } catch (e) { if (e.name !== 'AbortError') showToast('Gagal: ' + e.message); }
-}
+
 
 // ---------- WhatsApp (teks ringkas) ----------
 function susunTeksWALaporanSaldo(data, rincianOn) {
@@ -14737,7 +14145,6 @@ async function bacaKonteksCek() {
     if (!Array.isArray(ctx.pinjaman.orang)) ctx.pinjaman.orang = []; if (!Array.isArray(ctx.pinjaman.transaksi)) ctx.pinjaman.transaksi = [];
     return ctx;
 }
-function namaProgramCek(ctx, pid) { const p = ctx.program.find(x => x.id === pid); return p ? (p.nama || 'Program') : '(program tidak ditemukan)'; }
 function tglBerangkatCek(ctx, pid) { const t = ctx.konfig.per_program?.[pid]?.keberangkatan?.tanggal; return parseTglCek(t); }
 
 // ---------- Daftar pemeriksa ----------
@@ -15553,8 +14960,7 @@ function renderDetailPinjaman() {
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px;">
             <button type="button" class="btn btn-small" style="background:var(--primary);color:#fff;margin:0;" onclick="bukaFormPinjaman('pinjam', { orangId: ${o.id} })">+ Pinjaman</button>
             <button type="button" class="btn btn-small" style="background:#15803d;color:#fff;margin:0;" onclick="bukaFormPinjaman('kembali', { orangId: ${o.id} })">+ Pengembalian</button>
-            <button type="button" class="btn btn-small" style="background:#25D366;color:#fff;margin:0;" onclick="bagikanPinjamanWA(${o.id})">📲 Kirim Rincian</button>
-            <button type="button" class="btn btn-small" style="background:var(--orange);color:#fff;margin:0;" onclick="cetakPinjaman(${o.id})">🖨️ Cetak</button>
+            <button type="button" class="btn-export-std" style="grid-column:1/-1;margin:0;" onclick="bukaMenuExport('Rincian Pinjaman','',{cetak:'cetakPinjaman(${o.id})',wa:'bagikanPinjamanWA(${o.id})'})"><i class="fas fa-download"></i> Export</button>
         </div>
         <div class="pinjaman-subjudul">Pinjaman</div>${barisPinjam}
         <div class="pinjaman-subjudul">Riwayat Pengembalian</div>${barisKembali}`;
@@ -16080,62 +15486,7 @@ async function cetakAgendaKantor() {
     win.document.write(applyPrintTheme(html)); injectWatermarkToPrintWin(win); win.document.close();
 }
 
-async function shareAgendaKantorPDF() {
-    const sorted = getAgendaKantorBulanDilihat();
-    if (sorted.length === 0) return showToast('Belum ada Agenda di bulan ini untuk dibagikan!');
-    showToast('Menyiapkan...');
-    try {
-        const cfg = getKonfigurasiProData();
-        const [wr, wg, wb] = getWarnaTemaRGB();
-        const tgl = formatTanggalLengkap();
-        const namaBulan = bulanAgendaDilihat.toLocaleDateString('id-ID', { month: 'long', year: 'numeric' });
 
-        const {jsPDF} = window.jspdf;
-        const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
-        const PW = 210, PH = 297;
-        await applyPDFConfig(doc, { landscape: false, skipHeader: true, skipWatermark: true, skipQR: true });
-
-        let y = await gambarHeaderRoundedPDF(doc, cfg, PW);
-        doc.setFontSize(15); doc.setTextColor(wr,wg,wb); doc.setFont('helvetica','bold');
-        doc.text('AGENDA KANTOR', 14, y); y += 6;
-        doc.setFontSize(9); doc.setTextColor(120,120,120); doc.setFont('helvetica','normal');
-        doc.text(`Bulan: ${namaBulan} · Dicetak: ${tgl}`, 14, y); y += 5;
-        doc.text(buildRingkasanAgenda(sorted), 14, y); y += 6;
-
-        const tableData = sorted.map((a, idx) => {
-            const status = hitungStatusAgenda(a.tanggal, a.catatan_hasil);
-            return [
-                idx+1, a.pembahasan + (() => { const ib = infoBerhalanganAgenda(a); return ib ? '\n[!] ' + ib.nama + ' berhalangan: ' + ib.daftar.join(', ') : ''; })() + (a.catatan_hasil ? '\n📝 ' + a.catatan_hasil : ''),
-                new Date(a.tanggal+'T00:00:00').toLocaleDateString('id-ID',{weekday:'long',day:'numeric',month:'long',year:'numeric'}) + (a.waktu ? '\n' + a.waktu + ' WIB' : ''),
-                a.penanggung_jawab||'-', a.lokasi||'-', status.label.replace(/^[^\s]+\s/, '')
-            ];
-        });
-        doc.autoTable({
-            startY: y,
-            head: [['No','Pembahasan','Tanggal & Waktu','PIC','Lokasi','Status']],
-            body: tableData,
-            theme: 'striped',
-            headStyles: { fillColor: [wr,wg,wb] },
-            styles: { fontSize: 8 },
-            columnStyles: { 0: { cellWidth: 10, halign: 'center' } },
-        });
-
-        y = doc.lastAutoTable.finalY + 10;
-        gambarWatermarkPDF(doc, cfg, PW, PH, y / 2);
-
-        const namaFile = `Agenda_Kantor_${namaBulan.replace(/\s+/g,'_')}.pdf`;
-        const blob = doc.output('blob');
-        const file = new File([blob], namaFile, { type: 'application/pdf' });
-        if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
-            await navigator.share({ files: [file], title: 'Agenda Kantor' });
-        } else {
-            doc.save(namaFile);
-            showToast('📥 PDF didownload');
-        }
-    } catch(e) {
-        if (e.name !== 'AbortError') showToast('Gagal: ' + e.message);
-    }
-}
 
 // Penanda jenis program di layar Manasik: warna + ikon + nama program, supaya jelas jadwal ini milik program mana.
 function getTemaManasik() { return getTemaProgram(getCurrentProgram()); }
@@ -16350,77 +15701,7 @@ async function cetakJadwalManasikLengkap() {
     win.document.write(applyPrintTheme(html)); injectWatermarkToPrintWin(win); win.document.close();
 }
 
-async function shareJadwalManasikPDF() {
-    if (jadwalManasikList.length === 0) return showToast('Belum ada jadwal manasik untuk dibagikan!');
-    showToast('Menyiapkan...');
-    try {
-        const cfg = getKonfigurasiProData();
-        const [wr, wg, wb] = getWarnaTemaRGB();
-        const tgl = formatTanggalLengkap();
-        const namaProgram = getCurrentProgram()?.nama || '-';
-        const sorted = [...jadwalManasikList].sort((a,b) => (a.tanggalRaw||'').localeCompare(b.tanggalRaw||''));
-        const adaEstimasi = sorted.some(j => j.status !== 'final');
 
-        const {jsPDF} = window.jspdf;
-        const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
-        const PW = 210, PH = 297;
-        await applyPDFConfig(doc, { landscape: false, skipHeader: true, skipWatermark: true, skipQR: true });
-
-        let y = await gambarHeaderRoundedPDF(doc, cfg, PW);
-        doc.setFontSize(15); doc.setTextColor(wr,wg,wb); doc.setFont('helvetica','bold');
-        doc.text('JADWAL MANASIK / BIMBINGAN', 14, y); y += 6;
-        doc.setFontSize(9); doc.setTextColor(120,120,120); doc.setFont('helvetica','normal');
-        doc.text(`Program: ${namaProgram} · Dicetak: ${tgl}`, 14, y); y += 6;
-
-        if (adaEstimasi) {
-            const teksPeringatan = 'PERHATIAN: Sebagian/seluruh jadwal ini masih SEMENTARA/ESTIMASI — dapat berubah sewaktu-waktu.';
-            doc.setFontSize(9); doc.setFont('helvetica','bold');
-            const barisPeringatan = doc.splitTextToSize(teksPeringatan, PW-36);
-            const tinggiKotak = barisPeringatan.length * 5 + 6;
-            doc.setFillColor(254,243,199);
-            doc.roundedRect(14, y, PW-28, tinggiKotak, 2, 2, 'F');
-            doc.setTextColor(146,64,14);
-            doc.text(barisPeringatan, PW/2, y+7, { align: 'center' });
-            y += tinggiKotak + 6;
-        }
-
-        const tableData = sorted.map((j, idx) => [
-            idx+1, j.materi, formatTanggalDenganHari(j.tanggalRaw, j.tanggal) + (j.waktu ? '\n' + j.waktu : ''), j.pemateri||'-', j.lokasi||'-',
-            j.status === 'final' ? 'Final' : 'Estimasi'
-        ]);
-        doc.autoTable({
-            startY: y,
-            head: [['No','Materi','Tanggal & Waktu','Pemateri','Lokasi','Status']],
-            body: tableData,
-            theme: 'striped',
-            headStyles: { fillColor: [wr,wg,wb] },
-            styles: { fontSize: 8 },
-            columnStyles: { 0: { cellWidth: 10, halign: 'center' } },
-            didParseCell: (h) => {
-                if (h.section === 'body' && h.column.index === 5) {
-                    h.cell.styles.fontStyle = 'bold';
-                    h.cell.styles.textColor = h.cell.raw === 'Final' ? [22,101,52] : [146,64,14];
-                }
-            }
-        });
-
-        y = doc.lastAutoTable.finalY + 10;
-        y = gambarTandaTanganPDF(doc, cfg, tgl, y, PW, false);
-        gambarWatermarkPDF(doc, cfg, PW, PH, y / 2);
-
-        const namaFile = `Jadwal_Manasik_${namaProgram.replace(/\s+/g,'_')}.pdf`;
-        const blob = doc.output('blob');
-        const file = new File([blob], namaFile, { type: 'application/pdf' });
-        if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
-            await navigator.share({ files: [file], title: 'Jadwal Manasik / Bimbingan' });
-        } else {
-            doc.save(namaFile);
-            showToast('📥 PDF didownload');
-        }
-    } catch(e) {
-        if (e.name !== 'AbortError') showToast('Gagal: ' + e.message);
-    }
-}
 
 function hapusJadwalManasik(jadwalId) {
     if (!cekIzinAdmin('bolehHapus')) return showToast('🔒 Anda tidak punya izin menghapus data');
@@ -16807,7 +16088,6 @@ function applyKonfigurasiLock() {
 }
 
 // Override data instansi untuk user gratis → selalu kembalikan "Navara"
-const _origGetKfg = window.getKonfigurasiProData;
 function injectWatermarkToPrintWin(win) {
     if(!win) return;
     try {
@@ -16924,7 +16204,6 @@ function updateLicenseBanner() {
 
 // Halaman yang memerlukan Premium
 const PREMIUM_PAGES = []; // Semua halaman bebas - hanya Cuan Plan yang dibatasi via hitung
-const TRIAL_PAGE = 'estimasi';
 const MAX_TRIALS = 10;
 const TRIAL_VERSION = 'v2'; // Naikkan versi kalau MAX_TRIALS berubah
 
@@ -17948,7 +17227,6 @@ function editJamaahById(id){
     editJamaah(index); 
 }
 
-let _dataUndoTerakhir = null;
 let _undoTimeoutId = null;
 
 // ==================== HUBUNGAN KELUARGA (2 arah — sekali diisi, otomatis muncul di kedua jamaah) ====================
@@ -18728,8 +18006,137 @@ function openBandingkanProgramModal() {
 
 // ==================== EXCEL REKAP TAHUNAN & BANDINGKAN PROGRAM (build -139) ====================
 // Angka dihitung dengan cara yang sama persis seperti tampilan Rekap Tahunan dan Bandingkan Program; Excel hanya menambah kolom Piutang dan % Terbayar.
+// Pilihan Export (gaya sama dengan tombol Export di Uang Kas): satu menu per laporan, bentuk keluaran dipilih di sini.
+
+// ==================== BAGIKAN PDF = TAMPILAN CETAK YANG SAMA PERSIS ====================
+// Menjalankan fungsi Cetak halaman itu, menangkap halaman cetaknya di jendela tersembunyi, memotretnya per halaman A4, lalu membagikannya
+// sebagai PDF. Karena yang difoto adalah halaman Cetak itu sendiri, bentuk dan isinya sama persis (kop, warna, tabel, tanda tangan, watermark).
+async function bagikanDariCetak(jalankanCetak, judul) {
+    if (typeof html2canvas === 'undefined' || !window.jspdf) return showToast('Pustaka PDF belum siap. Periksa koneksi internet lalu coba lagi.');
+    showToast('Menyiapkan PDF...');
+    const asliOpen = window.open;
+    let iframe = null;
+    window.open = function () {
+        iframe = document.createElement('iframe');
+        iframe.setAttribute('aria-hidden', 'true');
+        iframe.style.cssText = 'position:fixed;left:0;top:0;width:794px;height:1123px;border:0;opacity:0;pointer-events:none;z-index:-1;';
+        document.body.appendChild(iframe);
+        const w = iframe.contentWindow;
+        try { w.print = function () {}; w.close = function () {}; } catch (e) {}
+        return w;
+    };
+    try { await jalankanCetak(); } finally { window.open = asliOpen; }
+    if (!iframe) return; // Cetak dibatalkan (misalnya data kosong); pesannya sudah ditampilkan oleh fungsi Cetak
+    try {
+        const w = iframe.contentWindow, d = w.document;
+        await new Promise(r => setTimeout(r, 350));
+        await Promise.all(Array.from(d.images).map(im => im.complete ? 1 : new Promise(r => { im.onload = im.onerror = r; })));
+        // Jadikan aturan "@media print" berlaku di layar supaya bentuknya sama dengan hasil cetak
+        let css = '';
+        Array.from(d.styleSheets).forEach(sh => {
+            let rules; try { rules = sh.cssRules; } catch (e) { return; }
+            Array.from(rules || []).forEach(r => { if (r.type === 4 && /print/.test(r.media.mediaText)) Array.from(r.cssRules).forEach(ir => { css += ir.cssText + '\n'; }); });
+        });
+        const st = d.createElement('style');
+        st.textContent = css + '\nhtml{width:794px !important;}\nhtml body{background:#fff !important;margin:0 !important;}\nhtml body .no-print, #floatingPrintBtn{display:none !important;}\n';
+        d.head.appendChild(st);
+        await new Promise(r => setTimeout(r, 150));
+        const W = 794, H = Math.max(d.documentElement.scrollHeight, d.body.scrollHeight);
+        const wajib = [];
+        d.body.querySelectorAll('*').forEach(e => {
+            const cs = w.getComputedStyle(e), rc = e.getBoundingClientRect();
+            if (cs.breakAfter === 'page' || cs.pageBreakAfter === 'always') wajib.push(rc.bottom + w.scrollY);
+            if ((cs.breakBefore === 'page' || cs.pageBreakBefore === 'always') && rc.top > 5) wajib.push(rc.top + w.scrollY);
+        });
+        const skala = H > 6000 ? 1.5 : 2;
+        const canvas = await html2canvas(d.documentElement, { scale: skala, backgroundColor: '#ffffff', useCORS: true, logging: false, width: W, height: H, windowWidth: W, windowHeight: H, scrollX: 0, scrollY: 0 });
+        const cw = canvas.width, ch = canvas.height, ctx = canvas.getContext('2d');
+        const mmPerPx = 190 / cw, pageH = Math.floor(277 / mmPerPx);
+        const wajibPx = Array.from(new Set(wajib.map(y => Math.round(y * skala)))).sort((a, b) => a - b);
+        const barisPutih = (y) => { const px = ctx.getImageData(0, y, cw, 1).data; for (let i = 0; i < px.length; i += 12) { if (px[i] < 248 || px[i + 1] < 248 || px[i + 2] < 248) return false; } return true; };
+        const potongan = [];
+        let pos = 0;
+        while (pos < ch - 2) {
+            let akhir = Math.min(pos + pageH, ch);
+            const wj = wajibPx.find(y => y > pos + 20 && y <= akhir);
+            if (wj) akhir = wj;
+            else if (akhir < ch) { const batas = akhir - Math.floor(pageH * 0.15); for (let y = akhir; y > batas; y--) { if (barisPutih(y)) { akhir = y; break; } } }
+            if (akhir - pos > 6) potongan.push([pos, akhir]);
+            pos = akhir;
+        }
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+        potongan.forEach((pt, i) => {
+            const h = pt[1] - pt[0];
+            const tmp = document.createElement('canvas'); tmp.width = cw; tmp.height = h;
+            const tc = tmp.getContext('2d'); tc.fillStyle = '#fff'; tc.fillRect(0, 0, cw, h); tc.drawImage(canvas, 0, pt[0], cw, h, 0, 0, cw, h);
+            if (i > 0) doc.addPage();
+            doc.addImage(tmp.toDataURL('image/jpeg', 0.95), 'JPEG', 10, 10, 190, h * mmPerPx);
+        });
+        const namaFile = String(judul).replace(/[^A-Za-z0-9]+/g, '_') + '_' + new Date().toLocaleDateString('id-ID').replace(/\//g, '-') + '.pdf';
+        const file = new File([doc.output('blob')], namaFile, { type: 'application/pdf' });
+        if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) await navigator.share({ files: [file], title: judul });
+        else { doc.save(namaFile); showToast('📥 PDF didownload (Bagikan tidak didukung di perangkat ini)'); }
+    } catch (e) {
+        if (e.name !== 'AbortError') showToast('Gagal membuat PDF: ' + e.message);
+    } finally {
+        if (iframe && iframe.parentNode) iframe.parentNode.removeChild(iframe);
+    }
+}
+
+// ==================== EXPORT: SATU POLA DI SEMUA HALAMAN ====================
+// Aturan: satu tombol "Export" → daftar pilihan dengan nama dan urutan TETAP (Cetak / Simpan PDF, Bagikan PDF, Excel, WhatsApp).
+// Hanya pilihan yang tersedia di halaman itu yang tampil. Izin akses mengikuti izin halamannya.
+const EXPORT_PILIHAN = [
+    { k: 'cetak', ikon: '🖨️', kls: 'export-icon-cetak', nama: 'Cetak / Simpan PDF', ket: 'Lihat dulu, lalu cetak atau simpan PDF' },
+    { k: 'bagikan', ikon: '📲', kls: 'export-icon-pdf', nama: 'Bagikan PDF', ket: 'Kirim file PDF lewat WhatsApp atau aplikasi lain' },
+    { k: 'excel', ikon: '📊', kls: 'export-icon-excel', nama: 'Excel', ket: 'Langsung unduh file Excel' },
+    { k: 'wa', ikon: '💬', kls: 'export-icon-wa', nama: 'WhatsApp', ket: 'Kirim ringkasan sebagai pesan WhatsApp' },
+    { k: 'salin', ikon: '📋', kls: 'export-icon-cetak', nama: 'Salin Teks', ket: 'Salin ringkasan, lalu tempel di mana saja' }
+];
+function bukaMenuExport(judul, ket, opsi, izin) {
+    if (izin && !cekIzinFitur(izin)) return showToast('🔒 Tidak punya izin. Gunakan tombol 🔓 Minta Akses di Home.');
+    let m = document.getElementById('pilihanExportLaporanModal');
+    if (!m) { m = document.createElement('div'); m.id = 'pilihanExportLaporanModal'; m.className = 'modal'; document.body.appendChild(m); }
+    const tutup = "document.getElementById('pilihanExportLaporanModal').style.display='none';";
+    // Nilai opsi boleh string (satu aksi) atau daftar {aksi, sub, ket} bila satu jenis punya beberapa versi (mis. Cetak Internal / Cetak untuk Jamaah)
+    const item = EXPORT_PILIHAN.filter(x => opsi[x.k]).map(x => (Array.isArray(opsi[x.k]) ? opsi[x.k] : [{ aksi: opsi[x.k] }]).map(v => `<div class="export-menu-item" onclick="${tutup}${v.aksi}"><div class="export-icon ${x.kls}">${x.ikon}</div><div><div class="export-label">${v.sub ? (x.k === 'cetak' ? 'Cetak' : x.nama) + ' · ' + v.sub : x.nama}</div><div class="export-desc">${v.ket || x.ket}</div></div></div>`).join('')).join('');
+    m.innerHTML = `<div class="modal-content" style="max-width:400px;padding:0;overflow:hidden;">
+        <div style="padding:16px 18px 10px;"><div style="font-weight:800;font-size:16px;color:var(--primary);">Export: ${judul}</div>${ket ? `<div style="font-size:12px;color:#888;margin-top:2px;">${ket}</div>` : ''}</div>
+        ${item}
+        <div style="padding:10px 14px;"><button onclick="${tutup}" style="width:100%;padding:11px;background:#e2e8f0;color:#333;border:none;border-radius:10px;font-size:13px;cursor:pointer;">Batal</button></div>
+    </div>`;
+    document.body.appendChild(m); // selalu paling atas, juga saat dibuka dari dalam jendela lain (Simulasi, Laporan Saldo)
+    m.style.display = 'flex';
+}
+// Tombol standar "Export" untuk halaman. Pemakaian: tombolExportStandar('Judul', 'Keterangan', { cetak: 'fungsi()', bagikan: 'fungsi()' })
+function bukaExportHalaman(id) {
+    const c = EXPORT_HALAMAN[id]; if (!c) return;
+    bukaMenuExport(c.judul, c.ket, c.opsi, c.izin);
+}
+const EXPORT_HALAMAN = {
+    dashboard: { judul: 'Dashboard', ket: 'Ringkasan kas, jamaah, dan tagihan', opsi: { cetak: 'cetakDashboardHTML()', bagikan: "bagikanDariCetak(()=>cetakDashboardHTML(),'Dashboard')", excel: 'exportDashboardExcel()' } },
+    manasik: { judul: 'Jadwal Manasik', ket: 'Program yang sedang aktif', opsi: { cetak: 'cetakJadwalManasikLengkap()', bagikan: "bagikanDariCetak(()=>cetakJadwalManasikLengkap(),'Jadwal_Manasik')" } },
+    agenda: { judul: 'Agenda Kantor', ket: '', opsi: { cetak: 'cetakAgendaKantor()', bagikan: "bagikanDariCetak(()=>cetakAgendaKantor(),'Agenda_Kantor')" } },
+    konsorsium: { judul: 'Laporan Konsorsium', ket: '', opsi: { cetak: 'cetakLaporanKonsorsium()', wa: 'bagikanKonsorsiumWA()' } },
+    itinerary: { judul: 'Itinerary', ket: 'Pilih versi cetaknya', opsi: { cetak: [{ aksi: "cetakItinerary('internal')", sub: 'Internal', ket: 'Versi untuk tim, bertanda (INTERNAL). Lihat dulu, lalu cetak atau simpan PDF' }, { aksi: "cetakItinerary('jamaah')", sub: 'Untuk Jamaah', ket: 'Versi untuk dibagikan ke jamaah. Lihat dulu, lalu cetak atau simpan PDF' }] } },
+    kalenderpejabat: { judul: 'Kalender Pejabat', ket: 'Pilih versi cetaknya', opsi: { cetak: [{ aksi: "cetakKalenderPejabat('internal')", sub: 'Internal', ket: 'Lengkap, termasuk hari libur. Lihat dulu, lalu cetak atau simpan PDF' }, { aksi: "cetakKalenderPejabat('promosi')", sub: 'Promosi', ket: 'Tampilan promosi, tanpa hari libur. Lihat dulu, lalu cetak atau simpan PDF' }] } },
+    simulasi: { judul: 'Simulasi FOC Mitra', ket: '', opsi: { cetak: 'cetakSimulasiGratis()', bagikan: "bagikanDariCetak(()=>cetakSimulasiGratis(),'Simulasi_FOC')" } },
+    saldo: { judul: 'Laporan Saldo Kantor', ket: '', opsi: { cetak: 'cetakLaporanSaldo()', bagikan: "bagikanDariCetak(()=>cetakLaporanSaldo(),'Laporan_Saldo_Kantor')", wa: 'shareLaporanSaldoWA()' } },
+    pengeluaran: { judul: 'Pengeluaran', ket: 'Program yang sedang aktif', opsi: { cetak: [{ aksi: 'cetakPengeluaran()', sub: 'Pengeluaran', ket: 'Daftar pengeluaran saja, lihat dulu lalu cetak atau simpan PDF' }, { aksi: "cetakLaporanGabungan('semua')", sub: 'Lengkap', ket: 'Laporan gabungan lengkap, lihat dulu lalu cetak atau simpan PDF' }], excel: 'exportPengeluaranExcel()' } },
+    tukarriyal: { judul: 'Tukar Riyal', ket: '', opsi: { cetak: 'cetakLaporanTukarRiyal()', bagikan: "bagikanDariCetak(()=>cetakLaporanTukarRiyal(),'Laporan_Tukar_Riyal')", wa: 'shareTukarRiyalWA()' } },
+    tiket: { judul: 'Kartu / Tiket Jamaah', ket: 'Untuk jamaah yang dipilih', opsi: { cetak: [{ aksi: 'cetakTiketMulti()', sub: 'Kartu', ket: 'Cetak kartu jamaah yang dipilih. Lihat dulu, lalu cetak atau simpan PDF' }], wa: 'shareTiketWAMulti()' } },
+    rekapaktual: { judul: 'Rekap Aktual', ket: 'Program yang sedang aktif', opsi: { cetak: [{ aksi: 'cetakRekapAktual()', sub: 'Rekap', ket: 'Rekap ringkas. Lihat dulu, lalu cetak atau simpan PDF' }, { aksi: "cetakLaporanGabungan('semua')", sub: 'Lengkap', ket: 'Laporan gabungan lengkap. Lihat dulu, lalu cetak atau simpan PDF' }], wa: 'shareRekapAktual()' } },
+    zakat: { judul: 'Laporan Zakat', ket: '', opsi: { cetak: 'cetakLaporanZakat()', bagikan: "bagikanDariCetak(()=>cetakLaporanZakat(),'Laporan_Zakat')", wa: 'shareZakatWA()', salin: 'salinZakat()' } },
+    evaluasi: { judul: 'Evaluasi Hotel & Maskapai', ket: '', opsi: { cetak: 'cetakLaporanEvaluasiRekanan()', bagikan: "bagikanDariCetak(()=>cetakLaporanEvaluasiRekanan(),'Evaluasi_Hotel_Maskapai')", wa: 'shareEvaluasiRekananWA()', salin: 'salinEvaluasiRekanan()' } },
+    surat: { judul: 'Surat', ket: '', opsi: { cetak: 'cetakSurat()', bagikan: "bagikanDariCetak(()=>cetakSurat(),'Surat')" } },
+    penutupan: { judul: 'Laporan Penutupan Musim', ket: 'Program yang sedang aktif', izin: 'cetakLaporanPenutupanMusim', opsi: { cetak: 'cetakLaporanPenutupanMusim()', bagikan: "bagikanDariCetak(()=>cetakLaporanPenutupanMusim(),'Laporan_Penutupan_Musim')", excel: "cetakLaporanPenutupanMusim('excel')" } },
+    rekap: { judul: 'Rekap Tahunan', ket: 'Semua keberangkatan', izin: 'cetakRekapTahunanGabungan', opsi: { cetak: 'cetakRekapTahunanGabungan()', bagikan: "bagikanDariCetak(()=>cetakRekapTahunanGabungan(),'Rekap_Tahunan')", excel: "exportPerProgramExcel('tahunan')" } }
+};
+function bukaPilihanExportLaporan(jenis) { bukaExportHalaman(jenis === 'rekap' ? 'rekap' : 'penutupan'); }
+
 function exportPerProgramExcel(mode) {
-    const kunci = mode === 'bandingkan' ? 'excelBandingkanProgram' : 'excelRekapTahunan';
+    const kunci = mode === 'bandingkan' ? 'openBandingkanProgramModal' : 'cetakRekapTahunanGabungan';
     if(!cekIzinFitur(kunci)) return showToast('🔒 Tidak punya izin. Gunakan tombol 🔓 Minta Akses di Home.');
     if (typeof XLSX === 'undefined') { showToast('Library Excel belum siap, coba lagi sebentar.'); return; }
     if(!programList.length) return showToast('Belum ada Program!');
@@ -18756,9 +18163,25 @@ function exportPerProgramExcel(mode) {
     const hariIni = new Date().toLocaleDateString('id-ID').replace(/\//g, '-');
     const judul = mode === 'bandingkan' ? 'Bandingkan Performa Program' : 'Rekap Tahunan Gabungan';
     const kepala = ['Program', 'Jenis', 'Jumlah Jamaah', 'Total Kontrak', 'Total Dibayar', 'Piutang', '% Terbayar', 'Kas Masuk', 'Kas Keluar', 'Total Pengeluaran'];
-    const data = [kepala].concat(rows.map(r => [r.nama, r.jenis, r.jamaah, r.kontrak, r.dibayar, r.piutang, persen(r), r.masuk, r.keluar, r.peng]));
+    const labelJenis = j => ({ haji_reguler: 'Haji Reguler', haji: 'Haji Khusus/Plus', umroh: 'Umroh' })[j] || 'Lainnya';
+    const data = [kepala].concat(rows.map(r => [r.nama, labelJenis(r.jenis), r.jamaah, r.kontrak, r.dibayar, r.piutang, persen(r), r.masuk, r.keluar, r.peng]));
     const totK = jumlah('kontrak'), totD = jumlah('dibayar');
-    data.push(['TOTAL (' + rows.length + ' Program)', '', jumlah('jamaah'), totK, totD, jumlah('piutang'), totK > 0 ? Math.round(totD / totK * 1000) / 10 : '', jumlah('masuk'), jumlah('keluar'), jumlah('peng')]);
+    // Subtotal per jenis: model Haji Reguler dan Umroh berbeda, jadi jangan hanya satu angka gabungan. Baris TOTAL di bawah tetap jumlah semuanya.
+    const urutJenis = [];
+    rows.forEach(r => { const l = labelJenis(r.jenis); if (!urutJenis.includes(l)) urutJenis.push(l); });
+    let barisTotalIdx = null, barisSub = [];
+    if (urutJenis.length > 1) {
+        data.push([]);
+        urutJenis.forEach(l => {
+            const g = rows.filter(r => labelJenis(r.jenis) === l);
+            const gs = k => g.reduce((a, r) => a + r[k], 0);
+            const gK = gs('kontrak'), gD = gs('dibayar');
+            barisSub.push(data.length);
+            data.push(['Subtotal ' + l + ' (' + g.length + ' Program)', l, gs('jamaah'), gK, gD, gs('piutang'), gK > 0 ? Math.round(gD / gK * 1000) / 10 : '', gs('masuk'), gs('keluar'), gs('peng')]);
+        });
+    }
+    barisTotalIdx = data.length;
+    data.push(['TOTAL SEMUA (' + rows.length + ' Program)', '', jumlah('jamaah'), totK, totD, jumlah('piutang'), totK > 0 ? Math.round(totD / totK * 1000) / 10 : '', jumlah('masuk'), jumlah('keluar'), jumlah('peng')]);
     const info = [
         [judul], [getNamaInstansiUtama()], ['Dibuat', hariIni], [],
         ['Catatan'],
@@ -18767,10 +18190,17 @@ function exportPerProgramExcel(mode) {
         ['Piutang', 'Sisa tagihan per jamaah. Kelebihan bayar satu jamaah tidak menutup tagihan jamaah lain.'],
         ['Kas Masuk / Keluar', 'Dari menu Kas program itu.'],
         ['Total Pengeluaran', 'Dari catatan Pengeluaran program itu.'],
-        ['Laba', 'Tidak dihitung di sini. Lihat Rekap atau Laporan Penutupan Musim tiap program.']
+        ['Laba', 'Tidak dihitung di sini. Lihat Rekap atau Laporan Penutupan Musim tiap program.'],
+        ['Subtotal / TOTAL', 'Subtotal dipisah per jenis program karena cara hitungnya berbeda. TOTAL SEMUA adalah jumlah seluruh program.']
     ];
     const wb = XLSX.utils.book_new();
     const w1 = XLSX.utils.aoa_to_sheet(data); w1['!cols'] = [{wch:30},{wch:14},{wch:14},{wch:18},{wch:18},{wch:18},{wch:12},{wch:18},{wch:18},{wch:18}];
+    // Format angka ribuan (nilai tetap angka asli, hanya tampilannya): kolom uang D,E,F,H,I,J dan jumlah jamaah C
+    for (let r = 1; r < data.length; r++) {
+        ['C', 'D', 'E', 'F', 'H', 'I', 'J'].forEach(c => { const cell = w1[c + (r + 1)]; if (cell && typeof cell.v === 'number') cell.z = '#,##0'; });
+        const pc = w1['G' + (r + 1)]; if (pc && typeof pc.v === 'number') pc.z = '0.0';
+    }
+    w1['!freeze'] = { xSplit: 1, ySplit: 1 };
     const w2 = XLSX.utils.aoa_to_sheet(info); w2['!cols'] = [{wch:22},{wch:90}];
     XLSX.utils.book_append_sheet(wb, w1, mode === 'bandingkan' ? 'Perbandingan' : 'Per Program');
     XLSX.utils.book_append_sheet(wb, w2, 'Keterangan');
@@ -18779,7 +18209,7 @@ function exportPerProgramExcel(mode) {
 }
 
 // ==================== REKAP TAHUNAN GABUNGAN ====================
-function cetakRekapTahunanGabungan() {
+function cetakRekapTahunanGabungan(mode) {
     if(!cekIzinFitur('cetakRekapTahunanGabungan')) return showToast('🔒 Tidak punya izin. Gunakan tombol 🔓 Minta Akses di Home.');
     let totalKontrak = 0, totalDibayar = 0, totalJamaah = 0, totalKasMasuk = 0, totalKasKeluar = 0, totalPengeluaran = 0, totalPiutang = 0;
     const perProgram = programList.map(p => {
@@ -19705,10 +19135,7 @@ function renderSimulasiGratisModal(setiap, dapat) {
         <h3 style="color:var(--primary);margin-bottom:4px;">🧮 Simulasi FOC Mitra</h3>
         <div style="font-size:11px;color:#888;margin-bottom:12px;">Coba beberapa rasio sebelum sepakat dengan Mitra — pakai Modal & Harga dari Estimasi Program saat ini.</div>
         <div style="max-height:400px;overflow-y:auto;">${htmlHasil}</div>
-        <div class="row" style="margin-top:10px;">
-            <button onclick="cetakSimulasiGratis()" style="flex:1;padding:10px;background:#0D9488;color:white;border:none;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;"><i class="fas fa-print"></i> Cetak</button>
-            <button onclick="shareSimulasiGratisPDF()" style="flex:1;padding:10px;background:#D4AF37;color:white;border:none;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;"><i class="fas fa-share-nodes"></i> Bagikan</button>
-        </div>
+        <button class="btn-export-std" onclick="bukaExportHalaman('simulasi')"><i class="fas fa-download"></i> Export</button>
         <button onclick="document.getElementById('simulasiGratisModal').style.display='none'" style="width:100%;padding:11px;background:#e2e8f0;color:#333;border:none;border-radius:10px;font-size:13px;cursor:pointer;margin-top:8px;">Tutup</button>
     </div>`;
 }
@@ -19784,70 +19211,7 @@ function cetakSimulasiGratis() {
     tampilkanJendelaCetak(html);
 }
 
-async function shareSimulasiGratisPDF() {
-    const data = getDataSimulasiGratis(1);
-    if (!data || data.length === 0) return showToast('Hitung Estimasi Program dulu (tab Estimasi)!');
-    showToast('Menyiapkan...');
-    try {
-        const namaInstansi = getNamaInstansiUtama();
-        const namaProgram = getCurrentProgram()?.nama || '-';
-        const f = n => 'Rp ' + Math.round(n).toLocaleString('id-ID');
-        const {jsPDF} = window.jspdf;
-        const [wr, wg, wb] = getWarnaTemaRGB();
-        const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
-        await applyPDFConfig(doc, { landscape: false });
 
-        doc.setFontSize(16); doc.setTextColor(wr,wg,wb);
-        doc.text('SIMULASI FOC MITRA', 105, 65, { align: 'center' });
-        doc.setFontSize(9); doc.setTextColor(150,150,150);
-        doc.text(namaInstansi + ' — Program: ' + namaProgram, 105, 71, { align: 'center' });
-
-        const tableData = data.map(d => [
-            d.rasio + ' : ' + d.dapat + (d.rekomendasi ? ' ✓' : ''),
-            d.label.replace(/[\u{1F534}\u{1F7E0}\u{1F7E1}\u{1F7E2}]/gu, '').trim(),
-            f(d.profitNormal),
-            f(d.profitDenganGratis),
-            d.persenTersisa.toFixed(0) + '%',
-            f(d.estimasiTotalMusim)
-        ]);
-        doc.autoTable({
-            startY: 78,
-            head: [['Rasio', 'Status', 'Profit Normal', 'Profit+FOC', '% Normal', 'Estimasi 1 Musim']],
-            body: tableData,
-            theme: 'striped',
-            headStyles: { fillColor: [wr,wg,wb] },
-            styles: { fontSize: 8 },
-            didParseCell: (hookData) => {
-                if (hookData.section === 'body' && data[hookData.row.index]?.rekomendasi) {
-                    hookData.cell.styles.fillColor = [240, 253, 244];
-                }
-            }
-        });
-
-        let y = doc.lastAutoTable.finalY + 8;
-        doc.setFontSize(9); doc.setTextColor(wr,wg,wb); doc.setFont('helvetica','bold');
-        doc.text('Kesimpulan:', 14, y);
-        doc.setFont('helvetica','normal'); doc.setTextColor(60,60,60);
-        const kesimpulanLines = doc.splitTextToSize(buatKesimpulanSimulasiGratis(data), 180);
-        doc.text(kesimpulanLines, 14, y + 6);
-        y += 6 + (kesimpulanLines.length * 5) + 6;
-        doc.setFontSize(7); doc.setTextColor(140,140,140);
-        doc.text('Rasio "X : Y" = tiap X orang, Y orang dapat FOC. ✓ = rasio paling murah hati ke Mitra yang masih aman.', 14, y);
-        doc.text(`Estimasi 1 Musim dihitung dari jumlah jamaah Program aktif (${jamaahList.length} orang) — perkiraan kasar, bukan jaminan.`, 14, y + 4);
-
-        const namaFile = `Simulasi_FOC_Mitra_${new Date().toLocaleDateString('id-ID').replace(/\//g,'-')}.pdf`;
-        const blob = doc.output('blob');
-        const file = new File([blob], namaFile, { type: 'application/pdf' });
-        if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
-            await navigator.share({ files: [file], title: 'Simulasi FOC Mitra' });
-        } else {
-            doc.save(namaFile);
-            showToast('📥 PDF didownload');
-        }
-    } catch(e) {
-        if (e.name !== 'AbortError') showToast('Gagal: ' + e.message);
-    }
-}
 
 function openAntrianFollowUpModal() {
     let modal = document.getElementById('antrianFollowUpModal');
@@ -20260,6 +19624,11 @@ function cetakLaporanPenutupanMusim(mode) {
     tampilkanJendelaCetak(html);
 }
 
+
+
+
+
+
 // Excel Laporan Penutupan Musim: isinya DIAMBIL dari laporan yang sama dengan versi cetak (tabel per bagian), jadi angkanya pasti cocok dengan PDF/cetak.
 function exportLaporanPenutupanExcel(html, progNama, namaKBIH) {
     if (typeof XLSX === 'undefined') { showToast('Library Excel belum siap, coba lagi sebentar.'); return; }
@@ -20348,8 +19717,8 @@ function daftarCaraPakai() {
             { judul: 'Warna dan kotak Program Aktif (Haji, Umroh)',
               isi: 'Di layar <b>Manasik</b>, <b>Itinerary</b>, <b>Layanan Tambahan</b>, dan <b>Kalender Program</b> ada kotak <b>Program Aktif</b> berisi nama program yang sedang dibuka. Warnanya menandai jenis: <b>hijau 🕋 = Haji</b>, <b>biru kehijauan 🌙 = Umroh</b>, <b>ungu 🧭 = jenis lain</b>. Jadwal dan data hanya milik program itu, jadi tidak tercampur. Untuk pindah program, ketuk bar <b>Program Aktif</b> di Home.',
               tombol: [] },
-            { judul: 'Memilih jenis laporan: Lihat, Bagikan, atau Excel',
-              isi: '<b>Cetak / Lihat</b>: membuka tampilan laporan untuk dilihat atau dijadikan PDF. <b>Bagikan PDF</b>: langsung mengirim file PDF lewat WhatsApp atau aplikasi lain, isinya sama dengan Cetak. <b>(Excel)</b>: langsung mengunduh file Excel tanpa pratinjau, untuk diolah sendiri. Contoh: <b>Bandingkan Program</b> = lihat di layar, <b>Bandingkan Program (Excel)</b> = unduh Excel. <b>Laporan Penutupan Musim</b> hanya untuk satu program yang aktif, sedangkan <b>Rekap Tahunan</b> mencakup semua keberangkatan.',
+            { judul: 'Memilih bentuk laporan: PDF, Bagikan, atau Excel',
+              isi: '<b>Laporan Penutupan Musim</b> dan <b>Rekap Tahunan</b>: ketuk menunya, lalu pilih <b>Cetak / Simpan PDF</b> (lihat laporannya dulu), <b>Bagikan PDF</b> (kirim file PDF langsung), atau <b>Excel</b> (langsung mengunduh file Excel tanpa pratinjau, untuk diolah sendiri). <b>Bandingkan Program</b>: angkanya tampil di layar, dan tombol <b>Unduh Excel</b> ada di bagian atas. Di menu lain seperti Uang Kas, tombol <b>Export</b> berisi Cetak, Bagikan, Excel, dan WhatsApp. <b>Bagikan PDF</b> mengirim file PDF langsung lewat WhatsApp atau aplikasi lain. Laporan Penutupan hanya untuk satu program yang aktif, sedangkan Rekap Tahunan mencakup semua keberangkatan.',
               tombol: [] },
             { judul: 'Backup data',
               isi: 'Data aplikasi tersimpan <b>hanya di HP ini</b>. Kalau HP hilang, rusak, atau aplikasi terhapus, data ikut hilang, dan tanpa backup tidak bisa dipulihkan. Buka <b>Backup &amp; Restore</b> → <b>Download ZIP</b>, lalu simpan file ZIP di tempat aman (misalnya kirim ke WhatsApp sendiri atau Google Drive). Lakukan setiap selesai input banyak data, dan <b>wajib sebelum mengganti versi aplikasi</b>. Fitur ini hanya untuk Admin Utama.',
@@ -20370,7 +19739,7 @@ function daftarCaraPakai() {
               tombol: [{ t: 'Buka Tukar Riyal', a: () => showPage('kalkulatorriyal'), h: 'kalkulatorriyal', f: 'kalkulatorriyal' }] },
             { judul: 'Menutup musim',
               isi: 'Setelah semua pembayaran dan pengeluaran tercatat: (1) jalankan <b>Cek Kesehatan Data</b>, (2) cetak <b>Laporan Penutupan Musim</b> atau unduh <b>Laporan Penutupan (Excel)</b>, (3) <b>Download ZIP</b> di Backup &amp; Restore. Program yang sudah diarsipkan dapat dilihat di <b>Program Arsip</b> (hanya baca).',
-              tombol: [{ t: 'Buka Cek Kesehatan Data', a: () => showPage('cekkesehatan'), h: 'cekkesehatan' }, { t: 'Buka Laporan Penutupan Musim', a: () => cetakLaporanPenutupanMusim(), f: 'cetakLaporanPenutupanMusim' }, { t: 'Unduh Laporan Penutupan (Excel)', a: () => cetakLaporanPenutupanMusim('excel'), f: 'excelLaporanPenutupanMusim' }] }
+              tombol: [{ t: 'Buka Cek Kesehatan Data', a: () => showPage('cekkesehatan'), h: 'cekkesehatan' }, { t: 'Buka Laporan Penutupan Musim', a: () => cetakLaporanPenutupanMusim(), f: 'cetakLaporanPenutupanMusim' }, { t: 'Unduh Laporan Penutupan (Excel)', a: () => cetakLaporanPenutupanMusim('excel'), f: 'cetakLaporanPenutupanMusim' }] }
         ] },
         { id: 'angka', pemilik: true, judul: '📊 ARTI ANGKA DAN PERINGATAN', items: [
             { judul: 'Proyeksi Laba dan Laba Bersih', jenis: ['umroh', 'haji'],
@@ -22601,6 +21970,33 @@ function hapusEvaluasiRekanan(rekananId, evaluasiId) {
     renderRekananHotelList();
 }
 
+// Data Evaluasi Rekanan: satu sumber untuk Cetak, Bagikan PDF, WhatsApp, dan Salin Teks.
+function dataEvaluasiRekanan() {
+    return getRekananHotelList().map(r => ({
+        nama: r.nama, jenis: r.jenis,
+        rata: r.evaluasi.length > 0 ? (r.evaluasi.reduce((a, e) => a + e.rating, 0) / r.evaluasi.length).toFixed(1) : '-',
+        evaluasi: r.evaluasi.slice().reverse()
+    }));
+}
+function teksEvaluasiRekanan() {
+    let t = `*EVALUASI HOTEL & MASKAPAI*\n${getNamaInstansiUtama()}\nTanggal: ${formatTanggalLengkap()}\n`;
+    dataEvaluasiRekanan().forEach(r => {
+        t += `\n*${r.nama}* (${r.jenis})${r.rata === '-' ? '' : ' - Rata-rata: ' + r.rata + '/5'}\n`;
+        if (!r.evaluasi.length) t += '- Belum ada evaluasi\n';
+        r.evaluasi.forEach(e => { t += `- ${e.rating}/5${e.catatan ? ' - ' + e.catatan : ''}${e.program ? ' (' + e.program + ')' : ''}${e.tanggal ? ', ' + e.tanggal : ''}\n`; });
+    });
+    return t.trim();
+}
+function shareEvaluasiRekananWA() {
+    if (getRekananHotelList().length === 0) return showToast('Belum ada data untuk dibagikan!');
+    window.open(`https://wa.me/?text=${encodeURIComponent(teksEvaluasiRekanan())}`, '_blank');
+}
+function salinEvaluasiRekanan() {
+    if (getRekananHotelList().length === 0) return showToast('Belum ada data untuk disalin!');
+    salinTeksKePapanKlip(teksEvaluasiRekanan());
+}
+
+
 function cetakLaporanEvaluasiRekanan() {
     const list = getRekananHotelList();
     if (list.length === 0) return showToast('Belum ada data untuk dicetak!');
@@ -23173,106 +22569,7 @@ async function cetakLaporanTukarRiyal() {
     injectWatermarkToPrintWin(win);
 }
 
-// ---------- Bagikan PDF: memakai komponen bersama yang sama dengan Cuan Plan, Kas, dan Invoice ----------
-// (kop bulat mengikuti warna tema, kotak info, tabel rapi, TTD/QR/watermark mengikuti pengaturan)
-async function shareTukarRiyalPDF() {
-    const list = getRiwayatTukarRiyal();
-    if (list.length === 0) return showToast('Belum ada transaksi untuk dibagikan!');
-    showToast('Menyiapkan...');
-    try {
-        const f = n => 'Rp ' + Math.round(n).toLocaleString('id-ID');
-        const cfg = getKonfigurasiProData();
-        const namaInstansi = getNamaInstansiUtama();
-        const tgl = formatTanggalLengkap();
-        const {jsPDF} = window.jspdf;
-        const [wr, wg, wb] = getWarnaTemaRGB();
-        const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
-        const PW = 210, PH = 297;
-        await applyPDFConfig(doc, { landscape: false, skipHeader: true, skipWatermark: true, skipQR: true });
-        const r = ringkasLaporanTukarRiyal(list);
 
-        let y = await gambarHeaderRoundedPDF(doc, cfg, PW);
-        doc.setFontSize(15); doc.setTextColor(wr,wg,wb); doc.setFont('helvetica','bold');
-        doc.text('LAPORAN TUKAR RIYAL', 14, y); y += 6;
-        doc.setFontSize(9); doc.setTextColor(120,120,120); doc.setFont('helvetica','normal');
-        doc.text(`${namaInstansi} — Dicetak: ${tgl}`, 14, y); y += 7;
-
-        // Kotak ringkasan: label tebal di kiri, angka tepat di sebelahnya (rata kiri semua)
-        const barisInfo = [
-            ['Total Transaksi: ', String(r.jumlah)],
-            ['Total Rupiah Masuk: ', f(r.uang)],
-            ['Total Riyal Keluar: ', r.riyal.toLocaleString('id-ID') + ' SAR'],
-            ['Total Kembalian: ', f(r.kembalian)]
-        ];
-        gambarKotakInfoPDF(doc, 14, y, PW-28, barisInfo.length * 5 + 6);
-        y += 6; doc.setFontSize(9); doc.setTextColor(70,70,70);
-        barisInfo.forEach(([label, isi]) => {
-            doc.setFont('helvetica','bold'); doc.text(label, 18, y);
-            const lebar = doc.getTextWidth(label);
-            doc.setFont('helvetica','normal'); doc.text(isi, 18 + lebar, y);
-            y += 5;
-        });
-        y += 4;
-
-        const tableData = list.slice().reverse().map((t,i) => [
-            i+1, t.tanggalTampil, (t.keterangan || '-') + (t.diedit ? ' (diedit)' : ''),
-            f(t.uang), t.kurs.toLocaleString('id-ID'), t.riyal.toLocaleString('id-ID') + ' SAR', f(t.kembalian), t.admin
-        ]);
-        tableData.push(['', 'TOTAL', `${r.jumlah} transaksi`, f(r.uang), '', r.riyal.toLocaleString('id-ID') + ' SAR', f(r.kembalian), '']);
-        const kolomAngka = [3, 4, 5, 6];
-        doc.autoTable({
-            startY: y,
-            head: [['No','Tanggal','Ket.','Uang Masuk','Kurs','Riyal','Kembalian','Admin']],
-            body: tableData,
-            theme: 'striped',
-            headStyles: { fillColor: [wr,wg,wb] },
-            styles: { fontSize: 8, lineWidth: 0.1 },
-            columnStyles: { 0: { cellWidth: 8, halign: 'center' } },
-            didParseCell: (h) => {
-                // Judul kolom angka ikut rata kanan supaya sejajar dengan angkanya
-                if (kolomAngka.includes(h.column.index)) h.cell.styles.halign = 'right';
-                if (h.section === 'body' && h.row.index === tableData.length - 1) { h.cell.styles.fontStyle = 'bold'; h.cell.styles.fillColor = [240,247,244]; }
-            }
-        });
-
-        y = doc.lastAutoTable.finalY + 10;
-        const rekRiyalPdf = getRekeningRiyalDipilih();
-        if (rekRiyalPdf) {
-            if (y + 18 > PH - 20) { doc.addPage(); y = 20; }
-            gambarKotakInfoPDF(doc, 14, y, PW-28, 16);
-            doc.setFontSize(8); doc.setTextColor(110,110,110); doc.setFont('helvetica','normal');
-            doc.text('Rekening tujuan transfer', 18, y + 5);
-            doc.setFontSize(9.5); doc.setTextColor(40,40,40); doc.setFont('helvetica','bold');
-            doc.text(`${rekRiyalPdf.bank} · No. Rek ${rekRiyalPdf.nomor}${rekRiyalPdf.nama ? ' · a.n. ' + rekRiyalPdf.nama : ''}`, 18, y + 11.5);
-            y += 22;
-        }
-        // TTD & QR dijaga tidak bertabrakan dengan tabel: kalau sisa halaman sempit, pindah ke halaman baru
-        const butuhTTD = (cfg.settings?.show_pimpinan === true) ? 50 : 0;
-        if (y + butuhTTD > PH - 45) { doc.addPage(); y = 20; }
-        y = gambarTandaTanganPDF(doc, cfg, tgl, y, PW, true);
-        const total = doc.getNumberOfPages();
-        doc.setPage(total);
-        await gambarQRDokumenPDF(doc, cfg, `Laporan Tukar Riyal: ${r.jumlah} transaksi\nTotal Riyal Keluar: ${r.riyal.toLocaleString('id-ID')} SAR\nTanggal: ${tgl}`, PW, PH);
-        // Watermark di SETIAP halaman (digambar paling akhir), plus nomor halaman bila lebih dari satu
-        for (let i = 1; i <= total; i++) {
-            doc.setPage(i);
-            gambarWatermarkPDF(doc, cfg, PW, PH);
-            if (total > 1) { doc.setFontSize(8); doc.setTextColor(150,150,150); doc.setFont('helvetica','normal'); doc.text(`Halaman ${i} dari ${total}`, PW/2, PH - 8, { align: 'center' }); }
-        }
-
-        const namaFile = `Laporan_Tukar_Riyal_${new Date().toLocaleDateString('id-ID').replace(/\//g,'-')}.pdf`;
-        const blob = doc.output('blob');
-        const file = new File([blob], namaFile, { type: 'application/pdf' });
-        if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
-            await navigator.share({ files: [file], title: 'Laporan Tukar Riyal' });
-        } else {
-            doc.save(namaFile);
-            showToast('📥 PDF didownload');
-        }
-    } catch(e) {
-        if (e.name !== 'AbortError') showToast('Gagal: ' + e.message);
-    }
-}
 
 // ---------- Bagikan lewat WhatsApp (teks ringkas; yang terbaru lebih dulu, dipotong rapi kalau terlalu panjang) ----------
 function shareTukarRiyalWA() {
@@ -23352,27 +22649,60 @@ function salinRingkasanZakat(){
     }
 }
 
-async function cetakLaporanZakat() {
-    if(sumberHartaList.length === 0) return showToast('Tambah dan hitung zakat dulu!');
-    const cfg = getKonfigurasiProData();
-    const tgl = formatTanggalLengkap();
+// Hitungan Zakat: SATU sumber untuk Cetak, Bagikan PDF, WhatsApp, dan Salin Teks, supaya angkanya pasti sama.
+function hitungDataZakat() {
     const jenis = document.getElementById('jenisZakat').value;
     const jenisLabel = jenis==='mal'?'Zakat Mal (Harta/Uang)':jenis==='pertanian'?'Zakat Pertanian':'Zakat Perdagangan';
     const hargaEmas = parseInt((document.getElementById('hargaEmas')?.value||'1200000').replace(/\./g,'').replace(/[^0-9]/g,''));
     const nisab = 85 * hargaEmas;
     let totalHarta = 0, totalZakat = 0;
-    let rowsHtml = '';
+    const baris = [];
     sumberHartaList.forEach((s, i) => {
         if(s.jumlah > 0 && s.persen > 0) {
             const zakat = (s.jumlah * s.persen) / 100;
             totalHarta += s.jumlah;
             totalZakat += zakat;
-            rowsHtml += `<tr><td style="padding:8px;border-bottom:1px solid #eee;text-align:center;">${i+1}</td><td style="padding:8px;border-bottom:1px solid #eee;">${s.nama||'Sumber'}</td><td style="padding:8px;border-bottom:1px solid #eee;text-align:right;">Rp ${s.jumlah.toLocaleString('id-ID')}</td><td style="padding:8px;border-bottom:1px solid #eee;text-align:center;">${s.persen}%</td><td style="padding:8px;border-bottom:1px solid #eee;text-align:right;font-weight:bold;color:#0D5C4A;">Rp ${zakat.toLocaleString('id-ID')}</td></tr>`;
+            baris.push({ no: i + 1, nama: s.nama || 'Sumber', jumlah: s.jumlah, persen: s.persen, zakat });
         }
     });
     const statusWajib = totalHarta >= nisab;
+    return { jenisLabel, hargaEmas, nisab, baris, totalHarta, totalZakat, statusWajib, statusLabel: statusWajib ? '✅ WAJIB ZAKAT' : '❌ BELUM MENCAPAI NISAB' };
+}
+function teksLaporanZakat() {
+    const d = hitungDataZakat();
+    const rp = n => 'Rp ' + Math.round(n).toLocaleString('id-ID');
+    let t = `*LAPORAN ZAKAT PERUSAHAAN*\n${getNamaInstansiUtama()}\nTanggal: ${formatTanggalLengkap()}\n\n`;
+    t += `Jenis Zakat: ${d.jenisLabel}\nHarga Emas: ${rp(d.hargaEmas)} / gram\nNisab (85 gr): ${rp(d.nisab)}\n\n*Sumber Harta*\n`;
+    d.baris.forEach((b, i) => { t += `${i + 1}. ${b.nama}: ${rp(b.jumlah)} x ${b.persen}% = ${rp(b.zakat)}\n`; });
+    t += `\nTotal Harta: ${rp(d.totalHarta)}\n*Total Zakat: ${rp(d.totalZakat)}*\nHarta Bersih: ${rp(d.totalHarta - d.totalZakat)}\n\n*${d.statusLabel}*`;
+    return t;
+}
+function shareZakatWA() {
+    if (sumberHartaList.length === 0) return showToast('Tambah dan hitung zakat dulu!');
+    window.open(`https://wa.me/?text=${encodeURIComponent(teksLaporanZakat())}`, '_blank');
+}
+function salinZakat() {
+    if (sumberHartaList.length === 0) return showToast('Tambah dan hitung zakat dulu!');
+    salinTeksKePapanKlip(teksLaporanZakat());
+}
+// Salin teks dengan cadangan untuk perangkat yang menolak clipboard modern
+function salinTeksKePapanKlip(teks) {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(teks).then(() => showToast('📋 Teks tersalin!')).catch(() => { salinFallback(teks); showToast('📋 Teks tersalin!'); });
+    } else { salinFallback(teks); showToast('📋 Teks tersalin!'); }
+}
+
+
+async function cetakLaporanZakat() {
+    if(sumberHartaList.length === 0) return showToast('Tambah dan hitung zakat dulu!');
+    const cfg = getKonfigurasiProData();
+    const tgl = formatTanggalLengkap();
+    const { jenisLabel, hargaEmas, nisab, baris, totalHarta, totalZakat, statusWajib, statusLabel } = hitungDataZakat();
+    let rowsHtml = '';
+    baris.forEach(b => {
+        rowsHtml += `<tr><td style="padding:8px;border-bottom:1px solid #eee;text-align:center;">${b.no}</td><td style="padding:8px;border-bottom:1px solid #eee;">${b.nama}</td><td style="padding:8px;border-bottom:1px solid #eee;text-align:right;">Rp ${b.jumlah.toLocaleString('id-ID')}</td><td style="padding:8px;border-bottom:1px solid #eee;text-align:center;">${b.persen}%</td><td style="padding:8px;border-bottom:1px solid #eee;text-align:right;font-weight:bold;color:#0D5C4A;">Rp ${b.zakat.toLocaleString('id-ID')}</td></tr>`;
+    });
     const statusColor = statusWajib ? '#10B981' : '#EF4444';
-    const statusLabel = statusWajib ? '✅ WAJIB ZAKAT' : '❌ BELUM MENCAPAI NISAB';
     const headerHtml = buildPrintHeader(cfg, tgl);
     const ttdHtml = buildPrintTandaTangan(cfg, tgl, true);
     const qrHtml = await buildPrintQR(cfg, `Laporan Zakat ${getNamaInstansiUtama()}\nTotal Zakat: Rp ${totalZakat.toLocaleString('id-ID')}\nTanggal: ${tgl}`);
@@ -23723,7 +23053,7 @@ function renderPaymentJamaahList() {
                     `<div style="font-size:11px;color:${warnaStatusKomponen[k.status]};">${ikonStatusKomponen[k.status]} ${escapeHtml(k.jenis)}: ${formatRupiah(k.dibayar)} / ${formatRupiah(k.target)}</div>`
                 ).join('') + '</div>';
             }
-            html += `<div class="payment-jamaah-card" style="border-left-color: ${warna};"><div class="payment-jamaah-info"><h4>${escapeHtml(j.nama_lengkap)}</h4><div class="payment-price-detail">💰 Total Paket: ${formatRupiah(totalHargaPaket)}<br>💸 Dibayar: ${formatRupiah(totalBayar)}</div>${labelDiskonJamaah(j, estLabel)}${rincianKomponen}</div><div style="text-align: right;"><div class="payment-sisa-badge" style="color: ${warna}; margin-bottom: 8px;">${status === 'LUNAS' ? '✅ LUNAS' : '💵 Sisa ' + formatRupiah(sisa)}${lebih > 0 ? `<div style="font-size:12px;font-weight:700;color:#B45309;margin-top:2px;">↩️ Kelebihan bayar ${formatRupiah(lebih)}</div>` : ''}</div><div><button class="payment-btn-bayar" onclick="openPaymentModalWithJamaah('${j.id}')"><i class="fas fa-plus-circle"></i> Bayar</button><button class="payment-btn-bayar" onclick="prepareInvoice('${j.id}')"><i class="fas fa-file-invoice"></i> WA</button><button class="payment-btn-bayar" onclick="shareInvoiceGambar('${j.id}')"><i class="fas fa-share-alt"></i> Share</button><button class="payment-btn-bayar" onclick="cetakInvoiceAuto('${j.id}')"><i class="fas fa-print"></i> Cetak</button><button class="payment-btn-bayar" onclick="openEditHargaModal('${j.id}')"><i class="fas fa-edit"></i> Harga</button><button class="payment-btn-bayar" onclick="openJadwalCicilanModal('${j.id}')"><i class="fas fa-calendar-alt"></i> Cicilan</button><button class="payment-btn-bayar" onclick="openRiwayatModal('${j.id}')"><i class="fas fa-history"></i> Riwayat</button></div></div></div>`; 
+            html += `<div class="payment-jamaah-card" style="border-left-color: ${warna};"><div class="payment-jamaah-info"><h4>${escapeHtml(j.nama_lengkap)}</h4><div class="payment-price-detail">💰 Total Paket: ${formatRupiah(totalHargaPaket)}<br>💸 Dibayar: ${formatRupiah(totalBayar)}</div>${labelDiskonJamaah(j, estLabel)}${rincianKomponen}</div><div style="text-align: right;"><div class="payment-sisa-badge" style="color: ${warna}; margin-bottom: 8px;">${status === 'LUNAS' ? '✅ LUNAS' : '💵 Sisa ' + formatRupiah(sisa)}${lebih > 0 ? `<div style="font-size:12px;font-weight:700;color:#B45309;margin-top:2px;">↩️ Kelebihan bayar ${formatRupiah(lebih)}</div>` : ''}</div><div><button class="payment-btn-bayar" onclick="openPaymentModalWithJamaah('${j.id}')"><i class="fas fa-plus-circle"></i> Bayar</button><button class="payment-btn-bayar" onclick="prepareInvoice('${j.id}')"><i class="fas fa-file-invoice"></i> WA</button><button class="payment-btn-bayar" onclick="bukaExportInvoice('${j.id}')"><i class="fas fa-download"></i> Export</button><button class="payment-btn-bayar" onclick="openEditHargaModal('${j.id}')"><i class="fas fa-edit"></i> Harga</button><button class="payment-btn-bayar" onclick="openJadwalCicilanModal('${j.id}')"><i class="fas fa-calendar-alt"></i> Cicilan</button><button class="payment-btn-bayar" onclick="openRiwayatModal('${j.id}')"><i class="fas fa-history"></i> Riwayat</button></div></div></div>`; 
         }
     }); 
     container.innerHTML = html; 
@@ -24032,173 +23362,15 @@ async function hapusRekPen(kunci, id) {
     simpanRekPenData(); renderRekPenList(kunci);
 }
 
-async function shareInvoiceGambar(jamaahId) {
-    const jamaah = jamaahList.find(j => j.id == jamaahId);
-    if (!jamaah) return showToast('Data jamaah tidak ditemukan');
-    showToast('⏳ Membuat invoice...');
-    try {
-        const cfg = getKonfigurasiProData();
-        const transaksiList = paymentTransaksiList
-            .filter(t => t.id_jamaah == jamaahId)
-            .sort((a,b) => new Date(a.tanggal) - new Date(b.tanggal));
-        const totalBayar = hitungTotalBayarJamaah(jamaahId);
-        const totalHargaPaket = getTotalHargaPaket(jamaah) || 0;
-        const sisa = totalHargaPaket - totalBayar;
-        const hargaKosong = totalHargaPaket <= 0; // harga paket belum diisi: jangan dinyatakan LUNAS
-        const lunas = !hargaKosong && sisa <= 0;
-        const prefix = cfg.settings?.invoice_prefix || 'INV/NAVARA';
-        const tglCetak = formatTanggalLengkap();
-        const noInvoice = `${prefix}/${jamaah.id}/${new Date().toLocaleDateString('id-ID').replace(/\//g,'')}`;
-        const namaFile = `Invoice_${jamaah.nama_lengkap.replace(/ /g,'_')}.pdf`;
-
-        const {jsPDF} = window.jspdf;
-        const [wr, wg, wb] = getWarnaTemaRGB();
-        const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
-        const PW = 210; // page width
-        const hW = PW - 28; // lebar kotak ringkasan (sebelumnya tidak terdefinisi -> PDF invoice gagal)
-        let y = await gambarHeaderRoundedPDF(doc, cfg, PW);
-        // ── Judul Invoice ──────────────────────────────────────────────────
-        doc.setTextColor(wr, wg, wb);
-        doc.setFontSize(14); doc.setFont('helvetica', 'bold');
-        doc.text('INVOICE PEMBAYARAN', PW / 2, y, { align: 'center' });
-        y += 6;
-        doc.setFontSize(8); doc.setFont('helvetica', 'normal'); doc.setTextColor(120, 120, 120);
-        doc.text(`No: ${noInvoice}`, PW / 2, y, { align: 'center' });
-        y += 10;
-
-        // ── Info Jamaah (rata kiri) ────────────────────────────────────────
-        doc.setTextColor(30, 30, 30); doc.setFontSize(9);
-        doc.setFont('helvetica', 'bold'); doc.text('Nama Jamaah', 14, y);
-        doc.setFont('helvetica', 'normal'); doc.text(jamaah.nama_lengkap, 14, y + 5);
-        doc.setFont('helvetica', 'bold'); doc.text('Total Paket', 140, y);
-        doc.setFont('helvetica', 'normal'); doc.text(formatRupiah(totalHargaPaket), 140, y + 5);
-        y += 14;
-
-        // ── Tabel Transaksi ────────────────────────────────────────────────
-        const hajiReg = isHajiReguler();
-        const tableHead = hajiReg ? ['No', 'Tanggal', 'Keterangan', 'Komponen', 'Metode', 'Nominal'] : ['No', 'Tanggal', 'Keterangan', 'Metode', 'Nominal'];
-        const tableData = transaksiList.map((t, i) => hajiReg
-            ? [i + 1, t.tanggal, t.keterangan || '-', t.komponen || '-', t.metode || '-', formatRupiah(t.nominal)]
-            : [i + 1, t.tanggal, t.keterangan || '-', t.metode || '-', formatRupiah(t.nominal)]
-        );
-        if(!tableData.length) tableData.push(hajiReg ? ['-','-','Belum ada transaksi','-','-','-'] : ['-', '-', 'Belum ada transaksi', '-', '-']);
-
-        doc.autoTable({
-            startY: y,
-            head: [tableHead],
-            body: tableData,
-            theme: 'striped',
-            headStyles: { fillColor: [wr, wg, wb], fontSize: 9, fontStyle: 'bold' },
-            styles: { fontSize: 9, lineWidth: 0.1, cellPadding: 3 },
-            columnStyles: { 0: { cellWidth: 10, halign: 'center' } }
-        });
-
-        y = doc.lastAutoTable.finalY + 8;
-
-        // ── Rincian per Komponen (khusus Haji Reguler) ───────────────────────
-        if(hajiReg) {
-            const perKomponen = hitungStatusPerKomponenHaji(jamaahId);
-            if(perKomponen.length > 0) {
-                doc.setFontSize(10); doc.setFont('helvetica', 'bold'); doc.setTextColor(wr, wg, wb);
-                doc.text('Rincian per Komponen', 14, y);
-                y += 5;
-                doc.autoTable({
-                    startY: y,
-                    head: [['Komponen', 'Target', 'Dibayar', 'Status']],
-                    body: perKomponen.map(k => [k.jenis, formatRupiah(k.target), formatRupiah(k.dibayar), k.status]),
-                    theme: 'striped',
-                    headStyles: { fillColor: [wr, wg, wb], fontSize: 9, fontStyle: 'bold' },
-                    styles: { fontSize: 9, lineWidth: 0.1, cellPadding: 3 }
-                });
-                y = doc.lastAutoTable.finalY + 8;
-            }
-        }
-
-        // ── Summary (rata kiri) ────────────────────────────────────────────
-        doc.setFillColor(248, 248, 248); doc.setDrawColor(220, 220, 220);
-        doc.roundedRect(14, y, hW, 28, 3, 3, 'FD');
-        y += 7;
-        doc.setFontSize(9); doc.setTextColor(60, 60, 60);
-
-        doc.setFont('helvetica', 'normal'); doc.text('Total Paket', 20, y);
-        doc.text(':', 55, y);
-        doc.setFont('helvetica', 'bold'); doc.text(formatRupiah(totalHargaPaket), 58, y);
-        y += 6;
-
-        doc.setFont('helvetica', 'normal'); doc.text('Total Dibayar', 20, y);
-        doc.text(':', 55, y);
-        doc.setFont('helvetica', 'bold'); doc.text(formatRupiah(totalBayar), 58, y);
-        y += 6;
-
-        doc.setFont('helvetica', 'normal'); doc.text('Sisa Tagihan', 20, y);
-        doc.text(':', 55, y);
-        doc.setFont('helvetica', 'bold'); doc.text(hargaKosong ? '-' : formatRupiah(sisa > 0 ? sisa : 0), 58, y);
-        y += 10;
-        if(!hargaKosong && sisa < 0) {
-            doc.setFont('helvetica', 'normal'); doc.text('Kelebihan Bayar', 20, y);
-            doc.text(':', 55, y);
-            doc.setFont('helvetica', 'bold'); doc.text(formatRupiah(-sisa), 58, y);
-            y += 10;
-        }
-
-        // ── Status Lunas — dengan box background seperti Cetak ──────────────
-        y += 2;
-        if(lunas) {
-            doc.setFillColor(220, 252, 231); // hijau muda
-            doc.setDrawColor(134, 239, 172);
-        } else {
-            doc.setFillColor(254, 226, 226); // merah muda
-            doc.setDrawColor(252, 165, 165);
-        }
-        doc.roundedRect(14, y, hW, 12, 3, 3, 'FD');
-        doc.setFontSize(13); doc.setFont('helvetica', 'bold');
-        doc.setTextColor(lunas ? 22 : 185, lunas ? 163 : 28, lunas ? 74 : 28);
-        doc.text(lunas ? '✓  LUNAS' : (hargaKosong ? '!  HARGA PAKET BELUM DIISI' : '!  BELUM LUNAS'), 105, y + 8, { align: 'center' });
-        y += 16;
-
-        // ── Rekening pembayaran (hanya bila masih ada sisa & rekening diisi) ──
-        const rekPdf = rekeningUntukCetak(sisa);
-        if (rekPdf.length) {
-            const tinggiRek = 12 + rekPdf.length * 5;
-            if (y + tinggiRek > 235) { doc.addPage(); y = 20; }
-            doc.setFillColor(240, 249, 246); doc.setDrawColor(wr, wg, wb);
-            doc.roundedRect(14, y, hW, tinggiRek, 3, 3, 'FD');
-            doc.setFontSize(9); doc.setFont('helvetica', 'bold'); doc.setTextColor(wr, wg, wb);
-            doc.text('Pembayaran dapat ditransfer ke:', 20, y + 6);
-            doc.setTextColor(30, 30, 30);
-            rekPdf.forEach((r, i) => {
-                doc.setFont('helvetica', 'bold'); doc.text(String(r.bank), 20, y + 12 + i * 5);
-                doc.setFont('helvetica', 'normal'); doc.text(`${r.nomor}${r.nama ? '   a.n. ' + r.nama : ''}`, 45, y + 12 + i * 5);
-            });
-            y += tinggiRek + 6;
-        }
-
-        // ── Tanda Tangan (sama seperti versi Cetak — gambar TTD & Bendahara didukung) ──
-        y = gambarTandaTanganPDF(doc, cfg, tglCetak, y + 10, PW, true);
-
-        // ── Footer & QR ────────────────────────────────────────────────────
-        y += 8;
-        doc.setFontSize(8); doc.setFont('helvetica', 'normal');
-        doc.setTextColor(150, 150, 150);
-        doc.text(`Dicetak: ${tglCetak}`, 14, y);
-
-        // QR pojok kanan bawah (sama persis dengan versi Cetak, termasuk info Status)
-        await gambarQRDokumenPDF(doc, cfg, `Invoice:${noInvoice}\nJamaah:${jamaah.nama_lengkap}\nStatus:${totalHargaPaket<=0?'HARGA BELUM DIISI':(sisa<=0?'LUNAS':'BELUM LUNAS')}`, PW, 297);
-        gambarWatermarkPDF(doc, cfg, PW, 297);
-
-        // ── Share ──────────────────────────────────────────────────────────
-        const blob = doc.output('blob');
-        const file = new File([blob], namaFile, { type: 'application/pdf' });
-        if(navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
-            await navigator.share({ files: [file], title: `Invoice - ${jamaah.nama_lengkap}` });
-        } else {
-            doc.save(namaFile);
-            showToast('📥 Invoice PDF didownload');
-        }
-    } catch(e) {
-        if(e.name !== 'AbortError') showToast('❌ Gagal: ' + e.message);
-        console.error(e);
-    }
+function bukaExportInvoice(idJamaah) {
+    const j = jamaahList.find(x => x.id == idJamaah);
+    if (!j) return showToast('Data jamaah tidak ditemukan');
+    const nama = String(j.nama_lengkap || 'Jamaah').replace(/[^A-Za-z0-9]+/g, '_');
+    window._exportInvoiceId = idJamaah;
+    bukaMenuExport('Invoice ' + (j.nama_lengkap || ''), 'Invoice pembayaran jamaah ini.', {
+        cetak: 'cetakInvoiceAuto(_exportInvoiceId)',
+        bagikan: "bagikanDariCetak(()=>cetakInvoiceAuto(_exportInvoiceId),'Invoice_" + nama + "')"
+    });
 }
 
 async function cetakInvoiceAuto(jamaahId) {
@@ -24946,7 +24118,7 @@ function getLabelJenisProgram() {
 }
 
 // Menampilkan status hidup di form Konfigurasi: apakah Instansi Kedua sedang jadi instansi UTAMA
-// (termasuk tanda tangan) untuk Program yang sedang aktif, sesuai aturan di gambarTandaTanganPDF/buildPrintTandaTangan.
+// (termasuk tanda tangan) untuk Program yang sedang aktif, sesuai aturan di buildPrintTandaTangan.
 function updateStatusInstansi2Dominan() {
     const el = document.getElementById('statusInstansi2Dominan');
     if (!el) return;
@@ -25350,7 +24522,7 @@ function renderKomponenHajiList() {
     const list = ensureKomponenHaji();
     container.innerHTML = list.map((k, i) => `
         <div style="display:flex;gap:8px;align-items:center;margin-bottom:8px;">
-            <input type="text" value="${escapeHtml(k.jenis)}" oninput="updateKomponenHaji(${i}, 'jenis', this.value)" placeholder="Nama Komponen" style="flex:1;padding:9px;border-radius:8px;border:1.5px solid #ddd;font-size:13px;">
+            <input type="text" value="${escapeHtml(k.jenis)}" onchange="gantiNamaKomponenHaji(${i}, this)" placeholder="Nama Komponen" style="flex:1;padding:9px;border-radius:8px;border:1.5px solid #ddd;font-size:13px;">
             <input type="text" class="money-input" inputmode="numeric" value="${k.harga?k.harga.toLocaleString('id-ID'):''}" oninput="updateKomponenHaji(${i}, 'harga', this.value)" placeholder="Harga Seragam" style="flex:1;padding:9px;border-radius:8px;border:1.5px solid #ddd;font-size:13px;">
             <button onclick="hapusKomponenHaji(${i})" style="border:none;background:none;color:#DC2626;font-size:14px;cursor:pointer;"><i class="fas fa-trash-alt"></i></button>
         </div>`).join('');
@@ -25362,6 +24534,87 @@ function updateKomponenHaji(index, field, value) {
     if(field === 'harga') list[index].harga = parseInt((value||'0').replace(/\./g,'').replace(/[^0-9]/g,'')) || 0;
     else list[index].jenis = value;
     simpanKomponenHajiKeStorage();
+}
+
+// Nama komponen Haji dipakai sebagai KUNCI di tiga tempat: daftar komponen Program, harga khusus per jamaah (harga_komponen_haji),
+// dan catatan pembayaran (komponen). Karena itu mengganti nama harus memindahkan ketiganya sekaligus, kalau tidak angka jamaah bisa bergeser.
+function pindahNamaKomponenHaji(lama, baru) {
+    const hasil = { jamaah: 0, bayar: 0, bentrok: 0 };
+    if (!lama || !baru || lama === baru) return hasil;
+    jamaahList.forEach(j => {
+        const o = j.harga_komponen_haji;
+        if (!o || !Object.prototype.hasOwnProperty.call(o, lama)) return;
+        if (Object.prototype.hasOwnProperty.call(o, baru)) hasil.bentrok++; // nilai di nama tujuan dipertahankan
+        else o[baru] = o[lama];
+        delete o[lama];
+        hasil.jamaah++;
+    });
+    paymentTransaksiList.forEach(t => { if (t.komponen === lama) { t.komponen = baru; hasil.bayar++; } });
+    return hasil;
+}
+
+async function gantiNamaKomponenHaji(index, input) {
+    const list = ensureKomponenHaji();
+    const k = list[index];
+    if (!k) return;
+    const lama = k.jenis;
+    const baru = String(input.value || '').trim();
+    if (baru === lama) { input.value = lama; return; }
+    if (!baru) { showToast('⚠️ Nama komponen tidak boleh kosong'); input.value = lama; return; }
+    if (list.some((x, i) => i !== index && x.jenis === baru)) { showToast('⚠️ Sudah ada komponen dengan nama itu'); input.value = lama; return; }
+    const r = pindahNamaKomponenHaji(lama, baru);
+    k.jenis = baru;
+    input.value = baru;
+    simpanKomponenHajiKeStorage();
+    if (r.jamaah) await saveJamaahData();
+    if (r.bayar) await savePaymentData();
+    showToast(r.jamaah || r.bayar ? `✅ Nama diganti. ${r.jamaah} harga khusus dan ${r.bayar} pembayaran ikut dipindahkan` : '✅ Nama komponen diganti');
+}
+
+function daftarNamaKomponenYatim() {
+    const ada = new Set(ensureKomponenHaji().map(k => k.jenis));
+    const peta = {};
+    const ambil = nama => (peta[nama] = peta[nama] || { nama, jamaah: 0, bayar: 0, total: 0 });
+    jamaahList.forEach(j => Object.keys(j.harga_komponen_haji || {}).forEach(n => { if (n && !ada.has(n)) ambil(n).jamaah++; }));
+    paymentTransaksiList.forEach(t => { if (t.komponen && !ada.has(t.komponen)) { const o = ambil(t.komponen); o.bayar++; o.total += parseInt(t.nominal) || 0; } });
+    return Object.values(peta);
+}
+
+function periksaNamaKomponenHaji() {
+    const yatim = daftarNamaKomponenYatim();
+    if (!yatim.length) return showToast('✅ Semua nama komponen cocok dengan pembayaran dan harga khusus jamaah');
+    const aktif = ensureKomponenHaji().filter(k => k.jenis);
+    let m = document.getElementById('komponenHajiCekModal');
+    if (!m) { m = document.createElement('div'); m.id = 'komponenHajiCekModal'; m.className = 'modal'; document.body.appendChild(m); }
+    const f = n => 'Rp ' + Math.round(n).toLocaleString('id-ID');
+    const baris = yatim.map((y, i) => `<div style="border:1.5px solid #FDE68A;background:#FFFBEB;border-radius:12px;padding:12px;margin-bottom:10px;">
+        <div style="font-weight:800;color:#92400E;">${escapeHtml(y.nama)}</div>
+        <div style="font-size:12px;color:#78350F;margin:4px 0 8px;">${y.jamaah} jamaah punya harga khusus · ${y.bayar} pembayaran (${f(y.total)}) memakai nama ini, tapi nama itu tidak ada di daftar komponen.</div>
+        <div style="display:flex;gap:8px;"><select id="komponenYatimTujuan${i}" style="flex:1;padding:9px;border-radius:8px;border:1.5px solid #ddd;">${aktif.map(k => `<option value="${escapeHtml(k.jenis)}">${escapeHtml(k.jenis)}</option>`).join('')}</select>
+        <button onclick="gabungkanKomponenYatimHaji(${i})" style="padding:9px 14px;border:none;border-radius:8px;background:#0369A1;color:#fff;font-weight:700;">Gabungkan</button></div></div>`).join('');
+    window._komponenYatimDaftar = yatim.map(y => y.nama);
+    m.innerHTML = `<div class="modal-content" style="max-width:440px;max-height:85vh;overflow-y:auto;">
+        <h3 style="margin-bottom:6px;">🔍 Periksa Nama Komponen</h3>
+        <div style="font-size:12px;color:#555;margin-bottom:12px;">Pilih komponen yang benar untuk tiap nama di bawah, lalu Gabungkan. Harga khusus dan pembayaran akan dipindahkan ke komponen itu. Disarankan Backup dulu.</div>
+        ${baris}
+        <button onclick="document.getElementById('komponenHajiCekModal').style.display='none'" style="width:100%;padding:11px;background:#e2e8f0;color:#333;border:none;border-radius:10px;font-weight:700;">Tutup</button></div>`;
+    document.body.appendChild(m);
+    m.style.display = 'flex';
+}
+
+async function gabungkanKomponenYatimHaji(i) {
+    const lama = (window._komponenYatimDaftar || [])[i];
+    const sel = document.getElementById('komponenYatimTujuan' + i);
+    if (!lama || !sel || !sel.value) return;
+    const ya = await tanyaKonfirmasi({ judul: 'Gabungkan nama komponen?', pesan: `Semua harga khusus dan pembayaran atas nama "${lama}" akan dipindahkan ke "${sel.value}".`, ikon: '🔧', tombolYa: 'Gabungkan', warnaYa: 'var(--primary)' });
+    if (!ya) return;
+    const r = pindahNamaKomponenHaji(lama, sel.value);
+    if (r.jamaah) await saveJamaahData();
+    if (r.bayar) await savePaymentData();
+    catatAktivitas('🔧', `Nama komponen "${lama}" digabungkan ke "${sel.value}" (${r.jamaah} harga khusus, ${r.bayar} pembayaran)`);
+    showToast(`✅ ${r.jamaah} harga khusus dan ${r.bayar} pembayaran dipindahkan` + (r.bentrok ? ` (${r.bentrok} jamaah sudah punya harga khusus di komponen tujuan, nilai itu dipertahankan)` : ''));
+    document.getElementById('komponenHajiCekModal').style.display = 'none';
+    periksaNamaKomponenHaji();
 }
 
 function tambahJenisKomponenHaji() {
@@ -25516,12 +24769,6 @@ function getInstansiDominanObj(cfg) {
     if(isHajiReguler() && cfg.instansi2?.aktif && cfg.instansi2?.nama) return cfg.instansi2 || {};
     return cfg.instansi1 || {};
 }
-function getInstansiSekunderObj(cfg) {
-    cfg = cfg || konfigurasiPro;
-    if(isHajiReguler() && cfg.instansi2?.aktif && cfg.instansi2?.nama) return cfg.instansi1 || {};
-    return cfg.instansi2 || {};
-}
-
 function getNamaInstansiUtama() {
     const cfg = konfigurasiPro;
     if(isHajiReguler() && cfg.instansi2?.aktif && cfg.instansi2?.nama) return cfg.instansi2.nama;
@@ -27073,7 +26320,7 @@ function openIndexedDB() {
 // dengan build baru, data MENTAH (langsung dari IndexedDB, bukan dari memori) disalin dulu sebelum
 // proses migrasi apapun berjalan — supaya kalau ada kesalahan di update, data lama masih bisa dipulihkan.
 // Dokumen & foto tidak ikut disalin (ukurannya besar, dan tidak pernah disentuh proses migrasi).
-const NAVARA_BUILD = '2026.10.22-157';
+const NAVARA_BUILD = '2026.10.22-173';
 const MAKS_SNAPSHOT = 3;
 
 // ==================== DAFTAR DATA PUSAT ====================
@@ -27497,10 +26744,6 @@ function renderDokumenList() {
         console.warn('⚠️ dokumenListContainer not found');
         return;
     }
-    
-    console.log('🔄 Rendering dokumen list...');
-    console.log('📊 Jamaah count:', jamaahList.length);
-    console.log('📊 Dokumen data keys:', Object.keys(dokumenData).length);
     
     // PENTING: Cek jika jamaahList kosong
     if(!jamaahList || jamaahList.length === 0) {
@@ -29373,16 +28616,6 @@ async function shareTiketWAMulti() {
 // CUSTOMIZE NAME TAG FIELDS
 // ========================================
 
-// Default fields untuk name tag
-const DEFAULT_NAME_TAG_FIELDS = [
-    { id: 'paspor', label: 'Paspor', source: 'jamaah', fieldNames: ['no_paspor', 'paspor'], icon: '🛂', show: true },
-    { id: 'whatsapp', label: 'WA', source: 'jamaah', fieldNames: ['whatsapp', 'wa', 'no_wa'], icon: '📱', show: true },
-    { id: 'kamar', label: 'Kamar', source: 'jamaahKita', fieldNames: ['kamar', 'room', 'no_kamar'], icon: '🚪', show: true },
-    { id: 'bus', label: 'Bus', source: 'jamaahKita', fieldNames: ['bus', 'no_bus'], icon: '🚌', show: true },
-    { id: 'rombongan', label: 'Rombongan', source: 'jamaahKita', fieldNames: ['rombongan', 'group', 'kelompok'], icon: '👥', show: false },
-    { id: 'no_porsi', label: 'No Porsi', source: 'jamaah', fieldNames: ['no_porsi', 'nomor_porsi', 'porsi'], icon: '🍽️', show: false }
-];
-
 function getNameTagFields() {
     const saved = localStorage.getItem('navara_nametag_fields');
     if (saved) {
@@ -29855,102 +29088,7 @@ async function confirmResetAllData() {
     }
 }
 
-// ==================== FUNGSI PDF DENGAN KONFIGURASI ====================
-// Khusus untuk logo di header PDF — menjaga format asli (PNG tetap tajam), tidak dikompres ke JPEG,
-// ini menjaga resolusi cukup tajam (default 200px) dan MEMPERTAHANKAN format PNG kalau logo aslinya PNG
-// (supaya latar transparan tidak berubah jadi kotak putih/hitam seperti yang terjadi kalau dipaksa JPEG).
-async function siapkanLogoUntukPDF(base64Data, maxWidth = 200) {
-    return new Promise((resolve) => {
-        if (!base64Data || !base64Data.startsWith('data:image')) { resolve(null); return; }
-        const formatAsli = base64Data.startsWith('data:image/png') ? 'PNG' : 'JPEG';
-        const img = new Image();
-        img.onload = () => {
-            const canvas = document.createElement('canvas');
-            let width = img.width, height = img.height;
-            if (width > maxWidth) { height = (height * maxWidth) / width; width = maxWidth; }
-            canvas.width = width; canvas.height = height;
-            const ctx = canvas.getContext('2d');
-            ctx.drawImage(img, 0, 0, width, height);
-            if (formatAsli === 'PNG') {
-                resolve({ data: canvas.toDataURL('image/png'), format: 'PNG' });
-            } else {
-                resolve({ data: canvas.toDataURL('image/jpeg', 0.92), format: 'JPEG' });
-            }
-        };
-        img.onerror = () => resolve(null);
-        img.src = base64Data;
-    });
-}
 
-async function applyPDFConfig(doc, options = {}) {
-    const cfg = getKonfigurasiProData();
-    const hajiReg = isHajiReguler();
-    const instansiDominan = hajiReg && cfg.instansi2?.aktif && cfg.instansi2?.nama ? (cfg.instansi2 || {}) : (cfg.instansi1 || {});
-    const instansiSekunder = hajiReg && cfg.instansi2?.aktif && cfg.instansi2?.nama ? (cfg.instansi1 || {}) : (cfg.instansi2 || {});
-    const sekunderTampil = hajiReg ? !!instansiSekunder.nama : (instansiSekunder.aktif && instansiSekunder.nama);
-    const pageWidth = options.landscape ? 297 : 210, pageHeight = options.landscape ? 210 : 297;
-    let startY = options.startY || 0;
-    if (!options.skipHeader && cfg.settings.header_mode !== 'none') {
-        doc.setFillColor(26, 93, 74);
-        doc.rect(0, startY, pageWidth, 50, 'F');
-        doc.setTextColor(255, 255, 255);
-        let currentY = startY + 12;
-        let logoToAdd = null;
-        if (cfg.settings.header_mode === 'both' || cfg.settings.header_mode === 'instansi1') logoToAdd = instansiDominan.logo;
-        else if (cfg.settings.header_mode === 'instansi2' && instansiSekunder.logo) logoToAdd = instansiSekunder.logo;
-        if (logoToAdd && logoToAdd.startsWith('data:image')) {
-            const logoTajam = await siapkanLogoUntukPDF(logoToAdd, 200);
-            if (logoTajam) { try { doc.addImage(logoTajam.data, logoTajam.format, 12, startY + 6, 30, 30); } catch(e) {} }
-        }
-        doc.setFontSize(12);
-        doc.setFont('helvetica', 'bold');
-        if (cfg.settings.header_mode === 'both' || cfg.settings.header_mode === 'instansi1') {
-            doc.text(instansiDominan.nama || 'Navara', pageWidth/2, currentY, { align: 'center' });
-            currentY += 7;
-        }
-        if (cfg.settings.header_mode === 'both' && sekunderTampil) {
-            doc.setFontSize(10);
-            doc.text(instansiSekunder.nama, pageWidth/2, currentY, { align: 'center' });
-            currentY += 6;
-        }
-        doc.setFontSize(8);
-        doc.setFont('helvetica', 'normal');
-        let alamatDisplay = instansiDominan.alamat || '';
-        if (cfg.settings.header_mode === 'both' && sekunderTampil && instansiSekunder.alamat && instansiSekunder.alamat !== alamatDisplay) alamatDisplay = instansiSekunder.alamat;
-        if (alamatDisplay) {
-            doc.text(alamatDisplay, pageWidth/2, currentY, { align: 'center' });
-            currentY += 5;
-        }
-        let kontakInfo = [];
-        if (instansiDominan.telp) kontakInfo.push(`Telp: ${instansiDominan.telp}`);
-        if (instansiDominan.email) kontakInfo.push(`Email: ${instansiDominan.email}`);
-        if (instansiDominan.npwp) kontakInfo.push(`NPWP: ${instansiDominan.npwp}`);
-        if (instansiDominan.web) kontakInfo.push(`Web: ${instansiDominan.web}`);
-        if (kontakInfo.length > 0) doc.text(kontakInfo.join(' | '), pageWidth/2, currentY, { align: 'center' });
-    }
-    if (!options.skipWatermark && cfg.watermark.enabled && cfg.watermark.text) {
-        doc.saveGraphicsState();
-        doc.setGState(new doc.GState({ opacity: cfg.watermark.opacity || 0.15 }));
-        doc.setFontSize(cfg.watermark.fontsize || 60);
-        doc.setTextColor(150, 150, 150);
-        doc.setFont('helvetica', 'bold');
-        if (cfg.watermark.position === 'diagonal') doc.text(cfg.watermark.text, pageWidth/2, pageHeight/2, { align: 'center', angle: -45 });
-        else if (cfg.watermark.position === 'center') doc.text(cfg.watermark.text, pageWidth/2, pageHeight/2, { align: 'center' });
-        doc.restoreGraphicsState();
-    }
-    if (!options.skipQR && cfg.qr.enabled && cfg.qr.text && typeof QRCode !== 'undefined') {
-        const qrSize = cfg.qr.size || 80;
-        try {
-            const canvas = document.createElement('canvas');
-            canvas.width = qrSize;
-            canvas.height = qrSize;
-            await QRCode.toCanvas(canvas, cfg.qr.text, { width: qrSize });
-            const qrDataUrl = canvas.toDataURL();
-            doc.addImage(qrDataUrl, 'PNG', pageWidth - qrSize - 10, pageHeight - qrSize - 10, qrSize, qrSize);
-        } catch(e) { }
-    }
-    return doc;
-}
 
 // ==================== HEADER CETAK RESMI ====================
 function buildPrintHeader(cfg, tanggal) {
@@ -30116,58 +29254,7 @@ function simpanCanvasTTD(instansiKey) {
     document.getElementById('gambarTTDModal').style.display = 'none';
 }
 
-// Fungsi tanda tangan BERSAMA untuk semua fitur "Bagikan PDF" (jsPDF) — supaya Kas, Invoice, dan PDF
-// lain ke depannya tidak lagi punya kode tanda tangan sendiri-sendiri yang bisa saling ketinggalan versi.
-// Mengembalikan posisi Y baru setelah blok tanda tangan digambar (atau y asli kalau tidak digambar).
-function gambarTandaTanganPDF(doc, cfg, tglCetak, y, pageWidth, izinkanBendahara) {
-    const s = cfg.settings || {};
-    if (s.show_pimpinan !== true) return y;
 
-    const hajiReg = isHajiReguler();
-    const dominanAdalahInstansi2 = hajiReg && cfg.instansi2?.aktif && cfg.instansi2?.nama;
-    const kunciDominan = dominanAdalahInstansi2 ? 'instansi2' : 'instansi1';
-    const kunciSekunder = dominanAdalahInstansi2 ? 'instansi1' : 'instansi2';
-    const iDom = dominanAdalahInstansi2 ? (cfg.instansi2 || {}) : (cfg.instansi1 || {});
-    const iSek = dominanAdalahInstansi2 ? (cfg.instansi1 || {}) : (cfg.instansi2 || {});
-    const sekunderPunyaPimpinan = hajiReg ? !!iSek.pimpinan : (iSek.aktif && iSek.pimpinan);
-    const ttdMode = s.ttd_mode || 'both';
-    const kota = iDom.kota || '';
-    const lokasiTgl = kota ? `${kota}, ${tglCetak}` : tglCetak;
-    const bendahara = cfg.bendahara || {};
-    const pakaiBendahara = izinkanBendahara && s.show_bendahara === true && bendahara.nama;
-
-    const gambarBlok = (x, label, nama, jabatan, namaInstansi, gambarBase64) => {
-        doc.setFontSize(9); doc.setTextColor(85,85,85); doc.setFont('helvetica','normal');
-        doc.text(lokasiTgl, x, y, { align: 'center' });
-        doc.text(label, x, y+5, { align: 'center' });
-        if (gambarBase64) {
-            const format = gambarBase64.startsWith('data:image/png') ? 'PNG' : 'JPEG';
-            try { doc.addImage(gambarBase64, format, x-20, y+7, 40, 18); } catch(e) {}
-        } else {
-            doc.setDrawColor(51,51,51); doc.line(x-25, y+27, x+25, y+27);
-        }
-        doc.setFontSize(10); doc.setFont('helvetica','bold'); doc.setTextColor(0,0,0);
-        doc.text(nama, x, y+32, { align: 'center' });
-        doc.setFontSize(8); doc.setFont('helvetica','normal'); doc.setTextColor(100,100,100);
-        if (jabatan) doc.text(jabatan, x, y+37, { align: 'center' });
-        if (namaInstansi) doc.text(namaInstansi, x, y+42, { align: 'center' });
-    };
-
-    if (pakaiBendahara) {
-        gambarBlok(70, 'Hormat kami,', bendahara.nama, 'Bendahara', '', getTTDPimpinan('bendahara'));
-        gambarBlok(pageWidth - 70, 'Mengetahui,', iDom.pimpinan || 'Pimpinan', iDom.jabatan || '', '', getTTDPimpinan(kunciDominan));
-        return y + 46;
-    }
-
-    if (ttdMode === 'both' || ttdMode === 'single') {
-        const xKiri = ttdMode === 'both' ? 70 : pageWidth / 2;
-        gambarBlok(xKiri, 'Hormat kami,', iDom.pimpinan || 'Pimpinan', iDom.jabatan || '', iDom.nama || '', getTTDPimpinan(kunciDominan));
-    }
-    if (ttdMode === 'both' && sekunderPunyaPimpinan) {
-        gambarBlok(pageWidth - 70, 'Mengetahui,', iSek.pimpinan, iSek.jabatan || '', iSek.nama || '', getTTDPimpinan(kunciSekunder));
-    }
-    return y + 46;
-}
 
 // ==================== KOMPONEN VISUAL BERSAMA UNTUK SEMUA "BAGIKAN PDF" ====================
 // Supaya Estimasi, Kas, Invoice (dan PDF lain ke depannya) selalu tampil identik dengan versi Cetak —
@@ -30182,123 +29269,13 @@ function getWarnaTemaRGB() {
     return [r || 13, g || 92, b || 74];
 }
 
-async function gambarHeaderRoundedPDF(doc, cfg, pageWidth) {
-    const [wr, wg, wb] = getWarnaTemaRGB();
-    const hajiReg = isHajiReguler();
-    const i1 = getInstansiDominanObj(cfg);
-    const i2 = getInstansiSekunderObj(cfg);
-    const s = cfg.settings || {};
-    const showLogo   = s.show_logo   !== false;
-    const showNama1  = s.show_nama1  !== false;
-    const showNama2  = s.show_nama2  !== false;
-    const showAlamat = s.show_alamat !== false;
-    const showTelp   = s.show_telp   !== false;
-    const showEmail  = s.show_email  === true;
-    const showWeb    = s.show_web    === true;
-    const showNpwp   = s.show_npwp   === true;
-    const showIzin   = s.show_izin   === true;
-    const sekunderTampil = hajiReg ? !!i2.nama : (i2.aktif && i2.nama);
 
-    const hX = 14, hY = 10, hW = pageWidth - 28, hH = 36;
-    const r = 4;
-    doc.setFillColor(wr, wg, wb);
-    doc.roundedRect(hX, hY, hW, hH, r, r, 'F');
 
-    let textX = hX + 6;
-    if (showLogo && i1.logo && i1.logo.startsWith('data:image')) {
-        try {
-            // Latar putih melengkung di belakang logo — sama seperti border-radius:8px + padding di HTML
-            doc.setFillColor(255,255,255);
-            doc.roundedRect(hX + 4, hY + (hH-26)/2, 26, 26, 2, 2, 'F');
-            const logoTajam = await siapkanLogoUntukPDF(i1.logo, 200);
-            if (logoTajam) { doc.addImage(logoTajam.data, logoTajam.format, hX + 6, hY + (hH-26)/2 + 2, 22, 22); textX = hX + 34; }
-        } catch(e) {}
-    }
 
-    // Susun baris info sesuai toggle yang aktif — sama persis dengan buildPrintHeader (HTML)
-    const baris = [];
-    if (showNama1 && i1.nama)     baris.push({ txt: i1.nama, size: 11, bold: true });
-    if (showNama2 && sekunderTampil) baris.push({ txt: i2.nama, size: 9, bold: false });
-    if (showAlamat && i1.alamat)  baris.push({ txt: i1.alamat, size: 8, bold: false });
-    if (showTelp && i1.telp)      baris.push({ txt: `Telp: ${i1.telp}`, size: 8, bold: false });
-    if (showEmail && i1.email)    baris.push({ txt: `Email: ${i1.email}`, size: 8, bold: false });
-    if (showWeb && i1.web)        baris.push({ txt: `Web: ${i1.web}`, size: 8, bold: false });
-    if (showNpwp && i1.npwp)      baris.push({ txt: `NPWP: ${i1.npwp}`, size: 8, bold: false });
-    if (showIzin && i2.izin)      baris.push({ txt: `No. Izin: ${i2.izin}`, size: 8, bold: false });
 
-    // Rata tengah vertikal otomatis — makin sedikit baris, makin ke tengah (sama seperti flexbox di HTML)
-    const tinggiBaris = baris.map(b => b.size * 0.42 + 1.2); // perkiraan tinggi baris dari ukuran font (pt->mm kasar)
-    const totalTinggiTeks = tinggiBaris.reduce((a,b) => a+b, 0);
-    let tY = hY + (hH - totalTinggiTeks) / 2 + (baris[0]?.size * 0.35 || 4);
 
-    doc.setTextColor(255, 255, 255);
-    baris.forEach((b, idx) => {
-        doc.setFontSize(b.size);
-        doc.setFont('helvetica', b.bold ? 'bold' : 'normal');
-        doc.text(b.txt, textX, tY);
-        tY += tinggiBaris[idx];
-    });
 
-    return hY + hH + 10; // posisi Y setelah header, siap dipakai konten berikutnya
-}
 
-function gambarWatermarkPDF(doc, cfg, pageWidth, pageHeight, tengahYKustom) {
-    const wm = cfg.watermark || {};
-    if (!wm.enabled) return;
-    const teks = wm.text || getNamaInstansiUtama();
-    if (!teks) return;
-    const pusatY = tengahYKustom || pageHeight / 2;
-    const opacity = wm.opacity !== undefined ? wm.opacity : 0.15;
-    const fontSize = wm.fontsize || 60;
-    const posisi = wm.position || 'diagonal';
-
-    doc.saveGraphicsState();
-    try { doc.setGState(new doc.GState({ opacity })); } catch(e) {}
-    doc.setFont('helvetica', 'bold');
-    doc.setTextColor(13, 92, 74);
-
-    if (posisi === 'tile') {
-        // Berulang memenuhi halaman — sama seperti versi HTML: 4 baris x 3 kolom
-        doc.setFontSize(fontSize * 0.4);
-        const totalRows = 4;
-        for (let rIdx = 0; rIdx < totalRows; rIdx++) {
-            const yPos = ((rIdx + 0.5) / totalRows) * pageHeight;
-            for (let cIdx = 0; cIdx < 3; cIdx++) {
-                const xPos = (cIdx * 0.32 + 0.16) * pageWidth;
-                doc.text(teks, xPos, yPos, { align: 'center', angle: 30 });
-            }
-        }
-    } else if (posisi === 'center') {
-        // Di tengah, tanpa dimiringkan
-        doc.setFontSize(fontSize);
-        doc.text(teks, pageWidth / 2, pusatY, { align: 'center' });
-    } else {
-        // Diagonal (default) — versi HTML pakai rotate(-40deg) CSS, di jsPDF arahnya kebalik jadi +40
-        doc.setFontSize(fontSize);
-        doc.text(teks, pageWidth / 2, pusatY, { align: 'center', angle: 40 });
-    }
-    doc.restoreGraphicsState();
-}
-
-async function gambarQRDokumenPDF(doc, cfg, qrText, pageWidth, pageHeight) {
-    if (!cfg.qr || !cfg.qr.enabled || typeof QRCode === 'undefined') return;
-    try {
-        const canvas = document.createElement('canvas');
-        await QRCode.toCanvas(canvas, qrText, { width: 90, height: 90 });
-        const dataUrl = canvas.toDataURL('image/png');
-        const ukuran = 20; // mm, kira-kira setara 80px di HTML
-        const x = pageWidth - ukuran - 14;
-        const y = pageHeight - ukuran - 18;
-        doc.addImage(dataUrl, 'PNG', x, y, ukuran, ukuran);
-        doc.setFontSize(7); doc.setTextColor(107,114,128); doc.setFont('helvetica','normal');
-        doc.text('Dokumen Resmi', x + ukuran/2, y + ukuran + 4, { align: 'center' });
-    } catch(e) {}
-}
-
-function gambarKotakInfoPDF(doc, x, y, width, height) {
-    doc.setFillColor(248, 248, 248);
-    doc.roundedRect(x, y, width, height, 2, 2, 'F');
-}
 
 function buildPrintTandaTangan(cfg, tglCetak, izinkanGambarTTD, izinkanBendahara) {
     const hajiReg = isHajiReguler();
@@ -31941,60 +30918,7 @@ function closePreviewPDF() {
     }, 300);
 }
 
-// Generate PDF blob tanpa download - KAS
-// Generate PDF blob tanpa download - PEMBAYARAN
-// Generate PDF blob tanpa download - MULTI EVENT
-// Fungsi cetak dari preview blob
-// Download PDF langsung - KAS
-async function shareKasPDF() {
-    if(dataKas.length===0) return showToast('Tidak ada data!');
-    showToast('Menyiapkan...');
-    try {
-        const cfg = getKonfigurasiProData();
-        const {jsPDF} = window.jspdf;
-        const [wr, wg, wb] = getWarnaTemaRGB();
-        const doc = new jsPDF({orientation:'landscape', unit:'mm', format:'a4'});
-        await applyPDFConfig(doc, { landscape: true, skipHeader: true, skipWatermark: true, skipQR: true });
-        const judul = document.getElementById('kegiatan').value.trim() || 'Laporan Kas';
-        const tglCetak = formatTanggalLengkap();
-        let masuk=0, keluar=0;
-        dataKas.forEach(i=>{ if(i.tipe==='masuk') masuk+=i.nom; else keluar+=i.nom; });
-        const saldo = masuk - keluar;
-        let yHeader = await gambarHeaderRoundedPDF(doc, cfg, 297);
-        doc.setFontSize(16); doc.setTextColor(wr,wg,wb);
-        doc.text(judul + ' - LAPORAN KAS', 148.5, yHeader, { align: 'center' }); yHeader += 6;
-        doc.setFontSize(9); doc.setTextColor(150,150,150);
-        doc.text('Tanggal Cetak: ' + tglCetak, 148.5, yHeader, { align: 'center' }); yHeader += 7;
-        const tableData = dataKas.map((i,idx)=>[idx+1, i.tgl, i.kegiatan||'-', i.ket, i.tipe==='masuk'?'MASUK':'KELUAR', 'Rp '+i.nom.toLocaleString('id-ID')]);
-        doc.autoTable({startY:yHeader, head:[['No','Tgl','Kegiatan','Keterangan','Tipe','Nominal']], body:tableData, theme:'striped', headStyles:{fillColor:[wr,wg,wb]}, styles:{fontSize:8, lineWidth:0.1}, columnStyles:{0:{cellWidth:10,halign:'center'}}});
-        let y = doc.lastAutoTable.finalY + 10;
-        doc.setFontSize(10); doc.setTextColor(0,0,0); doc.setFont('helvetica','normal');
-        doc.text('Total Pemasukan: Rp '+masuk.toLocaleString('id-ID'), 14, y);
-        doc.text('Total Pengeluaran: Rp '+keluar.toLocaleString('id-ID'), 14, y+7);
-        doc.setTextColor(wr,wg,wb); doc.setFont('helvetica','bold');
-        doc.text('SALDO AKHIR: Rp '+(saldo).toLocaleString('id-ID'), 14, y+14);
-        y += 24;
 
-        // ── Tanda Tangan (sama seperti versi Cetak — gambar TTD & Bendahara didukung) ──
-        y = gambarTandaTanganPDF(doc, cfg, tglCetak, y, 297, true);
-
-        await gambarQRDokumenPDF(doc, cfg, `Laporan Kas: ${judul}\nSaldo: Rp ${saldo.toLocaleString('id-ID')}\nTanggal: ${tglCetak}`, 297, 210);
-        gambarWatermarkPDF(doc, cfg, 297, 210);
-
-        // ── Share (native share sheet, fallback download) ───────────────────
-        const namaFile = `${judul.replace(/\s+/g,'_')}_Laporan_Kas.pdf`;
-        const blob = doc.output('blob');
-        const file = new File([blob], namaFile, { type: 'application/pdf' });
-        if(navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
-            await navigator.share({ files: [file], title: judul + ' - Laporan Kas' });
-        } else {
-            doc.save(namaFile);
-            showToast('📥 PDF didownload');
-        }
-    } catch(e) {
-        if(e.name !== 'AbortError') showToast('Gagal: '+e.message);
-    }
-}
 
 // Download PDF langsung - PEMBAYARAN
 // Download PDF langsung - MULTI EVENT
