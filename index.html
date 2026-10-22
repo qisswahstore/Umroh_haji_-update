@@ -13,7 +13,7 @@
     
     <!-- MANIFEST - DIPERBAIKI UNTUK INSTALL -->
     <meta name="apple-mobile-web-app-title" content="Navara">
-    <link rel="manifest" href="data:application/manifest+json,{%22name%22:%22Navara%22,%22short_name%22:%22Navara%22,%22start_url%22:%22.%22,%22display%22:%22standalone%22,%22background_color%22:%22%230D5C4A%22,%22theme_color%22:%22%230D5C4A%22,%22icons%22:[{%22src%22:%22https://img.icons8.com/color/192/kaaba.png%22,%22sizes%22:%22192x192%22,%22type%22:%22image/png%22},{%22src%22:%22https://img.icons8.com/color/512/kaaba.png%22,%22sizes%22:%22512x512%22,%22type%22:%22image/png%22}],%22shortcuts%22:[{%22name%22:%22Bayar%20Cepat%22,%22short_name%22:%22Bayar%22,%22url%22:%22./?page=pembayaran%22,%22icons%22:[{%22src%22:%22https://img.icons8.com/fluency/96/bank-card-back-side.png%22,%22sizes%22:%2296x96%22}]},{%22name%22:%22Database%20Jamaah%22,%22short_name%22:%22Jamaah%22,%22url%22:%22./?page=jamaah%22,%22icons%22:[{%22src%22:%22https://img.icons8.com/fluency/96/user-group-man-man.png%22,%22sizes%22:%2296x96%22}]},{%22name%22:%22Kas%22,%22short_name%22:%22Kas%22,%22url%22:%22./?page=kas%22,%22icons%22:[{%22src%22:%22https://img.icons8.com/fluency/96/wallet.png%22,%22sizes%22:%2296x96%22}]},{%22name%22:%22Cari%20Jamaah%22,%22short_name%22:%22Cari%22,%22url%22:%22./?page=carijamaah%22,%22icons%22:[{%22src%22:%22https://img.icons8.com/fluency/96/search.png%22,%22sizes%22:%2296x96%22}]}]}">
+    <link rel="manifest" href="data:application/manifest+json,{%22name%22:%22Navara%22,%22short_name%22:%22Navara%22,%22start_url%22:%22.%22,%22display%22:%22standalone%22,%22background_color%22:%22%23F4F6FA%22,%22theme_color%22:%22%230D5C4A%22,%22icons%22:[{%22src%22:%22https://img.icons8.com/color/192/kaaba.png%22,%22sizes%22:%22192x192%22,%22type%22:%22image/png%22},{%22src%22:%22https://img.icons8.com/color/512/kaaba.png%22,%22sizes%22:%22512x512%22,%22type%22:%22image/png%22}],%22shortcuts%22:[{%22name%22:%22Bayar%20Cepat%22,%22short_name%22:%22Bayar%22,%22url%22:%22./?page=pembayaran%22,%22icons%22:[{%22src%22:%22https://img.icons8.com/fluency/96/bank-card-back-side.png%22,%22sizes%22:%2296x96%22}]},{%22name%22:%22Database%20Jamaah%22,%22short_name%22:%22Jamaah%22,%22url%22:%22./?page=jamaah%22,%22icons%22:[{%22src%22:%22https://img.icons8.com/fluency/96/user-group-man-man.png%22,%22sizes%22:%2296x96%22}]},{%22name%22:%22Kas%22,%22short_name%22:%22Kas%22,%22url%22:%22./?page=kas%22,%22icons%22:[{%22src%22:%22https://img.icons8.com/fluency/96/wallet.png%22,%22sizes%22:%2296x96%22}]},{%22name%22:%22Cari%20Jamaah%22,%22short_name%22:%22Cari%22,%22url%22:%22./?page=carijamaah%22,%22icons%22:[{%22src%22:%22https://img.icons8.com/fluency/96/search.png%22,%22sizes%22:%2296x96%22}]}]}">
     
     <link rel="icon" href="https://img.icons8.com/color/96/kaaba.png">
     <link rel="apple-touch-icon" href="https://img.icons8.com/color/192/kaaba.png">
@@ -375,6 +375,16 @@
             gap: 8px;
             align-items: center;
         }
+        /* (build -149) Layar sempit: tombol sapaan dikecilkan agar tetap sejajar dengan sapaan. Dipasang otomatis oleh sesuaikanSapaanHeader(). */
+        .greeting.ringkas .greeting-actions { gap: 5px; }
+        .greeting.ringkas .dark-mode-toggle { width: 32px; height: 32px; font-size: 16px; border-radius: 16px; }
+        .greeting.ringkas .admin-toggle-link { padding: 5px 7px; }
+        .greeting.ringkas h2 { font-size: 0.92rem; }
+        .greeting.ringkas2 .greeting-actions { gap: 4px; }
+        .greeting.ringkas2 .dark-mode-toggle { width: 30px; height: 30px; font-size: 15px; border-radius: 15px; }
+        .greeting.ringkas2 .admin-toggle-link { padding: 5px 6px; font-size: 0.65rem; }
+        .greeting.ringkas2 h2 { font-size: 0.85rem; }
+        .greeting.ukur * { transition: none !important; }
         
         .back-header {
             display: flex;
@@ -4759,6 +4769,7 @@ function internalShowPage(pageId) {
         } catch(e) {}
     }
     if (pageId === 'setting') { try { renderKartuJenisUsaha(); } catch(e) {} try { renderKartuKualitasFoto(); } catch(e) {} }
+    if (pageId === 'home') { try { setTimeout(sesuaikanNamaInstansiHeader, 0); } catch(e) {} }
     if (pageId === 'setting') { updateLicenseSummary(); const na = document.getElementById('namaAdminSaatIni'); if(na) na.textContent = currentAdminNama; const kuncipengaturan = getPengaturanKunciOtomatis(); const elAktif = document.getElementById('cfgKunciOtomatisAktif'); const elMenit = document.getElementById('cfgKunciOtomatisMenit'); if(elAktif) elAktif.checked = kuncipengaturan.aktif; if(elMenit) elMenit.value = kuncipengaturan.menit; }
     if (pageId === 'riwayataktivitas') { renderRiwayatAktivitas(); }
     if (pageId === 'konfigurasi') { if(window.loadKonfigurasiPro) window.loadKonfigurasiPro(); setTimeout(applyKonfigurasiLock, 400); applyModeHajiReguler(); setTimeout(() => { if(window.siapkanRekeningPenerimaanUI) siapkanRekeningPenerimaanUI(); }, 600); }
@@ -7530,11 +7541,8 @@ function rhKetPembulatan(bd) {
     const A = bd.bulatA || 0, B = bd.bulatB || 0;
     if(A === 0 && B === 0) return '';
     const f = x => 'Rp ' + Math.round(Math.abs(x)).toLocaleString('id-ID');
-    let t;
-    if(A > 0 && B <= 0) t = 'Harga lama dibulatkan naik ' + f(A) + ' per pax, harga baru ' + (B < 0 ? 'diatur lebih rendah ' + f(B) : 'tidak dibulatkan') + '.';
-    else if(B > 0 && A <= 0) t = 'Harga baru dibulatkan naik ' + f(B) + ' per pax, harga lama ' + (A < 0 ? 'diatur lebih rendah ' + f(A) : 'tidak dibulatkan') + '.';
-    else t = 'Pembulatan harga lama ' + f(A) + ', harga baru ' + f(B) + ' per pax.';
-    return t + ' Ini cara menetapkan harga, bukan biaya.';
+    const arah = x => x > 0 ? 'dibulatkan naik ' + f(x) : (x < 0 ? 'diatur lebih rendah ' + f(x) + ' dari hitungan' : 'tidak dibulatkan');
+    return 'Per pax: harga lama ' + arah(A) + ', harga baru ' + arah(B) + '. Ini cara menetapkan harga, bukan biaya.';
 }
 // Build -136: satu kalimat dampak profit di Bandingkan Versi (hanya teks; angka sama dengan keterangan "modal naik" di Rekap)
 function rhCatatanProfit(A, B) {
@@ -7563,7 +7571,7 @@ function rhHtmlBanding(bd) {
     rhPeringatanBanding(bd).forEach(p => {
         x += `<div style="background:${p.merah ? '#FEE2E2' : '#FEF3C7'};color:${p.merah ? '#991B1B' : '#92400E'};border:1px solid ${p.merah ? '#F87171' : '#F59E0B'};border-radius:10px;padding:9px 11px;margin:8px 0;font-size:13px;line-height:1.55;">⚠️ ${rhE(p.t)}</div>`;
     });
-    if(bd.urutDampak.length || sisaTampil) {
+    if(bd.urutDampak.length || sisaTampil || bd.pem !== 0) {
         x += rhJudul(bd.sel >= 0 ? 'KENAPA HARGANYA NAIK?' : 'KENAPA HARGANYA TURUN?');
         bd.urutDampak.forEach(c => {
             const naik = Math.round(c.dampak) > 0;
@@ -7663,6 +7671,16 @@ function renderRiwayatEstimasiModal(modal) {
     rhRenderDaftar(modal);
 }
 
+// Build -150: satu baris kecil di daftar Riwayat (modal + apakah harga dibulatkan) supaya dua versi berharga sama bisa dibedakan. Hanya teks.
+function rhBarisModalRiwayat(r) {
+    try {
+        if(!r || !r.data || isHajiReguler()) return '';
+        const h = hitungModalHargaDariEst(r.data); if(!h || !(h.modal > 0)) return '';
+        const bulat = h.dibulatkan && Math.round(h.harga) !== Math.round(h.hargaHitung);
+        const ket = bulat ? (h.harga > h.hargaHitung ? 'harga dibulatkan naik' : 'harga diatur lebih rendah dari hitungan') : 'harga mengikuti hitungan';
+        return `<div style="font-size:11px;color:#64748B;margin-top:1px;">Modal ${rhRp(h.modal)} · ${ket}</div>`;
+    } catch(e) { return ''; }
+}
 function rhRenderDaftar(modal) {
     const riwayat = rhRiwayat();
     const progNama = getCurrentProgram()?.nama || '-';
@@ -7674,6 +7692,7 @@ function rhRenderDaftar(modal) {
             <div style="min-width:0;">
                 <div style="font-size:11px;color:#888;">📌 ${rhE(r.tanggal)}</div>
                 <div style="font-size:15px;font-weight:700;color:${RH_WARNA};">${r.harga ? rhRp(r.harga) + '/pax' : '-'}</div>
+                ${rhBarisModalRiwayat(r)}
                 <div style="font-size:11px;margin-top:2px;color:${status[0]};">${status[1]}</div>
                 ${r.catatan ? `<div style="font-size:11px;color:#475569;margin-top:2px;">📝 ${rhE(String(r.catatan).slice(0, 70))}</div>` : ''}
             </div>
@@ -7831,6 +7850,8 @@ function rhHtmlLini(L) {
         if(bd.pem !== 0) x += `<div style="display:flex;justify-content:space-between;gap:8px;font-size:13px;margin-top:6px;"><b>Pembulatan harga jual</b><b style="color:#475569;">${f(bd.pem)}</b></div>`;
         if(Math.abs(bd.sisa) >= 1) x += `<div style="display:flex;justify-content:space-between;gap:8px;font-size:13px;margin-top:6px;color:#92400E;"><b>Belum bisa dijelaskan</b><b>${f(bd.sisa)}</b></div>`;
         if(!bd.urutDampak.length && !bd.pem && Math.abs(bd.sisa) < 1) x += `<div style="font-size:12px;color:#64748B;margin-top:6px;">Tidak ada komponen yang berubah.</div>`;
+        const cp = rhCatatanProfit(k.A, k.B);
+        if(cp) x += `<div style="background:#FFFBEB;border:1px solid #F59E0B;color:#92400E;border-radius:8px;padding:6px 8px;margin-top:6px;font-size:12px;line-height:1.5;">💡 ${rhE(cp).replace(/\[\[(.+?)\]\]/g, '<b>$1</b>')}</div>`;
         bd.ket.forEach(t => { x += `<div style="font-size:12px;color:#475569;margin-top:4px;">${rhE(t)}</div>`; });
         x += `</div>`;
     });
@@ -7849,6 +7870,8 @@ function rhTeksLini(L) {
         bd.urutDampak.forEach(c => { t += `• ${c.label}: ${c.lama} → ${c.baru} (${c.beda}) · ${f(c.dampak)}\n`; });
         if(bd.pem !== 0) t += `• Pembulatan harga jual: ${f(bd.pem)}\n`;
         if(Math.abs(bd.sisa) >= 1) t += `• Belum bisa dijelaskan: ${f(bd.sisa)}\n`;
+        const cp = rhCatatanProfit(k.A, k.B);
+        if(cp) t += `💡 ${cp.replace(/\[\[(.+?)\]\]/g, '*$1*')}\n`;
     });
     return t;
 }
@@ -8112,14 +8135,19 @@ function perbaruiPetunjukHargaJual() {
     const d = hitungDasarEstimasiDariForm();
     const manual = parseRupiah(document.getElementById('cHargaJual')?.value || '0');
     if(d.nBayar <= 0 || !(d.jual > 0)) { el.style.color = '#888'; el.textContent = ''; return; }
-    if(!manual) { el.style.color = '#888'; el.textContent = `Kosong = memakai hasil hitungan (${f(d.jual)}). Ketik harga bulat, atau pakai tombol di atas.`; return; }
+    if(!manual) { el.style.color = '#888'; el.style.whiteSpace = ''; el.textContent = `Kosong = memakai hasil hitungan (${f(d.jual)}). Ketik harga bulat, atau pakai tombol di atas.`; return; }
     const selisih = manual - d.jual, tambah = selisih * d.nBayar;
-    if(Math.round(selisih) >= 0) {
+    el.style.whiteSpace = 'pre-line';
+    const kunci = '<span style="display:block;margin-top:4px;font-size:11px;color:#94A3B8;">🔒 Harga ini terkunci pada angka yang diketik. Kalau komponen, buffer, atau profit diubah, ketik ulang atau tekan Hapus.</span>';
+    if(Math.round(selisih) > 0) {
         el.style.color = '#166534';
-        el.textContent = `Hitungan ${f(d.jual)} → harga jual ${f(manual)} (+${f(selisih)}/pax). Laba bersih rencana setelah pembulatan: ${f(d.bersih + tambah)} (+${f(tambah)}), bila buffer terpakai penuh untuk diskon.`;
+        el.innerHTML = `✅ Hitungan ${f(d.jual)}, dibulatkan menjadi ${f(manual)} (+${f(selisih)}/pax).\nLaba bersih rencana setelah pembulatan: ${f(d.bersih + tambah)} (+${f(tambah)}), bila buffer terpakai penuh untuk diskon.` + kunci;
+    } else if(Math.round(selisih) === 0) {
+        el.style.color = '#166534';
+        el.innerHTML = `✅ Harga yang diketik sama dengan hasil hitungan (${f(d.jual)}).` + kunci;
     } else {
         el.style.color = '#B45309';
-        el.textContent = `⚠️ Harga jual ${f(-selisih)}/pax di bawah hitungan (${f(d.jual)}). Laba bersih rencana turun ${f(-tambah)} menjadi ${f(d.bersih + tambah)}.`;
+        el.innerHTML = `⚠️ Harga jual yang diketik ${f(manual)}, lebih rendah ${f(-selisih)}/pax dari hasil hitungan ${f(d.jual)}.\nDengan harga ini, laba bersih rencana menjadi ${f(d.bersih + tambah)}, turun ${f(-tambah)} dari laba sesuai persen profit yang diatur (bila buffer terpakai penuh untuk diskon).\nHarga ini tidak ikut berubah kalau komponen atau buffer diubah. Tekan Hapus untuk mengikuti hitungan.`;
     }
 }
 
@@ -9268,14 +9296,19 @@ function konPerbaruiPetunjukHargaJual() {
     const d = konHitungDasarDariForm();
     const manual = parseRupiah(document.getElementById('konCHargaJual')?.value || '0');
     if(d.nBayar <= 0 || !(d.jual > 0)) { el.style.color = '#888'; el.textContent = ''; return; }
-    if(!manual) { el.style.color = '#888'; el.textContent = `Kosong = memakai hasil hitungan (${f(d.jual)}). Ketik harga bulat, atau pakai tombol di atas, lalu tekan HITUNG ESTIMASI KONSORSIUM.`; return; }
+    if(!manual) { el.style.color = '#888'; el.style.whiteSpace = ''; el.textContent = `Kosong = memakai hasil hitungan (${f(d.jual)}). Ketik harga bulat, atau pakai tombol di atas, lalu tekan HITUNG ESTIMASI KONSORSIUM.`; return; }
     const selisih = manual - d.jual, tambah = selisih * d.nBayar;
-    if(Math.round(selisih) >= 0) {
+    el.style.whiteSpace = 'pre-line';
+    const kunci = '<span style="display:block;margin-top:4px;font-size:11px;color:#94A3B8;">🔒 Harga ini terkunci pada angka yang diketik. Kalau komponen, buffer, atau profit diubah, ketik ulang atau tekan Hapus.</span>';
+    if(Math.round(selisih) > 0) {
         el.style.color = '#166534';
-        el.textContent = `Hitungan ${f(d.jual)} → harga jual ${f(manual)} (+${f(selisih)}/pax). Laba bersih rencana setelah pembulatan: ${f(d.bersih + tambah)} (+${f(tambah)}), bila buffer terpakai penuh untuk diskon. Tekan HITUNG ESTIMASI KONSORSIUM untuk menerapkan.`;
+        el.innerHTML = `✅ Hitungan ${f(d.jual)}, dibulatkan menjadi ${f(manual)} (+${f(selisih)}/pax).\nLaba bersih rencana setelah pembulatan: ${f(d.bersih + tambah)} (+${f(tambah)}), bila buffer terpakai penuh untuk diskon. Tekan HITUNG ESTIMASI KONSORSIUM untuk menerapkan.` + kunci;
+    } else if(Math.round(selisih) === 0) {
+        el.style.color = '#166534';
+        el.innerHTML = `✅ Harga yang diketik sama dengan hasil hitungan (${f(d.jual)}).` + kunci;
     } else {
         el.style.color = '#B45309';
-        el.textContent = `⚠️ Harga jual ${f(-selisih)}/pax di bawah hitungan (${f(d.jual)}). Laba bersih rencana turun ${f(-tambah)} menjadi ${f(d.bersih + tambah)}.`;
+        el.innerHTML = `⚠️ Harga jual yang diketik ${f(manual)}, lebih rendah ${f(-selisih)}/pax dari hasil hitungan ${f(d.jual)}.\nDengan harga ini, laba bersih rencana menjadi ${f(d.bersih + tambah)}, turun ${f(-tambah)} dari laba sesuai persen profit yang diatur (bila buffer terpakai penuh untuk diskon).\nHarga ini tidak ikut berubah kalau komponen atau buffer diubah. Tekan Hapus untuk mengikuti hitungan.`;
     }
 }
 
@@ -25072,6 +25105,19 @@ function sesuaikanNamaInstansiHeader() {
         const alami = h.scrollWidth; h.style.whiteSpace = lama;
         if(alami > tersedia && tersedia > 0) h.style.fontSize = Math.max(15, Math.floor(asli * tersedia / alami * 0.94 * 10) / 10) + 'px';
     } catch(e) {}
+    sesuaikanSapaanHeader();
+}
+// (build -149) Kalau tombol sapaan terpaksa turun ke baris bawah, kecilkan tombolnya supaya sejajar. Layar lebar tidak berubah.
+function sesuaikanSapaanHeader() {
+    try {
+        const g = document.querySelector('#page-home .greeting'); if(!g || !g.clientWidth) return;
+        const kiri = g.children[0], kanan = g.children[1]; if(!kiri || !kanan) return;
+        g.classList.add('ukur');
+        const turun = () => kanan.offsetTop > kiri.offsetTop + 4;
+        g.classList.remove('ringkas', 'ringkas2');
+        if(turun()) { g.classList.add('ringkas'); if(turun()) { g.classList.add('ringkas2'); } }
+        requestAnimationFrame(() => g.classList.remove('ukur'));
+    } catch(e) {}
 }
 (function() {
     const jalan = () => sesuaikanNamaInstansiHeader();
@@ -26897,7 +26943,7 @@ function openIndexedDB() {
 // dengan build baru, data MENTAH (langsung dari IndexedDB, bukan dari memori) disalin dulu sebelum
 // proses migrasi apapun berjalan — supaya kalau ada kesalahan di update, data lama masih bisa dipulihkan.
 // Dokumen & foto tidak ikut disalin (ukurannya besar, dan tidak pernah disentuh proses migrasi).
-const NAVARA_BUILD = '2026.10.21-148';
+const NAVARA_BUILD = '2026.10.22-150';
 const MAKS_SNAPSHOT = 3;
 
 // ==================== DAFTAR DATA PUSAT ====================
