@@ -8485,12 +8485,13 @@ function hitungUmroh() {
     <div class="res-item" style="color:#2ecc71"><span>PROFIT BERSIH setelah pembulatan</span><div style="display:flex;align-items:center;gap:6px;"><b>${f(bersih+tambahanBulat)}</b>${cp(f(bersih+tambahanBulat),'Profit Bersih setelah pembulatan')}</div></div>` : ''}
     ${hargaBrosurRows}
     <div class="action-buttons" style="display:flex;gap:10px;margin-top:15px;">
-        <button class="btn" onclick="bukaMenuExport('Hasil Estimasi','',{cetak:[{aksi:'cetakEstimasiPDFJamaah()',sub:'Jamaah',ket:'Versi untuk jamaah. Lihat dulu, lalu cetak atau simpan PDF'},{aksi:'cetakEstimasiPDFInternal()',sub:'Internal',ket:'Versi untuk tim, lengkap dengan modal dan margin. Lihat dulu, lalu cetak atau simpan PDF'}],bagikan:[{aksi:'bagikanDariCetak(()=>cetakEstimasiPDFInternal(),\'Estimasi_Internal\')',sub:'Internal',ket:'Kirim PDF versi internal lewat WhatsApp atau aplikasi lain'}],salin:'salinRingkasan()'})" style="background:var(--primary);margin-top:0;flex:1;"><i class="fas fa-download"></i> Export</button>
+        <button class="btn" onclick="bukaMenuExport('Hasil Estimasi','',{cetak:[{aksi:'cetakEstimasiPDFJamaah()',sub:'Jamaah',ket:'Versi untuk jamaah. Lihat dulu, lalu cetak atau simpan PDF'},{aksi:'cetakEstimasiPDFInternal()',sub:'Internal',ket:'Versi untuk tim, lengkap dengan modal dan margin. Lihat dulu, lalu cetak atau simpan PDF'}],bagikan:[{aksi:'bagikanEstimasiInternal()',sub:'Internal',ket:'Kirim PDF versi internal lewat WhatsApp atau aplikasi lain'}],salin:'salinRingkasan()'})" style="background:#fff;color:var(--primary);border:none;font-weight:800;margin-top:0;flex:1;"><i class="fas fa-download"></i> Export</button>
     </div>`; 
     hasil.style.display='block'; 
     hasil.scrollIntoView({behavior:"smooth"}); 
 }
 
+function bagikanEstimasiInternal() { return bagikanDariCetak(() => cetakEstimasiPDFInternal(), 'Estimasi_Internal'); }
 function salinRingkasan() { 
     if(lastCalculatedText) { 
         navigator.clipboard.writeText(lastCalculatedText).then(()=>showToast("📋 Ringkasan tersalin!")).catch(()=>showToast("❌ Gagal menyalin")); 
@@ -26320,7 +26321,7 @@ function openIndexedDB() {
 // dengan build baru, data MENTAH (langsung dari IndexedDB, bukan dari memori) disalin dulu sebelum
 // proses migrasi apapun berjalan — supaya kalau ada kesalahan di update, data lama masih bisa dipulihkan.
 // Dokumen & foto tidak ikut disalin (ukurannya besar, dan tidak pernah disentuh proses migrasi).
-const NAVARA_BUILD = '2026.10.22-173';
+const NAVARA_BUILD = '2026.10.23-174';
 const MAKS_SNAPSHOT = 3;
 
 // ==================== DAFTAR DATA PUSAT ====================
