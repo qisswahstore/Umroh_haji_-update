@@ -13,7 +13,7 @@
     
     <!-- MANIFEST - DIPERBAIKI UNTUK INSTALL -->
     <meta name="apple-mobile-web-app-title" content="Navara">
-    <link rel="manifest" href="data:application/manifest+json,{%22name%22:%22Navara%22,%22short_name%22:%22Navara%22,%22start_url%22:%22.%22,%22display%22:%22standalone%22,%22background_color%22:%22%23F4F6FA%22,%22theme_color%22:%22%230D5C4A%22,%22icons%22:[{%22src%22:%22https://img.icons8.com/color/192/kaaba.png%22,%22sizes%22:%22192x192%22,%22type%22:%22image/png%22},{%22src%22:%22https://img.icons8.com/color/512/kaaba.png%22,%22sizes%22:%22512x512%22,%22type%22:%22image/png%22}],%22shortcuts%22:[{%22name%22:%22Bayar%20Cepat%22,%22short_name%22:%22Bayar%22,%22url%22:%22./?page=pembayaran%22,%22icons%22:[{%22src%22:%22https://img.icons8.com/fluency/96/bank-card-back-side.png%22,%22sizes%22:%2296x96%22}]},{%22name%22:%22Database%20Jamaah%22,%22short_name%22:%22Jamaah%22,%22url%22:%22./?page=jamaah%22,%22icons%22:[{%22src%22:%22https://img.icons8.com/fluency/96/user-group-man-man.png%22,%22sizes%22:%2296x96%22}]},{%22name%22:%22Kas%22,%22short_name%22:%22Kas%22,%22url%22:%22./?page=kas%22,%22icons%22:[{%22src%22:%22https://img.icons8.com/fluency/96/wallet.png%22,%22sizes%22:%2296x96%22}]},{%22name%22:%22Cari%20Jamaah%22,%22short_name%22:%22Cari%22,%22url%22:%22./?page=carijamaah%22,%22icons%22:[{%22src%22:%22https://img.icons8.com/fluency/96/search.png%22,%22sizes%22:%2296x96%22}]}]}">
+    <link rel="manifest" href="data:application/manifest+json,{%22name%22:%22Navara%22,%22short_name%22:%22Navara%22,%22start_url%22:%22.%22,%22display%22:%22standalone%22,%22background_color%22:%22%23F4F6FA%22,%22theme_color%22:%22%23F4F6FA%22,%22icons%22:[{%22src%22:%22https://img.icons8.com/color/192/kaaba.png%22,%22sizes%22:%22192x192%22,%22type%22:%22image/png%22},{%22src%22:%22https://img.icons8.com/color/512/kaaba.png%22,%22sizes%22:%22512x512%22,%22type%22:%22image/png%22}],%22shortcuts%22:[{%22name%22:%22Bayar%20Cepat%22,%22short_name%22:%22Bayar%22,%22url%22:%22./?page=pembayaran%22,%22icons%22:[{%22src%22:%22https://img.icons8.com/fluency/96/bank-card-back-side.png%22,%22sizes%22:%2296x96%22}]},{%22name%22:%22Database%20Jamaah%22,%22short_name%22:%22Jamaah%22,%22url%22:%22./?page=jamaah%22,%22icons%22:[{%22src%22:%22https://img.icons8.com/fluency/96/user-group-man-man.png%22,%22sizes%22:%2296x96%22}]},{%22name%22:%22Kas%22,%22short_name%22:%22Kas%22,%22url%22:%22./?page=kas%22,%22icons%22:[{%22src%22:%22https://img.icons8.com/fluency/96/wallet.png%22,%22sizes%22:%2296x96%22}]},{%22name%22:%22Cari%20Jamaah%22,%22short_name%22:%22Cari%22,%22url%22:%22./?page=carijamaah%22,%22icons%22:[{%22src%22:%22https://img.icons8.com/fluency/96/search.png%22,%22sizes%22:%2296x96%22}]}]}">
     
     <link rel="icon" href="https://img.icons8.com/color/96/kaaba.png">
     <link rel="apple-touch-icon" href="https://img.icons8.com/color/192/kaaba.png">
@@ -2141,6 +2141,7 @@ https://github.com/nodeca/pako/blob/main/LICENSE
             <div style="font-weight:700;font-size:13px;color:#334155;">📋 <span id="homeSummaryText">0 hal perlu perhatian hari ini</span></div>
             <span id="homeSummaryArrow" style="font-size:12px;color:#334155;">⌄ Lihat</span>
         </div>
+        <div id="homeMulaiCard" style="display:none;background:linear-gradient(135deg,#ECFDF5,#F0F9FF);border:1px solid #6EE7B7;border-radius:16px;padding:14px;margin-bottom:12px;"></div>
         <div id="homeSummaryDetailWrap">
         <div id="homeProgramSetupCard" style="display:none;background:#EDE9FE;border:1px solid #8B5CF6;border-radius:14px;padding:12px 14px;margin-bottom:12px;">
             <div style="font-weight:700;font-size:13px;color:#5B21B6;margin-bottom:6px;">🆕 Program Ini Belum Lengkap</div>
@@ -2247,7 +2248,7 @@ https://github.com/nodeca/pako/blob/main/LICENSE
             <div class="section-title"><span> 5 JAMAAH DENGAN TAGIHAN TERBESAR</span></div>
             <div id="topPiutangList"></div>
             <div class="row" style="margin-top:16px;">
-                <button class="btn btn-purple btn-small" onclick="downloadDashboardPDF()" style="flex:1"><i class="fas fa-download"></i> DOWNLOAD PDF</button>
+                <button class="btn btn-purple btn-small" onclick="downloadDashboardPDF()" style="flex:1"><i class="fas fa-share-nodes"></i> BAGIKAN PDF</button>
                 <button class="btn btn-teal btn-small" onclick="exportDashboardExcel()" style="flex:1"><i class="fas fa-file-excel"></i> EXCEL</button>
                 <button class="btn btn-primary btn-small" onclick="cetakDashboardHTML()" style="flex:1"><i class="fas fa-print"></i> CETAK</button>
             </div>
@@ -2815,6 +2816,7 @@ https://github.com/nodeca/pako/blob/main/LICENSE
 <div id="page-layanantambahan" class="page">
     <div class="header-premium header-premium-small"><div class="back-header"><i class="fas fa-arrow-left" onclick="showPage('home')"></i><h2>Layanan Tambahan</h2><div style="width:30px;"></div></div></div>
     <div class="card-premium">
+        <div id="layananBanner"></div>
         <div style="font-size:11px;color:#888;margin-bottom:12px;">Badal Haji, Dam, dan layanan tambahan lain — data mengikuti Program aktif saat ini.</div>
         <div style="display:flex;gap:8px;">
             <button class="btn btn-primary" style="flex:2;margin:0;" onclick="openTambahLayananModal()"><i class="fas fa-plus-circle"></i> Tambah Transaksi</button>
@@ -2857,6 +2859,7 @@ https://github.com/nodeca/pako/blob/main/LICENSE
 <div id="page-itinerary" class="page">
     <div class="header-premium header-premium-small"><div class="back-header"><i class="fas fa-arrow-left" onclick="showPage('home')"></i><h2>Itinerary</h2><div style="width:30px;"></div></div></div>
     <div class="card-premium">
+        <div id="itineraryBanner"></div>
         <div id="itineraryPeringatan" style="display:none;background:#FEF3C7;border:1px solid #F59E0B;border-radius:10px;padding:10px 12px;font-size:12px;color:#92400E;margin-bottom:12px;"></div>
         <button class="btn btn-primary" onclick="bangunKerangkaItinerary()"><i class="fas fa-magic"></i> Buat/Perbarui Kerangka Hari</button>
         <div style="font-size:11px;color:#888;margin-top:4px;margin-bottom:14px;">Otomatis buat Hari 1 s/d Hari N sesuai "Jumlah Hari Program" di Konfigurasi, tanggal dihitung dari Tanggal Keberangkatan. Aman ditekan berkali-kali — Hari yang sudah ada isinya tidak akan hilang.</div>
@@ -3997,9 +4000,8 @@ https://github.com/nodeca/pako/blob/main/LICENSE
             <div style="font-size:11px;color:#888;margin-bottom:8px;">Isi surat bisa diedit sebelum cetak/share</div>
             <input type="text" id="suratJudulEdit" placeholder="Judul Surat" style="width:100%;padding:10px;border-radius:8px;border:1px solid #ddd;background:var(--input-bg);color:var(--text);font-size:13px;font-weight:bold;text-align:center;margin-bottom:8px;">
             <textarea id="suratIsiEdit" rows="14" style="width:100%;padding:10px;border-radius:8px;border:1px solid #ddd;background:var(--input-bg);color:var(--text);font-size:13px;line-height:1.8;resize:vertical;font-family:'Times New Roman',serif;"></textarea>
-            <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:10px;">
-                <button onclick="shareSuratPDF()" style="padding:10px 8px;background:#10B981;color:white;border:none;border-radius:10px;font-weight:bold;cursor:pointer;font-size:12px;">📤 Share</button>
-                <button onclick="downloadSuratPDF()" style="padding:10px 8px;background:#3B82F6;color:white;border:none;border-radius:10px;font-weight:bold;cursor:pointer;font-size:12px;">📄 Download</button>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px;">
+                <button onclick="shareSuratPDF()" style="padding:10px 8px;background:#10B981;color:white;border:none;border-radius:10px;font-weight:bold;cursor:pointer;font-size:12px;">📤 Bagikan PDF</button>
                 <button onclick="cetakSurat()" style="padding:10px 8px;background:var(--primary);color:white;border:none;border-radius:10px;font-weight:bold;cursor:pointer;font-size:12px;">🖨️ Cetak</button>
             </div>
         </div>
@@ -4027,10 +4029,11 @@ https://github.com/nodeca/pako/blob/main/LICENSE
     <div class="container">
 
         <!-- Jadwal Manasik -->
-        <div class="card-premium">
+        <div class="card-premium" id="manasikKartu">
+            <div id="manasikBannerProgram"></div>
             <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
-                <div style="font-weight:bold;color:var(--primary);"><i class="fas fa-calendar-check"></i> Jadwal Manasik</div>
-                <button onclick="showTambahJadwalManasikModal()" style="padding:6px 12px;background:var(--primary);color:white;border:none;border-radius:8px;font-size:12px;cursor:pointer;">+ Tambah</button>
+                <div id="manasikJudul" style="font-weight:bold;color:var(--primary);"><i class="fas fa-calendar-check"></i> Jadwal Manasik</div>
+                <button id="manasikBtnTambah" onclick="showTambahJadwalManasikModal()" style="padding:6px 12px;background:var(--primary);color:white;border:none;border-radius:8px;font-size:12px;cursor:pointer;">+ Tambah</button>
             </div>
             <div id="jadwalManasikListArea"></div>
             <div class="row" style="margin-top:8px;">
@@ -4731,6 +4734,7 @@ function internalShowPage(pageId) {
     if (pageId === 'alumni') { if(typeof renderAlumniList === 'function') renderAlumniList(); }
     if (pageId === 'arsipprogram') { if(typeof renderArsipProgramList === 'function') renderArsipProgramList(); }
     if (pageId === 'itinerary') { if(typeof renderItineraryList === 'function') renderItineraryList(); }
+    if (pageId === 'itinerary' || pageId === 'layanantambahan') { try { tampilkanBannerProgram(pageId === 'itinerary' ? 'itineraryBanner' : 'layananBanner'); } catch(e) {} }
     if (pageId === 'agenda-kantor') { if(typeof loadAgendaKantorData === 'function') loadAgendaKantorData(); }
     if (pageId === 'kalender-pejabat') { if(typeof loadPejabatData === 'function') loadPejabatData(); }
     if (pageId === 'atur-menu') { if(typeof bukaAturMenu === 'function') bukaAturMenu(); }
@@ -5003,6 +5007,7 @@ function updateHomeDashboardExtra(totalJamaah, lunasCount, totalPiutang, komposi
 
         // Peringatan Backup (global — mencakup semua Program dalam 1 file backup)
         renderProgramSetupChecklist();
+        try { renderKartuMulaiDariSini(); } catch(e) {}
         renderChecklistKeberangkatan();
         const backupCard = document.getElementById('homeBackupWarningCard');
         if(backupCard) {
@@ -6523,18 +6528,18 @@ const FITUR_LENGKAP = [
     { id: "saldokantor", label: "Saldo Kantor", ket: "Saldo rekening & kas per entitas", kelompok: "keuangan", aksi: "showPage('saldokantor')", halaman: "saldokantor", icon: "<i class=\"fas fa-building-columns\"></i>" },
     { id: "cloudstorage", label: "Backup & Restore", ket: "Cadangkan, pulihkan & salin pengaturan", kelompok: "pengaturan", aksi: "showPage('cloudstorage')", halaman: "cloudstorage", icon: "<i class=\"fas fa-cloud\"></i>" },
     { id: "dashboard", label: "Dashboard", ket: "Grafik statistik data", kelompok: "laporan", aksi: "showPage('dashboard')", halaman: "dashboard", icon: "<i class=\"fas fa-chart-line\"></i>" },
-    { id: "excelBandingkanProgram", label: "Excel Bandingkan Program", ket: "Performa semua Program dalam Excel", kelompok: "laporan", aksi: "exportPerProgramExcel('bandingkan')", halaman: null, icon: "<i class=\"fas fa-file-excel\"></i>" },
-    { id: "openBandingkanProgramModal", label: "Bandingkan Program", ket: "Performa semua Program sekaligus", kelompok: "laporan", aksi: "openBandingkanProgramModal()", halaman: null, icon: "<i class=\"fas fa-chart-column\"></i>" },
+    { id: "excelBandingkanProgram", label: "Bandingkan Program (Excel)", ket: "Langsung unduh file Excel", kelompok: "laporan", aksi: "exportPerProgramExcel('bandingkan')", halaman: null, icon: "<i class=\"fas fa-file-excel\"></i>" },
+    { id: "openBandingkanProgramModal", label: "Bandingkan Program", ket: "Lihat di layar, semua program berdampingan", kelompok: "laporan", aksi: "openBandingkanProgramModal()", halaman: null, icon: "<i class=\"fas fa-chart-column\"></i>" },
     { id: "openDashboardTrenModal", label: "Dashboard Tren", ket: "Perbandingan antar tahun", kelompok: "laporan", aksi: "openDashboardTrenModal()", halaman: null, icon: "<i class=\"fas fa-arrow-trend-up\"></i>" },
-    { id: "cetakLaporanPenutupanMusim", label: "Laporan Penutupan Musim", ket: "Gabungan semua laporan akhir", kelompok: "laporan", aksi: "cetakLaporanPenutupanMusim()", halaman: null, icon: "<i class=\"fas fa-book\"></i>" },
+    { id: "cetakLaporanPenutupanMusim", label: "Laporan Penutupan Musim", ket: "Lihat & cetak PDF, program yang aktif", kelompok: "laporan", aksi: "cetakLaporanPenutupanMusim()", halaman: null, icon: "<i class=\"fas fa-book\"></i>" },
     { id: "carapakai", label: "Cara Pakai", ket: "Panduan langkah demi langkah", kelompok: "pengaturan", aksi: "showPage('carapakai')", halaman: "carapakai", icon: "<i class=\"fas fa-circle-question\"></i>" },
-    { id: "excelLaporanPenutupanMusim", label: "Excel Laporan Penutupan", ket: "Laporan akhir musim dalam Excel", kelompok: "laporan", aksi: "cetakLaporanPenutupanMusim('excel')", halaman: null, icon: "<i class=\"fas fa-file-excel\"></i>" },
+    { id: "excelLaporanPenutupanMusim", label: "Laporan Penutupan (Excel)", ket: "Langsung unduh file Excel", kelompok: "laporan", aksi: "cetakLaporanPenutupanMusim('excel')", halaman: null, icon: "<i class=\"fas fa-file-excel\"></i>" },
     { id: "itinerary", label: "Itinerary", ket: "Jadwal harian perjalanan", kelompok: "perjalanan", aksi: "showPage('itinerary')", halaman: "itinerary", icon: "<i class=\"fas fa-route\"></i>" },
     { id: "arsipprogram", label: "Program Arsip", ket: "Program lama, read-only", kelompok: "laporan", aksi: "showPage('arsipprogram')", halaman: "arsipprogram", icon: "<i class=\"fas fa-box-archive\"></i>" },
     { id: "alumni", label: "Database Alumni", ket: "Jamaah lama untuk remarketing", kelompok: "jamaah", aksi: "showPage('alumni')", halaman: "alumni", icon: "<i class=\"fas fa-graduation-cap\"></i>" },
     { id: "layanantambahan", label: "Layanan Tambahan", ket: "Badal Haji, Dam, dll", kelompok: "jamaah", aksi: "showPage('layanantambahan')", halaman: "layanantambahan", icon: "<i class=\"fas fa-kaaba\"></i>" },
-    { id: "excelRekapTahunan", label: "Excel Rekap Tahunan", ket: "Rekap semua keberangkatan dalam Excel", kelompok: "keuangan", aksi: "exportPerProgramExcel('tahunan')", halaman: null, icon: "<i class=\"fas fa-file-excel\"></i>" },
-    { id: "cetakRekapTahunanGabungan", label: "Rekap Tahunan", ket: "Total omzet semua keberangkatan", kelompok: "keuangan", aksi: "cetakRekapTahunanGabungan()", halaman: null, icon: "<i class=\"fas fa-file-invoice\"></i>" },
+    { id: "excelRekapTahunan", label: "Rekap Tahunan (Excel)", ket: "Langsung unduh file Excel", kelompok: "keuangan", aksi: "exportPerProgramExcel('tahunan')", halaman: null, icon: "<i class=\"fas fa-file-excel\"></i>" },
+    { id: "cetakRekapTahunanGabungan", label: "Rekap Tahunan", ket: "Lihat & cetak, total semua keberangkatan", kelompok: "keuangan", aksi: "cetakRekapTahunanGabungan()", halaman: null, icon: "<i class=\"fas fa-file-invoice\"></i>" },
     { id: "openKalenderProgramModal", label: "Kalender Program", ket: "Semua jadwal keberangkatan", kelompok: "perjalanan", aksi: "openKalenderProgramModal()", halaman: null, icon: "<i class=\"fas fa-calendar-days\"></i>" },
     { id: "openProyeksiKasModal", label: "Proyeksi Kas", ket: "Estimasi dana yang masih masuk", kelompok: "keuangan", aksi: "openProyeksiKasModal()", halaman: null, icon: "<i class=\"fas fa-sack-dollar\"></i>" },
     { id: "kalkulatorriyal", label: "Tukar Riyal", ket: "Hitung kembalian tukar SAR", kelompok: "keuangan", aksi: "showPage('kalkulatorriyal')", halaman: "kalkulatorriyal", icon: "<i class=\"fas fa-right-left\"></i>" },
@@ -7035,9 +7040,9 @@ function renderDashboard() {
     document.getElementById('topPiutangList').innerHTML = topPiutangHtml || '<p class="text-center">Tidak ada data piutang</p>';
 }
 
-async function cetakDashboardHTML() {
-    const kasData = dataKas;
-    const totalKas = kasData.reduce((s,i) => s + (i.tipe === 'masuk' ? i.nom : -i.nom), 0);
+// Angka Dashboard: SATU sumber untuk layar Cetak dan PDF Bagikan, supaya isinya pasti sama.
+function hitungRingkasDashboard() {
+    const totalKas = dataKas.reduce((s,i) => s + (i.tipe === 'masuk' ? i.nom : -i.nom), 0);
     const jamaahData = jamaahList;
     const paymentData = paymentTransaksiList;
     const totalJamaah = jamaahData.length;
@@ -7052,6 +7057,11 @@ async function cetakDashboardHTML() {
         const hargaPaket = getTotalHargaPaket(j) || 0;
         return { nama: j.nama_lengkap, paket: hargaPaket, sisa: Math.max(0, hargaPaket - totalBayar) };
     }).sort((a,b) => b.sisa - a.sisa).slice(0,5);
+    return { totalKas, totalJamaah, totalLunas, totalPiutang, topPiutang };
+}
+
+async function cetakDashboardHTML() {
+    const { totalKas, totalJamaah, totalLunas, totalPiutang, topPiutang } = hitungRingkasDashboard();
 
     const cfg = getKonfigurasiProData();
     const tanggal = formatTanggalLengkap();
@@ -7105,26 +7115,56 @@ async function cetakDashboardHTML() {
 }
 
 async function downloadDashboardPDF() {
-    showToast('Membuat PDF Dashboard...');
-    setTimeout(async () => {
-        try {
-            const { jsPDF } = window.jspdf;
-            const doc = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' });
-            await applyPDFConfig(doc, { landscape: true });
-            doc.setFontSize(16);
-            doc.setTextColor(26, 93, 74);
-            doc.text('DASHBOARD APLIKASI NAVARA', 148.5, 65, { align: 'center' });
-            const kasData = dataKas;
-            const totalKas = kasData.reduce((s,i) => s + (i.tipe === 'masuk' ? i.nom : -i.nom), 0);
-            const jamaahData = jamaahList;
-            doc.setFontSize(12);
-            doc.setTextColor(0,0,0);
-            doc.text(`Total Kas: Rp ${formatAngka(totalKas)}`, 20, 80);
-            doc.text(`Total Jamaah: ${jamaahData.length} orang`, 20, 90);
-            doc.save(`Dashboard_${getNamaInstansiUtama() || 'Dashboard'}.pdf`);
-            showToast('PDF Dashboard berhasil dibuat');
-        } catch(e) { showToast('Gagal PDF: ' + e.message); }
-    }, 100);
+    showToast('Menyiapkan...');
+    try {
+        const cfg = getKonfigurasiProData();
+        const { jsPDF } = window.jspdf;
+        const [wr, wg, wb] = getWarnaTemaRGB();
+        const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+        await applyPDFConfig(doc, { landscape: false, skipHeader: true, skipWatermark: true, skipQR: true });
+        const { totalKas, totalJamaah, totalLunas, totalPiutang, topPiutang } = hitungRingkasDashboard();
+        const tgl = formatTanggalLengkap();
+        const prog = getCurrentProgram()?.nama || '-';
+        const rp = n => 'Rp ' + formatAngka(n);
+        let y = await gambarHeaderRoundedPDF(doc, cfg, 210);
+        doc.setFontSize(8); doc.setFont('helvetica', 'normal'); doc.setTextColor(107, 114, 128);
+        doc.text(`Program: ${prog}  |  Tanggal Cetak: ${tgl}`, 14, y); y += 6;
+        // 4 kartu ringkasan
+        const kartu = [['TOTAL KAS', rp(totalKas)], ['TOTAL JAMAAH', String(totalJamaah)], ['JAMAAH LUNAS', String(totalLunas)], ['TOTAL TAGIHAN', rp(totalPiutang)]];
+        const lebar = (210 - 28 - 3 * 4) / 4, tinggi = 20;
+        kartu.forEach((k, i) => {
+            const x = 14 + i * (lebar + 4);
+            doc.setFillColor(240, 247, 244); doc.roundedRect(x, y, lebar, tinggi, 2, 2, 'F');
+            doc.setFillColor(wr, wg, wb); doc.rect(x, y + 1, 1.2, tinggi - 2, 'F');
+            doc.setFontSize(7); doc.setFont('helvetica', 'normal'); doc.setTextColor(102, 102, 102);
+            doc.text(k[0], x + lebar / 2, y + 7, { align: 'center' });
+            doc.setFontSize(k[1].length > 13 ? 9 : 11); doc.setFont('helvetica', 'bold'); doc.setTextColor(wr, wg, wb);
+            doc.text(k[1], x + lebar / 2, y + 14.5, { align: 'center' });
+        });
+        y += tinggi + 9;
+        doc.setFontSize(10); doc.setFont('helvetica', 'bold'); doc.setTextColor(wr, wg, wb);
+        doc.text('5 JAMAAH DENGAN TAGIHAN TERBESAR', 14, y);
+        doc.setDrawColor(wr, wg, wb); doc.setLineWidth(0.5); doc.line(14, y + 2, 196, y + 2); y += 5;
+        doc.autoTable({
+            startY: y,
+            head: [['No', 'Nama Jamaah', 'Total Paket', 'Sisa Tagihan']],
+            body: topPiutang.map((j, i) => [i + 1, j.nama, rp(j.paket), rp(j.sisa)]),
+            theme: 'striped', headStyles: { fillColor: [wr, wg, wb] }, styles: { fontSize: 9 },
+            columnStyles: { 0: { cellWidth: 12 }, 3: { textColor: [231, 76, 60], fontStyle: 'bold' } }
+        });
+        await gambarQRDokumenPDF(doc, cfg, `Dashboard ${getNamaInstansiUtama()}\nTotal Jamaah: ${totalJamaah}\nTanggal: ${tgl}`, 210, 297);
+        gambarWatermarkPDF(doc, cfg, 210, 297);
+        const namaFile = `Dashboard_${(getNamaInstansiUtama() || 'Dashboard').replace(/\s+/g, '_')}.pdf`;
+        const file = new File([doc.output('blob')], namaFile, { type: 'application/pdf' });
+        if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
+            await navigator.share({ files: [file], title: 'Dashboard' });
+        } else {
+            doc.save(namaFile);
+            showToast('📥 PDF didownload (Bagikan tidak didukung di perangkat ini)');
+        }
+    } catch(e) {
+        if (e.name !== 'AbortError') showToast('Gagal: ' + e.message);
+    }
 }
 
 function exportDashboardExcel() {
@@ -7248,6 +7288,38 @@ function updateHomeSummaryBar() {
 function toggleHomeSummaryDetail() {
     _homeSummaryExpanded = !_homeSummaryExpanded;
     updateHomeSummaryBar();
+}
+
+// Kartu "Mulai dari sini": menuntun pengguna baru lewat 4 langkah awal. Hilang sendiri kalau semua selesai, atau bisa disembunyikan.
+function renderKartuMulaiDariSini() {
+    const kartu = document.getElementById('homeMulaiCard');
+    if (!kartu) return;
+    let sembunyi = false;
+    try { sembunyi = localStorage.getItem('navara_mulai_sembunyi') === '1'; } catch(e) {}
+    if (sembunyi || !(isAdminModePremium || currentAdminIsPemilik)) { kartu.style.display = 'none'; return; }
+    const cfg = getKonfigurasiProData();
+    const namaInst = ((cfg.instansi1 && cfg.instansi1.nama) || '').trim();
+    let pernahBackup = false;
+    try { pernahBackup = !!localStorage.getItem('navara_last_backup'); } catch(e) {}
+    const langkah = [
+        { ok: !!namaInst && namaInst !== 'Navara', t: 'Isi data kantor', k: 'Nama, alamat, logo, dan rekening. Tampil di kop laporan dan kuitansi.', a: "showPage('konfigurasi')" },
+        { ok: programList.length > 1 || programList.some(p => p.nama && p.nama !== 'Data Sebelumnya'), t: 'Buat Program (satu keberangkatan)', k: 'Jamaah dan pembayaran dicatat per Program, misalnya Umroh Januari.', a: 'openProgramPickerModal()' },
+        { ok: jamaahList.length > 0, t: 'Tambah jamaah pertama', k: 'Satu per satu, atau banyak sekaligus lewat Excel di menu Jamaah.', a: "showPage('jamaah')" },
+        { ok: pernahBackup, t: 'Simpan Backup ZIP pertama', k: 'Data tersimpan di HP ini saja. Kalau HP hilang atau aplikasi terhapus, data ikut hilang. Backup ZIP adalah salinan aman, simpan di WhatsApp sendiri atau Google Drive.', a: "showPage('cloudstorage')" }
+    ];
+    const selesai = langkah.filter(l => l.ok).length;
+    if (selesai === langkah.length) { kartu.style.display = 'none'; return; }
+    kartu.style.display = 'block';
+    kartu.innerHTML = `<div style="display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:8px;">
+        <div style="font-weight:800;font-size:14px;color:#065F46;">🚀 Mulai dari sini <span style="font-weight:600;font-size:11px;color:#047857;">(${selesai} dari ${langkah.length} selesai)</span></div>
+        <button onclick="try{localStorage.setItem('navara_mulai_sembunyi','1')}catch(e){};renderKartuMulaiDariSini()" aria-label="Sembunyikan" style="border:none;background:none;color:#047857;font-size:12px;cursor:pointer;">Sembunyikan</button></div>
+        <div style="height:6px;background:#D1FAE5;border-radius:99px;overflow:hidden;margin-bottom:10px;"><div style="height:100%;width:${selesai / langkah.length * 100}%;background:#10B981;"></div></div>` +
+        langkah.map((l, i) => `<div ${l.ok ? '' : `onclick="${l.a}"`} style="display:flex;gap:10px;align-items:flex-start;padding:8px 0;${i ? 'border-top:1px solid #D1FAE5;' : ''}${l.ok ? 'opacity:.55;' : 'cursor:pointer;'}">
+            <div style="flex-shrink:0;font-size:18px;line-height:1.2;">${l.ok ? '✅' : '⬜'}</div>
+            <div style="min-width:0;flex:1;"><div style="font-size:13px;font-weight:700;color:#064E3B;${l.ok ? 'text-decoration:line-through;' : ''}">${l.t}</div>
+            ${l.ok ? '' : `<div style="font-size:11px;color:#047857;line-height:1.5;margin-top:2px;">${l.k}</div>`}</div>
+            ${l.ok ? '' : '<div style="flex-shrink:0;color:#059669;font-size:12px;font-weight:700;align-self:center;">Buka ›</div>'}</div>`).join('') +
+        `<div onclick="showPage('carapakai')" style="margin-top:8px;font-size:12px;font-weight:700;color:#047857;cursor:pointer;">📖 Panduan lengkap di Cara Pakai ›</div>`;
 }
 
 function renderProgramSetupChecklist() {
@@ -16065,11 +16137,62 @@ async function shareAgendaKantorPDF() {
     }
 }
 
+// Penanda jenis program di layar Manasik: warna + ikon + nama program, supaya jelas jadwal ini milik program mana.
+function getTemaManasik() { return getTemaProgram(getCurrentProgram()); }
+function getTemaProgram(p) {
+    const j = p ? p.jenis : '';
+    if (j === 'haji_reguler' || j === 'haji') return { kata: 'Haji', ikon: '🕋', warna: '#15803D', muda: '#DCFCE7', teks: '#14532D', contoh: 'Contoh: Manasik ke-1: Niat, Ihram & Miqat' };
+    if (j === 'umroh') return { kata: 'Umroh', ikon: '🌙', warna: '#0E7490', muda: '#CFFAFE', teks: '#164E63', contoh: 'Contoh: Manasik Umroh: Tata Cara Thawaf & Sa\'i' };
+    return { kata: '', ikon: '🧭', warna: '#7C3AED', muda: '#EDE9FE', teks: '#4C1D95', contoh: 'Contoh: Manasik ke-1: Niat & Ihram' };
+}
+// Kotak "Program Aktif" yang sama untuk halaman lain (Itinerary, Layanan Tambahan)
+function tampilkanBannerProgram(elId, ringkas) {
+    const ban = document.getElementById(elId);
+    if (!ban) return;
+    const t = getTemaManasik();
+    const p = getCurrentProgram();
+    ban.innerHTML = `<div style="display:flex;align-items:center;gap:10px;background:${t.muda};border-radius:12px;padding:10px 12px;margin-bottom:12px;">
+        <div style="font-size:26px;line-height:1;flex-shrink:0;">${t.ikon}</div>
+        <div style="min-width:0;flex:1;">
+            <div style="font-size:11px;font-weight:700;letter-spacing:.3px;color:${t.warna};">PROGRAM AKTIF${t.kata ? ' · ' + t.kata.toUpperCase() : ''}</div>
+            <div style="font-size:14px;font-weight:800;color:${t.teks};overflow-wrap:anywhere;">${escapeHtml(p ? (p.nama || '-') : '-')}</div>
+            ${ringkas ? `<div style="font-size:11px;color:${t.teks};opacity:.8;">${ringkas}</div>` : ''}
+        </div></div>`;
+    const kartu = ban.parentElement;
+    if (kartu) kartu.style.borderTop = '4px solid ' + t.warna;
+}
+function renderBannerManasik() {
+    const ban = document.getElementById('manasikBannerProgram');
+    if (!ban) return;
+    const t = getTemaManasik();
+    const p = getCurrentProgram();
+    const nama = p ? (p.nama || '-') : '-';
+    const jml = jadwalManasikList.length;
+    const fin = jadwalManasikList.filter(j => j.status === 'final').length;
+    const ringkas = jml === 0 ? 'Belum ada pertemuan' : (jml + ' pertemuan' + (fin ? ' · ' + fin + ' pasti' : ' · semua masih estimasi'));
+    ban.innerHTML = `<div style="display:flex;align-items:center;gap:10px;background:${t.muda};border-radius:12px;padding:10px 12px;margin-bottom:12px;">
+        <div style="font-size:26px;line-height:1;flex-shrink:0;">${t.ikon}</div>
+        <div style="min-width:0;flex:1;">
+            <div style="font-size:11px;font-weight:700;letter-spacing:.3px;color:${t.warna};">PROGRAM AKTIF${t.kata ? ' · ' + t.kata.toUpperCase() : ''}</div>
+            <div style="font-size:14px;font-weight:800;color:${t.teks};overflow-wrap:anywhere;">${escapeHtml(nama)}</div>
+            <div style="font-size:11px;color:${t.teks};opacity:.8;">${ringkas}</div>
+        </div></div>`;
+    const jd = document.getElementById('manasikJudul');
+    if (jd) { jd.style.color = t.warna; jd.innerHTML = '<i class="fas fa-calendar-check"></i> Jadwal Manasik' + (t.kata ? ' ' + t.kata : ''); }
+    const bt = document.getElementById('manasikBtnTambah');
+    if (bt) bt.style.background = t.warna;
+    const kt = document.getElementById('manasikKartu');
+    if (kt) kt.style.borderTop = '4px solid ' + t.warna;
+}
+
 function renderJadwalManasikList() {
     const el = document.getElementById('jadwalManasikListArea');
     if (!el) return;
+    renderBannerManasik();
+    const tema = getTemaManasik();
     if (jadwalManasikList.length === 0) {
-        el.innerHTML = '<p style="text-align:center;color:#888;font-size:12px;padding:8px 0;">Belum ada jadwal manasik</p>';
+        const nm = getCurrentProgram()?.nama || 'program ini';
+        el.innerHTML = '<p style="text-align:center;color:#888;font-size:12px;padding:8px 0;">Belum ada jadwal manasik untuk <b>' + escapeHtml(nm) + '</b>.<br>Tekan <b>+ Tambah</b> untuk mulai.</p>';
         return;
     }
     const sorted = [...jadwalManasikList].sort((a,b) => (a.tanggalRaw||'').localeCompare(b.tanggalRaw||''));
@@ -16089,7 +16212,7 @@ function renderJadwalManasikList() {
             <div style="display:flex;gap:8px;margin-top:8px;">
                 ${sesiTerkait
                     ? `<span style="flex:1;text-align:center;padding:7px;background:#DCFCE7;color:#166534;border-radius:8px;font-size:12px;font-weight:600;"><i class="fas fa-check"></i> Sudah Dimulai (${sesiTerkait.absensi.length} hadir)</span>`
-                    : `<button onclick="mulaiAbsensiDariJadwal('${j.id}')" style="flex:1;padding:7px;background:var(--primary);color:white;border:none;border-radius:8px;font-size:12px;cursor:pointer;"><i class="fas fa-play"></i> Mulai Absensi</button>`
+                    : `<button onclick="mulaiAbsensiDariJadwal('${j.id}')" style="flex:1;padding:7px;background:${tema.warna};color:white;border:none;border-radius:8px;font-size:12px;cursor:pointer;"><i class="fas fa-play"></i> Mulai Absensi</button>`
                 }
                 <button onclick="showTambahJadwalManasikModal('${j.id}')" style="border:none;background:none;color:#0369A1;font-size:14px;cursor:pointer;"><i class="fas fa-pen"></i></button>
                 <button onclick="hapusJadwalManasik('${j.id}')" style="border:none;background:none;color:#DC2626;font-size:14px;cursor:pointer;"><i class="fas fa-trash-alt"></i></button>
@@ -16110,7 +16233,7 @@ function showTambahJadwalManasikModal(jadwalId) {
     modal.innerHTML = `<div class="modal-content" style="max-width:400px;">
         <h3 style="color:var(--primary);margin-bottom:12px;"><i class="fas fa-calendar-check"></i> ${j ? 'Edit' : 'Tambah'} Jadwal Manasik</h3>
         <input type="hidden" id="jadwalManasikEditId" value="${jadwalId || ''}">
-        <div class="input-group"><label>Materi *</label><input type="text" id="jadwalManasikMateri" value="${j ? escapeHtml(j.materi) : ''}" placeholder="Contoh: Manasik ke-1: Niat & Ihram"></div>
+        <div class="input-group"><label>Materi *</label><input type="text" id="jadwalManasikMateri" value="${j ? escapeHtml(j.materi) : ''}" placeholder="${escapeHtml(getTemaManasik().contoh)}"></div>
         <div class="row">
             <div class="input-group"><label>Tanggal *</label><input type="date" id="jadwalManasikTanggal" value="${j ? j.tanggalRaw||'' : ''}"></div>
             <div class="input-group"><label>Waktu</label><input type="time" id="jadwalManasikWaktu" value="${j ? j.waktuRaw||'' : ''}"></div>
@@ -18958,8 +19081,9 @@ function openKalenderProgramModal() {
     const html = dataProgram.map(x => {
         const sisaHari = Math.ceil((x.tgl - new Date()) / 86400000);
         const statusTeks = sisaHari < 0 ? 'Sudah lewat' : sisaHari + ' hari lagi';
-        return `<div style="background:${x.dekat ? '#FEF3C7' : '#F8FAFC'};border:1px solid ${x.dekat ? '#F59E0B' : '#eee'};border-radius:10px;padding:12px;margin-bottom:8px;">
-            <div style="font-weight:700;font-size:13px;color:var(--primary);">${PROGRAM_ICON[x.p.jenis]||'📁'} ${escapeHtml(x.p.nama)}</div>
+        const tm = getTemaProgram(x.p);
+        return `<div style="background:${x.dekat ? '#FEF3C7' : '#F8FAFC'};border:1px solid ${x.dekat ? '#F59E0B' : '#eee'};border-left:5px solid ${tm.warna};border-radius:10px;padding:12px;margin-bottom:8px;">
+            <div style="font-weight:700;font-size:13px;color:${tm.warna};">${PROGRAM_ICON[x.p.jenis]||'📁'} ${escapeHtml(x.p.nama)}</div>
             <div style="font-size:12px;color:#555;margin-top:2px;">${x.tgl.toLocaleDateString('id-ID', {weekday:'long', day:'numeric', month:'long', year:'numeric'})} — ${statusTeks}</div>
             ${x.dekat ? '<div style="font-size:11px;color:#92400E;margin-top:4px;">⚠️ Berdekatan dengan Program lain, cek kesiapan tim!</div>' : ''}
         </div>`;
@@ -18967,7 +19091,7 @@ function openKalenderProgramModal() {
 
     modal.innerHTML = `<div class="modal-content" style="max-width:440px;">
         <h3 style="color:var(--primary);margin-bottom:4px;">📅 Kalender Gabungan Semua Program</h3>
-        <div style="font-size:11px;color:#888;margin-bottom:12px;">Program tanpa Tanggal Keberangkatan tidak ditampilkan di sini.</div>
+        <div style="font-size:11px;color:#888;margin-bottom:12px;">Program tanpa Tanggal Keberangkatan tidak ditampilkan di sini.<br><span style="color:#15803D;font-weight:700;">■ Haji</span> &nbsp;<span style="color:#0E7490;font-weight:700;">■ Umroh</span> &nbsp;<span style="color:#7C3AED;font-weight:700;">■ Lainnya</span></div>
         <div style="max-height:420px;overflow-y:auto;">${html || '<p style="color:#6B7280;text-align:center;">Belum ada Program dengan tanggal keberangkatan diisi.</p>'}</div>
         <button onclick="document.getElementById('kalenderProgramModal').style.display='none'" style="width:100%;padding:11px;background:#e2e8f0;color:#333;border:none;border-radius:10px;font-size:13px;cursor:pointer;margin-top:10px;">Tutup</button>
     </div>`;
@@ -20221,8 +20345,14 @@ function daftarCaraPakai() {
             { judul: 'Mencetak atau mengunduh laporan',
               isi: 'Pembayaran: ketuk <b>Export</b> → Cetak atau Excel (isinya Tagihan, Transaksi, dan Ringkasan). Pengeluaran: di Cuan Plan → tab Pengeluaran ada <b>🖨️ Cetak Pengeluaran</b> dan <b>📊 Excel</b>. Rekap akhir musim ada di <b>Laporan Penutupan Musim</b> (Menu Lengkap). Angka di Excel sama dengan yang tampil di layar.',
               tombol: [bukaMod('Pembayaran', 'pembayaran'), { t: 'Buka Laporan Penutupan Musim', a: () => cetakLaporanPenutupanMusim(), f: 'cetakLaporanPenutupanMusim' }] },
+            { judul: 'Warna dan kotak Program Aktif (Haji, Umroh)',
+              isi: 'Di layar <b>Manasik</b>, <b>Itinerary</b>, <b>Layanan Tambahan</b>, dan <b>Kalender Program</b> ada kotak <b>Program Aktif</b> berisi nama program yang sedang dibuka. Warnanya menandai jenis: <b>hijau 🕋 = Haji</b>, <b>biru kehijauan 🌙 = Umroh</b>, <b>ungu 🧭 = jenis lain</b>. Jadwal dan data hanya milik program itu, jadi tidak tercampur. Untuk pindah program, ketuk bar <b>Program Aktif</b> di Home.',
+              tombol: [] },
+            { judul: 'Memilih jenis laporan: Lihat, Bagikan, atau Excel',
+              isi: '<b>Cetak / Lihat</b>: membuka tampilan laporan untuk dilihat atau dijadikan PDF. <b>Bagikan PDF</b>: langsung mengirim file PDF lewat WhatsApp atau aplikasi lain, isinya sama dengan Cetak. <b>(Excel)</b>: langsung mengunduh file Excel tanpa pratinjau, untuk diolah sendiri. Contoh: <b>Bandingkan Program</b> = lihat di layar, <b>Bandingkan Program (Excel)</b> = unduh Excel. <b>Laporan Penutupan Musim</b> hanya untuk satu program yang aktif, sedangkan <b>Rekap Tahunan</b> mencakup semua keberangkatan.',
+              tombol: [] },
             { judul: 'Backup data',
-              isi: 'Buka <b>Backup &amp; Restore</b> → <b>Download ZIP</b>, lalu simpan file ZIP di tempat aman (misalnya kirim ke WhatsApp sendiri atau Google Drive). Lakukan setiap selesai input banyak data, dan <b>wajib sebelum mengganti versi aplikasi</b>. Fitur ini hanya untuk Admin Utama.',
+              isi: 'Data aplikasi tersimpan <b>hanya di HP ini</b>. Kalau HP hilang, rusak, atau aplikasi terhapus, data ikut hilang, dan tanpa backup tidak bisa dipulihkan. Buka <b>Backup &amp; Restore</b> → <b>Download ZIP</b>, lalu simpan file ZIP di tempat aman (misalnya kirim ke WhatsApp sendiri atau Google Drive). Lakukan setiap selesai input banyak data, dan <b>wajib sebelum mengganti versi aplikasi</b>. Fitur ini hanya untuk Admin Utama.',
               tombol: [bukaMod('Backup & Restore', 'cloudstorage')] }
         ] },
         { id: 'khusus', judul: '🧭 KASUS KHUSUS', items: [
@@ -20239,8 +20369,8 @@ function daftarCaraPakai() {
               isi: 'Buka <b>Tukar Riyal</b> (Menu Lengkap) untuk menghitung kembalian tukar SAR. Hasilnya bisa disimpan, dilihat lagi di <b>Riwayat Transaksi</b>, dicetak, atau dibagikan.',
               tombol: [{ t: 'Buka Tukar Riyal', a: () => showPage('kalkulatorriyal'), h: 'kalkulatorriyal', f: 'kalkulatorriyal' }] },
             { judul: 'Menutup musim',
-              isi: 'Setelah semua pembayaran dan pengeluaran tercatat: (1) jalankan <b>Cek Kesehatan Data</b>, (2) cetak <b>Laporan Penutupan Musim</b> atau unduh <b>Excel Laporan Penutupan</b>, (3) <b>Download ZIP</b> di Backup &amp; Restore. Program yang sudah diarsipkan dapat dilihat di <b>Program Arsip</b> (hanya baca).',
-              tombol: [{ t: 'Buka Cek Kesehatan Data', a: () => showPage('cekkesehatan'), h: 'cekkesehatan' }, { t: 'Buka Laporan Penutupan Musim', a: () => cetakLaporanPenutupanMusim(), f: 'cetakLaporanPenutupanMusim' }, { t: 'Buka Excel Laporan Penutupan', a: () => cetakLaporanPenutupanMusim('excel'), f: 'excelLaporanPenutupanMusim' }] }
+              isi: 'Setelah semua pembayaran dan pengeluaran tercatat: (1) jalankan <b>Cek Kesehatan Data</b>, (2) cetak <b>Laporan Penutupan Musim</b> atau unduh <b>Laporan Penutupan (Excel)</b>, (3) <b>Download ZIP</b> di Backup &amp; Restore. Program yang sudah diarsipkan dapat dilihat di <b>Program Arsip</b> (hanya baca).',
+              tombol: [{ t: 'Buka Cek Kesehatan Data', a: () => showPage('cekkesehatan'), h: 'cekkesehatan' }, { t: 'Buka Laporan Penutupan Musim', a: () => cetakLaporanPenutupanMusim(), f: 'cetakLaporanPenutupanMusim' }, { t: 'Unduh Laporan Penutupan (Excel)', a: () => cetakLaporanPenutupanMusim('excel'), f: 'excelLaporanPenutupanMusim' }] }
         ] },
         { id: 'angka', pemilik: true, judul: '📊 ARTI ANGKA DAN PERINGATAN', items: [
             { judul: 'Proyeksi Laba dan Laba Bersih', jenis: ['umroh', 'haji'],
@@ -26943,7 +27073,7 @@ function openIndexedDB() {
 // dengan build baru, data MENTAH (langsung dari IndexedDB, bukan dari memori) disalin dulu sebelum
 // proses migrasi apapun berjalan — supaya kalau ada kesalahan di update, data lama masih bisa dipulihkan.
 // Dokumen & foto tidak ikut disalin (ukurannya besar, dan tidak pernah disentuh proses migrasi).
-const NAVARA_BUILD = '2026.10.22-150';
+const NAVARA_BUILD = '2026.10.22-157';
 const MAKS_SNAPSHOT = 3;
 
 // ==================== DAFTAR DATA PUSAT ====================
