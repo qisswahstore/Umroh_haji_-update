@@ -2320,6 +2320,7 @@ https://github.com/nodeca/pako/blob/main/LICENSE
                 <input type="text" id="pengeluaranNominal" placeholder="Contoh: 570.000.000" class="money-input" inputmode="numeric"
                     style="width:100%;padding:10px;border-radius:10px;border:1.5px solid #e2e8f0;font-size:14px;background:var(--input-bg);color:var(--text);">
             </div>
+            <div id="pengeluaranSaldoWrap" style="display:none;margin:-2px 0 12px;background:#FFFBEB;border:1px solid #FDE68A;border-radius:10px;padding:8px 10px;font-size:12px;"></div>
             <details id="hitungPengBox" style="margin:-2px 0 12px;background:#f8fafc;border-radius:10px;padding:8px 10px;">
                 <summary style="font-size:12px;color:#475569;cursor:pointer;font-weight:600;">🧮 Hitung dari harga per orang × jumlah (opsional)</summary>
                 <div style="font-size:11px;color:#64748b;margin:6px 0;">Tidak wajib. Untuk DP atau angka dari invoice, cukup ketik langsung di Nominal di atas.</div>
@@ -2580,7 +2581,8 @@ https://github.com/nodeca/pako/blob/main/LICENSE
         <div class="input-group"><label>Kegiatan / Nama Rombongan</label><input type="text" id="kegiatan" placeholder="Contoh: Umroh Syawal 2026" value="Umroh Syawal 2026"></div>
         <div class="section-title"><span>Input Transaksi</span></div>
         <div class="input-group" style="margin-bottom:12px;"><input type="text" id="ketReal" placeholder="Keterangan detail transaksi"></div>
-        <div class="row"><div style="flex:2"><input id="nomReal" type="text" class="money-input" inputmode="numeric" placeholder="Nominal Rp"></div><div style="flex:1"><select id="tipeReal"><option value="masuk">Masuk</option><option value="keluar">Keluar</option></select></div></div>
+        <div class="row"><div style="flex:2"><input id="nomReal" type="text" class="money-input" inputmode="numeric" placeholder="Nominal Rp"></div><div style="flex:1"><select id="tipeReal" onchange="perbaruiInfoSaldoPengeluaran('kasSaldoWrap')"><option value="masuk">Masuk</option><option value="keluar">Keluar</option></select></div></div>
+        <div id="kasSaldoWrap" style="display:none;margin:10px 0;background:#FFFBEB;border:1px solid #FDE68A;border-radius:10px;padding:8px 10px;font-size:12px;"></div>
         <button class="btn btn-accent" onclick="tambahTransaksi()"><i class="fas fa-plus-circle"></i> TAMBAH TRANSAKSI</button>
         
         <div class="summary-real" id="summaryKas">Saldo Akhir: Rp 0</div>
@@ -2637,7 +2639,7 @@ https://github.com/nodeca/pako/blob/main/LICENSE
     <div class="header-premium header-premium-small"><div class="back-header"><i class="fas fa-arrow-left" onclick="showPage('home')"></i><h2>Layanan Tambahan</h2><div style="width:30px;"></div></div></div>
     <div class="card-premium">
         <div id="layananBanner"></div>
-        <div style="font-size:11px;color:#888;margin-bottom:12px;">Badal Haji, Dam, dan layanan tambahan lain — data mengikuti Program aktif saat ini.</div>
+        <div style="font-size:11px;color:#888;margin-bottom:12px;">Badal Haji dan layanan tambahan lain — data mengikuti Program aktif saat ini.</div>
         <div style="display:flex;gap:8px;">
             <button class="btn btn-primary" style="flex:2;margin:0;" onclick="openTambahLayananModal()"><i class="fas fa-plus-circle"></i> Tambah Transaksi</button>
             <button class="btn btn-secondary" style="flex:1;margin:0;" onclick="bukaKelolaJenisLayanan()">⚙️ Jenis</button>
@@ -2902,6 +2904,7 @@ https://github.com/nodeca/pako/blob/main/LICENSE
             <button type="button" onclick="bukaFormPinjamSaldo()" style="padding:10px 4px;border:none;border-radius:10px;font-size:12px;font-weight:700;background:#EDE9FE;color:#6D28D9;cursor:pointer;">🤝 Pinjam / Talangan</button>
             <button type="button" onclick="bukaFormKembaliSaldo()" style="padding:10px 4px;border:none;border-radius:10px;font-size:12px;font-weight:700;background:#DCFCE7;color:#15803d;cursor:pointer;">↩ Pengembalian</button>
         </div>
+        <div id="saldoPanduanPenampung" style="display:none;background:#FFFBEB;border:1px solid #FDE68A;border-radius:12px;padding:10px 12px;margin:0 0 8px;font-size:12px;color:#92400E;line-height:1.55;"><b>Uang jamaah sebaiknya ditampung terpisah.</b> Program ini belum punya rekening penampung, jadi uang titipan jamaah masih bisa tercampur dengan uang kantor. Ketuk tombol di bawah untuk menyiapkannya sekali per program. Setelah itu pembayaran jamaah dan pengeluaran program tercatat otomatis.</div>
         <button type="button" onclick="bukaSiapkanPenampung()" style="width:100%;padding:10px;border:1.5px solid #FDE68A;border-radius:10px;font-size:12.5px;font-weight:700;background:#FFFBEB;color:#92400E;cursor:pointer;margin:0 0 4px;">🧳 Siapkan Penampung untuk Program Ini</button>
         <div style="font-size:11px;color:#888;margin:0 4px 12px;">Membuat rekening bank dan kas tunai penampung jamaah untuk keberangkatan yang sedang aktif. Pembayaran jamaah berikutnya otomatis tercatat ke sana.</div>
         <button type="button" onclick="bukaLaporanSaldo()" style="width:100%;padding:11px;border:none;border-radius:10px;font-size:13px;font-weight:700;background:var(--primary);color:#fff;cursor:pointer;margin:0 0 12px;">📄 Laporan (Cetak / PDF / WA)</button>
@@ -4531,7 +4534,7 @@ function internalShowPage(pageId) {
     }
     // Hapus padding bawah untuk halaman detail
     document.body.style.paddingBottom = isMainPage ? '' : '0';
-    if (pageId === 'kas') { if(window.renderKasTable) window.renderKasTable(); if(window.updateSaldoKas) window.updateSaldoKas(); }
+    if (pageId === 'kas') { if(window.renderKasTable) window.renderKasTable(); if(window.updateSaldoKas) window.updateSaldoKas(); try { muatSaldoSenyap().then(() => perbaruiInfoSaldoPengeluaran('kasSaldoWrap')).catch(() => {}); } catch(e) {} }
     if (pageId === 'prospek') { if(typeof loadProspekData === 'function') loadProspekData().then(renderProspekList); }
     if (pageId === 'layanantambahan') { if(typeof renderLayananTambahanList === 'function') renderLayananTambahanList(); }
     if (pageId === 'alumni') { if(typeof renderAlumniList === 'function') renderAlumniList(); }
@@ -6337,7 +6340,7 @@ const FITUR_LENGKAP_MENTAH = [
     { id: "itinerary", label: "Itinerary", ket: "Jadwal harian perjalanan", kelompok: "perjalanan", aksi: "showPage('itinerary')", halaman: "itinerary", icon: "<i class=\"fas fa-route\"></i>" },
     { id: "arsipprogram", label: "Program Arsip", ket: "Program lama, read-only", kelompok: "laporan", aksi: "showPage('arsipprogram')", halaman: "arsipprogram", icon: "<i class=\"fas fa-box-archive\"></i>" },
     { id: "alumni", label: "Database Alumni", ket: "Jamaah lama untuk remarketing", kelompok: "jamaah", aksi: "showPage('alumni')", halaman: "alumni", icon: "<i class=\"fas fa-graduation-cap\"></i>" },
-    { id: "layanantambahan", label: "Layanan Tambahan", ket: "Badal Haji, Dam, dll", kelompok: "jamaah", aksi: "showPage('layanantambahan')", halaman: "layanantambahan", icon: "<i class=\"fas fa-kaaba\"></i>" },
+    { id: "layanantambahan", label: "Layanan Tambahan", ket: "Badal Haji, dll", kelompok: "jamaah", aksi: "showPage('layanantambahan')", halaman: "layanantambahan", icon: "<i class=\"fas fa-kaaba\"></i>" },
     { id: "cetakRekapTahunanGabungan", label: "Rekap Tahunan", ket: "Cetak/PDF atau Excel, semua keberangkatan", kelompok: "keuangan", aksi: "bukaPilihanExportLaporan('rekap')", halaman: null, icon: "<i class=\"fas fa-file-invoice\"></i>" },
     { id: "openKalenderProgramModal", label: "Kalender Program", ket: "Semua jadwal keberangkatan", kelompok: "perjalanan", aksi: "openKalenderProgramModal()", halaman: null, icon: "<i class=\"fas fa-calendar-days\"></i>" },
     { id: "openProyeksiKasModal", label: "Proyeksi Kas", ket: "Estimasi dana yang masih masuk", kelompok: "keuangan", aksi: "openProyeksiKasModal()", halaman: null, icon: "<i class=\"fas fa-sack-dollar\"></i>" },
@@ -10470,14 +10473,18 @@ async function simpanPengeluaran() {
     if(!ketFinal) return showToast('Isi keterangan dulu!');
     if(nominal <= 0) return showToast('Isi nominal yang valid!');
 
-    pengeluaranList.push({
+    const pengBaru = {
         id: Date.now(),
         kategori, keterangan: ketFinal, nominal,
         tanggal: tanggal || new Date().toISOString().split('T')[0],
         dicatat_oleh: currentAdminNama,
         program_id: currentProgramId
-    });
+    };
+    pengeluaranList.push(pengBaru);
+    const modeRekPeng = window._pengRekMode || 'auto';
     await savePengeluaran();
+    await catatMutasiDariPengeluaran(pengBaru, modeRekPeng);
+    window._pengRekMode = 'auto';
     renderPengeluaranList();
     updateRingkasanKeuangan();
 
@@ -10495,6 +10502,7 @@ async function hapusPengeluaran(id) {
     if(!(await konfirmasiHapusPIN(info0, 'Hapus Pengeluaran?'))) return; }
     pengeluaranList = pengeluaranList.filter(p => p.id !== id);
     await savePengeluaran();
+    await hapusMutasiDariPengeluaran(id);
     renderPengeluaranList();
     updateRingkasanKeuangan();
     perbaruiRujukanEstimasiPengeluaran();
@@ -10504,6 +10512,7 @@ async function hapusPengeluaran(id) {
 function renderPengeluaranList() {
     const container = document.getElementById('pengeluaranList');
     if(!container) return;
+    try { muatSaldoSenyap().then(perbaruiInfoSaldoPengeluaran).catch(() => {}); } catch(e) {}
     if(pengeluaranList.length === 0) {
         container.innerHTML = '<div style="text-align:center;color:#888;padding:20px;font-size:13px;">Belum ada pengeluaran</div>';
         const paginationEl0 = document.getElementById('paginationContainerPengeluaran');
@@ -11292,8 +11301,11 @@ function tambahTransaksi() {
     const nom=parseRupiah(document.getElementById('nomReal').value); 
     const tipe=document.getElementById('tipeReal').value; 
     if(!ket||nom<=0) return showToast("Isi keterangan dan nominal!"); 
-    dataKas.unshift({id:Date.now(), tgl:new Date().toLocaleDateString('id-ID'), kegiatan, ket, nom, tipe, program_id:currentProgramId}); 
-    saveKasData(); 
+    const itemKas = {id:Date.now(), tgl:new Date().toLocaleDateString('id-ID'), kegiatan, ket, nom, tipe, program_id:currentProgramId};
+    dataKas.unshift(itemKas); 
+    const modeRekKas = window._pengRekMode || 'auto';
+    saveKasData().then(() => catatMutasiDariKas(itemKas, modeRekKas)); 
+    window._pengRekMode = 'auto'; perbaruiInfoSaldoPengeluaran('kasSaldoWrap');
     document.getElementById('ketReal').value=""; 
     document.getElementById('nomReal').value=""; 
     const slot = ensureProgramConfigSlot();
@@ -11319,13 +11331,15 @@ async function editTransaksi(id) {
     item.nom = isi.nom;
     saveKasData();
     renderKasTable();
+    sinkronMutasiDariKas(item);
     showToast('Transaksi diperbarui');
 }
 
 async function confirmHapusTransaksi(id) {
     if(await konfirmasiHapusPIN('Transaksi kas ini akan dihapus.', 'Hapus Transaksi?')) {
         dataKas = dataKas.filter(i => i.id !== id);
-        saveKasData();
+        await saveKasData();
+        await hapusMutasiDariKas(id);
         renderKasTable();
         showToast('Transaksi dihapus');
     }
@@ -13066,6 +13080,7 @@ function renderSaldoKantor() {
     normalSaldo(saldoKantorData);
     const wadah = document.getElementById('saldoRingkasan');
     if (!wadah) return;
+    try { const pg = document.getElementById('saldoPanduanPenampung'); if (pg) pg.style.display = (getCurrentProgram() && !adaPenampungProgramAktif()) ? 'block' : 'none'; } catch (e) {}
     wadah.innerHTML = getEntitasSaldo().map(e => {
         const reks = rekeningAktifSaldo(e.id);
         const total = hitungSaldoEntitasKantor(e.id);
@@ -13356,6 +13371,106 @@ async function hapusMutasiDariPembayaran(trxId) {
     } catch (e) { showToast('⚠️ Pembayaran dihapus, tetapi catatan di Saldo Kantor gagal diperbarui: ' + e.message); }
 }
 
+// ---------- Pengeluaran program -> rekening (otomatis) ----------
+// Bila program aktif punya rekening bank penampung, pengeluaran program otomatis menjadi mutasi KELUAR di sana (bawaan). Pilihan "Dibayar dari": rekening lain
+// (penampung tunai, rekening kantor) atau tidak dicatat. Mutasi menyimpan pengId = id pengeluaran, jadi saat pengeluaran dihapus mutasinya ikut dihapus.
+// Hanya mempengaruhi Saldo Kantor; angka Uang Kas, Cuan Plan dan laporan pengeluaran tidak berubah. Pengeluaran lama tidak disentuh.
+function tentukanRekPengeluaran(mode) {
+    if (mode === 'none') return null;
+    if (mode && mode !== 'auto') { const r = saldoKantorData.rekening.find(x => x.id === mode && x.aktif !== false); return r || null; }
+    return rekeningPenampungProgramAktif(false);
+}
+function perbaruiInfoSaldoPengeluaran(wrapId) {
+    wrapId = typeof wrapId === 'string' ? wrapId : 'pengeluaranSaldoWrap';
+    const wrap = document.getElementById(wrapId);
+    if (!wrap) return;
+    const bukanKeluar = wrapId === 'kasSaldoWrap' && (document.getElementById('tipeReal') || {}).value !== 'keluar';
+    const adminPenuh = (typeof adalahAdminPenuh === 'function') && adalahAdminPenuh();
+    const mode = window._pengRekMode || 'auto';
+    if (bukanKeluar || !adminPenuh || (mode === 'auto' && !adaPenampungProgramAktif())) { wrap.style.display = 'none'; wrap.innerHTML = ''; return; }
+    const r = tentukanRekPengeluaran(mode);
+    const opsi = `<option value="__auto__" ${mode === 'auto' ? 'selected' : ''}>Otomatis (rekening bank penampung)</option><option value="__none__" ${mode === 'none' ? 'selected' : ''}>Tidak dicatat di Saldo Kantor</option>` + saldoKantorData.rekening.filter(x => x.aktif !== false).map(x => `<option value="${x.id}" ${mode === x.id ? 'selected' : ''}>${escapeHtml(labelRekeningSaldo(x))} (${escapeHtml(namaEntitasSaldo(x.entitas))})</option>`).join('');
+    const teks = r ? `Dibayar dari: <b>${escapeHtml(labelRekeningSaldo(r))}</b>${peranRek(r) === 'penampung' ? ' · ' + escapeHtml(namaProgramRek(r)) : ''}`
+        : (mode === 'none' ? 'Tidak dicatat di Saldo Kantor.' : 'Tidak dicatat di Saldo Kantor: belum ada rekening bank penampung untuk program ini.');
+    wrap.style.display = 'block';
+    wrap.innerHTML = `<div style="color:#92400E;">${teks} <a href="#" onclick="event.preventDefault();document.getElementById('${wrapId}Pilih').style.display='block';this.style.display='none'" style="color:var(--primary);font-weight:700;">Ubah</a></div>
+        <div id="${wrapId}Pilih" style="display:none;margin-top:6px;"><select onchange="pilihRekPengeluaran(this.value, '${wrapId}')" style="width:100%;padding:8px;border-radius:8px;border:1.5px solid #ddd;">${opsi}</select></div>`;
+}
+function pilihRekPengeluaran(v, wrapId) {
+    window._pengRekMode = v === '__auto__' ? 'auto' : (v === '__none__' ? 'none' : v);
+    perbaruiInfoSaldoPengeluaran(wrapId);
+}
+async function catatMutasiDariPengeluaran(peng, mode) {
+    try {
+        await muatSaldoSenyap();
+        const rek = tentukanRekPengeluaran(mode);
+        if (!rek) return;
+        if (saldoKantorData.mutasi.some(m => m.pengId === peng.id)) return;
+        saldoKantorData.mutasi.push({ id: idSaldo(), rekId: rek.id, tanggal: peng.tanggal, waktuBuat: Date.now(), jenis: 'keluar', arah: -1, nominal: peng.nominal, kategori: 'Pengeluaran program',
+            ket: `${peng.kategori || 'Pengeluaran'}: ${peng.keterangan || '-'}`, oleh: peng.dicatat_oleh || currentAdminNama || '-', pengId: peng.id });
+        await idbSet(STORE_CATATAN, 'saldo_kantor', saldoKantorData);
+        peng.rekIdSaldo = rek.id; await savePengeluaran();
+        if (document.getElementById('saldoRingkasan')) renderSaldoKantor();
+        showToast(`✅ Pengeluaran Rp ${(peng.nominal || 0).toLocaleString('id-ID')} tersimpan, tercatat keluar dari ${labelRekeningSaldo(rek)}`);
+    } catch (e) { showToast('⚠️ Pengeluaran tersimpan, tetapi gagal dicatat ke Saldo Kantor: ' + e.message); }
+}
+async function hapusMutasiDariPengeluaran(pengId) {
+    try {
+        await muatSaldoSenyap();
+        const terkait = saldoKantorData.mutasi.filter(m => m.pengId === pengId);
+        if (!terkait.length) return;
+        const rek = saldoKantorData.rekening.find(x => x.id === terkait[0].rekId);
+        if (rek && rek.aktif === false) { showToast('ℹ️ Catatan di rekening ' + labelRekeningSaldo(rek) + ' dibiarkan karena rekening sudah ditutup. Sesuaikan manual bila perlu.'); return; }
+        saldoKantorData.mutasi = saldoKantorData.mutasi.filter(m => m.pengId !== pengId);
+        await idbSet(STORE_CATATAN, 'saldo_kantor', saldoKantorData);
+        if (document.getElementById('saldoRingkasan')) renderSaldoKantor();
+        showToast('🗑️ Pengeluaran dihapus, catatan di ' + (rek ? labelRekeningSaldo(rek) : 'rekening') + ' ikut dihapus');
+    } catch (e) { showToast('⚠️ Pengeluaran dihapus, tetapi catatan di Saldo Kantor gagal diperbarui: ' + e.message); }
+}
+
+// Uang Kas (dipakai Haji Reguler karena Cuan Plan/Estimasi tidak dipakai di sana): catatan KELUAR ikut tercatat di rekening, dengan pilihan yang sama.
+// Catatan "masuk" di Kas tidak disambungkan (uang jamaah masuk lewat Pembayaran). Mutasi menyimpan kasId; ubah nominal/keterangan dan hapus ikut disinkronkan.
+async function catatMutasiDariKas(item, mode) {
+    try {
+        if (!item || item.tipe !== 'keluar') return;
+        await muatSaldoSenyap();
+        const rek = tentukanRekPengeluaran(mode);
+        if (!rek) return;
+        if (saldoKantorData.mutasi.some(m => m.kasId === item.id)) return;
+        saldoKantorData.mutasi.push({ id: idSaldo(), rekId: rek.id, tanggal: hariIniISO(), waktuBuat: Date.now(), jenis: 'keluar', arah: -1, nominal: item.nom, kategori: 'Pengeluaran program',
+            ket: `${item.kegiatan && item.kegiatan !== '-' ? item.kegiatan + ': ' : ''}${item.ket || '-'}`, oleh: currentAdminNama || '-', kasId: item.id });
+        await idbSet(STORE_CATATAN, 'saldo_kantor', saldoKantorData);
+        item.rekIdSaldo = rek.id; await saveKasData();
+        if (document.getElementById('saldoRingkasan')) renderSaldoKantor();
+        showToast(`✅ Transaksi tersimpan, tercatat keluar dari ${labelRekeningSaldo(rek)}`);
+    } catch (e) { showToast('⚠️ Transaksi kas tersimpan, tetapi gagal dicatat ke Saldo Kantor: ' + e.message); }
+}
+async function sinkronMutasiDariKas(item) {
+    try {
+        await muatSaldoSenyap();
+        const m = saldoKantorData.mutasi.find(x => x.kasId === item.id);
+        if (!m) return;
+        const rek = saldoKantorData.rekening.find(x => x.id === m.rekId);
+        if (rek && rek.aktif === false) { showToast('ℹ️ Catatan di rekening ' + labelRekeningSaldo(rek) + ' dibiarkan karena rekening sudah ditutup. Sesuaikan manual bila perlu.'); return; }
+        m.nominal = item.nom; m.ket = `${item.kegiatan && item.kegiatan !== '-' ? item.kegiatan + ': ' : ''}${item.ket || '-'}`; m.diedit = true;
+        await idbSet(STORE_CATATAN, 'saldo_kantor', saldoKantorData);
+        if (document.getElementById('saldoRingkasan')) renderSaldoKantor();
+    } catch (e) { showToast('⚠️ Transaksi kas diubah, tetapi catatan di Saldo Kantor gagal diperbarui: ' + e.message); }
+}
+async function hapusMutasiDariKas(kasId) {
+    try {
+        await muatSaldoSenyap();
+        const terkait = saldoKantorData.mutasi.filter(m => m.kasId === kasId);
+        if (!terkait.length) return;
+        const rek = saldoKantorData.rekening.find(x => x.id === terkait[0].rekId);
+        if (rek && rek.aktif === false) { showToast('ℹ️ Catatan di rekening ' + labelRekeningSaldo(rek) + ' dibiarkan karena rekening sudah ditutup. Sesuaikan manual bila perlu.'); return; }
+        saldoKantorData.mutasi = saldoKantorData.mutasi.filter(m => m.kasId !== kasId);
+        await idbSet(STORE_CATATAN, 'saldo_kantor', saldoKantorData);
+        if (document.getElementById('saldoRingkasan')) renderSaldoKantor();
+        showToast('🗑️ Transaksi dihapus, catatan di ' + (rek ? labelRekeningSaldo(rek) : 'rekening') + ' ikut dihapus');
+    } catch (e) { showToast('⚠️ Transaksi kas dihapus, tetapi catatan di Saldo Kantor gagal diperbarui: ' + e.message); }
+}
+
 // ---------- Siapkan penampung untuk program aktif ----------
 function bukaSiapkanPenampung() {
     if (!bolehSaldoKantor()) return;
@@ -13365,7 +13480,8 @@ function bukaSiapkanPenampung() {
     modal.innerHTML = `<div class="modal-content" style="max-width:400px;">
         <h3 style="color:#92400E;margin-bottom:4px;">🧳 Siapkan Penampung</h3>
         <div style="font-size:12px;color:#555;margin-bottom:10px;">Untuk program: <b>${escapeHtml(pr.nama)}</b>. Dibuat dua tempat: rekening bank penampung dan kas tunai penampung. Pembayaran jamaah berikutnya otomatis tercatat ke sana (Transfer ke bank, Cash ke kas tunai).</div>
-        <div class="input-group"><label>Entitas</label><select id="spEntitas">${getEntitasSaldo().map(e => `<option value="${e.id}">${escapeHtml(e.nama)}</option>`).join('')}</select></div>
+        <div style="font-size:11.5px;color:#92400E;background:#FFFBEB;border:1px solid #FDE68A;border-radius:10px;padding:8px 10px;margin-bottom:10px;line-height:1.5;"><b>Sudah ada titipan jamaah sebelum hari ini?</b> Jangan diisi sebagai saldo awal bila uangnya masih di rekening kantor, karena akan terhitung dua kali. Buat penampungnya dulu dengan saldo 0, lalu pindahkan lewat tombol <b>Pindah</b>.</div>
+        <div class="input-group"><label>Entitas</label><select id="spEntitas">${(() => { const ents = getEntitasSaldo(); const pilih = (isHajiReguler() && ents.some(e => e.id === 'e2')) ? 'e2' : 'e1'; return ents.map(e => `<option value="${e.id}" ${e.id === pilih ? 'selected' : ''}>${escapeHtml(e.nama)}</option>`).join(''); })()}</select></div>
         <div class="input-group"><label>Nama bank penampung</label><input type="text" id="spBank" placeholder="Contoh: BCA"></div>
         <div class="input-group"><label>Nomor rekening (opsional)</label><input type="text" id="spNoAkhir" inputmode="numeric" maxlength="20" placeholder="Boleh nomor lengkap"><div style="font-size:11px;color:#888;margin-top:4px;">Di layar dan laporan hanya 4 digit terakhir yang ditampilkan.</div></div>
         <div class="input-group"><label>Saldo awal bank (Rp)</label><input type="text" id="spSaldoBank" class="money-input" inputmode="numeric" placeholder="0" oninput="formatMoneyInput(this)"></div>
@@ -17628,7 +17744,7 @@ async function bersihkanDataTerkaitJamaah(jamaahId) {
         await savePaymentData();
     }
 
-    // 2. Layanan Tambahan (Badal/Dam) — lepaskan KAITANNYA saja, transaksi & profit-nya tetap ada (Badal memang boleh tanpa jamaah)
+    // 2. Layanan Tambahan (Badal Haji) — lepaskan KAITANNYA saja, transaksi & profit-nya tetap ada (Badal memang boleh tanpa jamaah)
     const listLayanan = ensureLayananTambahan();
     let adaLayananTerkait = false;
     listLayanan.forEach(l => { if(l.jamaahId == jamaahId) { l.jamaahId = null; adaLayananTerkait = true; } });
@@ -17693,7 +17809,7 @@ async function bersihkanDataYatimPiatuJamaah() {
         catatAktivitas('🧹', `${jumlahSebelum - paymentTransaksiList.length} riwayat pembayaran yatim-piatu dibersihkan otomatis`);
     }
 
-    // 2. Layanan Tambahan (Badal/Dam) — lepaskan kaitannya saja
+    // 2. Layanan Tambahan (Badal Haji) — lepaskan kaitannya saja
     const listLayanan = ensureLayananTambahan();
     let adaLayananTerkait = false;
     listLayanan.forEach(l => { if (l.jamaahId && !idValid.has(String(l.jamaahId))) { l.jamaahId = null; adaLayananTerkait = true; } });
@@ -19734,7 +19850,7 @@ function cetakLaporanPenutupanMusim(mode) {
             <p class="lap-note">Rincian lengkap per-termin tersedia di menu "Rekap Cicilan" dalam aplikasi.</p></div>`;
     }
 
-    // 7. Layanan Tambahan (Badal Haji, Dam, dll) — sumber Profit tambahan, terutama penting untuk Haji Reguler
+    // 7. Layanan Tambahan (Badal Haji, dll) — sumber Profit tambahan, terutama penting untuk Haji Reguler
     let sectionLayanan = '';
     const listLayanan = ensureLayananTambahan();
     if(listLayanan.length > 0) {
@@ -19744,7 +19860,7 @@ function cetakLaporanPenutupanMusim(mode) {
             totalHarga += l.hargaJual; totalBiaya += l.biayaPelaksana; totalProfitLayanan += profit;
             return `<tr><td>${escapeHtml(l.jenis)}</td><td>${escapeHtml(l.namaPemesan)}</td><td>${f(l.hargaJual)}</td><td>${f(l.biayaPelaksana)}</td><td>${f(profit)}</td></tr>`;
         }).join('');
-        sectionLayanan = `<div class="lap-section"><h2>🕋 Layanan Tambahan (Badal Haji, Dam, dll)</h2>
+        sectionLayanan = `<div class="lap-section"><h2>🕋 Layanan Tambahan (Badal Haji, dll)</h2>
             <table class="lap-table"><thead><tr><th>Jenis</th><th>Pemesan</th><th>Harga Jual</th><th>Biaya Pelaksana</th><th>Profit</th></tr></thead><tbody>${rowsLayanan}</tbody></table>
             <table class="lap-table"><tr class="lap-total"><td>TOTAL PROFIT LAYANAN TAMBAHAN</td><td>${f(totalProfitLayanan)}</td></tr></table></div>`;
     }
@@ -19952,6 +20068,9 @@ function daftarCaraPakai() {
             { judul: 'Mengecek siapa yang belum lunas',
               isi: 'Buka <b>Pembayaran</b>: tiap kartu jamaah menunjukkan Total Paket, Dibayar, dan Sisa. Pakai filter <b>Belum Lunas</b> untuk melihat yang masih punya sisa. Jadwal cicilan ada di tombol <b>Cicilan</b> pada kartu, atau lihat kotak <b>Cicilan Perlu Perhatian</b> di Home. Pengingat lewat WhatsApp ada di <b>Pengingat WA</b>.',
               tombol: [bukaMod('Pembayaran', 'pembayaran'), { t: 'Buka Pengingat WA', a: () => showPage('pengingatwa'), h: 'pengingatwa', f: 'pengingatwa' }] },
+            { judul: 'Uang kantor vs uang jamaah (rekening penampung)',
+              isi: '<b>Uang kantor</b> adalah uang yang boleh dipakai kantor. <b>Uang jamaah (titipan)</b> belum menjadi hak kantor sampai keberangkatan selesai. Supaya tidak tercampur, siapkan <b>rekening penampung</b> sekali untuk tiap program: buka <b>Saldo Kantor</b> → <b>🧳 Siapkan Penampung untuk Program Ini</b>. Setelah itu: (1) <b>pembayaran jamaah</b> otomatis masuk ke penampung (Transfer ke bank, Cash ke kas tunai); (2) <b>pengeluaran</b> program (Cuan Plan atau Kas, untuk Haji Reguler lewat <b>Kas</b>) otomatis keluar dari penampung, dan bisa diganti lewat tombol <b>Ubah</b>; (3) setelah keberangkatan selesai, <b>sisa penampung</b> adalah keuntungan program yang dipindahkan ke uang kantor lewat <b>Tutup Musim</b>. Sudah ada titipan sebelum penampung dibuat? Pindahkan lewat <b>Pindah</b>, jangan diisi sebagai saldo awal. Program tanpa penampung tetap berjalan seperti biasa.',
+              tombol: [bukaMod('Saldo Kantor', 'saldokantor')] },
             { judul: 'Mencetak atau mengunduh laporan',
               isi: 'Pembayaran: ketuk <b>Export</b> → Cetak atau Excel (isinya Tagihan, Transaksi, dan Ringkasan). Pengeluaran: di Cuan Plan → tab Pengeluaran ada <b>🖨️ Cetak Pengeluaran</b> dan <b>📊 Excel</b>. Rekap akhir musim ada di <b>Laporan Penutupan Musim</b> (Menu Lengkap). Angka di Excel sama dengan yang tampil di layar.',
               tombol: [bukaMod('Pembayaran', 'pembayaran'), { t: 'Buka Laporan Penutupan Musim', a: () => cetakLaporanPenutupanMusim(), f: 'cetakLaporanPenutupanMusim' }] },
@@ -25110,10 +25229,21 @@ function bangunDataAlumni() {
     });
 }
 
-// ==================== LAYANAN TAMBAHAN (Badal Haji, Dam, dll) ====================
+// ==================== LAYANAN TAMBAHAN (Badal Haji, dll) ====================
 function getJenisLayananTambahan() {
     let list = JSON.parse(localStorage.getItem('navara_jenis_layanan') || 'null');
-    if(!list) { list = ['Badal Haji', 'Dam']; localStorage.setItem('navara_jenis_layanan', JSON.stringify(list)); }
+    if(!list) { list = ['Badal Haji']; localStorage.setItem('navara_jenis_layanan', JSON.stringify(list)); }
+    // Sekali saja: "Dam" bukan lagi jenis bawaan (Dam sudah komponen Haji). Dihapus otomatis bila tidak ada catatan yang memakainya;
+    // bila ada, tetap ada tetapi hanya tampil di Haji. Dijalankan setelah konfigurasi Program termuat.
+    if (list.includes('Dam') && !localStorage.getItem('navara_dam_dibersihkan')) {
+        try {
+            if (typeof konfigurasiPro === 'object' && konfigurasiPro && konfigurasiPro.per_program && Object.keys(konfigurasiPro.per_program).length) {
+                if (hitungPemakaianJenisLayanan('Dam') === 0) { list = list.filter(j => j !== 'Dam'); simpanDaftarJenisLayanan(list); }
+                else { const peta = bacaPetaTampilLayanan(); if (!Array.isArray(peta['Dam'])) { peta['Dam'] = ['haji']; localStorage.setItem(KUNCI_TAMPIL_LAYANAN, JSON.stringify(peta)); } }
+                localStorage.setItem('navara_dam_dibersihkan', '1');
+            }
+        } catch (e) {}
+    }
     return list;
 }
 
@@ -25128,9 +25258,9 @@ function simpanLayananTambahanKeStorage() {
     idbSet(STORE_KONFIGURASI, 'konfigurasi_pro', konfigurasiPro);
 }
 
-// Jenis bawaan punya aturan khusus di kode (Dam wajib ke jamaah, Badal Haji punya kolom "Nama yang
-// Dibadalkan"), jadi tidak boleh diubah namanya atau dihapus.
-const JENIS_LAYANAN_BAWAAN = ['Badal Haji', 'Dam'];
+// Jenis bawaan punya aturan khusus di kode (Badal Haji punya kolom "Nama yang Dibadalkan"),
+// jadi tidak boleh diubah namanya atau dihapus.
+const JENIS_LAYANAN_BAWAAN = ['Badal Haji'];
 
 function simpanDaftarJenisLayanan(list) { localStorage.setItem('navara_jenis_layanan', JSON.stringify(list)); }
 
@@ -25241,10 +25371,6 @@ async function hapusJenisLayanan(jenis) {
     showToast('Jenis layanan dihapus dari pilihan');
 }
 
-function jenisWajibJamaah(jenis) {
-    return jenis === 'Dam'; // aturan khusus: Dam wajib terhubung ke Jamaah, jenis lain (termasuk baru nanti) opsional
-}
-
 function openTambahLayananModal(id) {
     if(cekProgramArsip()) return;
     let modal = document.getElementById('layananModal');
@@ -25312,8 +25438,7 @@ async function updateFormLayananSesuaiJenis() {
         return;
     }
     jenisLayananTerakhir = jenis;
-    const wajib = jenisWajibJamaah(jenis);
-    document.getElementById('layananJamaahLabel').textContent = 'Kaitkan ke Jamaah' + (wajib ? ' (WAJIB)' : ' (opsional)');
+    document.getElementById('layananJamaahLabel').textContent = 'Kaitkan ke Jamaah (opsional)';
     document.getElementById('layananDibadalkanWrap').style.display = jenis === 'Badal Haji' ? 'block' : 'none';
 }
 
@@ -25324,7 +25449,6 @@ async function simpanLayananTambahan() {
     const jamaahId = document.getElementById('layananJamaahId').value;
     if(!jenis || jenis === '__baru__') return showToast('Pilih jenis layanan dulu!');
     if(!pemesan) return showToast('Nama Pemesan wajib diisi!');
-    if(jenisWajibJamaah(jenis) && !jamaahId) return showToast(`⚠️ ${jenis} wajib dikaitkan ke Jamaah!`);
 
     const id = document.getElementById('layananEditId').value;
     const data = {
@@ -25365,7 +25489,7 @@ function renderLayananTambahanList() {
     if(!container) return;
     const list = ensureLayananTambahan();
     const f = n => 'Rp ' + Math.round(n).toLocaleString('id-ID');
-    const ikonJenis = { 'Badal Haji': '🕋', 'Dam': '🐐' };
+    const ikonJenis = { 'Badal Haji': '🕋' };
 
     let totalProfit = 0;
     const html = list.map(l => {
@@ -26602,7 +26726,7 @@ function openIndexedDB() {
 // dengan build baru, data MENTAH (langsung dari IndexedDB, bukan dari memori) disalin dulu sebelum
 // proses migrasi apapun berjalan — supaya kalau ada kesalahan di update, data lama masih bisa dipulihkan.
 // Dokumen & foto tidak ikut disalin (ukurannya besar, dan tidak pernah disentuh proses migrasi).
-const NAVARA_BUILD = '2026.10.23-179';
+const NAVARA_BUILD = '2026.10.24-183';
 const MAKS_SNAPSHOT = 3;
 
 // ==================== DAFTAR DATA PUSAT ====================
