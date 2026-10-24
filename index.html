@@ -1918,14 +1918,21 @@ https://github.com/nodeca/pako/blob/main/LICENSE
         <div class="home-ringkasan-card" style="flex:1 1 100%;min-width:100%;background:white;border-radius:20px;padding:14px 16px;box-shadow:0 4px 12px rgba(0,0,0,0.05);">
             <div style="display:flex;gap:12px;">
                 <div style="flex:1;min-width:0;">
-                    <div style="font-size:11px;color:#888;font-weight:600;"><i class="fas fa-coins" style="color:var(--primary);margin-right:4px;"></i>Total Kas</div>
-                    <div id="homeStatKas" class="hr-hijau" style="font-size:18px;font-weight:800;color:var(--primary);margin-top:3px;word-break:break-word;">Rp 0</div>
+                    <div style="font-size:11px;color:#888;font-weight:600;"><i class="fas fa-coins" style="color:var(--primary);margin-right:4px;"></i>Uang Masuk</div>
+                    <div id="homeStatMasuk" class="hr-hijau" style="font-size:18px;font-weight:800;color:var(--primary);margin-top:3px;word-break:break-word;">Rp 0</div>
+                    <div style="font-size:10px;color:#888;margin-top:1px;">dari pembayaran jamaah</div>
                 </div>
                 <div onclick="bukaJamaahDenganFilter('belum_lunas')" style="flex:1;min-width:0;cursor:pointer;border-left:1px solid #eef2f1;padding-left:12px;">
-                    <div style="font-size:11px;color:#888;font-weight:600;"><i class="fas fa-money-bill-wave" style="color:#ef4444;margin-right:4px;"></i>Total Tagihan</div>
+                    <div style="font-size:11px;color:#888;font-weight:600;"><i class="fas fa-money-bill-wave" style="color:#ef4444;margin-right:4px;"></i>Sisa Tagihan</div>
                     <div id="homeStatPiutang" style="font-size:18px;font-weight:800;color:#ef4444;margin-top:3px;word-break:break-word;">Rp 0</div>
                     <div id="homePiutangLabel" style="font-size:10px;color:#888;margin-top:1px;"></div>
                 </div>
+            </div>
+            <div id="homeBarisKas" style="display:none;margin-top:10px;font-size:12px;color:#555;">
+                <div onclick="showPage('kas')" style="display:flex;justify-content:space-between;align-items:center;cursor:pointer;padding:6px 0;border-top:1px solid #eef2f1;"><span><i class="fas fa-wallet" style="color:var(--primary);margin-right:6px;"></i>Saldo Kas</span><b id="homeStatKas" style="color:var(--primary);">Rp 0</b></div>
+            </div>
+            <div id="homeBarisTitipan" style="display:none;font-size:12px;color:#92400E;">
+                <div onclick="showPage('saldokantor')" style="display:flex;justify-content:space-between;align-items:center;cursor:pointer;padding:6px 0;border-top:1px solid #eef2f1;"><span>🧳 Dana jamaah (titipan)</span><b id="homeStatTitipan">Rp 0</b></div>
             </div>
             <div class="hr-garis" style="height:1px;background:#eef2f1;margin:12px 0;"></div>
             <div onclick="bukaJamaahDenganFilter('lunas')" style="cursor:pointer;">
@@ -3173,7 +3180,7 @@ https://github.com/nodeca/pako/blob/main/LICENSE
     <div class="header-premium header-premium-small"><div class="back-header"><i class="fas fa-arrow-left" onclick="showPage('home')"></i><h2>Pembayaran</h2><div style="width:30px;"></div></div></div>
     <div class="card-premium">
         <div class="payment-dashboard-card"><div style="font-weight:700; margin-bottom:8px;"><i class="fas fa-file-invoice-dollar"></i> Manajemen Pembayaran</div>
-        <div class="payment-stats-row"><div class="payment-stat-item"><h4> Total Uang Masuk</h4><div class="payment-value" id="paymentTotalMasuk">Rp 0</div></div><div class="payment-stat-item"><h4> Total Tagihan</h4><div class="payment-value" id="paymentTotalPiutang">Rp 0</div></div></div></div>
+        <div class="payment-stats-row"><div class="payment-stat-item"><h4> Total Uang Masuk</h4><div class="payment-value" id="paymentTotalMasuk">Rp 0</div></div><div class="payment-stat-item"><h4> Sisa Tagihan</h4><div class="payment-value" id="paymentTotalPiutang">Rp 0</div></div></div></div>
         <div class="rekap-card"><div class="rekap-title"><i class="fas fa-chart-pie"></i> REKAP PEMBAYARAN</div>
         <div class="rekap-dua-kolom"><div class="rekap-lunas"><h4><i class="fas fa-check-circle"></i> LUNAS</h4><div class="rekap-number" id="rekapLunasCount">0 org</div></div><div class="rekap-belum-lunas"><h4><i class="fas fa-clock"></i> BELUM LUNAS</h4><div class="rekap-number" id="rekapBelumCount">0 org</div></div></div>
         <div class="total-rekap"><div class="total-rekap-item"><span> Total Tertagih:</span><span class="value" id="totalTertagih">Rp 0</span></div><div class="total-rekap-item"><span> Total Terbayar:</span><span class="value" id="totalTerbayar">Rp 0</span></div><div class="persen-bar"><div class="persen-fill" id="persenFill"></div></div><div class="total-rekap-item"><span> Persentase:</span><span class="value" id="persentaseText">0%</span></div></div></div>
@@ -4725,6 +4732,20 @@ function updateHomeStats() {
     const kasData = dataKas;
     const totalKas = kasData.reduce((s,i) => s + (i.tipe === 'masuk' ? i.nom : -i.nom), 0);
     document.getElementById('homeStatKas').innerHTML = 'Rp ' + totalKas.toLocaleString('id-ID');
+    // Saldo Kas hanya tampil bila program ini punya catatan di Uang Kas (Haji maupun Umroh); selain itu cukup Uang Masuk dan Sisa Tagihan
+    const barisKas = document.getElementById('homeBarisKas'); if (barisKas) barisKas.style.display = kasData.length > 0 ? 'block' : 'none';
+    // Uang Masuk: rumus sama dengan halaman Pembayaran
+    { const idAktif = new Set(jamaahList.map(j => j.id));
+      const masuk = paymentTransaksiList.filter(t => idAktif.has(Number(t.id_jamaah)) || idAktif.has(t.id_jamaah)).reduce((sum, t) => sum + t.nominal, 0);
+      const elMasuk = document.getElementById('homeStatMasuk'); if (elMasuk) elMasuk.innerHTML = 'Rp ' + formatAngka(masuk); }
+    // Dana jamaah (titipan) di rekening penampung program ini: hanya admin penuh, hanya bila ada penampung
+    try { muatSaldoSenyap().then(() => {
+        const bt = document.getElementById('homeBarisTitipan'); if (!bt) return;
+        const adminPenuh = (typeof adalahAdminPenuh === 'function') && adalahAdminPenuh();
+        if (!adminPenuh || !adaPenampungProgramAktif()) { bt.style.display = 'none'; return; }
+        const titipan = saldoKantorData.rekening.filter(r => r.aktif !== false && peranRek(r) === 'penampung' && r.programId === currentProgramId).reduce((a, r) => a + hitungSaldoRekening(r.id), 0);
+        document.getElementById('homeStatTitipan').innerHTML = 'Rp ' + titipan.toLocaleString('id-ID'); bt.style.display = 'block';
+    }).catch(() => {}); } catch (e) {}
     
     // Data Jamaah (jumlahnya tampil sebagai penyebut pada "Pelunasan Jamaah")
     const jamaahData = jamaahList;
@@ -13787,7 +13808,7 @@ async function muatPinjamanDataSenyap() {
     catch (e) { pinjamanData = { orang: [], transaksi: [] }; }
 }
 async function muatSaldoSenyap() {
-    try { const d = await idbGet(STORE_CATATAN, 'saldo_kantor'); saldoKantorData = normalSaldo(d && Array.isArray(d.rekening) ? d : null); }
+    try { const d = await idbGet(STORE_CATATAN, 'saldo_kantor'); saldoKantorData = normalSaldo(d && Array.isArray(d.rekening) ? d : null); window._saldoSudahDimuat = true; }
     catch (e) { saldoKantorData = normalSaldo(null); }
 }
 function daftarKategoriSaldo(arah) {
@@ -19663,7 +19684,7 @@ function bangunTTDLaporan(cfg, tglCetak) {
         <div style="display:flex;gap:24px;">${kolom('Mengetahui,', gambarPimpinan, inst.pimpinan, inst.jabatan || 'Pimpinan')}${kolom('Dibuat oleh,', gambarBendahara, bendahara.nama, 'Bendahara')}</div>`;
 }
 
-function cetakLaporanPenutupanMusim(mode) {
+async function cetakLaporanPenutupanMusim(mode) {
     if(!cekIzinFitur('cetakLaporanPenutupanMusim')) return showToast('🔒 Tidak punya izin. Gunakan tombol 🔓 Minta Akses di Home.');
     const f = n => (Math.round(n) < 0 ? '-' : '') + 'Rp ' + Math.abs(Math.round(n)).toLocaleString('id-ID');
     const fKurang = n => (Math.round(n) > 0 ? '-' : '') + f(n); // tanda minus hanya kalau nilainya > 0, supaya tidak tampil "-Rp 0"
@@ -19837,6 +19858,44 @@ function cetakLaporanPenutupanMusim(mode) {
             <table class="lap-table"><tr class="lap-total"><td>TOTAL KOMISI MITRA</td><td>${f(totalKomisi)}</td></tr></table></div>`;
     }
 
+    // 6. Uang Jamaah (Rekening Penampung) — hanya admin penuh dan hanya bila program ini punya rekening penampung (laporan lama tidak berubah).
+    // Sisa penampung dan Laba Bersih ditampilkan berdampingan dan TIDAK dijumlahkan: yang satu uang di rekening, yang lain hitungan kontrak dikurangi pengeluaran.
+    let sectionPenampung = '';
+    try {
+        if (bolehSaldoKantor()) {
+            if (!window._saldoSudahDimuat) await muatSaldoSenyap();
+            const rekPen = saldoKantorData.rekening.filter(r => peranRek(r) === 'penampung' && r.programId === currentProgramId);
+            if (rekPen.length) {
+                const idPen = new Set(rekPen.map(r => r.id));
+                let awalP = 0, setorP = 0, masukLainP = 0, pengelP = 0, keluarLainP = 0, tutupP = 0, sisaP = 0;
+                saldoKantorData.mutasi.filter(m => idPen.has(m.rekId)).forEach(m => {
+                    const v = m.arah * m.nominal; sisaP += v;
+                    if (m.jenis === 'saldo_awal') awalP += v;
+                    else if (m.payId !== undefined && m.jenis === 'masuk') setorP += v;
+                    else if (m.pengId !== undefined || m.kasId !== undefined || (m.jenis === 'keluar' && m.kategori === 'Pengeluaran program')) pengelP += -v;
+                    else if (m.jenis === 'pindah' && v < 0 && String(m.ket || '').indexOf('Tutup musim') === 0) tutupP += -v;
+                    else if (v >= 0) masukLainP += v; else keluarLainP += -v;
+                });
+                const idPengP = new Set(pengeluaranList.map(x => x.id)), idKasP = new Set(dataKas.map(k => k.id));
+                let lainP = 0, jmlLainP = 0;
+                saldoKantorData.mutasi.filter(m => !idPen.has(m.rekId) && ((m.pengId !== undefined && idPengP.has(m.pengId)) || (m.kasId !== undefined && idKasP.has(m.kasId)))).forEach(m => { lainP += -m.arah * m.nominal; jmlLainP++; });
+                const selisihMasukP = totalUangMasuk - setorP;
+                const semuaTutupP = rekPen.every(r => r.aktif === false);
+                const baris = (t, v) => `<tr><td>${t}</td><td>${f(v)}</td></tr>`;
+                sectionPenampung = `<div class="lap-section"><h2>🧳 Uang Jamaah (Rekening Penampung)${semuaTutupP ? ' — sudah ditutup' : ''}</h2>
+                    <table class="lap-table">${rekPen.map(r => `<tr><td>Rekening: ${escapeHtml(labelRekeningSaldo(r))}</td><td>${f(hitungSaldoRekening(r.id))}</td></tr>`).join('')}</table>
+                    <table class="lap-table">${baris('Saldo awal', awalP)}${baris('+ Setoran jamaah yang tercatat', setorP)}${masukLainP ? baris('+ Masuk lain (pindahan dari rekening kantor, penyesuaian)', masukLainP) : ''}${baris('− Pengeluaran program dari penampung', pengelP)}${keluarLainP ? baris('− Keluar lain (pindah ke rekening lain, penyesuaian)', keluarLainP) : ''}${tutupP ? baris('− Diserahkan ke kantor (Tutup Musim)', tutupP) : ''}
+                    <tr class="lap-total"><td>SISA DI PENAMPUNG</td><td>${f(sisaP)}</td></tr></table>
+                    ${jmlLainP ? `<p class="lap-note">Pengeluaran program yang dibayar dari rekening lain (uang kantor): ${f(lainP)} (${jmlLainP} transaksi). Tidak mengurangi penampung.</p>` : ''}
+                    <table class="lap-table"><tr><td>Uang masuk dari jamaah menurut Pembayaran</td><td>${f(totalUangMasuk)}</td></tr><tr><td>Setoran jamaah yang tercatat di penampung</td><td>${f(setorP)}</td></tr>
+                    <tr class="lap-total"><td>Selisih (Pembayaran − penampung)</td><td>${f(selisihMasukP)}</td></tr></table>
+                    ${Math.round(selisihMasukP) !== 0 ? '<p class="lap-note" style="background:#FEF3C7;color:#92400E;padding:6px 8px;border-radius:6px;">⚠️ Ada pembayaran yang belum tercatat di penampung (misalnya pembayaran sebelum penampung dibuat, dipilih "tidak dicatat", atau masuk ke rekening lain). Cek dulu sebelum Tutup Musim.</p>' : '<p class="lap-note">Cocok: semua pembayaran jamaah tercatat di penampung.</p>'}
+                    <table class="lap-table"><tr><td>Sisa di penampung (uang yang tercatat di rekening)</td><td>${f(sisaP)}</td></tr><tr><td>${labelLabaBersih} (hitungan kontrak dikurangi pengeluaran)</td><td>${f(profitRiil)}</td></tr></table>
+                    <p class="lap-note">Kedua angka ini ditampilkan berdampingan dan tidak dijumlahkan. Bila keduanya jauh berbeda, periksa pengeluaran yang belum tercatat atau pembayaran yang belum masuk penampung.</p></div>`;
+            }
+        }
+    } catch (e) { sectionPenampung = ''; }
+
     // 5. Sisa Piutang Belum Tertagih (ringkas — total + daftar nama, bukan rincian per-termin)
     let sectionPiutang = '';
     const cekPiutang = cekPeringatanCicilanSemuaJamaah();
@@ -19974,7 +20033,7 @@ function cetakLaporanPenutupanMusim(mode) {
     <div class="lap-halaman2">
     <h1>📑 RINCIAN LAPORAN</h1>
     <p>${escapeHtml(namaKBIH)} — Program: ${escapeHtml(progNama)} — Dicetak: ${tgl}</p>
-    ${sectionRekap}${sectionPengeluaran}${sectionBufferB2C}${sectionBufferB2B}${sectionMitra}${sectionPiutang}${sectionLayanan}
+    ${sectionRekap}${sectionPengeluaran}${sectionBufferB2C}${sectionBufferB2B}${sectionMitra}${sectionPiutang}${sectionLayanan}${sectionPenampung}
     </div>
     `;
     if(mode === 'excel') { exportLaporanPenutupanExcel(html, progNama, namaKBIH); return; }
@@ -26726,7 +26785,7 @@ function openIndexedDB() {
 // dengan build baru, data MENTAH (langsung dari IndexedDB, bukan dari memori) disalin dulu sebelum
 // proses migrasi apapun berjalan — supaya kalau ada kesalahan di update, data lama masih bisa dipulihkan.
 // Dokumen & foto tidak ikut disalin (ukurannya besar, dan tidak pernah disentuh proses migrasi).
-const NAVARA_BUILD = '2026.10.24-183';
+const NAVARA_BUILD = '2026.10.24-185';
 const MAKS_SNAPSHOT = 3;
 
 // ==================== DAFTAR DATA PUSAT ====================
