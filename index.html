@@ -1639,49 +1639,12 @@
 .btn-batch-cancel { background:var(--red) !important; color:white !important; padding:8px 14px !important; width:auto !important; font-size:13px !important; }
 
 /* ===== EXPORT DROPDOWN ===== */
-.export-dropdown-wrapper {
-    position: relative;
-    display: inline-block;
-    width: 100%;
-}
+.grup-admin { border:1px solid #e2e8f0; border-radius:12px; margin-top:8px; padding:0 10px 8px; background:#fff; }
+.grup-admin > summary { cursor:pointer; font-weight:700; font-size:13px; color:var(--primary); padding:10px 0; list-style:none; }
+.grup-admin > summary::-webkit-details-marker { display:none; }
+body.dark-mode .grup-admin { background:transparent; border-color:#334155; }
+.grup-admin[open] > summary { border-bottom:1px solid #eef2f6; margin-bottom:4px; }
 .btn-export-std { background: linear-gradient(135deg, var(--primary), #1a7a63); color: white; border: none; border-radius: 50px; padding: 13px 20px; font-size: 14px; font-weight: bold; cursor: pointer; width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px; margin-top: 10px; }
-.export-dropdown-wrapper .btn-export {
-    background: linear-gradient(135deg, var(--primary), #1a7a63);
-    color: white;
-    border: none;
-    border-radius: 50px;
-    padding: 14px 20px;
-    font-size: 14px;
-    font-weight: bold;
-    cursor: pointer;
-    width: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    box-shadow: 0 4px 15px rgba(13,92,74,0.3);
-}
-.export-dropdown-menu {
-    display: none;
-    position: absolute;
-    bottom: 110%;
-    left: 0;
-    right: 0;
-    background: white;
-    border-radius: 16px;
-    box-shadow: 0 8px 30px rgba(0,0,0,0.15);
-    z-index: 1000;
-    overflow: hidden;
-    border: 1px solid #e2e8f0;
-}
-.export-dropdown-menu.show {
-    display: block;
-    animation: fadeInUp 0.2s ease;
-}
-@keyframes fadeInUp {
-    from { opacity: 0; transform: translateY(10px); }
-    to { opacity: 1; transform: translateY(0); }
-}
 .export-menu-item {
     display: flex;
     align-items: center;
@@ -2595,30 +2558,8 @@ https://github.com/nodeca/pako/blob/main/LICENSE
         <div class="summary-real" id="summaryKas">Saldo Akhir: Rp 0</div>
         <div class="table-container"><table id="kasTable"><thead><tr><th>Tgl</th><th>Kegiatan</th><th>Keterangan</th><th>Nominal</th><th>Aksi</th></tr></thead><tbody id="bodyKas"></tbody></table></div>
         <div id="hasilWA" class="res-card" style="display:none;"></div>
-        <div class="export-dropdown-wrapper" style="margin-top:12px;">
-            <button class="btn-export" onclick="toggleExportDropdown('exportMenuKas')">
-                <i class="fas fa-download"></i> Export <i class="fas fa-chevron-up" style="font-size:11px;"></i>
-            </button>
-            <div class="export-dropdown-menu" id="exportMenuKas">
-                <div class="export-menu-item" onclick="cetakKasHTML(); toggleExportDropdown('exportMenuKas')">
-                    <div class="export-icon export-icon-cetak">🖨️</div>
-                    <div><div class="export-label">Cetak / Simpan PDF</div><div class="export-desc">Lihat dulu, lalu cetak atau simpan PDF</div></div>
-                </div>
-                <div class="export-menu-item" onclick="toggleExportDropdown('exportMenuKas'); bagikanDariCetak(()=>cetakKasHTML(),'Laporan_Kas');">
-                    <div class="export-icon export-icon-pdf">📲</div>
-                    <div><div class="export-label">Bagikan PDF</div><div class="export-desc">Kirim file PDF lewat WhatsApp atau aplikasi lain</div></div>
-                </div>
-                <div class="export-menu-item" onclick="exportKasExcel(); toggleExportDropdown('exportMenuKas')">
-                    <div class="export-icon export-icon-excel">📊</div>
-                    <div><div class="export-label">Excel</div><div class="export-desc">Langsung unduh file Excel</div></div>
-                </div>
-                <div class="export-menu-item" onclick="buatLaporanWA(); toggleExportDropdown('exportMenuKas')">
-                    <div class="export-icon export-icon-wa">💬</div>
-                    <div><div class="export-label">WhatsApp</div><div class="export-desc">Kirim laporan lewat WhatsApp</div></div>
-                </div>
-            </div>
-        </div>
-        <button class="btn btn-danger mt-2" onclick="confirmResetKas()"><i class="fas fa-trash-alt"></i> KOSONGKAN BUKU KAS</button>
+        <button class="btn-export-std" style="margin-top:12px;" onclick="bukaExportHalaman('kas')"><i class="fas fa-download"></i> Export</button>
+        <button class="btn btn-danger mt-2" onclick="confirmResetKas()"><i class="fas fa-trash-alt"></i> KOSONGKAN UANG KAS</button>
     </div>
 </div>
 
@@ -2978,7 +2919,7 @@ https://github.com/nodeca/pako/blob/main/LICENSE
 <div id="page-jamaah" class="page">
     <div class="header-premium header-premium-small"><div class="back-header"><i class="fas fa-arrow-left" onclick="showPage('home')"></i><h2>Database Jamaah</h2><div style="width:30px;"></div></div></div>
     <div class="card-premium">
-        <div id="jamaahAdminPanel" class="setting-card" style="display:none"><h3 style="color:var(--primary);"> Panel Admin Jamaah</h3><button class="btn btn-utility btn-small mt-2" onclick="showPage('prospek')"> 🎯 Calon Jamaah (Prospek)</button><button class="btn btn-primary btn-small mt-2" onclick="openTambahJamaahModal()"> + Tambah database</button><button class="btn btn-utility btn-small mt-2" onclick="openManageFieldsModal()"> Kelola Field Dinamis</button><button class="btn btn-utility btn-small mt-2" onclick="openRekapKategoriModal()"> 📊 Rekap per Kategori</button><button class="btn btn-utility btn-small mt-2" onclick="openKecocokanKamarModal()"> 🛏️ Cek Kecocokan Kamar</button><button class="btn btn-utility btn-small mt-2" onclick="openKelompokPorsiModal()"> 📊 Kelompokkan Berdasarkan Porsi</button><button class="btn btn-utility btn-small mt-2" onclick="openKelompokRombonganModal()"> 👥 Kelompokkan Berdasarkan Rombongan</button><button class="btn btn-utility btn-small mt-2" onclick="openAntrianFollowUpModal()"> 📋 Antrian Follow-Up Prioritas</button><button class="btn btn-utility btn-small mt-2" onclick="openRekapKomisiMitraModal()"> 🤝 Rekap Komisi Mitra</button><button class="btn btn-utility btn-small mt-2" onclick="openRekapCicilanModal()"> 📅 Rekap Cicilan</button><button class="btn btn-utility btn-small mt-2" onclick="cetakManifestRooming()"> 📋 Cetak Manifest & Rooming</button><button class="btn btn-utility btn-small mt-2" onclick="openWaMassalModal()"> 📢 Kirim WA Massal</button><button class="btn btn-utility btn-small mt-2" onclick="downloadTemplateExcel()">⬇️ Download Template Excel</button><button class="btn btn-utility btn-small mt-2" onclick="exportJamaahToExcel()"> Export ke Excel</button><button class="btn btn-utility btn-small mt-2" onclick="document.getElementById('importExcelFile').click()"> IMPORT EXCEL</button><input type="file" id="importExcelFile" accept=".xlsx,.xls" style="display:none" onchange="importJamaahFromExcel(this)"><button class="btn btn-danger btn-small mt-2" onclick="confirmDeleteAllJamaah()"> HAPUS SEMUA database</button></div>
+        <div id="jamaahAdminPanel" class="setting-card" style="display:none"><h3 style="color:var(--primary);"> Panel Admin Jamaah</h3><details class="grup-admin" open><summary>➕ Tambah & Kelola</summary><button class="btn btn-utility btn-small mt-2" onclick="showPage('prospek')">🎯 Calon Jamaah (Prospek)</button><button class="btn btn-primary btn-small mt-2" onclick="openTambahJamaahModal()">+ Tambah database</button><button class="btn btn-utility btn-small mt-2" onclick="openManageFieldsModal()">Kelola Field Dinamis</button></details><details class="grup-admin"><summary>📊 Rekap & Analisa</summary><button class="btn btn-utility btn-small mt-2" onclick="openRekapKategoriModal()">📊 Rekap per Kategori</button><button class="btn btn-utility btn-small mt-2" onclick="openKecocokanKamarModal()">🛏️ Cek Kecocokan Kamar</button><button class="btn btn-utility btn-small mt-2" onclick="openKelompokPorsiModal()">📊 Kelompokkan Berdasarkan Porsi</button><button class="btn btn-utility btn-small mt-2" onclick="openKelompokRombonganModal()">👥 Kelompokkan Berdasarkan Rombongan</button><button class="btn btn-utility btn-small mt-2" onclick="openAntrianFollowUpModal()">📋 Antrian Follow-Up Prioritas</button><button class="btn btn-utility btn-small mt-2" onclick="openRekapKomisiMitraModal()">🤝 Rekap Komisi Mitra</button><button class="btn btn-utility btn-small mt-2" onclick="openRekapCicilanModal()">📅 Rekap Cicilan</button></details><details class="grup-admin"><summary>🖨️ Cetak & Kirim</summary><button class="btn btn-utility btn-small mt-2" onclick="cetakManifestRooming()">📋 Cetak Manifest & Rooming</button><button class="btn btn-utility btn-small mt-2" onclick="openWaMassalModal()">📢 Kirim WA Massal</button></details><details class="grup-admin"><summary>📗 Excel</summary><button class="btn btn-utility btn-small mt-2" onclick="downloadTemplateExcel()">⬇️ Download Template Excel</button><button class="btn btn-utility btn-small mt-2" onclick="exportJamaahToExcel()">Export ke Excel</button><button class="btn btn-utility btn-small mt-2" onclick="document.getElementById('importExcelFile').click()">IMPORT EXCEL</button><input type="file" id="importExcelFile" accept=".xlsx,.xls" style="display:none" onchange="importJamaahFromExcel(this)"></details><button class="btn btn-danger btn-small mt-2" onclick="confirmDeleteAllJamaah()">HAPUS SEMUA database</button></div>
         <div class="section-title"><span>DAFTAR JAMAAH</span></div>
         <div class="search-box"><input type="text" id="searchJamaahInput" placeholder=" Cari nama jamaah..." onkeyup="filterJamaahList()"><select id="sortJamaahSelect" onchange="sortJamaahList()"><option value="urutan_asli">Urutan asli</option><option value="nama_asc">Nama A-Z</option><option value="nama_desc">Nama Z-A</option><option value="tgl_asc">Tanggal lama ke baru</option><option value="tgl_desc">Tanggal baru ke lama</option></select><button onclick="resetJamaahFilter()">Reset</button></div>
         <div id="filterLunasChip" style="display:none;align-items:center;gap:8px;background:#F0FBF6;border:1px solid var(--primary);border-radius:20px;padding:6px 12px;margin:8px 0;width:fit-content;">
@@ -2987,8 +2928,6 @@ https://github.com/nodeca/pako/blob/main/LICENSE
         </div>
         <div class="sort-buttons"><span style="font-size:12px; color:var(--gray);">Jumlah per halaman:</span><select id="perPageJamaah" onchange="changePerPage()"><option value="10">10</option><option value="20">20</option><option value="50">50</option><option value="100">100</option><option value="all">Semua</option></select></div>
         <div id="jamaahListContainer"></div><div id="paginationContainer" class="pagination"></div>
-        <div class="row" style="margin-top:20px;"><button class="btn btn-small mt-2" onclick="downloadTemplateExcel()" style="flex:1;background:#1D6F42;color:white;">⬇️ Download Template Excel</button><button class="btn btn-small mt-2" onclick="document.getElementById('importExcelFile2').click()" style="flex:1;background:#F59E0B;color:white;">⬆️ Import Excel</button></div>
-        <input type="file" id="importExcelFile2" accept=".xlsx,.xls" style="display:none" onchange="importJamaahFromExcel(this)">
     </div>
 </div>
 
@@ -3095,31 +3034,13 @@ https://github.com/nodeca/pako/blob/main/LICENSE
             <button id="sortKita_terbaru" onclick="setKitaSort('terbaru')" style="flex-shrink:0;padding:6px 12px;border-radius:20px;border:1.5px solid #ddd;background:white;color:#333;font-size:12px;cursor:pointer;">🆕 Baru</button>
         </div>
         <div style="display:flex;gap:8px;margin-bottom:10px;">
-            <button onclick="pilihSemuaOnProses()" style="flex:1;padding:8px;background:var(--primary);color:white;border:none;border-radius:8px;font-size:12px;cursor:pointer;">✅ Pilih Semua</button>
+            <button id="btnPilihSemuaOnProses" onclick="pilihSemuaOnProses()" style="flex:1;padding:8px;background:var(--primary);color:white;border:none;border-radius:8px;font-size:12px;cursor:pointer;">✅ Pilih Semua</button>
             <button onclick="hapusPilihanOnProses()" style="flex:1;padding:8px;background:#EF4444;color:white;border:none;border-radius:8px;font-size:12px;cursor:pointer;">🗑️ Hapus Dipilih</button>
         </div>
         <div id="jamaahKitaListContainer"></div><div id="paginationContainerKita" class="pagination"></div>
         <div style="display:flex; gap:8px; margin-top:16px; flex-wrap:wrap; align-items:stretch;">
             <button class="btn btn-accent" onclick="cetakLabelJamaahKita()" style="flex:1;">🏷️ CETAK LABEL</button>
-            <div class="export-dropdown-wrapper" style="flex:1;">
-                <button class="btn-export" onclick="toggleExportDropdown('exportMenuOnProses')">
-                    <i class="fas fa-download"></i> Export <i class="fas fa-chevron-up" style="font-size:11px;"></i>
-                </button>
-                <div class="export-dropdown-menu" id="exportMenuOnProses">
-                    <div class="export-menu-item" onclick="cetakRekapOnProses(); toggleExportDropdown('exportMenuOnProses')">
-                        <div class="export-icon export-icon-cetak">📄</div>
-                        <div><div class="export-label">Cetak · Rekap</div><div class="export-desc">Satu tabel urut sesuai sort dipilih</div></div>
-                    </div>
-                    <div class="export-menu-item" onclick="showGroupDialogJamaahKita(); toggleExportDropdown('exportMenuOnProses')">
-                        <div class="export-icon export-icon-cetak">🖨️</div>
-                        <div><div class="export-label">Cetak · Per Kelompok</div><div class="export-desc">Kelompokkan berdasarkan field</div></div>
-                    </div>
-                    <div class="export-menu-item" onclick="shareAllJamaahKitaToWA(); toggleExportDropdown('exportMenuOnProses')">
-                        <div class="export-icon export-icon-wa">💬</div>
-                        <div><div class="export-label">WhatsApp</div><div class="export-desc">Kirim semua jamaah lewat WhatsApp</div></div>
-                    </div>
-                </div>
-            </div>
+            <button class="btn-export-std" style="flex:1;margin-top:0;" onclick="bukaExportHalaman('onproses')"><i class="fas fa-download"></i> Export</button>
         </div>
     </div>
 </div>
@@ -3185,21 +3106,7 @@ https://github.com/nodeca/pako/blob/main/LICENSE
         <div class="rekap-dua-kolom"><div class="rekap-lunas"><h4><i class="fas fa-check-circle"></i> LUNAS</h4><div class="rekap-number" id="rekapLunasCount">0 org</div></div><div class="rekap-belum-lunas"><h4><i class="fas fa-clock"></i> BELUM LUNAS</h4><div class="rekap-number" id="rekapBelumCount">0 org</div></div></div>
         <div class="total-rekap"><div class="total-rekap-item"><span> Total Tertagih:</span><span class="value" id="totalTertagih">Rp 0</span></div><div class="total-rekap-item"><span> Total Terbayar:</span><span class="value" id="totalTerbayar">Rp 0</span></div><div class="persen-bar"><div class="persen-fill" id="persenFill"></div></div><div class="total-rekap-item"><span> Persentase:</span><span class="value" id="persentaseText">0%</span></div></div></div>
         <div class="filter-row"><select id="paymentStatusFilter" class="filter-dropdown" onchange="filterPaymentJamaahList()"><option value="semua"> Semua</option><option value="lunas"> Lunas</option><option value="belum_lunas"> Belum Lunas</option></select><input type="text" id="paymentSearchNama" class="filter-dropdown" placeholder=" Cari nama jamaah..." onkeyup="filterPaymentJamaahList()"></div>
-        <div class="export-dropdown-wrapper" style="margin-bottom:16px;">
-            <button class="btn-export" onclick="toggleExportDropdown('exportMenuPembayaran')">
-                <i class="fas fa-download"></i> Export <i class="fas fa-chevron-up" style="font-size:11px;"></i>
-            </button>
-            <div class="export-dropdown-menu" id="exportMenuPembayaran">
-                <div class="export-menu-item" onclick="cetakPembayaranHTML(); toggleExportDropdown('exportMenuPembayaran')">
-                    <div class="export-icon export-icon-cetak">🖨️</div>
-                    <div><div class="export-label">Cetak / Simpan PDF</div><div class="export-desc">Lihat dulu, lalu cetak atau simpan PDF</div></div>
-                </div>
-                <div class="export-menu-item" onclick="exportPaymentExcel(); toggleExportDropdown('exportMenuPembayaran')">
-                    <div class="export-icon export-icon-excel">📊</div>
-                    <div><div class="export-label">Excel</div><div class="export-desc">Langsung unduh file Excel</div></div>
-                </div>
-            </div>
-        </div>
+        <button class="btn-export-std" style="margin-bottom:16px;" onclick="bukaExportHalaman('pembayaran')"><i class="fas fa-download"></i> Export</button>
         <div class="section-title"><span><i class="fas fa-users"></i> DAFTAR TAGIHAN JAMAAH</span></div>
         <div id="paymentJamaahListContainer"><div style="text-align:center; padding:20px;">Memuat data jamaah...</div></div><div id="paginationContainerPayment" class="pagination"></div>
         <button class="payment-fab" id="paymentFabOpen"><i class="fas fa-plus"></i></button>
@@ -3221,29 +3128,7 @@ https://github.com/nodeca/pako/blob/main/LICENSE
         <div class="section-title" id="masterFormTitle"><span>TAMBAH DATA</span></div>
         <div id="masterFormContainer"></div>
         <button class="btn btn-accent mt-2" onclick="saveMasterData()"><i class="fas fa-save"></i> SIMPAN DATA</button>
-        <div class="export-dropdown-wrapper" style="margin-top:15px;">
-            <button class="btn-export" onclick="toggleExportDropdown('exportMenuMaster')">
-                <i class="fas fa-download"></i> Export <i class="fas fa-chevron-up" style="font-size:11px;"></i>
-            </button>
-            <div class="export-dropdown-menu" id="exportMenuMaster">
-                <div class="export-menu-item" onclick="cetakMasterHTML(); toggleExportDropdown('exportMenuMaster')">
-                    <div class="export-icon export-icon-cetak">🖨️</div>
-                    <div><div class="export-label">Cetak / Simpan PDF</div><div class="export-desc">Lihat dulu, lalu cetak atau simpan PDF</div></div>
-                </div>
-                <div class="export-menu-item" onclick="openPilihItemKontrolModal(); toggleExportDropdown('exportMenuMaster')">
-                    <div class="export-icon export-icon-cetak">📋</div>
-                    <div><div class="export-label">Cetak · Kontrol Lapangan</div><div class="export-desc">Kolom ceklis kosong untuk dicentang manual di lapangan</div></div>
-                </div>
-                <div class="export-menu-item" onclick="exportMasterExcel(); toggleExportDropdown('exportMenuMaster')">
-                    <div class="export-icon export-icon-excel">📊</div>
-                    <div><div class="export-label">Excel</div><div class="export-desc">Langsung unduh file Excel</div></div>
-                </div>
-                <div class="export-menu-item" onclick="shareAllMasterToWA(); toggleExportDropdown('exportMenuMaster')">
-                    <div class="export-icon export-icon-wa">💬</div>
-                    <div><div class="export-label">WhatsApp</div><div class="export-desc">Kirim semua data lewat WhatsApp</div></div>
-                </div>
-            </div>
-        </div>
+        <button class="btn-export-std" style="margin-top:15px;" onclick="bukaExportHalaman('master')"><i class="fas fa-download"></i> Export</button>
         <div style="display:flex;gap:8px;margin:10px 0 8px;">
             <input type="text" id="searchMasterInput" placeholder="🔍 Cari nama..." oninput="renderMasterTable()"
                 style="flex:1;padding:10px 14px;border:1.5px solid #ddd;border-radius:12px;font-size:14px;">
@@ -5341,16 +5226,16 @@ function initDarkMode() {
 
 // Menu Grid
 const menuItemsPremium = [
-    { id: 'estimasi', icon: '<i class="fas fa-chart-pie"></i>', label: 'Cuan Plan', badge: 'Estimasi', ket: 'Estimasi biaya & keuntungan paket', kelompok: 'keuangan' },
-    { id: 'kas', icon: '<i class="fas fa-wallet"></i>', label: 'Uang Kas', badge: 'Kas', ket: 'Buku kas masuk & keluar', kelompok: 'keuangan' },
     { id: 'jamaah', icon: '<i class="fas fa-database"></i>', label: 'Database', badge: 'Jamaah', ket: 'Data lengkap semua jamaah', kelompok: 'jamaah' },
     { id: 'jamaahkita', icon: '<i class="fas fa-hourglass-half"></i>', label: 'Jamaah on proses', badge: 'Proses', ket: 'Jamaah yang sedang diurus berkasnya', kelompok: 'jamaah' },
-    { id: 'catatan', icon: '<i class="fas fa-note-sticky"></i>', label: 'Catatan', badge: 'Notes', ket: 'Catatan kantor & pribadi', kelompok: 'kantor' },
-    { id: 'agenda-kantor', icon: '<i class="fas fa-calendar-check"></i>', label: 'Agenda Kantor', badge: 'Rapat', ket: 'Jadwal rapat & hasilnya', kelompok: 'kantor' },
-    { id: 'kalender-pejabat', icon: '<i class="fas fa-user-tie"></i>', label: 'Kalender Pejabat', badge: 'Jadwal', ket: 'Jadwal pimpinan & cetak promosi', kelompok: 'kantor' },
-    { id: 'zakat', icon: '<i class="fas fa-hand-holding-dollar"></i>', label: 'Zakat', badge: 'Kalkulator', ket: 'Kalkulator zakat', kelompok: 'keuangan' },
     { id: 'pembayaran', icon: '<i class="fas fa-receipt"></i>', label: 'Pembayaran', badge: 'Tagihan', ket: 'Tagihan & cicilan jamaah', kelompok: 'keuangan' },
+    { id: 'kas', icon: '<i class="fas fa-wallet"></i>', label: 'Uang Kas', badge: 'Kas', ket: 'Buku kas masuk & keluar', kelompok: 'keuangan' },
+    { id: 'estimasi', icon: '<i class="fas fa-chart-pie"></i>', label: 'Cuan Plan', badge: 'Estimasi', ket: 'Estimasi biaya & keuntungan paket', kelompok: 'keuangan' },
+    { id: 'catatan', icon: '<i class="fas fa-note-sticky"></i>', label: 'Catatan', badge: 'Notes', ket: 'Catatan kantor & pribadi', kelompok: 'kantor' },
+    { id: 'kalender-pejabat', icon: '<i class="fas fa-user-tie"></i>', label: 'Kalender Pejabat', badge: 'Jadwal', ket: 'Jadwal pimpinan & cetak promosi', kelompok: 'kantor' },
+    { id: 'agenda-kantor', icon: '<i class="fas fa-calendar-check"></i>', label: 'Agenda Kantor', badge: 'Rapat', ket: 'Jadwal rapat & hasilnya', kelompok: 'kantor' },
     { id: 'datamaster', icon: '<i class="fas fa-calendar-days"></i>', label: 'Multi Event', badge: 'Event', ket: 'Data peserta berbagai kegiatan', kelompok: 'kantor' },
+    { id: 'zakat', icon: '<i class="fas fa-hand-holding-dollar"></i>', label: 'Zakat', badge: 'Kalkulator', ket: 'Kalkulator zakat', kelompok: 'keuangan' },
     { id: 'konfigurasi', icon: '<i class="fas fa-gear"></i>', label: 'Konfigurasi', badge: 'Setting', ket: 'Data instansi, tanda tangan & laporan', kelompok: 'pengaturan' }
 ];
 
@@ -10614,11 +10499,10 @@ function updateRingkasanKeuangan() {
 
     // Total pemasukan = sudah dibayar dari pembayaranData
     let totalPemasukan = 0;
-    const payData = _allPaymentData.filter(t => t.program_id === currentProgramId);
-    jamaahList.forEach(j => {
-        totalPemasukan += payData
-            .filter(t => t.id_jamaah == j.id)
-            .reduce((s, t) => s + (parseInt(t.nominal)||0), 0);
+    // Sumber sama persis dengan halaman Pembayaran (paymentTransaksiList milik Program aktif, hanya untuk jamaah yang ada), supaya kedua angka tidak bisa berbeda
+    const idAktifRingkas = new Set(jamaahList.map(j => j.id));
+    paymentTransaksiList.forEach(t => {
+        if (idAktifRingkas.has(Number(t.id_jamaah)) || idAktifRingkas.has(t.id_jamaah)) totalPemasukan += (parseInt(t.nominal) || 0);
     });
 
     // Total pengeluaran
@@ -10649,6 +10533,11 @@ function updateRingkasanKeuangan() {
                 }
             }
         } catch(e) {}
+    } else {
+        // Keduanya 0: sembunyikan dan kosongkan, supaya angka program lain (sebelum pindah program) tidak tertinggal
+        ringkasan.style.display = 'none';
+        ['ringkasanPemasukan', 'ringkasanPengeluaran', 'ringkasanProfit'].forEach(id => { const el = document.getElementById(id); if (el) el.textContent = f(0); });
+        const cat0 = document.getElementById('ringkasanCatatanFinal'); if (cat0) { cat0.style.display = 'none'; cat0.textContent = ''; }
     }
 }
 
@@ -11482,7 +11371,7 @@ function exportKasExcel() {
 
 async function confirmResetKas() { 
     if(!cekIzinAdmin('bolehReset')) return showToast('🔒 Anda tidak punya izin mereset data');
-    if(await konfirmasiHapusPIN(`Semua ${dataKas.length} transaksi kas akan dihapus permanen.`, 'Kosongkan Buku Kas?', 'Kosongkan')) { 
+    if(await konfirmasiHapusPIN(`Semua ${dataKas.length} transaksi kas akan dihapus permanen.`, 'Kosongkan Uang Kas?', 'Kosongkan')) { 
         dataKas=[]; 
         saveKasData(); 
         const hasilWA=document.getElementById('hasilWA'); 
@@ -11520,6 +11409,7 @@ async function saveJamaahData() {
     _allJamaahData = [...otherProgramData, ...jamaahList];
     await idbSet(STORE_JAMAAH, 'jamaah_list', _allJamaahData);
     rebuildJamaahFilteredList(); 
+    try { updateRingkasanKeuangan(); } catch (e) {}
 }
 
 async function loadDynamicFieldsJamaah() { 
@@ -14626,6 +14516,11 @@ const PEMERIKSA_KESEHATAN = [
         if (totalJamaah) out.push(T('jamaah.ringkas', 'Jamaah', 'info', `Jamaah: ${totalJamaah} orang di ${programAda.length} program`, `${tanpaTemuan} jamaah tanpa temuan, ${totalJamaah - tanpaTemuan} punya catatan di atas (${Math.round(tanpaTemuan / totalJamaah * 100)}% bersih).`, '', []));
         return out;
     } },
+    { id: 'jamaah.nama_simbol', kelompok: 'Jamaah', judul: 'Simbol atau emoji di nama jamaah', jalankan: async () => {
+        const kand = kandidatSimbolNama();
+        if (!kand.length) return [];
+        return [T('jamaah.nama_simbol', 'Jamaah', 'info', `${kand.length} nama jamaah berisi simbol atau emoji`, 'Contohnya tanda ✅ di belakang nama. Simbol ikut tercetak di surat, tiket, label, dan WA, serta ikut terbaca saat nama dicari atau diurutkan.', 'Kalau simbol itu memang penanda yang Anda pakai, abaikan temuan ini. Kalau tidak, bersihkan. Disarankan Backup ZIP dulu.', kand.slice(0, 20).map(c => `${c.asli}  →  ${c.bersih}`), { label: 'Bersihkan simbol di nama', fungsi: 'tawarkanBersihkanSimbolNama()' })];
+    } },
     { id: 'jamaah.onproses_salah_salin', kelompok: 'Jamaah', judul: 'Isian On Proses salah salin', jalankan: async () => {
         const kand = kandidatSalahSalinOnProses();
         if (!kand.length) return [];
@@ -14931,7 +14826,7 @@ function renderCekKesehatan() {
         <div style="font-size:11px;color:#888;margin-top:8px;">Aturan paspor dan meningitis sama dengan kartu peringatan di Home.</div></details>`;
 }
 function kartuTemuanCek(t) {
-    const aksi = t.aksi ? `<button onclick="showPage('${t.aksi.halaman}')" style="border:none;background:#EDE9FE;color:#6D28D9;border-radius:8px;padding:6px 12px;font-size:11px;font-weight:700;cursor:pointer;">${escapeHtml(t.aksi.label)}</button>` : '';
+    const aksi = t.aksi ? `<button onclick="${t.aksi.fungsi ? escapeHtml(t.aksi.fungsi) : `showPage('${t.aksi.halaman}')`}" style="border:none;background:#EDE9FE;color:#6D28D9;border-radius:8px;padding:6px 12px;font-size:11px;font-weight:700;cursor:pointer;">${escapeHtml(t.aksi.label)}</button>` : '';
     const abaikan = (t.gagal || t.tingkat === 'info') ? '' : `<button onclick="abaikanTemuanCek('${escapeHtml(t.kunci)}')" style="border:none;background:#F1F5F9;border-radius:8px;padding:6px 12px;font-size:11px;cursor:pointer;">Abaikan</button>`;
     const umur = Math.floor((Date.now() - (cekKesehatanData.pertamaTerlihat[t.kunci] || Date.now())) / 86400000);
     return `<div style="background:#fff;border-radius:12px;border-left:4px solid ${WARNA_TINGKAT[t.tingkat]};padding:10px 12px;margin-bottom:8px;box-shadow:0 2px 8px rgba(0,0,0,0.05);">
@@ -17730,7 +17625,8 @@ async function migrasiKonsolidasiStatusProsesHaji() {
 async function confirmDeleteJamaahById(id){ 
     if(cekProgramArsip()) return;
     const namaDihapus = jamaahList.find(j=>j.id==id)?.nama_lengkap || 'jamaah ini';
-    if(await konfirmasiHapusPIN(`Data "${namaDihapus}" akan dihapus. Masih bisa dibatalkan beberapa detik setelahnya.`, 'Hapus Jamaah?')){ 
+    const adaDiOnProses = (jamaahKitaList || []).some(k => k.jamaahId == id);
+    if(await konfirmasiHapusPIN(`Data "${namaDihapus}" akan dihapus. Masih bisa dibatalkan beberapa detik setelahnya.` + (adaDiOnProses ? ' Jamaah ini juga ada di On Proses: catatannya tetap disimpan di sana (hapus manual bila tidak diperlukan).' : ''), 'Hapus Jamaah?')){ 
         const index=jamaahList.findIndex(j=>j.id==id); 
         if(index!==-1){ 
             const namaJamaah = jamaahList[index].nama_lengkap;
@@ -18490,7 +18386,12 @@ function bukaMenuExport(judul, ket, opsi, izin) {
 // Tombol standar "Export" untuk halaman. Pemakaian: tombolExportStandar('Judul', 'Keterangan', { cetak: 'fungsi()', bagikan: 'fungsi()' })
 function bukaExportHalaman(id) {
     const c = EXPORT_HALAMAN[id]; if (!c) return;
-    bukaMenuExport(c.judul, c.ket, c.opsi, c.izin);
+    let opsi = c.opsi;
+    // Versi "Lengkap" = Rekap + Pengeluaran. Kalau salah satu kosong, hasilnya sama dengan versi ringkasnya, jadi tidak ditampilkan.
+    if (Array.isArray(opsi.cetak) && opsi.cetak.some(v => v.gabungan) && !(jamaahList.length > 0 && pengeluaranList.length > 0)) {
+        opsi = Object.assign({}, opsi, { cetak: opsi.cetak.filter(v => !v.gabungan) });
+    }
+    bukaMenuExport(c.judul, c.ket, opsi, c.izin);
 }
 const EXPORT_HALAMAN = {
     dashboard: { judul: 'Dashboard', ket: 'Ringkasan kas, jamaah, dan tagihan', opsi: { cetak: 'cetakDashboardHTML()', bagikan: "bagikanDariCetak(()=>cetakDashboardHTML(),'Dashboard')", excel: 'exportDashboardExcel()' } },
@@ -18501,10 +18402,14 @@ const EXPORT_HALAMAN = {
     kalenderpejabat: { judul: 'Kalender Pejabat', ket: 'Pilih versi cetaknya', opsi: { cetak: [{ aksi: "cetakKalenderPejabat('internal')", sub: 'Internal', ket: 'Lengkap, termasuk hari libur. Lihat dulu, lalu cetak atau simpan PDF' }, { aksi: "cetakKalenderPejabat('promosi')", sub: 'Promosi', ket: 'Tampilan promosi, tanpa hari libur. Lihat dulu, lalu cetak atau simpan PDF' }] } },
     simulasi: { judul: 'Simulasi FOC Mitra', ket: '', opsi: { cetak: 'cetakSimulasiGratis()', bagikan: "bagikanDariCetak(()=>cetakSimulasiGratis(),'Simulasi_FOC')" } },
     saldo: { judul: 'Laporan Saldo Kantor', ket: '', opsi: { cetak: 'cetakLaporanSaldo()', bagikan: "bagikanDariCetak(()=>cetakLaporanSaldo(),'Laporan_Saldo_Kantor')", wa: 'shareLaporanSaldoWA()' } },
-    pengeluaran: { judul: 'Pengeluaran', ket: 'Program yang sedang aktif', opsi: { cetak: [{ aksi: 'cetakPengeluaran()', sub: 'Pengeluaran', ket: 'Daftar pengeluaran saja, lihat dulu lalu cetak atau simpan PDF' }, { aksi: "cetakLaporanGabungan('semua')", sub: 'Lengkap', ket: 'Laporan gabungan lengkap, lihat dulu lalu cetak atau simpan PDF' }], excel: 'exportPengeluaranExcel()' } },
+    pengeluaran: { judul: 'Pengeluaran', ket: 'Program yang sedang aktif', opsi: { cetak: [{ aksi: 'cetakPengeluaran()', sub: 'Pengeluaran', ket: 'Daftar pengeluaran saja, lihat dulu lalu cetak atau simpan PDF' }, { aksi: "cetakLaporanGabungan('semua')", gabungan: true, sub: 'Lengkap', ket: 'Rekap + daftar pengeluaran dalam satu laporan. Lihat dulu, lalu cetak atau simpan PDF' }], excel: 'exportPengeluaranExcel()' } },
+    kas: { judul: 'Uang Kas', ket: 'Program yang sedang aktif', opsi: { cetak: 'cetakKasHTML()', bagikan: "bagikanDariCetak(()=>cetakKasHTML(),'Laporan_Kas')", excel: 'exportKasExcel()', wa: 'buatLaporanWA()' } },
+    pembayaran: { judul: 'Pembayaran', ket: 'Program yang sedang aktif', opsi: { cetak: 'cetakPembayaranHTML()', excel: 'exportPaymentExcel()' } },
+    master: { judul: 'Multi Event', ket: '', opsi: { cetak: [{ aksi: 'cetakMasterHTML()', sub: 'Daftar', ket: 'Lihat dulu, lalu cetak atau simpan PDF' }, { aksi: 'openPilihItemKontrolModal()', sub: 'Kontrol Lapangan', ket: 'Kolom ceklis kosong untuk dicentang manual di lapangan' }], excel: 'exportMasterExcel()', wa: 'shareAllMasterToWA()' } },
+    onproses: { judul: 'Jamaah On Proses', ket: 'Program yang sedang aktif', opsi: { cetak: [{ aksi: "bukaDialogCetakOnProses('rekap')", sub: 'Rekap', ket: 'Satu tabel. Pilih kolom yang dicetak' }, { aksi: "bukaDialogCetakOnProses('kelompok')", sub: 'Per Kelompok', ket: 'Dikelompokkan, pilih kolom yang dicetak' }], wa: 'shareAllJamaahKitaToWA()' } },
     tukarriyal: { judul: 'Tukar Riyal', ket: '', opsi: { cetak: 'cetakLaporanTukarRiyal()', bagikan: "bagikanDariCetak(()=>cetakLaporanTukarRiyal(),'Laporan_Tukar_Riyal')", wa: 'shareTukarRiyalWA()' } },
     tiket: { judul: 'Kartu / Tiket Jamaah', ket: 'Untuk jamaah yang dipilih', opsi: { cetak: [{ aksi: 'cetakTiketMulti()', sub: 'Kartu', ket: 'Cetak kartu jamaah yang dipilih. Lihat dulu, lalu cetak atau simpan PDF' }], wa: 'shareTiketWAMulti()' } },
-    rekapaktual: { judul: 'Rekap Aktual', ket: 'Program yang sedang aktif', opsi: { cetak: [{ aksi: 'cetakRekapAktual()', sub: 'Rekap', ket: 'Rekap ringkas. Lihat dulu, lalu cetak atau simpan PDF' }, { aksi: "cetakLaporanGabungan('semua')", sub: 'Lengkap', ket: 'Laporan gabungan lengkap. Lihat dulu, lalu cetak atau simpan PDF' }], wa: 'shareRekapAktual()' } },
+    rekapaktual: { judul: 'Rekap Aktual', ket: 'Program yang sedang aktif', opsi: { cetak: [{ aksi: 'cetakRekapAktual()', sub: 'Rekap', ket: 'Rekap ringkas. Lihat dulu, lalu cetak atau simpan PDF' }, { aksi: "cetakLaporanGabungan('semua')", gabungan: true, sub: 'Lengkap', ket: 'Rekap + daftar pengeluaran dalam satu laporan. Lihat dulu, lalu cetak atau simpan PDF' }], wa: 'shareRekapAktual()' } },
     zakat: { judul: 'Laporan Zakat', ket: '', opsi: { cetak: 'cetakLaporanZakat()', bagikan: "bagikanDariCetak(()=>cetakLaporanZakat(),'Laporan_Zakat')", wa: 'shareZakatWA()', salin: 'salinZakat()' } },
     evaluasi: { judul: 'Evaluasi Hotel & Maskapai', ket: '', opsi: { cetak: 'cetakLaporanEvaluasiRekanan()', bagikan: "bagikanDariCetak(()=>cetakLaporanEvaluasiRekanan(),'Evaluasi_Hotel_Maskapai')", wa: 'shareEvaluasiRekananWA()', salin: 'salinEvaluasiRekanan()' } },
     surat: { judul: 'Surat', ket: '', opsi: { cetak: 'cetakSurat()', bagikan: "bagikanDariCetak(()=>cetakSurat(),'Surat')" } },
@@ -19859,7 +19764,7 @@ async function cetakLaporanPenutupanMusim(mode) {
     }
 
     // 6. Uang Jamaah (Rekening Penampung) — hanya admin penuh dan hanya bila program ini punya rekening penampung (laporan lama tidak berubah).
-    // Sisa penampung dan Laba Bersih ditampilkan berdampingan dan TIDAK dijumlahkan: yang satu uang di rekening, yang lain hitungan kontrak dikurangi pengeluaran.
+    // Sisa penampung dan Laba Bersih ditampilkan berdampingan dan TIDAK dijumlahkan: yang satu uang di rekening, yang lain uang masuk dikurangi pengeluaran.
     let sectionPenampung = '';
     try {
         if (bolehSaldoKantor()) {
@@ -19882,7 +19787,7 @@ async function cetakLaporanPenutupanMusim(mode) {
                 const selisihMasukP = totalUangMasuk - setorP;
                 const semuaTutupP = rekPen.every(r => r.aktif === false);
                 const baris = (t, v) => `<tr><td>${t}</td><td>${f(v)}</td></tr>`;
-                sectionPenampung = `<div class="lap-section"><h2>🧳 Uang Jamaah (Rekening Penampung)${semuaTutupP ? ' — sudah ditutup' : ''}</h2>
+                sectionPenampung = `<div class="lap-section" style="page-break-inside:avoid;break-inside:avoid;"><h2>🧳 Uang Jamaah (Rekening Penampung)${semuaTutupP ? ' — sudah ditutup' : ''}</h2>
                     <table class="lap-table">${rekPen.map(r => `<tr><td>Rekening: ${escapeHtml(labelRekeningSaldo(r))}</td><td>${f(hitungSaldoRekening(r.id))}</td></tr>`).join('')}</table>
                     <table class="lap-table">${baris('Saldo awal', awalP)}${baris('+ Setoran jamaah yang tercatat', setorP)}${masukLainP ? baris('+ Masuk lain (pindahan dari rekening kantor, penyesuaian)', masukLainP) : ''}${baris('− Pengeluaran program dari penampung', pengelP)}${keluarLainP ? baris('− Keluar lain (pindah ke rekening lain, penyesuaian)', keluarLainP) : ''}${tutupP ? baris('− Diserahkan ke kantor (Tutup Musim)', tutupP) : ''}
                     <tr class="lap-total"><td>SISA DI PENAMPUNG</td><td>${f(sisaP)}</td></tr></table>
@@ -19890,8 +19795,8 @@ async function cetakLaporanPenutupanMusim(mode) {
                     <table class="lap-table"><tr><td>Uang masuk dari jamaah menurut Pembayaran</td><td>${f(totalUangMasuk)}</td></tr><tr><td>Setoran jamaah yang tercatat di penampung</td><td>${f(setorP)}</td></tr>
                     <tr class="lap-total"><td>Selisih (Pembayaran − penampung)</td><td>${f(selisihMasukP)}</td></tr></table>
                     ${Math.round(selisihMasukP) !== 0 ? '<p class="lap-note" style="background:#FEF3C7;color:#92400E;padding:6px 8px;border-radius:6px;">⚠️ Ada pembayaran yang belum tercatat di penampung (misalnya pembayaran sebelum penampung dibuat, dipilih "tidak dicatat", atau masuk ke rekening lain). Cek dulu sebelum Tutup Musim.</p>' : '<p class="lap-note">Cocok: semua pembayaran jamaah tercatat di penampung.</p>'}
-                    <table class="lap-table"><tr><td>Sisa di penampung (uang yang tercatat di rekening)</td><td>${f(sisaP)}</td></tr><tr><td>${labelLabaBersih} (hitungan kontrak dikurangi pengeluaran)</td><td>${f(profitRiil)}</td></tr></table>
-                    <p class="lap-note">Kedua angka ini ditampilkan berdampingan dan tidak dijumlahkan. Bila keduanya jauh berbeda, periksa pengeluaran yang belum tercatat atau pembayaran yang belum masuk penampung.</p></div>`;
+                    <table class="lap-table"><tr><td>Sisa di penampung (uang yang tercatat di rekening)</td><td>${f(sisaP)}</td></tr><tr><td>${labelLabaBersih} (uang masuk dikurangi pengeluaran)</td><td>${f(profitRiil)}</td></tr></table>
+                    <p class="lap-note">Sisa penampung dihitung dari catatan di rekening, sedangkan Laba Bersih dari uang masuk dikurangi pengeluaran. Keduanya ditampilkan berdampingan dan tidak dijumlahkan. Bila berbeda jauh, periksa pengeluaran yang belum tercatat atau pembayaran yang belum masuk penampung.</p></div>`;
             }
         }
     } catch (e) { sectionPenampung = ''; }
@@ -20123,7 +20028,7 @@ function daftarCaraPakai() {
               tombol: [bukaMod('Pembayaran', 'pembayaran')] },
             { judul: 'Mencatat pengeluaran',
               isi: 'Umroh dan Haji Khusus: buka <b>Cuan Plan</b> → tab <b>Pengeluaran</b>, pilih kategori, isi keterangan dan nominal, lalu <b>💾 Simpan Pengeluaran</b>. Haji Reguler: catat di <b>Kas</b> → <b>TAMBAH TRANSAKSI</b>. Catat setiap pengeluaran supaya Laba Bersih di laporan tidak terlihat lebih besar dari kenyataan.',
-              tombol: [bukaMod('Cuan Plan', 'estimasi', { noHaji: true }), bukaMod('Kas', 'kas')] },
+              tombol: [bukaMod('Cuan Plan', 'estimasi', { noHaji: true }), bukaMod('Uang Kas', 'kas')] },
             { judul: 'Mengecek siapa yang belum lunas',
               isi: 'Buka <b>Pembayaran</b>: tiap kartu jamaah menunjukkan Total Paket, Dibayar, dan Sisa. Pakai filter <b>Belum Lunas</b> untuk melihat yang masih punya sisa. Jadwal cicilan ada di tombol <b>Cicilan</b> pada kartu, atau lihat kotak <b>Cicilan Perlu Perhatian</b> di Home. Pengingat lewat WhatsApp ada di <b>Pengingat WA</b>.',
               tombol: [bukaMod('Pembayaran', 'pembayaran'), { t: 'Buka Pengingat WA', a: () => showPage('pengingatwa'), h: 'pengingatwa', f: 'pengingatwa' }] },
@@ -21303,6 +21208,37 @@ function hapusPilihanJamaahKita() {
 }
 
 
+// Nama jamaah yang berisi simbol/emoji (mis. ✅). Hanya nama di Database Jamaah dan On Proses program aktif; huruf, angka, tanda baca, dan spasi tidak disentuh.
+function bersihkanSimbolDariNama(nama) {
+    return String(nama || '').replace(/[\p{Extended_Pictographic}\uFE0F\u200D]/gu, c => /[\u00A9\u00AE\u2122]/.test(c) ? c : '').replace(/\s{2,}/g, ' ').trim();
+}
+function kandidatSimbolNama() {
+    const hasil = [];
+    const periksa = (daftar, tipe) => (daftar || []).forEach(o => {
+        const bersih = bersihkanSimbolDariNama(o.nama_lengkap);
+        if (bersih && bersih !== o.nama_lengkap && /[\p{Extended_Pictographic}]/u.test(String(o.nama_lengkap).replace(/[\u00A9\u00AE\u2122]/g, ''))) hasil.push({ tipe, obj: o, asli: o.nama_lengkap, bersih });
+    });
+    periksa(jamaahList, 'db'); periksa(jamaahKitaList, 'kita');
+    return hasil;
+}
+async function tawarkanBersihkanSimbolNama() {
+    const kand = kandidatSimbolNama();
+    if (!kand.length) return showToast('Tidak ada nama yang berisi simbol');
+    const daftar = kand.slice(0, 12).map(c => `${c.asli}  →  ${c.bersih}`);
+    if (kand.length > 12) daftar.push(`…dan ${kand.length - 12} lainnya`);
+    const ya = await tanyaKonfirmasi({ judul: 'Bersihkan simbol di nama jamaah?', pesan: `${kand.length} nama (Database Jamaah dan On Proses) akan dibersihkan dari simbol/emoji. Huruf dan angka tidak berubah. Sebaiknya Backup ZIP dulu.`, daftar, ikon: '🧹', tombolYa: 'Bersihkan', warnaYa: 'var(--primary)' });
+    if (!ya) return;
+    let nDb = 0, nKita = 0;
+    kand.forEach(c => { c.obj.nama_lengkap = c.bersih; if (c.tipe === 'db') nDb++; else nKita++; });
+    if (nDb) await saveJamaahData();
+    if (nKita) await saveJamaahKitaData();
+    catatAktivitas('🧹', `Simbol di ${kand.length} nama jamaah dibersihkan`);
+    if (typeof renderJamaahKitaList === 'function') renderJamaahKitaList();
+    if (typeof renderJamaahListWithPagination === 'function') renderJamaahListWithPagination();
+    showToast(`✅ ${kand.length} nama dibersihkan`);
+    if (typeof bukaCekKesehatan === 'function') bukaCekKesehatan();
+}
+
 // Isian On Proses yang dulu salah tersalin oleh tebakan nama (Hotel Makkah terisi nomor KK; Catatan Status Proses terisi Status Proses).
 // Kandidat = nilainya persis sama dengan isian "tetangga" di Database, sementara isian aslinya di Database kosong (jadi pasti bukan ketikan Bapak).
 const PASANGAN_SALAH_SALIN_ONPROSES = [['hotel_makkah', 'kk', 'Hotel Makkah'], ['catatan_status_proses', 'status_proses', 'Catatan Status Proses']];
@@ -21421,12 +21357,25 @@ function getSortedKitaList(list) {
     return arr.reverse(); // default = terbaru di atas (perilaku lama)
 }
 
+// Nama di On Proses ikut nama terbaru di Database (dipakai pencarian, tampilan, dan semua export)
+function segarkanNamaOnProses() {
+    jamaahKitaList.forEach(jk => {
+        const db = jk.jamaahId ? jamaahList.find(j => j.id === jk.jamaahId) : null;
+        if (db && db.nama_lengkap !== jk.nama_lengkap) jk.nama_lengkap = db.nama_lengkap;
+    });
+}
+// Daftar yang sedang tampil sesuai kotak pencarian (dipakai tampilan dan "Pilih Semua")
+function daftarOnProsesTersaring() {
+    segarkanNamaOnProses();
+    const keyword = document.getElementById('searchJamaahKitaInput')?.value.toLowerCase() || "";
+    let hasil = [...jamaahKitaList];
+    if (keyword) hasil = hasil.filter(j => (j.nama_lengkap || '').toLowerCase().includes(keyword));
+    return hasil;
+}
 function renderJamaahKitaList() {
     const container = document.getElementById('jamaahKitaListContainer');
     if (!container) return;
-    const keyword = document.getElementById('searchJamaahKitaInput')?.value.toLowerCase() || "";
-    let filtered = [...jamaahKitaList];
-    if (keyword) filtered = filtered.filter(j => j.nama_lengkap.toLowerCase().includes(keyword));
+    let filtered = daftarOnProsesTersaring();
     if (filtered.length === 0) {
         container.innerHTML = '<div style="text-align:center;padding:40px;color:#94a3b8;">Belum ada data</div>';
         const paginationEl = document.getElementById('paginationContainerKita');
@@ -21446,7 +21395,7 @@ function renderJamaahKitaList() {
         html += `<div class="jamaah-kita-item">
             <input type="checkbox" class="jamaah-kita-checkbox" value="${jk.id}" ${isChecked ? "checked" : ""} onchange="toggleJamaahKitaSelect(${jk.id}, this.checked)">
             <div class="jamaah-kita-info">
-                <div class="jamaah-kita-nama">👤 ${escapeHtml(jk.nama_lengkap)}
+                <div class="jamaah-kita-nama">👤 ${escapeHtml(jk.nama_lengkap)}${jamaahList.some(j => j.id === jk.jamaahId) ? '' : ' <span style="font-size:10px;font-weight:600;color:#B45309;background:#FEF3C7;border-radius:6px;padding:2px 6px;">⚠️ Tidak ada di Database</span>'}
                     <div class="jamaah-kita-actions">
                         <button onclick="confirmDeleteJamaahKitaById(${jk.id})" style="background:#ef4444;">🗑️ Hapus</button>
                     </div>
@@ -21462,6 +21411,7 @@ function renderJamaahKitaList() {
         paginationEl.innerHTML = buildPaginationHtml(currentJamaahKitaPage, totalPages, 'goToJamaahKitaPage');
     }
     updateJamaahKitaBatchBar();
+    perbaruiTombolPilihSemuaOnProses();
 }
 
 function goToJamaahKitaPage(page) {
@@ -21523,11 +21473,12 @@ function renderJamaahKitaDetailFields(jk) {
     return html;
 }
 
-function cetakRekapOnProses() {
-    if (jamaahKitaList.length === 0) return showToast('Tidak ada data untuk dicetak!');
+function cetakRekapOnProses(daftar) {
+    const sumber = daftar || jamaahKitaList; // daftar diisi dari dialog cetak bila Bapak hanya mencetak yang dicentang
+    if (sumber.length === 0) return showToast('Tidak ada data untuk dicetak!');
     const printFieldNames = getOnProsesPrintFields();
-    const printFields = dynamicFieldsJamaahKita.filter(f => printFieldNames.includes(f.name) && f.name !== 'whatsapp');
-    const sorted = getSortedKitaList([...jamaahKitaList]);
+    const printFields = dynamicFieldsJamaahKita.filter(f => printFieldNames.includes(f.name));
+    const sorted = getSortedKitaList([...sumber]);
     const cfg = getKonfigurasiProData();
     const namaInstansi = getNamaInstansiUtama();
     const watermarkHtml = buildPrintWatermark(cfg);
@@ -21600,17 +21551,38 @@ function cetakRekapOnProses() {
     win.document.close();
 }
 
+// Pilih Semua = semua yang tampil di hasil pencarian (bukan hanya satu halaman). Ditekan lagi = batal pilih semuanya.
+function semuaOnProsesTerpilih() {
+    const daftar = daftarOnProsesTersaring();
+    return daftar.length > 0 && daftar.every(j => selectedJamaahKitaIds.includes(j.id));
+}
+function perbaruiTombolPilihSemuaOnProses() {
+    const b = document.getElementById('btnPilihSemuaOnProses'); if (!b) return;
+    const n = daftarOnProsesTersaring().length;
+    b.textContent = semuaOnProsesTerpilih() ? `❌ Batal Pilih (${n})` : `✅ Pilih Semua${n ? ' (' + n + ')' : ''}`;
+}
 function pilihSemuaOnProses() {
-    document.querySelectorAll('#jamaahKitaListContainer input[type=checkbox]').forEach(cb => cb.checked = true);
+    const daftar = daftarOnProsesTersaring();
+    if (!daftar.length) return;
+    if (semuaOnProsesTerpilih()) {
+        const ids = daftar.map(j => j.id);
+        selectedJamaahKitaIds = selectedJamaahKitaIds.filter(i => !ids.includes(i));
+    } else {
+        daftar.forEach(j => { if (!selectedJamaahKitaIds.includes(j.id)) selectedJamaahKitaIds.push(j.id); });
+    }
+    updateJamaahKitaBatchBar();
+    renderJamaahKitaList();
 }
 
 async function hapusPilihanOnProses() {
-    const checked = document.querySelectorAll('#jamaahKitaListContainer input[type=checkbox]:checked');
-    if (checked.length === 0) return showToast('Pilih jamaah yang mau dihapus dulu!');
-    if (!(await konfirmasiHapus(`${checked.length} jamaah terpilih akan dihapus dari On Proses. Data di Database Jamaah tidak ikut terhapus.`, 'Hapus dari On Proses?'))) return;
-    const ids = Array.from(checked).map(cb => parseInt(cb.value));
+    // Memakai daftar pilihan yang sama dengan bar "dipilih" dan WA Massal, supaya jumlahnya selalu cocok
+    const ids = jamaahKitaList.filter(j => selectedJamaahKitaIds.includes(j.id)).map(j => j.id);
+    if (ids.length === 0) return showToast('Pilih jamaah yang mau dihapus dulu!');
+    if (!(await konfirmasiHapus(`${ids.length} jamaah terpilih akan dihapus dari On Proses. Data di Database Jamaah tidak ikut terhapus.`, 'Hapus dari On Proses?'))) return;
     jamaahKitaList = jamaahKitaList.filter(j => !ids.includes(j.id));
+    selectedJamaahKitaIds = selectedJamaahKitaIds.filter(i => !ids.includes(i));
     saveJamaahKitaData();
+    updateJamaahKitaBatchBar();
     renderJamaahKitaList();
     filterPilihJamaahKita();
     showToast(`🗑️ ${ids.length} jamaah berhasil dihapus!`);
@@ -21692,9 +21664,10 @@ function shareAllJamaahKitaToWA() {
     const fieldsTerpilih = dynamicFieldsJamaahKita.filter(f => printFieldNames.includes(f.name) && f.name !== 'whatsapp');
 
     const entriesText = jamaahKitaList.map((jk, i) => {
+        const dataTerbaru = getMergedJamaahKitaFields(jk); // sama seperti layar dan cetak: nama dan isian terbaru dari Database
         let t = `${i+1}. *${jk.nama_lengkap}*\n`;
         fieldsTerpilih.forEach(field => {
-            const val = jk.additional_fields?.[field.name] || '';
+            const val = dataTerbaru[field.name] || '';
             if (val) t += `   ${field.icon || '📌'} ${field.label}: ${val}\n`;
         });
         return t + '\n';
@@ -21831,38 +21804,60 @@ function cetakLabelJamaahKita() {
     win.document.close();
 }
 
-function showGroupDialogJamaahKita() {
+// Dialog cetak On Proses: pilih kolom (dan kelompok) langsung saat mencetak. Pilihan kolom disimpan di perangkat dan dipakai juga oleh WhatsApp kirim semua.
+function bukaDialogCetakOnProses(mode) {
     if (jamaahKitaList.length === 0) return showToast('Belum ada data!');
-    const groupableFields = dynamicFieldsJamaahKita.filter(f => f.name !== "whatsapp");
-    if (groupableFields.length === 0) return showToast('Tidak ada field untuk pengelompokan.');
-    let optionsHtml = "";
-    groupableFields.forEach(f => { optionsHtml += `<option value="${f.name}">${f.icon || '📌'} ${escapeHtml(f.label)}</option>`; });
-    const dialogHtml = `<div id="groupDialogJamaahKita" style="position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);z-index:10000;display:flex;align-items:center;justify-content:center;">
-        <div style="background:white;border-radius:24px;padding:24px;width:90%;max-width:320px;">
-            <h3 style="color:var(--primary);margin-bottom:16px;">📊 Pilih Kelompok</h3>
-            <p style="font-size:13px;color:#666;margin-bottom:12px;">Kelompokkan berdasarkan:</p>
-            <select id="groupFieldSelectJamaahKita" style="margin-bottom:20px;width:100%;padding:12px;border-radius:12px;border:1px solid #e2e8f0;">${optionsHtml}</select>
-            <div class="row" style="gap:12px;">
-                <button onclick="closeGroupDialogJamaahKita()" style="background:#ccc;color:#333;">Batal</button>
-                <button onclick="printGroupedPDFJamaahKita()" style="background:var(--primary);">Cetak</button>
+    const kelompok = mode === 'kelompok';
+    const dipilihKolom = new Set(getOnProsesPrintFields());
+    const idTerpilih = jamaahKitaList.filter(j => selectedJamaahKitaIds.includes(j.id));
+    let blokKelompok = '';
+    if (kelompok) {
+        const terakhir = localStorage.getItem('navara_onproses_group_field') || '';
+        const cocok = dynamicFieldsJamaahKita.find(f => f.name === terakhir) || dynamicFieldsJamaahKita.find(f => /rombongan|regu|kloter|bus|kamar|hotel/i.test(f.name + ' ' + (f.label || '')));
+        const opsi = dynamicFieldsJamaahKita.filter(f => f.name !== 'whatsapp').map(f => `<option value="${f.name}" ${cocok && cocok.name === f.name ? 'selected' : ''}>${f.icon || '📌'} ${escapeHtml(f.label)}</option>`).join('');
+        blokKelompok = `<p style="font-size:13px;color:#666;margin-bottom:6px;">Kelompokkan berdasarkan:</p>
+            <select id="cetakKitaKelompok" style="margin-bottom:14px;width:100%;padding:12px;border-radius:12px;border:1px solid #e2e8f0;">${opsi}</select>`;
+    }
+    const blokBaris = idTerpilih.length > 0
+        ? `<label style="display:flex;gap:8px;align-items:center;font-size:13px;margin-bottom:14px;background:#F0FBF6;border-radius:10px;padding:8px 10px;"><input type="checkbox" id="cetakKitaHanyaTerpilih" checked style="width:18px;height:18px;accent-color:#0D5C4A;"> Hanya yang dicentang (${idTerpilih.length} orang)</label>`
+        : `<div style="font-size:12px;color:#64748b;margin-bottom:14px;">Mencetak semua ${jamaahKitaList.length} jamaah. Centang orang di daftar dulu kalau hanya sebagian.</div>`;
+    const kolom = dynamicFieldsJamaahKita.map(f => `<label style="display:flex;gap:8px;align-items:center;font-size:13px;padding:5px 0;"><input type="checkbox" class="cetakKitaKolom" value="${f.name}" ${dipilihKolom.has(f.name) ? 'checked' : ''} style="width:18px;height:18px;accent-color:#0D5C4A;"> <span>${f.icon || '📌'} ${escapeHtml(f.label)}${kolomUangOnProses(f) ? ' <small style="color:#B45309;">(uang)</small>' : ''}</span></label>`).join('');
+    document.getElementById('dialogCetakOnProses')?.remove();
+    document.body.insertAdjacentHTML('beforeend', `<div id="dialogCetakOnProses" style="position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);z-index:10000;display:flex;align-items:center;justify-content:center;">
+        <div style="background:white;border-radius:24px;padding:20px;width:92%;max-width:340px;max-height:88vh;display:flex;flex-direction:column;">
+            <h3 style="color:var(--primary);margin-bottom:12px;">${kelompok ? '📊 Cetak Per Kelompok' : '🖨️ Cetak Rekap'}</h3>
+            ${blokKelompok}${blokBaris}
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
+                <b style="font-size:13px;">Kolom yang dicetak</b>
+                <span><button onclick="aturKolomCetakOnProses(true)" style="padding:4px 10px;font-size:11px;background:#e2e8f0;color:#333;border:none;border-radius:8px;">Semua</button> <button onclick="aturKolomCetakOnProses(false)" style="padding:4px 10px;font-size:11px;background:#e2e8f0;color:#333;border:none;border-radius:8px;">Kosongkan</button></span>
             </div>
-        </div>
-    </div>`;
-    document.body.insertAdjacentHTML("beforeend", dialogHtml);
+            <div style="overflow-y:auto;border:1px solid #eee;border-radius:10px;padding:4px 10px;margin-bottom:14px;">${kolom}</div>
+            <div class="row" style="gap:12px;">
+                <button onclick="document.getElementById('dialogCetakOnProses').remove()" style="background:#ccc;color:#333;">Batal</button>
+                <button onclick="jalankanCetakOnProses('${mode}')" style="background:var(--primary);">Cetak</button>
+            </div>
+        </div></div>`);
+}
+function aturKolomCetakOnProses(semua) {
+    document.querySelectorAll('#dialogCetakOnProses .cetakKitaKolom').forEach(cb => cb.checked = semua);
+}
+function jalankanCetakOnProses(mode) {
+    const kolom = Array.from(document.querySelectorAll('#dialogCetakOnProses .cetakKitaKolom:checked')).map(cb => cb.value);
+    if (kolom.length === 0) return showToast('Pilih minimal 1 kolom yang mau dicetak');
+    localStorage.setItem('navara_onproses_print_fields', JSON.stringify(kolom));
+    try { renderOnProsesFieldPrintSelector(); } catch (e) {}
+    const hanyaTerpilih = document.getElementById('cetakKitaHanyaTerpilih')?.checked;
+    const daftar = hanyaTerpilih ? jamaahKitaList.filter(j => selectedJamaahKitaIds.includes(j.id)) : null;
+    const kel = document.getElementById('cetakKitaKelompok')?.value;
+    document.getElementById('dialogCetakOnProses')?.remove();
+    if (mode === 'kelompok') { localStorage.setItem('navara_onproses_group_field', kel || ''); printGroupedPDFJamaahKita(kel, daftar); }
+    else cetakRekapOnProses(daftar);
 }
 
-function closeGroupDialogJamaahKita() {
-    const dialog = document.getElementById("groupDialogJamaahKita");
-    if (dialog) dialog.remove();
-}
-
-async function printGroupedPDFJamaahKita() {
-    const select = document.getElementById("groupFieldSelectJamaahKita");
-    if (!select) return;
-    const fieldName = select.value;
+async function printGroupedPDFJamaahKita(fieldName, daftar) {
     const groupField = dynamicFieldsJamaahKita.find(f => f.name === fieldName);
-    if (!groupField) { showToast('Field tidak ditemukan!'); closeGroupDialogJamaahKita(); return; }
-    closeGroupDialogJamaahKita();
+    if (!groupField) { showToast('Field tidak ditemukan!'); return; }
+    const sumber = daftar || jamaahKitaList;
 
     // Gunakan hanya field yang dipilih untuk dicetak
     const printFieldNames = getOnProsesPrintFields();
@@ -21870,7 +21865,7 @@ async function printGroupedPDFJamaahKita() {
 
     const groups = {};
     const batas = getKonfigurasiProData().settings?.batas_lansia || 60;
-    getSortedKitaList([...jamaahKitaList]).forEach(jk => {
+    getSortedKitaList([...sumber]).forEach(jk => {
         const mergedFields = getMergedJamaahKitaFields(jk);
         const rawVal = mergedFields[groupField.name] || "";
         let key;
@@ -22141,9 +22136,11 @@ function saveOnProsesPrintFields() {
     showToast('Pilihan field cetak disimpan!');
 }
 
+// Kolom uang (diskon, komisi) tidak ikut tercetak kecuali Bapak sendiri mencentangnya di dialog cetak
+function kolomUangOnProses(f) { return /diskon|komisi/i.test((f.name || '') + ' ' + (f.label || '')); }
 function getOnProsesPrintFields() {
     const saved = JSON.parse(localStorage.getItem('navara_onproses_print_fields') || '[]');
-    if (saved.length === 0) return dynamicFieldsJamaahKita.map(f => f.name);
+    if (saved.length === 0) return dynamicFieldsJamaahKita.filter(f => !kolomUangOnProses(f)).map(f => f.name);
     return saved;
 }
 
@@ -23211,6 +23208,7 @@ async function savePaymentData() {
     paymentTransaksiList.forEach(t => { if(!t.program_id) t.program_id = currentProgramId; });
     _allPaymentData = [...otherProgramData, ...paymentTransaksiList];
     await idbSet(STORE_PEMBAYARAN, 'pembayaran_list', _allPaymentData);
+    try { updateRingkasanKeuangan(); } catch (e) {}
 }
 
 function toggleHargaSeragamInput() {
@@ -26785,7 +26783,7 @@ function openIndexedDB() {
 // dengan build baru, data MENTAH (langsung dari IndexedDB, bukan dari memori) disalin dulu sebelum
 // proses migrasi apapun berjalan — supaya kalau ada kesalahan di update, data lama masih bisa dipulihkan.
 // Dokumen & foto tidak ikut disalin (ukurannya besar, dan tidak pernah disentuh proses migrasi).
-const NAVARA_BUILD = '2026.10.24-185';
+const NAVARA_BUILD = '2026.10.26-193';
 const MAKS_SNAPSHOT = 3;
 
 // ==================== DAFTAR DATA PUSAT ====================
@@ -29180,7 +29178,7 @@ function openCustomizeNameTagModal() {
                         ${isNew ? '<span style="font-size:10px;background:#f59e0b;color:white;padding:2px 6px;border-radius:10px;white-space:nowrap;">BARU</span>' : ''}
                     </div>
                     <div style="font-size:11px;color:#888;">
-                        Sumber: ${field.source === 'jamaah' ? 'Data Jamaah' : 'Data Jamaah Kita'} 
+                        Sumber: ${field.source === 'jamaah' ? 'Data Jamaah' : 'Data On Proses'} 
                         (${field.fieldNames.join(', ')})
                     </div>
                 </div>
@@ -31354,21 +31352,6 @@ document.addEventListener('DOMContentLoaded', () => setTimeout(cekTanyaJenisUsah
 
 
 // ===== EXPORT DROPDOWN HANDLER =====
-function toggleExportDropdown(id) {
-    const menu = document.getElementById(id);
-    if (!menu) return;
-    const isShow = menu.classList.contains('show');
-    // Tutup semua dropdown dulu
-    document.querySelectorAll('.export-dropdown-menu').forEach(m => m.classList.remove('show'));
-    if (!isShow) menu.classList.add('show');
-}
-
-document.addEventListener('click', function(e) {
-    if (!e.target.closest('.export-dropdown-wrapper')) {
-        document.querySelectorAll('.export-dropdown-menu').forEach(m => m.classList.remove('show'));
-    }
-});
-
 // ===== PREVIEW PDF FUNCTIONS =====
 function closePreviewPDF() {
     const modal = document.getElementById('previewPDFModal');
