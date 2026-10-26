@@ -2319,7 +2319,7 @@ https://github.com/nodeca/pako/blob/main/LICENSE
         <div id="pengeluaranRingkasan" style="background:linear-gradient(135deg,var(--primary),#0a3d31);border-radius:16px;padding:16px;margin-bottom:14px;color:white;display:none;">
             <div style="font-weight:700;font-size:14px;margin-bottom:10px;">💰 Ringkasan Keuangan</div>
             <div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid rgba(255,255,255,0.2);">
-                <span style="opacity:0.8;font-size:13px;">Total Pemasukan Jamaah</span>
+                <span id="ringkasanLabelPemasukan" style="opacity:0.8;font-size:13px;">Total Pemasukan Jamaah</span>
                 <span id="ringkasanPemasukan" style="font-weight:700;">Rp 0</span>
             </div>
             <div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid rgba(255,255,255,0.2);">
@@ -2919,7 +2919,7 @@ https://github.com/nodeca/pako/blob/main/LICENSE
 <div id="page-jamaah" class="page">
     <div class="header-premium header-premium-small"><div class="back-header"><i class="fas fa-arrow-left" onclick="showPage('home')"></i><h2>Database Jamaah</h2><div style="width:30px;"></div></div></div>
     <div class="card-premium">
-        <div id="jamaahAdminPanel" class="setting-card" style="display:none"><h3 style="color:var(--primary);"> Panel Admin Jamaah</h3><details class="grup-admin" open><summary>➕ Tambah & Kelola</summary><button class="btn btn-utility btn-small mt-2" onclick="showPage('prospek')">🎯 Calon Jamaah (Prospek)</button><button class="btn btn-primary btn-small mt-2" onclick="openTambahJamaahModal()">+ Tambah database</button><button class="btn btn-utility btn-small mt-2" onclick="openManageFieldsModal()">Kelola Field Dinamis</button></details><details class="grup-admin"><summary>📊 Rekap & Analisa</summary><button class="btn btn-utility btn-small mt-2" onclick="openRekapKategoriModal()">📊 Rekap per Kategori</button><button class="btn btn-utility btn-small mt-2" onclick="openKecocokanKamarModal()">🛏️ Cek Kecocokan Kamar</button><button class="btn btn-utility btn-small mt-2" onclick="openKelompokPorsiModal()">📊 Kelompokkan Berdasarkan Porsi</button><button class="btn btn-utility btn-small mt-2" onclick="openKelompokRombonganModal()">👥 Kelompokkan Berdasarkan Rombongan</button><button class="btn btn-utility btn-small mt-2" onclick="openAntrianFollowUpModal()">📋 Antrian Follow-Up Prioritas</button><button class="btn btn-utility btn-small mt-2" onclick="openRekapKomisiMitraModal()">🤝 Rekap Komisi Mitra</button><button class="btn btn-utility btn-small mt-2" onclick="openRekapCicilanModal()">📅 Rekap Cicilan</button></details><details class="grup-admin"><summary>🖨️ Cetak & Kirim</summary><button class="btn btn-utility btn-small mt-2" onclick="cetakManifestRooming()">📋 Cetak Manifest & Rooming</button><button class="btn btn-utility btn-small mt-2" onclick="openWaMassalModal()">📢 Kirim WA Massal</button></details><details class="grup-admin"><summary>📗 Excel</summary><button class="btn btn-utility btn-small mt-2" onclick="downloadTemplateExcel()">⬇️ Download Template Excel</button><button class="btn btn-utility btn-small mt-2" onclick="exportJamaahToExcel()">Export ke Excel</button><button class="btn btn-utility btn-small mt-2" onclick="document.getElementById('importExcelFile').click()">IMPORT EXCEL</button><input type="file" id="importExcelFile" accept=".xlsx,.xls" style="display:none" onchange="importJamaahFromExcel(this)"></details><button class="btn btn-danger btn-small mt-2" onclick="confirmDeleteAllJamaah()">HAPUS SEMUA database</button></div>
+        <div id="jamaahAdminPanel" class="setting-card" style="display:none"><h3 style="color:var(--primary);"> Panel Admin Jamaah</h3><details class="grup-admin" open><summary>➕ Tambah & Kelola</summary><button class="btn btn-utility btn-small mt-2" onclick="showPage('prospek')">🎯 Calon Jamaah (Prospek)</button><button class="btn btn-primary btn-small mt-2" onclick="openTambahJamaahModal()">+ Tambah database</button><button class="btn btn-utility btn-small mt-2" onclick="openManageFieldsModal()">Kelola Field Dinamis</button><button class="btn btn-utility btn-small mt-2" onclick="bukaTandaiTravelModal()">🚌 Tandai Travel Partner</button></details><details class="grup-admin"><summary>📊 Rekap & Analisa</summary><button class="btn btn-utility btn-small mt-2" onclick="openRekapKategoriModal()">📊 Rekap per Kategori</button><button class="btn btn-utility btn-small mt-2" onclick="openKecocokanKamarModal()">🛏️ Cek Kecocokan Kamar</button><button class="btn btn-utility btn-small mt-2" onclick="openKelompokPorsiModal()">📊 Kelompokkan Berdasarkan Porsi</button><button class="btn btn-utility btn-small mt-2" onclick="openKelompokRombonganModal()">👥 Kelompokkan Berdasarkan Rombongan</button><button class="btn btn-utility btn-small mt-2" onclick="openAntrianFollowUpModal()">📋 Antrian Follow-Up Prioritas</button><button class="btn btn-utility btn-small mt-2" onclick="openRekapKomisiMitraModal()">🤝 Rekap Komisi Mitra</button><button class="btn btn-utility btn-small mt-2" onclick="openRekapCicilanModal()">📅 Rekap Cicilan</button></details><details class="grup-admin"><summary>🖨️ Cetak & Kirim</summary><button class="btn btn-utility btn-small mt-2" onclick="cetakManifestRooming()">📋 Cetak Manifest & Rooming</button><button class="btn btn-utility btn-small mt-2" onclick="openWaMassalModal()">📢 Kirim WA Massal</button></details><details class="grup-admin"><summary>📗 Excel</summary><button class="btn btn-utility btn-small mt-2" onclick="downloadTemplateExcel()">⬇️ Download Template Excel</button><button class="btn btn-utility btn-small mt-2" onclick="exportJamaahToExcel()">Export ke Excel</button><button class="btn btn-utility btn-small mt-2" onclick="document.getElementById('importExcelFile').click()">IMPORT EXCEL</button><input type="file" id="importExcelFile" accept=".xlsx,.xls" style="display:none" onchange="importJamaahFromExcel(this)"></details><button class="btn btn-danger btn-small mt-2" onclick="confirmDeleteAllJamaah()">HAPUS SEMUA database</button></div>
         <div class="section-title"><span>DAFTAR JAMAAH</span></div>
         <div class="search-box"><input type="text" id="searchJamaahInput" placeholder=" Cari nama jamaah..." onkeyup="filterJamaahList()"><select id="sortJamaahSelect" onchange="sortJamaahList()"><option value="urutan_asli">Urutan asli</option><option value="nama_asc">Nama A-Z</option><option value="nama_desc">Nama Z-A</option><option value="tgl_asc">Tanggal lama ke baru</option><option value="tgl_desc">Tanggal baru ke lama</option></select><button onclick="resetJamaahFilter()">Reset</button></div>
         <div id="filterLunasChip" style="display:none;align-items:center;gap:8px;background:#F0FBF6;border:1px solid var(--primary);border-radius:20px;padding:6px 12px;margin:8px 0;width:fit-content;">
@@ -4090,6 +4090,18 @@ https://github.com/nodeca/pako/blob/main/LICENSE
 </div>
 
 <!-- MODALS -->
+<div id="travelTandaiModal" class="modal"><div class="modal-content">
+    <h3 style="color:var(--primary);">🚌 Tandai Travel Partner</h3>
+    <div style="font-size:12px;color:#666;margin-bottom:10px;line-height:1.5;">Centang nama-nama yang dibawa satu travel partner. Mereka tidak ditagih per orang (dibayar travelnya lewat tab Konsorsium), tetapi tetap memakai kursi.</div>
+    <label style="font-weight:600;font-size:13px;">Travel partner</label>
+    <select id="travelTandaiPilih" onchange="gantiTravelTandai()" style="width:100%;padding:10px;border-radius:8px;border:1.5px solid #ddd;font-size:14px;background:var(--input-bg);color:var(--text);margin-bottom:8px;"></select>
+    <input type="text" id="travelTandaiCari" placeholder="Cari nama..." oninput="renderTravelTandaiList()" style="width:100%;padding:10px;border-radius:8px;border:1.5px solid #ddd;font-size:14px;margin-bottom:6px;">
+    <div style="display:flex;gap:6px;margin-bottom:6px;"><button class="btn btn-utility btn-small" style="flex:1;" onclick="pilihSemuaTravelTandai(true)">Pilih semua yang tampil</button><button class="btn btn-utility btn-small" style="flex:1;" onclick="pilihSemuaTravelTandai(false)">Kosongkan yang tampil</button></div>
+    <div id="travelTandaiRingkas" style="font-size:12px;font-weight:600;margin:6px 0;"></div>
+    <div id="travelTandaiList" style="max-height:42vh;overflow:auto;border:1px solid #e2e8f0;border-radius:8px;"></div>
+    <button class="btn btn-primary mt-2" onclick="simpanTandaiTravel()">SIMPAN</button>
+    <button class="btn btn-secondary mt-2" onclick="document.getElementById('travelTandaiModal').classList.remove('show')">BATAL</button>
+</div></div>
 <div id="jamaahModal" class="modal"><div class="modal-content"><h3 id="jamaahModalTitle">Tambah database</h3><div id="jamaahFormContainer"></div><button class="btn btn-primary" onclick="saveJamaah()"> SIMPAN</button><button id="btnSimpanTambahLagi" class="btn mt-2" onclick="saveJamaah(true)" style="width:100%;background:#0EA5E9;color:white;display:none;">➕ SIMPAN & TAMBAH LAGI</button><button class="btn btn-secondary mt-2" onclick="closeJamaahModal()">BATAL</button></div></div>
 <div id="fieldModal" class="modal"><div class="modal-content"><h3>Tambah Field Dinamis</h3><div class="dynamic-field"><label>Nama Field</label><input type="text" id="newFieldName" placeholder="Contoh: tanggal_lahir"><div class="error-message">Hanya huruf kecil, angka, underscore</div></div><div class="dynamic-field"><label>Label Field</label><input type="text" id="newFieldLabel" placeholder="Contoh: Tanggal Lahir"></div><div class="dynamic-field"><label>Tipe Field</label><select id="newFieldType" onchange="toggleDropdownOptionsInput()"><option value="text">Text</option><option value="date">Tanggal</option><option value="tel">Telepon</option><option value="textarea">Text Area</option><option value="dropdown">Dropdown / Pilihan</option></select></div><div class="dynamic-field" id="dropdownOptionsWrap" style="display:none;"><label>Daftar Pilihan (pisahkan dengan koma)</label><input type="text" id="newFieldOptions" placeholder="Contoh: Tamattu', Ifrad, Qiran"><div class="error-message" style="color:#888;">Contoh lain: Ya, Tidak</div></div><div class="dynamic-field" style="display:flex;align-items:center;gap:8px;"><input type="checkbox" id="newFieldRahasia" style="width:18px;height:18px;"><label style="margin:0;">Sembunyikan di PDF Folder (Rahasia)</label></div><button class="btn btn-primary" onclick="addDynamicFieldJamaah()"> TAMBAH FIELD</button><button class="btn btn-secondary mt-2" onclick="closeFieldModal()">BATAL</button></div></div>
 <div id="manageFieldsModal" class="modal"><div class="modal-content"><h3>Kelola Field Dinamis</h3><button class="btn btn-primary btn-small" style="margin-bottom:15px;" onclick="closeManageFieldsModal(); openFieldModal();">+ Tambah Field Baru</button><div id="fieldsListContainer"></div><button class="btn btn-primary mt-2" onclick="closeManageFieldsModal()">TUTUP</button></div></div>
@@ -4659,7 +4671,7 @@ function updateHomeStats() {
     // Update dashboard extra
     const komposisiHome = hitungKomposisiPeserta(jamaahData);
     komposisiHome.belumHarga = jamaahData.filter(j => !tanpaTagihan(j) && !(getTotalHargaPaket(j) > 0)).length; // wajib bayar tapi harga paket belum diisi — belum masuk Total Tagihan
-    updateHomeDashboardExtra(komposisiHome.bayar, lunasCount, totalPiutang, komposisiHome);
+    updateHomeDashboardExtra(komposisiHome.bayar + komposisiHome.travelDitagih, lunasCount, totalPiutang, komposisiHome);
 }
 
 function updateHomeDashboardExtra(totalJamaah, lunasCount, totalPiutang, komposisi) {
@@ -4673,7 +4685,7 @@ function updateHomeDashboardExtra(totalJamaah, lunasCount, totalPiutang, komposi
         if(countEl) countEl.textContent = lunasCount + ' / ' + totalJamaah;
         if(labelEl) {
             const sisa = totalJamaah - lunasCount;
-            const tanpaBayar = komposisi ? (komposisi.foc + komposisi.tl + komposisi.pembimbing) : 0;
+            const tanpaBayar = komposisi ? komposisi.tanpaTagihan : 0;
             const catatanTanpa = tanpaBayar > 0 ? ` (+ ${tanpaBayar} tanpa tagihan)` : '';
             if(totalJamaah === 0) labelEl.textContent = tanpaBayar > 0 ? `Belum ada jamaah yang bayar${catatanTanpa}` : 'Belum ada jamaah';
             else if(sisa === 0) labelEl.textContent = '🎉 Semua jamaah sudah lunas!' + catatanTanpa;
@@ -5092,7 +5104,7 @@ function analisisBufferB2BRingan() {
     list.filter(t => t.jumlah > 0 && (t.bufferB2B||0) > 0 && t.lunasFinal).forEach(t => {
         const ring = hitungRingkasanTravel(t, komponen, totalGabungan);
         if(!ring || !ring.punyaKebijakan) return;
-        const totalDibayar = (t.pembayaran||[]).reduce((s,p) => s + (p.nominal||0), 0);
+        const totalDibayar = totalDibayarTravel(t);
         const bufferTravel = t.bufferB2B * (t.jumlah - (t.gratisTravel||0));
         const d = Math.max(0, ring.totalTagihan - totalDibayar);
         disiapkan += bufferTravel; diskon += d;
@@ -9218,6 +9230,11 @@ function updateKonsorsiumTravel(id, field, value) {
     if(field === 'bulat') {
         t.bulat = parseInt(value) || 0;
     }
+    if(field === 'caraBayar') {
+        t.caraBayar = value === 'perorang' ? 'perorang' : 'sekaligus';
+        renderKonsorsiumList(); // tampilan pembayaran ikut berganti
+        return;
+    }
     if(field === 'bufferB2B') {
         t.bufferB2B = parseInt(value.replace(/\D/g,'')) || 0;
     }
@@ -9363,6 +9380,12 @@ function renderKonsorsiumList() {
                     <span style="background:#1E40AF;color:white;font-size:9px;font-weight:700;padding:2px 7px;border-radius:10px;">B2B</span>
                     <span style="font-size:11px;color:#1E40AF;font-weight:600;">Harga ke Travel Partner</span>
                 </div>
+                <div class="dynamic-field" style="margin-bottom:8px;"><label style="font-size:12px;">Cara bayar</label>
+                    <select onchange="updateKonsorsiumTravel(${t.id}, 'caraBayar', this.value)" style="width:100%;padding:10px;border:1.5px solid #cbd5e1;border-radius:8px;font-size:14px;">
+                        <option value="sekaligus" ${travelBayarPerOrang(t) ? '' : 'selected'}>Sekaligus — travel yang bayar</option>
+                        <option value="perorang" ${travelBayarPerOrang(t) ? 'selected' : ''}>Per orang — bayar sendiri-sendiri</option>
+                    </select>
+                    <div style="font-size:11px;color:#1E40AF;margin-top:4px;line-height:1.4;">${travelBayarPerOrang(t) ? 'Tiap jamaah ditagih memakai harga travel ini sesuai tipe kamarnya, dan bayarnya dicatat di Pembayaran jamaah. Tandai namanya lewat Database Jamaah → Tandai Travel Partner.' : 'Pembayaran dicatat sekali di kartu ini (tombol + Catat). Jamaahnya tidak ditagih per orang.'}</div></div>
                 <div class="dynamic-field" style="margin-bottom:8px;"><label style="font-size:12px;">Markup (%)</label><input type="text" id="konsorsiumPersenInput_${t.id}" inputmode="decimal" value="${t.persen || ''}" placeholder="Contoh: 6.7" oninput="updateKonsorsiumTravel(${t.id}, 'persen', this.value)"></div>
                 <div class="dynamic-field" style="margin-bottom:0;"><label style="font-size:12px;">Atau Profit Tetap (Rp)</label><input type="text" id="konsorsiumProfitRpInput_${t.id}" class="money-input" inputmode="numeric" value="${t.profitRp ? t.profitRp.toLocaleString('id-ID') : ''}" placeholder="Contoh: 2.500.000 (B2B)" oninput="updateKonsorsiumTravel(${t.id}, 'profitRp', this.value)"></div>
                 <details ${_ktBuka[t.id + 'o'] ? 'open' : ''} ontoggle="ktToggle(this, '${t.id}o')" style="margin-top:10px;">
@@ -9408,7 +9431,8 @@ function hitungRingkasanTravel(t, komponen, totalGabungan) {
         totalGratisTerpakai += potonganGratis;
         const jumlahDibayar = x.jumlah - potonganGratis;
         const hargaTanpaBuffer = punyaKebijakan ? hitungHargaDariKebijakan(x.modal, t) : null;
-        const harga = hargaTanpaBuffer !== null ? hargaTanpaBuffer + buffer : null; // Buffer masuk ke Harga yang ditagihkan
+        const hargaMentah = hargaTanpaBuffer !== null ? hargaTanpaBuffer + buffer : null; // Buffer masuk ke Harga yang ditagihkan
+        const harga = (hargaMentah !== null && travelBayarPerOrang(t)) ? Math.round(hargaMentah) : hargaMentah; // Per orang: harga bulat rupiah supaya jumlah tagihan jamaah sama persis dengan tagihan travel
         const tagihanTipe = harga !== null ? harga * jumlahDibayar : 0;
         if(harga !== null) { totalTagihan += tagihanTipe; totalTagihanTanpaBuffer += hargaTanpaBuffer * jumlahDibayar; }
         return { ...x, harga, hargaTanpaBuffer, jumlahDibayar, gratisDiSini: potonganGratis, tagihanTipe };
@@ -9474,15 +9498,18 @@ function renderStatusPembayaranTravel(id) {
 
     if(!ring || !ring.punyaKebijakan) { el.innerHTML = ''; return; }
 
-    const totalDibayar = (t.pembayaran || []).reduce((s,p) => s + (p.nominal||0), 0);
+    const totalDibayar = totalDibayarTravel(t);
     const sisa = ring.totalTagihan - totalDibayar;
     const warnaSisa = sisa <= 0 ? '#166534' : '#DC2626';
+    const perOrang = travelBayarPerOrang(t);
+    const nDidata = perOrang ? jamaahList.filter(j => jenisPeserta(j) === 'travel' && travelPartnerIdPeserta(j) === String(id)).length : 0;
 
     el.innerHTML = `<div style="background:#F0F9FF;border:1px solid #BAE6FD;border-radius:10px;padding:10px 12px;">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
             <div style="font-size:10px;color:#0369A1;font-weight:700;text-transform:uppercase;">💰 Status Pembayaran Travel Partner</div>
-            <button onclick="openCatatPembayaranTravelModal(${id})" style="background:#0369A1;color:white;border:none;border-radius:20px;padding:5px 12px;font-size:11px;font-weight:700;cursor:pointer;">+ Catat</button>
+            ${perOrang ? '' : `<button onclick="openCatatPembayaranTravelModal(${id})" style="background:#0369A1;color:white;border:none;border-radius:20px;padding:5px 12px;font-size:11px;font-weight:700;cursor:pointer;">+ Catat</button>`}
         </div>
+        ${perOrang ? `<div style="font-size:11px;color:#0369A1;margin-bottom:6px;line-height:1.4;">Dibayar per orang: jumlahnya otomatis dari Pembayaran jamaah milik travel ini (${nDidata} dari ${t.jumlah || 0} orang sudah terdaftar di Database).${(t.pembayaran || []).length ? ' ⚠️ Ada catatan pembayaran sekaligus di kartu ini (' + t.pembayaran.length + 'x) yang tidak dihitung selama cara bayarnya Per orang.' : ''}</div>` : ''}
         <div style="display:flex;justify-content:space-between;font-size:12px;color:#444;padding:2px 0;"><span>Total Tagihan</span><span style="font-weight:700;">${f(ring.totalTagihan)}</span></div>
         <div style="display:flex;justify-content:space-between;font-size:12px;color:#444;padding:2px 0;"><span>Sudah Dibayar</span><span style="font-weight:700;color:#166534;">${f(totalDibayar)}</span></div>
         <div style="display:flex;justify-content:space-between;font-size:12px;padding:2px 0;border-top:1px dashed #BAE6FD;margin-top:2px;"><span style="font-weight:700;">Sisa</span><span style="font-weight:900;color:${warnaSisa};">${f(Math.abs(sisa))}${sisa < 0 ? ' (lebih bayar)' : ''}</span></div>
@@ -9490,7 +9517,7 @@ function renderStatusPembayaranTravel(id) {
             <input type="checkbox" ${t.lunasFinal ? 'checked' : ''} onchange="toggleLunasFinalTravel(${id}, this.checked)" style="width:15px;height:15px;">
             ✅ Tandai Lunas/Final (urusan dengan Travel ini sudah selesai, tidak ada tagihan lagi)
         </label>
-        ${(t.pembayaran||[]).length > 0 ? `<div style="font-size:11px;color:#0369A1;margin-top:6px;cursor:pointer;text-decoration:underline;" onclick="openRiwayatPembayaranTravelModal(${id})">Lihat riwayat (${t.pembayaran.length}x)</div>` : ''}
+        ${(t.pembayaran||[]).length > 0 && !perOrang ? `<div style="font-size:11px;color:#0369A1;margin-top:6px;cursor:pointer;text-decoration:underline;" onclick="openRiwayatPembayaranTravelModal(${id})">Lihat riwayat (${t.pembayaran.length}x)</div>` : ''}
     </div>`;
 }
 
@@ -9654,7 +9681,7 @@ function renderAnalisisBufferB2BModal(modalEl) {
     list.filter(t => t.jumlah > 0 && (t.bufferB2B||0) > 0).forEach(t => {
         const ring = hitungRingkasanTravel(t, komponen, totalGabungan);
         if(!ring || !ring.punyaKebijakan) return;
-        const totalDibayar = (t.pembayaran||[]).reduce((s,p) => s + (p.nominal||0), 0);
+        const totalDibayar = totalDibayarTravel(t);
         if(!t.lunasFinal) { travelBelumFinal.push(t.nama || 'Travel tanpa nama'); return; }
 
         const bufferDisiapkanTravel = t.bufferB2B * (t.jumlah - (t.gratisTravel||0));
@@ -9724,7 +9751,7 @@ function renderKonsorsiumRingkasan() {
             adaYangValid = true;
             jumlahTravelAktif++;
             totalModal += ring.totalModal;
-            totalSudahDibayar += (t.pembayaran || []).reduce((s,p) => s + (p.nominal||0), 0);
+            totalSudahDibayar += totalDibayarTravel(t);
             if(ring.punyaKebijakan) {
                 totalTagihan += ring.totalTagihan;
                 totalProfit += ring.totalProfit;
@@ -9807,7 +9834,7 @@ function catatanBulatKonsorsium() {
 function hitungPosisiRombongan() {
     const d = ensureProgramConfigSlot().konsorsium_estimasi_data;
     if(!d || !konsorsiumLastModal) return null;
-    const sendiri = (typeof jamaahList !== 'undefined' ? jamaahList : []).filter(j => String(j.program_id) === String(currentProgramId) && !tanpaTagihan(j)).length;
+    const sendiri = (typeof jamaahList !== 'undefined' ? jamaahList : []).filter(j => String(j.program_id) === String(currentProgramId) && jenisPeserta(j) === 'bayar').length;
     return hitungPosisiDariData(d, konsorsiumLastModal, konsorsiumLastBrosur, ensureKonsorsiumList(), sendiri);
 }
 
@@ -10516,6 +10543,12 @@ function updateRingkasanKeuangan() {
         if (idAktifRingkas.has(Number(t.id_jamaah)) || idAktifRingkas.has(t.id_jamaah)) totalPemasukan += (parseInt(t.nominal) || 0);
     });
 
+    // Uang masuk dari Travel Partner (dicatat di tab Konsorsium) ikut dihitung supaya Laba tidak kurang
+    const tpMasuk = ringkasTravelPartnerKeuangan(), uangTravel = tpMasuk ? tpMasuk.dibayar : 0;
+    totalPemasukan += uangTravel;
+    const lblMasuk = document.getElementById('ringkasanLabelPemasukan');
+    if(lblMasuk) lblMasuk.textContent = uangTravel > 0 ? 'Total Pemasukan (jamaah + travel partner)' : 'Total Pemasukan Jamaah';
+
     // Total pengeluaran
     const totalPengeluaran = pengeluaranList.reduce((a,p) => a + p.nominal, 0);
     const profit = totalPemasukan - totalPengeluaran;
@@ -10811,8 +10844,11 @@ function hitungRekapAktual() {
     const modalFocTL = estRingkas ? ((estRingkas.foc || 0) + (estRingkas.tl || 0)) * estRingkas.modal : 0;
     const modalJamaahBayar = grandModal;
     grandModal += modalFocTL;
+    // Travel Partner: tagihan, uang masuk, dan modalnya diambil dari tab Konsorsium (peserta bertanda Travel Partner tidak ditagih per orang)
+    const tpRekap = est ? ringkasTravelPartnerKeuangan() : null, modalTravel = tpRekap ? tpRekap.modal : 0;
+    if(tpRekap) { grandKontrak += tpRekap.tagihan; grandOmzet += tpRekap.dibayar; grandPiutang += Math.max(0, tpRekap.tagihan - tpRekap.dibayar); grandModal += modalTravel; }
     const komposisiRekap = hitungKomposisiPeserta(jamaahList);
-    const adaTanpaTagihan = (komposisiRekap.foc + komposisiRekap.tl + komposisiRekap.pembimbing) > 0;
+    const adaTanpaTagihan = komposisiRekap.tanpaTagihan > 0;
     const kursiRekap = ringkasKursiTerisi(jamaahList);
     const pembulatanRekap = ringkasPembulatanHarga(jamaahList);
     const modalNaikRekap = ringkasModalNaik(jamaahList);
@@ -10828,7 +10864,7 @@ function hitungRekapAktual() {
             nama, totalJamaah: d.jamaah.length + (d.tanpaHarga?.length || 0), nBayar: d.jamaah.length,
             kontrak: d.totalKontrak || d.totalOmzet, dibayar: d.totalOmzet, piutang: d.totalPiutang || 0,
             modal: d.totalModal, profit: d.totalOmzet - d.totalModal, tanpaHarga: d.tanpaHarga?.length || 0 }; }),
-        grand: { kontrak: grandKontrak, dibayar: grandOmzet, piutang: grandPiutang, modalJamaahBayar, modalFocTL,
+        grand: { kontrak: grandKontrak, dibayar: grandOmzet, piutang: grandPiutang, modalJamaahBayar, modalFocTL, modalTravel, travel: tpRekap,
                  nFoc: estRingkas?.foc || 0, nTL: estRingkas?.tl || 0, modal: grandModal, profit: grandProfit },
         tanpaTipe: tanpaTipe.slice(), tanpaTipeUang: tanpaTipeUang, tanpaTipeEfek: tanpaTipeEfek, hargaBawah: hargaBawahStandar.length,
         anakBawah: hargaAnakBawah.length ? { n: hargaAnakBawah.length, nBayi: hargaAnakBawah.filter(h => h.jenis === 'bayi').length, pemasukan: hargaAnakBawah.reduce((a, h) => a + h.harga, 0), modal: hargaAnakBawah.reduce((a, h) => a + h.modal, 0), perkiraan: hargaAnakBawah.some(h => h.sumber !== 'diisi'), selisih: hargaAnakBawah.reduce((a, h) => a + h.selisih, 0) } : null,
@@ -10859,14 +10895,19 @@ function hitungRekapAktual() {
             <span style="font-size:13px;opacity:0.8;">Piutang/Sisa</span>
             <span style="font-size:13px;font-weight:700;color:#f59e0b;">-${f(grandPiutang)}</span>
         </div>` : ''}
-        ${modalFocTL > 0 ? `<div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid rgba(255,255,255,0.2);">
+        ${tpRekap ? `<div style="font-size:11px;opacity:0.85;padding:4px 0;border-bottom:1px solid rgba(255,255,255,0.2);">🚌 Sudah termasuk Travel Partner ${tpRekap.n} orang: tagihan ${f(tpRekap.tagihan)}, sudah dibayar ${f(tpRekap.dibayar)}${tpRekap.tanpaHarga > 0 ? ` (${tpRekap.tanpaHarga} travel belum punya harga)` : ''}</div>` : ''}
+        ${(modalFocTL > 0 || modalTravel > 0) ? `<div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid rgba(255,255,255,0.2);">
             <span style="font-size:13px;opacity:0.8;">Modal jamaah bayar</span>
             <span style="font-size:13px;">${f(modalJamaahBayar)}</span>
         </div>
-        <div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid rgba(255,255,255,0.2);">
+        ${modalFocTL > 0 ? `<div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid rgba(255,255,255,0.2);">
             <span style="font-size:13px;opacity:0.8;">${labelModalFocTL(estRingkas.foc, estRingkas.tl)}</span>
             <span style="font-size:13px;">${f(modalFocTL)}</span>
         </div>` : ''}
+        ${modalTravel > 0 ? `<div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid rgba(255,255,255,0.2);">
+            <span style="font-size:13px;opacity:0.8;">Modal Travel Partner (${tpRekap.n} orang)</span>
+            <span style="font-size:13px;">${f(modalTravel)}</span>
+        </div>` : ''}` : ''}
         ${grandModal > 0 ? `<div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid rgba(255,255,255,0.2);">
             <span style="font-size:13px;opacity:0.8;">Total Modal (estimasi)</span>
             <span style="font-size:13px;">${f(grandModal)}</span>
@@ -11053,7 +11094,10 @@ function shareRekapAktual() {
     const g = data.grand;
     text += `\n💰 *TOTAL KESELURUHAN*\nTotal Kontrak/Omzet: ${f(g.kontrak)}\nSudah Dibayar: ${f(g.dibayar)}\n`;
     if (g.piutang > 0) text += `Piutang/Sisa: -${f(g.piutang)}\n`;
-    if (g.modalFocTL > 0) text += `Modal jamaah bayar: ${f(g.modalJamaahBayar)}\n${labelModalFocTL(g.nFoc, g.nTL)}: ${f(g.modalFocTL)}\n`;
+    if (g.travel) text += `🚌 Sudah termasuk Travel Partner ${g.travel.n} orang: tagihan ${f(g.travel.tagihan)}, sudah dibayar ${f(g.travel.dibayar)}\n`;
+    if (g.modalFocTL > 0 || g.modalTravel > 0) text += `Modal jamaah bayar: ${f(g.modalJamaahBayar)}\n`;
+    if (g.modalFocTL > 0) text += `${labelModalFocTL(g.nFoc, g.nTL)}: ${f(g.modalFocTL)}\n`;
+    if (g.modalTravel > 0) text += `Modal Travel Partner (${g.travel.n} orang): ${f(g.modalTravel)}\n`;
     if (g.modal > 0) text += `Total Modal (estimasi): ${f(g.modal)}\n*LABA SEMENTARA: ${f(g.profit)}*\n`;
     if (data.komposisi) text += `\n🏷️ Peserta: ${data.komposisi}`;
     if (data.kursi) text += `\n🪑 Kursi bayar terisi ${data.kursi.terisi} dari ${data.kursi.total} (${data.kursi.persen}%)`;
@@ -11660,7 +11704,7 @@ function renderJamaahListWithPagination() {
         const adaKebutuhanKhusus = (j.kebutuhan_khusus?.kondisi?.length > 0) || !!j.kebutuhan_khusus?.catatan;
         const statusProses = j.additional_fields?.status_proses || '';
         const badgeStatusProses = (statusProses && statusProses !== 'Normal') ? `<span title="Status Proses: ${escapeHtml(statusProses)}${j.additional_fields?.catatan_status_proses ? ' — ' + escapeHtml(j.additional_fields.catatan_status_proses) : ''}" style="font-size:13px;">${statusProses}</span>` : '';
-        html+=`<div class="jamaah-card"><div class="jamaah-header"><div style="display:flex;align-items:center;gap:10px;flex:1;"><div id="foto_thumb_${j.id}" style="width:44px;height:44px;border-radius:50%;background:#f0f0f0;border:2px solid var(--primary);overflow:hidden;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;" onclick="showFotoProfilModal(${j.id},'${jsArg(j.nama_lengkap)}')"><span style="font-size:22px;">👤</span></div><div><div class="jamaah-nama"><span style="background:var(--primary); color:white; display:inline-block; width:28px; height:28px; border-radius:50%; text-align:center; line-height:28px; font-size:13px; margin-right:10px;">${displayNum}</span> ${escapeHtml(j.nama_lengkap)} ${adaKebutuhanKhusus ? '<span title="Ada kebutuhan khusus/kontak darurat tercatat" style="font-size:13px;">🏥</span>' : ''} ${badgeStatusProses} ${tanpaTagihan(j) ? `<span title="${escapeHtml(infoJenisPeserta(j).ket)}" style="font-size:10px;background:#EDE9FE;color:#5B21B6;border-radius:6px;padding:2px 6px;font-weight:700;vertical-align:middle;">${infoJenisPeserta(j).ikon} ${infoJenisPeserta(j).label}</span>` : ''}</div><div class="jamaah-tgl"> ${j.created_at||'-'}</div></div></div><div class="jamaah-actions"><button class="btn-share-wa" style="background:#0D9488;" onclick="openPaymentModalWithJamaah(${j.id})" title="Bayar Cepat"><i class="fas fa-money-bill-wave"></i></button><button class="btn-share-wa" onclick="shareSingleJamaahById('${j.id}')"><i class="fab fa-whatsapp"></i></button><button class="btn-edit-jamaah" onclick="editJamaahById('${j.id}')"><i class="fas fa-edit"></i></button><button class="btn-delete-jamaah" onclick="confirmDeleteJamaahById('${j.id}')"><i class="fas fa-trash"></i></button></div></div><div class="jamaah-detail">`; 
+        html+=`<div class="jamaah-card"><div class="jamaah-header"><div style="display:flex;align-items:center;gap:10px;flex:1;"><div id="foto_thumb_${j.id}" style="width:44px;height:44px;border-radius:50%;background:#f0f0f0;border:2px solid var(--primary);overflow:hidden;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;" onclick="showFotoProfilModal(${j.id},'${jsArg(j.nama_lengkap)}')"><span style="font-size:22px;">👤</span></div><div><div class="jamaah-nama"><span style="background:var(--primary); color:white; display:inline-block; width:28px; height:28px; border-radius:50%; text-align:center; line-height:28px; font-size:13px; margin-right:10px;">${displayNum}</span> ${escapeHtml(j.nama_lengkap)} ${adaKebutuhanKhusus ? '<span title="Ada kebutuhan khusus/kontak darurat tercatat" style="font-size:13px;">🏥</span>' : ''} ${badgeStatusProses} ${tanpaTagihan(j) ? `<span title="${escapeHtml(infoJenisPeserta(j).ket)}" style="font-size:10px;background:#EDE9FE;color:#5B21B6;border-radius:6px;padding:2px 6px;font-weight:700;vertical-align:middle;">${infoJenisPeserta(j).ikon} ${infoJenisPeserta(j).label}${jenisPeserta(j) === 'travel' && namaTravelPeserta(j) ? ' · ' + escapeHtml(namaTravelPeserta(j)) : ''}</span>` : ''}</div><div class="jamaah-tgl"> ${j.created_at||'-'}</div></div></div><div class="jamaah-actions"><button class="btn-share-wa" style="background:#0D9488;" onclick="openPaymentModalWithJamaah(${j.id})" title="Bayar Cepat"><i class="fas fa-money-bill-wave"></i></button><button class="btn-share-wa" onclick="shareSingleJamaahById('${j.id}')"><i class="fab fa-whatsapp"></i></button><button class="btn-edit-jamaah" onclick="editJamaahById('${j.id}')"><i class="fas fa-edit"></i></button><button class="btn-delete-jamaah" onclick="confirmDeleteJamaahById('${j.id}')"><i class="fas fa-trash"></i></button></div></div><div class="jamaah-detail">`; 
         for(const field of getDynamicFieldsJamaahTampil()){ 
             const val=j.additional_fields?.[field.name]||''; 
             if(val) html+=`<div class="jamaah-detail-item"><strong>${escapeHtml(field.label)}:</strong> ${escapeHtml(val)}</div>`; 
@@ -14611,10 +14655,10 @@ const PEMERIKSA_KESEHATAN = [
             const bayarTanpaHarga = [];
             list.filter(j => !tanpaTagihan(j) && !(getTotalHargaPaketUntukProgram(j, p.id) > 0)).forEach(j => { const total = ctx.bayar.filter(t => String(t.id_jamaah) === String(j.id)).reduce((a, t) => a + (Number(t.nominal) || 0), 0); if (total > 0) bayarTanpaHarga.push(`${nama({ j })} · sudah bayar ${rp(total)}, harga paket belum diisi`); });
             if (bayarTanpaHarga.length) out.push(T('jamaah.bayar_tanpa_harga:' + p.id, 'Jamaah', 'serius', 'Ada uang masuk dari jamaah yang harga paketnya belum diisi' + tag, 'Uangnya tercatat dan ikut dihitung di Realisasi, tetapi kontraknya tidak ada, jadi Total Kontrak, Piutang, dan Proyeksi Laba kurang dari sebenarnya.', 'Isi harga paketnya di menu Pembayaran (tombol Atur Harga).', bayarTanpaHarga));
-            // 5. Peserta tanpa tagihan (FOC/TL/Pembimbing) yang tercatat punya pembayaran
+            // 5. Peserta tanpa tagihan (FOC/TL/Pembimbing/Travel Partner) yang tercatat punya pembayaran
             const tanpaTagBayar = [];
             list.filter(j => tanpaTagihan(j)).forEach(j => { const total = ctx.bayar.filter(t => String(t.id_jamaah) === String(j.id)).reduce((a, t) => a + (Number(t.nominal) || 0), 0); if (total > 0) tanpaTagBayar.push(`${nama({ j })} · ${infoJenisPeserta(j).label} · tercatat ${rp(total)}`); });
-            if (tanpaTagBayar.length) out.push(T('jamaah.tanpa_tagihan_ada_bayar:' + p.id, 'Jamaah', 'perhatian', 'Peserta tanpa tagihan punya pembayaran' + tag, 'FOC, TL, atau pembimbing tidak ditagih, tetapi ada uang masuk atas namanya. Uang itu tetap dihitung di Rekap, tetapi biasanya ini salah jenis peserta atau salah pilih nama.', 'Periksa jenis pesertanya, atau pindahkan pembayarannya ke nama yang benar.', tanpaTagBayar));
+            if (tanpaTagBayar.length) out.push(T('jamaah.tanpa_tagihan_ada_bayar:' + p.id, 'Jamaah', 'perhatian', 'Peserta tanpa tagihan punya pembayaran' + tag, 'FOC, TL, pembimbing, atau Travel Partner tidak ditagih per orang, tetapi ada uang masuk atas namanya. Uang itu tetap dihitung di Rekap, tetapi biasanya ini salah jenis peserta atau salah pilih nama. Untuk Travel Partner, pembayaran dicatat di tab Konsorsium; kalau dicatat di sini juga, uangnya terhitung dua kali.', 'Periksa jenis pesertanya, atau pindahkan pembayarannya ke nama yang benar.', tanpaTagBayar));
             // 6. Jumlah FOC dan TL di daftar jamaah dibanding rencana di Cuan Plan (modal FOC/TL dihitung dari Cuan Plan)
             if (est) {
                 const kom = hitungKomposisiPeserta(list), prn = v => parseInt(String(v || '0').replace(/\./g, '').replace(/[^0-9]/g, '')) || 0;
@@ -14633,10 +14677,25 @@ const PEMERIKSA_KESEHATAN = [
         for (const p of ctx.program) {
             const slot = ctx.konfig.per_program?.[p.id];
             const d = slot?.konsorsium_estimasi_data, daftar = Array.isArray(slot?.konsorsium_list) ? slot.konsorsium_list.filter(t => t.jumlah > 0) : [];
-            if (!d || !daftar.length) continue;
             const tag = ` — ${p.nama || 'Program'}`;
+            // Peserta bertanda Travel Partner: harus cocok dengan jumlah orang di tab Konsorsium (hanya diperiksa bila sudah ada yang ditandai)
+            const pesertaTravel = ctx.jamaah.filter(j => j.program_id === p.id && jenisPeserta(j) === 'travel');
+            if (pesertaTravel.length) {
+                if (!daftar.length) out.push(T('konsorsium.peserta_tanpa_travel:' + p.id, K, 'perhatian', 'Ada peserta Travel Partner tetapi Konsorsium belum ada travelnya' + tag, `${pesertaTravel.length} peserta bertanda Travel Partner, tetapi belum ada travel (dengan jumlah orang) di tab Konsorsium, jadi kursi dan pembayarannya belum terhitung.`, 'Tambahkan travel partner di tab Konsorsium, lalu pilih travelnya pada data jamaah.', pesertaTravel.map(j => j.nama_lengkap)));
+                else {
+                    const idAda = new Set(daftar.map(t => String(t.id)));
+                    const hitung = {}, tanpaPilih = [];
+                    pesertaTravel.forEach(j => { const id = travelPartnerIdPeserta(j); if (!id || !idAda.has(id)) tanpaPilih.push(j.nama_lengkap); else hitung[id] = (hitung[id] || 0) + 1; });
+                    const beda = daftar.filter(t => (hitung[String(t.id)] || 0) !== t.jumlah).map(t => `${t.nama || 'Travel tanpa nama'} · di database ${hitung[String(t.id)] || 0} orang, di Konsorsium ${t.jumlah} orang`);
+                    if (beda.length) out.push(T('konsorsium.jumlah_beda:' + p.id, K, 'perhatian', 'Jumlah peserta Travel Partner beda dari Konsorsium' + tag, 'Kursi dihitung dari jumlah di tab Konsorsium. Kalau daftar jamaah berbeda, ada nama yang belum ditandai, salah tandai, atau jumlah di Konsorsium belum diperbarui.', 'Samakan: tandai namanya di Database Jamaah, atau perbarui jumlah orang di kartu Travel Partner.', beda));
+                    const gratisBeda = daftar.filter(t => travelBayarPerOrang(t)).map(t => { const n = pesertaTravel.filter(j => travelPartnerIdPeserta(j) === String(t.id) && j.additional_fields && j.additional_fields.gratis_travel).length; return n !== (t.gratisTravel || 0) ? `${t.nama || 'Travel tanpa nama'} · ditandai gratis ${n} orang, di Konsorsium ${t.gratisTravel || 0} orang` : null; }).filter(Boolean);
+                    if (gratisBeda.length) out.push(T('konsorsium.gratis_beda:' + p.id, K, 'perhatian', 'Jumlah peserta gratis dari travel beda dari Konsorsium' + tag, 'Travel dengan cara bayar Per orang: orang yang gratis tidak ditagih, sisanya ditagih penuh. Kalau jumlahnya beda, tagihan jamaah tidak cocok dengan tagihan travel.', 'Centang 🎁 gratis pada nama yang benar di Tandai Travel Partner, atau perbarui FOC dari Travel Ini.', gratisBeda));
+                    if (tanpaPilih.length) out.push(T('konsorsium.peserta_tanpa_pilihan:' + p.id, K, 'perhatian', 'Peserta Travel Partner belum dipilih travelnya' + tag, 'Nama-nama ini bertanda Travel Partner tetapi belum dihubungkan ke travelnya.', 'Buka data jamaahnya lalu pilih travel partner.', tanpaPilih));
+                }
+            }
+            if (!d || !daftar.length) continue;
             if (!(d.modal > 0)) { out.push(T('konsorsium.belum_hitung:' + p.id, K, 'perhatian', 'Estimasi Konsorsium belum dihitung' + tag, 'Travel Partner sudah ada, tetapi tombol HITUNG ESTIMASI KONSORSIUM belum ditekan, jadi harga dan posisi rombongan belum bisa diperiksa.', 'Buka tab Konsorsium lalu tekan HITUNG ESTIMASI KONSORSIUM.', [])); continue; }
-            const sendiri = ctx.jamaah.filter(j => j.program_id === p.id && !tanpaTagihan(j)).length;
+            const sendiri = ctx.jamaah.filter(j => j.program_id === p.id && jenisPeserta(j) === 'bayar').length;
             const pos = hitungPosisiDariData(d, d.modal, d.hargaBrosur || 0, daftar, sendiri);
             if (!pos) continue;
             if (pos.sisa < 0) out.push(T('konsorsium.melebihi_kursi:' + p.id, K, 'serius', 'Jumlah orang melebihi kursi bayar' + tag, `Jamaah sendiri (${pos.sendiri}) ditambah Travel Partner (${pos.travelOrang}) lebih banyak ${-pos.sisa} orang dari kursi bayar (${pos.kursiBayar}). Harga yang dihitung dari Total Pax tidak lagi valid.`, 'Naikkan Total Pax di Cuan Plan atau kurangi peserta, lalu hitung ulang.', []));
@@ -14648,9 +14707,11 @@ const PEMERIKSA_KESEHATAN = [
             daftar.forEach(t => {
                 const ring = komponen ? hitungRingkasanTravel(t, komponen, total) : null;
                 if (ring && ring.punyaKebijakan && ring.totalProfit < 0) rugi.push(`${t.nama || 'Travel tanpa nama'} · rugi ${rp(-ring.totalProfit)}`);
-                if (ring && ring.punyaKebijakan && !((t.pembayaran || []).some(x => (x.nominal || 0) > 0))) tanpaDP.push(`${t.nama || 'Travel tanpa nama'} · ${t.jumlah} orang`);
+                if (ring && ring.punyaKebijakan && !travelBayarPerOrang(t) && !((t.pembayaran || []).some(x => (x.nominal || 0) > 0))) tanpaDP.push(`${t.nama || 'Travel tanpa nama'} · ${t.jumlah} orang`);
             });
             if (rugi.length) out.push(T('konsorsium.travel_rugi:' + p.id, K, 'perhatian', 'Ada Travel Partner yang harganya di bawah modal' + tag, 'Tagihan travel ini lebih kecil dari modal efektif semua orangnya (termasuk yang FOC).', 'Naikkan markup, kurangi FOC, atau pastikan memang disengaja.', rugi));
+            const bayarGanda = daftar.filter(t => travelBayarPerOrang(t) && (t.pembayaran || []).some(x => (x.nominal || 0) > 0)).map(t => `${t.nama || 'Travel tanpa nama'} · ${(t.pembayaran || []).length} catatan pembayaran sekaligus`);
+            if (bayarGanda.length) out.push(T('konsorsium.bayar_ganda:' + p.id, K, 'perhatian', 'Travel Per orang punya catatan pembayaran sekaligus' + tag, 'Cara bayar travel ini Per orang, jadi yang dihitung hanya Pembayaran jamaah. Catatan pembayaran sekaligus di kartu travel diabaikan.', 'Hapus catatan sekaligusnya, atau ubah Cara bayar kembali ke Sekaligus.', bayarGanda));
             if (tanpaDP.length) out.push(T('konsorsium.tanpa_dp:' + p.id, K, 'perhatian', 'Travel Partner belum ada pembayaran (DP)' + tag, 'Kursi sudah dihitung untuk travel ini, tetapi belum ada uang masuk. Kursi bisa kosong bila travel tidak jadi.', 'Catat DP di kartu Travel Partner, atau tetapkan batas waktu pelunasan.', tanpaDP));
             if (pos.belumHarga.length) out.push(T('konsorsium.tanpa_harga:' + p.id, K, 'perhatian', 'Travel Partner belum punya harga' + tag, 'Markup atau profit tetap belum diisi, jadi tagihannya belum dihitung.', 'Isi Markup % atau Profit Tetap pada kartu Travel Partner.', pos.belumHarga));
         }
@@ -17893,6 +17954,12 @@ function renderJamaahForm(){
             ${daftarJenisPeserta().map(x => `<option value="${x.id}">${x.ikon} ${x.label}</option>`).join('')}
         </select>
         <div id="jamaahJenisPesertaKet" style="font-size:11px;color:#888;margin-top:4px;">${daftarJenisPeserta()[0].ket}</div>
+        <div id="jamaahTravelBox" style="display:none;margin-top:10px;">
+            <label style="font-weight:600;font-size:13px;">Milik travel partner mana?</label>
+            <select id="jamaahTravelPartner" onchange="ketJenisPesertaForm()" style="width:100%;padding:10px;border-radius:8px;border:1.5px solid #ddd;font-size:14px;background:var(--input-bg);color:var(--text);"></select>
+            <div id="jamaahTravelKet" style="font-size:11px;color:#888;margin-top:4px;"></div>
+            <label id="jamaahTravelGratisBox" style="display:none;align-items:center;gap:8px;margin-top:8px;font-size:13px;"><input type="checkbox" id="jamaahTravelGratis" style="width:18px;height:18px;flex:none;margin:0;"> 🎁 Gratis dari travel ini (kursi FOC travel, tidak ditagih)</label>
+        </div>
     </div>`;
     // Field permanen Tipe Paket — tidak relevan untuk Haji Reguler
     if(tipeOpts && !isHajiReguler()) {
@@ -17968,7 +18035,7 @@ function editJamaah(index){
     if(tipePaketEl) tipePaketEl.value = j.additional_fields?.tipe_paket || '';
     // Load Jenis Peserta
     const jenisEl = document.getElementById('jamaahJenisPeserta');
-    if(jenisEl) { jenisEl.value = jenisPeserta(j); ketJenisPesertaForm(); }
+    if(jenisEl) { const selT = document.getElementById('jamaahTravelPartner'); if(selT) selT.setAttribute('data-pilih', travelPartnerIdPeserta(j)); jenisEl.value = jenisPeserta(j); ketJenisPesertaForm(); const cg = document.getElementById('jamaahTravelGratis'); if(cg) cg.checked = !!(j.additional_fields && j.additional_fields.gratis_travel); }
     // Load Kontak Darurat & Kebutuhan Khusus
     const kd = j.kontak_darurat || {};
     if(document.getElementById('jamaahKontakDarurat1Nama')) document.getElementById('jamaahKontakDarurat1Nama').value = kd.nama1 || '';
@@ -18001,6 +18068,13 @@ function saveJamaah(tetapBuka){
     // Simpan Jenis Peserta (kosong/bayar = ditagih biasa)
     const jenisEl = document.getElementById('jamaahJenisPeserta');
     if(jenisEl) additional['jenis_peserta'] = jenisEl.value || 'bayar';
+    if(jenisEl && jenisEl.value === 'travel') {
+        const selT = document.getElementById('jamaahTravelPartner');
+        if(selT && selT.value) additional['travel_partner_id'] = selT.value;
+        else delete additional['travel_partner_id'];
+        const cg = document.getElementById('jamaahTravelGratis'), tpSimpan = ensureKonsorsiumList().find(t => selT && String(t.id) === selT.value);
+        if(cg && cg.checked && travelBayarPerOrang(tpSimpan)) additional['gratis_travel'] = true; else delete additional['gratis_travel'];
+    } else { delete additional['travel_partner_id']; delete additional['gratis_travel']; }
     // Simpan Kontak Darurat & Kebutuhan Khusus (disimpan terpisah dari additional_fields biasa)
     const kontakDarurat = {
         nama1: document.getElementById('jamaahKontakDarurat1Nama')?.value.trim() || '',
@@ -18092,6 +18166,75 @@ function sesuaikanHargaDariDiskonMitra(jamaahId) {
     showToast(`✅ Harga Paket disesuaikan: Rp ${fR(hargaBaru)}\n(Brosur ${fR(est.harga)} − Diskon ${fR(diskon)})` +
         (totalPakai > bufferEst ? `\n⚠️ ${komisi > 0 ? 'Diskon + komisi mitra ' + fR(totalPakai) : 'Diskon'} melebihi Buffer ${fR(bufferEst)} sebesar Rp ${fR(totalPakai - bufferEst)}, mengurangi laba rencana` : ''));
     if(typeof renderJamaahListWithPagination === 'function') renderJamaahListWithPagination();
+}
+
+// ===== Tandai Travel Partner (massal) — satu travel, banyak nama sekaligus =====
+let _travelTandaiPilih = new Set(), _travelTandaiGratis = new Set();
+function bukaTandaiTravelModal() {
+    if(cekProgramArsip()) return;
+    const daftar = ensureKonsorsiumList();
+    if(!daftar.length) return showToast('Belum ada Travel Partner. Tambahkan dulu di tab Konsorsium (Estimasi).');
+    document.getElementById('travelTandaiPilih').innerHTML = daftar.map(t => `<option value="${t.id}">${escapeHtml(t.nama || 'Travel tanpa nama')} (${t.jumlah || 0} orang di Konsorsium)</option>`).join('');
+    document.getElementById('travelTandaiCari').value = '';
+    gantiTravelTandai();
+    document.getElementById('travelTandaiModal').classList.add('show');
+}
+function gantiTravelTandai() {
+    const id = document.getElementById('travelTandaiPilih').value;
+    const milik = jamaahList.filter(j => jenisPeserta(j) === 'travel' && travelPartnerIdPeserta(j) === id);
+    _travelTandaiPilih = new Set(milik.map(j => j.id));
+    _travelTandaiGratis = new Set(milik.filter(j => j.additional_fields && j.additional_fields.gratis_travel).map(j => j.id));
+    renderTravelTandaiList();
+}
+function renderTravelTandaiList() {
+    const id = document.getElementById('travelTandaiPilih').value;
+    const t = ensureKonsorsiumList().find(x => String(x.id) === id);
+    const perOrang = travelBayarPerOrang(t);
+    const q = (document.getElementById('travelTandaiCari').value || '').trim().toLowerCase();
+    const tampil = jamaahList.filter(j => !q || String(j.nama_lengkap || '').toLowerCase().includes(q));
+    document.getElementById('travelTandaiList').innerHTML = tampil.length ? tampil.map(j => {
+        const jenis = jenisPeserta(j), milikLain = jenis === 'travel' && travelPartnerIdPeserta(j) !== id, terkunci = jenis !== 'bayar' && jenis !== 'travel';
+        const ket = terkunci ? infoJenisPeserta(j).ikon + ' ' + infoJenisPeserta(j).label : (milikLain ? '🚌 ' + (namaTravelPeserta(j) || 'travel lain') : '');
+        return `<label style="display:flex;align-items:center;justify-content:flex-start;gap:10px;padding:9px 10px;border-bottom:1px solid #f1f5f9;font-size:13px;text-align:left;margin:0;${terkunci ? 'opacity:.5;' : ''}"><input type="checkbox" style="width:20px;height:20px;flex:none;margin:0;" ${_travelTandaiPilih.has(j.id) ? 'checked' : ''} ${terkunci ? 'disabled' : ''} onchange="centangTravelTandai(${j.id}, this.checked)"><span style="flex:1;text-align:left;">${escapeHtml(j.nama_lengkap)}</span>${ket ? `<span style="font-size:11px;color:#7C3AED;">${escapeHtml(ket)}</span>` : ''}${(perOrang && _travelTandaiPilih.has(j.id)) ? `<span style="display:flex;align-items:center;gap:4px;font-size:11px;color:#0D9488;" onclick="event.stopPropagation()"><input type="checkbox" style="width:16px;height:16px;flex:none;margin:0;" ${_travelTandaiGratis.has(j.id) ? 'checked' : ''} onchange="gratisTravelTandai(${j.id}, this.checked)">🎁 gratis</span>` : ''}</label>`;
+    }).join('') : '<div style="padding:14px;text-align:center;color:#888;font-size:13px;">Tidak ada nama yang cocok.</div>';
+    const n = _travelTandaiPilih.size, target = t ? (t.jumlah || 0) : 0;
+    const el = document.getElementById('travelTandaiRingkas');
+    el.textContent = `Dipilih ${n} orang · di Konsorsium ${target} orang` + (n === target ? ' ✅ cocok' : (n > target ? ' ⚠️ lebih banyak' : ' ⚠️ masih kurang')) + (perOrang ? ` · 🎁 gratis ${[..._travelTandaiGratis].filter(x => _travelTandaiPilih.has(x)).length} dari ${t.gratisTravel || 0}` : '');
+    el.style.color = n === target ? '#166534' : '#B45309';
+}
+function gratisTravelTandai(idJamaah, ya) {
+    if(ya) _travelTandaiGratis.add(idJamaah); else _travelTandaiGratis.delete(idJamaah);
+    renderTravelTandaiList();
+}
+function centangTravelTandai(idJamaah, ya) {
+    if(ya) _travelTandaiPilih.add(idJamaah); else { _travelTandaiPilih.delete(idJamaah); _travelTandaiGratis.delete(idJamaah); }
+    renderTravelTandaiList();
+}
+function pilihSemuaTravelTandai(ya) {
+    const q = (document.getElementById('travelTandaiCari').value || '').trim().toLowerCase();
+    jamaahList.filter(j => (!q || String(j.nama_lengkap || '').toLowerCase().includes(q)) && ['bayar', 'travel'].includes(jenisPeserta(j))).forEach(j => { if(ya) _travelTandaiPilih.add(j.id); else _travelTandaiPilih.delete(j.id); });
+    renderTravelTandaiList();
+}
+async function simpanTandaiTravel() {
+    const id = document.getElementById('travelTandaiPilih').value;
+    const perOrangSimpan = travelBayarPerOrang(ensureKonsorsiumList().find(x => String(x.id) === id));
+    let ditandai = 0, dilepas = 0;
+    jamaahList.forEach(j => {
+        const jenis = jenisPeserta(j), milikIni = jenis === 'travel' && travelPartnerIdPeserta(j) === id;
+        if(!j.additional_fields) j.additional_fields = {};
+        if(_travelTandaiPilih.has(j.id) && (jenis === 'bayar' || jenis === 'travel')) {
+            if(!milikIni) ditandai++;
+            j.additional_fields.jenis_peserta = 'travel'; j.additional_fields.travel_partner_id = id;
+            if(perOrangSimpan && _travelTandaiGratis.has(j.id)) j.additional_fields.gratis_travel = true; else delete j.additional_fields.gratis_travel;
+        } else if(milikIni) {
+            j.additional_fields.jenis_peserta = 'bayar'; delete j.additional_fields.travel_partner_id; delete j.additional_fields.gratis_travel; dilepas++;
+        }
+    });
+    await saveJamaahData();
+    document.getElementById('travelTandaiModal').classList.remove('show');
+    renderJamaahListWithPagination();
+    try { updateRingkasanKeuangan(); } catch(e) {}
+    showToast(`✅ ${ditandai} ditandai Travel Partner` + (dilepas ? `, ${dilepas} dikembalikan jadi Bayar` : ''));
 }
 
 function closeJamaahModal(){ 
@@ -18222,6 +18365,19 @@ function ketJenisPesertaForm() {
     if(!el || !ket) return;
     const x = daftarJenisPeserta().find(i => i.id === el.value);
     ket.textContent = x ? x.ket : '';
+    const box = document.getElementById('jamaahTravelBox'), sel = document.getElementById('jamaahTravelPartner');
+    if(!box || !sel) return;
+    box.style.display = el.value === 'travel' ? 'block' : 'none';
+    if(el.value !== 'travel') return;
+    const pilihan = sel.hasAttribute('data-pilih') ? sel.getAttribute('data-pilih') : sel.value; sel.removeAttribute('data-pilih'); // data-pilih hanya dipakai sekali, saat form dibuka untuk mengubah data
+    const daftar = ensureKonsorsiumList();
+    sel.innerHTML = '<option value="">— Pilih travel partner —</option>' + daftar.map(t => `<option value="${t.id}">${escapeHtml(t.nama || 'Travel tanpa nama')} (${t.jumlah || 0} orang)</option>`).join('');
+    sel.value = pilihan;
+    const tp = daftar.find(t => String(t.id) === sel.value), perOrang = travelBayarPerOrang(tp);
+    const kt = document.getElementById('jamaahTravelKet');
+    if(kt) kt.textContent = !daftar.length ? '⚠️ Belum ada travel partner. Tambahkan dulu di tab Konsorsium (Estimasi).' : (perOrang ? 'Travel ini cara bayarnya Per orang: jamaah ditagih memakai harga travel sesuai tipe kamar.' : 'Travel ini dibayar Sekaligus lewat tab Konsorsium, jadi jamaah tidak ditagih per orang.');
+    const gb = document.getElementById('jamaahTravelGratisBox');
+    if(gb) gb.style.display = perOrang ? 'flex' : 'none';
 }
 
 function getDropdownFieldsJamaah() {
@@ -19167,7 +19323,8 @@ function hitungTotalModalEstimasi(daftarJamaah) {
     });
     const nFoc = ringkas.foc || 0, nTL = ringkas.tl || 0;
     const modalFoc = nFoc * modalQuad, modalTL = nTL * modalQuad;
-    return { bayar, nBayar: daftarJamaah.length, nFoc, nTL, modalFoc, modalTL, total: bayar + modalFoc + modalTL, tanpaTipe, modalQuad, nBayi, bayiModalDewasa, nTanpaPerleng, hematPerleng };
+    const tp = ringkasTravelPartnerKeuangan(), modalTravel = tp ? tp.modal : 0; // rombongan Travel Partner: biayanya ikut keluar walau tidak ditagih per jamaah
+    return { bayar, nBayar: daftarJamaah.length, nFoc, nTL, modalFoc, modalTL, modalTravel, nTravel: tp ? tp.n : 0, total: bayar + modalFoc + modalTL + modalTravel, tanpaTipe, modalQuad, nBayi, bayiModalDewasa, nTanpaPerleng, hematPerleng };
 }
 
 // ===== Penjelasan untuk laporan (build -67): HANYA teks penjelas, tidak mengubah angka/rumus apa pun =====
@@ -19216,13 +19373,41 @@ function labelLabaSebelumFocTL(foc, tl) {
     const j = jenisFocTL(foc, tl);
     return j ? 'Laba dari jamaah yang membayar (belum dikurangi modal ' + j + ')' : 'Laba Sementara';
 }
+// Travel Partner: tagihan dan uang masuknya dicatat di tab Konsorsium (bukan per jamaah). Rekap dan Laporan memakai ini supaya
+// uang masuk, kontrak, dan modal rombongan travel tidak hilang dari Laba. Null bila tidak ada Travel Partner atau Estimasi belum dihitung.
+function ringkasTravelPartnerKeuangan() {
+    try {
+        if(isHajiReguler()) return null;
+        const dKon = ensureProgramConfigSlot().konsorsium_estimasi_data; // dari data tersimpan, tidak bergantung tab Konsorsium sudah dibuka
+        const komponen = dKon ? bangunKomponenKonsorsium(dKon, dKon.modal) : null;
+        const list = ensureKonsorsiumList().filter(t => t.jumlah > 0);
+        const totalGabungan = list.reduce((s, t) => s + (t.jumlah || 0), 0);
+        if(!komponen || totalGabungan <= 0) return null;
+        let n = 0, tagihan = 0, dibayar = 0, modal = 0, tanpaHarga = 0;
+        list.forEach(t => {
+            const ring = hitungRingkasanTravel(t, komponen, totalGabungan);
+            if(!ring) return;
+            if(travelBayarPerOrang(t)) {
+                // Jamaahnya ditagih satu-satu (sudah ada di hitungan jamaah). Di sini hanya biaya orang yang gratis dari travel, karena mereka tidak punya tagihan.
+                const nGratis = ring.gratisTravel || 0;
+                if(nGratis > 0 && t.jumlah > 0) { n += nGratis; modal += ring.totalModal / t.jumlah * nGratis; }
+                return;
+            }
+            n += t.jumlah; modal += ring.totalModal;
+            dibayar += (t.pembayaran || []).reduce((a, x) => a + (x.nominal || 0), 0);
+            if(ring.punyaKebijakan) tagihan += ring.totalTagihan; else tanpaHarga++;
+        });
+        if(n === 0) return null;
+        return { n, tagihan, dibayar, modal, tanpaHarga, jumlahTravel: list.length };
+    } catch(e) { return null; }
+}
 function ringkasKursiTerisi(daftarJamaah) {
     if(isHajiReguler()) return null;
     const est = hitungModalHargaEstimasiTerkini();
     if(!est || !est.nJam) return null;
     const total = est.nJam - (est.foc || 0);
     if(total <= 0) return null;
-    const kk = hitungKomposisiPeserta(daftarJamaah), terisi = kk.bayar - kk.bayi; // bayi tanpa kursi tidak mengisi kursi
+    const kk = hitungKomposisiPeserta(daftarJamaah), terisi = kk.bayar + kk.travel - kk.bayi; // bayi tanpa kursi tidak mengisi kursi; peserta Travel Partner tetap memakai kursi
     return { terisi, total, persen: Math.round(terisi * 100 / total) };
 }
 // Laba Bersih (Realisasi) belum final bila pengeluaran tercatat masih di bawah 80% modal estimasi untuk peserta yang ada
@@ -19630,9 +19815,11 @@ async function cetakLaporanPenutupanMusim(mode) {
         const u = paymentTransaksiList.filter(t => t.id_jamaah == j.id).reduce((s2,t) => s2 + (parseInt(t.nominal)||0), 0);
         if(u > 0) { uangTanpaHarga += u; jmlTanpaHargaAdaBayar++; }
     });
-    const totalUangMasuk = totalDibayarJamaah + uangTanpaHarga;
-    const barisUangTanpaHarga = uangTanpaHarga > 0
-        ? `<tr><td style="color:#666;font-size:11px;">↳ termasuk dari ${jmlTanpaHargaAdaBayar} jamaah yang harga paketnya belum diisi (atau peserta tanpa tagihan)</td><td style="color:#666;font-size:11px;">${f(uangTanpaHarga)}</td></tr>` : '';
+    const uangMasukJamaahSaja = totalDibayarJamaah + uangTanpaHarga;
+    const tpLap = est ? ringkasTravelPartnerKeuangan() : null; // uang masuk Travel Partner dicatat di tab Konsorsium
+    const totalUangMasuk = uangMasukJamaahSaja + (tpLap ? tpLap.dibayar : 0);
+    const barisUangTanpaHarga = (tpLap && tpLap.dibayar > 0 ? `<tr><td style="color:#666;font-size:11px;">↳ termasuk dari Travel Partner (dicatat di Konsorsium)</td><td style="color:#666;font-size:11px;">${f(tpLap.dibayar)}</td></tr>` : '') + (uangTanpaHarga > 0
+        ? `<tr><td style="color:#666;font-size:11px;">↳ termasuk dari ${jmlTanpaHargaAdaBayar} jamaah yang harga paketnya belum diisi (atau peserta tanpa tagihan)</td><td style="color:#666;font-size:11px;">${f(uangTanpaHarga)}</td></tr>` : '');
     // Modal estimasi: jamaah bayar (menurut tipe kamar) + FOC + TL — satu hitungan untuk halaman depan DAN rincian
     const modalEst = est ? hitungTotalModalEstimasi(jamaahRelevan) : null;
 
@@ -19642,14 +19829,15 @@ async function cetakLaporanPenutupanMusim(mode) {
             <p class="lap-note">Belum ada jamaah dengan harga paket, jadi Proyeksi Laba belum bisa dihitung.</p></div>`;
     } else if(est) {
         const totalModalAktual = modalEst ? modalEst.total : est.modal * jamaahRelevan.length;
-        const profitAktual = totalKontrak - totalModalAktual;
+        const profitAktual = totalKontrak + (tpLap ? tpLap.tagihan : 0) - totalModalAktual;
         sectionRekap = `<div class="lap-section"><h2>📋 Proyeksi Laba</h2>
             <table class="lap-table"><tr><td>Total Jamaah</td><td>${jamaahRelevan.length}</td></tr>
             <tr><td>Total Kontrak</td><td>${f(totalKontrak)}</td></tr>
             <tr><td>Sudah Dibayar</td><td>${f(totalDibayarJamaah)}</td></tr>
+            ${tpLap ? `<tr><td>Tagihan Travel Partner (${tpLap.n} orang)</td><td>${f(tpLap.tagihan)}</td></tr><tr><td>Sudah Dibayar Travel Partner</td><td>${f(tpLap.dibayar)}</td></tr>` : ''}
             <tr><td>Total Modal (estimasi)</td><td>${f(totalModalAktual)}</td></tr>
-            <tr class="lap-total"><td>PROYEKSI LABA (Kontrak − Modal Estimasi)</td><td>${f(profitAktual)}</td></tr></table>
-            ${modalEst && (modalEst.nFoc + modalEst.nTL) > 0 ? `<p class="lap-note">Total Modal sudah termasuk modal ${[modalEst.nFoc > 0 ? modalEst.nFoc + ' peserta FOC' : '', modalEst.nTL > 0 ? modalEst.nTL + ' TL' : ''].filter(Boolean).join(' dan ')}, karena biaya mereka tetap keluar.</p>` : ''}</div>`;
+            <tr class="lap-total"><td>PROYEKSI LABA (Kontrak${tpLap ? ' + Tagihan Travel' : ''} − Modal Estimasi)</td><td>${f(profitAktual)}</td></tr></table>${tpLap && tpLap.tanpaHarga > 0 ? `<p class="lap-note">⚠️ ${tpLap.tanpaHarga} Travel Partner belum punya harga, jadi tagihannya belum masuk Proyeksi.</p>` : ''}
+            ${modalEst && (modalEst.nFoc + modalEst.nTL + modalEst.nTravel) > 0 ? `<p class="lap-note">Total Modal sudah termasuk modal ${[modalEst.nFoc > 0 ? modalEst.nFoc + ' peserta FOC' : '', modalEst.nTL > 0 ? modalEst.nTL + ' TL' : '', modalEst.nTravel > 0 ? modalEst.nTravel + ' orang Travel Partner' : ''].filter(Boolean).join(' dan ')}, karena biaya mereka tetap keluar.</p>` : ''}</div>`;
     } else if(isHajiReguler()) {
         // Haji Reguler dengan Komponen — pecah per Jenis (Bimbingan, Tour/Ziarah, dst)
         const komponenList = ensureKomponenHaji();
@@ -19746,7 +19934,7 @@ async function cetakLaporanPenutupanMusim(mode) {
                 const ring = hitungRingkasanTravel(t, komponen, totalGabungan);
                 if(!ring || !ring.punyaKebijakan) return;
                 if(!t.lunasFinal) { belumFinal++; return; }
-                const totalDibayar = (t.pembayaran||[]).reduce((s,p) => s + (p.nominal||0), 0);
+                const totalDibayar = totalDibayarTravel(t);
                 const bufferTravel = t.bufferB2B * (t.jumlah - (t.gratisTravel||0));
                 const diskon = Math.max(0, ring.totalTagihan - totalDibayar);
                 totalBufferB2B += bufferTravel;
@@ -19801,7 +19989,7 @@ async function cetakLaporanPenutupanMusim(mode) {
                 const idPengP = new Set(pengeluaranList.map(x => x.id)), idKasP = new Set(dataKas.map(k => k.id));
                 let lainP = 0, jmlLainP = 0;
                 saldoKantorData.mutasi.filter(m => !idPen.has(m.rekId) && ((m.pengId !== undefined && idPengP.has(m.pengId)) || (m.kasId !== undefined && idKasP.has(m.kasId)))).forEach(m => { lainP += -m.arah * m.nominal; jmlLainP++; });
-                const selisihMasukP = totalUangMasuk - setorP;
+                const selisihMasukP = uangMasukJamaahSaja - setorP;
                 const semuaTutupP = rekPen.every(r => r.aktif === false);
                 const baris = (t, v) => `<tr><td>${t}</td><td>${f(v)}</td></tr>`;
                 sectionPenampung = `<div class="lap-section" style="page-break-inside:avoid;break-inside:avoid;"><h2>🧳 Uang Jamaah (Rekening Penampung)${semuaTutupP ? ' — sudah ditutup' : ''}</h2>
@@ -19809,7 +19997,7 @@ async function cetakLaporanPenutupanMusim(mode) {
                     <table class="lap-table">${baris('Saldo awal', awalP)}${baris('+ Setoran jamaah yang tercatat', setorP)}${masukLainP ? baris('+ Masuk lain (pindahan dari rekening kantor, penyesuaian)', masukLainP) : ''}${baris('− Pengeluaran program dari penampung', pengelP)}${keluarLainP ? baris('− Keluar lain (pindah ke rekening lain, penyesuaian)', keluarLainP) : ''}${tutupP ? baris('− Diserahkan ke kantor (Tutup Musim)', tutupP) : ''}
                     <tr class="lap-total"><td>SISA DI PENAMPUNG</td><td>${f(sisaP)}</td></tr></table>
                     ${jmlLainP ? `<p class="lap-note">Pengeluaran program yang dibayar dari rekening lain (uang kantor): ${f(lainP)} (${jmlLainP} transaksi). Tidak mengurangi penampung.</p>` : ''}
-                    <table class="lap-table"><tr><td>Uang masuk dari jamaah menurut Pembayaran</td><td>${f(totalUangMasuk)}</td></tr><tr><td>Setoran jamaah yang tercatat di penampung</td><td>${f(setorP)}</td></tr>
+                    <table class="lap-table"><tr><td>Uang masuk dari jamaah menurut Pembayaran</td><td>${f(uangMasukJamaahSaja)}</td></tr><tr><td>Setoran jamaah yang tercatat di penampung</td><td>${f(setorP)}</td></tr>
                     <tr class="lap-total"><td>Selisih (Pembayaran − penampung)</td><td>${f(selisihMasukP)}</td></tr></table>
                     ${Math.round(selisihMasukP) !== 0 ? '<p class="lap-note" style="background:#FEF3C7;color:#92400E;padding:6px 8px;border-radius:6px;">⚠️ Ada pembayaran yang belum tercatat di penampung (misalnya pembayaran sebelum penampung dibuat, dipilih "tidak dicatat", atau masuk ke rekening lain). Cek dulu sebelum Tutup Musim.</p>' : '<p class="lap-note">Cocok: semua pembayaran jamaah tercatat di penampung.</p>'}
                     <table class="lap-table"><tr><td>Sisa di penampung (uang yang tercatat di rekening)</td><td>${f(sisaP)}</td></tr><tr><td>${labelLabaBersih} (uang masuk dikurangi pengeluaran)</td><td>${f(profitRiil)}</td></tr></table>
@@ -19854,13 +20042,13 @@ async function cetakLaporanPenutupanMusim(mode) {
     const warnaTanda = n => Math.round(n) < 0 ? '#DC2626' : (Math.round(n) > 0 ? '#166534' : '#222');
     const belumDibayar = totalKontrak - totalDibayarJamaah; // negatif = ada kelebihan bayar
     const komposisiLap = hitungKomposisiPeserta(jamaahList);
-    const nTanpaTagihanLap = komposisiLap.foc + komposisiLap.tl + komposisiLap.pembimbing;
+    const nTanpaTagihanLap = komposisiLap.tanpaTagihan;
     const tanpaHarga = komposisiLap.bayar - jamaahRelevan.length; // hanya peserta bayar yang belum punya harga
     const kursiLap = ringkasKursiTerisi(jamaahList);
     const cekPiutangDepan = cekPeringatanCicilanSemuaJamaah();
     const piutangTermin = [...cekPiutangDepan.telat, ...cekPiutangDepan.hariIni, ...cekPiutangDepan.akanDatang].reduce((s2, x) => s2 + x.sisa, 0);
     let catatanBelum = '';
-    if (nTanpaTagihanLap > 0) catatanBelum += `<p class="lap-note">Peserta: ${teksKomposisiPeserta(komposisiLap)}. FOC, TL, dan pembimbing tidak ditagih sehingga tidak masuk Total Kontrak.${komposisiLap.pembimbing > 0 ? ' Biaya ' + komposisiLap.pembimbing + ' pembimbing tidak dihitung otomatis di modal; bila ditanggung, masukkan ke angka TL di Cuan Plan.' : ''}</p>`;
+    if (nTanpaTagihanLap > 0) catatanBelum += `<p class="lap-note">Peserta: ${teksKomposisiPeserta(komposisiLap)}. FOC, TL, pembimbing, dan Travel Partner tidak ditagih per orang sehingga tidak masuk Total Kontrak jamaah.${komposisiLap.pembimbing > 0 ? ' Biaya ' + komposisiLap.pembimbing + ' pembimbing tidak dihitung otomatis di modal; bila ditanggung, masukkan ke angka TL di Cuan Plan.' : ''}</p>`;
     if (tanpaHarga > 0) catatanBelum += `<p class="lap-note">Dihitung dari ${jamaahRelevan.length} jamaah yang sudah punya harga paket. ${tanpaHarga} jamaah lain belum punya harga paket sehingga tidak ikut dihitung.</p>`;
     if (uangTanpaHarga > 0) catatanBelum += `<p class="lap-note">Uang yang sudah masuk dari ${jmlTanpaHargaAdaBayar} jamaah tanpa harga paket (${f(uangTanpaHarga)}) tidak termasuk Total Kontrak dan Sudah Dibayar di atas, tetapi sudah dihitung di Realisasi.</p>`;
     if (Math.round(piutangTermin) !== Math.round(belumDibayar) && belumDibayar > 0) catatanBelum += `<p class="lap-note">"Belum dibayar" di sini dihitung dari Total Kontrak dikurangi Sudah Dibayar. Piutang di halaman rincian dihitung dari jadwal cicilan (${f(piutangTermin)}); selisihnya adalah sisa yang tidak tercatat di jadwal cicilan.</p>`;
@@ -19870,11 +20058,12 @@ async function cetakLaporanPenutupanMusim(mode) {
         ${kursiLap ? `<tr><td>Kursi bayar terisi (dari ${kursiLap.total} kursi)</td><td>${kursiLap.terisi} (${kursiLap.persen}%)</td></tr>` : ''}
         <tr><td>Total Kontrak</td><td>${f(totalKontrak)}</td></tr>
         <tr><td>Sudah Dibayar</td><td>${f(totalDibayarJamaah)}</td></tr>
-        <tr class="lap-total"><td>${belumDibayar >= 0 ? 'Belum Dibayar (Kontrak − Sudah Dibayar)' : 'Kelebihan Bayar dari Kontrak'}</td><td>${f(Math.abs(belumDibayar))}</td></tr></table>${catatanBelum}</div>`;
+        <tr class="lap-total"><td>${belumDibayar >= 0 ? 'Belum Dibayar (Kontrak − Sudah Dibayar)' : 'Kelebihan Bayar dari Kontrak'}</td><td>${f(Math.abs(belumDibayar))}</td></tr></table>${catatanBelum}
+        ${tpLap ? `<table class="lap-table" style="margin-top:10px;"><tr><td>🚌 Travel Partner (${tpLap.jumlahTravel} travel, ${tpLap.n} orang) — Tagihan</td><td>${f(tpLap.tagihan)}</td></tr><tr><td>Sudah Dibayar Travel Partner</td><td>${f(tpLap.dibayar)}</td></tr><tr class="lap-total"><td>Belum Dibayar Travel Partner</td><td>${f(Math.max(0, tpLap.tagihan - tpLap.dibayar))}</td></tr></table><p class="lap-note">Travel Partner dibayar per rombongan lewat tab Konsorsium, jadi tidak masuk Total Kontrak jamaah di atas.${tpLap.tanpaHarga > 0 ? ' ⚠️ ' + tpLap.tanpaHarga + ' travel belum punya harga, tagihannya belum terhitung.' : ''}</p>` : ''}</div>`;
 
     let blok2 = '', blok4 = '';
     const blok3 = `<div class="lap-section"><h2>${est ? '3' : '2'}. Realisasi</h2>
-        <table class="lap-table"><tr><td>Uang Masuk dari Jamaah (Sudah Dibayar)</td><td>${f(totalUangMasuk)}</td></tr>${barisUangTanpaHarga}
+        <table class="lap-table"><tr><td>${tpLap && tpLap.dibayar > 0 ? 'Uang Masuk (Jamaah + Travel Partner, Sudah Dibayar)' : 'Uang Masuk dari Jamaah (Sudah Dibayar)'}</td><td>${f(totalUangMasuk)}</td></tr>${barisUangTanpaHarga}
         <tr><td>Realisasi Pengeluaran</td><td>${fKurang(totalPengeluaran)}</td></tr>
         <tr class="lap-total" style="color:${profitRiil < 0 ? '#DC2626' : '#166534'};"><td>${labelLabaBersih}</td><td>${f(profitRiil)}</td></tr></table>${(jamaahRelevan.length > 0 && totalPengeluaran === 0) ? '<p class="lap-note">Belum ada pengeluaran tercatat, jadi Laba Bersih dan Selisih belum mencerminkan biaya yang sebenarnya.</p>' : ''}${catBelumFinal}</div>`;
     if (est && jamaahRelevan.length === 0) {
@@ -19882,11 +20071,13 @@ async function cetakLaporanPenutupanMusim(mode) {
         blok4 = `<div class="lap-section"><h2>4. Selisih dari Rencana</h2><p class="lap-note">Selisih belum bisa dihitung karena belum ada jamaah dengan harga paket.</p></div>`;
     } else if (est) {
         const totalModalDepan = modalEst ? modalEst.total : est.modal * jamaahRelevan.length;
-        const proyeksiDepan = totalKontrak - totalModalDepan;
+        const tagihanTravelLap = tpLap ? tpLap.tagihan : 0;
+        const proyeksiDepan = totalKontrak + tagihanTravelLap - totalModalDepan;
         const efekBelum = totalDibayarJamaah - totalKontrak;
+        const efekBelumTravel = tpLap ? tpLap.dibayar - tpLap.tagihan : 0;
         const efekBiaya = totalModalDepan - totalPengeluaran;
-        const selisih = profitRiil - proyeksiDepan; // = efekBelum + efekBiaya + uangTanpaHarga (tepat)
-        const adaFocTL = modalEst && (modalEst.nFoc + modalEst.nTL) > 0;
+        const selisih = profitRiil - proyeksiDepan; // = efekBelum + efekBelumTravel + efekBiaya + uangTanpaHarga (tepat)
+        const adaFocTL = modalEst && (modalEst.nFoc + modalEst.nTL + (modalEst.nTravel || 0)) > 0;
         let catatanProyeksi = '';
         if (modalEst && modalEst.tanpaTipe > 0) catatanProyeksi += `<p class="lap-note">${modalEst.tanpaTipe} jamaah belum punya tipe kamar, modalnya dihitung dengan tarif Quad.</p>`;
         const modalNaikLap = ringkasModalNaik(jamaahRelevan);
@@ -19906,17 +20097,20 @@ async function cetakLaporanPenutupanMusim(mode) {
         if (est.buffer > 0) catatanProyeksi += `<p class="lap-note">Proyeksi dihitung dari kontrak yang ada. Buffer diskon yang belum terpakai ikut menjadi laba (lihat Analisis Buffer).</p>`;
         blok2 = `<div class="lap-section"><h2>2. Proyeksi (dari Cuan Plan)</h2>
             <table class="lap-table"><tr><td>Total Kontrak</td><td>${f(totalKontrak)}</td></tr>
+            ${tpLap ? `<tr><td>Tagihan Travel Partner (${tpLap.n} orang)</td><td>${f(tpLap.tagihan)}</td></tr>` : ''}
             ${adaFocTL ? `<tr><td>Modal jamaah bayar (${modalEst.nBayar} orang)</td><td>${f(modalEst.bayar)}</td></tr>
             <tr><td>Modal FOC (${modalEst.nFoc} orang)</td><td>${f(modalEst.modalFoc)}</td></tr>
-            <tr><td>Modal TL (${modalEst.nTL} orang)</td><td>${f(modalEst.modalTL)}</td></tr>` : ''}
+            <tr><td>Modal TL (${modalEst.nTL} orang)</td><td>${f(modalEst.modalTL)}</td></tr>
+            ${modalEst.nTravel > 0 ? `<tr><td>Modal Travel Partner (${modalEst.nTravel} orang)</td><td>${f(modalEst.modalTravel)}</td></tr>` : ''}` : ''}
             <tr><td>Total Modal (estimasi)</td><td>${f(totalModalDepan)}</td></tr>
-            <tr class="lap-total"><td>PROYEKSI LABA (Kontrak − Modal Estimasi)</td><td>${f(proyeksiDepan)}</td></tr></table>${catatanProyeksi}</div>`;
+            <tr class="lap-total"><td>PROYEKSI LABA (Kontrak${tpLap ? ' + Tagihan Travel' : ''} − Modal Estimasi)</td><td>${f(proyeksiDepan)}</td></tr></table>${catatanProyeksi}</div>`;
         blok4 = `<div class="lap-section"><h2>4. Selisih dari Rencana</h2>
             <table class="lap-table"><tr><td>Belum dibayar jamaah (Sudah Dibayar − Kontrak)</td><td style="color:${warnaTanda(efekBelum)};">${fTanda(efekBelum)}</td></tr>
             <tr><td>Pengeluaran dibanding modal estimasi (Modal − Pengeluaran)</td><td style="color:${warnaTanda(efekBiaya)};">${fTanda(efekBiaya)}</td></tr>
+            ${tpLap ? `<tr><td>Belum dibayar Travel Partner (Sudah Dibayar − Tagihan)</td><td style="color:${warnaTanda(efekBelumTravel)};">${fTanda(efekBelumTravel)}</td></tr>` : ''}
             ${uangTanpaHarga > 0 ? `<tr><td>Uang masuk dari jamaah tanpa harga paket</td><td style="color:${warnaTanda(uangTanpaHarga)};">${fTanda(uangTanpaHarga)}</td></tr>` : ''}
             <tr class="lap-total" style="color:${warnaTanda(selisih)};"><td>SELISIH LABA (Realisasi − Proyeksi)</td><td>${fTanda(selisih)}</td></tr></table>
-            <p class="lap-note">Tanda minus berarti lebih rendah dari rencana, tanda plus berarti lebih tinggi. ${uangTanpaHarga > 0 ? 'Baris-baris di atas dijumlahkan menjadi Selisih Laba.' : 'Dua baris pertama dijumlahkan menjadi Selisih Laba.'}</p>${stBelumFinal ? '<p class="lap-note" style="background:#FEF3C7;color:#92400E;padding:6px 8px;border-radius:6px;">⚠️ Selisih ikut belum final karena pengeluaran belum lengkap.</p>' : ''}</div>`;
+            <p class="lap-note">Tanda minus berarti lebih rendah dari rencana, tanda plus berarti lebih tinggi. ${(uangTanpaHarga > 0 || tpLap) ? 'Baris-baris di atas dijumlahkan menjadi Selisih Laba.' : 'Dua baris pertama dijumlahkan menjadi Selisih Laba.'}</p>${stBelumFinal ? '<p class="lap-note" style="background:#FEF3C7;color:#92400E;padding:6px 8px;border-radius:6px;">⚠️ Selisih ikut belum final karena pengeluaran belum lengkap.</p>' : ''}</div>`;
     } else {
         blok4 = `<div class="lap-section"><p class="lap-note">Proyeksi Laba dan Selisih tidak ditampilkan karena program ini tidak memakai Estimasi/Modal (Cuan Plan).</p></div>`;
     }
@@ -20069,6 +20263,9 @@ function daftarCaraPakai() {
             { judul: 'Anak, bayi, FOC, TL, dan pembimbing',
               isi: 'FOC, TL, dan pembimbing dipilih di <b>Jenis peserta</b> pada data jamaah; mereka tidak ditagih. Modal FOC dan TL tetap dihitung di laporan. Untuk anak atau bayi: buka <b>Pembayaran</b> → <b>Harga</b> pada kartu jamaah, pilih <b>Tarif anak/bayi</b>, lalu ketik harga hasil nego. Bayi tidak memakai kursi dan modalnya diisi sendiri di kolom <b>Modal anak/bayi</b>; kalau dikosongkan, dipakai perkiraan modal bayi Program. Tarif anak/bayi bukan diskon.',
               tombol: [bukaMod('Pembayaran', 'pembayaran')] },
+            { judul: 'Jamaah milik Travel Partner',
+              isi: 'Bila jamaah dibawa travel lain dan travelnya yang membayar, tambahkan travelnya di tab <b>Konsorsium</b>, lalu di <b>Jamaah</b> buka <b>Panel Admin</b> → <b>🚌 Tandai Travel Partner</b> dan centang nama-namanya sekaligus. Mereka tidak ditagih per orang tetapi tetap memakai kursi, jadi sisa kursi di Konsorsium tidak lagi minus. Catat pembayaran travel di kartu Travel Partner (tab Konsorsium), jangan di Pembayaran jamaah. Uang itu otomatis ikut dihitung di Rekap dan Laporan. Kalau jamaah travel itu bayar sendiri-sendiri, pada kartu travelnya ubah <b>Cara bayar</b> ke <b>Per orang</b>: tiap jamaah ditagih memakai harga travel itu sesuai tipe kamarnya, dibayar di Pembayaran jamaah seperti biasa, dan yang gratis dari travel dicentang 🎁 saat menandai.',
+              tombol: [bukaMod('Jamaah', 'jamaah')] },
             { judul: 'Jamaah tidak mengambil perlengkapan',
               isi: 'Buka <b>Pembayaran</b> → <b>Harga</b> pada kartu jamaah → <b>Perlengkapan</b> → pilih <b>Tidak ambil</b>, lalu isi potongan harga (pilih cepat 1.000.000 atau 1.500.000, atau ketik sendiri). Harga paket otomatis berkurang sebesar potongan, dan modal ikut turun sesuai biaya perlengkapan di Estimasi. Kalau harga jamaah itu sudah diketik sendiri (Harga khusus), potongan tidak ikut mengurangi harga. Pilihan ini tidak muncul untuk bayi.',
               tombol: [bukaMod('Pembayaran', 'pembayaran')] },
@@ -23266,21 +23463,78 @@ function daftarJenisPeserta() {
         { id: 'bayar', label: 'Bayar', ikon: '💳', ket: 'Ditagih sesuai harga paket' },
         { id: 'foc', label: 'FOC', ikon: '🎁', ket: 'Gratis — biayanya sudah dibebankan ke jamaah yang bayar' },
         { id: 'tl', label: 'TL', ikon: '🧭', ket: 'Tour Leader — biayanya dari kantor (profit)' },
-        { id: 'pembimbing', label: 'Pembimbing', ikon: '📖', ket: 'Pembimbing — tidak ditagih' }
+        { id: 'pembimbing', label: 'Pembimbing', ikon: '📖', ket: 'Pembimbing — tidak ditagih' },
+        { id: 'travel', label: 'Travel Partner', ikon: '🚌', ket: 'Jamaah milik travel partner — dibayar travelnya lewat tab Konsorsium, bukan per orang di sini. Tetap memakai kursi.' }
     ];
 }
 function jenisPeserta(j) {
     const v = String((j && j.additional_fields && j.additional_fields.jenis_peserta) || 'bayar').toLowerCase();
-    return (v === 'foc' || v === 'tl' || v === 'pembimbing') ? v : 'bayar';
+    return (v === 'foc' || v === 'tl' || v === 'pembimbing' || v === 'travel') ? v : 'bayar';
 }
-function tanpaTagihan(j) { return jenisPeserta(j) !== 'bayar'; }
+// Travel Partner dengan Cara bayar "Per orang": jamaahnya ditagih satu-satu memakai harga travel itu (kecuali yang gratis dari travel).
+// Cara bayar "Sekaligus" (bawaan): travelnya yang membayar lewat tab Konsorsium, jamaahnya tidak ditagih per orang.
+function daftarKonsorsiumProgram(pid) {
+    const per = (typeof konfigurasiPro !== 'undefined' && konfigurasiPro && konfigurasiPro.per_program) || {};
+    const slot = per[pid === undefined || pid === null ? currentProgramId : pid];
+    return (slot && Array.isArray(slot.konsorsium_list)) ? slot.konsorsium_list : [];
+}
+function travelDariPeserta(j) {
+    if(!j || jenisPeserta(j) !== 'travel') return null;
+    const id = travelPartnerIdPeserta(j);
+    return id ? (daftarKonsorsiumProgram(j.program_id).find(t => String(t.id) === id) || null) : null;
+}
+function travelBayarPerOrang(t) { return !!t && t.caraBayar === 'perorang'; }
+function gratisDariTravel(j) { return !!(j && j.additional_fields && j.additional_fields.gratis_travel) && travelBayarPerOrang(travelDariPeserta(j)); }
+function tanpaTagihan(j) {
+    const jenis = jenisPeserta(j);
+    if(jenis === 'bayar') return false;
+    if(jenis === 'travel') { const t = travelDariPeserta(j); return !(travelBayarPerOrang(t) && !gratisDariTravel(j)); }
+    return true;
+}
+// Harga per orang menurut travel (dari Konsorsium). Null bila travel belum punya harga. Disimpan sementara supaya cepat; dikosongkan tiap Konsorsium disimpan.
+let _hargaTravelCache = { kunci: null, data: {} };
+function hargaPerorangTravel(j) {
+    const t = travelDariPeserta(j);
+    if(!t || !travelBayarPerOrang(t)) return null;
+    const pid = j.program_id === undefined || j.program_id === null ? currentProgramId : j.program_id;
+    const slot = ((konfigurasiPro && konfigurasiPro.per_program) || {})[pid];
+    const dKon = slot && slot.konsorsium_estimasi_data;
+    if(!dKon || !(dKon.modal > 0)) return null;
+    const list = slot.konsorsium_list, kunci = list;
+    if(_hargaTravelCache.kunci !== kunci || _hargaTravelCache.dKon !== dKon) _hargaTravelCache = { kunci, dKon, data: {} };
+    let ring = _hargaTravelCache.data[t.id];
+    if(ring === undefined) {
+        const komponen = bangunKomponenKonsorsium(dKon, dKon.modal);
+        const total = list.reduce((a, x) => a + (x.jumlah || 0), 0);
+        ring = (komponen && total > 0) ? hitungRingkasanTravel(t, komponen, total) : null;
+        _hargaTravelCache.data[t.id] = ring;
+    }
+    if(!ring || !ring.punyaKebijakan) return null;
+    const tipe = String((j.additional_fields && j.additional_fields.tipe_paket) || '').toLowerCase();
+    const cocok = ring.tipeData.find(x => x.label.toLowerCase() === tipe) || ring.tipeData.find(x => x.key === 'quad') || ring.tipeData[0];
+    return cocok && cocok.harga > 0 ? Math.round(cocok.harga) : null;
+}
+// Uang yang sudah dibayar untuk satu travel: Sekaligus = catatan di kartu travel; Per orang = jumlah pembayaran jamaah milik travel itu
+function totalDibayarTravel(t) {
+    if(!travelBayarPerOrang(t)) return (t.pembayaran || []).reduce((a, x) => a + (x.nominal || 0), 0);
+    const ids = new Set(jamaahList.filter(j => jenisPeserta(j) === 'travel' && travelPartnerIdPeserta(j) === String(t.id)).map(j => String(j.id)));
+    return paymentTransaksiList.filter(x => ids.has(String(x.id_jamaah))).reduce((a, x) => a + (parseInt(x.nominal) || 0), 0);
+}
 function infoJenisPeserta(j) {
     const id = jenisPeserta(j);
     return daftarJenisPeserta().find(x => x.id === id) || daftarJenisPeserta()[0];
 }
+// Travel Partner: dibayar travelnya (tab Konsorsium). Dicatat ke travel mana lewat additional_fields.travel_partner_id (id item Konsorsium).
+function travelPartnerIdPeserta(j) { const v = j && j.additional_fields && j.additional_fields.travel_partner_id; return (v === undefined || v === null || v === '') ? '' : String(v); }
+function namaTravelPeserta(j) {
+    const id = travelPartnerIdPeserta(j);
+    if(!id) return '';
+    const t = (typeof ensureKonsorsiumList === 'function' ? ensureKonsorsiumList() : []).find(x => String(x.id) === id);
+    return t ? (t.nama || 'Travel tanpa nama') : '';
+}
 function hitungKomposisiPeserta(daftar) {
-    const r = { bayar: 0, foc: 0, tl: 0, pembimbing: 0, total: 0, bayi: 0 };
-    (daftar || []).forEach(j => { r[jenisPeserta(j)]++; r.total++; if (jenisPeserta(j) === 'bayar' && isBayi(j.additional_fields)) r.bayi++; }); // bayi tetap termasuk 'bayar' (ditagih), hanya tidak memakai kursi
+    const r = { bayar: 0, foc: 0, tl: 0, pembimbing: 0, travel: 0, travelDitagih: 0, total: 0, bayi: 0, tanpaTagihan: 0 };
+    (daftar || []).forEach(j => { r[jenisPeserta(j)]++; r.total++; if (tanpaTagihan(j)) r.tanpaTagihan++; else if (jenisPeserta(j) === 'travel') r.travelDitagih++; if (jenisPeserta(j) === 'bayar' && isBayi(j.additional_fields)) r.bayi++; }); // bayi tetap termasuk 'bayar' (ditagih), hanya tidak memakai kursi
     return r;
 }
 function teksKomposisiPeserta(k) {
@@ -23288,11 +23542,13 @@ function teksKomposisiPeserta(k) {
     if (k.foc) bagian.push(k.foc + ' FOC');
     if (k.tl) bagian.push(k.tl + ' TL');
     if (k.pembimbing) bagian.push(k.pembimbing + ' pembimbing');
+    if (k.travel) bagian.push(k.travel + ' travel partner');
     return k.bayar + ' bayar' + (bagian.length ? ' + ' + bagian.join(' + ') : '') + ' = ' + k.total + ' orang' + (k.bayi ? ' (termasuk ' + k.bayi + ' bayi tanpa kursi)' : '');
 }
 
 function getTotalHargaPaket(jamaah) { 
-    if (tanpaTagihan(jamaah)) return 0; // FOC / TL / Pembimbing: tidak pernah ditagih, apa pun pengaturan harga
+    if (tanpaTagihan(jamaah)) return 0; // FOC / TL / Pembimbing / Travel Partner (Sekaligus) / gratis dari travel: tidak pernah ditagih, apa pun pengaturan harga
+    if (jenisPeserta(jamaah) === 'travel') return hargaPerorangTravel(jamaah); // Travel Partner Per orang: harga dari kartu travelnya
     // Haji Reguler: total = jumlah semua Komponen (Bimbingan+Tour+dst), pakai nilai per-jamaah kalau ada override, kalau tidak pakai Harga Seragam komponen itu
     if(isHajiReguler()) {
         const komponenList = ensureKomponenHaji();
@@ -24464,7 +24720,7 @@ function exportPaymentExcel() {
         ['Jumlah SEBAGIAN', nSebagian],
         ['Jumlah BELUM BAYAR', nBelum],
         ['Jumlah BELUM DIISI (harga belum ada)', nBelumDiisi],
-        ['Jumlah TANPA TAGIHAN (FOC/TL/Pembimbing)', nTanpa],
+        ['Jumlah TANPA TAGIHAN (FOC/TL/Pembimbing/Travel Partner)', nTanpa],
         []
     ];
     if (nYatim > 0) ring.push(['Transaksi tanpa jamaah di daftar', nYatim + ' transaksi, Rp ' + Math.round(yatim).toLocaleString('id-ID') + ' (tidak masuk Total masuk di atas; ada di sheet Transaksi)']);
@@ -26800,7 +27056,7 @@ function openIndexedDB() {
 // dengan build baru, data MENTAH (langsung dari IndexedDB, bukan dari memori) disalin dulu sebelum
 // proses migrasi apapun berjalan — supaya kalau ada kesalahan di update, data lama masih bisa dipulihkan.
 // Dokumen & foto tidak ikut disalin (ukurannya besar, dan tidak pernah disentuh proses migrasi).
-const NAVARA_BUILD = '2026.10.26-196';
+const NAVARA_BUILD = '2026.10.26-198';
 const MAKS_SNAPSHOT = 3;
 
 // ==================== DAFTAR DATA PUSAT ====================
