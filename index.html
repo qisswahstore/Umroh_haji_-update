@@ -5169,6 +5169,15 @@ function formatTanggalLengkap(tanggal) {
     return d.toLocaleDateString('id-ID', { day:'2-digit', month:'long', year:'numeric' });
 }
 
+// Status yang TAMPIL untuk satu jadwal manasik. Data tersimpan tetap 'final' atau 'estimasi'; "lewat" dihitung dari tanggal hari ini (hari ini belum dianggap lewat).
+function statusTampilJadwal(j) {
+    const lewat = !!j.tanggalRaw && j.tanggalRaw < isoDariTanggal(new Date());
+    const pasti = j.status === 'final';
+    if (pasti && lewat) return { kunci: 'selesai', lewat, label: '✔️ Selesai', gaya: 'background:#E0F2FE;color:#075985;', garis: '#0284C7' };
+    if (pasti) return { kunci: 'final', lewat, label: '✅ Final', gaya: 'background:#DCFCE7;color:#166534;', garis: '#16A34A' };
+    if (lewat) return { kunci: 'lewat', lewat, label: '❓ Lewat, belum dikonfirmasi', gaya: 'background:#FEE2E2;color:#991B1B;', garis: '#DC2626' };
+    return { kunci: 'estimasi', lewat, label: '⏳ Estimasi', gaya: 'background:#FEF3C7;color:#92400E;', garis: '#F59E0B' };
+}
 function formatTanggalDenganHari(tanggalRaw, fallbackTampil) {
     if (!tanggalRaw) return fallbackTampil || '';
     const d = new Date(tanggalRaw + 'T00:00:00');
@@ -6259,7 +6268,9 @@ const MENU_HOME_KUNCI = 'navara_menu_home';
 const MENU_TAMPILAN_KUNCI = 'navara_menu_tampilan';
 const MAKS_MENU_HOME = 12;
 
-function menuHomeBawaan() { return menuItemsPremium.map(m => m.id); }
+// Susunan bawaan Home (urutan dari kiri ke kanan, atas ke bawah). Menu lain tetap ada di Menu Lengkap. Pas 12 menu = batas Home.
+const MENU_HOME_BAWAAN = ['estimasi', 'kas', 'jamaah', 'jamaahkita', 'catatan', 'agenda-kantor', 'kalender-pejabat', 'pembayaran', 'konfigurasi', 'scanqr', 'saldokantor', 'itinerary'];
+function menuHomeBawaan() { return [...MENU_HOME_BAWAAN]; }
 
 function daftarSemuaMenuNavara() {
     return [
@@ -15822,11 +15833,12 @@ function renderJadwalManasikList() {
     const sorted = [...jadwalManasikList].sort((a,b) => (a.tanggalRaw||'').localeCompare(b.tanggalRaw||''));
     el.innerHTML = sorted.map(j => {
         const sesiTerkait = j.sesiId ? absensiList.find(s => s.id === j.sesiId) : null;
+        const st = statusTampilJadwal(j);
         return `
-        <div style="background:var(--bg);border-radius:10px;padding:10px 12px;margin-bottom:8px;border-left:4px solid ${j.status === 'final' ? '#16A34A' : '#F59E0B'};">
+        <div style="background:var(--bg);border-radius:10px;padding:10px 12px;margin-bottom:8px;border-left:4px solid ${st.garis};">
             <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:6px;">
                 <div style="font-weight:700;font-size:13px;color:var(--primary);">${escapeHtml(j.materi)}</div>
-                <span style="flex-shrink:0;font-size:10px;font-weight:700;padding:3px 8px;border-radius:6px;white-space:nowrap;${j.status === 'final' ? 'background:#DCFCE7;color:#166534;' : 'background:#FEF3C7;color:#92400E;'}">${j.status === 'final' ? '✅ Final' : '⏳ Estimasi'}</span>
+                <span style="flex-shrink:0;font-size:10px;font-weight:700;padding:3px 8px;border-radius:6px;white-space:nowrap;${st.gaya}">${st.label}</span>
             </div>
             <div style="font-size:12px;color:#888;margin-top:2px;">
                 <i class="fas fa-calendar-day"></i> ${escapeHtml(formatTanggalDenganHari(j.tanggalRaw, j.tanggal))} ${j.waktu ? '· ' + escapeHtml(j.waktu) : ''}<br>
@@ -15930,17 +15942,21 @@ async function cetakJadwalManasikLengkap() {
     const ttdHtml = buildPrintTandaTangan(cfg, tgl, true);
     const namaProgram = getCurrentProgram()?.nama || '-';
     const sorted = [...jadwalManasikList].sort((a,b) => (a.tanggalRaw||'').localeCompare(b.tanggalRaw||''));
-    const adaEstimasi = sorted.some(j => j.status !== 'final');
+    const adaEstimasi = sorted.some(j => j.status !== 'final' && !statusTampilJadwal(j).lewat); // hanya jadwal yang belum lewat
+    // Keterangan status hanya untuk status yang benar-benar muncul di tabel ini
+    const arti = { final: '✅ Final = jadwal pasti', estimasi: '⏳ Estimasi = dapat berubah', selesai: '✔️ Selesai = sudah dilaksanakan', lewat: '❓ Lewat, belum dikonfirmasi = tanggal sudah lewat, belum ditandai Final' };
+    const muncul = new Set(sorted.map(j => statusTampilJadwal(j).kunci));
+    const keteranganStatus = ['final', 'estimasi', 'selesai', 'lewat'].filter(k => muncul.has(k)).map(k => arti[k]).join(' · ');
 
     const baris = sorted.map((j, idx) => `
         <tr>
             <td style="padding:8px;border-bottom:1px solid #eee;text-align:center;">${idx+1}</td>
             <td style="padding:8px;border-bottom:1px solid #eee;">${escapeHtml(j.materi)}</td>
             <td style="padding:8px;border-bottom:1px solid #eee;">${escapeHtml(formatTanggalDenganHari(j.tanggalRaw, j.tanggal))}${j.waktu ? '<br><span style=\"color:#888;font-size:11px;\">' + escapeHtml(j.waktu) + '</span>' : ''}</td>
-            <td style="padding:8px;border-bottom:1px solid #eee;">${escapeHtml(j.pemateri||'-')}</td>
-            <td style="padding:8px;border-bottom:1px solid #eee;">${escapeHtml(j.lokasi||'-')}</td>
+            <td style="padding:8px;border-bottom:1px solid #eee;">${escapeHtml(j.pemateri || (statusTampilJadwal(j).lewat ? '-' : 'Akan diumumkan'))}</td>
+            <td style="padding:8px;border-bottom:1px solid #eee;">${escapeHtml(j.lokasi || (statusTampilJadwal(j).lewat ? '-' : 'Akan diumumkan'))}</td>
             <td style="padding:8px;border-bottom:1px solid #eee;text-align:center;">
-                <span style="font-size:10px;font-weight:700;padding:3px 8px;border-radius:6px;${j.status === 'final' ? 'background:#DCFCE7;color:#166534;' : 'background:#FEF3C7;color:#92400E;'}">${j.status === 'final' ? '✅ Final' : '⏳ Estimasi'}</span>
+                <span style="font-size:10px;font-weight:700;padding:3px 8px;border-radius:6px;${statusTampilJadwal(j).gaya}">${statusTampilJadwal(j).label}</span>
             </td>
         </tr>`).join('');
 
@@ -15960,11 +15976,12 @@ async function cetakJadwalManasikLengkap() {
         ${headerHtml}
         <h2>JADWAL MANASIK / BIMBINGAN</h2>
         <div style="font-size:12px;color:#888;margin-bottom:8px;">Program: ${escapeHtml(namaProgram)} · Dicetak: ${tgl}</div>
-        ${adaEstimasi ? `<div class="peringatan">⚠️ Sebagian atau seluruh jadwal ini masih bersifat <b>SEMENTARA/ESTIMASI</b> — dapat berubah sewaktu-waktu.</div>` : ''}
+        ${adaEstimasi ? `<div class="peringatan">⚠️ Jadwal berstatus <b>Estimasi</b> dapat berubah. Informasi terbaru akan disampaikan melalui pengurus.</div>` : ''}
         <table>
             <tr><th>No</th><th>Materi</th><th>Tanggal & Waktu</th><th>Pemateri</th><th>Lokasi</th><th style="text-align:center;">Status</th></tr>
             ${baris}
         </table>
+        ${keteranganStatus ? `<div style="font-size:11px;color:#666;margin-top:10px;">Keterangan: ${keteranganStatus}</div>` : ''}
         ${ttdHtml}
     </div>
     <div class="no-print"><button onclick="window.print()" style="background:#0D5C4A;color:white;">🖨️ CETAK</button><button onclick="window.close()" style="background:#e2e8f0;color:#333;">✕ TUTUP</button></div>
@@ -26783,7 +26800,7 @@ function openIndexedDB() {
 // dengan build baru, data MENTAH (langsung dari IndexedDB, bukan dari memori) disalin dulu sebelum
 // proses migrasi apapun berjalan — supaya kalau ada kesalahan di update, data lama masih bisa dipulihkan.
 // Dokumen & foto tidak ikut disalin (ukurannya besar, dan tidak pernah disentuh proses migrasi).
-const NAVARA_BUILD = '2026.10.26-193';
+const NAVARA_BUILD = '2026.10.26-196';
 const MAKS_SNAPSHOT = 3;
 
 // ==================== DAFTAR DATA PUSAT ====================
