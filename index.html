@@ -2018,6 +2018,24 @@ https://github.com/nodeca/pako/blob/main/LICENSE
     </div>
 </div>
 
+<!-- TENTANG & BANTUAN -->
+<div id="page-tentang" class="page">
+    <div class="header-premium header-premium-small"><div class="back-header"><i class="fas fa-arrow-left" onclick="showPage('setting')"></i><h2>Tentang & Bantuan</h2><div style="width:30px;"></div></div></div>
+    <div class="card-premium">
+        <div style="text-align:center;padding:14px 0 6px;">
+            <div style="font-size:26px;font-weight:900;color:var(--primary);">Navara</div>
+            <div style="font-size:13px;color:#666;margin-top:4px;">Dikembangkan oleh <strong id="tentangPengembang"></strong></div>
+        </div>
+        <div style="background:#F8FAFC;border-radius:12px;padding:12px 14px;margin:12px 0;font-size:13px;line-height:1.9;">
+            <div style="display:flex;justify-content:space-between;"><span style="color:#666;">Versi aplikasi</span><strong id="tentangVersi"></strong></div>
+            <div style="display:flex;justify-content:space-between;"><span style="color:#666;">Status</span><strong id="tentangLisensi"></strong></div>
+        </div>
+        <div style="font-size:13px;color:#555;line-height:1.6;margin-bottom:10px;">Ada pertanyaan, kendala, atau usulan? Ketuk tombol di bawah. WhatsApp akan terbuka dengan pesan yang sudah berisi versi aplikasi Anda, jadi tinggal menuliskan kebutuhannya.</div>
+        <button class="btn btn-primary" onclick="hubungiPengembang()" style="width:100%;"><i class="fab fa-whatsapp"></i> Hubungi Pengembang via WhatsApp</button>
+        <button class="btn btn-secondary mt-2" onclick="showPage('carapakai')" style="width:100%;">📖 Buka Cara Pakai</button>
+    </div>
+</div>
+
 <!-- DASHBOARD PAGE -->
 <div id="page-carapakai" class="page">
     <div class="header-premium header-premium-small"><div class="back-header"><i class="fas fa-arrow-left" onclick="showPage('home')"></i><h2>Cara Pakai</h2><div style="width:30px;"></div></div></div>
@@ -2025,6 +2043,7 @@ https://github.com/nodeca/pako/blob/main/LICENSE
         <p class="cp-intro">Ketuk judul untuk membuka langkahnya. Tombol hijau membawa langsung ke halaman yang dibahas.</p>
         <input type="search" id="caraPakaiCari" class="cp-cari" placeholder="Cari panduan, mis. bayar" oninput="renderCaraPakai()" autocomplete="off">
         <div id="caraPakaiList"></div>
+        <div style="text-align:center;font-size:12px;color:#666;margin-top:14px;">Butuh bantuan? <a onclick="showPage('tentang')" style="color:var(--primary);font-weight:700;text-decoration:underline;cursor:pointer;">Hubungi pengembang</a></div>
     </div>
 </div>
 
@@ -3154,10 +3173,10 @@ https://github.com/nodeca/pako/blob/main/LICENSE
         <div class="config-section"><h3><i class="fas fa-building"></i> Data Instansi Utama</h3>
             <div class="config-row"><label>Logo Instansi</label><input type="file" id="cfg_logo1" accept="image/*" onchange="previewLogo(this, 'previewLogo1')"><img id="previewLogo1" class="logo-preview"><small style="display:block; color:var(--gray); margin-top:4px;">Logo akan tampil di header HOME</small></div>
             <div class="config-row"><label>Nama Instansi</label><input type="text" id="cfg_nama1" placeholder="Navara"></div>
-            <div class="config-row"><label>Alamat Lengkap</label><textarea id="cfg_alamat1" rows="2" placeholder="Jl. Siwalankerto Utara II No. 30, Wonocolo, Surabaya"></textarea></div>
-            <div class="row"><div class="config-row"><label>Telepon</label><input type="text" id="cfg_telp1" placeholder="081391485440"></div><div class="config-row"><label>Email</label><input type="email" id="cfg_email1"></div></div>
+            <div class="config-row"><label>Alamat Lengkap</label><textarea id="cfg_alamat1" rows="2" placeholder="Contoh: Jl. Melati No. 1, Kota"></textarea></div>
+            <div class="row"><div class="config-row"><label>Telepon</label><input type="text" id="cfg_telp1" placeholder="08xxxxxxxxxx"></div><div class="config-row"><label>Email</label><input type="email" id="cfg_email1"></div></div>
             <div class="row"><div class="config-row"><label>NPWP</label><input type="text" id="cfg_npwp1"></div><div class="config-row"><label>Website</label><input type="text" id="cfg_web1"></div></div>
-            <div class="row"><div class="config-row"><label>Pimpinan</label><input type="text" id="cfg_pimpinan1" placeholder="Ali mashar"></div><div class="config-row"><label>Jabatan</label><input type="text" id="cfg_jabatan1" placeholder="Admin"></div></div>
+            <div class="row"><div class="config-row"><label>Pimpinan</label><input type="text" id="cfg_pimpinan1" placeholder="Nama pimpinan"></div><div class="config-row"><label>Jabatan</label><input type="text" id="cfg_jabatan1" placeholder="Contoh: Direktur"></div></div>
             <div class="config-row"><label>Kota (untuk tanda tangan)</label><input type="text" id="cfg_kota1" placeholder="Surabaya"></div>
             <div class="config-row">
                 <label>Tanda Tangan Pimpinan (opsional)</label>
@@ -3176,9 +3195,9 @@ https://github.com/nodeca/pako/blob/main/LICENSE
             <div id="statusInstansi2Dominan" style="font-size:11px;font-weight:600;padding:6px 10px;border-radius:6px;margin-bottom:10px;"></div>
             <div class="config-row"><label>Logo</label><input type="file" id="cfg_logo2" accept="image/*" onchange="previewLogo(this, 'previewLogo2')"><img id="previewLogo2" class="logo-preview"></div>
             <div class="config-row"><label>Nama Instansi</label><input type="text" id="cfg_nama2" placeholder="Navara"></div>
-            <div class="config-row"><label>Alamat</label><textarea id="cfg_alamat2" rows="2" placeholder="Jl. Siwalankerto Utara II No. 30, Wonocolo, Surabaya"></textarea></div>
+            <div class="config-row"><label>Alamat</label><textarea id="cfg_alamat2" rows="2" placeholder="Contoh: Jl. Melati No. 1, Kota"></textarea></div>
             <div class="row"><div class="config-row"><label>Telepon</label><input type="text" id="cfg_telp2"></div><div class="config-row"><label>Email</label><input type="email" id="cfg_email2"></div></div>
-            <div class="row"><div class="config-row"><label>No. Izin</label><input type="text" id="cfg_izin2"></div><div class="config-row"><label>Pimpinan</label><input type="text" id="cfg_pimpinan2" placeholder="Ali Mashar"></div></div>
+            <div class="row"><div class="config-row"><label>No. Izin</label><input type="text" id="cfg_izin2"></div><div class="config-row"><label>Pimpinan</label><input type="text" id="cfg_pimpinan2" placeholder="Nama pimpinan"></div></div>
             <div class="config-row"><label>Jabatan</label><input type="text" id="cfg_jabatan2" placeholder="Direktur Utama"></div>
             <div class="config-row">
                 <label>Tanda Tangan Pimpinan (opsional)</label>
@@ -3361,6 +3380,12 @@ https://github.com/nodeca/pako/blob/main/LICENSE
         <div class="setting-card" onclick="showPage('carapakai')" style="cursor:pointer;">
             <div style="display:flex;align-items:center;justify-content:space-between;">
                 <div><div style="font-weight:700;font-size:15px;"><i class="fas fa-circle-question"></i> Cara Pakai</div><div style="font-size:11px;color:#888;margin-top:2px;">Panduan langkah demi langkah</div></div>
+                <i class="fas fa-chevron-right" style="color:var(--primary);"></i>
+            </div>
+        </div>
+        <div class="setting-card" onclick="showPage('tentang')" style="cursor:pointer;">
+            <div style="display:flex;align-items:center;justify-content:space-between;">
+                <div><div style="font-weight:700;font-size:15px;"><i class="fas fa-circle-info"></i> Tentang & Bantuan</div><div style="font-size:11px;color:#888;margin-top:2px;">Versi aplikasi dan hubungi pengembang</div></div>
                 <i class="fas fa-chevron-right" style="color:var(--primary);"></i>
             </div>
         </div>
@@ -4450,6 +4475,7 @@ function internalShowPage(pageId) {
     if (pageId === 'atur-menu') { if(typeof bukaAturMenu === 'function') bukaAturMenu(); }
     if (pageId === 'setting') { if(typeof tandaiHapusWajibPIN === 'function') tandaiHapusWajibPIN(); }
     if (pageId === 'carapakai') { if(typeof bukaCaraPakai === 'function') bukaCaraPakai(); }
+    if (pageId === 'tentang') renderTentang();
     if (pageId === 'fitur') { if(typeof bukaSemuaMenu === 'function') bukaSemuaMenu(); }
     if (pageId === 'pinjaman') { if(typeof loadPinjamanData === 'function') loadPinjamanData(); }
     if (pageId === 'saldokantor') { if(typeof loadSaldoKantor === 'function') loadSaldoKantor(); }
@@ -9171,9 +9197,11 @@ function tambahKonsorsiumTravel() {
     renderKonsorsiumList();
 }
 
-function hapusKonsorsiumTravel(id) {
+async function hapusKonsorsiumTravel(id) {
     const slot = ensureProgramConfigSlot();
     if(slot.konsorsium_locked) return showToast('🔒 Konsorsium terkunci, buka dulu untuk edit!');
+    const nTerikat = jamaahList.filter(j => jenisPeserta(j) === 'travel' && travelPartnerIdPeserta(j) === String(id)).length;
+    if(nTerikat > 0 && !(await konfirmasiHapus(`${nTerikat} jamaah masih bertanda milik travel ini. Setelah travelnya dihapus, mereka tetap bertanda Travel Partner tetapi belum terhubung ke travel mana pun, jadi tagihan dan modalnya tidak dihitung sampai dihubungkan lagi lewat Tandai Travel Partner.`, 'Hapus Travel Partner?'))) return;
     slot.konsorsium_list = (slot.konsorsium_list || []).filter(t => t.id !== id);
     simpanKonsorsium();
     renderKonsorsiumList();
@@ -10849,6 +10877,7 @@ function hitungRekapAktual() {
     const tpRekap = est ? ringkasTravelPartnerKeuangan() : null, modalTravel = tpRekap ? tpRekap.modal : 0;
     if(tpRekap) { grandKontrak += tpRekap.tagihan; grandOmzet += tpRekap.dibayar; grandPiutang += Math.max(0, tpRekap.tagihan - tpRekap.dibayar); grandModal += modalTravel; }
     const komposisiRekap = hitungKomposisiPeserta(jamaahList);
+    const nTerlepasRekap = jumlahPesertaTravelTerlepas(jamaahList);
     const adaTanpaTagihan = komposisiRekap.tanpaTagihan > 0;
     const kursiRekap = ringkasKursiTerisi(jamaahList);
     const pembulatanRekap = ringkasPembulatanHarga(jamaahList);
@@ -10870,6 +10899,7 @@ function hitungRekapAktual() {
         tanpaTipe: tanpaTipe.slice(), tanpaTipeUang: tanpaTipeUang, tanpaTipeEfek: tanpaTipeEfek, hargaBawah: hargaBawahStandar.length,
         anakBawah: hargaAnakBawah.length ? { n: hargaAnakBawah.length, nBayi: hargaAnakBawah.filter(h => h.jenis === 'bayi').length, pemasukan: hargaAnakBawah.reduce((a, h) => a + h.harga, 0), modal: hargaAnakBawah.reduce((a, h) => a + h.modal, 0), perkiraan: hargaAnakBawah.some(h => h.sumber !== 'diisi'), selisih: hargaAnakBawah.reduce((a, h) => a + h.selisih, 0) } : null,
         komposisi: adaTanpaTagihan ? teksKomposisiPeserta(komposisiRekap) : '',
+        travelTerlepas: nTerlepasRekap,
         kursi: kursiRekap,
         pembulatan: pembulatanRekap,
         diskonLebih: diskonLebihRekap,
@@ -10877,6 +10907,7 @@ function hitungRekapAktual() {
         perlengkapan: perlengkapanRekap,
         lebihBayar: lebihBayarRekap
     };
+    if(nTerlepasRekap > 0) html += `<div style="background:#FEF3C7;border:1.5px solid #F59E0B;border-radius:12px;padding:10px 12px;margin-bottom:10px;font-size:12px;color:#92400E;">⚠️ ${escapeHtml(teksTravelTerlepas(nTerlepasRekap))}</div>`;
     if(adaTanpaTagihan) {
         html += `<div style="background:#EDE9FE;border:1.5px solid #C4B5FD;border-radius:12px;padding:10px 12px;margin-bottom:10px;font-size:12px;color:#4C1D95;">
             🏷️ <strong>Peserta tanpa tagihan</strong> tidak masuk hitungan kontrak.<br>${teksKomposisiPeserta(komposisiRekap)}.
@@ -11101,6 +11132,7 @@ function shareRekapAktual() {
     if (g.modalTravel > 0) text += `Modal Travel Partner (${g.travel.n} orang): ${f(g.modalTravel)}\n`;
     if (g.modal > 0) text += `Total Modal (estimasi): ${f(g.modal)}\n*LABA SEMENTARA: ${f(g.profit)}*\n`;
     if (data.komposisi) text += `\n🏷️ Peserta: ${data.komposisi}`;
+    if (data.travelTerlepas > 0) text += `\n⚠️ ${teksTravelTerlepas(data.travelTerlepas)}`;
     if (data.kursi) text += `\n🪑 Kursi bayar terisi ${data.kursi.terisi} dari ${data.kursi.total} (${data.kursi.persen}%)`;
     if (data.pembulatan) text += `\n🔸 ${teksPembulatanHarga(data.pembulatan, true)}`;
     if (data.komposisiHarga) text += `\n🏷️ ${teksKomposisiHarga(data.komposisiHarga)}`;
@@ -18195,7 +18227,7 @@ function renderTravelTandaiList() {
     const tampil = jamaahList.filter(j => !q || String(j.nama_lengkap || '').toLowerCase().includes(q));
     document.getElementById('travelTandaiList').innerHTML = tampil.length ? tampil.map(j => {
         const jenis = jenisPeserta(j), milikLain = jenis === 'travel' && travelPartnerIdPeserta(j) !== id, terkunci = jenis !== 'bayar' && jenis !== 'travel';
-        const ket = terkunci ? infoJenisPeserta(j).ikon + ' ' + infoJenisPeserta(j).label : (milikLain ? '🚌 ' + (namaTravelPeserta(j) || 'travel lain') : '');
+        const ket = terkunci ? infoJenisPeserta(j).ikon + ' ' + infoJenisPeserta(j).label : (milikLain ? '🚌 ' + (namaTravelPeserta(j) || 'belum terhubung') : '');
         return `<label style="display:flex;align-items:center;justify-content:flex-start;gap:10px;padding:9px 10px;border-bottom:1px solid #f1f5f9;font-size:13px;text-align:left;margin:0;${terkunci ? 'opacity:.5;' : ''}"><input type="checkbox" style="width:20px;height:20px;flex:none;margin:0;" ${_travelTandaiPilih.has(j.id) ? 'checked' : ''} ${terkunci ? 'disabled' : ''} onchange="centangTravelTandai(${j.id}, this.checked)"><span style="flex:1;text-align:left;">${escapeHtml(j.nama_lengkap)}</span>${ket ? `<span style="font-size:11px;color:#7C3AED;">${escapeHtml(ket)}</span>` : ''}${(perOrang && _travelTandaiPilih.has(j.id)) ? `<span style="display:flex;align-items:center;gap:4px;font-size:11px;color:#0D9488;" onclick="event.stopPropagation()"><input type="checkbox" style="width:16px;height:16px;flex:none;margin:0;" ${_travelTandaiGratis.has(j.id) ? 'checked' : ''} onchange="gratisTravelTandai(${j.id}, this.checked)">🎁 gratis</span>` : ''}</label>`;
     }).join('') : '<div style="padding:14px;text-align:center;color:#888;font-size:13px;">Tidak ada nama yang cocok.</div>';
     const n = _travelTandaiPilih.size, target = t ? (t.jumlah || 0) : 0;
@@ -18264,12 +18296,12 @@ function downloadTemplateExcel() {
     });
 
     // Baris contoh agar user tahu format isian
-    const contohRow = ['MOHAMMAD SUPRIYADI'];
+    const contohRow = ['CONTOH - Nama Jamaah'];
     fieldsTampil.forEach(f => {
-        if (f.name === 'tgl_lahir') contohRow.push('1980-10-08');
+        if (f.name === 'tgl_lahir') contohRow.push('1980-01-01');
         else if (f.name === 'jenis_kelamin') contohRow.push('L / P');
-        else if (f.name === 'whatsapp') contohRow.push('08123456789');
-        else if (f.name === 'no_porsi') contohRow.push('1234567890');
+        else if (f.name === 'whatsapp') contohRow.push('081200000000');
+        else if (f.name === 'no_porsi') contohRow.push('0000000000');
         else contohRow.push('');
     });
 
@@ -18291,9 +18323,9 @@ function downloadTemplateExcel() {
     const petunjuk = [
         ['PETUNJUK PENGISIAN TEMPLATE IMPORT JAMAAH'],
         [''],
-        ['1. Isi data jamaah mulai dari baris ke-3 (baris 2 adalah contoh, boleh dihapus)'],
+        ['1. Isi data jamaah mulai dari baris ke-3. Baris 2 hanya contoh (namanya diawali "CONTOH -"); baris itu otomatis diabaikan saat import, boleh dihapus.'],
         ['2. Kolom "Nama Lengkap" wajib diisi'],
-        ['3. Format Tanggal Lahir: YYYY-MM-DD (contoh: 1980-10-08)'],
+        ['3. Format Tanggal Lahir: YYYY-MM-DD (contoh: 1980-01-01)'],
         ['4. Jenis Kelamin: isi L atau P'],
         ['5. WhatsApp: awali dengan 08 atau 628'],
         ['6. Jangan ubah nama kolom di baris pertama'],
@@ -20049,6 +20081,8 @@ async function cetakLaporanPenutupanMusim(mode) {
     const cekPiutangDepan = cekPeringatanCicilanSemuaJamaah();
     const piutangTermin = [...cekPiutangDepan.telat, ...cekPiutangDepan.hariIni, ...cekPiutangDepan.akanDatang].reduce((s2, x) => s2 + x.sisa, 0);
     let catatanBelum = '';
+    const nTerlepasLap = jumlahPesertaTravelTerlepas(jamaahList);
+    if (nTerlepasLap > 0) catatanBelum += `<p class="lap-note" style="background:#FEF3C7;color:#92400E;padding:6px 8px;border-radius:6px;">⚠️ ${escapeHtml(teksTravelTerlepas(nTerlepasLap))}</p>`;
     if (nTanpaTagihanLap > 0) catatanBelum += `<p class="lap-note">Peserta: ${teksKomposisiPeserta(komposisiLap)}. FOC, TL, pembimbing, dan Travel Partner tidak ditagih per orang sehingga tidak masuk Total Kontrak jamaah.${komposisiLap.pembimbing > 0 ? ' Biaya ' + komposisiLap.pembimbing + ' pembimbing tidak dihitung otomatis di modal; bila ditanggung, masukkan ke angka TL di Cuan Plan.' : ''}</p>`;
     if (tanpaHarga > 0) catatanBelum += `<p class="lap-note">Dihitung dari ${jamaahRelevan.length} jamaah yang sudah punya harga paket. ${tanpaHarga} jamaah lain belum punya harga paket sehingga tidak ikut dihitung.</p>`;
     if (uangTanpaHarga > 0) catatanBelum += `<p class="lap-note">Uang yang sudah masuk dari ${jmlTanpaHargaAdaBayar} jamaah tanpa harga paket (${f(uangTanpaHarga)}) tidak termasuk Total Kontrak dan Sudah Dibayar di atas, tetapi sudah dihitung di Realisasi.</p>`;
@@ -20303,6 +20337,20 @@ function bukaCaraPakai() {
     const c = document.getElementById('caraPakaiCari'); if (c) c.value = '';
     renderCaraPakai();
     window.scrollTo(0, 0);
+}
+// Kontak pengembang: satu-satunya tempat nomor dan nama ini disimpan. Untuk mengganti, ubah dua baris ini.
+const KONTAK_PENGEMBANG = { nama: 'Ali Mashar', wa: '6281391485440' };
+function renderTentang() {
+    const set = (id, v) => { const e = document.getElementById(id); if(e) e.textContent = v; };
+    set('tentangPengembang', KONTAK_PENGEMBANG.nama);
+    set('tentangVersi', typeof NAVARA_BUILD !== 'undefined' ? NAVARA_BUILD : '-');
+    let lisensi = 'Gratis'; try { if(isLicensed()) lisensi = 'Berlisensi'; } catch(e) {}
+    set('tentangLisensi', lisensi);
+}
+function hubungiPengembang() {
+    let lisensi = 'Gratis'; try { if(isLicensed()) lisensi = 'Berlisensi'; } catch(e) {}
+    const teks = `Halo ${KONTAK_PENGEMBANG.nama}, saya pengguna Navara.\nVersi: ${typeof NAVARA_BUILD !== 'undefined' ? NAVARA_BUILD : '-'}\nStatus: ${lisensi}\nKebutuhan: `;
+    window.open('https://wa.me/' + KONTAK_PENGEMBANG.wa + '?text=' + encodeURIComponent(teks), '_blank');
 }
 function renderCaraPakai() {
     const box = document.getElementById('caraPakaiList'); if (!box) return;
@@ -21138,6 +21186,8 @@ async function eksekusiHapusSemuaJamaah(){
     } 
 }
 
+// Baris contoh dari template (nama diawali "CONTOH -") tidak ikut diimpor
+function barisContohImport(nama) { return /^\s*CONTOH\s*[-–—]/i.test(String(nama || '')); }
 function importJamaahFromExcel(input){ 
     const file=input.files[0]; 
     if(!file) return; 
@@ -21166,6 +21216,7 @@ function importJamaahFromExcel(input){
             const row=rows[i]; 
             if(!row||row.length===0) continue; 
             const nama=row[namaIndex]?row[namaIndex].toString().trim():''; 
+            if(barisContohImport(nama)) continue;
             if(nama) { validCount++; if(namaAda.has(nama.toLowerCase())) namaSudahAda++; }
         }
         if(validCount === 0){ 
@@ -21212,7 +21263,7 @@ function importJamaahFromExcel(input){
                 const row=rows[i]; 
                 if(!row||row.length===0) continue; 
                 const nama=row[namaIndex]?row[namaIndex].toString().trim():''; 
-                if(!nama) continue; 
+                if(!nama || barisContohImport(nama)) continue; 
                 const additional={}; 
                 for(const field of dynamicFieldsJamaah){ 
                     const fieldIndex=headers.findIndex(h=>h&&(h.toLowerCase()===field.label.toLowerCase()||h.toLowerCase()===field.name.toLowerCase())); 
@@ -23517,10 +23568,13 @@ function hargaPerorangTravel(j) {
 }
 // Uang yang sudah dibayar untuk satu travel: Sekaligus = catatan di kartu travel; Per orang = jumlah pembayaran jamaah milik travel itu
 // Teks tanda jenis peserta untuk lencana (Pembayaran, Database). Travel Partner memuat nama travelnya, dan 🎁 bila gratis dari travel.
+// Peserta bertanda Travel Partner yang travelnya tidak ada (dihapus atau belum dipilih): kursinya terhitung, tagihan dan modalnya belum.
+function jumlahPesertaTravelTerlepas(daftar) { return (daftar || []).filter(j => jenisPeserta(j) === 'travel' && !travelDariPeserta(j)).length; }
+function teksTravelTerlepas(n) { return n + ' peserta Travel Partner belum terhubung ke travel di Konsorsium, jadi tagihan dan modalnya belum dihitung (kursinya tetap terhitung). Hubungkan lewat Database Jamaah → Tandai Travel Partner.'; }
 function teksLencanaJenis(j) {
     const info = infoJenisPeserta(j);
     let t = info.ikon + ' ' + info.label;
-    if(jenisPeserta(j) === 'travel') { const n = namaTravelPeserta(j); if(n) t += ' · ' + n; if(gratisDariTravel(j)) t += ' · 🎁 gratis'; }
+    if(jenisPeserta(j) === 'travel') { const n = namaTravelPeserta(j); t += ' · ' + (n || 'belum terhubung'); if(gratisDariTravel(j)) t += ' · 🎁 gratis'; }
     return t;
 }
 function lencanaJenisHtml(j, gaya) {
@@ -27066,7 +27120,7 @@ function openIndexedDB() {
 // dengan build baru, data MENTAH (langsung dari IndexedDB, bukan dari memori) disalin dulu sebelum
 // proses migrasi apapun berjalan — supaya kalau ada kesalahan di update, data lama masih bisa dipulihkan.
 // Dokumen & foto tidak ikut disalin (ukurannya besar, dan tidak pernah disentuh proses migrasi).
-const NAVARA_BUILD = '2026.10.26-202';
+const NAVARA_BUILD = '2026.10.26-205';
 const MAKS_SNAPSHOT = 3;
 
 // ==================== DAFTAR DATA PUSAT ====================
@@ -29864,7 +29918,8 @@ function buildPrintHeader(cfg, tanggal) {
         : '';
 
     // Sekunder dianggap "aktif" kalau: (mode normal, i2 asli) i2.aktif=true, ATAU (mode Haji tertukar) i2 sekarang = Instansi 1 asli yang tidak punya saklar .aktif sendiri, cukup cek namanya ada
-    const sekunderTampil = hajiReg ? !!i2.nama : (i2.aktif && i2.nama);
+    const namaSama = String(i2.nama || '').trim().toLowerCase() === String(i1.nama || '').trim().toLowerCase(); // nama yang sama (mis. pengguna gratis: Navara dan Navara) cukup tampil sekali
+    const sekunderTampil = (hajiReg ? !!i2.nama : (i2.aktif && i2.nama)) && !namaSama;
 
     let infoHtml = '';
     if(showNama1 && i1.nama)             infoHtml += `<div style="font-size:17px;font-weight:bold;">${i1.nama}</div>`;
@@ -30124,8 +30179,8 @@ function getKonfigurasiProData() {
     let data = null;
     if(saved) { try { data = JSON.parse(saved); } catch(e) {} }
     if(!data) data = {
-        instansi1: { nama: 'Navara', alamat: 'Jl. Siwalankerto Utara II No. 30, Wonocolo, Surabaya', telp: '081391485440', email: '', npwp: '', web: '', pimpinan: 'Ali mashar', jabatan: 'Admin', logo: '' },
-        instansi2: { aktif: true, nama: 'Navara', alamat: 'Jl. Siwalankerto Utara II No. 30, Wonocolo, Surabaya' },
+        instansi1: { nama: 'Navara', alamat: '', telp: '', email: '', npwp: '', web: '', pimpinan: '', jabatan: '', logo: '' }, // isian awal pengguna baru dikosongkan: tiap pengguna mengisi identitasnya sendiri
+        instansi2: { aktif: true, nama: '', alamat: '' },
         watermark: { enabled: true, text: 'DOKUMEN RESMI', opacity: 0.15, fontsize: 60, position: 'diagonal' },
         qr: { enabled: true, text: 'Dokumen Resmi - Divalidasi oleh Sistem Navara', size: 80 },
         settings: { header_mode: 'both', ttd_mode: 'both', invoice_prefix: 'INV/NAVARA', show_logo: true, show_nama1: true, show_nama2: true, show_alamat: true, show_telp: true, show_email: false, show_web: false, show_npwp: false, show_izin: false, show_pimpinan: false, batas_lansia: 60 }
