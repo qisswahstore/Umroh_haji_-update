@@ -5017,7 +5017,7 @@ function ringkasKomposisiHarga(list) {
     if (!hp || !hp.seragam || !(hp.nominal > 0) || isHajiReguler()) return null;
     const k = { dasar: hp.nominal, nSeragam: 0, nDiskon: 0, nAnak: 0, nKhusus: 0, totalDiskon: 0, totalKomisi: 0, n: 0 };
     (list || []).forEach(j => {
-        if (tanpaTagihan(j)) return;
+        if (tanpaTagihan(j) || jenisPeserta(j) === 'travel') return;
         const r = hargaPaketRinci(j, hp);
         k.n++;
         k.totalKomisi += komisiMitraDari(j.additional_fields);
@@ -5062,7 +5062,7 @@ function teksKomposisiHarga(k) {
 }
 
 function analisisBufferB2C() {
-    return analisisBufferB2CDari(hitungModalHargaEstimasiTerkini(), jamaahList.map(j => ({ nama: j.nama_lengkap, harga: getTotalHargaPaket(j), af: j.additional_fields, perl: perlengkapanJamaah(j) })));
+    return analisisBufferB2CDari(hitungModalHargaEstimasiTerkini(), jamaahList.map(j => ({ nama: j.nama_lengkap, harga: jenisPeserta(j) === 'travel' ? 0 : getTotalHargaPaket(j), af: j.additional_fields, perl: perlengkapanJamaah(j) })));
 }
 // Inti hitungan (murni): est = hasil hitungModalHargaDariEst, items = [{nama, harga, af}]
 function analisisBufferB2CDari(est, items) {
@@ -9970,6 +9970,7 @@ function renderKunciKonsorsiumUI() {
     if(btnTambahTravel) btnTambahTravel.style.display = terkunci ? 'none' : 'block';
     // Kunci juga semua input di kartu Travel Partner
     document.querySelectorAll('#konsorsiumContainer input').forEach(el => el.disabled = terkunci);
+    document.querySelectorAll('#konsorsiumContainer select').forEach(el => el.disabled = terkunci); // termasuk Cara bayar dan Pembulatan
     document.querySelectorAll('#konsorsiumContainer button').forEach(el => el.disabled = terkunci);
     // KECUALI tombol Catat Pembayaran — pembayaran itu kejadian nyata, tetap boleh dicatat meski kesepakatan harga sudah dikunci
     document.querySelectorAll('#konsorsiumContainer button[onclick*="openCatatPembayaranTravelModal"]').forEach(el => el.disabled = false);
@@ -11704,7 +11705,7 @@ function renderJamaahListWithPagination() {
         const adaKebutuhanKhusus = (j.kebutuhan_khusus?.kondisi?.length > 0) || !!j.kebutuhan_khusus?.catatan;
         const statusProses = j.additional_fields?.status_proses || '';
         const badgeStatusProses = (statusProses && statusProses !== 'Normal') ? `<span title="Status Proses: ${escapeHtml(statusProses)}${j.additional_fields?.catatan_status_proses ? ' — ' + escapeHtml(j.additional_fields.catatan_status_proses) : ''}" style="font-size:13px;">${statusProses}</span>` : '';
-        html+=`<div class="jamaah-card"><div class="jamaah-header"><div style="display:flex;align-items:center;gap:10px;flex:1;"><div id="foto_thumb_${j.id}" style="width:44px;height:44px;border-radius:50%;background:#f0f0f0;border:2px solid var(--primary);overflow:hidden;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;" onclick="showFotoProfilModal(${j.id},'${jsArg(j.nama_lengkap)}')"><span style="font-size:22px;">👤</span></div><div><div class="jamaah-nama"><span style="background:var(--primary); color:white; display:inline-block; width:28px; height:28px; border-radius:50%; text-align:center; line-height:28px; font-size:13px; margin-right:10px;">${displayNum}</span> ${escapeHtml(j.nama_lengkap)} ${adaKebutuhanKhusus ? '<span title="Ada kebutuhan khusus/kontak darurat tercatat" style="font-size:13px;">🏥</span>' : ''} ${badgeStatusProses} ${tanpaTagihan(j) ? `<span title="${escapeHtml(infoJenisPeserta(j).ket)}" style="font-size:10px;background:#EDE9FE;color:#5B21B6;border-radius:6px;padding:2px 6px;font-weight:700;vertical-align:middle;">${infoJenisPeserta(j).ikon} ${infoJenisPeserta(j).label}${jenisPeserta(j) === 'travel' && namaTravelPeserta(j) ? ' · ' + escapeHtml(namaTravelPeserta(j)) : ''}</span>` : ''}</div><div class="jamaah-tgl"> ${j.created_at||'-'}</div></div></div><div class="jamaah-actions"><button class="btn-share-wa" style="background:#0D9488;" onclick="openPaymentModalWithJamaah(${j.id})" title="Bayar Cepat"><i class="fas fa-money-bill-wave"></i></button><button class="btn-share-wa" onclick="shareSingleJamaahById('${j.id}')"><i class="fab fa-whatsapp"></i></button><button class="btn-edit-jamaah" onclick="editJamaahById('${j.id}')"><i class="fas fa-edit"></i></button><button class="btn-delete-jamaah" onclick="confirmDeleteJamaahById('${j.id}')"><i class="fas fa-trash"></i></button></div></div><div class="jamaah-detail">`; 
+        html+=`<div class="jamaah-card"><div class="jamaah-header"><div style="display:flex;align-items:center;gap:10px;flex:1;"><div id="foto_thumb_${j.id}" style="width:44px;height:44px;border-radius:50%;background:#f0f0f0;border:2px solid var(--primary);overflow:hidden;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;" onclick="showFotoProfilModal(${j.id},'${jsArg(j.nama_lengkap)}')"><span style="font-size:22px;">👤</span></div><div><div class="jamaah-nama"><span style="background:var(--primary); color:white; display:inline-block; width:28px; height:28px; border-radius:50%; text-align:center; line-height:28px; font-size:13px; margin-right:10px;">${displayNum}</span> ${escapeHtml(j.nama_lengkap)} ${adaKebutuhanKhusus ? '<span title="Ada kebutuhan khusus/kontak darurat tercatat" style="font-size:13px;">🏥</span>' : ''} ${badgeStatusProses}</div>${jenisPeserta(j) !== 'bayar' ? `<div style="margin:3px 0;">${lencanaJenisHtml(j, 10)}</div>` : ''}<div class="jamaah-tgl"> ${j.created_at||'-'}</div></div></div><div class="jamaah-actions"><button class="btn-share-wa" style="background:#0D9488;" onclick="openPaymentModalWithJamaah(${j.id})" title="Bayar Cepat"><i class="fas fa-money-bill-wave"></i></button><button class="btn-share-wa" onclick="shareSingleJamaahById('${j.id}')"><i class="fab fa-whatsapp"></i></button><button class="btn-edit-jamaah" onclick="editJamaahById('${j.id}')"><i class="fas fa-edit"></i></button><button class="btn-delete-jamaah" onclick="confirmDeleteJamaahById('${j.id}')"><i class="fas fa-trash"></i></button></div></div><div class="jamaah-detail">`; 
         for(const field of getDynamicFieldsJamaahTampil()){ 
             const val=j.additional_fields?.[field.name]||''; 
             if(val) html+=`<div class="jamaah-detail-item"><strong>${escapeHtml(field.label)}:</strong> ${escapeHtml(val)}</div>`; 
@@ -19339,7 +19340,7 @@ function ringkasPembulatanHarga(daftarJamaah) {
     if(selisih === 0) return null;
     let n = 0, atas = 0, bawah = 0;
     (daftarJamaah || []).forEach(j => {
-        if(tanpaTagihan(j)) return;
+        if(tanpaTagihan(j) || jenisPeserta(j) === 'travel') return; // harga Travel Partner bukan harga brosur
         const tipe = (j.additional_fields && j.additional_fields.tipe_paket) || '';
         if(tipe && tipe !== 'Quad') return;
         const h = getTotalHargaPaket(j) || 0;
@@ -20264,7 +20265,7 @@ function daftarCaraPakai() {
               isi: 'FOC, TL, dan pembimbing dipilih di <b>Jenis peserta</b> pada data jamaah; mereka tidak ditagih. Modal FOC dan TL tetap dihitung di laporan. Untuk anak atau bayi: buka <b>Pembayaran</b> → <b>Harga</b> pada kartu jamaah, pilih <b>Tarif anak/bayi</b>, lalu ketik harga hasil nego. Bayi tidak memakai kursi dan modalnya diisi sendiri di kolom <b>Modal anak/bayi</b>; kalau dikosongkan, dipakai perkiraan modal bayi Program. Tarif anak/bayi bukan diskon.',
               tombol: [bukaMod('Pembayaran', 'pembayaran')] },
             { judul: 'Jamaah milik Travel Partner',
-              isi: 'Bila jamaah dibawa travel lain dan travelnya yang membayar, tambahkan travelnya di tab <b>Konsorsium</b>, lalu di <b>Jamaah</b> buka <b>Panel Admin</b> → <b>🚌 Tandai Travel Partner</b> dan centang nama-namanya sekaligus. Mereka tidak ditagih per orang tetapi tetap memakai kursi, jadi sisa kursi di Konsorsium tidak lagi minus. Catat pembayaran travel di kartu Travel Partner (tab Konsorsium), jangan di Pembayaran jamaah. Uang itu otomatis ikut dihitung di Rekap dan Laporan. Kalau jamaah travel itu bayar sendiri-sendiri, pada kartu travelnya ubah <b>Cara bayar</b> ke <b>Per orang</b>: tiap jamaah ditagih memakai harga travel itu sesuai tipe kamarnya, dibayar di Pembayaran jamaah seperti biasa, dan yang gratis dari travel dicentang 🎁 saat menandai.',
+              isi: 'Bila jamaah dibawa travel lain dan travelnya yang membayar, tambahkan travelnya di tab <b>Konsorsium</b>, lalu di <b>Jamaah</b> buka <b>Panel Admin</b> → <b>🚌 Tandai Travel Partner</b> dan centang nama-namanya sekaligus. Mereka tidak ditagih per orang tetapi tetap memakai kursi, jadi sisa kursi di Konsorsium tidak lagi minus. Catat pembayaran travel di kartu Travel Partner (tab Konsorsium), jangan di Pembayaran jamaah. Uang itu otomatis ikut dihitung di Rekap dan Laporan. Kalau jamaah travel itu bayar sendiri-sendiri, pada kartu travelnya ubah <b>Cara bayar</b> ke <b>Per orang</b>: tiap jamaah ditagih memakai harga travel itu sesuai tipe kamarnya, dibayar di Pembayaran jamaah seperti biasa, dan yang gratis dari travel dicentang 🎁 saat menandai. Untuk travel Per orang, <b>tipe kamar</b> (Quad, Triple, Double) tiap jamaah harus sudah terisi supaya harganya tepat; kalau kosong, dipakai harga Quad. Jumlah yang dicentang gratis sebaiknya sama dengan angka <b>FOC dari Travel Ini</b> di kartu travel. <b>Cek Kesehatan</b> memberi peringatan bila jumlah orang atau jumlah gratis tidak cocok dengan Konsorsium. Setelah harga disepakati, kunci Konsorsium supaya harga tidak bergeser.',
               tombol: [bukaMod('Jamaah', 'jamaah')] },
             { judul: 'Jamaah tidak mengambil perlengkapan',
               isi: 'Buka <b>Pembayaran</b> → <b>Harga</b> pada kartu jamaah → <b>Perlengkapan</b> → pilih <b>Tidak ambil</b>, lalu isi potongan harga (pilih cepat 1.000.000 atau 1.500.000, atau ketik sendiri). Harga paket otomatis berkurang sebesar potongan, dan modal ikut turun sesuai biaya perlengkapan di Estimasi. Kalau harga jamaah itu sudah diketik sendiri (Harga khusus), potongan tidak ikut mengurangi harga. Pilihan ini tidak muncul untuk bayi.',
@@ -23515,6 +23516,16 @@ function hargaPerorangTravel(j) {
     return cocok && cocok.harga > 0 ? Math.round(cocok.harga) : null;
 }
 // Uang yang sudah dibayar untuk satu travel: Sekaligus = catatan di kartu travel; Per orang = jumlah pembayaran jamaah milik travel itu
+// Teks tanda jenis peserta untuk lencana (Pembayaran, Database). Travel Partner memuat nama travelnya, dan 🎁 bila gratis dari travel.
+function teksLencanaJenis(j) {
+    const info = infoJenisPeserta(j);
+    let t = info.ikon + ' ' + info.label;
+    if(jenisPeserta(j) === 'travel') { const n = namaTravelPeserta(j); if(n) t += ' · ' + n; if(gratisDariTravel(j)) t += ' · 🎁 gratis'; }
+    return t;
+}
+function lencanaJenisHtml(j, gaya) {
+    return jenisPeserta(j) === 'bayar' ? '' : `<span title="${escapeHtml(infoJenisPeserta(j).ket)}" style="display:inline-block;white-space:nowrap;max-width:100%;overflow:hidden;text-overflow:ellipsis;vertical-align:middle;font-size:${gaya || 11}px;background:#EDE9FE;color:#5B21B6;border-radius:6px;padding:2px 7px;font-weight:700;">${escapeHtml(teksLencanaJenis(j))}</span>`;
+}
 function totalDibayarTravel(t) {
     if(!travelBayarPerOrang(t)) return (t.pembayaran || []).reduce((a, x) => a + (x.nominal || 0), 0);
     const ids = new Set(jamaahList.filter(j => jenisPeserta(j) === 'travel' && travelPartnerIdPeserta(j) === String(t.id)).map(j => String(j.id)));
@@ -23657,7 +23668,7 @@ function hitungStatusPerKomponenHaji(jamaahId) {
 
 // Label diskon di kartu tagihan: berapa potongan dari harga brosur dan apakah masih dalam Buffer. Hanya tampilan.
 function labelDiskonJamaah(j, est) {
-    if(!est || isHajiReguler()) return '';
+    if(!est || isHajiReguler() || jenisPeserta(j) === 'travel') return ''; // harga Travel Partner dari kartu travelnya, bukan diskon dari brosur
     const h = getTotalHargaPaket(j) || 0;
     if(h <= 0) return '';
     const fR = n => 'Rp ' + Math.round(n).toLocaleString('id-ID');
@@ -23731,8 +23742,7 @@ function renderPaymentJamaahList() {
     pageData.forEach(j => { 
         const { status, warna, sisa, lebih, totalBayar, totalHargaPaket, needInput, tanpaTagihan: tanpaTag } = getStatusPembayaran(j); 
         if (tanpaTag) {
-            const infoJ = infoJenisPeserta(j);
-            html += `<div class="payment-jamaah-card" style="border-left-color: #8B5CF6;"><div class="payment-jamaah-info"><h4>${escapeHtml(j.nama_lengkap)} <span style="font-size:11px;background:#EDE9FE;color:#5B21B6;border-radius:6px;padding:2px 7px;font-weight:700;">${infoJ.ikon} ${infoJ.label}</span></h4><div class="payment-price-detail" style="color:#6D28D9;">Tidak ditagih${totalBayar > 0 ? ' · tercatat pembayaran ' + formatRupiah(totalBayar) : ''}</div></div></div>`;
+            html += `<div class="payment-jamaah-card" style="border-left-color: #8B5CF6;"><div class="payment-jamaah-info"><h4>${escapeHtml(j.nama_lengkap)} ${lencanaJenisHtml(j)}</h4><div class="payment-price-detail" style="color:#6D28D9;">Tidak ditagih${totalBayar > 0 ? ' · tercatat pembayaran ' + formatRupiah(totalBayar) : ''}</div></div></div>`;
         } else if (needInput) 
             html += `<div class="payment-jamaah-card" style="border-left-color: #f39c12;"><div class="payment-jamaah-info"><h4>${escapeHtml(j.nama_lengkap)}</h4><div class="payment-price-detail" style="color: #f39c12;">⚠️ Total Harga Paket belum diisi!</div></div><div><button class="payment-btn-bayar" onclick="openEditHargaModal('${j.id}')" style="background:#f39c12; color:white;"><i class="fas fa-tag"></i> Atur Harga</button></div></div>`; 
         else {
@@ -23743,7 +23753,7 @@ function renderPaymentJamaahList() {
                     `<div style="font-size:11px;color:${warnaStatusKomponen[k.status]};">${ikonStatusKomponen[k.status]} ${escapeHtml(k.jenis)}: ${formatRupiah(k.dibayar)} / ${formatRupiah(k.target)}</div>`
                 ).join('') + '</div>';
             }
-            html += `<div class="payment-jamaah-card" style="border-left-color: ${warna};"><div class="payment-jamaah-info"><h4>${escapeHtml(j.nama_lengkap)}</h4><div class="payment-price-detail">💰 Total Paket: ${formatRupiah(totalHargaPaket)}<br>💸 Dibayar: ${formatRupiah(totalBayar)}</div>${labelDiskonJamaah(j, estLabel)}${rincianKomponen}</div><div style="text-align: right;"><div class="payment-sisa-badge" style="color: ${warna}; margin-bottom: 8px;">${status === 'LUNAS' ? '✅ LUNAS' : '💵 Sisa ' + formatRupiah(sisa)}${lebih > 0 ? `<div style="font-size:12px;font-weight:700;color:#B45309;margin-top:2px;">↩️ Kelebihan bayar ${formatRupiah(lebih)}</div>` : ''}</div><div><button class="payment-btn-bayar" onclick="openPaymentModalWithJamaah('${j.id}')"><i class="fas fa-plus-circle"></i> Bayar</button><button class="payment-btn-bayar" onclick="prepareInvoice('${j.id}')"><i class="fas fa-file-invoice"></i> WA</button><button class="payment-btn-bayar" onclick="bukaExportInvoice('${j.id}')"><i class="fas fa-download"></i> Export</button><button class="payment-btn-bayar" onclick="openEditHargaModal('${j.id}')"><i class="fas fa-edit"></i> Harga</button><button class="payment-btn-bayar" onclick="openJadwalCicilanModal('${j.id}')"><i class="fas fa-calendar-alt"></i> Cicilan</button><button class="payment-btn-bayar" onclick="openRiwayatModal('${j.id}')"><i class="fas fa-history"></i> Riwayat</button></div></div></div>`; 
+            html += `<div class="payment-jamaah-card" style="border-left-color: ${warna};"><div class="payment-jamaah-info"><h4>${escapeHtml(j.nama_lengkap)} ${lencanaJenisHtml(j)}</h4><div class="payment-price-detail">💰 Total Paket: ${formatRupiah(totalHargaPaket)}<br>💸 Dibayar: ${formatRupiah(totalBayar)}</div>${labelDiskonJamaah(j, estLabel)}${rincianKomponen}</div><div style="text-align: right;"><div class="payment-sisa-badge" style="color: ${warna}; margin-bottom: 8px;">${status === 'LUNAS' ? '✅ LUNAS' : '💵 Sisa ' + formatRupiah(sisa)}${lebih > 0 ? `<div style="font-size:12px;font-weight:700;color:#B45309;margin-top:2px;">↩️ Kelebihan bayar ${formatRupiah(lebih)}</div>` : ''}</div><div><button class="payment-btn-bayar" onclick="openPaymentModalWithJamaah('${j.id}')"><i class="fas fa-plus-circle"></i> Bayar</button><button class="payment-btn-bayar" onclick="prepareInvoice('${j.id}')"><i class="fas fa-file-invoice"></i> WA</button><button class="payment-btn-bayar" onclick="bukaExportInvoice('${j.id}')"><i class="fas fa-download"></i> Export</button><button class="payment-btn-bayar" onclick="openEditHargaModal('${j.id}')"><i class="fas fa-edit"></i> Harga</button><button class="payment-btn-bayar" onclick="openJadwalCicilanModal('${j.id}')"><i class="fas fa-calendar-alt"></i> Cicilan</button><button class="payment-btn-bayar" onclick="openRiwayatModal('${j.id}')"><i class="fas fa-history"></i> Riwayat</button></div></div></div>`; 
         }
     }); 
     container.innerHTML = html; 
@@ -27056,7 +27066,7 @@ function openIndexedDB() {
 // dengan build baru, data MENTAH (langsung dari IndexedDB, bukan dari memori) disalin dulu sebelum
 // proses migrasi apapun berjalan — supaya kalau ada kesalahan di update, data lama masih bisa dipulihkan.
 // Dokumen & foto tidak ikut disalin (ukurannya besar, dan tidak pernah disentuh proses migrasi).
-const NAVARA_BUILD = '2026.10.26-198';
+const NAVARA_BUILD = '2026.10.26-202';
 const MAKS_SNAPSHOT = 3;
 
 // ==================== DAFTAR DATA PUSAT ====================
