@@ -8385,6 +8385,7 @@ function perbaruiKartuHargaBeda() {
         // Dampak: bandingkan dengan versi riwayat terbaru yang rinciannya cocok dan modalnya berbeda
         const base = (slot.estimasi_history || []).find(r => r.data && !rhBelumCocok(r) && Math.round(hitungModalHargaDariEst(r.data).modal) !== Math.round(h.modal));
         const labaSeragam = (seragam - h.buffer) * bay - h.modal * (h.nJam + h.tl);
+        const labaBrosur = (h.harga - h.buffer) * bay - h.modal * (h.nJam + h.tl);
         let barisModal = '', barisLaba = '';
         if(base) {
             const hb = hitungModalHargaDariEst(base.data), dm = h.modal - hb.modal;
@@ -8405,6 +8406,12 @@ function perbaruiKartuHargaBeda() {
             </div>
             <div style="font-size:13px;color:#334155;line-height:1.55;margin-top:8px;"><b>${lunas}</b> dari <b>${daftar.length}</b> jamaah sudah lunas. Tagihan jamaah <b>tidak berubah</b>, karena mengikuti Harga Seragam di Konfigurasi.${khusus ? ' ' + khusus + ' jamaah memakai harga khusus.' : ''}</div>
             <div style="margin-top:8px;">${barisModal}${barisLaba}</div>
+            <div style="background:rgba(255,255,255,.65);border:1px solid rgba(100,116,139,.25);border-radius:10px;padding:9px 11px;margin-top:8px;font-size:13px;line-height:1.6;color:#334155;">
+                <div style="font-weight:800;margin-bottom:2px;">Perbandingan profit bersih</div>
+                <div>Harga jamaah sekarang ${rhRp(seragam)}: <b>${rhRp(labaSeragam)}</b></div>
+                <div>Bila memakai harga Cuan Plan ${rhRp(brosur)}: <b>${rhRp(labaBrosur)}</b></div>
+                <div style="font-size:12px;color:#64748B;">Selisih ${rhRp(Math.abs(labaBrosur - labaSeragam))} (sekitar ${rhRp(Math.abs(brosur - seragam))} × ${bay} pembayar)</div>
+            </div>
             <div style="font-size:12px;color:#64748B;line-height:1.5;margin-top:8px;">${rhE(buf)}</div>
             <div style="display:flex;flex-direction:column;gap:8px;margin-top:12px;">
                 <button type="button" onclick="cpBuka(true)" style="width:100%;padding:12px;border:none;border-radius:10px;background:${RH_WARNA};color:#fff;font-size:13px;font-weight:800;cursor:pointer;font-family:inherit;">🎯 Cari persen profit untuk harga ${rhRp(seragam)}</button>
@@ -27266,7 +27273,7 @@ function openIndexedDB() {
 // dengan build baru, data MENTAH (langsung dari IndexedDB, bukan dari memori) disalin dulu sebelum
 // proses migrasi apapun berjalan — supaya kalau ada kesalahan di update, data lama masih bisa dipulihkan.
 // Dokumen & foto tidak ikut disalin (ukurannya besar, dan tidak pernah disentuh proses migrasi).
-const NAVARA_BUILD = '2026.10.28-213';
+const NAVARA_BUILD = '2026.10.28-214';
 const MAKS_SNAPSHOT = 3;
 
 // ==================== DAFTAR DATA PUSAT ====================
