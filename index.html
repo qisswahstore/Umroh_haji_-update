@@ -2245,13 +2245,17 @@ https://github.com/nodeca/pako/blob/main/LICENSE
             </div>
             <small id="hargaJualInfo" style="color:#888;font-size:11px;margin-top:6px;display:block;"></small>
         </div>
-        <div id="hargaJualTipeWrap" style="display:none;">
-            <div class="input-group" id="wrapHJTriple" style="display:none;"><label style="font-size:13px;">Harga Jual Triple bulat <small style="color:#888;">(opsional)</small></label>
-                <input type="text" id="cHargaJualTriple" class="money-input" inputmode="numeric" value="" placeholder="Kosong = pakai hasil hitungan" oninput="saveEstimasiData()"></div>
-            <div class="input-group" id="wrapHJDouble" style="display:none;"><label style="font-size:13px;">Harga Jual Double bulat <small style="color:#888;">(opsional)</small></label>
-                <input type="text" id="cHargaJualDouble" class="money-input" inputmode="numeric" value="" placeholder="Kosong = pakai hasil hitungan" oninput="saveEstimasiData()"></div>
-            <small style="color:#888;font-size:11px;display:block;margin:-4px 0 10px;">Hanya mengubah harga brosur tipe itu. Laba grup tetap dihitung dari harga Quad.</small>
-        </div>
+        <details id="hargaJualTipeWrap" style="display:none;margin:10px 0 14px;background:#F8FAFC;border:1.5px solid #e2e8f0;border-radius:10px;padding:9px 12px;">
+            <summary style="cursor:pointer;list-style:none;font-size:13px;font-weight:700;color:var(--primary);">Harga bulat Triple / Double <small style="font-weight:normal;color:#888;">(opsional, ketuk untuk buka)</small>
+                <div id="ringkasHJTipe" style="font-size:12px;font-weight:600;color:#475569;margin-top:3px;"></div></summary>
+            <div style="margin-top:10px;">
+                <div class="input-group" id="wrapHJTriple" style="display:none;"><label style="font-size:13px;">Harga Jual Triple bulat</label>
+                    <input type="text" id="cHargaJualTriple" class="money-input" inputmode="numeric" value="" placeholder="Kosong = pakai hasil hitungan" oninput="saveEstimasiData(); perbaruiKolomHargaTipe()"></div>
+                <div class="input-group" id="wrapHJDouble" style="display:none;"><label style="font-size:13px;">Harga Jual Double bulat</label>
+                    <input type="text" id="cHargaJualDouble" class="money-input" inputmode="numeric" value="" placeholder="Kosong = pakai hasil hitungan" oninput="saveEstimasiData(); perbaruiKolomHargaTipe()"></div>
+                <small style="color:#888;font-size:11px;display:block;line-height:1.5;">Harga brosur tipe ini. Penagihan jamaah diatur di Konfigurasi → Harga Paket Seragam. Laba di kartu hasil memakai harga Quad.</small>
+            </div>
+        </details>
         <button class="btn btn-primary" onclick="hitungUmroh()"><i class="fas fa-calculator"></i> HITUNG ESTIMASI</button>
         <button class="btn btn-orange mt-2" onclick="resetEstimasiToDefault()"><i class="fas fa-undo-alt"></i> RESET KE DEFAULT</button>
         <button class="mt-2" onclick="openSimulasiKebijakanGratisModal()" style="width:100%;padding:11px;background:#0369A1;color:white;border:none;border-radius:10px;font-size:14px;font-weight:bold;cursor:pointer;">🧮 Simulasi FOC Mitra</button>
@@ -7896,6 +7900,7 @@ function loadEstimasiData() {
         if(data.cBuffer !== undefined) document.getElementById('cBuffer').value=data.cBuffer;
         { const elHJ = document.getElementById('cHargaJual'); if(elHJ) elHJ.value = data.cHargaJual || ''; }
         ['cHargaJualTriple','cHargaJualDouble'].forEach(id => { const el = document.getElementById(id); if(el) el.value = data[id] || ''; });
+        perbaruiKolomHargaTipe();
         isiFormSudahPasti('', data);
         // Pulihkan helper kurs FX (opsional, tidak wajib ada di data lama)
         const fxModeTiketEl = document.getElementById('fxModeTiket');
@@ -8487,6 +8492,7 @@ function hitungUmroh() {
                 </div>
             </div>`).join('')}
             <p style="font-size:10px;margin-top:6px;text-align:center;color:#888;">*Berdasarkan ${nJam-nFoc} jamaah bayar dan ${nFoc} FOC</p>
+            <p style="font-size:10px;margin-top:4px;text-align:center;color:#888;">Laba di atas dihitung dari harga Quad. Laba sesungguhnya mengikuti tipe kamar jamaah (lihat Rekap).</p>
         </div>`;
     }
     let hasil=document.getElementById('hasilEstimasi');
@@ -11227,6 +11233,11 @@ function perbaruiKolomHargaTipe() {
     document.getElementById('wrapHJTriple').style.display = t ? 'block' : 'none';
     document.getElementById('wrapHJDouble').style.display = d ? 'block' : 'none';
     wrap.style.display = (t || d) ? 'block' : 'none';
+    const rg = document.getElementById('ringkasHJTipe');
+    if(rg) {
+        const f = id => { const v = parseRupiah(document.getElementById(id)?.value || '0'); return v > 0 ? 'Rp ' + v.toLocaleString('id-ID') : 'pakai hitungan'; };
+        rg.textContent = [t ? 'Triple ' + f('cHargaJualTriple') : '', d ? 'Double ' + f('cHargaJualDouble') : ''].filter(Boolean).join(' · ');
+    }
 }
 function updateModeLA() {
     const isUpgrade = document.getElementById('modeUpgrade')?.checked;
@@ -27209,7 +27220,7 @@ function openIndexedDB() {
 // dengan build baru, data MENTAH (langsung dari IndexedDB, bukan dari memori) disalin dulu sebelum
 // proses migrasi apapun berjalan — supaya kalau ada kesalahan di update, data lama masih bisa dipulihkan.
 // Dokumen & foto tidak ikut disalin (ukurannya besar, dan tidak pernah disentuh proses migrasi).
-const NAVARA_BUILD = '2026.10.28-209';
+const NAVARA_BUILD = '2026.10.28-210';
 const MAKS_SNAPSHOT = 3;
 
 // ==================== DAFTAR DATA PUSAT ====================
