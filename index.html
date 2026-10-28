@@ -18753,6 +18753,7 @@ async function bagikanDariCetak(jalankanCetak, judul) {
 const EXPORT_PILIHAN = [
     { k: 'cetak', ikon: '🖨️', kls: 'export-icon-cetak', nama: 'Cetak / Simpan PDF', ket: 'Lihat dulu, lalu cetak atau simpan PDF' },
     { k: 'bagikan', ikon: '📲', kls: 'export-icon-pdf', nama: 'Bagikan PDF', ket: 'Kirim file PDF lewat WhatsApp atau aplikasi lain' },
+    { k: 'gambar', ikon: '🖼️', kls: 'export-icon-pdf', nama: 'Bagikan Gambar', ket: 'Kirim sebagai gambar lewat WhatsApp atau aplikasi lain' },
     { k: 'excel', ikon: '📊', kls: 'export-icon-excel', nama: 'Excel', ket: 'Langsung unduh file Excel' },
     { k: 'wa', ikon: '💬', kls: 'export-icon-wa', nama: 'WhatsApp', ket: 'Kirim ringkasan sebagai pesan WhatsApp' },
     { k: 'salin', ikon: '📋', kls: 'export-icon-cetak', nama: 'Salin Teks', ket: 'Salin ringkasan, lalu tempel di mana saja' }
@@ -19236,7 +19237,7 @@ function hargaUmumProgram(cfg) {
     const hp = cfg.harga_paket;
     if(hp && hp.seragam && hp.nominal > 0) {
         const pt = hp.perTipe || {};
-        return { quad: Math.round(hp.nominal), triple: pt.Triple > 0 ? Math.round(pt.Triple) : 0, double: pt.Double > 0 ? Math.round(pt.Double) : 0 };
+        return { quad: Math.round(hp.nominal), triple: pt.Triple > 0 ? Math.round(pt.Triple) : 0, double: pt.Double > 0 ? Math.round(pt.Double) : 0, hitungan: false };
     }
     try {
         const est = cfg.estimasi_data;
@@ -19244,7 +19245,7 @@ function hargaUmumProgram(cfg) {
         if(h && h.harga > 0) {
             const quad = Math.round(h.harga);
             const tp = t => { const v = Math.round(hargaBrosurTipeDariEst(est, t)); return v > 0 && v !== quad ? v : 0; };
-            return { quad, triple: tp('Triple'), double: tp('Double') };
+            return { quad, triple: tp('Triple'), double: tp('Double'), hitungan: true };
         }
     } catch(e) {}
     return null;
@@ -19279,31 +19280,46 @@ function waktuUpdateSeat() {
     return n.toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }) + ' jam ' + n.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }).replace('.', ':') + ' WIB';
 }
 const fRpSeat = n => 'Rp ' + Math.round(n).toLocaleString('id-ID');
-// Satu kelompok paket. Dipakai layar (dalam=true, ada rincian kursi untuk tim) dan cetak (tanpa rincian itu)
+// Harga ringkas hanya bila bisa ditulis persis (kelipatan Rp 1.000), tanpa pembulatan. Selain itu ditulis lengkap.
+function fRpRingkas(n) {
+    n = Math.round(n);
+    if(n < 1000000 || n % 1000 !== 0) return fRpSeat(n);
+    const jt = Math.floor(n / 1000000), ribu = (n % 1000000) / 1000;
+    return 'Rp ' + jt + (ribu ? ',' + String(ribu).padStart(3, '0').replace(/0+$/, '') : '') + ' jt';
+}
+// Satu kelompok paket. Dipakai layar (dalam=true, warna tema + rincian kursi untuk tim) dan cetak/gambar (dalam=false)
+// Berbentuk tabel: judul kelompok dan judul kolom ada di thead sehingga terulang di halaman berikutnya saat dicetak.
 function htmlKelompokSeat(g, dalam) {
+    const wr = dalam ? 'var(--primary)' : '#0D5C4A';
     const baris = g.item.map(x => {
         const h = x.harga;
-        const tipe = h ? [['Triple', h.triple], ['Double', h.double]].filter(t => t[1] > 0).map(t => `<div style="font-size:11px;color:#64748B;white-space:nowrap;">${t[0]} ${fRpSeat(t[1])}</div>`).join('') : '';
+        const tipe = h ? [['Triple', h.triple], ['Double', h.double]].filter(t => t[1] > 0).map(t => `<div style="font-size:11px;color:#64748B;white-space:nowrap;">${t[0]} ${fRpRingkas(t[1])}</div>`).join('') : '';
         const info = [x.maskapai ? '✈ ' + escapeHtml(x.maskapai) : '', x.kota ? 'Berangkat dari ' + escapeHtml(x.kota) : ''].filter(Boolean).join(' · ');
-        return `<div style="display:flex;justify-content:space-between;gap:10px;padding:10px 12px;border-bottom:1px solid #E5E7EB;page-break-inside:avoid;break-inside:avoid;background:#fff;">
-            <div style="min-width:0;flex:1 1 50%;">
-                <div style="font-weight:800;font-size:13px;color:#0F4C5C;">${escapeHtml(x.p.nama)}</div>
+        return `<tr style="page-break-inside:avoid;break-inside:avoid;">
+            <td style="padding:10px 12px;border-bottom:1px solid #E5E7EB;vertical-align:top;background:#fff;">
+                <div style="font-weight:800;font-size:13px;color:${wr};">${escapeHtml(x.p.nama)}</div>
                 <div style="font-size:12px;color:#334155;margin-top:2px;">${teksTanggalSeat(x)}</div>
                 ${info ? `<div style="font-size:11px;color:#64748B;margin-top:2px;">${info}</div>` : ''}
                 ${dalam ? `<div style="font-size:10.5px;color:#94A3B8;margin-top:3px;">Kursi ${x.seat.kursi} · terdaftar ${x.seat.terisi} · ditahan ${x.seat.ditahan}</div>` : ''}
-            </div>
-            <div style="text-align:right;flex-shrink:0;">
-                <div style="font-weight:800;font-size:13px;color:#0F172A;">${h ? fRpSeat(h.quad) : '<span style="color:#B45309;font-size:11px;">Harga belum diisi</span>'}</div>
+            </td>
+            <td style="padding:10px 12px;border-bottom:1px solid #E5E7EB;vertical-align:top;text-align:right;white-space:nowrap;background:#fff;">
+                <div style="font-weight:800;font-size:13px;color:#0F172A;">${h ? fRpRingkas(h.quad) : '<span style="color:#B45309;font-size:11px;">Harga belum diisi</span>'}</div>
+                ${dalam && h && h.hitungan ? '<div style="font-size:10px;color:#94A3B8;">harga hitungan Cuan Plan</div>' : ''}
                 ${tipe}
-                ${x.dp > 0 ? `<div style="font-size:11px;color:#64748B;">DP ${fRpSeat(x.dp)}</div>` : ''}
+                ${x.dp > 0 ? `<div style="font-size:11px;color:#64748B;">DP ${fRpRingkas(x.dp)}</div>` : ''}
                 <div style="display:inline-block;margin-top:4px;padding:3px 12px;border-radius:999px;font-size:12px;font-weight:800;color:${x.level.warna};background:${x.level.bg};-webkit-print-color-adjust:exact;print-color-adjust:exact;">${x.level.teks}</div>
-            </div>
-        </div>`;
+            </td>
+        </tr>`;
     }).join('');
-    return `<div style="border:1.5px solid #0F4C5C;border-radius:12px;overflow:hidden;margin-bottom:12px;">
-        <div style="background:#0F4C5C;color:#fff;padding:9px 12px;display:flex;justify-content:space-between;align-items:center;gap:8px;page-break-after:avoid;break-after:avoid;-webkit-print-color-adjust:exact;print-color-adjust:exact;">
-            <b style="font-size:13px;">✈ ${escapeHtml(g.nama).toUpperCase()}</b><span style="font-size:11px;opacity:.85;white-space:nowrap;">${g.item.length} jadwal</span>
-        </div>${baris}</div>`;
+    const sel = 'padding:6px 12px;font-size:10.5px;font-weight:800;letter-spacing:.4px;color:#7C4A03;background:#FDE9C4;-webkit-print-color-adjust:exact;print-color-adjust:exact;';
+    return `<div class="kartu-rekap" style="border:1.5px solid ${wr};border-radius:12px;overflow:hidden;margin-bottom:12px;">
+        <table style="width:100%;border-collapse:collapse;">
+            <thead style="display:table-header-group;">
+                <tr><th colspan="2" style="background:${wr};color:#fff;padding:9px 12px;text-align:left;-webkit-print-color-adjust:exact;print-color-adjust:exact;"><span style="font-size:13px;">✈ ${escapeHtml(g.nama).toUpperCase()}</span><span style="float:right;font-size:11px;font-weight:400;opacity:.9;">${g.item.length} jadwal</span></th></tr>
+                <tr><th style="${sel}text-align:left;">PAKET &amp; KEBERANGKATAN</th><th style="${sel}text-align:right;">HARGA &amp; SEAT</th></tr>
+            </thead>
+            <tbody>${baris}</tbody>
+        </table></div>`;
 }
 function catatanBelumSeat(d) {
     return d.belum.length ? `<div style="font-size:12px;color:#92400E;background:#FEF3C7;border-radius:10px;padding:8px 10px;margin-bottom:10px;line-height:1.5;"><b>${d.belum.length} program belum tampil:</b> ${d.belum.map(b => escapeHtml(b.nama) + ' (' + b.alasan + ')').join('; ')}.</div>` : '';
@@ -19311,32 +19327,57 @@ function catatanBelumSeat(d) {
 function htmlTabUpdateSeat() {
     const d = dataUpdateSeat();
     const kosong = '<p style="color:#6B7280;text-align:center;padding:14px 0;">Belum ada jadwal yang bisa ditampilkan. Isi Tanggal Keberangkatan di Konfigurasi dan jumlah kursi di Cuan Plan.</p>';
-    return `<div style="font-size:11px;color:#888;margin-bottom:10px;line-height:1.5;">Daftar untuk dibagikan ke agen atau calon jamaah. Tidak memuat modal, profit, atau nama jamaah. Lencana merah bila sisa 10% atau kurang, kuning 30% atau kurang.</div>
+    return `<details style="margin-bottom:10px;font-size:12px;color:#64748B;line-height:1.55;">
+            <summary style="cursor:pointer;font-weight:700;color:var(--primary);">ℹ️ Cara membaca daftar ini</summary>
+            <div style="margin-top:6px;">Daftar untuk dibagikan ke agen atau calon jamaah. Tidak memuat modal, profit, atau nama jamaah.<br>
+            <b>Sisa seat</b> = kursi di Cuan Plan − jamaah terdaftar − seat ditahan (diisi di Konfigurasi). Lencana merah bila sisa 10% atau kurang, kuning 30% atau kurang.<br>
+            <b>Harga</b> = Harga Seragam program. Bila belum diatur, dipakai harga hitungan Cuan Plan (diberi keterangan di layar ini saja). Harga yang tidak bisa ditulis ringkas dengan tepat ditampilkan lengkap.</div>
+        </details>
         ${catatanBelumSeat(d)}
         <div style="max-height:380px;overflow-y:auto;">${d.grup.map(g => htmlKelompokSeat(g, true)).join('') || kosong}</div>
-        ${d.grup.length ? `<button onclick="bukaMenuExport('Update Seat','Hanya jadwal, harga, DP, dan sisa seat',{cetak:'cetakUpdateSeat()',bagikan:&quot;bagikanDariCetak(()=>cetakUpdateSeat(),'Update_Seat')&quot;,wa:'bagikanUpdateSeatWA()',salin:'salinUpdateSeat()'})" style="width:100%;padding:11px;background:var(--primary);color:#fff;border:none;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;margin-top:10px;">Export</button>` : ''}`;
+        ${d.grup.length ? `<button onclick="bukaMenuExport('Update Seat','Hanya jadwal, harga, DP, dan sisa seat',{cetak:'cetakUpdateSeat()',bagikan:&quot;bagikanDariCetak(()=>cetakUpdateSeat(),'Update_Seat')&quot;,gambar:'bagikanGambarUpdateSeat()',wa:'bagikanUpdateSeatWA()',salin:'salinUpdateSeat()'})" style="width:100%;padding:11px;background:var(--primary);color:#fff;border:none;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;margin-top:10px;">Export</button>` : ''}`;
+}
+// Isi halaman Update Seat untuk cetak dan gambar: kop standar, judul, waktu, lalu kelompok paket (tanpa rincian tim)
+function htmlIsiUpdateSeat(d) {
+    return `${buildPrintHeader(getKonfigurasiProData(), formatTanggalLengkap())}
+        <div style="text-align:center;font-size:22px;font-weight:800;letter-spacing:1px;color:#111827;">UPDATE SEAT</div>
+        <div style="text-align:center;font-size:12px;font-weight:700;margin:6px 0 14px;color:#334155;">Update terakhir: ${waktuUpdateSeat()}</div>
+        ${d.grup.map(g => htmlKelompokSeat(g, false)).join('')}`;
 }
 function cetakUpdateSeat() {
     const d = dataUpdateSeat();
     if(!d.grup.length) return showToast('Belum ada jadwal yang bisa dicetak. Isi tanggal dan kursi dulu.');
-    const cfg = getKonfigurasiProData();
-    const nama = escapeHtml(getNamaInstansiUtama());
-    const logo = cfg?.instansi1?.logo ? `<img src="${cfg.instansi1.logo}" style="height:56px;max-width:140px;object-fit:contain;">` : '';
     const html = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>Update Seat</title><style>
         body{font-family:Arial,Helvetica,sans-serif;margin:0;padding:18px;color:#1f2937;background:#fff;}
-        .kop{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:8px;}
-        .kop h1{margin:0;font-size:24px;letter-spacing:1px;color:#111827;}
-        .kop .nm{font-size:15px;font-weight:700;color:#0F4C5C;text-align:right;}
-        .upd{text-align:center;font-size:12px;font-weight:700;margin:10px 0 14px;}
         @page{size:A4 portrait;margin:12mm;}
-    </style></head><body>
-        <div class="kop"><h1>UPDATE SEAT</h1><div style="display:flex;align-items:center;gap:10px;">${logo}<div class="nm">${nama}</div></div></div>
-        <div class="upd">Update terakhir: ${waktuUpdateSeat()}</div>
-        ${d.grup.map(g => htmlKelompokSeat(g, false)).join('')}
-    </body></html>`;
+    </style></head><body>${htmlIsiUpdateSeat(d)}</body></html>`;
     const win = window.open('', '_blank');
     if(!win) return showToast('Izinkan popup untuk cetak!');
     win.document.write(applyPrintTheme(html)); injectWatermarkToPrintWin(win); win.document.close();
+}
+// Bagikan sebagai satu gambar (cocok untuk grup WhatsApp). Dibuat dari isi yang sama dengan halaman cetak.
+async function bagikanGambarUpdateSeat() {
+    const d = dataUpdateSeat();
+    if(!d.grup.length) return showToast('Belum ada jadwal yang bisa dibagikan.');
+    if(typeof html2canvas === 'undefined') return showToast('Pustaka gambar belum siap. Periksa koneksi internet lalu coba lagi.');
+    showToast('Menyiapkan gambar...');
+    let tema = '#0D5C4A'; try { tema = localStorage.getItem('premium_theme_primary') || tema; } catch(e) {}
+    const wadah = document.createElement('div');
+    wadah.style.cssText = 'position:fixed;left:-10000px;top:0;width:720px;background:#fff;padding:18px;font-family:Arial,Helvetica,sans-serif;color:#1f2937;';
+    wadah.innerHTML = htmlIsiUpdateSeat(d).replace(/#0D5C4A/gi, tema);
+    document.body.appendChild(wadah);
+    try {
+        await new Promise(r => setTimeout(r, 200));
+        await Promise.all(Array.from(wadah.querySelectorAll('img')).map(im => im.complete ? 1 : new Promise(r => { im.onload = im.onerror = r; })));
+        const canvas = await html2canvas(wadah, { scale: 2, backgroundColor: '#ffffff', useCORS: true, logging: false });
+        const blob = await new Promise(r => canvas.toBlob(r, 'image/jpeg', 0.92));
+        const nama = 'Update_Seat_' + new Date().toLocaleDateString('id-ID').replace(/\//g, '-') + '.jpg';
+        const file = new File([blob], nama, { type: 'image/jpeg' });
+        if(navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) await navigator.share({ files: [file], title: 'Update Seat' });
+        else { const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = nama; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 4000); showToast('📥 Gambar didownload (Bagikan tidak didukung di perangkat ini)'); }
+    } catch(e) {
+        if(e.name !== 'AbortError') showToast('Gagal membuat gambar: ' + e.message);
+    } finally { wadah.remove(); }
 }
 function teksUpdateSeat() {
     const d = dataUpdateSeat();
@@ -19350,8 +19391,8 @@ function teksUpdateSeat() {
             t += `\n• *${x.p.nama}*\n  ${teksTanggalSeat(x)}\n`;
             const info = [x.maskapai ? '✈ ' + x.maskapai : '', x.kota ? 'dari ' + x.kota : ''].filter(Boolean).join(' · ');
             if(info) t += `  ${info}\n`;
-            t += `  ${h ? fRpSeat(h.quad) + (h.triple || h.double ? ' (Quad)' : '') : 'Harga belum diisi'}${x.dp > 0 ? ' · DP ' + fRpSeat(x.dp) : ''}\n`;
-            if(h && (h.triple || h.double)) t += `  ${h.triple ? 'Triple ' + fRpSeat(h.triple) : ''}${h.triple && h.double ? ' · ' : ''}${h.double ? 'Double ' + fRpSeat(h.double) : ''}\n`;
+            t += `  ${h ? fRpRingkas(h.quad) + (h.triple || h.double ? ' (Quad)' : '') : 'Harga belum diisi'}${x.dp > 0 ? ' · DP ' + fRpRingkas(x.dp) : ''}\n`;
+            if(h && (h.triple || h.double)) t += `  ${h.triple ? 'Triple ' + fRpRingkas(h.triple) : ''}${h.triple && h.double ? ' · ' : ''}${h.double ? 'Double ' + fRpRingkas(h.double) : ''}\n`;
             t += `  *${x.level.teks}*\n`;
         });
     });
@@ -20631,6 +20672,9 @@ function daftarCaraPakai() {
             { judul: 'Warna dan kotak Program Aktif (Haji, Umroh)',
               isi: 'Di layar <b>Manasik</b>, <b>Itinerary</b>, <b>Layanan Tambahan</b>, dan <b>Kalender Program</b> ada kotak <b>Program Aktif</b> berisi nama program yang sedang dibuka. Warnanya menandai jenis: <b>hijau 🕋 = Haji</b>, <b>biru kehijauan 🌙 = Umroh</b>, <b>ungu 🧭 = jenis lain</b>. Jadwal dan data hanya milik program itu, jadi tidak tercampur. Untuk pindah program, ketuk bar <b>Program Aktif</b> di Home.',
               tombol: [] },
+            { judul: 'Update Seat: daftar jadwal untuk dibagikan',
+              isi: 'Buka <b>Kalender Program</b> → tab <b>Update Seat</b>. Isinya jadwal semua program Umroh dan Haji Khusus yang akan datang: tanggal, maskapai, harga, DP, dan <b>sisa seat</b> dengan lencana warna. Tidak memuat modal, profit, atau nama jamaah. Isi dulu di <b>Konfigurasi</b> (Info Keberangkatan): Tanggal, Jumlah Hari, dan lipatan <b>Info untuk Update Seat</b> (Kelompok Paket, Kota, DP, Seat Ditahan). Jumlah kursi diambil dari <b>Cuan Plan</b>, harga dari <b>Harga Seragam</b>. Program yang datanya belum lengkap tidak hilang, namanya tampil di kotak kuning beserta alasannya. Ketuk <b>Export</b> untuk Cetak, Bagikan PDF, Bagikan Gambar, WhatsApp, atau Salin Teks.',
+              tombol: [{ t: 'Buka Kalender Program', a: () => openKalenderProgramModal(), f: 'openKalenderProgramModal' }] },
             { judul: 'Memilih bentuk laporan: PDF, Bagikan, atau Excel',
               isi: '<b>Laporan Penutupan Musim</b> dan <b>Rekap Tahunan</b>: ketuk menunya, lalu pilih <b>Cetak / Simpan PDF</b> (lihat laporannya dulu), <b>Bagikan PDF</b> (kirim file PDF langsung), atau <b>Excel</b> (langsung mengunduh file Excel tanpa pratinjau, untuk diolah sendiri). <b>Bandingkan Program</b>: angkanya tampil di layar, dan tombol <b>Unduh Excel</b> ada di bagian atas. Di menu lain seperti Uang Kas, tombol <b>Export</b> berisi Cetak, Bagikan, Excel, dan WhatsApp. <b>Bagikan PDF</b> mengirim file PDF langsung lewat WhatsApp atau aplikasi lain. Laporan Penutupan hanya untuk satu program yang aktif, sedangkan Rekap Tahunan mencakup semua keberangkatan.',
               tombol: [] },
@@ -27460,7 +27504,7 @@ function openIndexedDB() {
 // dengan build baru, data MENTAH (langsung dari IndexedDB, bukan dari memori) disalin dulu sebelum
 // proses migrasi apapun berjalan — supaya kalau ada kesalahan di update, data lama masih bisa dipulihkan.
 // Dokumen & foto tidak ikut disalin (ukurannya besar, dan tidak pernah disentuh proses migrasi).
-const NAVARA_BUILD = '2026.10.28-216';
+const NAVARA_BUILD = '2026.10.28-217';
 const MAKS_SNAPSHOT = 3;
 
 // ==================== DAFTAR DATA PUSAT ====================
