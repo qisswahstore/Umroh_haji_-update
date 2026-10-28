@@ -6695,8 +6695,14 @@ function pasangAutoZoomCetak(html) {
     return html.replace(/<head([^>]*)>/i, m => m + AUTO_ZOOM_CETAK);
 }
 
+// Aturan halaman cetak untuk semua dokumen: kotak ringkasan dan baris tabel tidak terpotong di tengah, judul tidak tertinggal sendirian di ujung halaman.
+const ATURAN_HALAMAN_CETAK = '<style id="aturanHalamanCetak">@media print{tr,.kartu-rekap,.kartu-total-rekap,.kotak-info-cetak,.ttd-blok{break-inside:avoid;page-break-inside:avoid;}h1,h2,h3,h4,.section-title{break-after:avoid;page-break-after:avoid;}thead{display:table-header-group;}}</style>';
+function pasangAturanHalamanCetak(html) {
+    if (html.indexOf('id="aturanHalamanCetak"') >= 0 || !/<\/head>/i.test(html)) return html;
+    return html.replace(/<\/head>/i, ATURAN_HALAMAN_CETAK + '</head>');
+}
 function applyPrintTheme(htmlString) {
-    htmlString = pasangAutoZoomCetak(htmlString);
+    htmlString = pasangAutoZoomCetak(pasangAturanHalamanCetak(htmlString));
     try {
         const themeColor = localStorage.getItem('premium_theme_primary');
         if (!themeColor || themeColor.toUpperCase() === '#0D5C4A') return htmlString;
@@ -10979,7 +10985,7 @@ function hitungRekapAktual() {
     // Kalau ada FOC/TL, laba per tipe BELUM dikurangi modal FOC dan TL (itu baru dikurangkan di Total Keseluruhan)
     const _erAwal = est ? hitungModalHargaEstimasiTerkini() : null;
     const _adaModalFocTL = !!(_erAwal && ((_erAwal.foc || 0) + (_erAwal.tl || 0)) > 0);
-    if(_erAwal && _erAwal.nJamDefault) html += `<div style="background:#FEF3C7;border:1.5px solid #F59E0B;border-radius:12px;padding:10px 12px;margin-bottom:10px;font-size:12px;color:#92400E;font-weight:600;line-height:1.5;">⚠️ Total Pax di Estimasi belum diisi, jadi hitungan harga memakai angka cadangan ${_erAwal.nJam} pax. Isi Total Pax lalu Hitung Estimasi agar harga dan laba sesuai.</div>`;
+    if(_erAwal && _erAwal.nJamDefault) html += `<div class="kotak-info-cetak" style="background:#FEF3C7;border:1.5px solid #F59E0B;border-radius:12px;padding:10px 12px;margin-bottom:10px;font-size:12px;color:#92400E;font-weight:600;line-height:1.5;">⚠️ Total Pax di Estimasi belum diisi, jadi hitungan harga memakai angka cadangan ${_erAwal.nJam} pax. Isi Total Pax lalu Hitung Estimasi agar harga dan laba sesuai.</div>`;
     Object.keys(tipeData).forEach(tipe => {
         const d = tipeData[tipe];
         const profit = d.totalOmzet - d.totalModal;
@@ -10989,7 +10995,7 @@ function hitungRekapAktual() {
         grandPiutang += (d.totalPiutang || 0);
         const totalJamaahTipe = d.jamaah.length + (d.tanpaHarga?.length || 0);
 
-        html += `<div style="background:white;border-radius:14px;padding:14px;margin-bottom:10px;box-shadow:0 2px 8px rgba(0,0,0,0.06);">
+        html += `<div class="kartu-rekap" style="background:white;border-radius:14px;padding:14px;margin-bottom:10px;box-shadow:0 2px 8px rgba(0,0,0,0.06);">
             <div style="font-weight:700;font-size:14px;color:var(--primary);margin-bottom:8px;">🛏️ ${escapeHtml(tipe)} (${totalJamaahTipe} jamaah)</div>
             ${d.jamaah.length > 0 ? `
             <div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid #f0f0f0;">
@@ -11058,9 +11064,9 @@ function hitungRekapAktual() {
         perlengkapan: perlengkapanRekap,
         lebihBayar: lebihBayarRekap
     };
-    if(nTerlepasRekap > 0) html += `<div style="background:#FEF3C7;border:1.5px solid #F59E0B;border-radius:12px;padding:10px 12px;margin-bottom:10px;font-size:12px;color:#92400E;">⚠️ ${escapeHtml(teksTravelTerlepas(nTerlepasRekap))}</div>`;
+    if(nTerlepasRekap > 0) html += `<div class="kotak-info-cetak" style="background:#FEF3C7;border:1.5px solid #F59E0B;border-radius:12px;padding:10px 12px;margin-bottom:10px;font-size:12px;color:#92400E;">⚠️ ${escapeHtml(teksTravelTerlepas(nTerlepasRekap))}</div>`;
     if(adaTanpaTagihan) {
-        html += `<div style="background:#EDE9FE;border:1.5px solid #C4B5FD;border-radius:12px;padding:10px 12px;margin-bottom:10px;font-size:12px;color:#4C1D95;">
+        html += `<div class="kotak-info-cetak" style="background:#EDE9FE;border:1.5px solid #C4B5FD;border-radius:12px;padding:10px 12px;margin-bottom:10px;font-size:12px;color:#4C1D95;">
             🏷️ <strong>Peserta tanpa tagihan</strong> tidak masuk hitungan kontrak.<br>${teksKomposisiPeserta(komposisiRekap)}.
             <div style="font-size:11px;opacity:.85;margin-top:3px;">Modal FOC dan TL dihitung dari angka di Cuan Plan.${komposisiRekap.pembimbing > 0 ? ' Biaya ' + komposisiRekap.pembimbing + ' pembimbing tidak dihitung otomatis; bila ditanggung, masukkan ke angka TL di Cuan Plan.' : ''}</div></div>`;
     }
@@ -27260,7 +27266,7 @@ function openIndexedDB() {
 // dengan build baru, data MENTAH (langsung dari IndexedDB, bukan dari memori) disalin dulu sebelum
 // proses migrasi apapun berjalan — supaya kalau ada kesalahan di update, data lama masih bisa dipulihkan.
 // Dokumen & foto tidak ikut disalin (ukurannya besar, dan tidak pernah disentuh proses migrasi).
-const NAVARA_BUILD = '2026.10.28-212';
+const NAVARA_BUILD = '2026.10.28-213';
 const MAKS_SNAPSHOT = 3;
 
 // ==================== DAFTAR DATA PUSAT ====================
