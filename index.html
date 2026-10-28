@@ -2501,10 +2501,10 @@ https://github.com/nodeca/pako/blob/main/LICENSE
             <div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid rgba(255,255,255,0.2);"><span style="opacity:0.8;font-size:13px;">Modal Pokok / Pax</span><span id="konHasilModal" style="font-weight:700;">Rp 0</span></div>
             <div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid rgba(255,255,255,0.2);"><span style="opacity:0.8;font-size:13px;">Total Omzet Grup</span><span id="konHasilOmzet" style="font-weight:700;">Rp 0</span></div>
             <div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid rgba(255,255,255,0.2);"><span style="opacity:0.8;font-size:13px;">Profit Kotor Grup</span><span id="konHasilProfitKotor" style="font-weight:700;">Rp 0</span></div>
-            <div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid rgba(255,255,255,0.2);"><span style="opacity:0.8;font-size:13px;">PROFIT BERSIH</span><span id="konHasilProfitBersih" style="font-weight:700;color:#4ADE80;">Rp 0</span></div>
+            <div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid rgba(255,255,255,0.2);"><span style="opacity:0.8;font-size:13px;">PERKIRAAN PROFIT</span><span id="konHasilProfitBersih" style="font-weight:700;color:#4ADE80;">Rp 0</span></div>
             <div id="konBarisHitungan" style="display:none;justify-content:space-between;padding:5px 0;border-bottom:1px solid rgba(255,255,255,0.2);"><span style="opacity:0.8;font-size:13px;">Harga hasil hitungan</span><span id="konBarisHitunganNilai" style="font-weight:700;"></span></div>
             <div id="konBarisBulat" style="display:none;justify-content:space-between;padding:5px 0;border-bottom:1px solid rgba(255,255,255,0.2);"><span style="opacity:0.8;font-size:13px;">Pembulatan harga jual</span><span id="konBarisBulatNilai" style="font-weight:700;color:#FBBF24;"></span></div>
-            <div id="konBarisBersihBulat" style="display:none;justify-content:space-between;padding:5px 0;border-bottom:1px solid rgba(255,255,255,0.2);"><span style="opacity:0.8;font-size:13px;">PROFIT BERSIH setelah pembulatan</span><span id="konBarisBersihBulatNilai" style="font-weight:700;color:#4ADE80;"></span></div>
+            <div id="konBarisBersihBulat" style="display:none;justify-content:space-between;padding:5px 0;border-bottom:1px solid rgba(255,255,255,0.2);"><span style="opacity:0.8;font-size:13px;">PERKIRAAN PROFIT setelah pembulatan</span><span id="konBarisBersihBulatNilai" style="font-weight:700;color:#4ADE80;"></span></div>
             <div style="text-align:center;margin-top:14px;">
                 <div style="display:flex;align-items:center;justify-content:center;gap:6px;">
                     <span style="background:#F59E0B;color:#1a1a1a;font-size:9px;font-weight:700;padding:2px 7px;border-radius:10px;">B2C</span>
@@ -8018,13 +8018,13 @@ function perbaruiPetunjukHargaJual() {
     const kunci = '<span style="display:block;margin-top:4px;font-size:11px;color:#94A3B8;">🔒 Harga ini terkunci pada angka yang diketik. Kalau komponen, buffer, atau profit diubah, ketik ulang atau tekan Hapus.</span>';
     if(Math.round(selisih) > 0) {
         el.style.color = '#166534';
-        el.innerHTML = `✅ Hitungan ${f(d.jual)}, dibulatkan menjadi ${f(manual)} (+${f(selisih)}/pax).\nLaba bersih rencana setelah pembulatan: ${f(d.bersih + tambah)} (+${f(tambah)}), bila buffer terpakai penuh untuk diskon.` + kunci;
+        el.innerHTML = `✅ Hitungan ${f(d.jual)}, dibulatkan menjadi ${f(manual)} (+${f(selisih)}/pax).\nPerkiraan profit setelah pembulatan: ${f(d.bersih + tambah)} (+${f(tambah)}), bila buffer terpakai penuh untuk diskon.` + kunci;
     } else if(Math.round(selisih) === 0) {
         el.style.color = '#166534';
         el.innerHTML = `✅ Harga yang diketik sama dengan hasil hitungan (${f(d.jual)}).` + kunci;
     } else {
         el.style.color = '#B45309';
-        el.innerHTML = `⚠️ Harga jual yang diketik ${f(manual)}, lebih rendah ${f(-selisih)}/pax dari hasil hitungan ${f(d.jual)}.\nDengan harga ini, laba bersih rencana menjadi ${f(d.bersih + tambah)}, turun ${f(-tambah)} dari laba sesuai persen profit yang diatur (bila buffer terpakai penuh untuk diskon).\nHarga ini tidak ikut berubah kalau komponen atau buffer diubah. Tekan Hapus untuk mengikuti hitungan.`;
+        el.innerHTML = `⚠️ Harga jual yang diketik ${f(manual)}, lebih rendah ${f(-selisih)}/pax dari hasil hitungan ${f(d.jual)}.\nDengan harga ini, perkiraan profit menjadi ${f(d.bersih + tambah)}, turun ${f(-tambah)} dari laba sesuai persen profit yang diatur (bila buffer terpakai penuh untuk diskon).\nHarga ini tidak ikut berubah kalau komponen atau buffer diubah. Tekan Hapus untuk mengikuti hitungan.`;
     }
 }
 
@@ -8219,7 +8219,7 @@ function perbaruiKartuImpas() {
                baris('Laba bila semua kursi bayar terisi', f(labaPenuh), labaPenuh >= 0 ? '#166534' : '#DC2626');
         if(impas > d.nBayar) isi += kotak('#991B1B', '#FEE2E2', `⚠️ Titik impas (${impas}) lebih besar dari jumlah kursi bayar (${d.nBayar}). Rombongan rugi walau semua kursi terisi, naikkan harga atau kurangi biaya.`);
         else if(impas > d.nBayar * 0.9) isi += kotak('#92400E', '#FEF3C7', `⚠️ Titik impas ${impas} dari ${d.nBayar} kursi bayar (lebih dari 90%). Ruang untuk diskon dan kursi kosong sangat sempit.`);
-        isi += `<div style="font-size:11px;color:#888;margin-top:8px;line-height:1.5;">Perkiraan, bukan realisasi. Biaya yang dianggap hangus per kursi: ${f(tetapPerKursi)} (${d.nTL > 0 ? 'termasuk kursi TL' : 'sesuai jumlah kursi'})${bacaSudahPasti(ambilSudahPastiDariForm('')).otomatis ? ', yaitu seluruh Tiket (skenario terburuk; isi kotak "Biaya yang Hangus" bila hanya DP yang hilang)' : ''}. Biaya lain (${f(v)}/orang) dianggap bisa mengikuti jumlah peserta. Harga yang dipakai: ${f(hargaB2C)} (harga jual dikurangi buffer). Laba penuh sama dengan Profit Bersih di hasil perhitungan (setelah pembulatan, bila ada).</div>`;
+        isi += `<div style="font-size:11px;color:#888;margin-top:8px;line-height:1.5;">Perkiraan, bukan realisasi. Biaya yang dianggap hangus per kursi: ${f(tetapPerKursi)} (${d.nTL > 0 ? 'termasuk kursi TL' : 'sesuai jumlah kursi'})${bacaSudahPasti(ambilSudahPastiDariForm('')).otomatis ? ', yaitu seluruh Tiket (skenario terburuk; isi kotak "Biaya yang Hangus" bila hanya DP yang hilang)' : ''}. Biaya lain (${f(v)}/orang) dianggap bisa mengikuti jumlah peserta. Harga yang dipakai: ${f(hargaB2C)} (harga jual dikurangi buffer). Laba penuh sama dengan Perkiraan Profit di hasil perhitungan (setelah pembulatan, bila ada).</div>`;
     }
     el.innerHTML = `<details ${_lipatImpas.est ? 'open' : ''} ontoggle="_lipatImpas.est = this.open"><summary style="cursor:pointer;list-style:none;">
         <div style="font-weight:700;font-size:14px;color:var(--primary);">⚖️ Titik Impas Rombongan <small style="font-weight:400;color:#888;">(perkiraan, ketuk untuk buka)</small></div>
@@ -8334,7 +8334,7 @@ function cpRender() {
                 ${cpBaris('Dasar hitungan', 'Modal ' + rhRp(r.h.modal) + ' · Pax ' + r.h.nJam + ' (' + r.bay + ' bayar) · Buffer ' + rhRp(r.h.buffer))}
                 ${cpBaris('Bila persen di kolom tetap ' + rhE(cpPersenTampil(r.sekarangStr)), 'harga ' + rhRp(r.labaSekarang.harga))}
                 ${cpBaris('Profit per pax bayar', '<span style="white-space:nowrap;">' + rhRp(r.labaSekarang.perPax) + ' → <b>' + rhRp(r.laba.perPax) + '</b></span><br><span style="font-size:12px;color:' + (selP < 0 ? '#B45309' : '#166534') + ';">' + turunNaik(selP) + '</span>')}
-                ${cpBaris('Profit bersih total', '<span style="white-space:nowrap;">' + rhRp(r.labaSekarang.bersih) + ' → <b>' + rhRp(r.laba.bersih) + '</b></span><br><span style="font-size:12px;color:' + (selT < 0 ? '#B45309' : '#166534') + ';">' + turunNaik(selT) + '</span>')}
+                ${cpBaris('Perkiraan profit total', '<span style="white-space:nowrap;">' + rhRp(r.labaSekarang.bersih) + ' → <b>' + rhRp(r.laba.bersih) + '</b></span><br><span style="font-size:12px;color:' + (selT < 0 ? '#B45309' : '#166534') + ';">' + turunNaik(selT) + '</span>')}
             </div>`;
             if(r.sekarangStr !== '0' && r.pct < (parseFloat(r.sekarangStr) || 0) / 2) x += `<div style="background:#FEF3C7;color:#92400E;border-radius:10px;padding:8px 10px;margin-top:8px;font-size:12px;line-height:1.5;">⚠️ Profit turun lebih dari separuh dibanding persen sekarang. Periksa dulu apakah itu memang yang Bapak mau.</div>`;
             const manual = parseRupiah(document.getElementById('cHargaJual')?.value || '0');
@@ -8391,9 +8391,9 @@ function perbaruiKartuHargaBeda() {
             const hb = hitungModalHargaDariEst(base.data), dm = h.modal - hb.modal;
             barisModal = kbBaris('Modal per pax (dibanding versi ' + rhE(rhTglPendek(base.tanggal)) + ')', rhRp(hb.modal) + ' → <b>' + rhRp(h.modal) + '</b><br><span style="font-size:12px;color:' + (dm > 0 ? '#B45309' : '#166534') + ';">' + (dm > 0 ? 'naik ' : 'turun ') + rhRp(Math.abs(dm)) + ' per pax</span>');
             const sebanding = hb.nJam === h.nJam && hb.foc === h.foc && hb.tl === h.tl && hb.buffer === h.buffer && Math.round(hb.harga) === seragam;
-            if(sebanding) { const labaLama = (seragam - hb.buffer) * (hb.nJam - hb.foc) - hb.modal * (hb.nJam + hb.tl); const dl = labaSeragam - labaLama; barisLaba = kbBaris('Profit bersih bila harga seragam tetap dipakai', rhRp(labaLama) + ' → <b>' + rhRp(labaSeragam) + '</b><br><span style="font-size:12px;color:' + (dl < 0 ? '#B45309' : '#166534') + ';">' + (Math.round(dl) === 0 ? 'tidak berubah' : (dl < 0 ? 'turun ' : 'naik ') + rhRp(Math.abs(dl))) + '</span>'); }
+            if(sebanding) { const labaLama = (seragam - hb.buffer) * (hb.nJam - hb.foc) - hb.modal * (hb.nJam + hb.tl); const dl = labaSeragam - labaLama; barisLaba = kbBaris('Perkiraan profit bila harga seragam tetap dipakai', rhRp(labaLama) + ' → <b>' + rhRp(labaSeragam) + '</b><br><span style="font-size:12px;color:' + (dl < 0 ? '#B45309' : '#166534') + ';">' + (Math.round(dl) === 0 ? 'tidak berubah' : (dl < 0 ? 'turun ' : 'naik ') + rhRp(Math.abs(dl))) + '</span>'); }
         }
-        if(!barisLaba) barisLaba = kbBaris('Profit bersih bila harga seragam dipakai', '<b>' + rhRp(labaSeragam) + '</b>');
+        if(!barisLaba) barisLaba = kbBaris('Perkiraan profit bila harga seragam dipakai', '<b>' + rhRp(labaSeragam) + '</b>');
         const judul = lebihTinggi ? 'Harga di Cuan Plan lebih tinggi dari harga yang dipakai jamaah' : 'Harga di Cuan Plan lebih rendah dari harga yang dipakai jamaah';
         const warna = lebihTinggi ? { bg: '#FFFBEB', bd: '#F59E0B', fg: '#92400E' } : { bg: '#EFF6FF', bd: '#93C5FD', fg: '#1E3A8A' };
         const buf = lebihTinggi ? 'Selisih ini ikut terbaca sebagai diskon ' + rhRp(brosur - seragam) + ' per jamaah di Analisis Buffer, padahal bukan diskon.' : 'Selisih ini ikut terbaca sebagai harga di atas brosur di Analisis Buffer.';
@@ -8407,7 +8407,7 @@ function perbaruiKartuHargaBeda() {
             <div style="font-size:13px;color:#334155;line-height:1.55;margin-top:8px;"><b>${lunas}</b> dari <b>${daftar.length}</b> jamaah sudah lunas. Tagihan jamaah <b>tidak berubah</b>, karena mengikuti Harga Seragam di Konfigurasi.${khusus ? ' ' + khusus + ' jamaah memakai harga khusus.' : ''}</div>
             <div style="margin-top:8px;">${barisModal}${barisLaba}</div>
             <div style="background:rgba(255,255,255,.65);border:1px solid rgba(100,116,139,.25);border-radius:10px;padding:9px 11px;margin-top:8px;font-size:13px;line-height:1.6;color:#334155;">
-                <div style="font-weight:800;margin-bottom:2px;">Perbandingan profit bersih</div>
+                <div style="font-weight:800;margin-bottom:2px;">Perkiraan profit setelah buffer (bila ${bay} pembayar bayar penuh)</div>
                 <div>Harga jamaah sekarang ${rhRp(seragam)}: <b>${rhRp(labaSeragam)}</b></div>
                 <div>Bila memakai harga Cuan Plan ${rhRp(brosur)}: <b>${rhRp(labaBrosur)}</b></div>
                 <div style="font-size:12px;color:#64748B;">Selisih ${rhRp(Math.abs(labaBrosur - labaSeragam))} (sekitar ${rhRp(Math.abs(brosur - seragam))} × ${bay} pembayar)</div>
@@ -8547,11 +8547,12 @@ function hitungUmroh() {
     <div class="res-item"><span>Profit Kotor Grup</span><div style="display:flex;align-items:center;gap:6px;"><span>${f(profitKotor)}</span>${cp(f(profitKotor),'Profit Kotor')}</div></div>
     <div class="res-item"><span>Biaya TL</span><div style="display:flex;align-items:center;gap:6px;"><span>${f(biayaTL)}</span>${cp(f(biayaTL),'Biaya TL')}</div></div>
     <div class="res-item"><span>Profit Per Pax</span><div style="display:flex;align-items:center;gap:6px;"><span>${f(profitPerPax)}</span>${cp(f(profitPerPax),'Profit Per Pax')}</div></div>
-    <div class="res-item" style="color:#2ecc71"><span>PROFIT BERSIH</span><div style="display:flex;align-items:center;gap:6px;"><b>${f(bersih)}</b>${cp(f(bersih),'Profit Bersih')}</div></div>
+    <div class="res-item" style="color:#2ecc71"><span>PERKIRAAN PROFIT</span><div style="display:flex;align-items:center;gap:6px;"><b>${f(bersih)}</b>${cp(f(bersih),'Perkiraan Profit')}</div></div>
+    <div style="font-size:10px;color:rgba(255,255,255,0.8);margin:-2px 0 6px;line-height:1.4;">Sudah dikurangi buffer, bila semua pembayar bayar penuh. Laba riil ada di Rekap.</div>
     ${buffer > 0 ? `<div class="res-item" style="color:#f59e0b;"><span>+ Buffer Diskon</span><div style="display:flex;align-items:center;gap:6px;"><span>${f(buffer)}</span>${cp(f(buffer),'Buffer Diskon')}</div></div>` : ''}
     ${hargaJualManual > 0 ? `<div class="res-item"><span>Harga hasil hitungan</span><span>${f(jualHitungan)}</span></div>
     <div class="res-item" style="color:#f59e0b;"><span>Pembulatan harga jual</span><span>${selisihBulat>=0?'+':'-'}${f(Math.abs(selisihBulat))}/pax</span></div>
-    <div class="res-item" style="color:#2ecc71"><span>PROFIT BERSIH setelah pembulatan</span><div style="display:flex;align-items:center;gap:6px;"><b>${f(bersih+tambahanBulat)}</b>${cp(f(bersih+tambahanBulat),'Profit Bersih setelah pembulatan')}</div></div>` : ''}
+    <div class="res-item" style="color:#2ecc71"><span>PERKIRAAN PROFIT setelah pembulatan</span><div style="display:flex;align-items:center;gap:6px;"><b>${f(bersih+tambahanBulat)}</b>${cp(f(bersih+tambahanBulat),'Perkiraan Profit setelah pembulatan')}</div></div>` : ''}
     ${hargaBrosurRows}
     <div class="action-buttons" style="display:flex;gap:10px;margin-top:15px;">
         <button class="btn" onclick="bukaMenuExport('Hasil Estimasi','',{cetak:[{aksi:'cetakEstimasiPDFJamaah()',sub:'Jamaah',ket:'Versi untuk jamaah. Lihat dulu, lalu cetak atau simpan PDF'},{aksi:'cetakEstimasiPDFInternal()',sub:'Internal',ket:'Versi untuk tim, lengkap dengan modal dan margin. Lihat dulu, lalu cetak atau simpan PDF'}],bagikan:[{aksi:'bagikanEstimasiInternal()',sub:'Internal',ket:'Kirim PDF versi internal lewat WhatsApp atau aplikasi lain'}],salin:'salinRingkasan()'})" style="background:#fff;color:var(--primary);border:none;font-weight:800;margin-top:0;flex:1;"><i class="fas fa-download"></i> Export</button>
@@ -8691,11 +8692,11 @@ async function cetakEstimasiPDFInternal() {
             <div>Total Omzet Grup &nbsp;&nbsp;&nbsp;&nbsp;: <strong>${f(totalOmzet)}</strong></div>
             <div>Profit (${est.profitPct||0}%) &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: <strong>${f(profitKotor)}</strong></div>
             <div>Biaya TL (${nTL} orang) : <strong style="color:#e74c3c;">- ${f(biayaTL)}</strong></div>
-            <div>Profit Bersih &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: <strong style="color:#10B981;">${f(profitBersih)}</strong></div>
+            <div>Perkiraan Profit : <strong style="color:#10B981;">${f(profitBersih)}</strong></div>
             <div>Profit Per Pax &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: <strong style="color:#10B981;">${f(profitPerPax)}</strong></div>
             ${buffer > 0 ? `<div>+ Buffer Diskon <small style="color:#888;">(langsung ke Harga Jual, bukan Modal)</small>&nbsp;: <strong style="color:#f59e0b;">${f(buffer)}</strong></div>` : ''}
             ${hargaJualManual > 0 ? `<div>Pembulatan harga jual &nbsp;: <strong style="color:#f59e0b;">${selisihBulat>=0?'+':'-'} ${f(Math.abs(selisihBulat))} /pax</strong></div>
-            <div>Profit Bersih setelah pembulatan : <strong style="color:#10B981;">${f(profitBersih+tambahanBulat)}</strong></div>` : ''}
+            <div>Perkiraan Profit setelah pembulatan : <strong style="color:#10B981;">${f(profitBersih+tambahanBulat)}</strong></div>` : ''}
             <div class="harga-jual">HARGA JUAL PER PAX: ${f(lastCalculatedPrice)}${lastCalculatedHargaTipe.length > 1 ? ' <small style="font-weight:normal;color:#555;">(' + lastCalculatedHargaTipe[0].nama + ')</small>' : ''}</div>
             ${lastCalculatedHargaTipe.length > 1 ? '<div style="font-size:13px;margin-top:6px;">Harga brosur per tipe: ' + lastCalculatedHargaTipe.map(t => '<strong>' + t.nama + '</strong> ' + f(t.jual)).join(' · ') + '</div>' : ''}
         </div>
@@ -9117,13 +9118,13 @@ function konPerbaruiPetunjukHargaJual() {
     const kunci = '<span style="display:block;margin-top:4px;font-size:11px;color:#94A3B8;">🔒 Harga ini terkunci pada angka yang diketik. Kalau komponen, buffer, atau profit diubah, ketik ulang atau tekan Hapus.</span>';
     if(Math.round(selisih) > 0) {
         el.style.color = '#166534';
-        el.innerHTML = `✅ Hitungan ${f(d.jual)}, dibulatkan menjadi ${f(manual)} (+${f(selisih)}/pax).\nLaba bersih rencana setelah pembulatan: ${f(d.bersih + tambah)} (+${f(tambah)}), bila buffer terpakai penuh untuk diskon. Tekan HITUNG ESTIMASI KONSORSIUM untuk menerapkan.` + kunci;
+        el.innerHTML = `✅ Hitungan ${f(d.jual)}, dibulatkan menjadi ${f(manual)} (+${f(selisih)}/pax).\nPerkiraan profit setelah pembulatan: ${f(d.bersih + tambah)} (+${f(tambah)}), bila buffer terpakai penuh untuk diskon. Tekan HITUNG ESTIMASI KONSORSIUM untuk menerapkan.` + kunci;
     } else if(Math.round(selisih) === 0) {
         el.style.color = '#166534';
         el.innerHTML = `✅ Harga yang diketik sama dengan hasil hitungan (${f(d.jual)}).` + kunci;
     } else {
         el.style.color = '#B45309';
-        el.innerHTML = `⚠️ Harga jual yang diketik ${f(manual)}, lebih rendah ${f(-selisih)}/pax dari hasil hitungan ${f(d.jual)}.\nDengan harga ini, laba bersih rencana menjadi ${f(d.bersih + tambah)}, turun ${f(-tambah)} dari laba sesuai persen profit yang diatur (bila buffer terpakai penuh untuk diskon).\nHarga ini tidak ikut berubah kalau komponen atau buffer diubah. Tekan Hapus untuk mengikuti hitungan.`;
+        el.innerHTML = `⚠️ Harga jual yang diketik ${f(manual)}, lebih rendah ${f(-selisih)}/pax dari hasil hitungan ${f(d.jual)}.\nDengan harga ini, perkiraan profit menjadi ${f(d.bersih + tambah)}, turun ${f(-tambah)} dari laba sesuai persen profit yang diatur (bila buffer terpakai penuh untuk diskon).\nHarga ini tidak ikut berubah kalau komponen atau buffer diubah. Tekan Hapus untuk mengikuti hitungan.`;
     }
 }
 
@@ -27273,7 +27274,7 @@ function openIndexedDB() {
 // dengan build baru, data MENTAH (langsung dari IndexedDB, bukan dari memori) disalin dulu sebelum
 // proses migrasi apapun berjalan — supaya kalau ada kesalahan di update, data lama masih bisa dipulihkan.
 // Dokumen & foto tidak ikut disalin (ukurannya besar, dan tidak pernah disentuh proses migrasi).
-const NAVARA_BUILD = '2026.10.28-214';
+const NAVARA_BUILD = '2026.10.28-215';
 const MAKS_SNAPSHOT = 3;
 
 // ==================== DAFTAR DATA PUSAT ====================
