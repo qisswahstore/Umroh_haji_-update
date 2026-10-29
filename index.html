@@ -3296,7 +3296,7 @@ https://github.com/nodeca/pako/blob/main/LICENSE
         <div class="config-section"><h3><i class="fas fa-watermark"></i> Watermark</h3>
             <div class="config-row" style="display:flex; justify-content:space-between; align-items:center;"><label>Aktifkan Watermark</label><label class="switch"><input type="checkbox" id="cfg_watermark_enabled" checked><span class="slider"></span></label></div>
             <div class="config-row"><label>Teks Watermark</label><input type="text" id="cfg_watermark_text" placeholder="Kosongkan = otomatis ikut Instansi Dominan"></div>
-            <div class="config-row"><label>Opacity</label><div class="opacity-slider"><input type="range" id="cfg_watermark_opacity" min="0.05" max="0.4" step="0.05" value="0.15"><span id="opacityValue">0.15</span></div></div>
+            <div class="config-row"><label>Opacity</label><div class="opacity-slider"><input type="range" id="cfg_watermark_opacity" min="0.05" max="0.4" step="0.05" value="0.15" oninput="document.getElementById('opacityValue').innerText=parseFloat(this.value).toFixed(2)"><span id="opacityValue">0.15</span></div></div>
             <div class="row"><div class="config-row"><label>Ukuran Font</label><select id="cfg_watermark_fontsize"><option value="30">Sangat Kecil (30)</option><option value="40">Kecil (40)</option><option value="60" selected>Sedang (60)</option><option value="80">Besar (80)</option></select></div><div class="config-row"><label>Posisi</label><select id="cfg_watermark_position"><option value="diagonal" selected>Diagonal</option><option value="center">Tengah</option><option value="tile">Ulangi (Tile)</option></select></div></div>
             <div class="preview-btn" onclick="previewWatermark()"><i class="fas fa-eye"></i> Preview Watermark</div>
         </div>
@@ -16755,6 +16755,26 @@ function pasangTombolMengambang(win) {
         }
     } catch(e) {}
 }
+// Tile watermark miring: SATU rumus untuk Preview, cetak, dan gambar supaya hasilnya sama.
+// Titik dihitung relatif terhadap pusat halaman, lalu seluruh tile diputar -30 derajat (naik ke kanan).
+function ukurLebarTeksWatermark(teks, fs) {
+    try {
+        const c = document.createElement('canvas').getContext('2d');
+        c.font = `bold ${fs}px Arial, Helvetica, sans-serif`;
+        return Math.max(c.measureText(teks).width, fs);
+    } catch(e) { return String(teks).length * fs * 0.6; }
+}
+function tataTileWatermark(lebar, tinggi, lebarTeks, fs) {
+    const langkahX = lebarTeks * 1.6, langkahY = fs * 3.6;
+    const r = Math.hypot(lebar, tinggi) / 2 + langkahX;
+    const titik = [];
+    let baris = 0;
+    for(let y = -r; y <= r; y += langkahY, baris++) {
+        const geser = (baris % 2) ? langkahX / 2 : 0;
+        for(let x = -r - langkahX + geser; x <= r; x += langkahX) titik.push({ x, y });
+    }
+    return { sudut: -30, titik };
+}
 function injectWatermarkToPrintWin(win) {
     if(!win) return;
     try {
@@ -16792,18 +16812,21 @@ function injectWatermarkToPrintWin(win) {
             wrap.style.cssText = 'position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:9999;overflow:hidden;';
 
             if(posisi === 'tile') {
-                // Tile rapat - jumlah baris ikut menyesuaikan estimasi jumlah halaman
-                const rowsPerPage = 4;
-                const totalRows = estimatedPages * rowsPerPage;
-                for(let r = 0; r < totalRows; r++) {
-                    const topPct = (r / totalRows) * 100;
-                    for(let c = 0; c < 3; c++) {
-                        const div = win.document.createElement('div');
-                        div.style.cssText = `position:absolute;top:${topPct}%;left:${c*32}%;font-size:${Math.round(fontSize*0.4)}px;font-weight:bold;color:rgba(13,92,74,${opacity});transform:rotate(-30deg);white-space:nowrap;`;
-                        div.textContent = text;
-                        wrap.appendChild(div);
-                    }
-                }
+                // Tile MIRING (naik ke kanan), baris selang-seling, menutup seluruh halaman.
+                // Rumus tata letaknya sama dengan Preview Watermark (tataTileWatermark).
+                const fs = Math.max(8, Math.round(fontSize * 0.4));
+                const lebarTeks = ukurLebarTeksWatermark(text, fs);
+                const lebarBox = boxEl.offsetWidth || 860;
+                const t = tataTileWatermark(lebarBox, boxHeight, lebarTeks, fs);
+                const rot = win.document.createElement('div');
+                rot.style.cssText = `position:absolute;left:50%;top:50%;width:0;height:0;transform:rotate(${t.sudut}deg);`;
+                t.titik.forEach(pt => {
+                    const div = win.document.createElement('div');
+                    div.style.cssText = `position:absolute;left:${pt.x}px;top:${pt.y}px;transform:translate(-50%,-50%);font-size:${fs}px;font-weight:bold;color:rgba(13,92,74,${opacity});white-space:nowrap;`;
+                    div.textContent = text;
+                    rot.appendChild(div);
+                });
+                wrap.appendChild(rot);
             } else {
                 // Diagonal / Tengah - diulang 1x per estimasi halaman, merata dari atas ke bawah
                 const transform = posisi === 'center'
@@ -18818,8 +18841,7 @@ async function bagikanDariCetak(jalankanCetak, judul, bentuk) {
         });
         const namaFile = String(judul).replace(/[^A-Za-z0-9]+/g, '_') + '_' + new Date().toLocaleDateString('id-ID').replace(/\//g, '-') + '.pdf';
         const file = new File([doc.output('blob')], namaFile, { type: 'application/pdf' });
-        if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) await navigator.share({ files: [file], title: judul });
-        else { doc.save(namaFile); showToast('📥 PDF didownload (Bagikan tidak didukung di perangkat ini)'); }
+        await bagikanBerkasAman([file], judul, 'PDF');
     } catch (e) {
         if (e.name !== 'AbortError') showToast('Gagal membuat ' + (gambar ? 'gambar' : 'PDF') + ': ' + e.message);
     } finally {
@@ -18839,9 +18861,56 @@ async function bagikanPotonganGambar(canvas, bagian, judul) {
         const blob = await new Promise(r => tmp.toBlob(r, 'image/jpeg', 0.92));
         berkas.push(new File([blob], dasar + '_' + tgl + (bagian.length > 1 ? '_' + (i + 1) : '') + '.jpg', { type: 'image/jpeg' }));
     }
-    if (navigator.share && navigator.canShare && navigator.canShare({ files: berkas })) { await navigator.share({ files: berkas, title: judul }); return; }
+    await bagikanBerkasAman(berkas, judul, 'gambar');
+}
+
+// Bagikan berkas lewat lembar Bagikan HP. Browser hanya mengizinkannya tepat setelah ketukan jari; bila membuat berkas memakan waktu
+// (laporan panjang, banyak halaman), izin itu sudah habis dan browser menolak ("Permission denied"). Saat itu muncul dialog
+// "Siap dibagikan" supaya cukup mengetuk sekali lagi. Bila HP memang tidak mendukung, berkas diunduh seperti biasa.
+let _berkasSiap = null;
+function unduhBerkas(berkas) {
     berkas.forEach((f, i) => setTimeout(() => { const a = document.createElement('a'); a.href = URL.createObjectURL(f); a.download = f.name; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 4000); }, i * 400));
-    showToast('📥 ' + berkas.length + ' gambar didownload (Bagikan tidak didukung di perangkat ini)');
+}
+async function bagikanBerkasAman(berkas, judul, kata) {
+    kata = kata || 'berkas';
+    let bisa = false;
+    try { bisa = !!(navigator.share && navigator.canShare && navigator.canShare({ files: berkas })); } catch (e) {}
+    if (!bisa) { unduhBerkas(berkas); showToast('📥 ' + berkas.length + ' ' + kata + ' didownload (Bagikan tidak didukung di perangkat ini)'); return; }
+    try { await navigator.share({ files: berkas, title: judul }); }
+    catch (e) {
+        if (e && e.name === 'AbortError') return; // dibatalkan
+        _berkasSiap = { berkas, judul, kata };
+        tampilkanBerkasSiap();
+    }
+}
+function tampilkanBerkasSiap() {
+    const z = _berkasSiap; if (!z) return;
+    let m = document.getElementById('berkasSiapModal');
+    if (!m) { m = document.createElement('div'); m.id = 'berkasSiapModal'; m.className = 'modal'; }
+    document.body.appendChild(m);
+    const total = z.berkas.reduce((n, f) => n + f.size, 0) / 1048576, gaya = 'width:100%;padding:13px;border:none;border-radius:12px;font-size:14px;font-weight:700;cursor:pointer;margin-top:8px;';
+    m.innerHTML = `<div class="modal-content" style="max-width:400px;">
+        <h3 style="color:var(--primary);margin-bottom:4px;">📤 Siap dibagikan</h3>
+        <div style="font-size:12px;color:#64748B;line-height:1.55;">${z.berkas.length} ${z.kata} · ${formatUkuranMB(total)}<br>Ketuk <b>Bagikan</b> sekali lagi. Browser meminta ketukan baru karena pembuatannya memakan waktu.</div>
+        <button onclick="kirimBerkasSiap()" style="${gaya}background:var(--primary);color:#fff;">📤 Bagikan</button>
+        <button onclick="simpanBerkasSiap()" style="${gaya}background:#E2E8F0;color:#334155;">⬇️ Simpan ke HP</button>
+        <button onclick="tutupBerkasSiap()" style="${gaya}background:#fff;color:#64748B;border:1.5px solid #e2e8f0;">Tutup</button>
+    </div>`;
+    m.style.display = 'flex';
+}
+function tutupBerkasSiap() { const m = document.getElementById('berkasSiapModal'); if (m) m.style.display = 'none'; _berkasSiap = null; }
+async function kirimBerkasSiap() {
+    const z = _berkasSiap; if (!z) return;
+    try { await navigator.share({ files: z.berkas, title: z.judul }); tutupBerkasSiap(); }
+    catch (e) {
+        if (e && e.name === 'AbortError') return;
+        showToast('❌ Gagal membagikan (' + ((e && e.name) || 'error') + '). Pakai Simpan ke HP.');
+    }
+}
+function simpanBerkasSiap() {
+    const z = _berkasSiap; if (!z) return;
+    unduhBerkas(z.berkas); tutupBerkasSiap();
+    showToast('📥 ' + z.berkas.length + ' ' + z.kata + ' disimpan ke HP');
 }
 
 // Bagikan potongan HTML (daftar atau poster) sebagai satu gambar JPG. Warna tema dipasang otomatis menggantikan #0D5C4A.
@@ -19477,7 +19546,7 @@ function htmlTabUpdateSeat() {
             <summary style="cursor:pointer;font-weight:700;color:var(--primary);">ℹ️ Cara membaca daftar ini</summary>
             <div style="margin-top:6px;">Daftar untuk dibagikan ke agen atau calon jamaah. Tidak memuat modal, profit, atau nama jamaah.<br>
             <b>Sisa seat</b> = kursi di Cuan Plan − jamaah terdaftar − seat ditahan (diisi di Konfigurasi). Lencana merah bila sisa 10% atau kurang, kuning 30% atau kurang.<br>
-            <b>Harga</b> = Harga Seragam program. Bila belum diatur, dipakai harga hitungan Cuan Plan (diberi keterangan di layar ini saja). Harga yang tidak bisa ditulis ringkas dengan tepat ditampilkan lengkap.</div>
+            <b>Harga</b> = Harga Seragam program. Bila belum diatur, dipakai harga hitungan Cuan Plan (diberi keterangan di layar ini saja). Harga yang tidak bisa ditulis ringkas dengan tepat ditampilkan lengkap.${(programList || []).some(p => p.jenis === 'haji_reguler') ? '<br><b>Program Haji Reguler tidak ditampilkan</b> di daftar ini (jadwalnya ditetapkan pemerintah).' : ''}</div>
         </details>
         ${catatanBelumSeat(d)}
         <button onclick="bukaAturKelompokSeat()" style="width:100%;padding:10px;background:#fff;color:var(--primary);border:1.5px solid var(--primary);border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;margin-bottom:10px;">⚙️ Atur Kelompok &amp; Data Seat</button>
@@ -27763,7 +27832,7 @@ function openIndexedDB() {
 // dengan build baru, data MENTAH (langsung dari IndexedDB, bukan dari memori) disalin dulu sebelum
 // proses migrasi apapun berjalan — supaya kalau ada kesalahan di update, data lama masih bisa dipulihkan.
 // Dokumen & foto tidak ikut disalin (ukurannya besar, dan tidak pernah disentuh proses migrasi).
-const NAVARA_BUILD = '2026.10.29-230';
+const NAVARA_BUILD = '2026.10.29-232';
 const MAKS_SNAPSHOT = 3;
 
 // ==================== DAFTAR DATA PUSAT ====================
@@ -27899,6 +27968,42 @@ async function cekSnapshotSebelumUpdate() {
         setTimeout(() => showToast('⚠️ Cadangan otomatis gagal dibuat — sebaiknya Download ZIP manual dulu'), 1500);
     }
 }
+
+// ==================== BANNER VERSI BARU ====================
+// Pembaruan otomatis (service worker) tidak berjalan, jadi HP bisa tetap memakai file lama dari cache.
+// Di sini aplikasi membaca versi terbaru dari alamat webnya sendiri; bila lebih baru, muncul banner Muat Ulang.
+// Hanya membaca, tidak mengubah data. Bila dibuka dari file atau offline, diam saja.
+let _cekVersiTerakhir = 0;
+function bandingVersiNavara(a, b) {
+    const pecah = v => String(v).split(/[.-]/).map(x => parseInt(x, 10) || 0);
+    const x = pecah(a), y = pecah(b);
+    for(let i = 0; i < Math.max(x.length, y.length); i++) { const d = (x[i] || 0) - (y[i] || 0); if(d) return d; }
+    return 0;
+}
+async function cekVersiBaruNavara() {
+    if(!/^https?:$/.test(location.protocol) || !navigator.onLine) return;
+    if(Date.now() - _cekVersiTerakhir < 10 * 60 * 1000) return;
+    _cekVersiTerakhir = Date.now();
+    try {
+        const alamat = location.origin + location.pathname;
+        const res = await fetch(alamat + '?cek=' + Date.now(), { cache: 'no-store' });
+        if(!res.ok) return;
+        const m = (await res.text()).match(/const NAVARA_BUILD = '([^']+)'/);
+        if(!m || bandingVersiNavara(m[1], NAVARA_BUILD) <= 0) return;
+        if(document.getElementById('bannerVersiBaru')) return;
+        const b = document.createElement('div');
+        b.id = 'bannerVersiBaru';
+        b.style.cssText = 'position:fixed;left:12px;right:12px;bottom:12px;z-index:99998;background:#0D5C4A;color:#fff;border-radius:14px;padding:12px 14px;display:flex;align-items:center;gap:10px;font-size:13px;line-height:1.4;box-shadow:0 6px 20px rgba(0,0,0,.3);max-width:520px;margin:0 auto;';
+        b.innerHTML = '<div style="flex:1;"><b>Versi baru tersedia</b><br><span style="opacity:.9;">Anda memakai ' + escapeHtml(NAVARA_BUILD) + ', terbaru ' + escapeHtml(m[1]) + '. Data tidak berubah.</span></div>'
+            + '<button id="bannerVersiMuat" style="background:#fff;color:#0D5C4A;border:none;border-radius:10px;padding:8px 12px;font-weight:700;font-size:12px;cursor:pointer;">Muat Ulang</button>'
+            + '<button id="bannerVersiTutup" style="background:transparent;color:#fff;border:none;font-size:16px;cursor:pointer;">✕</button>';
+        document.body.appendChild(b);
+        document.getElementById('bannerVersiMuat').onclick = () => { location.replace(alamat + '?v=' + encodeURIComponent(m[1])); };
+        document.getElementById('bannerVersiTutup').onclick = () => b.remove();
+    } catch(e) { /* offline atau dibuka dari file: tidak perlu memberi tahu */ }
+}
+document.addEventListener('visibilitychange', () => { if(!document.hidden) setTimeout(cekVersiBaruNavara, 2000); });
+setTimeout(cekVersiBaruNavara, 6000);
 
 async function renderDaftarSnapshot() {
     const el = document.getElementById('daftarSnapshotContainer');
@@ -32087,37 +32192,42 @@ function previewLogo(input, previewId) {
 }
 
 function previewWatermark() {
+    // Gambar 400x300 = cuplikan halaman dengan skala 0.6 dari ukuran cetak; tile memakai rumus yang sama dengan cetak
+    const W = 400, H = 300, skala = 0.6;
     const canvas = document.createElement('canvas');
-    canvas.width = 400;
-    canvas.height = 300;
+    canvas.width = W * 2;
+    canvas.height = H * 2;
     const ctx = canvas.getContext('2d');
+    ctx.scale(2, 2);
     ctx.fillStyle = '#fff';
-    ctx.fillRect(0,0,400,300);
+    ctx.fillRect(0,0,W,H);
     ctx.strokeStyle = '#1a5d4a';
     ctx.lineWidth = 2;
-    ctx.strokeRect(2,2,396,296);
+    ctx.strokeRect(2,2,W-4,H-4);
     ctx.save();
+    ctx.beginPath(); ctx.rect(3,3,W-6,H-6); ctx.clip();
     ctx.globalAlpha = parseFloat(document.getElementById('cfg_watermark_opacity').value);
     const fontSize = parseInt(document.getElementById('cfg_watermark_fontsize').value);
-    ctx.font = `bold ${fontSize}px "Segoe UI"`;
-    ctx.fillStyle = '#888';
+    ctx.fillStyle = '#0D5C4A';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
     const position = document.getElementById('cfg_watermark_position').value;
     const text = document.getElementById('cfg_watermark_text').value;
     if(position === 'diagonal') {
-        ctx.translate(200,150);
-        ctx.rotate(-45 * Math.PI/180);
+        ctx.font = `bold ${fontSize * skala}px Arial, Helvetica, sans-serif`;
+        ctx.translate(W/2,H/2);
+        ctx.rotate(-40 * Math.PI/180);
         ctx.fillText(text,0,0);
     } else if(position === 'center') {
-        ctx.fillText(text,200,150);
+        ctx.font = `bold ${fontSize * skala}px Arial, Helvetica, sans-serif`;
+        ctx.fillText(text,W/2,H/2);
     } else if(position === 'tile') {
-        ctx.font = `bold ${fontSize * 0.6}px "Segoe UI"`;
-        for(let x=0;x<400;x+=100) {
-            for(let y=0;y<300;y+=60) {
-                ctx.fillText(text,x,y);
-            }
-        }
+        const fs = Math.max(8, Math.round(fontSize * 0.4)) * skala;
+        ctx.font = `bold ${fs}px Arial, Helvetica, sans-serif`;
+        const t = tataTileWatermark(W / skala, H / skala, ctx.measureText(text).width / skala, fs / skala);
+        ctx.translate(W/2, H/2);
+        ctx.rotate(t.sudut * Math.PI/180);
+        t.titik.forEach(pt => ctx.fillText(text, pt.x * skala, pt.y * skala));
     }
     ctx.restore();
     const modal = document.createElement('div');
