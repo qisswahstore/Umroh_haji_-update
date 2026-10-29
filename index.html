@@ -2961,7 +2961,7 @@ https://github.com/nodeca/pako/blob/main/LICENSE
 <div id="page-jamaah" class="page">
     <div class="header-premium header-premium-small"><div class="back-header"><i class="fas fa-arrow-left" onclick="showPage('home')"></i><h2>Database Jamaah</h2><div style="width:30px;"></div></div></div>
     <div class="card-premium">
-        <div id="jamaahAdminPanel" class="setting-card" style="display:none"><h3 style="color:var(--primary);"> Panel Admin Jamaah</h3><details class="grup-admin" open><summary>➕ Tambah & Kelola</summary><button class="btn btn-utility btn-small mt-2" onclick="showPage('prospek')">🎯 Calon Jamaah (Prospek)</button><button class="btn btn-primary btn-small mt-2" onclick="openTambahJamaahModal()">+ Tambah database</button><button class="btn btn-utility btn-small mt-2" onclick="openManageFieldsModal()">Kelola Field Dinamis</button><button class="btn btn-utility btn-small mt-2" onclick="bukaTandaiTravelModal()">🚌 Tandai Travel Partner</button></details><details class="grup-admin"><summary>📊 Rekap & Analisa</summary><button class="btn btn-utility btn-small mt-2" onclick="openRekapKategoriModal()">📊 Rekap per Kategori</button><button class="btn btn-utility btn-small mt-2" onclick="openKecocokanKamarModal()">🛏️ Cek Kecocokan Kamar</button><button class="btn btn-utility btn-small mt-2" onclick="openKelompokPorsiModal()">📊 Kelompokkan Berdasarkan Porsi</button><button class="btn btn-utility btn-small mt-2" onclick="openKelompokRombonganModal()">👥 Kelompokkan Berdasarkan Rombongan</button><button class="btn btn-utility btn-small mt-2" onclick="openAntrianFollowUpModal()">📋 Antrian Follow-Up Prioritas</button><button class="btn btn-utility btn-small mt-2" onclick="openRekapKomisiMitraModal()">🤝 Rekap Komisi Mitra</button><button class="btn btn-utility btn-small mt-2" onclick="openRekapCicilanModal()">📅 Rekap Cicilan</button></details><details class="grup-admin"><summary>🖨️ Cetak & Kirim</summary><button class="btn btn-utility btn-small mt-2" onclick="cetakManifestRooming()">📋 Cetak Manifest & Rooming</button><button class="btn btn-utility btn-small mt-2" onclick="openWaMassalModal()">📢 Kirim WA Massal</button></details><details class="grup-admin"><summary>📗 Excel</summary><button class="btn btn-utility btn-small mt-2" onclick="downloadTemplateExcel()">⬇️ Download Template Excel</button><button class="btn btn-utility btn-small mt-2" onclick="exportJamaahToExcel()">Export ke Excel</button><button class="btn btn-utility btn-small mt-2" onclick="document.getElementById('importExcelFile').click()">IMPORT EXCEL</button><input type="file" id="importExcelFile" accept=".xlsx,.xls" style="display:none" onchange="importJamaahFromExcel(this)"></details><button class="btn btn-danger btn-small mt-2" onclick="confirmDeleteAllJamaah()">HAPUS SEMUA database</button></div>
+        <div id="jamaahAdminPanel" class="setting-card" style="display:none"><h3 style="color:var(--primary);"> Panel Admin Jamaah</h3><details class="grup-admin" open><summary>➕ Tambah & Kelola</summary><button class="btn btn-utility btn-small mt-2" onclick="showPage('prospek')">🎯 Calon Jamaah (Prospek)</button><button class="btn btn-primary btn-small mt-2" onclick="openTambahJamaahModal()">+ Tambah database</button><button class="btn btn-utility btn-small mt-2" onclick="openManageFieldsModal()">Kelola Field Dinamis</button><button class="btn btn-utility btn-small mt-2" onclick="bukaTandaiTravelModal()">🚌 Tandai Travel Partner</button></details><details class="grup-admin"><summary>📊 Rekap & Analisa</summary><button class="btn btn-utility btn-small mt-2" onclick="openRekapKategoriModal()">📊 Rekap per Kategori</button><button class="btn btn-utility btn-small mt-2" onclick="openKecocokanKamarModal()">🛏️ Cek Kecocokan Kamar</button><button class="btn btn-utility btn-small mt-2" onclick="openKelompokPorsiModal()">📊 Kelompokkan Berdasarkan Porsi</button><button class="btn btn-utility btn-small mt-2" onclick="openKelompokRombonganModal()">👥 Kelompokkan Berdasarkan Rombongan</button><button class="btn btn-utility btn-small mt-2" onclick="openAntrianFollowUpModal()">📋 Antrian Follow-Up Prioritas</button><button class="btn btn-utility btn-small mt-2" onclick="openRekapKomisiMitraModal()">🤝 Rekap Komisi Mitra</button><button class="btn btn-utility btn-small mt-2" onclick="openRekapCicilanModal()">📅 Rekap Cicilan</button></details><details class="grup-admin"><summary>🖨️ Cetak & Kirim</summary><button class="btn btn-utility btn-small mt-2" data-aksi="manifestRooming" onclick="bukaMenuExport('Manifest &amp; Rooming','Daftar jamaah per kamar, dikelompokkan menurut tipe',{cetak:'cetakManifestRooming()',bagikan:&quot;bagikanDariCetak(()=>cetakManifestRooming(),'Manifest_Rooming')&quot;})">📋 Export Manifest & Rooming</button><button class="btn btn-utility btn-small mt-2" onclick="openWaMassalModal()">📢 Kirim WA Massal</button></details><details class="grup-admin"><summary>📗 Excel</summary><button class="btn btn-utility btn-small mt-2" onclick="downloadTemplateExcel()">⬇️ Download Template Excel</button><button class="btn btn-utility btn-small mt-2" onclick="exportJamaahToExcel()">Export ke Excel</button><button class="btn btn-utility btn-small mt-2" onclick="document.getElementById('importExcelFile').click()">IMPORT EXCEL</button><input type="file" id="importExcelFile" accept=".xlsx,.xls" style="display:none" onchange="importJamaahFromExcel(this)"></details><button class="btn btn-danger btn-small mt-2" onclick="confirmDeleteAllJamaah()">HAPUS SEMUA database</button></div>
         <div class="section-title"><span>DAFTAR JAMAAH</span></div>
         <div class="search-box"><input type="text" id="searchJamaahInput" placeholder=" Cari nama jamaah..." onkeyup="filterJamaahList()"><select id="sortJamaahSelect" onchange="sortJamaahList()"><option value="urutan_asli">Urutan asli</option><option value="nama_asc">Nama A-Z</option><option value="nama_desc">Nama Z-A</option><option value="tgl_asc">Tanggal lama ke baru</option><option value="tgl_desc">Tanggal baru ke lama</option></select><button onclick="resetJamaahFilter()">Reset</button></div>
         <div id="filterLunasChip" style="display:none;align-items:center;gap:8px;background:#F0FBF6;border:1px solid var(--primary);border-radius:20px;padding:6px 12px;margin:8px 0;width:fit-content;">
@@ -4177,21 +4177,21 @@ https://github.com/nodeca/pako/blob/main/LICENSE
     <div style="display:flex;gap:6px;margin-bottom:6px;"><button class="btn btn-utility btn-small" style="flex:1;" onclick="pilihSemuaTravelTandai(true)">Pilih semua yang tampil</button><button class="btn btn-utility btn-small" style="flex:1;" onclick="pilihSemuaTravelTandai(false)">Kosongkan yang tampil</button></div>
     <div id="travelTandaiRingkas" style="font-size:12px;font-weight:600;margin:6px 0;"></div>
     <div id="travelTandaiList" style="max-height:42vh;overflow:auto;border:1px solid #e2e8f0;border-radius:8px;"></div>
-    <button class="btn btn-primary mt-2" onclick="simpanTandaiTravel()">SIMPAN</button>
-    <button class="btn btn-secondary mt-2" onclick="document.getElementById('travelTandaiModal').classList.remove('show')">BATAL</button>
+    <button class="btn btn-primary mt-2" onclick="simpanTandaiTravel()">Simpan</button>
+    <button class="btn btn-secondary mt-2" onclick="document.getElementById('travelTandaiModal').classList.remove('show')">Batal</button>
 </div></div>
-<div id="jamaahModal" class="modal"><div class="modal-content"><h3 id="jamaahModalTitle">Tambah database</h3><div id="jamaahFormContainer"></div><button class="btn btn-primary" onclick="saveJamaah()"> SIMPAN</button><button id="btnSimpanTambahLagi" class="btn mt-2" onclick="saveJamaah(true)" style="width:100%;background:#0EA5E9;color:white;display:none;">➕ SIMPAN & TAMBAH LAGI</button><button class="btn btn-secondary mt-2" onclick="closeJamaahModal()">BATAL</button></div></div>
-<div id="fieldModal" class="modal"><div class="modal-content"><h3>Tambah Field Dinamis</h3><div class="dynamic-field"><label>Nama Field</label><input type="text" id="newFieldName" placeholder="Contoh: tanggal_lahir"><div class="error-message">Hanya huruf kecil, angka, underscore</div></div><div class="dynamic-field"><label>Label Field</label><input type="text" id="newFieldLabel" placeholder="Contoh: Tanggal Lahir"></div><div class="dynamic-field"><label>Tipe Field</label><select id="newFieldType" onchange="toggleDropdownOptionsInput()"><option value="text">Text</option><option value="date">Tanggal</option><option value="tel">Telepon</option><option value="textarea">Text Area</option><option value="dropdown">Dropdown / Pilihan</option></select></div><div class="dynamic-field" id="dropdownOptionsWrap" style="display:none;"><label>Daftar Pilihan (pisahkan dengan koma)</label><input type="text" id="newFieldOptions" placeholder="Contoh: Tamattu', Ifrad, Qiran"><div class="error-message" style="color:#888;">Contoh lain: Ya, Tidak</div></div><div class="dynamic-field" style="display:flex;align-items:center;gap:8px;"><input type="checkbox" id="newFieldRahasia" style="width:18px;height:18px;"><label style="margin:0;">Sembunyikan di PDF Folder (Rahasia)</label></div><button class="btn btn-primary" onclick="addDynamicFieldJamaah()"> TAMBAH FIELD</button><button class="btn btn-secondary mt-2" onclick="closeFieldModal()">BATAL</button></div></div>
-<div id="manageFieldsModal" class="modal"><div class="modal-content"><h3>Kelola Field Dinamis</h3><button class="btn btn-primary btn-small" style="margin-bottom:15px;" onclick="closeManageFieldsModal(); openFieldModal();">+ Tambah Field Baru</button><div id="fieldsListContainer"></div><button class="btn btn-primary mt-2" onclick="closeManageFieldsModal()">TUTUP</button></div></div>
+<div id="jamaahModal" class="modal"><div class="modal-content"><h3 id="jamaahModalTitle">Tambah database</h3><div id="jamaahFormContainer"></div><button class="btn btn-primary" onclick="saveJamaah()"> Simpan</button><button id="btnSimpanTambahLagi" class="btn mt-2" onclick="saveJamaah(true)" style="width:100%;background:#0EA5E9;color:white;display:none;">➕ Simpan & Tambah Lagi</button><button class="btn btn-secondary mt-2" onclick="closeJamaahModal()">Batal</button></div></div>
+<div id="fieldModal" class="modal"><div class="modal-content"><h3>Tambah Field Dinamis</h3><div class="dynamic-field"><label>Nama Field</label><input type="text" id="newFieldName" placeholder="Contoh: tanggal_lahir"><div class="error-message">Hanya huruf kecil, angka, underscore</div></div><div class="dynamic-field"><label>Label Field</label><input type="text" id="newFieldLabel" placeholder="Contoh: Tanggal Lahir"></div><div class="dynamic-field"><label>Tipe Field</label><select id="newFieldType" onchange="toggleDropdownOptionsInput()"><option value="text">Text</option><option value="date">Tanggal</option><option value="tel">Telepon</option><option value="textarea">Text Area</option><option value="dropdown">Dropdown / Pilihan</option></select></div><div class="dynamic-field" id="dropdownOptionsWrap" style="display:none;"><label>Daftar Pilihan (pisahkan dengan koma)</label><input type="text" id="newFieldOptions" placeholder="Contoh: Tamattu', Ifrad, Qiran"><div class="error-message" style="color:#888;">Contoh lain: Ya, Tidak</div></div><div class="dynamic-field" style="display:flex;align-items:center;gap:8px;"><input type="checkbox" id="newFieldRahasia" style="width:18px;height:18px;"><label style="margin:0;">Sembunyikan di PDF Folder (Rahasia)</label></div><button class="btn btn-primary" onclick="addDynamicFieldJamaah()"> TAMBAH FIELD</button><button class="btn btn-secondary mt-2" onclick="closeFieldModal()">Batal</button></div></div>
+<div id="manageFieldsModal" class="modal"><div class="modal-content"><h3>Kelola Field Dinamis</h3><button class="btn btn-primary btn-small" style="margin-bottom:15px;" onclick="closeManageFieldsModal(); openFieldModal();">+ Tambah Field Baru</button><div id="fieldsListContainer"></div><button class="btn btn-primary mt-2" onclick="closeManageFieldsModal()">Tutup</button></div></div>
 
 <div id="paymentModal" class="modal"><div class="modal-content"><h3> Input Pembayaran</h3><div class="input-group"><label> Tanggal</label><input type="date" id="paymentTanggal"></div><div class="input-group"><label> Nama Jamaah *</label><select id="paymentJamaahSelect"><option value="">-- Pilih Jamaah --</option></select></div><div class="input-group" id="paymentKomponenWrap" style="display:none;"><label> Untuk Komponen</label><select id="paymentKomponen"></select></div><div class="input-group"><label> Nominal (Rp)</label><input type="text" class="money-input" inputmode="numeric" id="paymentNominal" placeholder="Contoh: 5.000.000"></div><div class="input-group"><label> Metode</label><select id="paymentMetode" onchange="perbaruiInfoSaldoPembayaran()"><option value="Transfer">Transfer</option><option value="Cash">Cash</option><option value="QRIS">QRIS</option></select></div><div id="paymentSaldoWrap" style="display:none;font-size:12px;background:#FFFBEB;border:1px solid #FDE68A;border-radius:10px;padding:8px 10px;margin:-4px 0 10px;"></div><div class="input-group"><label> Keterangan</label><input type="text" id="paymentKeterangan" placeholder="DP / Cicilan / Pelunasan"></div><div class="row"><button class="btn btn-secondary" onclick="closePaymentModal()" style="flex:1">Batal</button><button class="btn btn-primary" onclick="simpanPembayaran()" style="flex:1">Simpan</button></div></div></div>
 <div id="invoiceConfirmModal" class="modal"><div class="modal-content"><h3> Konfirmasi Kirim Invoice</h3><p>Akan dikirim ke nomor WhatsApp:</p><p id="invoiceWANumber" style="font-weight:bold; font-size:18px; background:#f0f0f0; padding:10px; border-radius:10px;"></p><p id="invoiceWAName" style="color:#666;"></p><div id="invoiceRekPilih"></div><div class="row" style="margin-top:20px;"><button class="btn btn-secondary" onclick="closeInvoiceConfirmModal()" style="flex:1">Batal</button><button class="btn btn-wa" onclick="sendInvoiceWA()" style="flex:1">Kirim via WA</button><button class="btn btn-orange" onclick="copyInvoiceText()" style="flex:1">Salin Teks</button></div></div></div>
 <div id="editHargaModal" class="modal"><div class="modal-content"><h3> Edit Harga Paket</h3><p id="editHargaNama" style="font-weight:bold;"></p><div class="input-group" id="editHargaTotalWrap"><label> Total Harga Paket (Rp)</label><input type="text" class="money-input" inputmode="numeric" id="editHargaValue" placeholder="Contoh: 35.000.000"><div id="editHargaInfo" style="font-size:12px;color:#64748B;margin-top:6px;line-height:1.5;"></div><label style="display:block;margin-top:10px;font-size:12px;color:#666;">👶 Tarif anak/bayi (harga hasil nego, bukan diskon)</label><select id="editHargaJenisAnak" onchange="perbaruiEditHargaAnak()" style="width:100%;padding:10px;border-radius:10px;border:1.5px solid #e2e8f0;font-size:14px;"><option value="">Bukan anak/bayi</option><option value="anak">Anak (pakai kursi)</option><option value="bayi">Bayi (tanpa kursi)</option></select><div id="editHargaModalAnakWrap" style="display:none;margin-top:8px;"><label style="font-size:12px;color:#666;">Modal anak/bayi (Rp, opsional)</label><input type="text" class="money-input" inputmode="numeric" id="editHargaModalAnak" placeholder="Kosong = otomatis" oninput="perbaruiEditHargaPerleng(false)"><div id="editHargaModalAnakInfo" style="font-size:11px;color:#64748b;margin-top:4px;"></div></div><div id="editHargaPerlengBlok"><label style="display:block;margin-top:10px;font-size:12px;color:#666;">🧳 Perlengkapan</label><select id="editHargaPerleng" onchange="perbaruiEditHargaPerleng(true)" style="width:100%;padding:10px;border-radius:10px;border:1.5px solid #e2e8f0;font-size:14px;"><option value="">Ambil perlengkapan</option><option value="tidak">Tidak ambil (pakai milik sebelumnya)</option></select><div id="editHargaPerlengWrap" style="display:none;margin-top:8px;"><label style="font-size:12px;color:#666;">Potongan harga (Rp), sesuai kesepakatan</label><div style="display:flex;gap:6px;margin:4px 0 6px;flex-wrap:wrap;"><button type="button" onclick="pilihPotonganPerleng(1000000)" style="padding:6px 12px;border:1.5px solid #0F766E;background:white;color:#0F766E;border-radius:14px;font-size:12px;font-weight:700;cursor:pointer;">1.000.000</button><button type="button" onclick="pilihPotonganPerleng(1500000)" style="padding:6px 12px;border:1.5px solid #0F766E;background:white;color:#0F766E;border-radius:14px;font-size:12px;font-weight:700;cursor:pointer;">1.500.000</button></div><input type="text" class="money-input" inputmode="numeric" id="editHargaPotongan" placeholder="Ketik angka lain" oninput="perbaruiEditHargaPerleng(true)"><label style="display:block;margin-top:8px;font-size:12px;color:#666;">Modal yang dihemat (Rp, opsional)</label><input type="text" class="money-input" inputmode="numeric" id="editHargaModalHemat" placeholder="Kosong = otomatis dari Estimasi" oninput="perbaruiEditHargaPerleng(false)"><div id="editHargaPerlengInfo" style="font-size:11.5px;color:#475569;margin-top:6px;line-height:1.5;"></div></div></div><button type="button" id="editHargaResetBtn" class="btn btn-secondary" style="display:none;width:100%;margin-top:10px;" onclick="kembaliKeHargaSeragam()">↩️ Kembali ke harga seragam</button></div><div id="editHargaKomponenWrap" style="display:none;"></div><div class="row"><button class="btn btn-secondary" onclick="closeEditHargaModal()" style="flex:1">Batal</button><button class="btn btn-primary" onclick="saveEditHarga()" style="flex:1">Simpan</button></div></div></div>
 <div id="riwayatModal" class="modal"><div class="modal-content"><h3> Riwayat Pembayaran</h3><p id="riwayatNama" style="font-weight:bold;"></p><div id="riwayatListContainer" style="max-height:400px; overflow-y:auto;"></div><div class="row" style="margin-top:15px;"><button class="btn btn-secondary" onclick="closeRiwayatModal()" style="flex:1">Tutup</button></div></div></div>
-<div id="masterFieldModal" class="modal"><div class="modal-content"><h3>Kelola Field Dinamis</h3><div class="dynamic-field"><label>Nama Field</label><input type="text" id="masterNewFieldName" placeholder="contoh: alamat, no_hp"></div><div class="dynamic-field"><label>Label Field</label><input type="text" id="masterNewFieldLabel" placeholder="Contoh: Alamat, No HP"></div><div class="dynamic-field"><label>Tipe</label><select id="masterNewFieldType"><option value="text">Text</option><option value="date">Tanggal</option><option value="tel">Telepon</option><option value="textarea">Text Area</option></select></div><button class="btn btn-primary" onclick="addMasterDynamicField()"> TAMBAH FIELD</button><div id="masterFieldsList" style="margin-top:15px;"></div><button class="btn btn-secondary mt-2" onclick="closeMasterFieldModal()">TUTUP</button></div></div>
-<div id="masterItemModal" class="modal"><div class="modal-content"><h3>Kelola Daftar Item</h3><div class="row"><div class="input-group"><label>Nama Item</label><input type="text" id="masterNewItem" placeholder="Contoh: Kain Ihram"></div><button class="btn-small" onclick="addMasterItem()" style="background:var(--primary); color:white; padding:0 15px;">+ Tambah</button></div><div id="masterItemList" style="margin-top:15px;"></div><button class="btn btn-secondary mt-2" onclick="closeMasterItemModal()">TUTUP</button></div></div>
-<div id="copyModal" class="modal"><div class="modal-content"><h3>📋 Copy dari Database</h3><p style="font-size:14px;color:#333;margin:10px 0;">Semua jamaah dari database akan disalin ke Multi Event.</p><p style="font-size:12px;color:var(--primary);background:#f0fdf4;padding:10px;border-radius:8px;margin:10px 0;">✅ Nama yang sudah ada tidak akan dobel — otomatis dilewati.</p><div class="row"><button class="btn btn-secondary" onclick="closeCopyModal()" style="flex:1">BATAL</button><button class="btn btn-primary" onclick="executeCopyFromJamaah()" style="flex:1">COPY SEKARANG</button></div></div></div>
-<div id="modeManagerModal" class="modal"><div class="modal-content"><h3><i class="fas fa-sliders-h"></i> Kelola Mode Switcher</h3><p style="font-size:12px; color:#666; margin-bottom:15px;">Centang mode yang ingin ditampilkan.</p><div id="modeManagerList" style="margin-bottom:20px;"></div><div class="row"><div class="input-group" style="flex:3"><input type="text" id="newModeName" placeholder="Nama mode baru (contoh: Wisata)"></div><button class="btn-small" onclick="addNewMode()" style="background:var(--primary); color:white; padding:0 15px;">+ TAMBAH</button></div><div class="row" style="margin-top:15px;"><button class="btn btn-secondary" onclick="closeModeManager()" style="flex:1">BATAL</button><button class="btn btn-primary" onclick="saveModes()" style="flex:1"> SIMPAN PERUBAHAN</button></div></div></div>
+<div id="masterFieldModal" class="modal"><div class="modal-content"><h3>Kelola Field Dinamis</h3><div class="dynamic-field"><label>Nama Field</label><input type="text" id="masterNewFieldName" placeholder="contoh: alamat, no_hp"></div><div class="dynamic-field"><label>Label Field</label><input type="text" id="masterNewFieldLabel" placeholder="Contoh: Alamat, No HP"></div><div class="dynamic-field"><label>Tipe</label><select id="masterNewFieldType"><option value="text">Text</option><option value="date">Tanggal</option><option value="tel">Telepon</option><option value="textarea">Text Area</option></select></div><button class="btn btn-primary" onclick="addMasterDynamicField()"> TAMBAH FIELD</button><div id="masterFieldsList" style="margin-top:15px;"></div><button class="btn btn-secondary mt-2" onclick="closeMasterFieldModal()">Tutup</button></div></div>
+<div id="masterItemModal" class="modal"><div class="modal-content"><h3>Kelola Daftar Item</h3><div class="row"><div class="input-group"><label>Nama Item</label><input type="text" id="masterNewItem" placeholder="Contoh: Kain Ihram"></div><button class="btn-small" onclick="addMasterItem()" style="background:var(--primary); color:white; padding:0 15px;">+ Tambah</button></div><div id="masterItemList" style="margin-top:15px;"></div><button class="btn btn-secondary mt-2" onclick="closeMasterItemModal()">Tutup</button></div></div>
+<div id="copyModal" class="modal"><div class="modal-content"><h3>📋 Copy dari Database</h3><p style="font-size:14px;color:#333;margin:10px 0;">Semua jamaah dari database akan disalin ke Multi Event.</p><p style="font-size:12px;color:var(--primary);background:#f0fdf4;padding:10px;border-radius:8px;margin:10px 0;">✅ Nama yang sudah ada tidak akan dobel — otomatis dilewati.</p><div class="row"><button class="btn btn-secondary" onclick="closeCopyModal()" style="flex:1">Batal</button><button class="btn btn-primary" onclick="executeCopyFromJamaah()" style="flex:1">COPY SEKARANG</button></div></div></div>
+<div id="modeManagerModal" class="modal"><div class="modal-content"><h3><i class="fas fa-sliders-h"></i> Kelola Mode Switcher</h3><p style="font-size:12px; color:#666; margin-bottom:15px;">Centang mode yang ingin ditampilkan.</p><div id="modeManagerList" style="margin-bottom:20px;"></div><div class="row"><div class="input-group" style="flex:3"><input type="text" id="newModeName" placeholder="Nama mode baru (contoh: Wisata)"></div><button class="btn-small" onclick="addNewMode()" style="background:var(--primary); color:white; padding:0 15px;">+ TAMBAH</button></div><div class="row" style="margin-top:15px;"><button class="btn btn-secondary" onclick="closeModeManager()" style="flex:1">Batal</button><button class="btn btn-primary" onclick="saveModes()" style="flex:1"> Simpan Perubahan</button></div></div></div>
 <div id="programModal" class="modal"><div class="modal-content">
     <h3>📁 Pilih Program</h3>
     <div id="programListContainer" style="max-height:280px;overflow-y:auto;margin:12px 0;"></div>
@@ -4288,7 +4288,7 @@ https://github.com/nodeca/pako/blob/main/LICENSE
     </div>
     <div id="draftIndicator" style="display:none;background:#FEF9E7;border:1px solid #F3E5AB;border-radius:10px;padding:8px 10px;font-size:11px;color:#8a6d1f;margin-bottom:10px;">💾 Draft tersimpan otomatis</div>
     <div id="entryAksiBar" style="display:flex;gap:8px;position:sticky;bottom:-24px;background:#fff;padding:10px 0 24px;margin:0 0 -24px;z-index:2;">
-        <button class="btn btn-primary" style="flex:1;" onclick="saveCatatanEntry()">💾 SIMPAN</button>
+        <button class="btn btn-primary" style="flex:1;" onclick="saveCatatanEntry()">💾 Simpan</button>
         <button class="btn" style="flex:1;background:#e2e8f0;color:#333;" onclick="closeEntryModal()">Batal</button>
     </div>
 </div></div>
@@ -4306,7 +4306,7 @@ https://github.com/nodeca/pako/blob/main/LICENSE
     </div>
     <button onclick="closeDetailModal()" style="width:100%;margin-top:8px;padding:10px;background:#e2e8f0;color:#333;border:none;border-radius:20px;font-size:14px;cursor:pointer;">Tutup</button>
 </div></div>
-<div id="dokumenFieldModal" class="modal"><div class="modal-content"><h3>Tambah Jenis Dokumen</h3><div class="dynamic-field"><label>Nama Dokumen</label><input type="text" id="newDokumenName" placeholder="Contoh: Visa, Tiket, Sertifikat"></div><div class="dynamic-field"><label>Icon</label><select id="newDokumenIcon"><option value="🪪"> KTP</option><option value="📘"> Paspor</option><option value="📷"> Foto</option><option value="💉"> Vaksin</option><option value="🛂"> Visa</option><option value="🎫"> Tiket</option><option value="📄"> Dokumen</option></select></div><button class="btn btn-primary" onclick="addDokumenField()"> TAMBAH</button><button class="btn btn-secondary mt-2" onclick="closeDokumenFieldModal()">BATAL</button></div></div>
+<div id="dokumenFieldModal" class="modal"><div class="modal-content"><h3>Tambah Jenis Dokumen</h3><div class="dynamic-field"><label>Nama Dokumen</label><input type="text" id="newDokumenName" placeholder="Contoh: Visa, Tiket, Sertifikat"></div><div class="dynamic-field"><label>Icon</label><select id="newDokumenIcon"><option value="🪪"> KTP</option><option value="📘"> Paspor</option><option value="📷"> Foto</option><option value="💉"> Vaksin</option><option value="🛂"> Visa</option><option value="🎫"> Tiket</option><option value="📄"> Dokumen</option></select></div><button class="btn btn-primary" onclick="addDokumenField()"> TAMBAH</button><button class="btn btn-secondary mt-2" onclick="closeDokumenFieldModal()">Batal</button></div></div>
 <div id="previewDokumenModal" class="modal"><div class="modal-content" style="max-height:90vh;overflow-y:auto;">
     <h3 id="previewDokumenTitle">Preview Dokumen</h3>
     <img id="previewDokumenImage" class="preview-img" style="max-width:100%;border-radius:12px;margin:12px 0;display:block;">
@@ -4409,6 +4409,7 @@ async function cetakSemuaDokumenJamaah(jamaahId, jamaahNama) {
     }
     showToast(`📄 Menyiapkan cetak untuk ${jamaahNama}...`);
     const printWindow = window.open('', '_blank');
+    if(!printWindow) return showToast('Izinkan popup untuk cetak!');
     let html = `<!DOCTYPE html><html><head>
         <title>Cetak Dokumen - ${jamaahNama}</title>
         <meta charset="UTF-8">
@@ -4457,6 +4458,7 @@ async function cetakDokumenPerJenis(jamaahId, jenisId, jenisNama, jamaahNama, id
     const data = Array.isArray(arr) ? arr[idx] : arr;
     if (!data) { showToast(`❌ Tidak ada dokumen ${jenisNama}`); return; }
     const printWindow = window.open('', '_blank');
+    if(!printWindow) return showToast('Izinkan popup untuk cetak!');
     const html = `<!DOCTYPE html><html><head>
         <title>Cetak ${jenisNama} - ${jamaahNama}</title>
         <meta charset="UTF-8">
@@ -4730,20 +4732,20 @@ function updateHomeStats() {
     // Total Kas
     const kasData = dataKas;
     const totalKas = kasData.reduce((s,i) => s + (i.tipe === 'masuk' ? i.nom : -i.nom), 0);
-    document.getElementById('homeStatKas').innerHTML = 'Rp ' + totalKas.toLocaleString('id-ID');
+    document.getElementById('homeStatKas').innerHTML = fRp(totalKas, false);
     // Saldo Kas hanya tampil bila program ini punya catatan di Uang Kas (Haji maupun Umroh); selain itu cukup Uang Masuk dan Sisa Tagihan
     const barisKas = document.getElementById('homeBarisKas'); if (barisKas) barisKas.style.display = kasData.length > 0 ? 'block' : 'none';
     // Uang Masuk: rumus sama dengan halaman Pembayaran
     { const idAktif = new Set(jamaahList.map(j => j.id));
       const masuk = paymentTransaksiList.filter(t => idAktif.has(Number(t.id_jamaah)) || idAktif.has(t.id_jamaah)).reduce((sum, t) => sum + t.nominal, 0);
-      const elMasuk = document.getElementById('homeStatMasuk'); if (elMasuk) elMasuk.innerHTML = 'Rp ' + formatAngka(masuk); }
+      const elMasuk = document.getElementById('homeStatMasuk'); if (elMasuk) elMasuk.innerHTML = fRp(masuk, false); }
     // Dana jamaah (titipan) di rekening penampung program ini: hanya admin penuh, hanya bila ada penampung
     try { muatSaldoSenyap().then(() => {
         const bt = document.getElementById('homeBarisTitipan'); if (!bt) return;
         const adminPenuh = (typeof adalahAdminPenuh === 'function') && adalahAdminPenuh();
         if (!adminPenuh || !adaPenampungProgramAktif()) { bt.style.display = 'none'; return; }
         const titipan = saldoKantorData.rekening.filter(r => r.aktif !== false && peranRek(r) === 'penampung' && r.programId === currentProgramId).reduce((a, r) => a + hitungSaldoRekening(r.id), 0);
-        document.getElementById('homeStatTitipan').innerHTML = 'Rp ' + titipan.toLocaleString('id-ID'); bt.style.display = 'block';
+        document.getElementById('homeStatTitipan').innerHTML = fRp(titipan, false); bt.style.display = 'block';
     }).catch(() => {}); } catch (e) {}
 
     // Data Jamaah (jumlahnya tampil sebagai penyebut pada "Pelunasan Jamaah")
@@ -4768,7 +4770,7 @@ function updateHomeStats() {
     });
 
     // Update tampilan
-    document.getElementById('homeStatPiutang').innerHTML = 'Rp ' + formatAngka(totalPiutang);
+    document.getElementById('homeStatPiutang').innerHTML = fRp(totalPiutang, false);
 
     // Update dashboard extra
     const komposisiHome = hitungKomposisiPeserta(jamaahData);
@@ -4876,7 +4878,7 @@ function updateHomeDashboardExtra(totalJamaah, lunasCount, totalPiutang, komposi
                     jamaahBermasalah.length + ' Paspor Akan/Sudah Habis Masa Berlaku';
                 document.getElementById('homePasporWarningList').innerHTML = jamaahBermasalah.map(x => {
                     const statusText = x.sisaHari < 0 ? 'Sudah habis' : x.sisaHari + ' hari lagi';
-                    return `• ${escapeHtml(x.nama)} — ${statusText} (${x.expDate.toLocaleDateString('id-ID')})`;
+                    return `• ${escapeHtml(x.nama)} — ${statusText} (${formatTanggalLengkap(x.expDate)})`;
                 }).join('<br>');
             } else {
                 pasporCard.style.display = 'none';
@@ -4907,7 +4909,7 @@ function updateHomeDashboardExtra(totalJamaah, lunasCount, totalPiutang, komposi
                     jamaahBermasalahVaksin.length + ' Vaksin Meningitis Akan/Sudah Habis Masa Berlaku';
                 document.getElementById('homeMeningitisWarningList').innerHTML = jamaahBermasalahVaksin.map(x => {
                     const statusText = x.sisaHari < 0 ? 'Sudah habis' : x.sisaHari + ' hari lagi';
-                    return `• ${escapeHtml(x.nama)} — ${statusText} (${x.expDate.toLocaleDateString('id-ID')})`;
+                    return `• ${escapeHtml(x.nama)} — ${statusText} (${formatTanggalLengkap(x.expDate)})`;
                 }).join('<br>');
             } else {
                 meningitisCard.style.display = 'none';
@@ -4918,7 +4920,7 @@ function updateHomeDashboardExtra(totalJamaah, lunasCount, totalPiutang, komposi
         const bufferCard = document.getElementById('homeBufferWarningCard');
         if(bufferCard) {
             const pesanBuffer = [];
-            const fR = n => 'Rp ' + Math.round(Math.abs(n)).toLocaleString('id-ID');
+            const fR = n => fRp(Math.abs(n));
             const dampak = b => Math.round(b) === 0 ? 'secara total impas dengan rencana' : (b > 0 ? `secara total masih untung ekstra ${fR(b)}` : `laba di bawah rencana ${fR(b)}`);
             const a = analisisBufferB2C();
             if(a && a.nLebih > 0) pesanBuffer.push(`B2C: ${a.nLebih} jamaah melebihi buffer (kelebihan ${fR(a.kelebihan)}); ${dampak(a.bersih)}`);
@@ -4941,11 +4943,11 @@ function updateHomeDashboardExtra(totalJamaah, lunasCount, totalPiutang, komposi
             if(totalMasalah > 0) {
                 cicilanCard.style.display = 'block';
                 document.getElementById('homeCicilanWarningTitle').textContent = `${totalMasalah} Cicilan Perlu Perhatian`;
-                const fRp = n => 'Rp ' + Math.round(n).toLocaleString('id-ID');
+                const fRp = n => fRp(n);
                 let listHtml = '';
                 cek.telat.forEach(x => listHtml += `🔴 ${escapeHtml(x.nama)} — TELAT, sisa ${fRp(x.sisa)}<br>`);
                 cek.hariIni.forEach(x => listHtml += `🟡 ${escapeHtml(x.nama)} — jatuh tempo HARI INI, ${fRp(x.sisa)}<br>`);
-                cek.akanDatang.forEach(x => listHtml += `🟢 ${escapeHtml(x.nama)} — jatuh tempo ${new Date(x.tanggal).toLocaleDateString('id-ID')}, ${fRp(x.sisa)}<br>`);
+                cek.akanDatang.forEach(x => listHtml += `🟢 ${escapeHtml(x.nama)} — jatuh tempo ${new formatTanggalLengkap(Date(x.tanggal))}, ${fRp(x.sisa)}<br>`);
                 document.getElementById('homeCicilanWarningList').innerHTML = listHtml;
             } else {
                 cicilanCard.style.display = 'none';
@@ -5142,7 +5144,7 @@ function ringkasAnakBayiTeks(daftar) {
     return { judul: bag.join(' + '), catatan: tidakPasti ? (adaDewasa ? 'Modal yang bertanda "seperti dewasa" adalah perkiraan konservatif.' : 'Modal bayi adalah perkiraan, bukan angka invoice.') : 'Modal sesuai angka yang diisi.' };
 }
 function teksAnakBayiRingkas(ab) {
-    const f = n => 'Rp ' + Math.round(Math.abs(n)).toLocaleString('id-ID');
+    const f = n => fRp(Math.abs(n));
     const bag = []; if (ab.n - ab.nBayi) bag.push((ab.n - ab.nBayi) + ' anak'); if (ab.nBayi) bag.push(ab.nBayi + ' bayi');
     return 'Tarif anak/bayi (' + bag.join(' + ') + '): pemasukan ' + f(ab.pemasukan) + ' · modal' + (ab.perkiraan ? ' (perkiraan)' : '') + ' ' + f(ab.modal) + ' · selisih ' + (ab.selisih < 0 ? '-' : '+') + f(ab.selisih) + ' (sudah terhitung di laba)';
 }
@@ -5180,13 +5182,13 @@ function ringkasPerlengkapanDari(list) {
     return n ? { n, pot, hemat, efek: semua ? hemat - pot : null } : null;
 }
 function teksPerlengkapanRingkas(r) {
-    const f = x => 'Rp ' + Math.round(Math.abs(x)).toLocaleString('id-ID');
+    const f = x => fRp(Math.abs(x));
     let t = 'Tanpa perlengkapan: ' + r.n + ' jamaah · ' + (r.pot > 0 ? 'potongan harga ' + f(r.pot) : 'harga mengikuti yang diketik') + ' · modal turun ' + f(r.hemat);
     if (r.efek !== null) t += r.efek === 0 ? ' · untung tidak berubah' : ' · untung ' + (r.efek < 0 ? 'turun ' : 'naik ') + f(r.efek);
     return t + ' (sudah terhitung di laba)';
 }
 function teksKomposisiHarga(k) {
-    const fR = n => 'Rp ' + Math.round(n).toLocaleString('id-ID');
+    const fR = n => fRp(n);
     const tipeGrup = Object.keys(k.grup || {});
     const beda = tipeGrup.length > 1 && new Set(tipeGrup.map(t => k.grup[t].dasar)).size > 1;
     const b = [beda ? 'Harga seragam per tipe: ' + ['Quad', 'Triple', 'Double'].filter(t => k.grup[t]).map(t => t + ' ' + fR(k.grup[t].dasar) + ' (' + k.grup[t].n + ')').join(' · ') : 'Harga seragam ' + fR(k.dasar) + ': ' + k.nSeragam + ' jamaah'];
@@ -5309,7 +5311,9 @@ function tampilkanJendelaCetak(htmlSebelumTombol) {
     </div>
     </body></html>`;
     const win = window.open('', '_blank');
-    win.document.write(applyPrintTheme(html)); win.document.close();
+    if(!win) { showToast('Izinkan popup untuk cetak!'); return win; }
+    win.document.write(applyPrintTheme(html)); injectWatermarkToPrintWin(win); win.document.close();
+    pasangTombolMengambang(win);
     return win;
 }
 
@@ -6809,7 +6813,7 @@ function renderDashboard() {
     if(dashLabel) dashLabel.textContent = '📁 Program: ' + (getCurrentProgram()?.nama || '-');
     const kasData = dataKas;
     const totalKas = kasData.reduce((s,i) => s + (i.tipe === 'masuk' ? i.nom : -i.nom), 0);
-    document.getElementById('dashTotalKas').innerHTML = 'Rp ' + formatAngka(totalKas);
+    document.getElementById('dashTotalKas').innerHTML = fRp(totalKas, false);
     const jamaahData = jamaahList;
     document.getElementById('dashTotalJamaah').innerHTML = jamaahData.length;
     const paymentData = paymentTransaksiList;
@@ -6823,7 +6827,7 @@ function renderDashboard() {
         }
     });
     document.getElementById('dashTotalLunas').innerHTML = lunasCount;
-    document.getElementById('dashTotalPiutang').innerHTML = 'Rp ' + formatAngka(totalPiutang);
+    document.getElementById('dashTotalPiutang').innerHTML = fRp(totalPiutang, false);
 
     const monthlyIncome = {}, months = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
     kasData.forEach(t => {
@@ -6862,7 +6866,7 @@ function renderDashboard() {
                 tooltip: {
                     callbacks: {
                         label: function(context) {
-                            return 'Rp ' + formatAngka(context.raw);
+                            return fRp(context.raw, false);
                         }
                     }
                 }
@@ -6910,7 +6914,7 @@ function renderDashboard() {
     });
     piutangList.sort((a,b) => b.sisa - a.sisa);
     const top5 = piutangList.slice(0, 5);
-    const topPiutangHtml = top5.map((p, i) => `<div class="field-item"><div><strong>${i+1}. ${escapeHtml(p.nama)}</strong><br><small>Total: Rp ${formatAngka(p.total)}</small></div><div style="color: var(--orange); font-weight: bold;">Sisa: Rp ${formatAngka(p.sisa)}</div></div>`).join('');
+    const topPiutangHtml = top5.map((p, i) => `<div class="field-item"><div><strong>${i+1}. ${escapeHtml(p.nama)}</strong><br><small>Total: ${fRp(p.total, false)}</small></div><div style="color: var(--orange); font-weight: bold;">Sisa: ${fRp(p.sisa, false)}</div></div>`).join('');
     document.getElementById('topPiutangList').innerHTML = topPiutangHtml || '<p class="text-center">Tidak ada data piutang</p>';
 }
 
@@ -6944,10 +6948,11 @@ async function cetakDashboardHTML() {
 
     let topHtml = '';
     topPiutang.forEach((j,i) => {
-        topHtml += `<tr><td>${i+1}</td><td>${escapeHtml(j.nama)}</td><td>Rp ${formatAngka(j.paket)}</td><td style="color:#e74c3c;font-weight:bold;">Rp ${formatAngka(j.sisa)}</td></tr>`;
+        topHtml += `<tr><td>${i+1}</td><td>${escapeHtml(j.nama)}</td><td>${fRp(j.paket, false)}</td><td style="color:#e74c3c;font-weight:bold;">${fRp(j.sisa, false)}</td></tr>`;
     });
 
     const printWindow = window.open('', '_blank');
+    if(!printWindow) return showToast('Izinkan popup untuk cetak!');
     const __printHtml1 = `<!DOCTYPE html><html><head><title>Dashboard</title><meta charset="UTF-8">
     <style>
         *{margin:0;padding:0;box-sizing:border-box;}
@@ -6972,10 +6977,10 @@ async function cetakDashboardHTML() {
         ${headerHtml}
         <div class="tgl">📁 Program: ${escapeHtml(getCurrentProgram()?.nama || '-')} &nbsp;|&nbsp; Tanggal Cetak: ${tanggal}</div>
         <div class="stats">
-            <div class="stat-box"><div class="label">TOTAL KAS</div><div class="value">Rp ${formatAngka(totalKas)}</div></div>
+            <div class="stat-box"><div class="label">TOTAL KAS</div><div class="value">${fRp(totalKas, false)}</div></div>
             <div class="stat-box"><div class="label">TOTAL JAMAAH</div><div class="value">${totalJamaah}</div></div>
             <div class="stat-box"><div class="label">JAMAAH LUNAS</div><div class="value">${totalLunas}</div></div>
-            <div class="stat-box"><div class="label">TOTAL TAGIHAN</div><div class="value">Rp ${formatAngka(totalPiutang)}</div></div>
+            <div class="stat-box"><div class="label">TOTAL TAGIHAN</div><div class="value">${fRp(totalPiutang, false)}</div></div>
         </div>
         <h2>5 JAMAAH DENGAN TAGIHAN TERBESAR</h2>
         <table><thead><tr><th>No</th><th>Nama Jamaah</th><th>Total Paket</th><th>Sisa Tagihan</th></tr></thead><tbody>${topHtml}</tbody></table>
@@ -7035,7 +7040,7 @@ function hitungFXHelper(fxKey, targetFieldId) {
     const hasilLabelId = fxKey === 'Tiket' ? 'fxHasilTiket' : null;
     if (hasilLabelId) {
         const labelEl = document.getElementById(hasilLabelId);
-        if (labelEl) labelEl.textContent = `≈ Rp ${hasilRp.toLocaleString('id-ID')}`;
+        if (labelEl) labelEl.textContent = `≈ ${fRp(hasilRp, false)}`;
     }
 }
 
@@ -7237,7 +7242,7 @@ const RH_KUNCI = ['lokasiPaket','namaHotelMakkah','namaHotelMadinah','namaMaskap
 const RH_KOMPONEN = [['cTiket','Tiket'],['cLAquad','LA / Hotel (Quad)'],['cAsuransi','Asuransi'],['cHandling','Handling'],['cPIC','PIC'],['cAlat','Perlengkapan'],['cAplikasi','Aplikasi'],['cLain','Lain-lain']];
 const RH_SUMBER = { kunci: 'Tercatat saat harga dikunci', 'sebelum-buka': 'Tercatat sebelum kunci dibuka', 'pulih-estimasi': 'Dipulihkan dari Estimasi (harga dicocokkan)', 'pulih-buka': 'Dipulihkan saat kunci dibuka (harga dicocokkan)', manual: 'Diisi dari catatan/cetakan lama' };
 let _rhView = { mode: 'list' };
-const rhRp = n => 'Rp ' + Math.round(n || 0).toLocaleString('id-ID');
+const rhRp = n => fRp(n || 0);
 const rhPr = v => parseInt((v || '0').toString().replace(/\./g, '').replace(/[^0-9]/g, '')) || 0;
 const rhTanda = n => { const r = Math.round(n || 0); return r > 0 ? '+' + rhRp(r) : (r < 0 ? '-' + rhRp(-r) : rhRp(0)); };
 const rhE = t => escapeHtml(String(t == null ? '' : t));
@@ -7435,7 +7440,7 @@ function rhPeringatanBanding(bd) {
 function rhKetPembulatan(bd) {
     const A = bd.bulatA || 0, B = bd.bulatB || 0;
     if(A === 0 && B === 0) return '';
-    const f = x => 'Rp ' + Math.round(Math.abs(x)).toLocaleString('id-ID');
+    const f = x => fRp(Math.abs(x));
     const arah = x => x > 0 ? 'dibulatkan naik ' + f(x) : (x < 0 ? 'diatur lebih rendah ' + f(x) + ' dari hitungan' : 'tidak dibulatkan');
     return 'Per pax: harga lama ' + arah(A) + ', harga baru ' + arah(B) + '. Ini cara menetapkan harga, bukan biaya.';
 }
@@ -7448,7 +7453,7 @@ function rhCatatanProfit(A, B) {
         const dm = Math.round(hb.modal) - Math.round(ha.modal);
         if(dm < 1) return '';
         const kursi = (hb.nJam || 0) + (hb.tl || 0);
-        const f = x => 'Rp ' + Math.round(x).toLocaleString('id-ID');
+        const f = x => fRp(x);
         const hp = (getKonfigurasiProData() || {}).harga_paket;
         const seragam = hp && hp.seragam && hp.nominal > 0 ? Math.round(hp.nominal) : 0;
         const bulat = seragam > 0 && ha.dibulatkan && Math.round(ha.harga) !== Math.round(ha.hargaHitung) && seragam === Math.round(ha.harga);
@@ -8029,7 +8034,7 @@ function perbaruiPetunjukHargaJual() {
     if(!el) return;
     try { perbaruiKartuImpas(); } catch(e) {}
     try { kbJadwal(); } catch(e) {}
-    const f = n => 'Rp ' + Math.round(n).toLocaleString('id-ID');
+    const f = n => fRp(n);
     const d = hitungDasarEstimasiDariForm();
     const manual = parseRupiah(document.getElementById('cHargaJual')?.value || '0');
     if(d.nBayar <= 0 || !(d.jual > 0)) { el.style.color = '#888'; el.textContent = ''; return; }
@@ -8120,7 +8125,7 @@ function perbaruiTeksSudahPasti(pfx) {
         else if(re.value.trim() !== '' && basis > 0) pe.value = (Math.round(nilai / basis * 1000) / 10).toString().replace('.', ',');
         else if(re.value.trim() === '' || basis <= 0) pe.value = '';
     });
-    const rp = n => 'Rp ' + n.toLocaleString('id-ID');
+    const rp = n => fRp(n, false);
     el.textContent = 'Total hangus bila dibatalkan hari ini: ' + rp(r.total) + ' per kursi' + (r.otomatis ? ' (otomatis: seluruh tiket dianggap hangus, skenario terburuk)' : '') + (lebih ? ' (persen dibatasi 100%)' : '');
     try { perbaruiSaranDariPengeluaran(pfx); } catch(e) {}
     const rk = document.getElementById((pfx ? 'kon' : 'est') + 'SbRingkas');
@@ -8168,7 +8173,7 @@ function hitungSaranHotelPerKursi(pfx) {
 function perbaruiSaranDariPengeluaran(pfx) {
     const el = document.getElementById((pfx ? 'kon' : 'est') + 'SbSaran');
     if(!el) return;
-    const f = n => 'Rp ' + Math.round(n).toLocaleString('id-ID');
+    const f = n => fRp(n);
     const rp = ringkasPengeluaranUntukImpas();
     const kursi = (parseInt(document.getElementById(_idSB(pfx, 'totJam'))?.value) || 0) + (parseInt(document.getElementById(_idSB(pfx, 'numTL'))?.value) || 0);
     if((rp.maskapai <= 0 && rp.hotel <= 0) || kursi <= 0) { el.style.display = 'none'; el.innerHTML = ''; return; }
@@ -8211,7 +8216,7 @@ function perbaruiKartuImpas() {
     const el = document.getElementById('kartuImpasEstimasi');
     try { perbaruiTeksSudahPasti(''); } catch(e) {}
     if(!el) return;
-    const f = n => 'Rp ' + Math.round(n).toLocaleString('id-ID');
+    const f = n => fRp(n);
     const v0 = id => parseRupiah(document.getElementById(id)?.value || '0');
     const d = hitungDasarEstimasiDariForm();
     if(d.nBayar <= 0 || !(d.sub > 0) || !(d.jual > 0)) { el.style.display = 'none'; return; }
@@ -8496,7 +8501,7 @@ function hitungUmroh() {
     const selisihBulat = jual - jualHitungan;
     const tambahanBulat = selisihBulat*(nJam-nFoc);
     const totalOmzet=jual*(nJam-nFoc);
-    const f=n=>"Rp "+Math.round(n).toLocaleString('id-ID');
+    const f=fRp;
     const lokasi=document.getElementById('lokasiPaket').value;
     const garis="━━━━━━━━━━━━━━━━━━━";
     // Hitung harga brosur per tipe kamar yang diisi
@@ -8647,7 +8652,7 @@ function bagikanPosterBrosur(gaya) {
 
 async function cetakEstimasiPDFJamaah() {
     if(!lastCalculatedPrice) { showToast('Silakan hitung estimasi dulu!'); return; }
-    const f = n => 'Rp ' + Math.round(n).toLocaleString('id-ID');
+    const f = n => fRp(n);
     const cfg = getKonfigurasiProData();
     const tgl = formatTanggalLengkap();
     const headerHtml = buildPrintHeader(cfg, tgl);
@@ -8684,7 +8689,7 @@ async function cetakEstimasiPDFJamaah() {
 
 async function cetakEstimasiPDFInternal() {
     if(!lastCalculatedPrice) { showToast('Silakan hitung estimasi dulu!'); return; }
-    const f = n => 'Rp ' + Math.round(n).toLocaleString('id-ID');
+    const f = n => fRp(n);
     const cfg = getKonfigurasiProData();
     const tgl = formatTanggalLengkap();
     const tglBerangkat = cfg.keberangkatan?.tanggal ? formatTanggalLengkap(cfg.keberangkatan.tanggal) : '';
@@ -8861,7 +8866,7 @@ function reloadHargaSeragamUI() {
     if(el) el.value = hp.nominal ? hp.nominal.toLocaleString('id-ID') : '';
     const preview = document.getElementById('previewHargaSeragam');
     { const mbEl = document.getElementById('cfg_modal_bayi'); if (mbEl) mbEl.value = slot.modal_bayi ? parseInt(slot.modal_bayi).toLocaleString('id-ID') : ''; }
-    if(preview) preview.textContent = hp.nominal ? 'Rp ' + hp.nominal.toLocaleString('id-ID') : '';
+    if(preview) preview.textContent = hp.nominal ? fRp(hp.nominal, false) : '';
     if(el && hp.nominal && typeof formatHargaInput === 'function') formatHargaInput(el);
     const pt = hp.perTipe || {};
     [['cfg_harga_triple', pt.Triple], ['cfg_harga_double', pt.Double]].forEach(([id, v]) => { const e = document.getElementById(id); if(e) e.value = v > 0 ? v.toLocaleString('id-ID') : ''; });
@@ -9062,7 +9067,7 @@ function konPerbaruiKolomHargaTipe() {
     wrap.style.display = (t || d) ? 'block' : 'none';
     const rg = document.getElementById('konRingkasHJTipe');
     if(rg) {
-        const f = id => { const v = pr(document.getElementById(id)?.value); return v > 0 ? 'Rp ' + v.toLocaleString('id-ID') : 'pakai hitungan'; };
+        const f = id => { const v = pr(document.getElementById(id)?.value); return v > 0 ? fRp(v, false) : 'pakai hitungan'; };
         rg.textContent = [t ? 'Triple ' + f('konCHargaJualTriple') : '', d ? 'Double ' + f('konCHargaJualDouble') : ''].filter(Boolean).join(' · ');
     }
 }
@@ -9072,7 +9077,7 @@ function konTampilBrosurTipe(d, brosur, sub) {
     const pr = v => parseInt((v||'0').toString().replace(/\./g,'').replace(/[^0-9]/g,'')) || 0;
     const aktif = ['Triple', 'Double'].filter(l => pr(l === 'Triple' ? d.cLAtriple : d.cLAdouble) > 0);
     if(!aktif.length) { el.style.display = 'none'; el.innerHTML = ''; return; }
-    const f = n => 'Rp ' + Math.round(n).toLocaleString('id-ID');
+    const f = n => fRp(n);
     el.innerHTML = ['Quad'].concat(aktif).map(l => {
         const h = hargaBrosurTipeKon(d, l, brosur, sub);
         const hitung = l !== 'Quad' && d.modeLA !== 'upgrade' && pr(d['cHargaJual' + l]) > 0 ? hargaBrosurTipeKon(Object.assign({}, d, { ['cHargaJual' + l]: '' }), l, brosur, sub) : null;
@@ -9182,7 +9187,7 @@ function konHitungDasarDariForm() {
 function konPerbaruiPetunjukHargaJual() {
     const el = document.getElementById('konHargaJualInfo');
     if(!el) return;
-    const f = n => 'Rp ' + Math.round(n).toLocaleString('id-ID');
+    const f = n => fRp(n);
     const d = konHitungDasarDariForm();
     const manual = parseRupiah(document.getElementById('konCHargaJual')?.value || '0');
     if(d.nBayar <= 0 || !(d.jual > 0)) { el.style.color = '#888'; el.textContent = ''; return; }
@@ -9221,7 +9226,7 @@ function konHapusHargaJual() {
 
 // Tampilkan / sembunyikan 3 baris pembulatan pada kartu hasil Konsorsium
 function konTampilBarisPembulatan(hitungan, brosur, bersih, nBayar, dipakai) {
-    const f = n => 'Rp ' + Math.round(n).toLocaleString('id-ID');
+    const f = n => fRp(n);
     const set = (id, show, teks) => { const r = document.getElementById(id), n = document.getElementById(id + 'Nilai'); if(r) r.style.display = show ? 'flex' : 'none'; if(n && show) n.textContent = teks; };
     if(!dipakai) { set('konBarisHitungan', false); set('konBarisBulat', false); set('konBarisBersihBulat', false); return; }
     const selisih = brosur - hitungan;
@@ -9256,7 +9261,7 @@ function hitungKonsorsiumEstimasi() {
     konsorsiumLastModal = sub;
     konsorsiumLastBrosur = hargaBrosur;
 
-    const f = n => 'Rp ' + Math.round(n).toLocaleString('id-ID');
+    const f = n => fRp(n);
     document.getElementById('konHasilModal').textContent = f(sub);
     document.getElementById('konHasilOmzet').textContent = f(totalOmzet);
     document.getElementById('konHasilProfitKotor').textContent = f(profitKotor);
@@ -9331,7 +9336,7 @@ function loadKonsorsiumEstimasiUI() {
 
     konsorsiumLastModal = sub;
     konsorsiumLastBrosur = d.hargaBrosur || 0;
-    const f = n => 'Rp ' + Math.round(n).toLocaleString('id-ID');
+    const f = n => fRp(n);
     document.getElementById('konHasilModal').textContent = f(sub);
     document.getElementById('konHasilOmzet').textContent = f(totalOmzet);
     document.getElementById('konHasilProfitKotor').textContent = f(profitKotor);
@@ -9465,7 +9470,7 @@ function ktRingkasKomponen(t) {
     return tanpa.length ? (n - tanpa.length) + ' dari ' + n + ' (tanpa ' + tanpa.join(', ') + ')' : 'semua (' + n + ')';
 }
 function ktRingkasOpsional(t) {
-    const rp = x => 'Rp ' + Math.round(x).toLocaleString('id-ID'), b = [];
+    const rp = x => fRp(x), b = [];
     if((t.gratisTravel || 0) > 0) b.push('FOC ' + t.gratisTravel);
     if((t.bulat || 0) > 0) b.push('pembulatan ' + rp(t.bulat));
     if((t.bufferB2B || 0) > 0) b.push('buffer ' + rp(t.bufferB2B));
@@ -9563,7 +9568,7 @@ function renderSatuKartuKonsorsiumInfo(id) {
     if(!t || !infoEl) return;
     const komponen = ambilKomponenBiayaEstimasi();
     const totalGabungan = list.reduce((s,x) => s + (x.jumlah||0), 0);
-    const f = n => (n !== null && n !== undefined) ? 'Rp ' + Math.round(n).toLocaleString('id-ID') : '-';
+    const f = n => (n !== null && n !== undefined) ? fRp(n) : '-';
     const isiSebelumnya = infoEl.innerHTML;
 
     const ring = komponen && totalGabungan > 0 ? hitungRingkasanTravel(t, komponen, totalGabungan) : null;
@@ -9587,8 +9592,8 @@ function renderSatuKartuKonsorsiumInfo(id) {
         infoEl.innerHTML = `
             <div style="background:#F8FAFC;border-radius:8px;padding:10px 12px;margin-bottom:8px;">
                 <div style="font-size:10px;color:#888;font-weight:700;text-transform:uppercase;margin-bottom:4px;">💵 Tagihan per Tipe Kamar${ring.totalGratisTerpakai > 0 ? ` (${ring.totalGratisTerpakai} orang FOC)` : ''}</div>
-                ${(t.bulat || 0) > 0 ? `<div style="font-size:10px;color:#0369A1;margin-bottom:6px;">Harga dibulatkan ke atas, kelipatan Rp ${t.bulat.toLocaleString('id-ID')}/orang (profit sudah memakai harga bulat)</div>` : ''}
-                ${ring.bufferB2B > 0 ? `<div style="font-size:10px;color:#0369A1;margin-bottom:6px;">+ Buffer Rp ${ring.bufferB2B.toLocaleString('id-ID')}/orang sudah termasuk di Harga (tidak dihitung Profit)</div>` : ''}
+                ${(t.bulat || 0) > 0 ? `<div style="font-size:10px;color:#0369A1;margin-bottom:6px;">Harga dibulatkan ke atas, kelipatan ${fRp(t.bulat, false)}/orang (profit sudah memakai harga bulat)</div>` : ''}
+                ${ring.bufferB2B > 0 ? `<div style="font-size:10px;color:#0369A1;margin-bottom:6px;">+ Buffer ${fRp(ring.bufferB2B, false)}/orang sudah termasuk di Harga (tidak dihitung Profit)</div>` : ''}
                 ${barisTipe}
             </div>
             <div style="background:${adaRugi ? 'linear-gradient(135deg,#DC2626,#991B1B)' : (tipis ? 'linear-gradient(135deg,#B45309,#92400E)' : 'linear-gradient(135deg,#166534,var(--primary))')};border-radius:10px;padding:12px 14px;text-align:center;">
@@ -9729,7 +9734,7 @@ function cetakTagihanTravelPartner(id) {
     const ring = hitungRingkasanTravel(t, komponen, totalGabungan);
     if(!t.jumlah || !ring || !ring.punyaKebijakan) return showToast('Isi Komposisi Kamar dan Markup/Profit Tetap dulu!');
 
-    const f = n => 'Rp ' + Math.round(n).toLocaleString('id-ID');
+    const f = n => fRp(n);
     const namaKBIH = getNamaInstansiUtama();
     const progNama = getCurrentProgram()?.nama || '-';
     const tgl = formatTanggalLengkap();
@@ -9771,7 +9776,7 @@ function renderStatusPembayaranTravel(id) {
     const komponen = ambilKomponenBiayaEstimasi();
     const totalGabungan = list.reduce((s,x) => s + (x.jumlah||0), 0);
     const ring = komponen && totalGabungan > 0 ? hitungRingkasanTravel(t, komponen, totalGabungan) : null;
-    const f = n => 'Rp ' + Math.round(n).toLocaleString('id-ID');
+    const f = n => fRp(n);
 
     if(!ring || !ring.punyaKebijakan) { el.innerHTML = ''; return; }
 
@@ -9868,13 +9873,13 @@ function renderRiwayatPembayaranTravelModal(id, modalEl) {
     const list = ensureKonsorsiumList();
     const t = list.find(x => x.id === id);
     if(!t) return;
-    const f = n => 'Rp ' + Math.round(n).toLocaleString('id-ID');
+    const f = n => fRp(n);
     const riwayat = [...(t.pembayaran||[])].sort((a,b) => new Date(b.tanggal) - new Date(a.tanggal));
     const html = riwayat.map(p => `
         <div style="display:flex;justify-content:space-between;align-items:center;background:#F8FAFC;border-radius:8px;padding:8px 10px;margin-bottom:6px;">
             <div>
                 <div style="font-size:13px;font-weight:700;color:#166534;">${f(p.nominal)}</div>
-                <div style="font-size:11px;color:#888;">${new Date(p.tanggal).toLocaleDateString('id-ID')}${p.catatan ? ' — ' + escapeHtml(p.catatan) : ''}</div>
+                <div style="font-size:11px;color:#888;">${new formatTanggalLengkap(Date(p.tanggal))}${p.catatan ? ' — ' + escapeHtml(p.catatan) : ''}</div>
             </div>
             <button onclick="hapusPembayaranTravel(${id}, ${p.id})" style="border:none;background:none;color:#DC2626;font-size:15px;cursor:pointer;"><i class="fas fa-trash-alt"></i></button>
         </div>`).join('');
@@ -9890,7 +9895,7 @@ async function hapusPembayaranTravel(travelId, paymentId) {
     const list = ensureKonsorsiumList();
     const t = list.find(x => x.id === travelId);
     if(!t || !t.pembayaran) return;
-    { const pb = t.pembayaran.find(p => p.id === paymentId); if(!(await konfirmasiHapusPIN(pb && pb.nominal ? `Pembayaran Rp ${Number(pb.nominal).toLocaleString('id-ID')} ke travel akan dihapus.` : 'Pembayaran ke travel ini akan dihapus.', 'Hapus Pembayaran Travel?'))) return; }
+    { const pb = t.pembayaran.find(p => p.id === paymentId); if(!(await konfirmasiHapusPIN(pb && pb.nominal ? `Pembayaran ${fRp(Number(pb.nominal), false)} ke travel akan dihapus.` : 'Pembayaran ke travel ini akan dihapus.', 'Hapus Pembayaran Travel?'))) return; }
     t.pembayaran = t.pembayaran.filter(p => p.id !== paymentId);
     simpanKonsorsium();
     renderRiwayatPembayaranTravelModal(travelId);
@@ -9910,11 +9915,11 @@ function salinRingkasanTravel(id) {
     const namaKBIH = getNamaInstansiUtama();
     let teks = `*RINCIAN KONSORSIUM — ${t.nama || 'Travel Partner'}*\n${namaKBIH}\n\n`;
     ring.tipeData.forEach(x => {
-        teks += `${x.label} (${x.jumlah} org${x.gratisDiSini > 0 ? ', ' + x.gratisDiSini + ' FOC' : ''}): Rp ${Math.round(x.harga).toLocaleString('id-ID')}/orang\n`;
+        teks += `${x.label} (${x.jumlah} org${x.gratisDiSini > 0 ? ', ' + x.gratisDiSini + ' FOC' : ''}): ${fRp(x.harga)}/orang\n`;
     });
-    teks += `\nTotal Tagihan: Rp ${Math.round(ring.totalTagihan).toLocaleString('id-ID')}\n`;
-    teks += `Total Modal Efektif: Rp ${Math.round(ring.totalModal).toLocaleString('id-ID')}\n`;
-    teks += `${ring.totalProfit>=0?'Profit':'Selisih Rugi'}: Rp ${Math.round(Math.abs(ring.totalProfit)).toLocaleString('id-ID')}\n`;
+    teks += `\nTotal Tagihan: ${fRp(ring.totalTagihan)}\n`;
+    teks += `Total Modal Efektif: ${fRp(ring.totalModal)}\n`;
+    teks += `${ring.totalProfit>=0?'Profit':'Selisih Rugi'}: ${fRp(Math.abs(ring.totalProfit))}\n`;
     navigator.clipboard.writeText(teks).then(() => {
         showToast('✅ Ringkasan tersalin, siap paste ke WA');
     }).catch(() => {
@@ -9938,7 +9943,7 @@ function openAnalisisBufferB2BModal() {
 function renderAnalisisBufferB2BModal(modalEl) {
     modalEl = modalEl || document.getElementById('analisisBufferB2BModal');
     if(!modalEl) return;
-    const f = n => 'Rp ' + Math.round(n).toLocaleString('id-ID');
+    const f = n => fRp(n);
     const komponen = ambilKomponenBiayaEstimasi();
     const list = ensureKonsorsiumList();
     const totalGabungan = list.reduce((s,x) => s + (x.jumlah||0), 0);
@@ -10050,7 +10055,7 @@ function renderKonsorsiumRingkasan() {
         }
     }
 
-    const f = n => 'Rp ' + Math.round(n).toLocaleString('id-ID');
+    const f = n => fRp(n);
 
     ringkasanEl.style.display = 'block';
     document.getElementById('konsorsiumJumlahTravel').textContent = jumlahTravelAktif + ' Travel';
@@ -10103,7 +10108,7 @@ function catatanBulatKonsorsium() {
         const pr = v => parseInt((v||'0').toString().replace(/[^0-9]/g,'')) || 0;
         const hitung = Math.round(Number(d.hargaHitungan) || 0), brosur = Math.round(Number(d.hargaBrosur) || 0);
         if(!(pr(d.cHargaJual) > 0) || hitung <= 0 || brosur <= 0 || brosur === hitung) return '';
-        const f = x => 'Rp ' + Math.round(Math.abs(x)).toLocaleString('id-ID');
+        const f = x => fRp(Math.abs(x));
         const sel = brosur - hitung;
         return ' Harga brosur ' + (sel > 0 ? 'dibulatkan naik' : 'diatur lebih rendah') + ' dari ' + f(hitung) + ' menjadi ' + f(brosur) + ' (' + (sel > 0 ? '+' : '-') + f(sel) + '/pax). Laba dan titik impas di atas mengandaikan jamaah sendiri membayar harga ini; bila dicatat lebih rendah, hasilnya lebih kecil.';
     } catch(e) { return ''; }
@@ -10185,7 +10190,7 @@ function renderPosisiRombongan() {
     if(!card || !isi) return;
     const pos = hitungPosisiRombongan();
     if(!pos) { card.style.display = 'none'; return; }
-    const f = n => 'Rp ' + Math.round(n).toLocaleString('id-ID');
+    const f = n => fRp(n);
     const baris = (lbl, val, col) => `<div style="display:flex;justify-content:space-between;gap:8px;padding:5px 0;border-bottom:1px solid #e2e8f0;font-size:13px;"><span style="color:#555;">${lbl}</span><span style="font-weight:700;text-align:right;${col ? 'color:' + col + ';' : ''}">${val}</span></div>`;
     const peringatan = [];
     const kotak = (warna, bg, teks) => `<div style="background:${bg};border:1.5px solid ${warna};border-radius:10px;padding:9px 11px;font-size:12px;color:${warna};font-weight:600;margin-top:8px;">${teks}</div>`;
@@ -10294,7 +10299,7 @@ function renderRiwayatKonsorsiumModal(modal) {
     if(!modal) return;
     const slot = ensureProgramConfigSlot();
     const riwayat = slot.konsorsium_history || [];
-    const f = n => n ? 'Rp ' + Math.round(n).toLocaleString('id-ID') : '-';
+    const f = n => n ? fRp(n) : '-';
     const html = riwayat.map((r, i) => `
         <div style="display:flex;justify-content:space-between;align-items:center;background:#F8FAFC;border-radius:10px;padding:10px 12px;margin-bottom:8px;">
             <div>
@@ -10348,7 +10353,7 @@ function kumpulkanDataKonsorsiumUntukLaporan() {
 function cetakLaporanKonsorsium() {
     const data = kumpulkanDataKonsorsiumUntukLaporan();
     if(!data) return showToast('Belum ada data Konsorsium untuk dicetak!');
-    const f = n => 'Rp ' + Math.round(n||0).toLocaleString('id-ID');
+    const f = n => fRp(n||0);
     const namaKBIH = getNamaInstansiUtama();
     const progNama = getCurrentProgram()?.nama || '-';
     const tgl = formatTanggalLengkap();
@@ -10402,12 +10407,12 @@ function cetakLaporanKonsorsium() {
 function bagikanKonsorsiumWA() {
     const data = kumpulkanDataKonsorsiumUntukLaporan();
     if(!data) return showToast('Belum ada data Konsorsium untuk dibagikan!');
-    const f = n => 'Rp ' + Math.round(n||0).toLocaleString('id-ID');
+    const f = n => fRp(n||0);
     const namaKBIH = getNamaInstansiUtama();
     const progNama = getCurrentProgram()?.nama || '-';
     let teks = `*RINGKASAN KONSORSIUM (INTERNAL)*\n${namaKBIH} — ${progNama}\n\n`;
     data.rows.forEach(r => {
-        teks += `${r.nama} - ${r.tipe} (${r.jumlah} org): Rp ${Math.round(r.harga||0).toLocaleString('id-ID')}/org → Profit ${f(r.profit)}\n`;
+        teks += `${r.nama} - ${r.tipe} (${r.jumlah} org): ${fRp(r.harga||0)}/org → Profit ${f(r.profit)}\n`;
     });
     teks += `\n👥 Total Jamaah: ${data.totalGabungan}\n💰 Total Modal Efektif: ${f(data.totalModal)}\n💵 Total Tagihan: ${f(data.totalTagihan)}\n✅ *PROFIT TOTAL (hanya dari Travel Partner): ${f(data.totalProfit)}*`;
     if(data.pos) teks += `\n\n*POSISI ROMBONGAN (perkiraan)*\n🪑 Kursi bayar ${data.pos.kursiBayar}: sendiri ${data.pos.sendiri}, Travel ${data.pos.travelOrang}, sisa ${data.pos.sisa}\n💼 Laba rombongan saat ini (sudah termasuk TL): ${f(data.pos.laba)}\n📈 Laba bila sisa terjual B2C: ${f(data.pos.labaPenuh)}\n⚖️ Jamaah sendiri minimal agar impas: ${data.pos.impasSendiri}`;
@@ -10570,7 +10575,7 @@ function perbaruiRujukanEstimasiPengeluaran() {
     if (!box) return;
     const kat = document.getElementById('pengeluaranKategori')?.value || '';
     if (kat === '🤝 Komisi Mitra') {
-        const fRk = n => 'Rp ' + Math.round(n).toLocaleString('id-ID');
+        const fRk = n => fRp(n);
         const dm = daftarKomisiMitra().filter(m => m.komisi > 0);
         let h = '<div style="background:#f8fafc;border-radius:10px;padding:8px 10px;">';
         if (!dm.length) h += '<div style="font-size:12px;color:#64748b;">Belum ada Komisi Mitra di database jamaah program ini. Isi nominal langsung di bawah.</div>';
@@ -10589,7 +10594,7 @@ function perbaruiRujukanEstimasiPengeluaran() {
         box.innerHTML = '<div style="font-size:11px;color:#94a3b8;padding:2px 4px;">Kategori ini tidak punya baris anggaran di Estimasi. Tercatat sebagai pengeluaran biasa.</div>'; box.style.display = 'block'; return;
     }
     if (!r) { box.style.display = 'none'; box.innerHTML = ''; return; }
-    const fR = n => 'Rp ' + Math.round(n).toLocaleString('id-ID');
+    const fR = n => fRp(n);
     const lebih = r.sisa < 0;
     const warna = lebih ? '#B45309' : '#475569';
     let html = '<div style="background:#f8fafc;border-radius:10px;padding:8px 10px;">';
@@ -10647,7 +10652,7 @@ function perbaruiHitungPeng() {
     if(!el) return;
     const r = hitungPengeluaranPerOrang();
     el.innerHTML = (r.harga > 0 && r.n > 0)
-        ? 'Rp ' + r.harga.toLocaleString('id-ID') + ' × ' + r.n + ' = <b>Rp ' + r.total.toLocaleString('id-ID') + '</b>'
+        ? fRp(r.harga, false) + ' × ' + r.n + ' = <b>Rp ' + r.total.toLocaleString('id-ID') + '</b>'
         : '<span style="color:#94a3b8;">Isi harga per orang dan jumlah.</span>';
 }
 function terapkanHitungPeng() {
@@ -10710,7 +10715,7 @@ async function simpanPengeluaran() {
 }
 
 async function hapusPengeluaran(id) {
-    { const p0 = pengeluaranList.find(p => p.id === id); const info0 = p0 ? `Pengeluaran Rp ${(Number(p0.jumlah || p0.nominal || 0)).toLocaleString('id-ID')}${p0.keterangan ? ' — ' + p0.keterangan : ''} akan dihapus.` : 'Data pengeluaran ini akan dihapus.';
+    { const p0 = pengeluaranList.find(p => p.id === id); const info0 = p0 ? `Pengeluaran ${fRp((Number(p0.jumlah || p0.nominal || 0)), false)}${p0.keterangan ? ' — ' + p0.keterangan : ''} akan dihapus.` : 'Data pengeluaran ini akan dihapus.';
     if(!(await konfirmasiHapusPIN(info0, 'Hapus Pengeluaran?'))) return; }
     pengeluaranList = pengeluaranList.filter(p => p.id !== id);
     await savePengeluaran();
@@ -10750,7 +10755,7 @@ function renderPengeluaranList() {
         grouped[p.kategori].total += p.nominal;
     });
 
-    const f = n => 'Rp ' + Math.round(n).toLocaleString('id-ID');
+    const f = n => fRp(n);
     let html = `<div style="margin-bottom:8px; font-size:0.8rem; color:var(--accent);">Total: ${pengeluaranList.length} transaksi (halaman ${currentPengeluaranPage} dari ${totalPages})</div>`;
 
     Object.keys(grouped).forEach(kat => {
@@ -10821,7 +10826,7 @@ function updateRingkasanKeuangan() {
     const totalPengeluaran = pengeluaranList.reduce((a,p) => a + p.nominal, 0);
     const profit = totalPemasukan - totalPengeluaran;
 
-    const f = n => 'Rp ' + Math.round(n).toLocaleString('id-ID');
+    const f = n => fRp(n);
 
     if(totalPemasukan > 0 || totalPengeluaran > 0) {
         ringkasan.style.display = 'block';
@@ -10966,7 +10971,7 @@ function cetakLaporanGabungan(mode = 'semua') {
         ${showRekap ? `<div class="section-title">📋 Rekap Laba Sementara</div>${rekapHTML}` : ''}
         ${showRekap && showPengeluaran ? '<hr class="divider">' : ''}
         ${showPengeluaran ? `<div class="section-title">💸 Rincian Pengeluaran</div>${pengeluaranHTML}<div style="margin-top:12px;">${ringkasanHTML}</div>` : ''}
-    </body></html>`; win.document.write(applyPrintTheme(__printHtml2));
+    </body></html>`; win.document.write(applyPrintTheme(__printHtml2)); injectWatermarkToPrintWin(win);
     win.document.close();
 }
 
@@ -10987,7 +10992,7 @@ function hitungRekapAktual() {
     }
 
     const est = getEstimasiData ? getEstimasiData() : null;
-    const f = n => 'Rp ' + Math.round(n).toLocaleString('id-ID');
+    const f = n => fRp(n);
 
     // Kumpulkan data per tipe
     const tipeData = {};
@@ -11272,7 +11277,7 @@ function openAnalisisBufferB2CModal() {
 function renderAnalisisBufferB2CModal(modalEl) {
     modalEl = modalEl || document.getElementById('analisisBufferB2CModal');
     if(!modalEl) return;
-    const f = n => 'Rp ' + Math.round(n).toLocaleString('id-ID');
+    const f = n => fRp(n);
     const est = hitungModalHargaEstimasiTerkini();
 
     if(!est) {
@@ -11348,7 +11353,7 @@ function shareRekapAktual() {
     if (jamaahList.length > 0) hitungRekapAktual();
     const data = window._rekapAktualData;
     if (!data || !data.tipe.length) return showToast('Belum ada data jamaah untuk direkap!');
-    const f = n => (Math.round(n) < 0 ? '-' : '') + 'Rp ' + Math.abs(Math.round(n)).toLocaleString('id-ID');
+    const f = n => (Math.round(n) < 0 ? '-' : '') + fRp(Math.abs(Math.round(n)), false);
     const namaKBIH = getNamaInstansiUtama();
     const tgl = new Date().toLocaleDateString('id-ID');
     const garis = '─'.repeat(28);
@@ -11396,7 +11401,7 @@ function perbaruiKolomHargaTipe() {
     wrap.style.display = (t || d) ? 'block' : 'none';
     const rg = document.getElementById('ringkasHJTipe');
     if(rg) {
-        const f = id => { const v = parseRupiah(document.getElementById(id)?.value || '0'); return v > 0 ? 'Rp ' + v.toLocaleString('id-ID') : 'pakai hitungan'; };
+        const f = id => { const v = parseRupiah(document.getElementById(id)?.value || '0'); return v > 0 ? fRp(v, false) : 'pakai hitungan'; };
         rg.textContent = [t ? 'Triple ' + f('cHargaJualTriple') : '', d ? 'Double ' + f('cHargaJualDouble') : ''].filter(Boolean).join(' · ');
     }
 }
@@ -11529,7 +11534,7 @@ function renderKasTable() {
     dataKas.forEach(i=>{
         if(i.tipe==='masuk') masuk+=i.nom;
         else keluar+=i.nom;
-        body.innerHTML+=`<tr><td style="vertical-align:middle; padding:10px 5px;">${i.tgl}</td><td style="vertical-align:middle; padding:10px 5px;"><span style="background:var(--teal); color:white; padding:2px 8px; border-radius:12px; font-size:10px;">${escapeHtml(i.kegiatan)}</span></td><td style="vertical-align:middle; padding:10px 5px;">${escapeHtml(i.ket)}</td><td class="${i.tipe==='masuk'?'txt-in':'txt-out'}" style="vertical-align:middle; padding:10px 5px;">Rp ${i.nom.toLocaleString('id-ID')}</td><td style="vertical-align:middle; padding:10px 5px;"><button onclick="editTransaksi(${i.id})" style="background:none; border:none; color:var(--blue); font-size:1.1rem; cursor:pointer;"><i class="fas fa-edit"></i></button><button class="btn-del" onclick="confirmHapusTransaksi(${i.id})" style="background:none; border:none; color:var(--red); font-size:1.1rem; cursor:pointer;"><i class="fas fa-trash"></i></button></td></tr>`;
+        body.innerHTML+=`<tr><td style="vertical-align:middle; padding:10px 5px;">${i.tgl}</td><td style="vertical-align:middle; padding:10px 5px;"><span style="background:var(--teal); color:white; padding:2px 8px; border-radius:12px; font-size:10px;">${escapeHtml(i.kegiatan)}</span></td><td style="vertical-align:middle; padding:10px 5px;">${escapeHtml(i.ket)}</td><td class="${i.tipe==='masuk'?'txt-in':'txt-out'}" style="vertical-align:middle; padding:10px 5px;">${fRp(i.nom, false)}</td><td style="vertical-align:middle; padding:10px 5px;"><button onclick="editTransaksi(${i.id})" style="background:none; border:none; color:var(--blue); font-size:1.1rem; cursor:pointer;"><i class="fas fa-edit"></i></button><button class="btn-del" onclick="confirmHapusTransaksi(${i.id})" style="background:none; border:none; color:var(--red); font-size:1.1rem; cursor:pointer;"><i class="fas fa-trash"></i></button></td></tr>`;
     });
     updateSaldoKas();
 }
@@ -11605,12 +11610,12 @@ function buatLaporanWA() {
         if(i.tipe==='masuk') masuk+=i.nom;
         else keluar+=i.nom;
     });
-    const f=n=>"Rp "+n.toLocaleString('id-ID');
+    const f=n=>fRp(n, false);
     let detail="";
     dataKas.forEach(i=>{
         detail+=`${i.tipe==='masuk'?'✅':'❌'} ${i.tgl} | [${i.kegiatan}] ${i.ket}\n    ${f(i.nom)}\n\n`;
     });
-    lastWAText=`📊 *LAPORAN KEUANGAN ${judul.toUpperCase()}*\n\n📅 *${judul}*\n📅 ${new Date().toLocaleDateString('id-ID')}\n\n\n💰 *TOTAL MASUK:* ${f(masuk)}\n💸 *TOTAL KELUAR:* ${f(keluar)}\n\n💵 *SALDO AKHIR:* *${f(masuk-keluar)}*\n\n\n📋 *DETAIL TRANSAKSI:*\n\n\n${detail}\n✨ Generated by ${getNamaInstansiUtama()}`;
+    lastWAText=`📊 *LAPORAN KEUANGAN ${judul.toUpperCase()}*\n\n📅 *${judul}*\n📅 ${new formatTanggalLengkap(Date())}\n\n\n💰 *TOTAL MASUK:* ${f(masuk)}\n💸 *TOTAL KELUAR:* ${f(keluar)}\n\n💵 *SALDO AKHIR:* *${f(masuk-keluar)}*\n\n\n📋 *DETAIL TRANSAKSI:*\n\n\n${detail}\n✨ Generated by ${getNamaInstansiUtama()}`;
     const hasilWA=document.getElementById('hasilWA');
     hasilWA.innerHTML=`<div class="res-item"><span>Total Masuk</span><span style="color:#2ecc71">${f(masuk)}</span></div><div class="res-item"><span>Total Keluar</span><span style="color:#e74c3c">${f(keluar)}</span></div><div class="res-item"><span>SALDO AKHIR</span><span class="highlight">${f(masuk-keluar)}</span></div><button class="btn" onclick="salinLaporanWA()" style="background:#34495e; margin-top:15px;">SALIN LAPORAN WA</button>`;
     hasilWA.style.display='block';
@@ -11637,11 +11642,11 @@ async function cetakKasHTML() {
     const headerHtml = buildPrintHeader(cfg, tglCetak);
     const watermarkHtml = buildPrintWatermark(cfg);
     const ttdHtml = buildPrintTandaTangan(cfg, tglCetak, true, true);
-    const qrHtml = await buildPrintQR(cfg, `Laporan Kas: ${judul}\nSaldo: Rp ${saldo.toLocaleString('id-ID')}\nTanggal: ${tglCetak}`);
+    const qrHtml = await buildPrintQR(cfg, `Laporan Kas: ${judul}\nSaldo: ${fRp(saldo, false)}\nTanggal: ${tglCetak}`);
     let rowsHtml = '';
     dataKas.forEach((i,idx)=>{
         const warna = i.tipe==='masuk' ? '#10B981' : '#EF4444';
-        rowsHtml += `<tr><td style="padding:8px;border-bottom:1px solid #eee;text-align:center;">${idx+1}</td><td style="padding:8px;border-bottom:1px solid #eee;">${i.tgl}</td><td style="padding:8px;border-bottom:1px solid #eee;">${i.kegiatan||'-'}</td><td style="padding:8px;border-bottom:1px solid #eee;">${i.ket}</td><td style="padding:8px;border-bottom:1px solid #eee;text-align:center;color:${warna};font-weight:bold;">${i.tipe==='masuk'?'MASUK':'KELUAR'}</td><td style="padding:8px;border-bottom:1px solid #eee;text-align:right;">Rp ${i.nom.toLocaleString('id-ID')}</td></tr>`;
+        rowsHtml += `<tr><td style="padding:8px;border-bottom:1px solid #eee;text-align:center;">${idx+1}</td><td style="padding:8px;border-bottom:1px solid #eee;">${i.tgl}</td><td style="padding:8px;border-bottom:1px solid #eee;">${i.kegiatan||'-'}</td><td style="padding:8px;border-bottom:1px solid #eee;">${i.ket}</td><td style="padding:8px;border-bottom:1px solid #eee;text-align:center;color:${warna};font-weight:bold;">${i.tipe==='masuk'?'MASUK':'KELUAR'}</td><td style="padding:8px;border-bottom:1px solid #eee;text-align:right;">${fRp(i.nom, false)}</td></tr>`;
     });
     const html = `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Laporan Kas</title>
     <style>
@@ -11669,9 +11674,9 @@ async function cetakKasHTML() {
             <div class="tgl">Tanggal Cetak: ${tglCetak}</div>
             <table><thead><tr><th style="width:36px;">No</th><th>Tgl</th><th>Kegiatan</th><th>Keterangan</th><th style="text-align:center;">Tipe</th><th style="text-align:right;">Nominal</th></tr></thead><tbody>${rowsHtml}</tbody></table>
             <div class="summary">
-                <div>Total Pemasukan &nbsp;: <strong style="color:#10B981;">Rp ${masuk.toLocaleString('id-ID')}</strong></div>
-                <div>Total Pengeluaran : <strong style="color:#EF4444;">Rp ${keluar.toLocaleString('id-ID')}</strong></div>
-                <div style="font-size:16px;font-weight:bold;color:${saldoColor};margin-top:8px;">SALDO AKHIR: Rp ${saldo.toLocaleString('id-ID')}</div>
+                <div>Total Pemasukan &nbsp;: <strong style="color:#10B981;">${fRp(masuk, false)}</strong></div>
+                <div>Total Pengeluaran : <strong style="color:#EF4444;">${fRp(keluar, false)}</strong></div>
+                <div style="font-size:16px;font-weight:bold;color:${saldoColor};margin-top:8px;">SALDO AKHIR: ${fRp(saldo, false)}</div>
             </div>
             ${ttdHtml}
             ${qrHtml}
@@ -13279,7 +13284,7 @@ function bolehSaldoKantor() {
     return true;
 }
 function idSaldo() { return 's_' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6); }
-function rupiahSaldo(n) { const r = Math.round(n); return (r < 0 ? '-' : '') + 'Rp ' + Math.abs(r).toLocaleString('id-ID'); }
+function rupiahSaldo(n) { const r = Math.round(n); return (r < 0 ? '-' : '') + fRp(Math.abs(r), false); }
 function hariIniISO() { const d = new Date(); return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); }
 function tglSaldoTampil(iso) { try { return new Date(iso + 'T00:00:00').toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' }); } catch (e) { return iso; } }
 
@@ -13600,7 +13605,7 @@ async function catatMutasiDariPembayaran(trx, mode) {
         await idbSet(STORE_CATATAN, 'saldo_kantor', saldoKantorData);
         trx.rekIdSaldo = rek.id; savePaymentData();
         if (document.getElementById('saldoRingkasan')) renderSaldoKantor();
-        showToast(`✅ Pembayaran Rp ${(trx.nominal || 0).toLocaleString('id-ID')} berhasil, tercatat juga di ${labelRekeningSaldo(rek)}`);
+        showToast(`✅ Pembayaran ${fRp((trx.nominal || 0), false)} berhasil, tercatat juga di ${labelRekeningSaldo(rek)}`);
     } catch (e) { showToast('⚠️ Pembayaran tersimpan, tetapi gagal dicatat ke Saldo Kantor: ' + e.message); }
 }
 async function hapusMutasiDariPembayaran(trxId) {
@@ -13657,7 +13662,7 @@ async function catatMutasiDariPengeluaran(peng, mode) {
         await idbSet(STORE_CATATAN, 'saldo_kantor', saldoKantorData);
         peng.rekIdSaldo = rek.id; await savePengeluaran();
         if (document.getElementById('saldoRingkasan')) renderSaldoKantor();
-        showToast(`✅ Pengeluaran Rp ${(peng.nominal || 0).toLocaleString('id-ID')} tersimpan, tercatat keluar dari ${labelRekeningSaldo(rek)}`);
+        showToast(`✅ Pengeluaran ${fRp((peng.nominal || 0), false)} tersimpan, tercatat keluar dari ${labelRekeningSaldo(rek)}`);
     } catch (e) { showToast('⚠️ Pengeluaran tersimpan, tetapi gagal dicatat ke Saldo Kantor: ' + e.message); }
 }
 async function hapusMutasiDariPengeluaran(pengId) {
@@ -14956,7 +14961,7 @@ const PEMERIKSA_KESEHATAN = [
         return out;
     } },
     { id: 'konsorsium.cek', kelompok: 'Konsorsium', judul: 'Konsorsium dan Travel Partner', jalankan: async (ctx) => {
-        const out = [], K = 'Konsorsium', rp = n => 'Rp ' + Math.round(n).toLocaleString('id-ID');
+        const out = [], K = 'Konsorsium', rp = n => fRp(n);
         for (const p of ctx.program) {
             const slot = ctx.konfig.per_program?.[p.id];
             const d = slot?.konsorsium_estimasi_data, daftar = Array.isArray(slot?.konsorsium_list) ? slot.konsorsium_list.filter(t => t.jumlah > 0) : [];
@@ -16712,12 +16717,10 @@ function applyKonfigurasiLock() {
 }
 
 // Override data instansi untuk user gratis → selalu kembalikan "Navara"
-function injectWatermarkToPrintWin(win) {
+// Tombol Cetak/Tutup selalu mengambang di bawah layar, tidak perlu scroll sampai akhir dokumen. Aman dipanggil berulang.
+function pasangTombolMengambang(win) {
     if(!win) return;
     try {
-        // ── 1. Floating tombol Cetak/Tutup ──────────────────────────────────────
-        // Membuat tombol selalu muncul di bawah layar, tidak perlu scroll
-        // walau dokumen sangat panjang (ratusan label / halaman)
         if(!win.document.getElementById('floatingPrintBtn')) {
             const floatStyle = win.document.createElement('style');
             floatStyle.textContent = `
@@ -16743,11 +16746,19 @@ function injectWatermarkToPrintWin(win) {
                     font-weight: bold !important;
                     cursor: pointer !important;
                 }
+                @media screen { body { padding-bottom: 90px !important; } }
                 @media print { .no-print { display: none !important; } }`;
             floatStyle.id = 'floatingPrintBtn';
             if(win.document.head) win.document.head.appendChild(floatStyle);
             else if(win.document.body) win.document.body.insertBefore(floatStyle, win.document.body.firstChild);
         }
+    } catch(e) {}
+}
+function injectWatermarkToPrintWin(win) {
+    if(!win) return;
+    try {
+        // ── 1. Tombol Cetak/Tutup mengambang ──
+        pasangTombolMengambang(win);
 
         // ── 2. Watermark ────────────────────────────────────────────────────────
 
@@ -17062,7 +17073,7 @@ function renderLicenseStatus() {
                 🔒 Cuan Plan: sisa <strong>${sisaHitung}x hitung</strong>
             </div>${deviceBox}`;
         } else {
-            const exp = info.expiryDate.toLocaleDateString('id-ID');
+            const exp = formatTanggalLengkap(info.expiryDate);
             const sisaHari = Math.ceil((info.expiryDate - new Date()) / 86400000);
             card.innerHTML = `
             <div style="font-size:40px;margin-bottom:8px;">✅</div>
@@ -17089,7 +17100,7 @@ function updateLicenseSummary() {
         el.textContent = `Gratis · Cuan Plan ${sisaHitung}x hitung · watermark aktif`;
         el.style.color = sisaHitung === 0 ? '#ef4444' : '#666';
     } else {
-        const exp = info.expiryDate.toLocaleDateString('id-ID');
+        const exp = formatTanggalLengkap(info.expiryDate);
         el.textContent = `Premium ${info.packageName} · s/d ${exp}`;
         el.style.color = 'var(--primary)';
     }
@@ -17101,8 +17112,16 @@ function getUniqueCode() {
     return num.toString().padStart(3, '0');
 }
 
+// Penulisan rupiah standar seluruh aplikasi. Angka minus ditulis "-Rp 5.000". bulat=true membulatkan ke rupiah penuh;
+// bulat=false mempertahankan pecahan (mis. kurs). Teks yang sudah berformat dibiarkan apa adanya.
+function fRp(n, bulat = true) {
+    if(typeof n === 'string' && !bulat) return 'Rp ' + n;
+    n = Number(n) || 0;
+    if(bulat) n = Math.round(n);
+    return (n < 0 ? '-' : '') + 'Rp ' + Math.abs(n).toLocaleString('id-ID');
+}
 function formatRupiah(num) {
-    return 'Rp ' + num.toLocaleString('id-ID');
+    return fRp(num, false);
 }
 
 function showPaymentModal(paketNama, hargaBase) {
@@ -17415,6 +17434,7 @@ function eksporAbsensi() {
         <button onclick="window.close()" style="background:#e2e8f0;color:#333;">✕ TUTUP</button>
     </div></body></html>`;
     const win = window.open('', '_blank');
+    if(!win) return showToast('Izinkan popup untuk cetak!');
     win.document.write(applyPrintTheme(html));
     injectWatermarkToPrintWin(win);
     win.document.close();
@@ -18395,7 +18415,7 @@ function sesuaikanHargaDariDiskonMitra(jamaahId) {
     const komisi = komisiMitraDari(j.additional_fields);
     if(diskon <= 0) {
         const e = komisi > 0 ? hitungModalHargaEstimasiTerkini() : null;
-        if(e && komisi > (e.buffer || 0)) showToast(`⚠️ Komisi mitra Rp ${komisi.toLocaleString('id-ID')} melebihi Buffer ${(e.buffer||0).toLocaleString('id-ID')}: kelebihan Rp ${(komisi - (e.buffer||0)).toLocaleString('id-ID')} mengurangi laba rencana`);
+        if(e && komisi > (e.buffer || 0)) showToast(`⚠️ Komisi mitra ${fRp(komisi, false)} melebihi Buffer ${(e.buffer||0).toLocaleString('id-ID')}: kelebihan ${fRp((komisi - (e.buffer||0)), false)} mengurangi laba rencana`);
         return;
     }
 
@@ -18707,16 +18727,16 @@ function openBandingkanProgramModal() {
         <div style="background:${r.p.id === currentProgramId ? '#F0FBF6' : '#F8FAFC'};border:1px solid ${r.p.id === currentProgramId ? 'var(--primary)' : '#eee'};border-radius:10px;padding:12px;margin-bottom:8px;">
             <div style="font-weight:700;font-size:13px;color:var(--primary);margin-bottom:6px;">${PROGRAM_ICON[r.p.jenis]||'📁'} ${escapeHtml(r.p.nama)} ${r.p.id === currentProgramId ? '<span style="font-size:10px;color:var(--primary);">(aktif)</span>' : ''}</div>
             <div style="font-size:12px;color:#555;line-height:1.8;">
-                👥 ${r.jumlahJamaah} jamaah &nbsp;|&nbsp; 💰 Kontrak: Rp ${r.totalKontrak.toLocaleString('id-ID')}<br>
-                ✅ Dibayar: Rp ${r.totalDibayar.toLocaleString('id-ID')} &nbsp;|&nbsp; ⏳ Piutang: <span style="color:${r.piutang > 0 ? '#DC2626' : '#166534'};font-weight:600;">Rp ${r.piutang.toLocaleString('id-ID')}</span><br>
-                📊 Kas Masuk: Rp ${r.kasMasuk.toLocaleString('id-ID')} &nbsp;|&nbsp; Kas Keluar: Rp ${r.kasKeluar.toLocaleString('id-ID')}<br>
-                🧾 Pengeluaran: Rp ${r.totalPengeluaran.toLocaleString('id-ID')}
+                👥 ${r.jumlahJamaah} jamaah &nbsp;|&nbsp; 💰 Kontrak: ${fRp(r.totalKontrak, false)}<br>
+                ✅ Dibayar: ${fRp(r.totalDibayar, false)} &nbsp;|&nbsp; ⏳ Piutang: <span style="color:${r.piutang > 0 ? '#DC2626' : '#166534'};font-weight:600;">${fRp(r.piutang, false)}</span><br>
+                📊 Kas Masuk: ${fRp(r.kasMasuk, false)} &nbsp;|&nbsp; Kas Keluar: ${fRp(r.kasKeluar, false)}<br>
+                🧾 Pengeluaran: ${fRp(r.totalPengeluaran, false)}
             </div>
         </div>`).join('');
 
     modal.innerHTML = `<div class="modal-content" style="max-width:440px;">
         <h3 style="color:var(--primary);margin-bottom:4px;">📊 Bandingkan Performa Program</h3>
-        <button onclick="exportPerProgramExcel('bandingkan')" style="width:100%;padding:10px;background:#166534;color:#fff;border:none;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;margin-bottom:10px;">📥 Unduh Excel</button>
+        <button onclick="exportPerProgramExcel('bandingkan')" style="width:100%;padding:10px;background:#166534;color:#fff;border:none;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;margin-bottom:10px;">📥 Download Excel</button>
         <div style="font-size:11px;color:#888;margin-bottom:12px;">Diurutkan dari total kontrak terbesar</div>
         <div style="max-height:420px;overflow-y:auto;">${html || '<p style="color:#6B7280;text-align:center;">Belum ada Program</p>'}</div>
         <button onclick="document.getElementById('bandingkanProgramModal').style.display='none'" style="width:100%;padding:11px;background:#e2e8f0;color:#333;border:none;border-radius:10px;font-size:13px;cursor:pointer;margin-top:10px;">Tutup</button>
@@ -19025,11 +19045,11 @@ function cetakRekapTahunanGabungan(mode) {
         <tr>
             <td style="padding:8px;border-bottom:1px solid #eee;">${PROGRAM_ICON[r.jenis]||'📁'} ${escapeHtml(r.nama)}</td>
             <td style="padding:8px;border-bottom:1px solid #eee;text-align:center;">${r.jumlahJamaah}</td>
-            <td style="padding:8px;border-bottom:1px solid #eee;text-align:right;">Rp ${r.kontrak.toLocaleString('id-ID')}</td>
-            <td style="padding:8px;border-bottom:1px solid #eee;text-align:right;">Rp ${r.dibayar.toLocaleString('id-ID')}</td>
-            <td style="padding:8px;border-bottom:1px solid #eee;text-align:right;color:#166534;">Rp ${r.masuk.toLocaleString('id-ID')}</td>
-            <td style="padding:8px;border-bottom:1px solid #eee;text-align:right;color:#DC2626;">Rp ${r.keluar.toLocaleString('id-ID')}</td>
-            <td style="padding:8px;border-bottom:1px solid #eee;text-align:right;">Rp ${r.peng.toLocaleString('id-ID')}</td>
+            <td style="padding:8px;border-bottom:1px solid #eee;text-align:right;">${fRp(r.kontrak, false)}</td>
+            <td style="padding:8px;border-bottom:1px solid #eee;text-align:right;">${fRp(r.dibayar, false)}</td>
+            <td style="padding:8px;border-bottom:1px solid #eee;text-align:right;color:#166534;">${fRp(r.masuk, false)}</td>
+            <td style="padding:8px;border-bottom:1px solid #eee;text-align:right;color:#DC2626;">${fRp(r.keluar, false)}</td>
+            <td style="padding:8px;border-bottom:1px solid #eee;text-align:right;">${fRp(r.peng, false)}</td>
         </tr>`).join('');
 
     const html = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>Rekap Tahunan</title>
@@ -19045,11 +19065,11 @@ function cetakRekapTahunanGabungan(mode) {
     <div class="total-box">
         <div><b>TOTAL KESELURUHAN (${perProgram.length} Program)</b></div>
         <div>👥 Total Jamaah: ${totalJamaah}</div>
-        <div>💰 Total Kontrak/Omzet: Rp ${totalKontrak.toLocaleString('id-ID')}</div>
-        <div>✅ Total Dibayar: Rp ${totalDibayar.toLocaleString('id-ID')}</div>
-        <div>⏳ Total Piutang: Rp ${totalPiutang.toLocaleString('id-ID')}</div>
-        <div>📊 Kas Masuk: Rp ${totalKasMasuk.toLocaleString('id-ID')} — Kas Keluar: Rp ${totalKasKeluar.toLocaleString('id-ID')}</div>
-        <div>🧾 Total Pengeluaran: Rp ${totalPengeluaran.toLocaleString('id-ID')}</div>
+        <div>💰 Total Kontrak/Omzet: ${fRp(totalKontrak, false)}</div>
+        <div>✅ Total Dibayar: ${fRp(totalDibayar, false)}</div>
+        <div>⏳ Total Piutang: ${fRp(totalPiutang, false)}</div>
+        <div>📊 Kas Masuk: ${fRp(totalKasMasuk, false)} — Kas Keluar: ${fRp(totalKasKeluar, false)}</div>
+        <div>🧾 Total Pengeluaran: ${fRp(totalPengeluaran, false)}</div>
     </div>
     `;
     tampilkanJendelaCetak(html);
@@ -19401,7 +19421,7 @@ function waktuUpdateSeat() {
     const n = new Date();
     return n.toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }) + ' jam ' + n.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }).replace('.', ':') + ' WIB';
 }
-const fRpSeat = n => 'Rp ' + Math.round(n).toLocaleString('id-ID');
+const fRpSeat = n => fRp(n);
 // Harga ringkas hanya bila bisa ditulis persis (kelipatan Rp 1.000), tanpa pembulatan. Selain itu ditulis lengkap.
 function fRpRingkas(n) {
     n = Math.round(n);
@@ -19476,9 +19496,11 @@ function cetakUpdateSeat() {
     const d = dataUpdateSeat();
     if(!d.grup.length) return showToast('Belum ada jadwal yang bisa dicetak. Isi tanggal dan kursi dulu.');
     const html = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>Update Seat</title><style>
-        body{font-family:Arial,Helvetica,sans-serif;margin:0;padding:18px;color:#1f2937;background:#fff;}
+        body{font-family:Arial,Helvetica,sans-serif;margin:0;padding:18px 18px 90px;color:#1f2937;background:#fff;}
         @page{size:A4 portrait;margin:12mm;}
-    </style></head><body>${htmlIsiUpdateSeat(d)}</body></html>`;
+        @media print{body{padding:0;}.no-print{display:none!important;}}
+    </style></head><body>${htmlIsiUpdateSeat(d)}
+    <div class="no-print"><button onclick="window.print()" style="background:#0D5C4A;color:white;">🖨️ CETAK</button><button onclick="window.close()" style="background:#e2e8f0;color:#333;">✕ TUTUP</button></div></body></html>`;
     const win = window.open('', '_blank');
     if(!win) return showToast('Izinkan popup untuk cetak!');
     win.document.write(applyPrintTheme(html)); injectWatermarkToPrintWin(win); win.document.close();
@@ -19665,7 +19687,7 @@ function openProyeksiKasModal() {
     const html = belumLunas.map(x => `
         <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #f0f0f0;font-size:13px;">
             <span>${escapeHtml(x.nama)}</span>
-            <span style="font-weight:600;color:#DC2626;">Rp ${x.sisa.toLocaleString('id-ID')}</span>
+            <span style="font-weight:600;color:#DC2626;">${fRp(x.sisa, false)}</span>
         </div>`).join('');
 
     modal.innerHTML = `<div class="modal-content" style="max-width:420px;">
@@ -19673,7 +19695,7 @@ function openProyeksiKasModal() {
         <div style="font-size:11px;color:#888;margin-bottom:12px;">Estimasi kasar berdasarkan piutang jamaah yang belum lunas — aplikasi belum tahu jadwal pasti tiap cicilan, jadi ini bukan tanggal kepastian, cuma potensi total dana yang masih bisa masuk.</div>
         <div style="background:var(--primary);color:#fff;border-radius:10px;padding:14px;margin-bottom:14px;text-align:center;">
             <div style="font-size:11px;opacity:.8;">TOTAL POTENSI DANA MASUK</div>
-            <div style="font-size:22px;font-weight:800;">Rp ${totalPiutang.toLocaleString('id-ID')}</div>
+            <div style="font-size:22px;font-weight:800;">${fRp(totalPiutang, false)}</div>
             <div style="font-size:11px;opacity:.8;">dari ${belumLunas.length} jamaah belum lunas</div>
         </div>
         <div style="max-height:260px;overflow-y:auto;">${html || '<p style="color:#166534;text-align:center;">🎉 Semua jamaah sudah lunas!</p>'}</div>
@@ -20008,7 +20030,7 @@ function ringkasPembulatanHarga(daftarJamaah) {
 }
 function teksPembulatanHarga(r, pendek) {
     if(!r) return '';
-    const f = x => 'Rp ' + Math.round(Math.abs(x)).toLocaleString('id-ID');
+    const f = x => fRp(Math.abs(x));
     const arah = r.selisih > 0 ? 'dibulatkan naik' : 'diatur lebih rendah';
     let t = 'Harga brosur ' + arah + ' dari ' + f(r.hitung) + ' menjadi ' + f(r.harga) + ' (' + (r.selisih > 0 ? '+' : '-') + f(r.selisih) + '/pax).';
     if(r.n > 0) t += ' Dari ' + r.n + ' jamaah Quad, ' + r.atas + ' tercatat di harga brosur atau lebih, ' + r.bawah + ' di bawahnya.';
@@ -20104,7 +20126,7 @@ function ringkasModalNaik(daftarJamaah) {
 }
 function barisModalNaik(r) {
     if(!r) return [];
-    const f = x => 'Rp ' + Math.round(Math.abs(x)).toLocaleString('id-ID');
+    const f = x => fRp(Math.abs(x));
     const b = [];
     b.push('Modal per pax naik ' + f(r.dm) + ' (' + f(r.modalAwal) + ' → ' + f(r.modalSkrg) + ')' + (r.tanggal ? ' dibanding versi Estimasi ' + r.tanggal : ''));
     if(r.seragam > 0) b.push('Harga jamaah tetap ' + f(r.seragam) + (r.bulat ? ', sudah termasuk pembulatan' : ''));
@@ -20128,7 +20150,7 @@ function ringkasPengeluaranLebih(daftarJamaah, totalPengeluaran) {
 }
 function teksPengeluaranLebih(r) {
     if(!r) return '';
-    const f = x => 'Rp ' + Math.round(x).toLocaleString('id-ID');
+    const f = x => fRp(x);
     return 'Pengeluaran tercatat ' + f(r.pengeluaran) + ' sudah melebihi modal Estimasi ' + f(r.modal) + ' sebesar ' + f(r.lebih) + '. Cek apakah ada kenaikan biaya yang belum dimasukkan ke Estimasi, atau pengeluaran di luar modal jamaah. Proyeksi Laba memakai modal Estimasi, jadi bisa lebih besar dari laba sebenarnya.';
 }
 function teksJamaahEstimasi(nJam, nFoc, nTL) {
@@ -20170,7 +20192,7 @@ function renderRekapKomisiMitraModal(modalEl) {
     const slot = ensureProgramConfigSlot();
     const kebijakan = slot.kebijakan_gratis_mitra || { setiap: 15, dapat: 1 };
     const est = hitungModalHargaEstimasiTerkini();
-    const f = n => 'Rp ' + Math.round(n).toLocaleString('id-ID');
+    const f = n => fRp(n);
     const parseMoney = v => parseInt((v||'0').toString().replace(/\./g,'').replace(/[^0-9]/g,'')) || 0;
 
     // Kelompokkan jamaah berdasarkan Mitra
@@ -20255,7 +20277,7 @@ function openSimulasiKebijakanGratisModal() {
 function renderSimulasiGratisModal(setiap, dapat) {
     const modalEl = document.getElementById('simulasiGratisModal');
     if(!modalEl) return;
-    const f = n => 'Rp ' + Math.round(n).toLocaleString('id-ID');
+    const f = n => fRp(n);
     const data = getDataSimulasiGratis(dapat);
 
     let htmlHasil = '<p style="color:#DC2626;text-align:center;padding:16px;font-size:13px;">⚠️ Hitung Estimasi Program dulu (tab Estimasi) supaya simulasi bisa jalan.</p>';
@@ -20324,7 +20346,7 @@ function cetakSimulasiGratis() {
     if (!data || data.length === 0) return showToast('Hitung Estimasi Program dulu (tab Estimasi)!');
     const namaInstansi = getNamaInstansiUtama();
     const namaProgram = getCurrentProgram()?.nama || '-';
-    const f = n => 'Rp ' + Math.round(n).toLocaleString('id-ID');
+    const f = n => fRp(n);
     const kesimpulan = buatKesimpulanSimulasiGratis(data);
 
     const rowsHtml = data.map(d => `<tr style="${d.rekomendasi ? 'background:#F0FDF4;' : ''}">
@@ -20345,7 +20367,7 @@ function cetakSimulasiGratis() {
     @media print{ *{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important;} html{width:210mm;} body{background:white;padding:0;margin:0;width:210mm;} .no-print{display:none!important;} }
     </style></head><body>
     <h1>🧮 SIMULASI FOC MITRA</h1>
-    <p style="font-size:12px;color:#666;">${escapeHtml(namaInstansi)} — Program: ${escapeHtml(namaProgram)} — Dicetak: ${new Date().toLocaleDateString('id-ID')}</p>
+    <p style="font-size:12px;color:#666;">${escapeHtml(namaInstansi)} — Program: ${escapeHtml(namaProgram)} — Dicetak: ${new formatTanggalLengkap(Date())}</p>
     <table><thead><tr><th>Rasio</th><th>Status</th><th>Profit Normal</th><th>Profit dgn FOC</th><th>% dari Normal</th><th>Estimasi Dampak 1 Musim*</th></tr></thead><tbody>${rowsHtml}</tbody></table>
     <div class="kesimpulan"><b>📌 Kesimpulan:</b> ${escapeHtml(kesimpulan)}</div>
     <p style="font-size:11px;color:#888;margin-top:10px;">Rasio "X : Y" artinya: tiap X orang, Y orang dapat FOC. ✅ = rasio paling murah hati ke Mitra yang masih aman digunakan.<br>*Estimasi dampak 1 musim dihitung dari jumlah jamaah Program aktif saat ini (${jamaahList.length} orang) ÷ rasio — bukan jaminan, cuma perkiraan kasar.</p>
@@ -20393,7 +20415,7 @@ function openAntrianFollowUpModal() {
         return a.sisaHari - b.sisaHari;
     });
 
-    const f = n => 'Rp ' + Math.round(n).toLocaleString('id-ID');
+    const f = n => fRp(n);
     const html = daftar.map(x => {
         let warna = '#0EA5E9', label = '🟢 MASIH AMAN', border = '#0EA5E9';
         if(x.sisaHari !== null) {
@@ -20449,7 +20471,7 @@ function bangunTTDLaporan(cfg, tglCetak) {
 
 async function cetakLaporanPenutupanMusim(mode) {
     if(!cekIzinFitur('cetakLaporanPenutupanMusim')) return showToast('🔒 Tidak punya izin. Gunakan tombol 🔓 Minta Akses di Home.');
-    const f = n => (Math.round(n) < 0 ? '-' : '') + 'Rp ' + Math.abs(Math.round(n)).toLocaleString('id-ID');
+    const f = n => (Math.round(n) < 0 ? '-' : '') + fRp(Math.abs(Math.round(n)), false);
     const fKurang = n => (Math.round(n) > 0 ? '-' : '') + f(n); // tanda minus hanya kalau nilainya > 0, supaya tidak tampil "-Rp 0"
     const namaKBIH = getNamaInstansiUtama();
     const progNama = getCurrentProgram()?.nama || '-';
@@ -20668,7 +20690,7 @@ async function cetakLaporanPenutupanMusim(mode) {
     const semuaPiutang = [...cekPiutang.telat, ...cekPiutang.hariIni, ...cekPiutang.akanDatang];
     if(semuaPiutang.length > 0) {
         const totalPiutang = semuaPiutang.reduce((s,x) => s + x.sisa, 0);
-        const rowsPiutang = semuaPiutang.map(x => `<tr><td>${escapeHtml(x.nama)}</td><td>${new Date(x.tanggal).toLocaleDateString('id-ID')}</td><td>${f(x.sisa)}</td></tr>`).join('');
+        const rowsPiutang = semuaPiutang.map(x => `<tr><td>${escapeHtml(x.nama)}</td><td>${new formatTanggalLengkap(Date(x.tanggal))}</td><td>${f(x.sisa)}</td></tr>`).join('');
         sectionPiutang = `<div class="lap-section"><h2>💳 Sisa Piutang Belum Tertagih</h2>
             <table class="lap-table"><thead><tr><th>Nama</th><th>Jatuh Tempo</th><th>Sisa</th></tr></thead><tbody>${rowsPiutang}</tbody></table>
             <table class="lap-table"><tr class="lap-total"><td>TOTAL PIUTANG BELUM TERTAGIH</td><td>${f(totalPiutang)}</td></tr></table>
@@ -20825,7 +20847,7 @@ function exportLaporanPenutupanExcel(html, progNama, namaKBIH) {
         const v = parseInt(m[3].replace(/\./g, ''), 10);
         return (m[1] === '-' || m[2] === '-') ? -v : v;
     };
-    const hariIni = new Date().toLocaleDateString('id-ID');
+    const hariIni = new formatTanggalLengkap(Date());
     const aoa = [['LAPORAN PENUTUPAN MUSIM'], [namaKBIH || ''], ['Program', progNama], ['Dibuat', hariIni], []];
     const bagian = [];
     doc.querySelectorAll('.lap-depan .lap-section, .lap-halaman2 .lap-section').forEach(sec => {
@@ -20908,7 +20930,7 @@ function daftarCaraPakai() {
               isi: 'Buka <b>Kalender Program</b> → tab <b>Update Seat</b>. Isinya jadwal semua program Umroh dan Haji Khusus yang akan datang: tanggal, maskapai, harga, DP, dan <b>sisa seat</b> dengan lencana warna. Tidak memuat modal, profit, atau nama jamaah. Isi dulu di <b>Konfigurasi</b> (Info Keberangkatan): Tanggal, Jumlah Hari, dan lipatan <b>Info untuk Update Seat</b> (Kelompok Paket, Kota, DP, Seat Ditahan). Jumlah kursi diambil dari <b>Cuan Plan</b>, harga dari <b>Harga Seragam</b>. Program yang datanya belum lengkap tidak hilang, namanya tampil di kotak kuning beserta alasannya. Banyak jadwal? Ketuk <b>⚙️ Atur Kelompok &amp; Data Seat</b> untuk mengganti nama kelompok sekaligus dan mengisi Kelompok, Kota, DP, serta Seat Ditahan semua program di satu tempat. Pilih <b>Per Paket</b> atau <b>Per Bulan</b> untuk mengelompokkan daftar (cocok bila berangkat tiap bulan). Di dialog yang sama ada kolom <b>Catatan di bawah daftar</b> yang ikut tercetak dan terkirim. Ketuk <b>Export</b> untuk Cetak, Bagikan PDF, Bagikan Gambar, WhatsApp, atau Salin Teks. <b>Poster Harga</b>: setelah menghitung di Cuan Plan, ketuk Export → Bagikan Gambar → pilih poster Putih atau Hijau. Baris keunggulan (maks. 3) diisi di Konfigurasi, lipatan <b>Info untuk Update Seat</b>.',
               tombol: [{ t: 'Buka Kalender Program', a: () => openKalenderProgramModal(), f: 'openKalenderProgramModal' }] },
             { judul: 'Memilih bentuk laporan: PDF, Bagikan, atau Excel',
-              isi: '<b>Laporan Penutupan Musim</b> dan <b>Rekap Tahunan</b>: ketuk menunya, lalu pilih <b>Cetak / Simpan PDF</b> (lihat laporannya dulu), <b>Bagikan PDF</b> (kirim file PDF langsung), atau <b>Excel</b> (langsung mengunduh file Excel tanpa pratinjau, untuk diolah sendiri). <b>Bandingkan Program</b>: angkanya tampil di layar, dan tombol <b>Unduh Excel</b> ada di bagian atas. Di menu lain seperti Uang Kas, tombol <b>Export</b> berisi Cetak, Bagikan, Excel, dan WhatsApp. <b>Bagikan PDF</b> mengirim file PDF langsung lewat WhatsApp atau aplikasi lain. Laporan Penutupan hanya untuk satu program yang aktif, sedangkan Rekap Tahunan mencakup semua keberangkatan. <b>Bagikan Gambar</b> mengirim laporan sebagai gambar JPG, lebih cepat dibuka di WhatsApp; laporan yang panjang dipecah per halaman dan dikirim sekaligus. Pilihan bertanda <b>Internal</b> berisi data keuangan atau data pengurus, jadi pilih penerimanya dengan hati-hati. Untuk dokumen resmi atau tabel padat, PDF tetap lebih tajam.',
+              isi: '<b>Laporan Penutupan Musim</b> dan <b>Rekap Tahunan</b>: ketuk menunya, lalu pilih <b>Cetak / Simpan PDF</b> (lihat laporannya dulu), <b>Bagikan PDF</b> (kirim file PDF langsung), atau <b>Excel</b> (langsung mengunduh file Excel tanpa pratinjau, untuk diolah sendiri). <b>Bandingkan Program</b>: angkanya tampil di layar, dan tombol <b>Download Excel</b> ada di bagian atas. Di menu lain seperti Uang Kas, tombol <b>Export</b> berisi Cetak, Bagikan, Excel, dan WhatsApp. <b>Bagikan PDF</b> mengirim file PDF langsung lewat WhatsApp atau aplikasi lain. Laporan Penutupan hanya untuk satu program yang aktif, sedangkan Rekap Tahunan mencakup semua keberangkatan. <b>Bagikan Gambar</b> mengirim laporan sebagai gambar JPG, lebih cepat dibuka di WhatsApp; laporan yang panjang dipecah per halaman dan dikirim sekaligus. Pilihan bertanda <b>Internal</b> berisi data keuangan atau data pengurus, jadi pilih penerimanya dengan hati-hati. Untuk dokumen resmi atau tabel padat, PDF tetap lebih tajam.',
               tombol: [] },
             { judul: 'Backup data',
               isi: 'Data aplikasi tersimpan <b>hanya di HP ini</b>. Kalau HP hilang, rusak, atau aplikasi terhapus, data ikut hilang, dan tanpa backup tidak bisa dipulihkan. Buka <b>Backup &amp; Restore</b> → <b>Download ZIP</b>, lalu simpan file ZIP di tempat aman (misalnya kirim ke WhatsApp sendiri atau Google Drive). Lakukan setiap selesai input banyak data, dan <b>wajib sebelum mengganti versi aplikasi</b>. Fitur ini hanya untuk Admin Utama.',
@@ -20932,7 +20954,7 @@ function daftarCaraPakai() {
               tombol: [{ t: 'Buka Tukar Riyal', a: () => showPage('kalkulatorriyal'), h: 'kalkulatorriyal', f: 'kalkulatorriyal' }] },
             { judul: 'Menutup musim',
               isi: 'Setelah semua pembayaran dan pengeluaran tercatat: (1) jalankan <b>Cek Kesehatan Data</b>, (2) cetak <b>Laporan Penutupan Musim</b> atau unduh <b>Laporan Penutupan (Excel)</b>, (3) <b>Download ZIP</b> di Backup &amp; Restore. Program yang sudah diarsipkan dapat dilihat di <b>Program Arsip</b> (hanya baca).',
-              tombol: [{ t: 'Buka Cek Kesehatan Data', a: () => showPage('cekkesehatan'), h: 'cekkesehatan' }, { t: 'Buka Laporan Penutupan Musim', a: () => cetakLaporanPenutupanMusim(), f: 'cetakLaporanPenutupanMusim' }, { t: 'Unduh Laporan Penutupan (Excel)', a: () => cetakLaporanPenutupanMusim('excel'), f: 'cetakLaporanPenutupanMusim' }] }
+              tombol: [{ t: 'Buka Cek Kesehatan Data', a: () => showPage('cekkesehatan'), h: 'cekkesehatan' }, { t: 'Buka Laporan Penutupan Musim', a: () => cetakLaporanPenutupanMusim(), f: 'cetakLaporanPenutupanMusim' }, { t: 'Download Laporan Penutupan (Excel)', a: () => cetakLaporanPenutupanMusim('excel'), f: 'cetakLaporanPenutupanMusim' }] }
         ] },
         { id: 'angka', pemilik: true, judul: '📊 ARTI ANGKA DAN PERINGATAN', items: [
             { judul: 'Proyeksi Laba dan Laba Bersih', jenis: ['umroh', 'haji'],
@@ -21363,7 +21385,7 @@ function openDashboardTrenModal() {
         return a.localeCompare(b);
     });
 
-    const f = n => 'Rp ' + Math.round(n).toLocaleString('id-ID');
+    const f = n => fRp(n);
     const html = tahunList.map(tahun => {
         const d = perTahun[tahun];
         let bagianUmroh = '';
@@ -21500,7 +21522,7 @@ function openRekapKategoriModal() {
             <button onclick="toggleAllRekapKategori(true)" style="flex:1;padding:8px;background:#f0fdf4;color:#166534;border:1px solid #86efac;border-radius:8px;font-size:12px;cursor:pointer;">Pilih Semua</button>
             <button onclick="toggleAllRekapKategori(false)" style="flex:1;padding:8px;background:#fef2f2;color:#991b1b;border:1px solid #fca5a5;border-radius:8px;font-size:12px;cursor:pointer;">Batal Semua</button>
         </div>
-        <button onclick="cetakRekapKategori()" style="width:100%;padding:12px;background:#8B5CF6;color:white;border:none;border-radius:10px;font-size:14px;font-weight:bold;cursor:pointer;margin-bottom:8px;">🖨️ Cetak Rekap Terpilih</button>
+        <button onclick="bukaMenuExport('Rekap per Kategori','Kategori yang dipilih, jadi 1 lembar',{cetak:'cetakRekapKategori()',bagikan:&quot;bagikanDariCetak(()=>cetakRekapKategori(),'Rekap_Kategori')&quot;})" style="width:100%;padding:12px;background:#8B5CF6;color:white;border:none;border-radius:10px;font-size:14px;font-weight:bold;cursor:pointer;margin-bottom:8px;"><i class="fas fa-download"></i> Export Rekap Terpilih</button>
         <button onclick="document.getElementById('rekapKategoriModal').style.display='none'" style="width:100%;padding:11px;background:#e2e8f0;color:#333;border:none;border-radius:10px;font-size:13px;cursor:pointer;">Batal</button>
     </div>`;
     modal.style.display = 'flex';
@@ -21649,8 +21671,8 @@ function editDynamicFieldJamaah(idx){
                 <input type="checkbox" id="editFieldRahasia" ${f.rahasia===true?'checked':''} style="width:18px;height:18px;">
                 <label style="margin:0;">Sembunyikan di PDF Folder (Rahasia)</label>
             </div>
-            <button onclick="saveEditDynamicField(${idx})" style="width:100%;padding:10px;background:var(--primary);color:white;border:none;border-radius:8px;margin-bottom:8px;cursor:pointer;">SIMPAN</button>
-            <button onclick="document.getElementById('editFieldModalInline').remove()" style="width:100%;padding:10px;background:#ccc;border:none;border-radius:8px;cursor:pointer;">BATAL</button>
+            <button onclick="saveEditDynamicField(${idx})" style="width:100%;padding:10px;background:var(--primary);color:white;border:none;border-radius:8px;margin-bottom:8px;cursor:pointer;">Simpan</button>
+            <button onclick="document.getElementById('editFieldModalInline').remove()" style="width:100%;padding:10px;background:#ccc;border:none;border-radius:8px;cursor:pointer;">Batal</button>
         </div>`;
     document.body.appendChild(modal);
 }
@@ -22411,7 +22433,7 @@ function cetakRekapOnProses(daftar) {
         <div class="watermark-wrap">${watermarkHtml}</div>
         <div class="content">
             <h1>📋 REKAP DATA JAMAAH ON PROSES</h1>
-            <div class="sub">${namaInstansi} &nbsp;|&nbsp; ${sorted.length} jamaah &nbsp;|&nbsp; ${new Date().toLocaleDateString('id-ID')}</div>
+            <div class="sub">${namaInstansi} &nbsp;|&nbsp; ${sorted.length} jamaah &nbsp;|&nbsp; ${new formatTanggalLengkap(Date())}</div>
             <table>
                 <thead><tr>
                     <th>No</th>
@@ -22430,6 +22452,7 @@ function cetakRekapOnProses(daftar) {
     </body></html>`;
 
     const win = window.open('', '_blank');
+    if(!win) return showToast('Izinkan popup untuk cetak!');
     win.document.write(applyPrintTheme(html));
     injectWatermarkToPrintWin(win);
     win.document.close();
@@ -22831,6 +22854,7 @@ async function printGroupedPDFJamaahKita(fieldName, daftar) {
     <script>// Auto-print removed;<\/script>
     </body></html>`;
     const win = window.open("", "_blank");
+    if(!win) return showToast('Izinkan popup untuk cetak!');
     win.document.write(applyPrintTheme(html));
     injectWatermarkToPrintWin(win);
     win.document.close();
@@ -22972,8 +22996,8 @@ function editJamaahKitaDynamicField(idx) {
                     <option value="textarea" ${f.type==='textarea'?'selected':''}>Text Area</option>
                 </select>
             </div>
-            <button onclick="saveEditJamaahKitaField(${idx})" style="width:100%;padding:12px;background:var(--primary);color:white;border:none;border-radius:10px;margin-bottom:8px;cursor:pointer;font-weight:bold;">SIMPAN</button>
-            <button onclick="document.getElementById('editKitaFieldModal').remove()" style="width:100%;padding:12px;background:#e2e8f0;color:#333;border:none;border-radius:10px;cursor:pointer;">BATAL</button>
+            <button onclick="saveEditJamaahKitaField(${idx})" style="width:100%;padding:12px;background:var(--primary);color:white;border:none;border-radius:10px;margin-bottom:8px;cursor:pointer;font-weight:bold;">Simpan</button>
+            <button onclick="document.getElementById('editKitaFieldModal').remove()" style="width:100%;padding:12px;background:#e2e8f0;color:#333;border:none;border-radius:10px;cursor:pointer;">Batal</button>
         </div>`;
     document.body.appendChild(modal);
 }
@@ -23324,7 +23348,7 @@ function cetakLaporanEvaluasiRekanan() {
     @media print{ *{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important;} html{width:210mm;} body{background:white;padding:0;margin:0;width:210mm;} .no-print{display:none!important;} }
     </style></head><body>
     <h1>⭐ EVALUASI HOTEL & MASKAPAI</h1>
-    <p style="font-size:12px;color:#666;">${escapeHtml(namaInstansi)} — Dicetak: ${new Date().toLocaleDateString('id-ID')}</p>
+    <p style="font-size:12px;color:#666;">${escapeHtml(namaInstansi)} — Dicetak: ${new formatTanggalLengkap(Date())}</p>
     <table><thead><tr><th style="background:#0D5C4A;color:white;padding:8px;text-align:left;">Nama</th><th style="background:#0D5C4A;color:white;padding:8px;text-align:left;">Rating</th><th style="background:#0D5C4A;color:white;padding:8px;text-align:left;">Catatan</th><th style="background:#0D5C4A;color:white;padding:8px;text-align:left;">Program</th><th style="background:#0D5C4A;color:white;padding:8px;text-align:left;">Tanggal</th></tr></thead><tbody>${rowsHtml}</tbody></table>
     `;
     html = applyPrintTheme(html);
@@ -23369,9 +23393,9 @@ function hitungTukarRiyal() {
         <div style="border-top:1px solid #eee;margin:12px 0;"></div>
         <div style="display:flex;justify-content:space-between;align-items:center;font-size:14px;">
             <span>💵 Kembalian (Rupiah)</span>
-            <span style="font-weight:700;font-size:16px;color:${kembalian > 0 ? '#DC2626' : 'var(--primary)'};">Rp ${kembalian.toLocaleString('id-ID')}</span>
+            <span style="font-weight:700;font-size:16px;color:${kembalian > 0 ? '#DC2626' : 'var(--primary)'};">${fRp(kembalian, false)}</span>
         </div>
-        <div style="font-size:11px;color:#888;margin-top:8px;text-align:center;">Rp ${uang.toLocaleString('id-ID')} ÷ kurs Rp ${kurs.toLocaleString('id-ID')} = ${riyalMentah.toLocaleString('id-ID')} SAR${pecahanRiyalDipilih > 1 ? ` → dibulatkan ke ${riyalDidapat.toLocaleString('id-ID')} SAR (pecahan ${pecahanRiyalDipilih})` : ' (dibulatkan ke bawah)'}</div>
+        <div style="font-size:11px;color:#888;margin-top:8px;text-align:center;">${fRp(uang, false)} ÷ kurs ${fRp(kurs, false)} = ${riyalMentah.toLocaleString('id-ID')} SAR${pecahanRiyalDipilih > 1 ? ` → dibulatkan ke ${riyalDidapat.toLocaleString('id-ID')} SAR (pecahan ${pecahanRiyalDipilih})` : ' (dibulatkan ke bawah)'}</div>
         ${kembalian > 0 && riyalDidapat > 0 ? blokNominalPasRiyal(riyalDidapat, kurs) : ''}
         <div class="input-group" style="margin-top:14px;"><label>Atas Nama / Keterangan (opsional)</label><input type="text" id="keteranganRiyalInput" placeholder="Contoh: Ahmad Fauzi"></div>
         <button class="btn btn-primary" onclick="simpanTransaksiRiyal()"><i class="fas fa-save"></i> SIMPAN TRANSAKSI</button>
@@ -23382,7 +23406,7 @@ function hitungTukarRiyal() {
 function blokNominalPasRiyal(riyal, kurs) {
     const pas = riyal * kurs;
     return `<div style="margin-top:10px;background:rgba(255,255,255,.14);border-radius:10px;padding:10px;font-size:12px;">
-        Agar pas tanpa kembalian, transfer <b>Rp ${pas.toLocaleString('id-ID')}</b> (untuk ${riyal.toLocaleString('id-ID')} SAR)
+        Agar pas tanpa kembalian, transfer <b>${fRp(pas, false)}</b> (untuk ${riyal.toLocaleString('id-ID')} SAR)
         <div style="display:flex;gap:6px;margin-top:8px;">
             <button type="button" onclick="salinNominalPasRiyal(${pas})" style="flex:1;padding:7px;border:none;border-radius:8px;background:white;color:#0D5C4A;font-weight:700;font-size:12px;cursor:pointer;">Salin</button>
             <button type="button" onclick="pakaiNominalPasRiyal(${pas})" style="flex:1.3;padding:7px;border:none;border-radius:8px;background:white;color:#0D5C4A;font-weight:700;font-size:12px;cursor:pointer;">Pakai nominal ini</button>
@@ -23390,7 +23414,7 @@ function blokNominalPasRiyal(riyal, kurs) {
         </div></div>`;
 }
 function salinNominalPasRiyal(nominal) {
-    const teks = 'Rp ' + nominal.toLocaleString('id-ID');
+    const teks = fRp(nominal, false);
     try {
         if(navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(teks).then(() => showToast('Disalin: ' + teks), () => showToast(teks));
         else showToast(teks);
@@ -23543,7 +23567,7 @@ function htmlRekeningRiyalCetak() {
 function teksPesanTransferRiyal(riyal, kurs) {
     const nominal = riyal * kurs;
     const rek = getRekeningRiyalDipilih();
-    let t = `Assalamualaikum, untuk penukaran *${riyal.toLocaleString('id-ID')} SAR* (kurs Rp ${kurs.toLocaleString('id-ID')}) mohon transfer sebesar:\n\n💰 *Rp ${nominal.toLocaleString('id-ID')}*\n`;
+    let t = `Assalamualaikum, untuk penukaran *${riyal.toLocaleString('id-ID')} SAR* (kurs ${fRp(kurs, false)}) mohon transfer sebesar:\n\n💰 *${fRp(nominal, false)}*\n`;
     if(rek) t += `\n🏦 *${rek.bank}*\nNo. Rek: *${rek.nomor}*${rek.nama ? '\na.n. ' + rek.nama : ''}\n`;
     t += `\nMohon kirim bukti transfer setelah selesai. Terima kasih 🙏\n— ${getNamaInstansiUtama()}`;
     return t;
@@ -23584,7 +23608,7 @@ function siapkanHalamanRiyal() { pulihPrefRiyal(); renderRekeningRiyal(); }
 
 // ---------- Bukti tukar per transaksi (cetak & WA) ----------
 function teksBuktiTukarRiyal(t) {
-    const f = n => 'Rp ' + Math.round(n).toLocaleString('id-ID');
+    const f = n => fRp(n);
     const garis = '━━━━━━━━━━━━━━━━━━';
     return `💱 *BUKTI TUKAR RIYAL*\n*${getNamaInstansiUtama()}*\n${garis}\n` +
         `Atas nama: ${t.keterangan || '-'}\nTanggal: ${t.tanggalTampil}\n${garis}\n` +
@@ -23600,7 +23624,7 @@ function shareBuktiTukarRiyalWA(id) {
 async function cetakBuktiTukarRiyal(id) {
     const t = getRiwayatTukarRiyal().find(x => x.id === id);
     if(!t) return showToast('Transaksi tidak ditemukan');
-    const f = n => 'Rp ' + Math.round(n).toLocaleString('id-ID');
+    const f = n => fRp(n);
     const cfg = getKonfigurasiProData();
     const tgl = formatTanggalLengkap();
     const headerHtml = buildPrintHeader(cfg, tgl);
@@ -23684,8 +23708,8 @@ function renderRiwayatTukarRiyal() {
         <div style="background:#F8FAFC;border-radius:10px;padding:10px 12px;margin-bottom:8px;">
             <div style="display:flex;justify-content:space-between;align-items:flex-start;">
                 <div style="font-size:12px;">
-                    <b>${t.riyal.toLocaleString('id-ID')} SAR</b> ← Rp ${t.uang.toLocaleString('id-ID')} (kurs ${t.kurs.toLocaleString('id-ID')})<br>
-                    <span style="color:#888;">Kembalian: Rp ${t.kembalian.toLocaleString('id-ID')} · ${escapeHtml(t.tanggalTampil)}</span><br>
+                    <b>${t.riyal.toLocaleString('id-ID')} SAR</b> ← ${fRp(t.uang, false)} (kurs ${t.kurs.toLocaleString('id-ID')})<br>
+                    <span style="color:#888;">Kembalian: ${fRp(t.kembalian, false)} · ${escapeHtml(t.tanggalTampil)}</span><br>
                     <span style="color:#888;">Oleh: ${escapeHtml(t.admin)}${t.keterangan ? ' · ' + escapeHtml(t.keterangan) : ''}</span>
                 </div>
                 <div style="display:flex;gap:2px;flex-shrink:0;">
@@ -23698,7 +23722,7 @@ function renderRiwayatTukarRiyal() {
             ${(t.diedit && (t.riwayatEdit || []).length) ? (() => { const e = t.riwayatEdit[t.riwayatEdit.length - 1]; return `
             <div style="font-size:11px;color:#B45309;margin-top:4px;">✏️ diedit oleh ${escapeHtml(e.oleh)} · ${escapeHtml(e.waktu)}</div>
             <details style="font-size:11px;color:#888;margin-top:2px;"><summary style="cursor:pointer;">Lihat nilai sebelumnya</summary>
-                ${t.riwayatEdit.map(x => `<div style="margin-top:3px;">${escapeHtml(x.waktu)} · ${escapeHtml(x.oleh)}: ${x.sebelum.riyal.toLocaleString('id-ID')} SAR ← Rp ${x.sebelum.uang.toLocaleString('id-ID')} (kurs ${x.sebelum.kurs.toLocaleString('id-ID')})${x.sebelum.keterangan ? ' · ' + escapeHtml(x.sebelum.keterangan) : ''}</div>`).join('')}
+                ${t.riwayatEdit.map(x => `<div style="margin-top:3px;">${escapeHtml(x.waktu)} · ${escapeHtml(x.oleh)}: ${x.sebelum.riyal.toLocaleString('id-ID')} SAR ← ${fRp(x.sebelum.uang, false)} (kurs ${x.sebelum.kurs.toLocaleString('id-ID')})${x.sebelum.keterangan ? ' · ' + escapeHtml(x.sebelum.keterangan) : ''}</div>`).join('')}
             </details>`; })() : ''}
         </div>`).join('');
 }
@@ -23758,8 +23782,8 @@ function perbaruiHasilEditRiyal() {
     if (kurs <= 0 || uang <= 0) { el.innerHTML = '<span style="color:#DC2626;">Isi kurs dan uang dulu.</span>'; return; }
     const h = hitungHasilRiyal(kurs, uang, pecahan);
     const asli = window._editRiyalAsli || {};
-    el.innerHTML = `<b>${h.riyal.toLocaleString('id-ID')} SAR</b> · Kembalian Rp ${h.kembalian.toLocaleString('id-ID')}<br>
-        <span style="color:#888;">Sebelumnya: ${(asli.riyal || 0).toLocaleString('id-ID')} SAR · Kembalian Rp ${(asli.kembalian || 0).toLocaleString('id-ID')}</span>`;
+    el.innerHTML = `<b>${h.riyal.toLocaleString('id-ID')} SAR</b> · Kembalian ${fRp(h.kembalian, false)}<br>
+        <span style="color:#888;">Sebelumnya: ${(asli.riyal || 0).toLocaleString('id-ID')} SAR · Kembalian ${fRp((asli.kembalian || 0), false)}</span>`;
 }
 
 function simpanEditTransaksiRiyal(id) {
@@ -23782,7 +23806,7 @@ function simpanEditTransaksiRiyal(id) {
     t.riwayatEdit = [...(t.riwayatEdit || []), { waktu, oleh, sebelum }].slice(-10);
     t.kurs = kurs; t.uang = uang; t.pecahan = pecahan; t.riyal = h.riyal; t.kembalian = h.kembalian; t.keterangan = ket; t.diedit = true;
     simpanRiwayatTukarRiyalList(list);
-    catatAktivitas('✏️', `Tukar Riyal diedit: ${sebelum.riyal} SAR ← Rp ${sebelum.uang.toLocaleString('id-ID')} (kurs ${sebelum.kurs.toLocaleString('id-ID')}) menjadi ${t.riyal} SAR ← Rp ${t.uang.toLocaleString('id-ID')} (kurs ${t.kurs.toLocaleString('id-ID')})`);
+    catatAktivitas('✏️', `Tukar Riyal diedit: ${sebelum.riyal} SAR ← ${fRp(sebelum.uang, false)} (kurs ${sebelum.kurs.toLocaleString('id-ID')}) menjadi ${t.riyal} SAR ← ${fRp(t.uang, false)} (kurs ${t.kurs.toLocaleString('id-ID')})`);
     document.getElementById('editRiyalModal').style.display = 'none';
     renderRiwayatTukarRiyal();
     showToast('✅ Perubahan tersimpan');
@@ -23811,7 +23835,7 @@ function ringkasLaporanTukarRiyal(list) {
 async function cetakLaporanTukarRiyal() {
     const list = getRiwayatTukarRiyal();
     if (list.length === 0) return showToast('Belum ada transaksi untuk dicetak!');
-    const f = n => 'Rp ' + Math.round(n).toLocaleString('id-ID');
+    const f = n => fRp(n);
     const cfg = getKonfigurasiProData();
     const tgl = formatTanggalLengkap();
     const r = ringkasLaporanTukarRiyal(list);
@@ -23874,7 +23898,7 @@ async function cetakLaporanTukarRiyal() {
 function shareTukarRiyalWA() {
     const list = getRiwayatTukarRiyal();
     if (list.length === 0) return showToast('Belum ada transaksi untuk dibagikan!');
-    const f = n => 'Rp ' + Math.round(n).toLocaleString('id-ID');
+    const f = n => fRp(n);
     const namaInstansi = getNamaInstansiUtama();
     const tgl = new Date().toLocaleDateString('id-ID');
     const garis = '─'.repeat(28);
@@ -23918,7 +23942,7 @@ function hitungZakat(){
             totalHarta+=s.jumlah;
             totalZakat+=zakat;
             const namaSumber=s.nama||'Sumber';
-            detailZakat.push(`${namaSumber}: Rp ${s.jumlah.toLocaleString('id-ID')} x ${s.persen}% = Rp ${zakat.toLocaleString('id-ID')}`);
+            detailZakat.push(`${namaSumber}: ${fRp(s.jumlah, false)} x ${s.persen}% = ${fRp(zakat, false)}`);
         }
     }
     const status=totalHarta>=nisab?'WAJIB ZAKAT':'TIDAK WAJIB ZAKAT';
@@ -23969,7 +23993,7 @@ function hitungDataZakat() {
 }
 function teksLaporanZakat() {
     const d = hitungDataZakat();
-    const rp = n => 'Rp ' + Math.round(n).toLocaleString('id-ID');
+    const rp = n => fRp(n);
     let t = `*LAPORAN ZAKAT PERUSAHAAN*\n${getNamaInstansiUtama()}\nTanggal: ${formatTanggalLengkap()}\n\n`;
     t += `Jenis Zakat: ${d.jenisLabel}\nHarga Emas: ${rp(d.hargaEmas)} / gram\nNisab (85 gr): ${rp(d.nisab)}\n\n*Sumber Harta*\n`;
     d.baris.forEach((b, i) => { t += `${i + 1}. ${b.nama}: ${rp(b.jumlah)} x ${b.persen}% = ${rp(b.zakat)}\n`; });
@@ -23998,12 +24022,12 @@ async function cetakLaporanZakat() {
     const { jenisLabel, hargaEmas, nisab, baris, totalHarta, totalZakat, statusWajib, statusLabel } = hitungDataZakat();
     let rowsHtml = '';
     baris.forEach(b => {
-        rowsHtml += `<tr><td style="padding:8px;border-bottom:1px solid #eee;text-align:center;">${b.no}</td><td style="padding:8px;border-bottom:1px solid #eee;">${b.nama}</td><td style="padding:8px;border-bottom:1px solid #eee;text-align:right;">Rp ${b.jumlah.toLocaleString('id-ID')}</td><td style="padding:8px;border-bottom:1px solid #eee;text-align:center;">${b.persen}%</td><td style="padding:8px;border-bottom:1px solid #eee;text-align:right;font-weight:bold;color:#0D5C4A;">Rp ${b.zakat.toLocaleString('id-ID')}</td></tr>`;
+        rowsHtml += `<tr><td style="padding:8px;border-bottom:1px solid #eee;text-align:center;">${b.no}</td><td style="padding:8px;border-bottom:1px solid #eee;">${b.nama}</td><td style="padding:8px;border-bottom:1px solid #eee;text-align:right;">${fRp(b.jumlah, false)}</td><td style="padding:8px;border-bottom:1px solid #eee;text-align:center;">${b.persen}%</td><td style="padding:8px;border-bottom:1px solid #eee;text-align:right;font-weight:bold;color:#0D5C4A;">${fRp(b.zakat, false)}</td></tr>`;
     });
     const statusColor = statusWajib ? '#10B981' : '#EF4444';
     const headerHtml = buildPrintHeader(cfg, tgl);
     const ttdHtml = buildPrintTandaTangan(cfg, tgl, true);
-    const qrHtml = await buildPrintQR(cfg, `Laporan Zakat ${getNamaInstansiUtama()}\nTotal Zakat: Rp ${totalZakat.toLocaleString('id-ID')}\nTanggal: ${tgl}`);
+    const qrHtml = await buildPrintQR(cfg, `Laporan Zakat ${getNamaInstansiUtama()}\nTotal Zakat: ${fRp(totalZakat, false)}\nTanggal: ${tgl}`);
     const html = `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Laporan Zakat</title>
     <style>
         *{margin:0;padding:0;box-sizing:border-box;}
@@ -24028,17 +24052,17 @@ async function cetakLaporanZakat() {
         <div class="tgl">Tanggal Cetak: ${tgl}</div>
         <div class="info">
             <div><strong>Jenis Zakat &nbsp;:</strong> ${jenisLabel}</div>
-            <div><strong>Harga Emas &nbsp;:</strong> Rp ${hargaEmas.toLocaleString('id-ID')} / gram</div>
-            <div><strong>Nisab (85gr) :</strong> Rp ${nisab.toLocaleString('id-ID')}</div>
+            <div><strong>Harga Emas &nbsp;:</strong> ${fRp(hargaEmas, false)} / gram</div>
+            <div><strong>Nisab (85gr) :</strong> ${fRp(nisab, false)}</div>
         </div>
         <table>
             <thead><tr><th style="width:36px;">No</th><th>Sumber Harta</th><th style="text-align:right;">Jumlah</th><th style="text-align:center;">%</th><th style="text-align:right;">Zakat</th></tr></thead>
             <tbody>${rowsHtml}</tbody>
         </table>
         <div class="summary">
-            <div>Total Harta &nbsp;&nbsp;: <strong>Rp ${totalHarta.toLocaleString('id-ID')}</strong></div>
-            <div>Total Zakat &nbsp;&nbsp;: <strong style="color:#0D5C4A;">Rp ${totalZakat.toLocaleString('id-ID')}</strong></div>
-            <div>Harta Bersih : <strong>Rp ${(totalHarta-totalZakat).toLocaleString('id-ID')}</strong></div>
+            <div>Total Harta &nbsp;&nbsp;: <strong>${fRp(totalHarta, false)}</strong></div>
+            <div>Total Zakat &nbsp;&nbsp;: <strong style="color:#0D5C4A;">${fRp(totalZakat, false)}</strong></div>
+            <div>Harta Bersih : <strong>${fRp((totalHarta-totalZakat), false)}</strong></div>
             <div class="status">${statusLabel}</div>
         </div>
         ${ttdHtml}
@@ -24113,11 +24137,11 @@ function formatHargaInput(el) {
     const num = parseInt(el.value.replace(/\./g,'')) || 0;
     const preview = document.getElementById('previewHargaSeragam');
     if (preview) {
-        preview.textContent = num > 0 ? 'Rp ' + num.toLocaleString('id-ID') : '';
+        preview.textContent = num > 0 ? fRp(num, false) : '';
         try {
             const e = num > 0 ? hitungModalHargaEstimasiTerkini() : null;
             if (e && Math.round(e.harga) !== num) {
-                preview.innerHTML = 'Rp ' + num.toLocaleString('id-ID') + `<br><span style="color:#B45309;">⚠️ Beda dengan Harga Brosur Cuan Plan (Rp ${Math.round(e.harga).toLocaleString('id-ID')}). Selisihnya dihitung sebagai diskon pada Analisis Buffer.</span>`;
+                preview.innerHTML = fRp(num, false) + `<br><span style="color:#B45309;">⚠️ Beda dengan Harga Brosur Cuan Plan (${fRp(e.harga)}). Selisihnya dihitung sebagai diskon pada Analisis Buffer.</span>`;
             }
         } catch(err) {}
     }
@@ -24312,8 +24336,8 @@ function renderPaymentDashboard() {
     });
     document.getElementById('rekapLunasCount').innerHTML = lunasCount + ' org';
     document.getElementById('rekapBelumCount').innerHTML = belumCount + ' org';
-    document.getElementById('totalTertagih').innerHTML = 'Rp ' + formatAngka(totalTertagih);
-    document.getElementById('totalTerbayar').innerHTML = 'Rp ' + formatAngka(totalTerbayar);
+    document.getElementById('totalTertagih').innerHTML = fRp(totalTertagih, false);
+    document.getElementById('totalTerbayar').innerHTML = fRp(totalTerbayar, false);
     const persen = totalTertagih > 0 ? (totalTerbayar / totalTertagih) * 100 : 0;
     document.getElementById('persenFill').style.width = persen + '%';
     document.getElementById('persentaseText').innerHTML = persen.toFixed(1) + '%';
@@ -24341,7 +24365,7 @@ function labelDiskonJamaah(j, est) {
     if(!est || isHajiReguler() || jenisPeserta(j) === 'travel') return ''; // harga Travel Partner dari kartu travelnya, bukan diskon dari brosur
     const h = getTotalHargaPaket(j) || 0;
     if(h <= 0) return '';
-    const fR = n => 'Rp ' + Math.round(n).toLocaleString('id-ID');
+    const fR = n => fRp(n);
     const buf = est.buffer || 0;
     const rinciL = hargaPaketRinci(j, getKonfigurasiProData().harga_paket);
     const anakL = isTarifAnak(j.additional_fields);
@@ -24507,11 +24531,11 @@ function simpanPembayaran() {
     paymentTransaksiList.push(newTrx);
     savePaymentData();
     catatMutasiDariPembayaran(newTrx, window._payRekMode || 'auto');
-    catatAktivitas('💰', `Pembayaran Rp ${nominal.toLocaleString('id-ID')}${komponen ? ' (' + komponen + ')' : ''} dicatat untuk ${newTrx.nama_jamaah || 'jamaah'}`);
+    catatAktivitas('💰', `Pembayaran ${fRp(nominal, false)}${komponen ? ' (' + komponen + ')' : ''} dicatat untuk ${newTrx.nama_jamaah || 'jamaah'}`);
     closePaymentModal();
     renderPaymentDashboard();
     renderPaymentJamaahList();
-    showToast(`✅ Pembayaran Rp ${nominal.toLocaleString('id-ID')} berhasil!`);
+    showToast(`✅ Pembayaran ${fRp(nominal, false)} berhasil!`);
 }
 
 // PERBAIKAN POIN 2: INVOICE WHATSAPP
@@ -24526,7 +24550,7 @@ function prepareInvoice(idJamaah) {
     let totalHargaPaket = getTotalHargaPaket(jamaah) || 0;
     const sisa = totalHargaPaket - totalBayar;
     const garis = `━━━━━━━━━━━━━━━━━━`;
-    let text = `🏆 *INVOICE PEMBAYARAN* 🏆\n${garis}\n👤 *Nama:* ${jamaah.nama_lengkap}\n💎 *Total Paket:* ${formatRupiah(totalHargaPaket)}\n📅 *Tanggal:* ${new Date().toLocaleDateString('id-ID')}\n${garis}\n📋 *RINCIAN PEMBAYARAN:*\n`;
+    let text = `🏆 *INVOICE PEMBAYARAN* 🏆\n${garis}\n👤 *Nama:* ${jamaah.nama_lengkap}\n💎 *Total Paket:* ${formatRupiah(totalHargaPaket)}\n📅 *Tanggal:* ${new formatTanggalLengkap(Date())}\n${garis}\n📋 *RINCIAN PEMBAYARAN:*\n`;
     if (transaksiList.length === 0) text += `Belum ada pembayaran.\n`;
     else transaksiList.forEach((t, i) => {
         text += `${i+1}. ${t.tanggal} | ${t.keterangan}${t.komponen ? ' (' + t.komponen + ')' : ''}\n   💰 ${formatRupiah(t.nominal)} (${t.metode})\n`;
@@ -24858,7 +24882,7 @@ function openEditHargaModal(jamaahId) {
         let currentHarga = getTotalHargaPaket(jamaah) || 0;
         document.getElementById('editHargaValue').value = currentHarga.toLocaleString('id-ID');
         const rinciE = hargaPaketRinci(jamaah, getKonfigurasiProData().harga_paket);
-        const fRE = n => 'Rp ' + Math.round(n).toLocaleString('id-ID');
+        const fRE = n => fRp(n);
         let infoE = '';
         if (rinciE.dasar > 0) {
             infoE = rinciE.khusus > 0
@@ -24907,7 +24931,7 @@ function perbaruiEditHargaPerleng(ikutiHarga) {
     if (ikutiHarga && oto && !_ehHargaManual) document.getElementById('editHargaValue').value = oto.total.toLocaleString('id-ID');
     if (!info) return;
     if (!tidak) { info.innerHTML = ''; return; }
-    const fR = n => 'Rp ' + Math.round(n).toLocaleString('id-ID');
+    const fR = n => fRp(n);
     let est = null; try { est = getEstimasiData(); } catch(e) {}
     const modalAnakDiisi = jenisA !== '' && uangDariField(document.getElementById('editHargaModalAnak')?.value) > 0;
     const hemat = modalAnakDiisi ? 0 : (uangDariField(document.getElementById('editHargaModalHemat')?.value) || modalPerlengkapanEstimasi(est));
@@ -24930,7 +24954,7 @@ function perbaruiEditHargaAnak() {
     if (info) {
         const mb = modalBayiProgram();
         info.textContent = jenis === 'bayi'
-            ? (mb > 0 ? `Kosong = perkiraan modal bayi program ini (Rp ${mb.toLocaleString('id-ID')}). Bayi tidak memakai kursi.` : 'Kosong = modal dihitung seperti dewasa (perkiraan modal bayi belum diisi di Konfigurasi). Bayi tidak memakai kursi.')
+            ? (mb > 0 ? `Kosong = perkiraan modal bayi program ini (${fRp(mb, false)}). Bayi tidak memakai kursi.` : 'Kosong = modal dihitung seperti dewasa (perkiraan modal bayi belum diisi di Konfigurasi). Bayi tidak memakai kursi.')
             : 'Kosong = modal dihitung seperti dewasa. Anak memakai kursi.';
     }
     if (typeof perbaruiEditHargaPerleng === 'function') perbaruiEditHargaPerleng(false);
@@ -25065,7 +25089,7 @@ function renderJadwalCicilanModal(jamaahId, modalEl) {
     if(!modalEl) return;
     const j = jamaahList.find(x => x.id == jamaahId);
     if(!j) return;
-    const f = n => 'Rp ' + Math.round(n).toLocaleString('id-ID');
+    const f = n => fRp(n);
     const terminStatus = hitungStatusTerminJamaah(jamaahId);
     const totalTermin = terminStatus.reduce((s,t) => s + t.nominal, 0);
     const hargaPaket = getTotalHargaPaket(j) || 0;
@@ -25132,7 +25156,7 @@ function updateTerminCicilan(jamaahId, terminId, field, value) {
 function refreshStatusCicilanTanpaRenderUlang(jamaahId) {
     const j = jamaahList.find(x => x.id == jamaahId);
     if(!j) return;
-    const f = n => 'Rp ' + Math.round(n).toLocaleString('id-ID');
+    const f = n => fRp(n);
     const terminStatus = hitungStatusTerminJamaah(jamaahId);
     const totalTermin = terminStatus.reduce((s,t) => s + t.nominal, 0);
     const hargaPaket = getTotalHargaPaket(j) || 0;
@@ -25202,14 +25226,14 @@ function openRekapCicilanModal() {
 function renderRekapCicilanModal(modalEl) {
     modalEl = modalEl || document.getElementById('rekapCicilanModal');
     if(!modalEl) return;
-    const f = n => 'Rp ' + Math.round(n).toLocaleString('id-ID');
+    const f = n => fRp(n);
     const cek = cekPeringatanCicilanSemuaJamaah();
     const totalMasalah = cek.telat.length + cek.hariIni.length + cek.akanDatang.length;
     const totalSisaTertunggak = [...cek.telat, ...cek.hariIni, ...cek.akanDatang].reduce((s,x) => s + x.sisa, 0);
 
     const buatBaris = (list, warna) => list.map(x => `
         <div style="display:flex;justify-content:space-between;font-size:12px;padding:6px 0;border-bottom:1px dashed #e2e8f0;">
-            <span>${escapeHtml(x.nama)} <span style="color:#888;">(${new Date(x.tanggal).toLocaleDateString('id-ID')})</span></span>
+            <span>${escapeHtml(x.nama)} <span style="color:#888;">(${new formatTanggalLengkap(Date(x.tanggal))})</span></span>
             <span style="color:${warna};font-weight:700;">${f(x.sisa)}</span>
         </div>`).join('');
 
@@ -25220,19 +25244,19 @@ function renderRekapCicilanModal(modalEl) {
         ${cek.hariIni.length > 0 ? `<div style="font-weight:700;font-size:12px;color:#F59E0B;margin-top:10px;">🟡 JATUH TEMPO HARI INI (${cek.hariIni.length})</div>${buatBaris(cek.hariIni, '#F59E0B')}` : ''}
         ${cek.akanDatang.length > 0 ? `<div style="font-weight:700;font-size:12px;color:#166534;margin-top:10px;">🟢 AKAN DATANG, 3 HARI (${cek.akanDatang.length})</div>${buatBaris(cek.akanDatang, '#166534')}` : ''}
         ${totalMasalah === 0 ? '<p style="color:#166534;text-align:center;padding:16px;font-size:13px;">🎉 Semua cicilan aman, tidak ada yang perlu perhatian!</p>' : ''}
-        <button onclick="cetakRekapCicilan()" style="width:100%;padding:11px;background:#F59E0B;color:white;border:none;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;margin-top:14px;">🖨️ Cetak Rekap Cicilan</button>
+        <button onclick="bukaMenuExport('Rekap Cicilan','Cicilan yang telat, jatuh tempo, dan akan datang',{cetak:'cetakRekapCicilan()',bagikan:&quot;bagikanDariCetak(()=>cetakRekapCicilan(),'Rekap_Cicilan')&quot;})" style="width:100%;padding:11px;background:#F59E0B;color:white;border:none;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;margin-top:14px;"><i class="fas fa-download"></i> Export Rekap Cicilan</button>
         <button onclick="document.getElementById('rekapCicilanModal').style.display='none'" style="width:100%;padding:11px;background:#e2e8f0;color:#333;border:none;border-radius:10px;font-size:13px;cursor:pointer;margin-top:8px;">Tutup</button>
     </div>`;
 }
 
 function cetakRekapCicilan() {
-    const f = n => 'Rp ' + Math.round(n).toLocaleString('id-ID');
+    const f = n => fRp(n);
     const cek = cekPeringatanCicilanSemuaJamaah();
     const namaKBIH = getNamaInstansiUtama();
     const progNama = getCurrentProgram()?.nama || '-';
     const tgl = formatTanggalLengkap();
 
-    const buatTabel = (list) => list.map(x => `<tr><td>${escapeHtml(x.nama)}</td><td>${new Date(x.tanggal).toLocaleDateString('id-ID')}</td><td style="text-align:right;">${f(x.sisa)}</td></tr>`).join('') || '<tr><td colspan="3" style="color:#888;">Tidak ada</td></tr>';
+    const buatTabel = (list) => list.map(x => `<tr><td>${escapeHtml(x.nama)}</td><td>${new formatTanggalLengkap(Date(x.tanggal))}</td><td style="text-align:right;">${f(x.sisa)}</td></tr>`).join('') || '<tr><td colspan="3" style="color:#888;">Tidak ada</td></tr>';
     const totalSisaTertunggak = [...cek.telat, ...cek.hariIni, ...cek.akanDatang].reduce((s,x) => s + x.sisa, 0);
 
     const html = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>Rekap Cicilan</title>
@@ -25273,13 +25297,13 @@ function closeRiwayatModal() {
 
 async function deletePaymentTransaction(trxId) {
     const trxDihapus = paymentTransaksiList.find(t => t.id == trxId);
-    const infoTrx = trxDihapus ? `Pembayaran Rp ${(trxDihapus.nominal||0).toLocaleString('id-ID')} atas nama ${trxDihapus.nama_jamaah||'-'} akan dihapus.` : 'Transaksi pembayaran ini akan dihapus.';
+    const infoTrx = trxDihapus ? `Pembayaran ${fRp((trxDihapus.nominal||0), false)} atas nama ${trxDihapus.nama_jamaah||'-'} akan dihapus.` : 'Transaksi pembayaran ini akan dihapus.';
     if (await konfirmasiHapusPIN(infoTrx, 'Hapus Pembayaran?')) {
         const trx = paymentTransaksiList.find(t => t.id == trxId);
         paymentTransaksiList = paymentTransaksiList.filter(t => t.id != trxId);
         savePaymentData();
         hapusMutasiDariPembayaran(trxId);
-        catatAktivitas('🗑️', `Pembayaran Rp ${(trx?.nominal||0).toLocaleString('id-ID')} (${trx?.nama_jamaah||'-'}) dihapus`);
+        catatAktivitas('🗑️', `Pembayaran ${fRp((trx?.nominal||0), false)} (${trx?.nama_jamaah||'-'}) dihapus`);
         if (currentRiwayatJamaahId) openRiwayatModal(currentRiwayatJamaahId);
         renderPaymentDashboard();
         renderPaymentJamaahList();
@@ -25814,7 +25838,7 @@ function applyModeHajiReguler() {
     // 2 & 3. Tombol Kecocokan Kamar & Manifest Rooming di Jamaah
     const btnKamar = document.querySelector('button[onclick="openKecocokanKamarModal()"]');
     if(btnKamar) btnKamar.style.display = hajiReg ? 'none' : 'block';
-    const btnManifest = document.querySelector('button[onclick="cetakManifestRooming()"]');
+    const btnManifest = document.querySelector('button[data-aksi="manifestRooming"]');
     if(btnManifest) btnManifest.style.display = hajiReg ? 'none' : 'block';
 
     // 3b. (build -140) Rekap Komisi Mitra & Kebijakan FOC Mitra: hanya Umroh/Haji Khusus. Kelompok Porsi: hanya Haji (Reguler & Khusus).
@@ -25959,7 +25983,7 @@ function periksaNamaKomponenHaji() {
     const aktif = ensureKomponenHaji().filter(k => k.jenis);
     let m = document.getElementById('komponenHajiCekModal');
     if (!m) { m = document.createElement('div'); m.id = 'komponenHajiCekModal'; m.className = 'modal'; document.body.appendChild(m); }
-    const f = n => 'Rp ' + Math.round(n).toLocaleString('id-ID');
+    const f = n => fRp(n);
     const baris = yatim.map((y, i) => `<div style="border:1.5px solid #FDE68A;background:#FFFBEB;border-radius:12px;padding:12px;margin-bottom:10px;">
         <div style="font-weight:800;color:#92400E;">${escapeHtml(y.nama)}</div>
         <div style="font-size:12px;color:#78350F;margin:4px 0 8px;">${y.jamaah} jamaah punya harga khusus · ${y.bayar} pembayaran (${f(y.total)}) memakai nama ini, tapi nama itu tidak ada di daftar komponen.</div>
@@ -26500,7 +26524,7 @@ function renderLayananTambahanList() {
     const container = document.getElementById('layananTambahanListContainer');
     if(!container) return;
     const list = ensureLayananTambahan();
-    const f = n => 'Rp ' + Math.round(n).toLocaleString('id-ID');
+    const f = n => fRp(n);
     const ikonJenis = { 'Badal Haji': '🕋' };
 
     let totalProfit = 0;
@@ -27738,7 +27762,7 @@ function openIndexedDB() {
 // dengan build baru, data MENTAH (langsung dari IndexedDB, bukan dari memori) disalin dulu sebelum
 // proses migrasi apapun berjalan — supaya kalau ada kesalahan di update, data lama masih bisa dipulihkan.
 // Dokumen & foto tidak ikut disalin (ukurannya besar, dan tidak pernah disentuh proses migrasi).
-const NAVARA_BUILD = '2026.10.29-222';
+const NAVARA_BUILD = '2026.10.29-229';
 const MAKS_SNAPSHOT = 3;
 
 // ==================== DAFTAR DATA PUSAT ====================
@@ -28814,8 +28838,8 @@ function editDokumenJenis(idx) {
                     ).join('')}
                 </select>
             </div>
-            <button onclick="simpanEditJenisModal(${idx})" style="width:100%;padding:12px;background:var(--primary);color:white;border:none;border-radius:10px;margin-bottom:8px;cursor:pointer;font-weight:bold;">SIMPAN</button>
-            <button onclick="document.getElementById('editJenisModal').remove()" style="width:100%;padding:12px;background:#e2e8f0;color:#333;border:none;border-radius:10px;cursor:pointer;">BATAL</button>
+            <button onclick="simpanEditJenisModal(${idx})" style="width:100%;padding:12px;background:var(--primary);color:white;border:none;border-radius:10px;margin-bottom:8px;cursor:pointer;font-weight:bold;">Simpan</button>
+            <button onclick="document.getElementById('editJenisModal').remove()" style="width:100%;padding:12px;background:#e2e8f0;color:#333;border:none;border-radius:10px;cursor:pointer;">Batal</button>
         </div>`;
     document.body.appendChild(modal);
 }
@@ -30296,6 +30320,7 @@ function printLabelPreview() {
         return;
     }
     const printWindow = window.open('', '_blank');
+    if(!printWindow) return showToast('Izinkan popup untuk cetak!');
     const html = `<!DOCTYPE html><html><head>
         <title>Cetak Label - Navara</title>
         <meta charset="UTF-8">
@@ -30818,7 +30843,7 @@ async function generateAndShareTiketWA(jamaah) {
         if(num.length >= 10) waNumber = num;
     }
     if(!waNumber) { showToast(`${jamaah.nama_lengkap}: No WA tidak ada, dilewati`); return; }
-    const text = `🪪 *KARTU ID ${jamaah.nama_lengkap}*\n\n👤 Nama: ${jamaah.nama_lengkap}\n📦 Paket: ${jamaah.paket || '-'}\n📅 Tanggal: ${new Date().toLocaleDateString('id-ID')}\n\n#${getNamaInstansiUtama()}`;
+    const text = `🪪 *KARTU ID ${jamaah.nama_lengkap}*\n\n👤 Nama: ${jamaah.nama_lengkap}\n📦 Paket: ${jamaah.paket || '-'}\n📅 Tanggal: ${new formatTanggalLengkap(Date())}\n\n#${getNamaInstansiUtama()}`;
     window.open(`https://wa.me/${waNumber}?text=${encodeURIComponent(text)}`, '_blank');
     await new Promise(r => setTimeout(r, 1000));
 }
@@ -31859,7 +31884,7 @@ async function saveKonfigurasiPro() {
         const terkena = jamaahList.filter(j => !tanpaTagihan(j));
         const adaKhusus = terkena.filter(j => bacaHargaManualJamaah(j) > 0).length;
         const sudahBayar = terkena.filter(j => paymentTransaksiList.some(t => String(t.id_jamaah) === String(j.id))).length;
-        const fRc = n => 'Rp ' + Math.round(n).toLocaleString('id-ID');
+        const fRc = n => fRp(n);
         const teksTipeCfg = h => (h && h.perTipe ? ' (Triple ' + (h.perTipe.Triple > 0 ? fRc(h.perTipe.Triple) : 'sama') + ', Double ' + (h.perTipe.Double > 0 ? fRc(h.perTipe.Double) : 'sama') + ')' : '');
         const ok = await konfirmasi(`Ubah Harga Seragam program ini?\n\n${hargaLamaCfg.seragam ? 'Sekarang: ' + fRc(hargaLamaCfg.nominal) + teksTipeCfg(hargaLamaCfg) : 'Sekarang: tidak aktif'}\nMenjadi: ${hargaBaruCfg.seragam ? fRc(hargaBaruCfg.nominal) + teksTipeCfg(hargaBaruCfg) : 'tidak aktif'}\n\nTagihan ${terkena.length - (hargaBaruCfg.seragam ? adaKhusus : 0)} jamaah ikut berubah (${sudahBayar} di antaranya sudah ada pembayaran).${hargaBaruCfg.seragam && adaKhusus ? `\n${adaKhusus} jamaah punya Harga khusus dan tidak berubah.` : ''}\nProgram yang sudah diarsipkan tidak terpengaruh.`);
         if (!ok) { showToast('Perubahan Harga Seragam dibatalkan'); return; }
