@@ -4024,11 +4024,12 @@ https://github.com/nodeca/pako/blob/main/LICENSE
         
         <div class="card-premium">
             <div class="section-title"><span> BACKUP</span></div>
-            <div style="font-size:11px;color:#888;margin-bottom:8px;">⬇️ ZIP = lengkap termasuk foto &amp; dokumen · 📤 JSON = data teks saja, bisa dibagikan</div>
+            <div style="font-size:11px;color:#888;margin-bottom:8px;">⬇️ ZIP = lengkap termasuk foto &amp; dokumen · 📤 JSON = data teks saja, bisa dibagikan · ☁️ Kirim ZIP = ZIP lengkap langsung ke Drive lewat lembar Bagikan HP</div>
             <div class="row" style="margin-bottom:8px;">
                 <button class="btn btn-primary btn-small" onclick="downloadFullZip()" style="flex:1;font-size:12px;"><i class="fas fa-download"></i> Download ZIP</button>
                 <button class="btn btn-small" onclick="bagikanFullZip()" style="flex:1;background:#3B82F6;color:white;font-size:12px;"><i class="fas fa-share-alt"></i> Bagikan JSON</button>
             </div>
+            <button class="btn btn-small" onclick="siapkanZipUntukDikirim()" style="width:100%;margin:0 0 8px;background:#0F9D58;color:white;font-size:13px;"><i class="fab fa-google-drive"></i> Kirim ZIP ke Drive</button>
             <button class="btn btn-small" onclick="exportKonfigurasiPro()" style="width:100%;margin:0 0 8px;background:#E2E8F0;color:#333;font-size:12px;"><i class="fas fa-sliders-h"></i> Salin Pengaturan Saja (tanpa data jamaah)</button>
             <button class="btn btn-small" onclick="tampilkanCekBackup()" style="width:100%;margin:0;background:#E2E8F0;color:#333;font-size:12px;"><i class="fas fa-search"></i> Cek isi data &amp; backup terakhir</button>
         </div>
@@ -4055,12 +4056,12 @@ https://github.com/nodeca/pako/blob/main/LICENSE
                     <div class="cloud-icon"><i class="fab fa-google-drive"></i></div>
                     <div>
                         <div class="cloud-name">Google Drive</div>
-                        <div class="cloud-status" id="driveStatus"><span class="status-disconnected">Belum Terhubung</span></div>
-                        <div style="font-size:11px;color:#888;margin-top:2px;">Login Google + backup otomatis ke Drive Anda</div>
+                        <div class="cloud-status" id="driveStatus"><span class="status-disconnected">Belum tersedia</span></div>
+                        <div style="font-size:11px;color:#888;margin-top:2px;">Backup otomatis belum tersedia. Sementara, pakai tombol <b>Kirim ZIP ke Drive</b> di kartu Backup.</div>
                     </div>
                 </div>
                 <div>
-                    <button id="driveConnectBtn" class="btn-connect" onclick="showPage('googledrive')">☁️ Hubungkan</button>
+                    <button id="driveConnectBtn" class="btn-connect" disabled style="background:var(--gray-light);color:#888;cursor:default;">Segera hadir</button>
                     <button id="driveBackupBtn" class="btn-connect" style="display:none;background:var(--primary);" onclick="backupToDrive()">⬆️ Backup</button>
                     <button id="driveRestoreBtn" class="btn-connect" style="display:none;background:var(--purple);" onclick="restoreFromDrive()">⬇️ Restore</button>
                     <button id="driveDisconnectBtn" class="btn-connect" style="display:none;background:var(--gray-light);color:var(--dark);" onclick="disconnectDrive()">🔌 Putus</button>
@@ -4088,7 +4089,7 @@ https://github.com/nodeca/pako/blob/main/LICENSE
             </div>
             <div style="font-size:22px;font-weight:800;color:#1a1a1a;">Akun Google</div>
             <div style="font-size:13px;color:#666;margin-top:8px;line-height:1.6;padding:0 16px;">
-                Backup data jamaah ke Google Drive milik Anda sendiri secara otomatis.
+                Backup otomatis ke Google Drive <b>belum tersedia</b> (segera hadir). Untuk sekarang, kirim ZIP lewat tombol <b>Kirim ZIP ke Drive</b> di kartu Backup.
             </div>
         </div>
 
@@ -4112,10 +4113,10 @@ https://github.com/nodeca/pako/blob/main/LICENSE
                 <div style="display:flex;justify-content:space-between;align-items:center;">
                     <div style="flex:1;padding-right:14px;">
                         <div style="font-weight:700;font-size:14px;color:#1a1a1a;margin-bottom:4px;">Backup otomatis ke Drive</div>
-                        <div style="font-size:12px;color:#888;line-height:1.5;">Data jamaah dicadangkan otomatis setiap kali ada perubahan ke Google Drive Anda.</div>
+                        <div style="font-size:12px;color:#888;line-height:1.5;">Belum tersedia (segera hadir). Untuk sekarang, kirim ZIP lewat tombol Kirim ZIP ke Drive di kartu Backup.</div>
                     </div>
                     <label class="switch" style="flex-shrink:0;">
-                        <input type="checkbox" id="gdAutoBackupToggle" onchange="toggleGDAutoBackup(this)">
+                        <input type="checkbox" id="gdAutoBackupToggle" disabled>
                         <span class="slider"></span>
                     </label>
                 </div>
@@ -4127,7 +4128,7 @@ https://github.com/nodeca/pako/blob/main/LICENSE
                         <div style="font-size:12px;color:#888;line-height:1.5;">Tampilkan notifikasi setelah backup berhasil.</div>
                     </div>
                     <label class="switch" style="flex-shrink:0;">
-                        <input type="checkbox" id="gdNotifToggle" onchange="toggleGDNotif(this)">
+                        <input type="checkbox" id="gdNotifToggle" disabled>
                         <span class="slider"></span>
                     </label>
                 </div>
@@ -20933,7 +20934,7 @@ function daftarCaraPakai() {
               isi: '<b>Laporan Penutupan Musim</b> dan <b>Rekap Tahunan</b>: ketuk menunya, lalu pilih <b>Cetak / Simpan PDF</b> (lihat laporannya dulu), <b>Bagikan PDF</b> (kirim file PDF langsung), atau <b>Excel</b> (langsung mengunduh file Excel tanpa pratinjau, untuk diolah sendiri). <b>Bandingkan Program</b>: angkanya tampil di layar, dan tombol <b>Download Excel</b> ada di bagian atas. Di menu lain seperti Uang Kas, tombol <b>Export</b> berisi Cetak, Bagikan, Excel, dan WhatsApp. <b>Bagikan PDF</b> mengirim file PDF langsung lewat WhatsApp atau aplikasi lain. Laporan Penutupan hanya untuk satu program yang aktif, sedangkan Rekap Tahunan mencakup semua keberangkatan. <b>Bagikan Gambar</b> mengirim laporan sebagai gambar JPG, lebih cepat dibuka di WhatsApp; laporan yang panjang dipecah per halaman dan dikirim sekaligus. Pilihan bertanda <b>Internal</b> berisi data keuangan atau data pengurus, jadi pilih penerimanya dengan hati-hati. Untuk dokumen resmi atau tabel padat, PDF tetap lebih tajam.',
               tombol: [] },
             { judul: 'Backup data',
-              isi: 'Data aplikasi tersimpan <b>hanya di HP ini</b>. Kalau HP hilang, rusak, atau aplikasi terhapus, data ikut hilang, dan tanpa backup tidak bisa dipulihkan. Buka <b>Backup &amp; Restore</b> → <b>Download ZIP</b>, lalu simpan file ZIP di tempat aman (misalnya kirim ke WhatsApp sendiri atau Google Drive). Lakukan setiap selesai input banyak data, dan <b>wajib sebelum mengganti versi aplikasi</b>. Fitur ini hanya untuk Admin Utama.',
+              isi: 'Data aplikasi tersimpan <b>hanya di HP ini</b>. Kalau HP hilang, rusak, atau aplikasi terhapus, data ikut hilang, dan tanpa backup tidak bisa dipulihkan. Buka <b>Backup &amp; Restore</b> → <b>Kirim ZIP ke Drive</b>: tunggu sampai muncul <b>ZIP siap</b>, ketuk <b>Kirim ke Drive</b>, lalu pilih Drive di lembar Bagikan. File tidak perlu disimpan ke HP dulu dan tidak perlu diekstrak. Kalau HP tidak mendukung, pakai <b>Simpan ke HP</b> (sama dengan Download ZIP) lalu unggah dari aplikasi Drive. Backup otomatis ke Drive belum tersedia. Lakukan setiap selesai input banyak data, dan <b>wajib sebelum mengganti versi aplikasi</b>. Fitur ini hanya untuk Admin Utama.',
               tombol: [bukaMod('Backup & Restore', 'cloudstorage')] }
         ] },
         { id: 'khusus', judul: '🧭 KASUS KHUSUS', items: [
@@ -27762,7 +27763,7 @@ function openIndexedDB() {
 // dengan build baru, data MENTAH (langsung dari IndexedDB, bukan dari memori) disalin dulu sebelum
 // proses migrasi apapun berjalan — supaya kalau ada kesalahan di update, data lama masih bisa dipulihkan.
 // Dokumen & foto tidak ikut disalin (ukurannya besar, dan tidak pernah disentuh proses migrasi).
-const NAVARA_BUILD = '2026.10.29-229';
+const NAVARA_BUILD = '2026.10.29-230';
 const MAKS_SNAPSHOT = 3;
 
 // ==================== DAFTAR DATA PUSAT ====================
@@ -29280,6 +29281,70 @@ async function downloadFullZip() {
     } catch(e) { showToast('❌ Gagal membuat ZIP: ' + e.message); }
 }
 
+// ==================== KIRIM ZIP KE DRIVE (lewat lembar Bagikan HP) ====================
+// ZIP disusun di memori lalu diserahkan ke lembar Bagikan bawaan HP; Bapak memilih Drive dan tidak perlu menyimpan file ke HP dulu.
+// Dibuat dua langkah (siap, lalu ketuk Kirim) karena browser hanya mau membuka lembar Bagikan tepat setelah ketukan jari.
+// Bila HP atau cara membuka aplikasi tidak mendukung, tersedia Simpan ke HP seperti Download ZIP biasa.
+let _zipSiap = null;
+async function siapkanZipUntukDikirim() {
+    if(_zipSiap && _zipSiap.menyiapkan) return showToast('ZIP sedang disiapkan, mohon tunggu...');
+    _zipSiap = { menyiapkan: true };
+    showToast('⏳ Menyiapkan ZIP, mohon tunggu...');
+    try {
+        const blob = await buildFullBackupZip();
+        const nama = `Navara_Full_Backup_${new Date().toISOString().slice(0, 10)}.zip`;
+        const file = new File([blob], nama, { type: 'application/zip' });
+        let bisaBagikan = false;
+        try { bisaBagikan = !!(navigator.share && navigator.canShare && navigator.canShare({ files: [file] })); } catch(e) {}
+        _zipSiap = { blob, nama, file, bisaBagikan };
+        tampilkanZipSiap();
+    } catch(e) { _zipSiap = null; showToast('❌ Gagal membuat ZIP: ' + e.message); }
+}
+function catatZipTersimpan() {
+    try { localStorage.setItem('navara_zip_backup_ts', String(Date.now())); } catch(e) {}
+}
+function tampilkanZipSiap() {
+    const z = _zipSiap; if(!z || !z.blob) return;
+    let m = document.getElementById('zipSiapModal');
+    if(!m) { m = document.createElement('div'); m.id = 'zipSiapModal'; m.className = 'modal'; }
+    document.body.appendChild(m);
+    const gayaTombol = 'width:100%;padding:13px;border:none;border-radius:12px;font-size:14px;font-weight:700;cursor:pointer;margin-top:8px;';
+    m.innerHTML = `<div class="modal-content" style="max-width:400px;">
+        <h3 style="color:var(--primary);margin-bottom:4px;">✅ ZIP siap</h3>
+        <div style="font-size:12px;color:#64748B;line-height:1.55;">${escapeHtml(z.nama)} · ${formatUkuranMB(z.blob.size / 1048576)}<br>Berisi semua data, foto, dan dokumen. Tidak perlu diekstrak.</div>
+        ${z.bisaBagikan
+            ? `<button onclick="kirimZipSiap()" style="${gayaTombol}background:#0F9D58;color:#fff;">📤 Kirim ke Drive</button>
+               <div style="font-size:11px;color:#888;margin-top:4px;line-height:1.5;">Lembar Bagikan HP akan terbuka. Pilih <b>Drive</b>. File tidak perlu disimpan ke HP dulu.</div>`
+            : `<div style="background:#FEF3C7;color:#92400E;border-radius:10px;padding:9px 11px;font-size:12px;line-height:1.5;margin-top:10px;">HP atau cara membuka aplikasi ini belum mendukung kirim langsung. Pilih <b>Simpan ke HP</b>, lalu unggah file ZIP dari aplikasi Drive.</div>`}
+        <button onclick="simpanZipSiap()" style="${gayaTombol}background:${z.bisaBagikan ? '#E2E8F0;color:#334155' : 'var(--primary);color:#fff'};">⬇️ Simpan ke HP</button>
+        <button onclick="tutupZipSiap()" style="${gayaTombol}background:#fff;color:#64748B;border:1.5px solid #e2e8f0;">Tutup</button>
+    </div>`;
+    m.style.display = 'flex';
+}
+function tutupZipSiap() {
+    const m = document.getElementById('zipSiapModal'); if(m) m.style.display = 'none';
+    _zipSiap = null; // lepaskan memori
+}
+async function kirimZipSiap() {
+    const z = _zipSiap; if(!z || !z.file) return;
+    try {
+        await navigator.share({ files: [z.file], title: 'Backup Navara', text: 'Backup lengkap Navara - ' + z.nama });
+        catatZipTersimpan();
+        tutupZipSiap();
+        showToast('✅ ZIP dikirim. Cek di Drive bahwa unggahannya sudah selesai.');
+    } catch(e) {
+        if(e && e.name === 'AbortError') return; // dibatalkan, dialog tetap terbuka
+        showToast('❌ Gagal mengirim (' + ((e && e.name) || 'error') + '). Pakai Simpan ke HP.');
+    }
+}
+function simpanZipSiap() {
+    const z = _zipSiap; if(!z || !z.blob) return;
+    window.saveAs(z.blob, z.nama);
+    catatZipTersimpan();
+    tutupZipSiap();
+    showToast('✅ ZIP tersimpan di HP. Unggah ke Drive dari aplikasi Drive.');
+}
+
 function showRestoreJsonPasteModal() {
     if(!cekIzinAdmin('bolehReset') || !adalahAdminPenuh()) return showToast('🔒 Hanya Admin Utama yang bisa memulihkan data');
     let modal = document.getElementById('restoreJsonPasteModal');
@@ -29855,8 +29920,8 @@ function toggleGDNotif(el) {
 function initGoogleDrivePage() {
     const autoBackup = document.getElementById('gdAutoBackupToggle');
     const notif = document.getElementById('gdNotifToggle');
-    if(autoBackup) autoBackup.checked = localStorage.getItem('navara_gd_auto_backup') === '1';
-    if(notif) notif.checked = localStorage.getItem('navara_gd_notif') === '1';
+    if(autoBackup) autoBackup.checked = false; // belum tersedia, jangan tampil seolah aktif
+    if(notif) notif.checked = false;
     const lastBackup = localStorage.getItem('navara_gd_last_backup');
     const lastBackupEl = document.getElementById('gdLastBackup');
     if(lastBackupEl) lastBackupEl.textContent = lastBackup ? `Backup terakhir: ${lastBackup}` : 'Backup terakhir: belum pernah';
