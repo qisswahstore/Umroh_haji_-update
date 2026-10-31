@@ -50,7 +50,8 @@
         .cp-intro { font-size: 13px; color: var(--gray); line-height: 1.5; margin: 0 0 10px; }
         .cp-cari { width: 100%; box-sizing: border-box; padding: 11px 14px; border-radius: 12px; border: 1.5px solid #e2e8f0; font-size: 14px; font-family: inherit; background: var(--input-bg, #fff); color: var(--dark); }
         .cp-bagian { font-size: 12px; font-weight: 800; letter-spacing: .04em; color: var(--primary); margin: 18px 2px 8px; display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
-        .cp-label { font-size: 10px; font-weight: 700; background: #FEF3C7; color: #92400E; padding: 2px 8px; border-radius: 10px; letter-spacing: 0; }
+        small { font-size: max(11px, .83em); }
+        .cp-label { font-size: 11px; font-weight: 700; background: #FEF3C7; color: #92400E; padding: 2px 8px; border-radius: 10px; letter-spacing: 0; }
         .cp-kartu { background: var(--card-bg); border-radius: 16px; box-shadow: 0 2px 10px rgba(0,0,0,.07); margin-bottom: 10px; overflow: hidden; border: 1px solid rgba(0,0,0,.04); }
         .cp-judul { width: 100%; display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 14px 16px; background: none; border: none; font-family: inherit; font-size: 15px; font-weight: 800; color: var(--dark); text-align: left; cursor: pointer; min-height: 48px; }
         .cp-panah { color: var(--gray); font-size: 11px; flex-shrink: 0; transition: transform .2s; }
@@ -73,7 +74,7 @@
         /* Tampilan "Dengan keterangan": 3 kolom berbentuk kartu */
         #menuGridPremium.mode-keterangan, .semua-menu-grid.mode-keterangan { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
         #menuGridPremium.mode-keterangan .menu-tile, .semua-menu-grid.mode-keterangan .menu-tile { background: var(--card-bg); border-radius: 18px; padding: 14px 6px 12px; min-height: 124px; border: 1px solid rgba(0,0,0,0.05); box-shadow: 0 2px 8px rgba(0,0,0,0.03); }
-        .menu-tile-ket { font-size: 10.5px; color: var(--gray); text-align: center; line-height: 1.3; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+        .menu-tile-ket { font-size: 11px; color: var(--gray); text-align: center; line-height: 1.3; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
         #entryModal .input-group { margin-bottom: 12px; } #entryModal .input-group > label { display: block; margin-bottom: 6px; }
         body.dark-mode #entryAksiBar { background: #2A2A3A; }
         html.uk-besar { zoom: 1.15; } html.uk-sangat { zoom: 1.3; } html.uk-kustom { zoom: var(--uk-zoom, 1); }
@@ -542,14 +543,15 @@
         
         input, select, textarea {
             width: 100%;
-            padding: 12px 14px;
+            padding: 10px 12px;
             border: 1.5px solid #E2E8F0;
-            border-radius: 16px;
+            border-radius: 12px;
             font-size: 14px;
             font-family: inherit;
             background: white;
             transition: all 0.2s;
         }
+        .input-group > label, .dynamic-field > label { font-size: 13px; font-weight: 600; }
         input:focus, select:focus, textarea:focus {
             outline: none;
             border-color: var(--primary);
@@ -1483,12 +1485,12 @@
         }
         .dokumen-status-ada {
             color: var(--green);
-            font-size: 10px;
+            font-size: 11px;
             margin-top: 4px;
         }
         .dokumen-status-belum {
             color: var(--orange);
-            font-size: 10px;
+            font-size: 11px;
             margin-top: 4px;
         }
         .btn-upload-doc {
@@ -1933,7 +1935,7 @@ https://github.com/nodeca/pako/blob/main/LICENSE
             <div style="display:flex;align-items:center;gap:10px;overflow:hidden;">
                 <div id="programPickerDot" class="titik-program-aktif" style="width:8px;height:8px;border-radius:50%;background:#4ADE80;flex-shrink:0;box-shadow:0 0 0 3px rgba(74,222,128,.25);"></div>
                 <div style="overflow:hidden;">
-                    <div style="font-size:10.5px;text-transform:uppercase;letter-spacing:.06em;opacity:.75;font-weight:600;color:#fff;">Program Aktif</div>
+                    <div style="font-size:11px;text-transform:uppercase;letter-spacing:.06em;opacity:.75;font-weight:600;color:#fff;">Program Aktif</div>
                     <div id="programPickerName" style="font-size:14px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:#fff;">Memuat...</div>
                 </div>
             </div>
@@ -2142,6 +2144,7 @@ https://github.com/nodeca/pako/blob/main/LICENSE
             <div id="dashKasCap" style="font-size:12px;color:#6B7280;text-align:center;margin:10px 0 4px;"></div>
             <div class="chart-container" id="kasChartBox"><canvas id="kasChart"></canvas></div>
             <div id="dashLunasCap" style="font-size:13px;font-weight:700;color:var(--primary);text-align:center;margin:14px 0 4px;"></div>
+            <div id="dashBelumHarga" style="display:none;font-size:12px;font-weight:600;color:#92400E;background:#FEF3C7;border-radius:8px;padding:6px 10px;text-align:center;margin:6px 0;"></div>
             <div class="chart-container" id="payChartBox" style="max-width:280px;margin-left:auto;margin-right:auto;"><canvas id="paymentChart"></canvas></div>
             <div class="section-title"><span> PERLU DITINDAKLANJUTI</span></div>
             <div id="dashTindak" style="margin-bottom:14px;"></div>
@@ -2663,6 +2666,7 @@ https://github.com/nodeca/pako/blob/main/LICENSE
 <div id="page-kas" class="page">
     <div class="header-premium header-premium-small"><div class="back-header"><i class="fas fa-arrow-left" onclick="showPage('home')"></i><h2>Uang Kas</h2><div style="width:30px;"></div></div></div>
     <div class="card-premium">
+        <div class="summary-real" id="summaryKas" style="margin-top:0;">Saldo Akhir: Rp 0</div>
         <div class="input-group"><label>Kegiatan / Nama Rombongan</label><input type="text" id="kegiatan" value="Umroh Syawal 2026"></div>
         <div class="section-title"><span>Input Transaksi</span></div>
         <div class="input-group" style="margin-bottom:12px;"><input type="text" id="ketReal" placeholder="Keterangan detail transaksi"></div>
@@ -2670,8 +2674,7 @@ https://github.com/nodeca/pako/blob/main/LICENSE
         <div style="margin:8px 0 2px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;"><label for="tglReal" style="font-size:12px;font-weight:700;color:#64748B;">Tanggal</label><input type="date" id="tglReal" onchange="this.dataset.manual='1';perbaruiPeringatanTglKas()" style="flex:0 1 170px;padding:8px 10px;border:1.5px solid #e2e8f0;border-radius:10px;font-size:13px;font-family:inherit;"><span id="tglKasPeringatan" style="font-size:11.5px;color:#B45309;font-weight:600;"></span></div>
         <div id="kasSaldoWrap" style="display:none;margin:10px 0;background:#FFFBEB;border:1px solid #FDE68A;border-radius:10px;padding:8px 10px;font-size:12px;"></div>
         <button class="btn btn-accent" onclick="tambahTransaksi()"><i class="fas fa-plus-circle"></i> TAMBAH TRANSAKSI</button>
-        
-        <div class="summary-real" id="summaryKas">Saldo Akhir: Rp 0</div>
+
         <div class="table-container"><table id="kasTable"><thead><tr><th>Tgl</th><th>Kegiatan</th><th>Keterangan</th><th>Nominal</th><th>Aksi</th></tr></thead><tbody id="bodyKas"></tbody></table></div>
         <div id="hasilWA" class="res-card" style="display:none;"></div>
         <button class="btn-export-std" style="margin-top:10px;padding:10px 20px;" onclick="bukaExportHalaman('kas')"><i class="fas fa-download"></i> Export</button>
@@ -3080,7 +3083,7 @@ https://github.com/nodeca/pako/blob/main/LICENSE
     <div class="header-premium header-premium-small">
         <div class="back-header">
             <i class="fas fa-arrow-left" onclick="showPage('home')"></i>
-            <h2>⏳ Jamaah On Proses</h2>
+            <h2>Jamaah On Proses</h2>
             <span class="gerigi-admin" onclick="bukaGerigiAdmin('kita')" title="Pengaturan admin"><i class="fas fa-cog"></i></span>
         </div>
     </div>
@@ -3221,7 +3224,7 @@ https://github.com/nodeca/pako/blob/main/LICENSE
     <div class="header-premium header-premium-small"><div class="back-header"><i class="fas fa-arrow-left" onclick="showPage('home')"></i><h2>Pembayaran</h2><div style="width:30px;"></div></div></div>
     <div class="card-premium">
         <div class="payment-dashboard-card"><div style="font-weight:700; margin-bottom:8px;"><i class="fas fa-file-invoice-dollar"></i> Manajemen Pembayaran</div>
-        <div class="payment-stats-row"><div class="payment-stat-item"><h4> Total Uang Masuk</h4><div class="payment-value" id="paymentTotalMasuk">Rp 0</div></div><div class="payment-stat-item"><h4> Sisa Tagihan</h4><div class="payment-value" id="paymentTotalPiutang">Rp 0</div></div></div></div>
+        <div class="payment-stats-row"><div class="payment-stat-item"><h4> Total Uang Masuk</h4><div class="payment-value" id="paymentTotalMasuk">Rp 0</div></div><div class="payment-stat-item"><h4> Sisa Tagihan</h4><div class="payment-value" id="paymentTotalPiutang">Rp 0</div></div></div><div id="paymentBelumHarga" style="display:none;margin-top:10px;background:rgba(254,243,199,.95);color:#92400E;border-radius:8px;padding:8px 10px;font-size:12px;font-weight:600;text-align:left;"></div></div>
         <div class="rekap-card"><div class="rekap-title"><i class="fas fa-chart-pie"></i> REKAP PEMBAYARAN</div>
         <div class="rekap-dua-kolom"><div class="rekap-lunas"><h4><i class="fas fa-check-circle"></i> LUNAS</h4><div class="rekap-number" id="rekapLunasCount">0 org</div></div><div class="rekap-belum-lunas"><h4><i class="fas fa-clock"></i> BELUM LUNAS</h4><div class="rekap-number" id="rekapBelumCount">0 org</div></div></div>
         <div class="total-rekap"><div class="total-rekap-item"><span> Total Tertagih:</span><span class="value" id="totalTertagih">Rp 0</span></div><div class="total-rekap-item"><span> Total Terbayar:</span><span class="value" id="totalTerbayar">Rp 0</span></div><div class="persen-bar"><div class="persen-fill" id="persenFill"></div></div><div class="total-rekap-item"><span> Persentase:</span><span class="value" id="persentaseText">0%</span></div></div></div>
@@ -3579,7 +3582,7 @@ https://github.com/nodeca/pako/blob/main/LICENSE
     <div class="header-premium header-premium-small">
         <div class="back-header">
             <i class="fas fa-arrow-left" onclick="showPage('setting')"></i>
-            <h2>🔑 Lisensi</h2>
+            <h2>Lisensi</h2>
             <div style="width:30px;"></div>
         </div>
     </div>
@@ -3846,7 +3849,7 @@ https://github.com/nodeca/pako/blob/main/LICENSE
 
 <!-- E-TIKET & QR PAGE -->
 <div id="page-suratresmi" class="page">
-    <div class="header-premium header-premium-small"><div class="back-header"><i class="fas fa-arrow-left" onclick="showPage('fitur')"></i><h2>📄 Surat Resmi</h2><div style="width:30px;"></div></div></div>
+    <div class="header-premium header-premium-small"><div class="back-header"><i class="fas fa-arrow-left" onclick="showPage('fitur')"></i><h2>Surat Resmi</h2><div style="width:30px;"></div></div></div>
     <div class="container">
         <!-- Pilih Template & Jamaah -->
         <div class="card-premium">
@@ -3928,7 +3931,7 @@ https://github.com/nodeca/pako/blob/main/LICENSE
 </div>
 
 <div id="page-tiket" class="page">
-    <div class="header-premium header-premium-small"><div class="back-header"><i class="fas fa-arrow-left" onclick="showPage('fitur')"></i><h2>🎫 Penjualan Tiket</h2><div style="width:30px;"></div></div></div>
+    <div class="header-premium header-premium-small"><div class="back-header"><i class="fas fa-arrow-left" onclick="showPage('fitur')"></i><h2>Penjualan Tiket</h2><div style="width:30px;"></div></div></div>
     <div class="container" style="padding:0 16px 28px;">
         <div class="card-premium" style="margin:14px 0 12px;">
             <div style="font-size:11px;color:#888;margin-bottom:10px;">Catatan jual-beli tiket pesawat untuk pelanggan umum maupun jamaah: harga beli, harga jual, pembayaran, dan laporan. Aplikasi ini mencatat, bukan penerbit tiket.</div>
@@ -3938,7 +3941,7 @@ https://github.com/nodeca/pako/blob/main/LICENSE
                 <button type="button" class="btn btn-small" style="background:#1d4ed8;color:#fff;margin:0;" onclick="bukaLaporanTiket()">📊 Laporan</button>
             </div>
         </div>
-        <div class="card-premium">
+        <div class="card-premium" style="margin:0 0 12px;">
             <input type="search" id="tiketCari" placeholder="🔍 Cari nama, PNR, kode, rute..." oninput="renderDaftarTiket()" style="width:100%;padding:10px;border-radius:8px;border:1px solid #ddd;background:var(--input-bg);color:var(--text);font-size:13px;margin-bottom:8px;">
             <div id="tiketFilter" style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px;"></div>
             <div id="tiketList"></div>
@@ -5122,6 +5125,7 @@ function updateHomeDashboardExtra(totalJamaah, lunasCount, totalPiutang, komposi
 // Per jamaah: diskon lewat harga = max(0, Harga Brosur - Total Paket); komisi mitra = Diskon Tersedia bila Status "Diberikan ke Mitra".
 // Diskon dihitung lebih dulu terhadap buffer, sisa kelebihannya baru dari komisi. Tidak mengubah rumus laba/harga apa pun.
 function uangDariField(v) {
+    if (/^\s*-/.test(String(v == null ? '' : v))) return 0; // angka minus tidak pernah dianggap diskon/komisi positif; Cek Kesehatan menandainya
     return parseInt(String(v || '0').replace(/[^0-9]/g, ''), 10) || 0;
 }
 // Dua kolom terpisah: "Diskon untuk Jamaah" (menurunkan harga) dan "Komisi Mitra" (uang untuk mitra). Boleh diisi salah satu atau keduanya.
@@ -7003,6 +7007,7 @@ function renderDashboard() {
       document.getElementById('dashKasCap').textContent = adaMasuk ? 'Pemasukan kas per bulan' : 'Belum ada pemasukan kas yang tercatat.';
       document.getElementById('kasChartBox').style.display = adaMasuk ? '' : 'none';
       document.getElementById('dashLunasCap').textContent = nCad ? `Pelunasan: ${lunasCount} dari ${nCad} jamaah lunas (${Math.round(lunasCount / nCad * 100)}%)` : '';
+      { const nbh = jumlahJamaahBelumHarga(jamaahList), el = document.getElementById('dashBelumHarga'); if (el) { el.style.display = nbh ? 'block' : 'none'; el.textContent = nbh ? '⚠️ ' + nbh + ' jamaah belum diisi harga paketnya, belum masuk hitungan Sisa Tagihan dan Pelunasan.' : ''; } }
       document.getElementById('dashCadNote').textContent = cadAll ? `+${cadAll} cadangan (tidak dihitung)` : ''; }
     const ctx = document.getElementById('kasChart').getContext('2d');
     if (kasChart) kasChart.destroy();
@@ -12734,7 +12739,7 @@ function previewSurat(gulir) {
             let st = {};
             try { st = getStatusPembayaran(jamaah) || {}; } catch (e) {}
             if (st.needInput) msg = '⚠️ Harga paket jamaah ini belum diisi, jadi status lunas belum bisa dipastikan. Jangan dicetak sebelum diperiksa.';
-            else if (st.status !== 'LUNAS' && !st.tanpaTagihan) msg = '⚠️ Jamaah ini BELUM LUNAS (sisa Rp ' + formatAngka(st.sisa || 0) + '). Surat pelunasan tidak sesuai kenyataan jika dicetak sekarang.';
+            else if (st.status !== 'LUNAS' && !st.tanpaTagihan && !st.gratisDiskon) msg = '⚠️ Jamaah ini BELUM LUNAS (sisa Rp ' + formatAngka(st.sisa || 0) + '). Surat pelunasan tidak sesuai kenyataan jika dicetak sekarang.';
         } else if (templateKey === 'undangan_manasik' && vars.tgl_manasik.indexOf('belum ada') >= 0) {
             msg = '⚠️ Belum ada jadwal manasik yang akan datang. Isi dulu di menu Manasik, atau ubah tanggalnya langsung di isi surat.';
         }
@@ -13940,7 +13945,7 @@ function renderSaldoKantor() {
         return `<div class="card-premium" style="margin:0 0 12px;">
             <div style="display:flex;justify-content:space-between;align-items:baseline;gap:8px;margin-bottom:6px;">
                 <div style="font-weight:700;font-size:14px;min-width:0;">${escapeHtml(e.nama)}</div>
-                <div style="text-align:right;"><div style="font-size:10.5px;color:#888;">${rekTitip.length ? 'Uang kantor' : 'Total entitas'}</div><div style="font-weight:700;font-size:16px;color:${total < 0 ? '#DC2626' : '#15803d'};">${rupiahSaldo(total)}</div></div>
+                <div style="text-align:right;"><div style="font-size:11px;color:#888;">${rekTitip.length ? 'Uang kantor' : 'Total entitas'}</div><div style="font-weight:700;font-size:16px;color:${total < 0 ? '#DC2626' : '#15803d'};">${rupiahSaldo(total)}</div></div>
             </div>
             ${infoExtra}<div style="font-size:12px;border-top:0.5px solid #eef2f1;">${baris || (rekTitip.length ? '<div style="padding:10px 0;color:#888;">Belum ada rekening kantor.</div>' : '<div style="padding:10px 0;color:#888;">Belum ada rekening. Tambahkan kas tunai atau rekening bank.</div>')}</div>${barisTitip}
             <button type="button" onclick="bukaFormRekeningSaldo('', '${e.id}')" style="margin-top:8px;width:100%;padding:9px;border:1.5px dashed #cbd5e1;background:#fff;border-radius:10px;font-size:12px;font-weight:600;color:#475569;cursor:pointer;">+ Tambah rekening / kas tunai</button>
@@ -15405,13 +15410,29 @@ const PEMERIKSA_KESEHATAN = [
             const tambah = (kunci, tingkat, judul, uraian, saran, daftar) => { if (!daftar.length) return; daftar.forEach(x => bermasalah.add(x.split(' · ')[0])); out.push(T(kunci + ':' + p.id, 'Jamaah', tingkat, judul + tag, uraian, saran, daftar, { label: 'Buka Database Jamaah', halaman: 'jamaah' })); };
             tambah('jamaah.nama_kosong', 'serius', 'Jamaah tanpa nama', 'Data tanpa nama tidak bisa dipakai untuk dokumen atau tiket.', 'Isi namanya di Database Jamaah.', list.filter(j => !(j.nama_lengkap || '').trim()).map(j => '(tanpa nama) · id ' + j.id));
             if (adaField('nik')) tambah('jamaah.nik_salah', 'serius', 'NIK bukan 16 digit', 'NIK harus 16 digit angka. Salah ketik akan menggagalkan dokumen dan visa.', 'Periksa dengan KTP lalu perbaiki.', list.filter(j => { const v = String(af(j).nik || '').trim(); return v && !/^\d{16}$/.test(v); }).map(label));
-            if (adaField('tgl_lahir')) tambah('jamaah.tgl_lahir_salah', 'serius', 'Tanggal lahir tidak masuk akal', 'Tanggal lahir di masa depan atau usia lebih dari 110 tahun hampir pasti salah ketik.', 'Periksa dengan KTP atau paspor.', list.filter(j => { const v = af(j).tgl_lahir; if (!v) return false; const t = parseTglCek(v); if (!t) return true; return t > hari || (hari.getFullYear() - t.getFullYear()) > 110; }).map(label));
+            if (adaField('tgl_lahir')) tambah('jamaah.tgl_lahir_salah', 'serius', 'Tanggal lahir tidak masuk akal', 'Tanggal lahir di masa depan atau usia lebih dari 110 tahun hampir pasti salah ketik.', 'Periksa dengan KTP atau paspor.', list.filter(j => { const v = af(j).tgl_lahir; if (!v) return false; const t = parseTglCek(v); if (!t) return true; return t >= hari || (hari.getFullYear() - t.getFullYear()) > 110; }).map(label));
             // ganda
             const kelompokNilai = (nm) => { const m = {}; list.forEach(j => { const v = String(af(j)[nm] || '').trim().toLowerCase(); if (v) (m[v] = m[v] || []).push(label(j)); }); return Object.values(m).filter(a => a.length > 1).map(a => a.join(' = ')); };
             if (adaField('nik')) tambah('jamaah.nik_ganda', 'serius', 'NIK yang sama dipakai lebih dari satu jamaah', 'Biasanya jamaah yang terdaftar dua kali, atau salah ketik.', 'Gabungkan atau perbaiki salah satunya.', kelompokNilai('nik'));
             if (adaField('no_paspor')) tambah('jamaah.paspor_ganda', 'serius', 'Nomor paspor yang sama dipakai lebih dari satu jamaah', 'Satu paspor tidak mungkin milik dua orang.', 'Gabungkan atau perbaiki salah satunya.', kelompokNilai('no_paspor'));
             const mirip = {}; list.forEach(j => { const k = (j.nama_lengkap || '').trim().toLowerCase().replace(/\s+/g, ' ') + '|' + (af(j).tgl_lahir || ''); if (k.length > 2 && af(j).tgl_lahir) (mirip[k] = mirip[k] || []).push(label(j)); });
             tambah('jamaah.mirip', 'perhatian', 'Nama dan tanggal lahir sama (kemungkinan ganda)', 'Bisa jadi orang yang sama terdaftar dua kali.', 'Periksa; abaikan temuan ini bila memang dua orang berbeda.', Object.values(mirip).filter(a => a.length > 1).map(a => a.join(' = ')));
+            // ===== Perbaikan data (Build 271): hanya penanda, tidak mengubah data =====
+            const cfgP = (konfigurasiPro.per_program && konfigurasiPro.per_program[p.id] && konfigurasiPro.per_program[p.id].harga_paket) || konfigurasiPro.harga_paket || { seragam: false, nominal: 0 };
+            const kolomUang = ['diskon_jamaah', 'komisi_mitra', 'potongan_perlengkapan'].filter(adaField);
+            if (kolomUang.length) tambah('jamaah.uang_tidak_terbaca', 'perhatian', 'Isian uang berisi huruf atau tanda minus', 'Angka minus dan teks tidak dihitung (dianggap 0). Pastikan nominal yang dimaksud benar.', 'Perbaiki isian uangnya di Database Jamaah.', list.filter(j => kolomUang.some(k => { const v = String(af(j)[k] ?? '').trim(); return v && !/^[\d.]+$/.test(v); })).map(j => label(j) + ' · ' + kolomUang.map(k => { const v = String(af(j)[k] ?? '').trim(); return v && !/^[\d.]+$/.test(v) ? v : ''; }).filter(Boolean).join(', ')));
+            if (adaField('diskon_jamaah') && cfgP.seragam) tambah('jamaah.diskon_penuh', 'perhatian', 'Diskon sama atau lebih besar dari harga paket (jamaah jadi gratis)', 'Harga paket jamaah ini menjadi Rp 0. Bila memang disengaja (jamaah khusus) abaikan temuan ini.', 'Periksa diskonnya; bila bukan jamaah gratis, perbaiki nominalnya.', list.filter(j => diskonPenuhJamaah(j, cfgP)).map(j => label(j) + ' · diskon ' + rupiahSaldo(diskonUntukJamaah(af(j)))));
+            if (adaField('kk')) tambah('jamaah.kk_salah', 'perhatian', 'No. KK bukan 16 digit', 'Nomor KK harus 16 digit angka.', 'Periksa dengan Kartu Keluarga.', list.filter(j => { const v = String(af(j).kk || '').trim(); return v && !/^\d{16}$/.test(v); }).map(label));
+            if (adaField('jenis_kelamin')) tambah('jamaah.jk_salah', 'perhatian', 'Jenis kelamin bukan L atau P', 'Pembagian kamar, mahram, dan laporan memakai L atau P.', 'Isi dengan L atau P.', list.filter(j => { const v = String(af(j).jenis_kelamin || '').trim(); return v && !/^[LP]$/.test(v); }).map(j => label(j) + ' · "' + String(af(j).jenis_kelamin).trim() + '"'));
+            if (adaField('no_porsi')) {
+                tambah('jamaah.porsi_salah', 'perhatian', 'Nomor porsi bukan 10 digit angka', 'Nomor porsi haji terdiri dari 10 digit angka.', 'Periksa dengan bukti setoran awal.', list.filter(j => { const v = String(af(j).no_porsi || '').trim(); return v && !/^\d{10}$/.test(v); }).map(label));
+                tambah('jamaah.porsi_ganda', 'serius', 'Nomor porsi yang sama dipakai lebih dari satu jamaah', 'Satu nomor porsi tidak mungkin milik dua orang.', 'Gabungkan atau perbaiki salah satunya.', kelompokNilai('no_porsi'));
+            }
+            tambah('jamaah.nama_aneh', 'perhatian', 'Nama berupa angka atau hanya satu huruf', 'Biasanya salah isi kolom.', 'Periksa nama jamaah.', list.filter(j => { const n = (j.nama_lengkap || '').trim(); return n && (/^[\d\s.,-]+$/.test(n) || n.length < 2); }).map(label));
+            tambah('jamaah.nama_sama', 'perhatian', 'Nama persis sama dipakai lebih dari satu jamaah', 'Bisa jamaah yang terdaftar dua kali, atau memang dua orang bernama sama.', 'Periksa; abaikan bila memang dua orang berbeda.', (() => { const m = {}; list.forEach(j => { const k = (j.nama_lengkap || '').trim().toLowerCase().replace(/\s+/g, ' '); if (k) (m[k] = m[k] || []).push(label(j)); }); return Object.values(m).filter(a => a.length > 1).map(a => a[0] + ' (' + a.length + ' kali)'); })());
+            ctx.fieldJamaah.filter(f => f.type === 'dropdown' && ['tarif_anak', 'perlengkapan', 'status_proses'].includes(f.name) && (f.options || []).length).forEach(f => {
+                tambah('jamaah.pilihan_asing_' + f.name, 'perhatian', `${f.label || f.name}: isian di luar pilihan`, 'Isian ini tidak dikenali oleh pilihan yang ada, sehingga bisa tidak ikut terhitung di harga atau laporan.', 'Pilih ulang dari daftar pilihan.', list.filter(j => { const v = String(af(j)[f.name] ?? '').trim(); return v && !f.options.includes(v); }).map(j => label(j) + ' · "' + String(af(j)[f.name]).trim() + '"'));
+            });
             // paspor & meningitis (aturan sama dengan kartu peringatan di Home)
             const cekKadaluarsa = (nm, bulan, kunci, judul, ket) => {
                 if (!adaField(nm)) return; const acuan = berangkat || hari, batas = new Date(acuan); batas.setMonth(batas.getMonth() + bulan);
@@ -19676,6 +19697,7 @@ const EXPORT_HALAMAN = {
     rekapaktual: { judul: 'Rekap Aktual', ket: 'Program yang sedang aktif', opsi: { cetak: [{ aksi: 'cetakRekapAktual()', sub: 'Rekap', ket: 'Rekap ringkas. Lihat dulu, lalu cetak atau simpan PDF' }, { aksi: "cetakLaporanGabungan('semua')", gabungan: true, sub: 'Lengkap', ket: 'Rekap + daftar pengeluaran dalam satu laporan. Lihat dulu, lalu cetak atau simpan PDF' }], wa: 'shareRekapAktual()' } },
     zakat: { judul: 'Laporan Zakat', ket: '', opsi: { cetak: 'cetakLaporanZakat()', bagikan: "bagikanDariCetak(()=>cetakLaporanZakat(),'Laporan_Zakat')", wa: 'shareZakatWA()', salin: 'salinZakat()' } },
     evaluasi: { judul: 'Evaluasi Hotel & Maskapai', ket: '', opsi: { cetak: 'cetakLaporanEvaluasiRekanan()', bagikan: "bagikanDariCetak(()=>cetakLaporanEvaluasiRekanan(),'Evaluasi_Hotel_Maskapai')", wa: 'shareEvaluasiRekananWA()', salin: 'salinEvaluasiRekanan()' } },
+    penjualantiket: { judul: 'Laporan Penjualan Tiket', ket: 'Sesuai periode yang dipilih', opsi: { cetak: 'cetakLaporanTiket()', bagikan: "bagikanDariCetak(()=>cetakLaporanTiket(),'Laporan_Penjualan_Tiket')", excel: 'exportTiketExcel()', wa: 'bagikanLaporanTiketWA()' } },
     surat: { judul: 'Surat', ket: '', opsi: { cetak: 'cetakSurat()', bagikan: "bagikanDariCetak(()=>cetakSurat(),'Surat')" } },
     penutupan: { judul: 'Laporan Penutupan Musim', ket: 'Program yang sedang aktif', izin: 'cetakLaporanPenutupanMusim', opsi: { cetak: 'cetakLaporanPenutupanMusim()', bagikan: "bagikanDariCetak(()=>cetakLaporanPenutupanMusim(),'Laporan_Penutupan_Musim')", excel: "cetakLaporanPenutupanMusim('excel')" } },
     rekap: { judul: 'Rekap Tahunan', ket: 'Semua keberangkatan', izin: 'cetakRekapTahunanGabungan', opsi: { cetak: 'cetakRekapTahunanGabungan()', bagikan: "bagikanDariCetak(()=>cetakRekapTahunanGabungan(),'Rekap_Tahunan')", excel: "exportPerProgramExcel('tahunan')" } }
@@ -20599,11 +20621,11 @@ function renderRingkasanTiket() {
         if (x.status !== 'batal' || k.bayarP || k.bayarS) { piutang += k.sisaPelanggan; utang += k.sisaPemasok; }
     });
     const m = tiketMendesak();
-    const kotak = (j, v, w) => `<div style="background:var(--bg);border-radius:10px;padding:10px;"><div style="font-size:10.5px;color:#888;">${j}</div><div style="font-weight:800;font-size:14px;color:${w};">${fRp(v)}</div></div>`;
+    const kotak = (j, v, w) => `<div style="background:var(--bg);border-radius:10px;padding:10px;"><div style="font-size:11px;color:#888;">${j}</div><div style="font-weight:800;font-size:14px;color:${w};">${fRp(v)}</div></div>`;
     box.innerHTML = `${m.length ? `<div style="background:#fef2f2;border-left:4px solid #dc2626;border-radius:8px;padding:8px 10px;font-size:12px;color:#991b1b;margin-bottom:10px;">⏳ <b>${m.length} booking</b> time limit-nya kurang dari 24 jam atau sudah lewat. Segera terbitkan atau batalkan.</div>` : ''}
     <div style="font-size:11px;color:#888;margin-bottom:6px;">Bulan ini (tidak termasuk booking yang belum terbit)</div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">${kotak('Penjualan', jual, 'var(--primary)')}${kotak('Margin', margin, margin >= 0 ? '#059669' : '#dc2626')}${kotak('Piutang pelanggan', piutang, '#d97706')}${kotak('Utang ke pemasok', utang, '#dc2626')}</div>
-    <div style="font-size:10.5px;color:#888;margin-top:6px;">Piutang dan utang dihitung dari semua pesanan, bukan hanya bulan ini.</div>`;
+    <div style="font-size:11px;color:#888;margin-top:6px;">Piutang dan utang dihitung dari semua pesanan, bukan hanya bulan ini.</div>`;
 }
 function renderDaftarTiket() {
     const box = document.getElementById('tiketList'), fl = document.getElementById('tiketFilter'); if (!box) return;
@@ -20625,7 +20647,7 @@ function renderDaftarTiket() {
         return `<div onclick="bukaDetailTiket('${x.id}')" style="border:1px solid #e2e8f0;border-radius:12px;padding:10px 12px;margin-bottom:8px;cursor:pointer;">
             <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;"><b style="font-size:13px;">${escapeHtml(x.pelanggan || '-')}</b><span style="font-size:10px;font-weight:700;color:#fff;background:${st.w};padding:2px 8px;border-radius:10px;">${st.t}</span></div>
             <div style="font-size:12px;color:#555;margin-top:2px;">✈ ${escapeHtml([tkRute(x), x.maskapai, x.tglBerangkat ? tkTgl(x.tglBerangkat) : ''].filter(Boolean).join(' · '))}</div>
-            <div style="font-size:10.5px;color:#888;">${escapeHtml(x.kode)} · ${(x.penumpang || []).length} penumpang${x.pnr ? ' · PNR ' + escapeHtml(x.pnr) : ''}</div>
+            <div style="font-size:11px;color:#888;">${escapeHtml(x.kode)} · ${(x.penumpang || []).length} penumpang${x.pnr ? ' · PNR ' + escapeHtml(x.pnr) : ''}</div>
             ${sw ? `<div style="font-size:11px;font-weight:700;color:${sw.w};margin-top:3px;">⏳ ${sw.t}</div>` : ''}
             <div style="display:flex;justify-content:space-between;font-size:11.5px;margin-top:5px;"><span>Jual <b>${fRp(k.pendapatan)}</b></span><span style="color:${k.margin >= 0 ? '#059669' : '#dc2626'};">Margin <b>${fRp(k.margin)}</b></span>${k.sisaPelanggan > 0 && x.status !== 'booking' ? `<span style="color:#d97706;">Sisa <b>${fRp(k.sisaPelanggan)}</b></span>` : ''}</div></div>`;
     }).join('') + (daftar.length > 60 ? `<div style="text-align:center;font-size:11px;color:#888;">Menampilkan 60 dari ${daftar.length}. Gunakan pencarian.</div>` : '');
@@ -20775,7 +20797,7 @@ function bukaBayarTiket(id, jenis) {
         <div class="input-group"><label style="font-size:12px;">Tanggal</label><input type="date" id="tkByrTgl" value="${tglHariIniIso()}"></div>
         <div class="input-group"><label style="font-size:12px;">Lewat rekening / keterangan</label><input type="text" id="tkByrKet" placeholder="mis. BCA kantor, tunai, transfer"></div>
         <div style="display:flex;gap:8px;"><button class="btn btn-primary" onclick="simpanBayarTiket('${id}','${jenis}')" style="flex:1;">Simpan</button><button class="btn" onclick="tkTutup('tiketBayarModal')" style="flex:1;background:#e2e8f0;color:#333;">Batal</button></div>
-        <div style="font-size:10.5px;color:#888;margin-top:8px;">Ini hanya catatan di Penjualan Tiket. Saldo di menu Saldo Kantor tidak berubah otomatis.</div></div>`;
+        <div style="font-size:11px;color:#888;margin-top:8px;">Ini hanya catatan di Penjualan Tiket. Saldo di menu Saldo Kantor tidak berubah otomatis.</div></div>`;
     m.style.display = 'flex';
 }
 async function simpanBayarTiket(id, jenis) {
@@ -20906,8 +20928,26 @@ function renderLaporanTiket() {
         ${tkTabel(L.maskapai, 'Per maskapai')}${tkTabel(L.pemasok, 'Per pemasok', true)}${tkTabel(L.pelanggan, 'Per pelanggan')}
         <div style="font-weight:700;color:#d97706;margin-top:12px;font-size:13px;">Piutang pelanggan: ${rp(L.totPiutang)} <span style="font-size:10px;color:#888;font-weight:400;">(semua periode)</span></div>${dft(L.piutang, '#d97706') || '<div style="font-size:11.5px;color:#166534;">Tidak ada.</div>'}
         <div style="font-weight:700;color:#dc2626;margin-top:12px;font-size:13px;">Utang ke pemasok: ${rp(L.totUtang)} <span style="font-size:10px;color:#888;font-weight:400;">(semua periode)</span></div>${dft(L.utang, '#dc2626') || '<div style="font-size:11.5px;color:#166534;">Tidak ada.</div>'}
-        <div style="font-size:10.5px;color:#888;margin-top:10px;line-height:1.5;">Dihitung dari tanggal pesan. Booking belum terbit tidak masuk penjualan. Margin = harga jual − harga beli, sudah dikurangi refund yang Anda catat.</div>
-        <div style="display:flex;gap:8px;margin-top:12px;"><button onclick="cetakLaporanTiket()" style="flex:1;padding:11px;background:var(--primary);color:#fff;border:none;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;">🖨️ Cetak</button><button onclick="tkTutup('tiketLaporanModal')" style="flex:1;padding:11px;background:#e2e8f0;color:#333;border:none;border-radius:10px;font-size:13px;cursor:pointer;">Tutup</button></div></div>`;
+        <div style="font-size:11px;color:#888;margin-top:10px;line-height:1.5;">Dihitung dari tanggal pesan. Booking belum terbit tidak masuk penjualan. Margin = harga jual − harga beli, sudah dikurangi refund yang Anda catat.</div>
+        <div style="display:flex;gap:8px;margin-top:12px;"><button onclick="bukaExportHalaman('penjualantiket')" style="flex:1;padding:11px;background:var(--primary);color:#fff;border:none;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;">Export</button><button onclick="tkTutup('tiketLaporanModal')" style="flex:1;padding:11px;background:#e2e8f0;color:#333;border:none;border-radius:10px;font-size:13px;cursor:pointer;">Tutup</button></div></div>`;
+}
+function bagikanLaporanTiketWA() {
+    const L = hitungLaporanTiket(_tiketPeriode), rp = n => fRp(n);
+    let t = `🎫 *LAPORAN PENJUALAN TIKET*\n*${getNamaInstansiUtama()}*\nPeriode: ${TIKET_PERIODE[_tiketPeriode]}\n\nPesanan: ${L.n} (${L.pax} penumpang)\nPenjualan: ${rp(L.jual)}\nHarga beli: ${rp(L.beli)}\n*Margin: ${rp(L.margin)}*\n\nPiutang pelanggan: ${rp(L.totPiutang)}\nUtang ke pemasok: ${rp(L.totUtang)}`;
+    if (L.booking) t += `\n\n(${L.booking} booking belum terbit tidak dihitung)`;
+    window.open('https://wa.me/?text=' + encodeURIComponent(t), '_blank');
+}
+function exportTiketExcel() {
+    if (typeof XLSX === 'undefined') return showToast('Library Excel belum siap, coba lagi sebentar.');
+    const semua = tiketData.pesanan || [];
+    if (!semua.length) return showToast('Belum ada pesanan tiket!');
+    try {
+        const rows = semua.map(x => { const k = tiketKeuangan(x); return { Kode: x.kode, 'Tgl Pesan': x.tglPesan || '', Status: (TIKET_STATUS[x.status] || {}).t || x.status, Pelanggan: x.pelanggan, Maskapai: x.maskapai || '', Rute: tkRute(x), 'Tgl Berangkat': x.tglBerangkat || '', PNR: x.pnr || '', Penumpang: (x.penumpang || []).map(p => p.nama).join(', '), Pemasok: x.pemasok || '', 'Harga Jual': k.jual, 'Harga Beli': k.beli, 'Refund ke Pelanggan': k.jual - k.pendapatan, 'Refund dari Pemasok': k.beli - k.biaya, Margin: k.margin, 'Dibayar Pelanggan': k.bayarP, 'Sisa Piutang': k.sisaPelanggan, 'Dibayar ke Pemasok': k.bayarS, 'Sisa Utang Pemasok': k.sisaPemasok }; });
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(rows), 'Pesanan Tiket');
+        XLSX.writeFile(wb, 'Penjualan_Tiket.xlsx');
+        showToast('Excel berhasil di-export');
+    } catch (e) { showToast('Gagal export Excel: ' + e.message); }
 }
 function cetakLaporanTiket() {
     const L = hitungLaporanTiket(_tiketPeriode), rp = n => fRp(n);
@@ -23228,8 +23268,18 @@ function importJamaahFromExcel(input){
                         if (!isNaN(d) && d.getDate() === tgl) return d.toISOString().substring(0,10);
                     }
                 }
-                // Jika angka serial Excel (biasanya 5 digit)
-                const num = parseFloat(str);
+                // Tahun-bulan-tanggal dengan garis miring / titik atau tanpa nol di depan (1980/02/01, 1980-2-1)
+                const mYMD = str.match(/^(\d{4})[\/\-.](\d{1,2})[\/\-.](\d{1,2})$/);
+                if (mYMD) {
+                    const thn = parseInt(mYMD[1], 10), bln = parseInt(mYMD[2], 10), tgl = parseInt(mYMD[3], 10);
+                    if (bln >= 1 && bln <= 12 && tgl >= 1 && tgl <= 31) {
+                        const d = new Date(Date.UTC(thn, bln - 1, tgl));
+                        if (d.getUTCDate() === tgl) return d.toISOString().substring(0,10);
+                    }
+                    return str; // tanggal tidak ada di kalender: dibiarkan apa adanya, Cek Kesehatan menandainya
+                }
+                // Jika angka serial Excel (biasanya 5 digit) — hanya bila isinya murni angka
+                const num = /^\d+(\.\d+)?$/.test(str) ? parseFloat(str) : NaN;
                 if (!isNaN(num) && num > 1000 && num < 100000) {
                     // Excel serial: hari sejak 1 Jan 1900 (dengan bug tahun 1900)
                     const d = new Date((num - 25569) * 86400 * 1000);
@@ -25756,12 +25806,23 @@ function hitungTotalBayarJamaah(idJamaah) {
     return paymentTransaksiList.filter(t => t.id_jamaah == idJamaah).reduce((sum, t) => sum + t.nominal, 0);
 }
 
+// Harga paket nol BUKAN karena lupa diisi, melainkan diskon sama dengan / lebih besar dari harga seragam (jamaah jadi gratis).
+function diskonPenuhJamaah(jamaah, hp) {
+    try {
+        if (tanpaTagihan(jamaah) || jenisPeserta(jamaah) === 'travel') return false;
+        const r = hargaPaketRinci(jamaah, hp || getKonfigurasiProData().harga_paket || { seragam: false, nominal: 0 });
+        return r.sumber === 'diskon' && r.total <= 0;
+    } catch (e) { return false; }
+}
 function getStatusPembayaran(jamaah) {
     const totalBayar = hitungTotalBayarJamaah(jamaah.id);
     if (tanpaTagihan(jamaah)) {
         return { status: 'TANPA TAGIHAN', warna: '#8B5CF6', sisa: 0, totalBayar, totalHargaPaket: 0, needInput: false, tanpaTagihan: true, jenis: jenisPeserta(jamaah) };
     }
     let totalHargaPaket = getTotalHargaPaket(jamaah);
+    if ((totalHargaPaket === null || totalHargaPaket === 0) && diskonPenuhJamaah(jamaah)) {
+        return { status: 'GRATIS (DISKON PENUH)', warna: '#8B5CF6', sisa: 0, totalBayar, totalHargaPaket: 0, needInput: false, gratisDiskon: true };
+    }
     if (totalHargaPaket === null || totalHargaPaket === 0) {
         return { status: 'BELUM DIISI', warna: '#f39c12', sisa: 0, totalBayar, totalHargaPaket: 0, needInput: true };
     }
@@ -25793,6 +25854,10 @@ function teksKelebihanBayar(r) {
     return 'Kelebihan bayar: ' + r.n + ' jamaah, Rp ' + Math.round(r.jumlah).toLocaleString('id-ID') + ' (sudah masuk Dibayar; perlu dicek/dikembalikan).';
 }
 
+// Jamaah yang seharusnya ditagih tetapi harga paketnya belum diisi (tidak ikut hitungan piutang/lunas, jadi harus dikatakan terus terang)
+function jumlahJamaahBelumHarga(daftar) {
+    return (daftar || []).filter(j => { try { return !tanpaTagihan(j) && !(getTotalHargaPaket(j) > 0) && !diskonPenuhJamaah(j); } catch (e) { return false; } }).length;
+}
 function renderPaymentDashboard() { return denganPetaBayar(_renderPaymentDashboardIsi); }
 function _renderPaymentDashboardIsi() {
     const jamaahList = jamaahBerangkat();
@@ -25823,6 +25888,8 @@ function _renderPaymentDashboardIsi() {
             }
         }
     });
+    { const nBelumHarga = jumlahJamaahBelumHarga(jamaahList), bh = document.getElementById('paymentBelumHarga');
+      if (bh) { bh.style.display = nBelumHarga ? 'block' : 'none'; bh.textContent = nBelumHarga ? '⚠️ ' + nBelumHarga + ' jamaah belum diisi harga paketnya, jadi belum masuk hitungan Sisa Tagihan, Lunas, dan Belum Lunas.' : ''; } }
     document.getElementById('rekapLunasCount').innerHTML = lunasCount + ' org';
     document.getElementById('rekapBelumCount').innerHTML = belumCount + ' org';
     document.getElementById('totalTertagih').innerHTML = fRp(totalTertagih, false);
@@ -26056,7 +26123,8 @@ function prepareInvoice(idJamaah) {
             });
         }
     }
-    text += `${garis}\n💰 *Total Dibayar:* ${formatRupiah(totalBayar)}\n📌 *Sisa Tagihan:* ${totalHargaPaket > 0 ? formatRupiah(sisa > 0 ? sisa : 0) : '-'}\n${(totalHargaPaket > 0 && sisa < 0) ? `↩️ *Kelebihan Bayar:* ${formatRupiah(-sisa)}\n` : ''}✅ *Status:* ${totalHargaPaket <= 0 ? 'HARGA PAKET BELUM DIISI ⚠️' : (sisa <= 0 ? 'LUNAS ✅' : 'BELUM LUNAS ⚠️')}\n`;
+    const _gratisInv = diskonPenuhJamaah(jamaah);
+    text += `${garis}\n💰 *Total Dibayar:* ${formatRupiah(totalBayar)}\n📌 *Sisa Tagihan:* ${totalHargaPaket > 0 ? formatRupiah(sisa > 0 ? sisa : 0) : '-'}\n${(totalHargaPaket > 0 && sisa < 0) ? `↩️ *Kelebihan Bayar:* ${formatRupiah(-sisa)}\n` : ''}✅ *Status:* ${totalHargaPaket <= 0 ? (_gratisInv ? 'GRATIS (DISKON PENUH) 🎁' : 'HARGA PAKET BELUM DIISI ⚠️') : (sisa <= 0 ? 'LUNAS ✅' : 'BELUM LUNAS ⚠️')}\n`;
     _invoiceBagian = { kepala: text, garis, ekor: `${garis}\n_${footerNama}_`, sisa };
     _rekPilihInvoice = null;
     currentInvoiceText = susunTeksInvoiceWA();
@@ -26296,7 +26364,7 @@ async function cetakInvoiceAuto(jamaahId) {
         const headerHtml = buildPrintHeader(cfg, tglCetak);
         const watermarkHtml = buildPrintWatermark(cfg);
         const ttdHtml = buildPrintTandaTangan(cfg, tglCetak, true, true);
-        const qrHtml = await buildPrintQR(cfg, `Invoice:${noInvoice}\nJamaah:${jamaah.nama_lengkap}\nStatus:${totalHargaPaket<=0?'HARGA BELUM DIISI':(sisa<=0?'LUNAS':'BELUM LUNAS')}`);
+        const qrHtml = await buildPrintQR(cfg, `Invoice:${noInvoice}\nJamaah:${jamaah.nama_lengkap}\nStatus:${totalHargaPaket<=0?(diskonPenuhJamaah(jamaah)?'GRATIS (DISKON PENUH)':'HARGA BELUM DIISI'):(sisa<=0?'LUNAS':'BELUM LUNAS')}`);
         let rowsHtml = '';
         transaksiList.forEach((t,i) => {
             rowsHtml += `<tr><td style="padding:8px;border-bottom:1px solid #eee;text-align:center;">${i+1}</td><td style="padding:8px;border-bottom:1px solid #eee;">${t.tanggal}</td><td style="padding:8px;border-bottom:1px solid #eee;">${t.keterangan||'-'}</td><td style="padding:8px;border-bottom:1px solid #eee;">${t.metode||'-'}</td><td style="padding:8px;border-bottom:1px solid #eee;text-align:right;">${formatRupiah(t.nominal)}</td></tr>`;
@@ -26350,7 +26418,7 @@ async function cetakInvoiceAuto(jamaahId) {
                     <div>Total Paket &nbsp;&nbsp;: <strong>${formatRupiah(totalHargaPaket)}</strong></div>
                     <div>Total Dibayar : <strong>${formatRupiah(totalBayar)}</strong></div>
                     <div>Sisa Tagihan &nbsp;: <strong>${totalHargaPaket>0?formatRupiah(sisa>0?sisa:0):'-'}</strong></div>${(totalHargaPaket>0 && sisa<0) ? `<div>Kelebihan Bayar : <strong>${formatRupiah(-sisa)}</strong></div>` : ''}
-                    <div class="status">${totalHargaPaket<=0?'⚠️ HARGA PAKET BELUM DIISI':(sisa<=0?'✅ LUNAS':'⚠️ BELUM LUNAS')}</div>
+                    <div class="status">${totalHargaPaket<=0?(diskonPenuhJamaah(jamaah)?'🎁 GRATIS (DISKON PENUH)':'⚠️ HARGA PAKET BELUM DIISI'):(sisa<=0?'✅ LUNAS':'⚠️ BELUM LUNAS')}</div>
                 </div>
                 ${rekHtml}
                 ${ttdHtml}
@@ -28723,7 +28791,7 @@ function renderFolderList() {
     const container = document.getElementById('folderListContainer');
     if(!container) return;
     if(folderList.length === 0) {
-        container.innerHTML = '<div class="card-premium"><p class="text-center">Belum ada folder. Buat folder baru untuk mengelompokkan jamaah.</p></div>';
+        container.innerHTML = '<div class="card-premium" style="margin-left:0;margin-right:0;"><p class="text-center">Belum ada folder. Buat folder baru untuk mengelompokkan jamaah.</p></div>';
         return;
     }
     let html = '';
@@ -29246,7 +29314,7 @@ function openIndexedDB() {
 // dengan build baru, data MENTAH (langsung dari IndexedDB, bukan dari memori) disalin dulu sebelum
 // proses migrasi apapun berjalan — supaya kalau ada kesalahan di update, data lama masih bisa dipulihkan.
 // Dokumen & foto tidak ikut disalin (ukurannya besar, dan tidak pernah disentuh proses migrasi).
-const NAVARA_BUILD = '2026.10.31-265';
+const NAVARA_BUILD = '2026.10.31-271';
 const MAKS_SNAPSHOT = 3;
 
 // ==================== DAFTAR DATA PUSAT ====================
@@ -33973,6 +34041,7 @@ async function initPremium() {
     document.addEventListener('input', function(e) {
         if(e.target.classList && e.target.classList.contains('money-input')) {
             let value = e.target.value.replace(/\./g, '');
+            if (/^(jamaahField_|masterField_)/.test(e.target.id || '')) value = value.replace(/-/g, ''); // diskon/komisi/potongan tidak boleh minus
             let num = parseInt(value, 10);
             if(!isNaN(num)) e.target.value = num.toLocaleString('id-ID');
             else if(value === '') e.target.value = '';
