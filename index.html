@@ -1009,6 +1009,7 @@
             margin-bottom: 16px;
             border-left: 4px solid var(--primary);
         }
+        .zakat-sumber-item > .row { margin-bottom: 0; }
         .sumber-header {
             display: flex;
             justify-content: space-between;
@@ -3204,10 +3205,11 @@ https://github.com/nodeca/pako/blob/main/LICENSE
     <div class="card-premium">
         <p class="text-center" style="color:var(--gray);margin:0 0 16px;font-weight:600;" id="zakatNama">Navara</p>
         
+        <div id="zakatKunciBar"></div>
         <div id="zakatGlobalInput"></div>
         <div class="section-title"><span>Sumber Harta</span></div>
         <div id="sumberHartaContainer"></div>
-        <button class="btn btn-accent" onclick="tambahSumberHarta()"><i class="fas fa-plus-circle"></i> + TAMBAH SUMBER HARTA</button>
+        <button class="btn btn-accent" id="btnTambahSumber" onclick="tambahSumberHarta()"><i class="fas fa-plus-circle"></i> + TAMBAH SUMBER HARTA</button>
         <button class="btn btn-primary mt-2" onclick="hitungZakat()"><i class="fas fa-calculator"></i> HITUNG ZAKAT</button>
         <button class="btn-export-std" onclick="bukaExportHalaman('zakat')"><i class="fas fa-download"></i> Export</button>
     </div>
@@ -3670,7 +3672,7 @@ https://github.com/nodeca/pako/blob/main/LICENSE
     <div class="container">
         <div class="daftar-menu-cari">
             <i class="fas fa-search"></i>
-            <input type="text" id="cariSemuaMenu" placeholder="Cari menu… (contoh: riyal, alumni)" aria-label="Cari menu" oninput="renderSemuaMenu()">
+            <input type="text" id="cariSemuaMenu" placeholder="Cari menu…" aria-label="Cari menu" oninput="renderSemuaMenu()">
         </div>
         <div id="semuaMenuDaftar" style="padding-bottom:28px;"></div>
     </div>
@@ -3817,21 +3819,26 @@ https://github.com/nodeca/pako/blob/main/LICENSE
         <div class="card-premium">
             <div class="input-group">
                 <label>Pesan Pengingat</label>
-                <textarea id="reminderMessage" rows="4"></textarea>
+                <select id="reminderTemplate" onchange="terapkanTemplatePengingat(this.value)" style="margin-bottom:8px;"></select>
+                <textarea id="reminderMessage" rows="5" oninput="perbaruiPratinjauPengingat()"></textarea>
+                <div id="reminderVarChips" style="display:flex;flex-wrap:wrap;gap:6px;margin:6px 0 14px;"></div>
             </div>
             <div class="input-group">
                 <label>Pilih Jamaah</label>
                 <input type="text" id="searchPengingatJamaah" placeholder="🔍 Cari nama jamaah..." oninput="filterPengingatJamaah()" style="margin-bottom:8px;">
+                <div id="reminderQuick" style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px;"></div>
                 <div style="margin-bottom:8px;"><button type="button" class="btn-pilih-semua" data-pilih-semua="#multiPengingatJamaahSelect input[type=checkbox]" data-pilih-update="updateJumlahDipilihPengingat" onclick="togglePilihSemua(this)">✅ Pilih Semua</button></div>
                 <div id="multiPengingatJamaahSelect" style="max-height:200px;overflow-y:auto;border:1px solid #ddd;border-radius:10px;padding:8px;background:var(--card-bg);"></div>
                 <div id="jumlahDipilihPengingat" style="font-size:12px;color:var(--primary);margin-top:6px;font-weight:bold;"></div>
             </div>
-            <div class="input-group">
-                <label>Jadwal Pengingat (opsional)</label>
-                <input type="datetime-local" id="reminderSchedule">
-            </div>
+            <div id="reminderPreview" style="display:none;"></div>
             <button class="btn btn-wa" onclick="kirimPengingatWA()"><i class="fab fa-whatsapp"></i> KIRIM SEKARANG</button>
-            <button class="btn btn-primary mt-2" onclick="aturPengingatOtomatis()">⏰ ATUR PENGINGAT OTOMATIS</button>
+            <div class="input-group" style="margin-top:16px;">
+                <label>Atau jadwalkan pengingat untuk Anda</label>
+                <input type="datetime-local" id="reminderSchedule">
+                <div style="font-size:11.5px;color:#64748B;margin-top:4px;line-height:1.5;">WhatsApp tidak bisa dikirim otomatis dari aplikasi. Saat waktunya tiba, pengingat ini muncul di Dashboard (Perlu ditindaklanjuti) dan di daftar bawah, lalu Anda tinggal mengetuk untuk mengirimnya.</div>
+            </div>
+            <button class="btn btn-primary mt-2" onclick="aturPengingatOtomatis()">⏰ JADWALKAN PENGINGAT UNTUK SAYA</button>
         </div>
         <div id="reminderScheduledList" class="card-premium"><h4>⏰ Pengingat Terjadwal</h4><p class="text-center">Belum ada pengingat terjadwal</p></div>
     </div>
@@ -3846,29 +3853,40 @@ https://github.com/nodeca/pako/blob/main/LICENSE
             <div style="font-weight:bold;color:var(--primary);margin-bottom:10px;">📋 Buat Surat Baru</div>
             <div class="input-group" style="margin-bottom:10px;">
                 <label style="font-size:12px;">Pilih Template Surat</label>
-                <select id="suratTemplateSelect" onchange="previewSurat()" style="width:100%;padding:10px;border-radius:8px;border:1px solid #ddd;background:var(--input-bg);color:var(--text);font-size:13px;">
+                <select id="suratTemplateSelect" onchange="previewSurat(true)" style="width:100%;padding:10px;border-radius:8px;border:1px solid #ddd;background:var(--input-bg);color:var(--text);font-size:13px;">
                     <option value="">-- Pilih Template --</option>
                     <option value="rekomendasi_paspor">📘 Rekomendasi Pembuatan Paspor</option>
                     <option value="keterangan_jamaah">📄 Surat Keterangan Jamaah</option>
                     <option value="permohonan_cuti">📅 Permohonan Izin Cuti</option>
                     <option value="pengantar_umum">✉️ Surat Pengantar Umum</option>
+                    <option value="keterangan_lunas">✅ Surat Keterangan Pelunasan</option>
+                    <option value="undangan_manasik">📣 Undangan Manasik</option>
                     <option value="custom">✏️ Surat Kustom</option>
                 </select>
             </div>
             <div class="input-group" style="margin-bottom:10px;">
-                <label style="font-size:12px;">Pilih Jamaah</label>
+                <label style="font-size:12px;">Pilih Jamaah <span id="suratJamaahTerpilih" style="color:var(--primary);font-weight:700;"></span></label>
                 <input type="text" id="searchSuratJamaah" placeholder="🔍 Cari nama jamaah..." oninput="filterSuratJamaah()" style="width:100%;padding:10px;border-radius:8px;border:1px solid #ddd;background:var(--input-bg);color:var(--text);font-size:13px;margin-bottom:6px;">
-                <select id="suratJamaahSelect" onchange="previewSurat()" style="width:100%;padding:10px;border-radius:8px;border:1px solid #ddd;background:var(--input-bg);color:var(--text);font-size:13px;max-height:160px;" size="5"></select>
+                <input type="hidden" id="suratJamaahSelect" value="">
+                <div id="suratJamaahList" style="max-height:220px;overflow-y:auto;border:1px solid #e2e8f0;border-radius:8px;"></div>
             </div>
             <div class="input-group" style="margin-bottom:10px;">
                 <label style="font-size:12px;">Nomor Surat</label>
-                <input type="text" id="suratNomor" oninput="previewSurat()" style="width:100%;padding:10px;border-radius:8px;border:1px solid #ddd;background:var(--input-bg);color:var(--text);font-size:13px;">
+                <div style="display:flex;gap:6px;">
+                    <input type="text" id="suratNomor" oninput="segarkanSuratBila()" style="flex:1;min-width:0;padding:10px;border-radius:8px;border:1px solid #ddd;background:var(--input-bg);color:var(--text);font-size:13px;">
+                    <button type="button" onclick="isiNomorSuratOtomatis(true)" style="padding:0 12px;background:var(--bg);color:var(--primary);border:1px solid var(--primary);border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;">🔢 Otomatis</button>
+                </div>
+                <div style="display:flex;align-items:center;gap:6px;margin-top:6px;font-size:11px;color:#888;">
+                    <span>Kode di nomor:</span>
+                    <input type="text" id="suratKode" maxlength="12" oninput="simpanKodeSurat()" style="width:90px;padding:5px 8px;border-radius:6px;border:1px solid #ddd;background:var(--input-bg);color:var(--text);font-size:12px;text-transform:uppercase;">
+                    <span>Nomor naik sendiri tiap surat dicetak, dan mulai dari 001 tiap tahun.</span>
+                </div>
             </div>
             <div class="input-group" style="margin-bottom:10px;">
                 <label style="font-size:12px;">Keperluan Tambahan (opsional)</label>
-                <textarea id="suratKeperluan" rows="2" placeholder="Tambahan keterangan jika diperlukan..." oninput="previewSurat()" style="width:100%;padding:10px;border-radius:8px;border:1px solid #ddd;background:var(--input-bg);color:var(--text);font-size:13px;resize:none;"></textarea>
+                <textarea id="suratKeperluan" rows="2" placeholder="Tambahan keterangan jika diperlukan..." oninput="segarkanSuratBila()" style="width:100%;padding:10px;border-radius:8px;border:1px solid #ddd;background:var(--input-bg);color:var(--text);font-size:13px;resize:none;"></textarea>
             </div>
-            <button onclick="previewSurat()" style="width:100%;padding:12px;background:var(--primary);color:white;border:none;border-radius:10px;font-weight:bold;cursor:pointer;margin-top:4px;">👁️ Buat & Edit Surat</button>
+            <button onclick="previewSurat(true)" style="width:100%;padding:12px;background:var(--primary);color:white;border:none;border-radius:10px;font-weight:bold;cursor:pointer;margin-top:4px;">👁️ Buat & Edit Surat</button>
         </div>
 
         <!-- Preview & Edit Surat -->
@@ -3877,10 +3895,18 @@ https://github.com/nodeca/pako/blob/main/LICENSE
                 <div style="font-weight:bold;color:var(--primary);">✏️ Edit Surat</div>
                 <button onclick="resetIsiSurat()" style="padding:4px 10px;background:#e2e8f0;color:#333;border:none;border-radius:6px;font-size:11px;cursor:pointer;">🔄 Reset</button>
             </div>
-            <div style="font-size:11px;color:#888;margin-bottom:8px;">Isi surat bisa diedit sebelum cetak/share</div>
+            <div id="suratPeringatan" style="display:none;background:#fef3c7;border-left:4px solid #f59e0b;border-radius:6px;padding:8px 10px;font-size:12px;color:#92400e;margin-bottom:8px;"></div>
+            <div style="font-size:11px;color:#888;margin-bottom:8px;">Isi surat bisa diedit sebelum cetak/share. Nomor tercatat ke riwayat saat surat dicetak/dibagikan.</div>
             <input type="text" id="suratJudulEdit" placeholder="Judul Surat" style="width:100%;padding:10px;border-radius:8px;border:1px solid #ddd;background:var(--input-bg);color:var(--text);font-size:13px;font-weight:bold;text-align:center;margin-bottom:8px;">
             <textarea id="suratIsiEdit" rows="14" style="width:100%;padding:10px;border-radius:8px;border:1px solid #ddd;background:var(--input-bg);color:var(--text);font-size:13px;line-height:1.8;resize:vertical;font-family:'Times New Roman',serif;"></textarea>
             <button class="btn-export-std" onclick="bukaExportHalaman('surat')"><i class="fas fa-download"></i> Export</button>
+        </div>
+
+        <!-- Riwayat Surat -->
+        <div class="card-premium">
+            <div style="font-weight:bold;color:var(--primary);margin-bottom:4px;">🗂️ Riwayat Surat</div>
+            <div style="font-size:11px;color:#888;margin-bottom:8px;">Surat yang pernah dicetak/dibagikan. Tekan "Buka" untuk cetak ulang dengan nomor & tanggal yang sama.</div>
+            <div id="suratRiwayatList"></div>
         </div>
 
         <!-- Kelola Template -->
@@ -3892,11 +3918,30 @@ https://github.com/nodeca/pako/blob/main/LICENSE
                 <input type="text" id="suratKustomJudul" style="width:100%;padding:10px;border-radius:8px;border:1px solid #ddd;background:var(--input-bg);color:var(--text);font-size:13px;">
             </div>
             <div style="background:var(--bg);border-radius:8px;padding:10px;font-size:11px;color:#666;margin-bottom:10px;">
-                <b>Variabel yang bisa dipakai:</b><br>
-                {nama} {nik} {alamat} {no_paspor} {no_porsi} {tgl_lahir} {tempat_lahir} {jenis_kelamin} {whatsapp} {kamar} {bus} {rombongan} {hotel_makkah} {hotel_madinah} {warna} {nomor_surat} {tanggal} {nama_instansi} {keperluan}
+                <b>Ketuk variabel untuk memasukkannya ke template:</b>
+                <div id="suratVarChips" style="display:flex;flex-wrap:wrap;gap:5px;margin-top:6px;"></div>
             </div>
             <textarea id="suratKustomTemplate" rows="6" placeholder="Tulis template surat Anda di sini menggunakan variabel di atas..." style="width:100%;padding:10px;border-radius:8px;border:1px solid #ddd;background:var(--input-bg);color:var(--text);font-size:12px;resize:vertical;"></textarea>
             <button onclick="simpanTemplateSuratKustom()" style="width:100%;padding:10px;background:#10B981;color:white;border:none;border-radius:8px;margin-top:8px;cursor:pointer;font-weight:bold;">💾 Simpan Template Kustom</button>
+        </div>
+    </div>
+</div>
+
+<div id="page-tiket" class="page">
+    <div class="header-premium header-premium-small"><div class="back-header"><i class="fas fa-arrow-left" onclick="showPage('fitur')"></i><h2>🎫 Penjualan Tiket</h2><div style="width:30px;"></div></div></div>
+    <div class="container" style="padding:0 16px 28px;">
+        <div class="card-premium" style="margin:14px 0 12px;">
+            <div style="font-size:11px;color:#888;margin-bottom:10px;">Catatan jual-beli tiket pesawat untuk pelanggan umum maupun jamaah: harga beli, harga jual, pembayaran, dan laporan. Aplikasi ini mencatat, bukan penerbit tiket.</div>
+            <div id="tiketRingkasan"></div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px;">
+                <button type="button" class="btn btn-small" style="background:var(--primary);color:#fff;margin:0;" onclick="bukaFormTiket()">➕ Pesanan Baru</button>
+                <button type="button" class="btn btn-small" style="background:#1d4ed8;color:#fff;margin:0;" onclick="bukaLaporanTiket()">📊 Laporan</button>
+            </div>
+        </div>
+        <div class="card-premium">
+            <input type="search" id="tiketCari" placeholder="🔍 Cari nama, PNR, kode, rute..." oninput="renderDaftarTiket()" style="width:100%;padding:10px;border-radius:8px;border:1px solid #ddd;background:var(--input-bg);color:var(--text);font-size:13px;margin-bottom:8px;">
+            <div id="tiketFilter" style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px;"></div>
+            <div id="tiketList"></div>
         </div>
     </div>
 </div>
@@ -4102,12 +4147,11 @@ https://github.com/nodeca/pako/blob/main/LICENSE
         
         <div class="card-premium">
             <div class="section-title"><span> BACKUP</span></div>
-            <div style="font-size:11px;color:#888;margin-bottom:8px;">⬇️ ZIP = lengkap termasuk foto &amp; dokumen · 📤 JSON = data teks saja, bisa dibagikan · ☁️ Kirim ZIP = ZIP lengkap langsung ke Drive lewat lembar Bagikan HP</div>
+            <div style="font-size:11px;color:#888;margin-bottom:8px;">⬇️ ZIP = lengkap termasuk foto &amp; dokumen · 📤 JSON = data teks saja, bisa dibagikan. Setelah ZIP tersimpan di HP, buka aplikasi Drive atau WhatsApp lalu unggah file itu dari folder Download.</div>
             <div class="row" style="margin-bottom:8px;">
                 <button class="btn btn-primary btn-small" onclick="downloadFullZip()" style="flex:1;font-size:12px;"><i class="fas fa-download"></i> Download ZIP</button>
                 <button class="btn btn-small" onclick="bagikanFullZip()" style="flex:1;background:#3B82F6;color:white;font-size:12px;"><i class="fas fa-share-alt"></i> Bagikan JSON</button>
             </div>
-            <button class="btn btn-small" onclick="siapkanZipUntukDikirim()" style="width:100%;margin:0 0 8px;background:#0F9D58;color:white;font-size:13px;"><i class="fab fa-google-drive"></i> Kirim ZIP ke Drive</button>
             <button class="btn btn-small" onclick="exportKonfigurasiPro()" style="width:100%;margin:0 0 8px;background:#E2E8F0;color:#333;font-size:12px;"><i class="fas fa-sliders-h"></i> Salin Pengaturan Saja (tanpa data jamaah)</button>
             <button class="btn btn-small" onclick="tampilkanCekBackup()" style="width:100%;margin:0;background:#E2E8F0;color:#333;font-size:12px;"><i class="fas fa-search"></i> Cek isi data &amp; backup terakhir</button>
         </div>
@@ -4135,11 +4179,11 @@ https://github.com/nodeca/pako/blob/main/LICENSE
                     <div>
                         <div class="cloud-name">Google Drive</div>
                         <div class="cloud-status" id="driveStatus"><span class="status-disconnected">Belum tersedia</span></div>
-                        <div style="font-size:11px;color:#888;margin-top:2px;">Backup otomatis belum tersedia. Sementara, pakai tombol <b>Kirim ZIP ke Drive</b> di kartu Backup.</div>
+                        <div style="font-size:11px;color:#888;margin-top:2px;">Backup otomatis belum tersedia. Sementara, simpan ZIP lewat <b>Download ZIP</b> lalu unggah sendiri ke Drive.</div>
                     </div>
                 </div>
                 <div>
-                    <button id="driveConnectBtn" class="btn-connect" disabled style="background:var(--gray-light);color:#888;cursor:default;">Segera hadir</button>
+                    <button id="driveConnectBtn" class="btn-connect" disabled style="background:var(--gray-light);color:#888;cursor:default;">Belum tersedia</button>
                     <button id="driveBackupBtn" class="btn-connect" style="display:none;background:var(--primary);" onclick="backupToDrive()">⬆️ Backup</button>
                     <button id="driveRestoreBtn" class="btn-connect" style="display:none;background:var(--purple);" onclick="restoreFromDrive()">⬇️ Restore</button>
                     <button id="driveDisconnectBtn" class="btn-connect" style="display:none;background:var(--gray-light);color:var(--dark);" onclick="disconnectDrive()">🔌 Putus</button>
@@ -4167,7 +4211,7 @@ https://github.com/nodeca/pako/blob/main/LICENSE
             </div>
             <div style="font-size:22px;font-weight:800;color:#1a1a1a;">Akun Google</div>
             <div style="font-size:13px;color:#666;margin-top:8px;line-height:1.6;padding:0 16px;">
-                Backup otomatis ke Google Drive <b>belum tersedia</b> (segera hadir). Untuk sekarang, kirim ZIP lewat tombol <b>Kirim ZIP ke Drive</b> di kartu Backup.
+                Backup otomatis ke Google Drive <b>belum tersedia</b>. Untuk sekarang, simpan ZIP lewat tombol <b>Download ZIP</b> di kartu Backup, lalu unggah file itu ke Drive dari aplikasi Drive.
             </div>
         </div>
 
@@ -4191,7 +4235,7 @@ https://github.com/nodeca/pako/blob/main/LICENSE
                 <div style="display:flex;justify-content:space-between;align-items:center;">
                     <div style="flex:1;padding-right:14px;">
                         <div style="font-weight:700;font-size:14px;color:#1a1a1a;margin-bottom:4px;">Backup otomatis ke Drive</div>
-                        <div style="font-size:12px;color:#888;line-height:1.5;">Belum tersedia (segera hadir). Untuk sekarang, kirim ZIP lewat tombol Kirim ZIP ke Drive di kartu Backup.</div>
+                        <div style="font-size:12px;color:#888;line-height:1.5;">Belum tersedia. Untuk sekarang, simpan ZIP lewat Download ZIP di kartu Backup, lalu unggah ke Drive sendiri.</div>
                     </div>
                     <label class="switch" style="flex-shrink:0;">
                         <input type="checkbox" id="gdAutoBackupToggle" disabled>
@@ -4666,6 +4710,7 @@ function internalShowPage(pageId) {
     if (pageId === 'tentang') renderTentang();
     if (pageId === 'fitur') { if(typeof bukaSemuaMenu === 'function') bukaSemuaMenu(); }
     if (pageId === 'pinjaman') { if(typeof loadPinjamanData === 'function') loadPinjamanData(); }
+    if (pageId === 'tiket') { if(typeof bukaHalamanTiket === 'function') bukaHalamanTiket(); }
     if (pageId === 'saldokantor') { if(typeof loadSaldoKantor === 'function') loadSaldoKantor(); }
     if (pageId === 'cekkesehatan') { if(typeof bukaCekKesehatan === 'function') bukaCekKesehatan(); }
     if (pageId === 'jamaah') { if(window.loadJamaahData) window.loadJamaahData().then(() => { if(window.renderJamaahListWithPagination) window.renderJamaahListWithPagination(); }); else if(window.renderJamaahListWithPagination) window.renderJamaahListWithPagination(); }
@@ -4674,7 +4719,7 @@ function internalShowPage(pageId) {
         if(c) c.innerHTML = '<div style="text-align:center;padding:30px;color:#6B7280;"><div style="font-size:30px;">⏳</div>Memuat data...</div>';
         setTimeout(() => { selectedJamaahKitaIds = []; updateJamaahKitaBatchBar(); renderPilihJamaahKita(); renderJamaahKitaList(); renderJamaahKitaDynamicFieldsForm(); if(isAdminModePremium) renderJamaahKitaFieldsList(); }, 50);
     }
-    if (pageId === 'zakat') { if(window.toggleZakatInput) window.toggleZakatInput(true); if(window.renderSumberHartaList) window.renderSumberHartaList(); }
+    if (pageId === 'zakat') { if(window.renderSumberHartaList) window.renderSumberHartaList(); }
     if (pageId === 'kalkulatorriyal') { if(window.renderRiwayatTukarRiyal) window.renderRiwayatTukarRiyal(); if(window.siapkanHalamanRiyal) window.siapkanHalamanRiyal(); }
     if (pageId === 'evaluasihotelmaskapai') { if(window.renderRekananHotelList) window.renderRekananHotelList(); }
     if (pageId === 'pembayaran') {
@@ -4744,7 +4789,7 @@ window.addEventListener('popstate', function(event) {
     let pageId = 'home';
     if (event.state && event.state.page) pageId = event.state.page;
     else { const hash = window.location.hash; if (hash && hash.startsWith('#page-')) pageId = hash.replace('#page-', ''); }
-    const validPages = ['home', 'estimasi', 'kas', 'jamaah', 'jamaahkita', 'catatan', 'zakat', 'pembayaran', 'datamaster', 'konfigurasi', 'setting', 'fitur', 'uploaddokumen', 'foldervirtual', 'pengingatwa', 'etikettiket', 'cetaklabel', 'cloudstorage', 'dashboard', 'scanqr', 'suratresmi', 'kalkulatorriyal', 'evaluasihotelmaskapai'];
+    const validPages = ['home', 'estimasi', 'kas', 'jamaah', 'jamaahkita', 'catatan', 'zakat', 'pembayaran', 'datamaster', 'konfigurasi', 'setting', 'fitur', 'uploaddokumen', 'foldervirtual', 'pengingatwa', 'etikettiket', 'cetaklabel', 'cloudstorage', 'dashboard', 'scanqr', 'suratresmi', 'kalkulatorriyal', 'evaluasihotelmaskapai', 'tiket'];
     if (!validPages.includes(pageId)) pageId = 'home';
     _arahAnimasi = 'mundur';
     internalShowPage(pageId);
@@ -6527,7 +6572,8 @@ const FITUR_LENGKAP_MENTAH = [
     { id: "layanantambahan", label: "Layanan Tambahan", ket: "Badal Haji, dll", kelompok: "jamaah", aksi: "showPage('layanantambahan')", halaman: "layanantambahan", icon: "<i class=\"fas fa-kaaba\"></i>" },
     { id: "cetakRekapTahunanGabungan", label: "Rekap Tahunan", ket: "Cetak/PDF atau Excel, semua keberangkatan", kelompok: "keuangan", aksi: "bukaPilihanExportLaporan('rekap')", halaman: null, icon: "<i class=\"fas fa-file-invoice\"></i>" },
     { id: "openKalenderProgramModal", label: "Kalender Program", ket: "Semua jadwal keberangkatan", kelompok: "perjalanan", aksi: "openKalenderProgramModal()", halaman: null, icon: "<i class=\"fas fa-calendar-days\"></i>" },
-    { id: "openProyeksiKasModal", label: "Proyeksi Kas", ket: "Estimasi dana yang masih masuk", kelompok: "keuangan", aksi: "openProyeksiKasModal()", halaman: null, icon: "<i class=\"fas fa-sack-dollar\"></i>" },
+    { id: "tiket", label: "Penjualan Tiket", ket: "Catat jual-beli tiket, margin & laporan", kelompok: "keuangan", aksi: "showPage('tiket')", halaman: "tiket", icon: "<i class=\"fas fa-plane-departure\"></i>" },
+    { id: "openProyeksiKasModal", label: "Proyeksi Kas", ket: "Cukup tidaknya uang ke depan", kelompok: "keuangan", aksi: "openProyeksiKasModal()", halaman: null, icon: "<i class=\"fas fa-sack-dollar\"></i>" },
     { id: "kalkulatorriyal", label: "Tukar Riyal", ket: "Hitung kembalian tukar SAR", kelompok: "keuangan", aksi: "showPage('kalkulatorriyal')", halaman: "kalkulatorriyal", icon: "<i class=\"fas fa-right-left\"></i>" },
     { id: "evaluasihotelmaskapai", label: "Evaluasi Hotel & Maskapai", ket: "Catatan penilaian tiap musim", kelompok: "perjalanan", aksi: "showPage('evaluasihotelmaskapai')", halaman: "evaluasihotelmaskapai", icon: "<i class=\"fas fa-star-half-stroke\"></i>" },
 ];
@@ -7050,6 +7096,14 @@ function renderDashTindak(jamaahData) {
     const batas = new Date(); batas.setMonth(batas.getMonth() + 6);
     const pasporBermasalah = jamaahData.filter(j => { const x = j.additional_fields && j.additional_fields.tgl_expired_paspor; if(!x) return false; const d = new Date(x); return !isNaN(d.getTime()) && d < batas; }).length;
     if(pasporBermasalah) baris.push(item('🛂', `<b>${pasporBermasalah} paspor</b> habis berlaku kurang dari 6 bulan`, 'jamaah', '#FEF2F2'));
+    try {
+        if (!window._tiketMuat) { window._tiketMuat = true; muatTiketSenyap().then(() => { try { renderDashTindak(jamaahData); } catch (e) {} }); }
+        const tl = tiketMendesak();
+        if (tl.length) baris.push(item('⏳', `<b>${tl.length} tiket booking</b> time limit-nya kurang dari 24 jam atau sudah lewat`, 'tiket', '#FEF2F2'));
+        const tp = (tiketData.pesanan || []).filter(x => x.status !== 'booking' && x.status !== 'batal' && tiketKeuangan(x).sisaPelanggan > 0).length;
+        if (tp) baris.push(item('🎫', `<b>${tp} pesanan tiket</b> belum lunas dibayar pelanggan`, 'tiket', '#FFFBEB'));
+    } catch(e) {}
+    try { const nw = pengingatJatuhTempo().length; if(nw) baris.push(item('⏰', `<b>${nw} pengingat WA</b> sudah waktunya dikirim`, 'pengingatwa', '#FFFBEB')); } catch(e) {}
     try { const hi = tglHariIniIso(), n = catatanList.filter(c => c.pengingat && c.pengingat <= hi).length; if(n) baris.push(item('📝', `<b>${n} catatan</b> pengingatnya sudah tiba`, 'catatan', '#FFFBEB')); } catch(e) {}
     const nCad = jamaahList.filter(isCadangan).length;
     if(isJenisHaji()) {
@@ -12050,6 +12104,9 @@ async function loadDynamicFieldsJamaah() {
         // Migrasi: label "KK" diganti "No KK" (lebih jelas, dan konsisten di template Excel). Hanya bila labelnya masih persis "KK".
         { const dKK = dynamicFieldsJamaah.find(f => f.name === 'kk');
           if (dKK && dKK.label === 'KK') { dKK.label = 'No KK'; await idbSet(STORE_JAMAAH, 'jamaah_fields', dynamicFieldsJamaah); } }
+        // Migrasi: label "Visa" diganti "No. Visa" (yang dicatat memang nomornya). Nama kolom 'visa' tetap, jadi data lama dan file Excel lama berjudul "Visa" tetap terbaca.
+        { const dVisa = dynamicFieldsJamaah.find(f => f.name === 'visa');
+          if (dVisa && dVisa.label === 'Visa') { dVisa.label = 'No. Visa'; await idbSet(STORE_JAMAAH, 'jamaah_fields', dynamicFieldsJamaah); } }
         // Migrasi PERBAIKAN: field 'status_proses_haji' (versi lama, sempat dobel karena reset sesi) —
         // definisi field-nya dihapus di sini (aman, tidak menyentuh data jamaah). Pemindahan NILAI datanya
         // dilakukan terpisah oleh migrasiKonsolidasiStatusProsesHaji(), dipanggil SETELAH loadJamaahData()
@@ -12132,7 +12189,7 @@ async function loadDynamicFieldsJamaah() {
             { name: 'whatsapp',      label: 'WhatsApp',        type: 'tel',      icon: '📞', isRequired: true  },
             { name: 'rombongan',     label: 'Rombongan',       type: 'text',     icon: '👥', isRequired: false },
             { name: 'regu',          label: 'Regu',            type: 'text',     icon: '👥', isRequired: false },
-            { name: 'visa',          label: 'Visa',            type: 'text',     icon: '📘', isRequired: false },
+            { name: 'visa',          label: 'No. Visa',        type: 'text',     icon: '📘', isRequired: false },
             { name: 'kamar',         label: 'Kamar',           type: 'text',     icon: '🛏️', isRequired: false },
             { name: 'bus',           label: 'Bus',             type: 'text',     icon: '🚌', isRequired: false },
             { name: 'no_kloter',     label: 'No. Kloter',     type: 'text',     icon: '✈️', isRequired: false },
@@ -12397,6 +12454,45 @@ Dengan ini mengajukan permohonan izin cuti untuk keperluan ibadah Haji/Umroh yan
 
 Demikian permohonan ini saya sampaikan. Atas perhatian dan kebijaksanaannya, saya ucapkan terima kasih.`
     },
+    keterangan_lunas: {
+        judul: 'SURAT KETERANGAN PELUNASAN',
+        isi: `Yang bertanda tangan di bawah ini menerangkan bahwa:
+
+Nama Lengkap    : {nama}
+NIK             : {nik}
+Alamat          : {alamat}
+No. Porsi       : {no_porsi}
+
+Telah melunasi seluruh biaya perjalanan ibadah Haji/Umroh yang diselenggarakan oleh {nama_instansi}, dengan rincian:
+
+Total Biaya     : {harga_paket}
+Telah Dibayar   : {total_dibayar}
+Sisa Tagihan    : {sisa_bayar}
+
+{keperluan}
+
+Demikian surat keterangan ini dibuat untuk digunakan sebagaimana mestinya.`
+    },
+    undangan_manasik: {
+        judul: 'UNDANGAN MANASIK',
+        isi: `Kepada Yth.
+Bapak/Ibu {nama}
+Di tempat
+
+Assalamu'alaikum Warahmatullahi Wabarakatuh.
+
+Dengan hormat, kami mengundang Bapak/Ibu untuk hadir pada kegiatan manasik yang diselenggarakan oleh {nama_instansi}, pada:
+
+Hari/Tanggal    : {tgl_manasik}
+Waktu           : {jam_manasik}
+Tempat          : {tempat_manasik}
+
+Mohon hadir tepat waktu dengan membawa perlengkapan yang diperlukan.
+
+{keperluan}
+
+Atas kehadiran Bapak/Ibu kami ucapkan terima kasih.`
+    },
     pengantar_umum: {
         judul: 'SURAT PENGANTAR',
         isi: `Yang bertanda tangan di bawah ini:
@@ -12419,15 +12515,66 @@ Atas perhatian dan kerjasamanya, kami ucapkan terima kasih.`
 };
 
 let templateSuratKustom = '';
+const SURAT_KEY = 'navara_surat_data';
+const SURAT_VAR_LIST = ['nama','nik','alamat','no_paspor','no_porsi','tgl_lahir','tempat_lahir','jenis_kelamin','whatsapp','kamar','bus','rombongan','hotel_makkah','hotel_madinah','harga_paket','total_dibayar','sisa_bayar','tgl_manasik','jam_manasik','tempat_manasik','nomor_surat','tanggal','kota_tanggal','nama_instansi','alamat_instansi','pimpinan','jabatan','keperluan'];
+const ROMAWI_BULAN = ['I','II','III','IV','V','VI','VII','VIII','IX','X','XI','XII'];
+let _nomorAutoTerakhir = '';
+let _suratTglIso = null;      // diisi saat membuka surat lama, supaya tanggal tidak berubah
+let _suratTemplateAktif = '';
+
+function bacaDataSurat() {
+    try {
+        const d = JSON.parse(localStorage.getItem(SURAT_KEY) || 'null');
+        if (d && typeof d === 'object') return { kode: (d.kode && typeof d.kode === 'object') ? d.kode : {}, counter: (d.counter && typeof d.counter === 'object') ? d.counter : {}, riwayat: Array.isArray(d.riwayat) ? d.riwayat : [] };
+    } catch (e) {}
+    return { kode: {}, counter: {}, riwayat: [] };
+}
+function simpanDataSurat(d) { try { localStorage.setItem(SURAT_KEY, JSON.stringify(d)); } catch (e) { showToast('Gagal menyimpan data surat (penyimpanan penuh?)'); } }
+
+function kodeSuratDefault(namaInstansi) {
+    const kata = String(namaInstansi || '').replace(/[^A-Za-z0-9 ]/g, ' ').split(/\s+/).filter(w => w && !/^(PT|CV|UD|YAYASAN)$/i.test(w));
+    if (!kata.length) return 'KBIHU';
+    if (/^[A-Z0-9]{3,}$/.test(kata[0])) return kata[0].slice(0, 8);
+    return kata.map(w => w[0].toUpperCase()).join('').slice(0, 8);
+}
+function kodeSuratAktif() {
+    const nama = getInstansiDominanObj(getKonfigurasiProData()).nama || '';
+    const d = bacaDataSurat();
+    return (d.kode[nama] || kodeSuratDefault(nama)).toUpperCase();
+}
+function nomorSuratBerikut() {
+    const d = bacaDataSurat();
+    const kode = kodeSuratAktif();
+    const now = new Date();
+    const tahun = now.getFullYear();
+    let n = (d.counter[kode + '|' + tahun] || 0) + 1;
+    const pakai = new Set(d.riwayat.map(r => r.nomor));
+    const fmt = (x) => String(x).padStart(3, '0') + '/' + kode + '/' + ROMAWI_BULAN[now.getMonth()] + '/' + tahun;
+    while (pakai.has(fmt(n))) n++;
+    return fmt(n);
+}
+function isiNomorSuratOtomatis(paksa) {
+    const el = document.getElementById('suratNomor');
+    if (!el) return;
+    if (paksa || !el.value || el.value === _nomorAutoTerakhir) {
+        _nomorAutoTerakhir = nomorSuratBerikut();
+        el.value = _nomorAutoTerakhir;
+        if (paksa) segarkanSuratBila();
+    }
+}
+function simpanKodeSurat() {
+    const el = document.getElementById('suratKode');
+    if (!el) return;
+    const nama = getInstansiDominanObj(getKonfigurasiProData()).nama || '';
+    const d = bacaDataSurat();
+    const v = el.value.toUpperCase().replace(/[^A-Z0-9]/g, '');
+    if (v) d.kode[nama] = v; else delete d.kode[nama];
+    simpanDataSurat(d);
+    isiNomorSuratOtomatis(false);
+}
 
 function initSuratPage() {
-    // Isi dropdown jamaah
-    const select = document.getElementById('suratJamaahSelect');
-    if (!select) return;
-    select.innerHTML = jamaahList.map(j =>
-        `<option value="${j.id}">${escapeHtml(j.nama_lengkap)}</option>`
-    ).join('');
-    // Load template kustom
+    renderDaftarJamaahSurat();
     const saved = localStorage.getItem('navara_template_surat_kustom');
     if (saved && document.getElementById('suratKustomTemplate')) {
         document.getElementById('suratKustomTemplate').value = saved;
@@ -12437,24 +12584,81 @@ function initSuratPage() {
     if (savedJudul && document.getElementById('suratKustomJudul')) {
         document.getElementById('suratKustomJudul').value = savedJudul;
     }
+    const kodeEl = document.getElementById('suratKode');
+    if (kodeEl) kodeEl.value = kodeSuratAktif();
+    isiNomorSuratOtomatis(false);
+    const chips = document.getElementById('suratVarChips');
+    if (chips && !chips.dataset.siap) {
+        chips.dataset.siap = '1';
+        chips.innerHTML = SURAT_VAR_LIST.map(v => `<button type="button" onclick="sisipVariabelSurat('${v}')" style="padding:4px 8px;background:var(--card-bg,#fff);border:1px solid var(--primary);color:var(--primary);border-radius:12px;font-size:11px;cursor:pointer;">{${v}}</button>`).join('');
+    }
+    renderRiwayatSurat();
 }
 
-function filterSuratJamaah() {
-    const q = (document.getElementById('searchSuratJamaah')?.value || '').toLowerCase();
-    const select = document.getElementById('suratJamaahSelect');
-    if (!select) return;
-    select.innerHTML = jamaahList
-        .filter(j => j.nama_lengkap.toLowerCase().includes(q))
-        .map(j => `<option value="${j.id}">${escapeHtml(j.nama_lengkap)}</option>`)
-        .join('');
+function sisipVariabelSurat(v) {
+    const ta = document.getElementById('suratKustomTemplate');
+    if (!ta) return;
+    const teks = '{' + v + '}';
+    const a = ta.selectionStart ?? ta.value.length, b = ta.selectionEnd ?? ta.value.length;
+    ta.value = ta.value.slice(0, a) + teks + ta.value.slice(b);
+    ta.focus();
+    ta.selectionStart = ta.selectionEnd = a + teks.length;
 }
 
-function getSuratVariables(jamaah, nomorSurat, keperluan) {
+function renderDaftarJamaahSurat() {
+    const box = document.getElementById('suratJamaahList');
+    if (!box) return;
+    const q = (document.getElementById('searchSuratJamaah')?.value || '').toLowerCase().trim();
+    const terpilih = document.getElementById('suratJamaahSelect')?.value || '';
+    const semua = (jamaahList || []).filter(j => !q || (j.nama_lengkap || '').toLowerCase().includes(q) || String((j.additional_fields || {}).no_porsi || '').includes(q));
+    if (!semua.length) { box.innerHTML = '<div style="padding:12px;font-size:12px;color:#888;text-align:center;">' + (q ? 'Tidak ada jamaah yang cocok' : 'Belum ada jamaah di program ini') + '</div>'; return; }
+    const tampil = semua.slice(0, 50);
+    box.innerHTML = tampil.map(j => {
+        const aktif = String(j.id) === String(terpilih);
+        const f = j.additional_fields || {};
+        const ket = [f.no_porsi ? 'Porsi ' + f.no_porsi : '', f.rombongan || ''].filter(Boolean).join(' · ');
+        return `<div onclick="pilihJamaahSurat('${String(j.id).replace(/'/g, "\\'")}')" style="padding:9px 10px;border-bottom:1px solid #f1f5f9;cursor:pointer;display:flex;align-items:center;gap:8px;${aktif ? 'background:rgba(13,92,74,0.12);' : ''}">
+            <span style="width:16px;height:16px;border-radius:50%;border:2px solid var(--primary);flex-shrink:0;${aktif ? 'background:var(--primary);box-shadow:inset 0 0 0 2px #fff;' : ''}"></span>
+            <span style="flex:1;min-width:0;"><span style="font-size:13px;font-weight:${aktif ? '700' : '500'};">${escapeHtml(j.nama_lengkap || '-')}</span>${ket ? `<span style="display:block;font-size:11px;color:#888;">${escapeHtml(ket)}</span>` : ''}</span></div>`;
+    }).join('') + (semua.length > tampil.length ? `<div style="padding:8px;font-size:11px;color:#888;text-align:center;">Menampilkan 50 dari ${semua.length}. Ketik nama untuk mempersempit.</div>` : '');
+}
+function pilihJamaahSurat(id) {
+    const h = document.getElementById('suratJamaahSelect');
+    if (h) h.value = id;
+    const j = (jamaahList || []).find(x => String(x.id) === String(id));
+    const lbl = document.getElementById('suratJamaahTerpilih');
+    if (lbl) lbl.textContent = j ? '— ' + j.nama_lengkap : '';
+    renderDaftarJamaahSurat();
+    _suratTglIso = null;
+    if (document.getElementById('suratTemplateSelect')?.value) previewSurat(false);
+}
+function filterSuratJamaah() { renderDaftarJamaahSurat(); }
+
+// Segarkan isi surat saat nomor/keperluan diketik — tanpa menimpa teks yang sudah Anda edit sendiri
+function segarkanSuratBila() {
+    const kartu = document.getElementById('suratPreviewCard');
+    if (!kartu || kartu.style.display === 'none') return;
+    const isiEl = document.getElementById('suratIsiEdit');
+    if (isiEl && isiEl.value !== _suratIsiAsli) return;
+    if (document.getElementById('suratTemplateSelect')?.value && document.getElementById('suratJamaahSelect')?.value) previewSurat(false);
+}
+
+function getSuratVariables(jamaah, nomorSurat, keperluan, tglIso) {
     const cfg = getKonfigurasiProData();
     const instansiDominan = getInstansiDominanObj(cfg);
     const f = jamaah.additional_fields || {};
-    const kota = instansiDominan.kota || 'Banda Aceh';
-    const tanggal = new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
+    const kota = instansiDominan.kota || '';
+    const tgl = tglIso ? new Date(tglIso) : new Date();
+    const tanggal = tgl.toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
+    let bayar = {};
+    try { bayar = getStatusPembayaran(jamaah) || {}; } catch (e) {}
+    const rp = (n) => 'Rp ' + formatAngka(n || 0);
+    // jadwal manasik terdekat (hari ini atau setelahnya)
+    let mns = null;
+    try {
+        const hariIni = new Date().toISOString().slice(0, 10);
+        mns = (jadwalManasikList || []).filter(x => x.tanggalRaw && x.tanggalRaw >= hariIni).sort((a, b) => a.tanggalRaw.localeCompare(b.tanggalRaw))[0] || null;
+    } catch (e) {}
     return {
         nama: jamaah.nama_lengkap || '-',
         nik: f.nik || '-',
@@ -12471,23 +12675,31 @@ function getSuratVariables(jamaah, nomorSurat, keperluan) {
         hotel_makkah: f.hotel_makkah || '-',
         hotel_madinah: f.hotel_madinah || '-',
         warna: f.warna || '-',
-        nomor_surat: nomorSurat || '___/KBIHU/___/2026',
+        harga_paket: bayar.totalHargaPaket ? rp(bayar.totalHargaPaket) : '-',
+        total_dibayar: rp(bayar.totalBayar),
+        sisa_bayar: rp(bayar.sisa),
+        tgl_manasik: mns ? mns.tanggal : '(belum ada jadwal manasik)',
+        jam_manasik: mns ? (mns.waktu || '-') : '-',
+        tempat_manasik: mns ? (mns.lokasi || '-') : '-',
+        nomor_surat: nomorSurat || '___/KBIHU/___/' + new Date().getFullYear(),
         tanggal: tanggal,
-        kota_tanggal: kota + ', ' + tanggal,
+        kota_tanggal: (kota ? kota + ', ' : '') + tanggal,
         nama_instansi: instansiDominan.nama || 'KBIHU',
         alamat_instansi: instansiDominan.alamat || '-',
+        pimpinan: instansiDominan.pimpinan || '-',
+        jabatan: instansiDominan.jabatan || 'Pimpinan',
         keperluan: keperluan || ''
     };
 }
 
 function isiVariabel(template, vars) {
-    return template.replace(/\{(\w+)\}/g, (_, key) => vars[key] || '-');
+    return template.replace(/\{(\w+)\}/g, (m, key) => (vars[key] !== undefined ? vars[key] : '-')).replace(/\n{3,}/g, '\n\n').replace(/\n+$/, '');
 }
 
 let _suratJudulAsli = '';
 let _suratIsiAsli = '';
 
-function previewSurat() {
+function previewSurat(gulir) {
     const templateKey = document.getElementById('suratTemplateSelect')?.value;
     const jamaahId = document.getElementById('suratJamaahSelect')?.value;
     const nomorSurat = document.getElementById('suratNomor')?.value;
@@ -12497,7 +12709,8 @@ function previewSurat() {
     if (!jamaahId) return showToast('Pilih jamaah dulu!');
     const jamaah = jamaahList.find(j => j.id == jamaahId);
     if (!jamaah) { showToast('Jamaah tidak ditemukan!'); return; }
-    const vars = getSuratVariables(jamaah, nomorSurat, keperluan);
+    if (gulir === true) _suratTglIso = null;
+    const vars = getSuratVariables(jamaah, nomorSurat, keperluan, _suratTglIso);
     let judul = '', isi = '';
     if (templateKey === 'custom') {
         judul = document.getElementById('suratKustomJudul')?.value || 'SURAT KUSTOM';
@@ -12508,15 +12721,28 @@ function previewSurat() {
         judul = tmpl.judul;
         isi = isiVariabel(tmpl.isi, vars);
     }
-    // Simpan asli untuk reset
+    _suratTemplateAktif = templateKey;
     _suratJudulAsli = judul;
     _suratIsiAsli = isi;
-    // Isi textarea yang bisa diedit
     document.getElementById('suratJudulEdit').value = judul;
     document.getElementById('suratIsiEdit').value = isi;
+    // Peringatan jujur: surat pelunasan hanya benar kalau memang lunas
+    const w = document.getElementById('suratPeringatan');
+    if (w) {
+        let msg = '';
+        if (templateKey === 'keterangan_lunas') {
+            let st = {};
+            try { st = getStatusPembayaran(jamaah) || {}; } catch (e) {}
+            if (st.needInput) msg = '⚠️ Harga paket jamaah ini belum diisi, jadi status lunas belum bisa dipastikan. Jangan dicetak sebelum diperiksa.';
+            else if (st.status !== 'LUNAS' && !st.tanpaTagihan) msg = '⚠️ Jamaah ini BELUM LUNAS (sisa Rp ' + formatAngka(st.sisa || 0) + '). Surat pelunasan tidak sesuai kenyataan jika dicetak sekarang.';
+        } else if (templateKey === 'undangan_manasik' && vars.tgl_manasik.indexOf('belum ada') >= 0) {
+            msg = '⚠️ Belum ada jadwal manasik yang akan datang. Isi dulu di menu Manasik, atau ubah tanggalnya langsung di isi surat.';
+        }
+        w.textContent = msg;
+        w.style.display = msg ? 'block' : 'none';
+    }
     previewCard.style.display = 'block';
-    // Scroll ke preview
-    previewCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    if (gulir === true) previewCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
 function resetIsiSurat() {
@@ -12530,12 +12756,12 @@ function buildSuratHTML(jamaah) {
     const judul = document.getElementById('suratJudulEdit')?.value || '';
     const isi = document.getElementById('suratIsiEdit')?.value || '';
     const nomorSurat = document.getElementById('suratNomor')?.value;
-    const vars = getSuratVariables(jamaah, nomorSurat, '');
+    const vars = getSuratVariables(jamaah, nomorSurat, '', _suratTglIso);
     const cfg = getKonfigurasiProData();
     const iDominan = getInstansiDominanObj(cfg);
     const logoSrc = iDominan.logo || '';
     const logoHtml = logoSrc ? `<img src="${logoSrc}" style="height:60px;object-fit:contain;display:block;margin:0 auto 6px;">` : '';
-    return `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>${judul}</title>
+    return `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>${escapeHtml(judul)}</title>
     <style>
         *{margin:0;padding:0;box-sizing:border-box;}
         body{font-family:'Times New Roman',serif;background:white;padding:20px;}
@@ -12567,14 +12793,16 @@ function buildSuratHTML(jamaah) {
             <div class="kop-alamat">${escapeHtml(iDominan.alamat || '')}</div>
         </div>
         <div class="nomor-tanggal">
-            <div class="nomor">Nomor: ${escapeHtml(nomorSurat || '___/KBIHU/___/2026')}</div>
+            <div class="nomor">Nomor: ${escapeHtml(nomorSurat || '___/KBIHU/___/' + new Date().getFullYear())}</div>
             <div class="tanggal">${vars.kota_tanggal}</div>
         </div>
-        <div class="judul">${judul}</div>
+        <div class="judul">${escapeHtml(judul)}</div>
         <div class="isi">${escapeHtml(isi)}</div>
         <div class="ttd">
             <div>Hormat kami,</div>
-            <div class="ttd-nama">${escapeHtml(iDominan.nama || 'KBIHU')}</div>
+            ${iDominan.pimpinan ? `<div style="font-weight:bold;">${escapeHtml(iDominan.nama || 'KBIHU')}</div>` : ''}
+            <div class="ttd-nama">${escapeHtml(iDominan.pimpinan || iDominan.nama || 'KBIHU')}</div>
+            ${iDominan.pimpinan ? `<div>${escapeHtml(iDominan.jabatan || 'Pimpinan')}</div>` : ''}
         </div>
     </div>
     <div class="no-print">
@@ -12584,7 +12812,7 @@ function buildSuratHTML(jamaah) {
     </body></html>`;
 }
 
-function cetakSurat() {
+async function cetakSurat() {
     const jamaahId = document.getElementById('suratJamaahSelect')?.value;
     const isi = document.getElementById('suratIsiEdit')?.value;
     if (!isi) return showToast('Buat surat dulu!');
@@ -12593,9 +12821,83 @@ function cetakSurat() {
     if (!jamaah) return;
     const win = window.open('', '_blank');
     if (!win) return showToast('Izinkan popup untuk cetak!');
+    const batal = (pesan) => { try { win.close(); } catch (e) {} if (pesan) showToast(pesan); };
+    if (document.getElementById('suratPeringatan')?.style.display === 'block' && _suratTemplateAktif === 'keterangan_lunas') {
+        if (!(await konfirmasi('Peringatan: jamaah ini belum terbukti lunas. Tetap cetak surat pelunasan?'))) return batal();
+    }
+    const nomor = (document.getElementById('suratNomor')?.value || '').trim();
+    const judul = document.getElementById('suratJudulEdit')?.value || '';
+    const d = bacaDataSurat();
+    const bentrok = nomor && d.riwayat.find(r => r.nomor === nomor && !(String(r.jamaahId) === String(jamaahId) && r.judul === judul));
+    if (bentrok) {
+        if (!(await konfirmasi('Nomor ' + nomor + ' sudah dipakai untuk surat "' + bentrok.judul + '" a.n. ' + bentrok.nama + '. Tetap pakai nomor yang sama?'))) return batal('Ganti nomor surat dulu (tekan 🔢 Otomatis)');
+    }
     win.document.write(applyPrintTheme(buildSuratHTML(jamaah)));
     injectWatermarkToPrintWin(win);
     win.document.close();
+    catatSuratKeRiwayat(jamaah, nomor, judul, isi);
+}
+
+function catatSuratKeRiwayat(jamaah, nomor, judul, isi) {
+    if (!nomor) return;
+    const d = bacaDataSurat();
+    const tglIso = _suratTglIso || new Date().toISOString();
+    const ada = d.riwayat.find(r => r.nomor === nomor && String(r.jamaahId) === String(jamaah.id) && r.judul === judul);
+    if (ada) { ada.isi = isi; ada.tmpl = _suratTemplateAktif; }
+    else d.riwayat.unshift({ id: 'sr_' + Date.now(), nomor, judul, isi, jamaahId: jamaah.id, nama: jamaah.nama_lengkap || '-', tgl: tglIso, tmpl: _suratTemplateAktif });
+    if (d.riwayat.length > 300) d.riwayat.length = 300;
+    const m = nomor.match(/^(\d+)\/([^\/]+)\/([IVX]+)\/(\d{4})$/);
+    if (m) {
+        const key = m[2].toUpperCase() + '|' + m[4];
+        d.counter[key] = Math.max(d.counter[key] || 0, parseInt(m[1], 10));
+    }
+    simpanDataSurat(d);
+    _suratTglIso = tglIso;
+    renderRiwayatSurat();
+    // siapkan nomor berikutnya hanya kalau nomor di kolom adalah nomor otomatis yang baru terpakai
+    if (nomor === _nomorAutoTerakhir) { _nomorAutoTerakhir = ''; }
+}
+
+function renderRiwayatSurat() {
+    const box = document.getElementById('suratRiwayatList');
+    if (!box) return;
+    const d = bacaDataSurat();
+    if (!d.riwayat.length) { box.innerHTML = '<div style="font-size:12px;color:#888;text-align:center;padding:10px;">Belum ada surat yang dicetak</div>'; return; }
+    box.innerHTML = d.riwayat.slice(0, 15).map(r => {
+        const t = new Date(r.tgl).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' });
+        return `<div style="display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid #f1f5f9;">
+            <div style="flex:1;min-width:0;"><div style="font-size:12px;font-weight:700;">${escapeHtml(r.nomor)}</div>
+            <div style="font-size:11px;color:#666;">${escapeHtml(r.judul)} · ${escapeHtml(r.nama)}</div><div style="font-size:10px;color:#999;">${t}</div></div>
+            <button onclick="bukaRiwayatSurat('${r.id}')" style="padding:5px 10px;background:var(--primary);color:#fff;border:none;border-radius:6px;font-size:11px;cursor:pointer;">Buka</button>
+            <button onclick="hapusRiwayatSurat('${r.id}')" style="padding:5px 8px;background:#fee2e2;color:#b91c1c;border:none;border-radius:6px;font-size:11px;cursor:pointer;">🗑</button></div>`;
+    }).join('') + (d.riwayat.length > 15 ? `<div style="font-size:11px;color:#888;text-align:center;padding:8px;">Menampilkan 15 terbaru dari ${d.riwayat.length} surat</div>` : '');
+}
+
+function bukaRiwayatSurat(id) {
+    const r = bacaDataSurat().riwayat.find(x => x.id === id);
+    if (!r) return;
+    const jamaah = jamaahList.find(j => String(j.id) === String(r.jamaahId));
+    if (!jamaah) return showToast('Jamaah surat ini tidak ada di program yang sedang aktif. Pindah ke program asalnya dulu.');
+    pilihJamaahSurat(r.jamaahId);
+    document.getElementById('suratNomor').value = r.nomor;
+    _suratTglIso = r.tgl;
+    _suratTemplateAktif = r.tmpl || '';
+    _suratJudulAsli = r.judul; _suratIsiAsli = r.isi;
+    document.getElementById('suratJudulEdit').value = r.judul;
+    document.getElementById('suratIsiEdit').value = r.isi;
+    const w = document.getElementById('suratPeringatan'); if (w) w.style.display = 'none';
+    const kartu = document.getElementById('suratPreviewCard');
+    kartu.style.display = 'block';
+    kartu.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    showToast('Surat dibuka. Tekan Export untuk cetak ulang.');
+}
+
+async function hapusRiwayatSurat(id) {
+    if (!(await konfirmasi('Hapus surat ini dari riwayat? Nomor suratnya tidak akan dipakai ulang otomatis.'))) return;
+    const d = bacaDataSurat();
+    d.riwayat = d.riwayat.filter(r => r.id !== id);
+    simpanDataSurat(d);
+    renderRiwayatSurat();
 }
 
 function simpanTemplateSuratKustom() {
@@ -20107,44 +20409,517 @@ function salinUpdateSeat() {
 }
 
 // ==================== PROYEKSI ARUS KAS ====================
+let _proyeksiSkenario = 100;
+function bacaProyeksiKeluar() { try { const d = JSON.parse(localStorage.getItem('navara_proyeksi_kas') || '{}'); return Number((d || {})[currentProgramId]) || 0; } catch (e) { return 0; } }
+function simpanProyeksiKeluar(v) {
+    let d = {}; try { d = JSON.parse(localStorage.getItem('navara_proyeksi_kas') || '{}') || {}; } catch (e) {}
+    d[currentProgramId] = Number(v) || 0;
+    try { localStorage.setItem('navara_proyeksi_kas', JSON.stringify(d)); } catch (e) {}
+}
+
+// SATU sumber angka Proyeksi Arus Kas (layar & cetak sama). Hanya jamaah berangkat; cadangan tidak ditagih.
+function hitungProyeksiKas() {
+    const hari = new Date(); hari.setHours(0, 0, 0, 0);
+    const batas30 = new Date(hari); batas30.setDate(batas30.getDate() + 30);
+    const K = { telat: { n: 0, rp: 0, maxHari: 0 }, d30: { n: 0, rp: 0 }, nanti: { n: 0, rp: 0 }, tanpa: { n: 0, rp: 0 } };
+    const perBulan = {}, daftar = [];
+    let piutang = 0, uangMasuk = 0, butuhHarga = 0;
+    const ids = new Set();
+    jamaahBerangkat().forEach(j => {
+        ids.add(j.id);
+        let sp; try { sp = getStatusPembayaran(j); } catch (e) { return; }
+        if (sp.tanpaTagihan) return;
+        if (sp.needInput) { butuhHarga++; return; }
+        if (!(sp.sisa > 0)) return;
+        piutang += sp.sisa; daftar.push({ nama: j.nama_lengkap, sisa: sp.sisa });
+        let sisaSisa = sp.sisa;
+        const pakai = { telat: 0, d30: 0, nanti: 0 }; let hariTelat = 0;
+        (hitungStatusTerminJamaah(j.id) || []).forEach(t => {
+            if (t.statusLabel === 'Lunas' || !t.tanggal || sisaSisa <= 0) return;
+            const rp = Math.min(t.sisaTermin, sisaSisa); sisaSisa -= rp;
+            const tg = new Date(t.tanggal); tg.setHours(0, 0, 0, 0);
+            if (tg < hari) { pakai.telat += rp; hariTelat = Math.max(hariTelat, Math.round((hari - tg) / 86400000)); }
+            else {
+                if (tg <= batas30) pakai.d30 += rp; else pakai.nanti += rp;
+                const kb = t.tanggal.slice(0, 7); perBulan[kb] = (perBulan[kb] || 0) + rp;
+            }
+        });
+        ['telat', 'd30', 'nanti'].forEach(k => { if (pakai[k] > 0) { K[k].n++; K[k].rp += pakai[k]; } });
+        K.telat.maxHari = Math.max(K.telat.maxHari, hariTelat);
+        if (sisaSisa > 0) { K.tanpa.n++; K.tanpa.rp += sisaSisa; }
+    });
+    paymentTransaksiList.forEach(t => { if (ids.has(Number(t.id_jamaah)) || ids.has(t.id_jamaah)) uangMasuk += (parseInt(t.nominal) || 0); });
+    let tp = 0; try { const r = ringkasTravelPartnerKeuangan(); tp = r ? r.dibayar : 0; } catch (e) {}
+    uangMasuk += tp;
+    const uangKeluar = pengeluaranList.reduce((a, x) => a + (x.nominal || 0), 0);
+    daftar.sort((x, y) => y.sisa - x.sisa);
+    return { K, perBulan, daftar, piutang, uangMasuk, uangKeluar, posisi: uangMasuk - uangKeluar, butuhHarga, adaTP: tp > 0 };
+}
+function hasilProyeksiKas(D, persen, rencana) {
+    const tertagih = Math.round(D.piutang * persen / 100);
+    const akhir = D.posisi + tertagih - rencana;
+    return { tertagih, akhir, cukup: akhir >= 0 };
+}
+
 function openProyeksiKasModal() {
     if(!cekIzinFitur('openProyeksiKasModal')) return showToast('🔒 Tidak punya izin. Gunakan tombol 🔓 Minta Akses di Home.');
     let modal = document.getElementById('proyeksiKasModal');
-    if(!modal) {
-        modal = document.createElement('div');
-        modal.id = 'proyeksiKasModal';
-        modal.className = 'modal';
-        document.body.appendChild(modal);
-    }
-    let totalPiutang = 0;
-    const belumLunas = [];
-    const _pm20042 = petaBayar(paymentTransaksiList);
-    jamaahList.forEach(j => {
-        const hp = getTotalHargaPaket(j) || 0;
-        const byr = bayarDari(_pm20042, j.id);
-        const sisa = hp - byr;
-        if(hp > 0 && sisa > 0) { totalPiutang += sisa; belumLunas.push({ nama: j.nama_lengkap, sisa }); }
-    });
-    belumLunas.sort((a,b) => b.sisa - a.sisa);
-
-    const html = belumLunas.map(x => `
-        <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #f0f0f0;font-size:13px;">
-            <span>${escapeHtml(x.nama)}</span>
-            <span style="font-weight:600;color:#DC2626;">${fRp(x.sisa, false)}</span>
-        </div>`).join('');
-
-    modal.innerHTML = `<div class="modal-content" style="max-width:420px;">
-        <h3 style="color:var(--primary);margin-bottom:4px;">📈 Proyeksi Arus Kas — ${escapeHtml(getCurrentProgram()?.nama || '-')}</h3>
-        <div style="font-size:11px;color:#888;margin-bottom:12px;">Estimasi kasar berdasarkan piutang jamaah yang belum lunas — aplikasi belum tahu jadwal pasti tiap cicilan, jadi ini bukan tanggal kepastian, cuma potensi total dana yang masih bisa masuk.</div>
-        <div style="background:var(--primary);color:#fff;border-radius:10px;padding:14px;margin-bottom:14px;text-align:center;">
-            <div style="font-size:11px;opacity:.8;">TOTAL POTENSI DANA MASUK</div>
-            <div style="font-size:22px;font-weight:800;">${fRp(totalPiutang, false)}</div>
-            <div style="font-size:11px;opacity:.8;">dari ${belumLunas.length} jamaah belum lunas</div>
-        </div>
-        <div style="max-height:260px;overflow-y:auto;">${html || '<p style="color:#166534;text-align:center;">🎉 Semua jamaah sudah lunas!</p>'}</div>
-        <button onclick="document.getElementById('proyeksiKasModal').style.display='none'" style="width:100%;padding:11px;background:#e2e8f0;color:#333;border:none;border-radius:10px;font-size:13px;cursor:pointer;margin-top:10px;">Tutup</button>
-    </div>`;
+    if(!modal) { modal = document.createElement('div'); modal.id = 'proyeksiKasModal'; modal.className = 'modal'; document.body.appendChild(modal); }
+    _proyeksiSkenario = 100;
+    renderProyeksiKas();
     modal.style.display = 'flex';
+}
+function ubahSkenarioProyeksi(v) { _proyeksiSkenario = v; renderProyeksiKas(); }
+function ubahRencanaKeluarProyeksi(el) {
+    const v = parseInt(String(el.value).replace(/\D/g, ''), 10) || 0;
+    simpanProyeksiKeluar(v);
+    el.value = v ? formatAngka(v) : '';
+    renderProyeksiKas(true);
+}
+function renderProyeksiKas(jagaFokus) {
+    const modal = document.getElementById('proyeksiKasModal'); if (!modal) return;
+    const D = hitungProyeksiKas(), rencana = bacaProyeksiKeluar();
+    const H = hasilProyeksiKas(D, _proyeksiSkenario, rencana);
+    const rp = n => fRp(n);
+    const baris = (ikon, judul, n, nilai, warna, ket, aksi) => `<div style="display:flex;align-items:center;gap:8px;padding:9px 0;border-bottom:1px solid #f0f0f0;">
+        <div style="flex:1;min-width:0;"><div style="font-size:13px;font-weight:700;">${ikon} ${judul}</div><div style="font-size:11px;color:#888;">${n} jamaah${ket ? ' · ' + ket : ''}</div></div>
+        <div style="text-align:right;"><div style="font-weight:800;font-size:13px;color:${warna};">${rp(nilai)}</div>${aksi || ''}</div></div>`;
+    const bulanNama = k => { const [y, m] = k.split('-'); return new Date(+y, +m - 1, 1).toLocaleDateString('id-ID', { month: 'long', year: 'numeric' }); };
+    const bulanHtml = Object.keys(D.perBulan).sort().slice(0, 8).map(k => `<div style="display:flex;justify-content:space-between;font-size:12px;padding:4px 0;"><span>${bulanNama(k)}</span><b>${rp(D.perBulan[k])}</b></div>`).join('');
+    const chip = v => `<button onclick="ubahSkenarioProyeksi(${v})" style="flex:1;padding:8px 4px;border:1.5px solid var(--primary);border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;background:${_proyeksiSkenario === v ? 'var(--primary)' : 'transparent'};color:${_proyeksiSkenario === v ? '#fff' : 'var(--primary)'};">${v}%</button>`;
+    modal.innerHTML = `<div class="modal-content" style="max-width:440px;max-height:92vh;overflow-y:auto;">
+        <h3 style="color:var(--primary);margin-bottom:2px;">📈 Proyeksi Arus Kas</h3>
+        <div style="font-size:11px;color:#888;margin-bottom:10px;">${escapeHtml(getCurrentProgram()?.nama || '-')} · jamaah berangkat saja</div>
+        <div style="background:${H.cukup ? '#065f46' : '#991b1b'};color:#fff;border-radius:12px;padding:14px;text-align:center;margin-bottom:10px;">
+            <div style="font-size:11px;opacity:.85;">PERKIRAAN POSISI UANG (jika ${_proyeksiSkenario}% piutang tertagih)</div>
+            <div style="font-size:24px;font-weight:800;">${rp(H.akhir)}</div>
+            <div style="font-size:12px;font-weight:700;margin-top:2px;">${H.cukup ? '✅ Cukup' : '⚠️ Kurang ' + rp(-H.akhir)}</div>
+        </div>
+        <div style="font-size:12px;border:1px solid #e2e8f0;border-radius:10px;padding:10px;margin-bottom:10px;">
+            <div style="display:flex;justify-content:space-between;padding:2px 0;"><span>Uang sudah masuk${D.adaTP ? ' (termasuk travel partner)' : ''}</span><b>${rp(D.uangMasuk)}</b></div>
+            <div style="display:flex;justify-content:space-between;padding:2px 0;"><span>Pengeluaran sudah tercatat</span><b>− ${rp(D.uangKeluar)}</b></div>
+            <div style="display:flex;justify-content:space-between;padding:2px 0;border-top:1px dashed #ddd;margin-top:3px;"><span>Posisi uang sekarang</span><b>${rp(D.posisi)}</b></div>
+            <div style="display:flex;justify-content:space-between;padding:2px 0;"><span>Piutang diperkirakan masuk (${_proyeksiSkenario}%)</span><b style="color:#059669;">+ ${rp(H.tertagih)}</b></div>
+            <div style="display:flex;justify-content:space-between;padding:2px 0;"><span>Rencana pengeluaran ke depan</span><b style="color:#dc2626;">− ${rp(rencana)}</b></div>
+        </div>
+        <div style="display:flex;gap:6px;margin-bottom:8px;">${chip(100)}${chip(80)}${chip(60)}</div>
+        <div class="input-group" style="margin-bottom:12px;"><label style="font-size:12px;">Rencana pengeluaran ke depan (tiket, hotel, visa, dll yang belum dibayar)</label>
+            <input type="text" inputmode="numeric" id="proyeksiRencanaKeluar" value="${rencana ? formatAngka(rencana) : ''}" placeholder="Isi total kewajiban ke supplier, mis. 500.000.000" onchange="ubahRencanaKeluarProyeksi(this)">
+            <div style="font-size:10px;color:#888;margin-top:3px;">Aplikasi belum menyimpan tagihan supplier, jadi angka ini Anda isi sendiri. Tersimpan per program.</div></div>
+        <div style="font-weight:700;color:var(--primary);font-size:13px;margin-bottom:2px;">Piutang jamaah: ${rp(D.piutang)}</div>
+        ${baris('🔴', 'Telat bayar', D.K.telat.n, D.K.telat.rp, '#dc2626', D.K.telat.maxHari ? 'terlama ' + D.K.telat.maxHari + ' hari' : '', D.K.telat.n ? '<button onclick="ingatkanDariProyeksi(\'telat\')" style="margin-top:3px;padding:3px 8px;background:#25D366;color:#fff;border:none;border-radius:6px;font-size:10px;cursor:pointer;">💬 Ingatkan</button>' : '')}
+        ${baris('🟠', 'Jatuh tempo ≤ 30 hari', D.K.d30.n, D.K.d30.rp, '#d97706', '')}
+        ${baris('🔵', 'Jatuh tempo > 30 hari', D.K.nanti.n, D.K.nanti.rp, '#2563eb', '')}
+        ${baris('⚪', 'Belum ada jadwal cicilan', D.K.tanpa.n, D.K.tanpa.rp, '#64748b', 'waktu masuknya tidak bisa diperkirakan', D.K.tanpa.n ? '<button onclick="ingatkanDariProyeksi(\'belum\')" style="margin-top:3px;padding:3px 8px;background:#25D366;color:#fff;border:none;border-radius:6px;font-size:10px;cursor:pointer;">💬 Ingatkan semua belum lunas</button>' : '')}
+        ${bulanHtml ? `<details style="margin-top:10px;"><summary style="font-size:12px;font-weight:700;color:var(--primary);cursor:pointer;">📅 Jadwal uang masuk per bulan</summary><div style="margin-top:6px;">${bulanHtml}</div></details>` : ''}
+        ${D.daftar.length ? `<details style="margin-top:8px;"><summary style="font-size:12px;font-weight:700;color:var(--primary);cursor:pointer;">👥 Piutang terbesar (${Math.min(10, D.daftar.length)} dari ${D.daftar.length})</summary><div style="margin-top:6px;">${D.daftar.slice(0, 10).map(x => `<div style="display:flex;justify-content:space-between;font-size:12px;padding:4px 0;"><span>${escapeHtml(x.nama)}</span><b style="color:#dc2626;">${rp(x.sisa)}</b></div>`).join('')}</div></details>` : '<p style="color:#166534;text-align:center;margin-top:10px;">🎉 Semua jamaah sudah lunas!</p>'}
+        ${D.butuhHarga ? `<div style="margin-top:10px;font-size:11px;color:#92400e;background:#fef3c7;border-radius:8px;padding:8px;">⚠️ ${D.butuhHarga} jamaah belum diisi harga paketnya, jadi belum masuk hitungan piutang.</div>` : ''}
+        <div style="margin-top:10px;font-size:10.5px;color:#888;line-height:1.5;">Ini perkiraan, bukan kepastian. Uang yang masuk sebagian adalah <b>dana titipan jamaah</b> untuk biaya paket, jadi posisi uang bukan sama dengan laba. Laba lihat di menu Uang Kas / Laba Rugi.</div>
+        <div style="display:flex;gap:8px;margin-top:12px;">
+            <button onclick="cetakProyeksiKas()" style="flex:1;padding:11px;background:var(--primary);color:#fff;border:none;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;">🖨️ Cetak</button>
+            <button onclick="document.getElementById('proyeksiKasModal').style.display='none'" style="flex:1;padding:11px;background:#e2e8f0;color:#333;border:none;border-radius:10px;font-size:13px;cursor:pointer;">Tutup</button>
+        </div>
+    </div>`;
+}
+function ingatkanDariProyeksi(kode) {
+    document.getElementById('proyeksiKasModal').style.display = 'none';
+    showPage('pengingatwa');
+    setTimeout(() => { try { terapkanTemplatePengingat('cicilan'); } catch (e) {} pilihPenerimaCepat(kode); }, 500);
+}
+function cetakProyeksiKas() {
+    const D = hitungProyeksiKas(), rencana = bacaProyeksiKeluar(), H = hasilProyeksiKas(D, _proyeksiSkenario, rencana), rp = n => fRp(n);
+    const tgl = new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
+    const r = (a, b, tebal) => `<tr><td style="padding:6px 8px;border-bottom:1px solid #ddd;${tebal ? 'font-weight:bold;' : ''}">${a}</td><td style="padding:6px 8px;border-bottom:1px solid #ddd;text-align:right;${tebal ? 'font-weight:bold;' : ''}">${b}</td></tr>`;
+    const bulan = Object.keys(D.perBulan).sort().map(k => { const [y, m] = k.split('-'); return r(new Date(+y, +m - 1, 1).toLocaleDateString('id-ID', { month: 'long', year: 'numeric' }), rp(D.perBulan[k])); }).join('');
+    let header = ''; try { header = buildPrintHeader(getKonfigurasiProData(), tgl); } catch (e) { header = ''; }
+    header += `<h2 style="text-align:center;margin:10px 0 2px;">PROYEKSI ARUS KAS</h2><div style="text-align:center;margin-bottom:8px;">${escapeHtml(getCurrentProgram()?.nama || '')}</div>`;
+    tampilkanJendelaCetak(`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Proyeksi Arus Kas</title><style>body{font-family:Arial,sans-serif;font-size:13px;padding:24px;max-width:720px;margin:0 auto;}table{width:100%;border-collapse:collapse;margin-bottom:16px;}h3{margin:14px 0 6px;color:#0D5C4A;}@media print{.no-print{display:none!important;}}</style></head><body>
+    ${header}<div style="font-size:12px;color:#666;margin-bottom:10px;">Dicetak ${tgl} · skenario ${_proyeksiSkenario}% piutang tertagih · jamaah berangkat saja</div>
+    <h3>Posisi Uang</h3><table>${r('Uang sudah masuk', rp(D.uangMasuk))}${r('Pengeluaran sudah tercatat', '− ' + rp(D.uangKeluar))}${r('Posisi uang sekarang', rp(D.posisi), 1)}${r('Piutang diperkirakan masuk (' + _proyeksiSkenario + '%)', '+ ' + rp(H.tertagih))}${r('Rencana pengeluaran ke depan', '− ' + rp(rencana))}${r('Perkiraan posisi akhir — ' + (H.cukup ? 'CUKUP' : 'KURANG'), rp(H.akhir), 1)}</table>
+    <h3>Piutang Jamaah (${rp(D.piutang)})</h3><table>${r('Telat bayar (' + D.K.telat.n + ' jamaah)', rp(D.K.telat.rp))}${r('Jatuh tempo ≤ 30 hari (' + D.K.d30.n + ')', rp(D.K.d30.rp))}${r('Jatuh tempo > 30 hari (' + D.K.nanti.n + ')', rp(D.K.nanti.rp))}${r('Belum ada jadwal cicilan (' + D.K.tanpa.n + ')', rp(D.K.tanpa.rp))}</table>
+    ${bulan ? '<h3>Jadwal Uang Masuk per Bulan</h3><table>' + bulan + '</table>' : ''}
+    <div style="font-size:11px;color:#666;">Perkiraan, bukan kepastian. Sebagian uang masuk adalah dana titipan jamaah untuk biaya paket, bukan laba.</div>`);
+}
+
+// ==================== PENJUALAN TIKET ====================
+// Catatan jual-beli tiket (pelanggan umum & jamaah). Tidak terikat Program. Disimpan di STORE_CATATAN 'tiket_data' dan ikut Backup ZIP.
+let tiketData = { pesanan: [] };
+let _tiketFilter = 'semua';
+const TIKET_STATUS = { booking: { t: 'Booking', w: '#d97706' }, issued: { t: 'Terbit', w: '#059669' }, reschedule: { t: 'Reschedule', w: '#2563eb' }, refund: { t: 'Refund', w: '#7c3aed' }, batal: { t: 'Batal', w: '#64748b' } };
+async function muatTiketSenyap() {
+    try { const d = await idbGet(STORE_CATATAN, 'tiket_data'); tiketData = (d && Array.isArray(d.pesanan)) ? d : { pesanan: [] }; }
+    catch (e) { tiketData = { pesanan: [] }; }
+    window._tiketMuat = true;
+}
+async function simpanTiket() { try { await idbSet(STORE_CATATAN, 'tiket_data', tiketData); } catch (e) { showToast('⚠️ Gagal menyimpan data tiket'); } }
+const tkN = v => Math.max(0, parseInt(v, 10) || 0);
+function tiketKeuangan(x) {
+    const jual = tkN(x.hargaJual), beli = tkN(x.hargaBeli), rfP = tkN(x.refundPelanggan), rfS = tkN(x.refundPemasok);
+    const pendapatan = Math.max(0, jual - rfP), biaya = Math.max(0, beli - rfS);
+    const bayarP = (x.bayarPelanggan || []).reduce((a, b) => a + tkN(b.nominal), 0);
+    const bayarS = (x.bayarPemasok || []).reduce((a, b) => a + tkN(b.nominal), 0);
+    return { jual, beli, pendapatan, biaya, margin: pendapatan - biaya, bayarP, bayarS, sisaPelanggan: Math.max(0, pendapatan - bayarP), lebihPelanggan: Math.max(0, bayarP - pendapatan), sisaPemasok: Math.max(0, biaya - bayarS) };
+}
+function tiketMendesak() {
+    const batas = Date.now() + 24 * 3600 * 1000;
+    return (tiketData.pesanan || []).filter(x => x.status === 'booking' && x.timeLimit && new Date(x.timeLimit).getTime() <= batas);
+}
+function tkTgl(iso, jam) {
+    if (!iso) return '-';
+    const d = new Date(iso + 'T00:00:00'); if (isNaN(d)) return '-';
+    return d.toLocaleDateString('id-ID', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' }) + (jam ? ' ' + jam : '');
+}
+function tkRute(x) { return (x.dari || '?') + ' → ' + (x.ke || '?'); }
+function tkNomorBaru() {
+    const th = new Date().getFullYear(); let n = (tiketData.pesanan || []).filter(x => String(x.kode || '').startsWith('TK-' + th)).length + 1;
+    const pakai = new Set((tiketData.pesanan || []).map(x => x.kode));
+    while (pakai.has('TK-' + th + '-' + String(n).padStart(3, '0'))) n++;
+    return 'TK-' + th + '-' + String(n).padStart(3, '0');
+}
+function tkSisaWaktu(iso) {
+    const ms = new Date(iso).getTime() - Date.now(); if (isNaN(ms)) return null;
+    if (ms <= 0) return { t: 'time limit LEWAT', w: '#dc2626' };
+    const j = Math.floor(ms / 3600000);
+    if (j < 24) return { t: 'sisa ' + (j ? j + ' jam ' : '') + Math.floor((ms % 3600000) / 60000) + ' mnt', w: '#dc2626' };
+    return { t: 'sisa ' + Math.floor(j / 24) + ' hari', w: '#d97706' };
+}
+
+async function bukaHalamanTiket() {
+    await muatTiketSenyap();
+    renderRingkasanTiket(); renderDaftarTiket();
+}
+function renderRingkasanTiket() {
+    const box = document.getElementById('tiketRingkasan'); if (!box) return;
+    const bln = tglHariIniIso().slice(0, 7);
+    let jual = 0, margin = 0, piutang = 0, utang = 0;
+    (tiketData.pesanan || []).forEach(x => {
+        if (x.status === 'booking') return;
+        const k = tiketKeuangan(x);
+        if ((x.tglPesan || '').slice(0, 7) === bln) { jual += k.pendapatan; margin += k.margin; }
+        if (x.status !== 'batal' || k.bayarP || k.bayarS) { piutang += k.sisaPelanggan; utang += k.sisaPemasok; }
+    });
+    const m = tiketMendesak();
+    const kotak = (j, v, w) => `<div style="background:var(--bg);border-radius:10px;padding:10px;"><div style="font-size:10.5px;color:#888;">${j}</div><div style="font-weight:800;font-size:14px;color:${w};">${fRp(v)}</div></div>`;
+    box.innerHTML = `${m.length ? `<div style="background:#fef2f2;border-left:4px solid #dc2626;border-radius:8px;padding:8px 10px;font-size:12px;color:#991b1b;margin-bottom:10px;">⏳ <b>${m.length} booking</b> time limit-nya kurang dari 24 jam atau sudah lewat. Segera terbitkan atau batalkan.</div>` : ''}
+    <div style="font-size:11px;color:#888;margin-bottom:6px;">Bulan ini (tidak termasuk booking yang belum terbit)</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">${kotak('Penjualan', jual, 'var(--primary)')}${kotak('Margin', margin, margin >= 0 ? '#059669' : '#dc2626')}${kotak('Piutang pelanggan', piutang, '#d97706')}${kotak('Utang ke pemasok', utang, '#dc2626')}</div>
+    <div style="font-size:10.5px;color:#888;margin-top:6px;">Piutang dan utang dihitung dari semua pesanan, bukan hanya bulan ini.</div>`;
+}
+function renderDaftarTiket() {
+    const box = document.getElementById('tiketList'), fl = document.getElementById('tiketFilter'); if (!box) return;
+    const q = (document.getElementById('tiketCari')?.value || '').toLowerCase().trim();
+    const semua = tiketData.pesanan || [];
+    const cocok = {
+        semua: () => true, booking: x => x.status === 'booking', terbit: x => x.status === 'issued' || x.status === 'reschedule',
+        belum: x => x.status !== 'booking' && x.status !== 'batal' && tiketKeuangan(x).sisaPelanggan > 0,
+        utang: x => x.status !== 'booking' && tiketKeuangan(x).sisaPemasok > 0
+    };
+    const nama = { semua: 'Semua', booking: 'Booking', terbit: 'Terbit', belum: 'Pelanggan belum lunas', utang: 'Utang pemasok' };
+    fl.innerHTML = Object.keys(nama).map(k => `<button type="button" onclick="_tiketFilter='${k}';renderDaftarTiket()" style="padding:6px 10px;border:1.5px solid var(--primary);border-radius:16px;font-size:11px;font-weight:700;cursor:pointer;background:${_tiketFilter === k ? 'var(--primary)' : 'transparent'};color:${_tiketFilter === k ? '#fff' : 'var(--primary)'};">${nama[k]} (${semua.filter(cocok[k]).length})</button>`).join('');
+    const daftar = semua.filter(cocok[_tiketFilter]).filter(x => !q || [x.kode, x.pelanggan, x.pnr, x.dari, x.ke, x.maskapai, x.pemasok].join(' ').toLowerCase().includes(q))
+        .sort((a, b) => String(b.tglPesan || '').localeCompare(String(a.tglPesan || '')) || String(b.kode).localeCompare(String(a.kode)));
+    if (!daftar.length) { box.innerHTML = `<div style="text-align:center;color:#888;font-size:13px;padding:18px;">${semua.length ? 'Tidak ada pesanan yang cocok.' : 'Belum ada pesanan tiket. Ketuk ➕ Pesanan Baru.'}</div>`; return; }
+    box.innerHTML = daftar.slice(0, 60).map(x => {
+        const k = tiketKeuangan(x), st = TIKET_STATUS[x.status] || TIKET_STATUS.booking;
+        const sw = x.status === 'booking' && x.timeLimit ? tkSisaWaktu(x.timeLimit) : null;
+        return `<div onclick="bukaDetailTiket('${x.id}')" style="border:1px solid #e2e8f0;border-radius:12px;padding:10px 12px;margin-bottom:8px;cursor:pointer;">
+            <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;"><b style="font-size:13px;">${escapeHtml(x.pelanggan || '-')}</b><span style="font-size:10px;font-weight:700;color:#fff;background:${st.w};padding:2px 8px;border-radius:10px;">${st.t}</span></div>
+            <div style="font-size:12px;color:#555;margin-top:2px;">✈ ${escapeHtml([tkRute(x), x.maskapai, x.tglBerangkat ? tkTgl(x.tglBerangkat) : ''].filter(Boolean).join(' · '))}</div>
+            <div style="font-size:10.5px;color:#888;">${escapeHtml(x.kode)} · ${(x.penumpang || []).length} penumpang${x.pnr ? ' · PNR ' + escapeHtml(x.pnr) : ''}</div>
+            ${sw ? `<div style="font-size:11px;font-weight:700;color:${sw.w};margin-top:3px;">⏳ ${sw.t}</div>` : ''}
+            <div style="display:flex;justify-content:space-between;font-size:11.5px;margin-top:5px;"><span>Jual <b>${fRp(k.pendapatan)}</b></span><span style="color:${k.margin >= 0 ? '#059669' : '#dc2626'};">Margin <b>${fRp(k.margin)}</b></span>${k.sisaPelanggan > 0 && x.status !== 'booking' ? `<span style="color:#d97706;">Sisa <b>${fRp(k.sisaPelanggan)}</b></span>` : ''}</div></div>`;
+    }).join('') + (daftar.length > 60 ? `<div style="text-align:center;font-size:11px;color:#888;">Menampilkan 60 dari ${daftar.length}. Gunakan pencarian.</div>` : '');
+}
+
+function tkModal(id) {
+    let m = document.getElementById(id);
+    if (!m) { m = document.createElement('div'); m.id = id; m.className = 'modal'; document.body.appendChild(m); }
+    return m;
+}
+function tkTutup(id) { const m = document.getElementById(id); if (m) m.style.display = 'none'; }
+function tkFmtInput(el) { const v = String(el.value).replace(/\D/g, ''); el.value = v ? formatAngka(parseInt(v, 10)) : ''; tkMarginForm(); }
+const tkVal = id => (document.getElementById(id)?.value || '').trim();
+const tkUang = id => parseInt(String(document.getElementById(id)?.value || '').replace(/\D/g, ''), 10) || 0;
+function tkMarginForm() {
+    const el = document.getElementById('tkMargin'); if (!el) return;
+    const st = tkVal('tkStatus');
+    const jual = tkUang('tkJual') - (st === 'refund' || st === 'batal' ? tkUang('tkRefP') : 0), beli = tkUang('tkBeli') - (st === 'refund' || st === 'batal' ? tkUang('tkRefS') : 0);
+    const mg = jual - beli, n = Math.max(1, tkVal('tkPenumpang').split('\n').filter(l => l.trim()).length);
+    el.innerHTML = (jual || beli) ? `Margin: <b style="color:${mg >= 0 ? '#059669' : '#dc2626'};">${fRp(mg)}</b>${jual > 0 ? ' (' + (mg / jual * 100).toFixed(1).replace('.', ',') + '%)' : ''} · per penumpang ${fRp(Math.round(mg / n))}${mg < 0 ? '<br><span style="color:#dc2626;">⚠️ Harga jual lebih kecil dari harga beli: Anda rugi.</span>' : ''}` : '';
+    const r = document.getElementById('tkBlokRefund'); if (r) r.style.display = (st === 'refund' || st === 'batal') ? 'block' : 'none';
+}
+function bukaFormTiket(id) {
+    const x = id ? (tiketData.pesanan || []).find(t => t.id === id) : null;
+    const v = (k, d) => escapeHtml(x ? (x[k] ?? d ?? '') : (d ?? ''));
+    const num = k => x && x[k] ? formatAngka(x[k]) : '';
+    const pem = [...new Set((tiketData.pesanan || []).map(t => t.pemasok).filter(Boolean))];
+    const mskp = [...new Set((tiketData.pesanan || []).map(t => t.maskapai).filter(Boolean))];
+    const lbl = t => `<label style="font-size:12px;">${t}</label>`;
+    const inp = (idf, tipe, nilai, ph, extra) => `<input type="${tipe}" id="${idf}" value="${nilai}" placeholder="${ph || ''}" ${extra || ''} style="width:100%;padding:9px;border-radius:8px;border:1px solid #ddd;background:var(--input-bg);color:var(--text);font-size:13px;">`;
+    const pnp = x ? (x.penumpang || []).map(p => p.nama + (p.noTiket ? ' | ' + p.noTiket : '')).join('\n') : '';
+    const m = tkModal('tiketFormModal');
+    m.innerHTML = `<div class="modal-content" style="max-width:460px;max-height:92vh;overflow-y:auto;">
+        <h3 style="color:var(--primary);margin-bottom:10px;">${x ? '✏️ Ubah Pesanan ' + escapeHtml(x.kode) : '➕ Pesanan Tiket Baru'}</h3>
+        <input type="hidden" id="tkId" value="${x ? x.id : ''}">
+        <div class="input-group">${lbl('Nama pelanggan *')}${inp('tkPelanggan', 'text', v('pelanggan'), 'Nama pemesan', 'list="tkDaftarJamaah" onchange="tkIsiDariJamaah()"')}
+            <datalist id="tkDaftarJamaah">${(jamaahList || []).map(j => `<option value="${escapeHtml(j.nama_lengkap || '')}"></option>`).join('')}</datalist></div>
+        <div class="input-group">${lbl('No. WhatsApp pelanggan')}${inp('tkWa', 'tel', v('wa'), '08xxxxxxxxxx')}</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+            <div class="input-group">${lbl('Jenis')}<select id="tkJenis" style="width:100%;padding:9px;border-radius:8px;border:1px solid #ddd;background:var(--input-bg);color:var(--text);font-size:13px;"><option value="domestik" ${x && x.jenis === 'domestik' ? 'selected' : ''}>Domestik</option><option value="internasional" ${x && x.jenis === 'internasional' ? 'selected' : ''}>Internasional</option></select></div>
+            <div class="input-group">${lbl('Maskapai')}${inp('tkMaskapai', 'text', v('maskapai'), 'Garuda, Lion...', 'list="tkDaftarMaskapai"')}<datalist id="tkDaftarMaskapai">${mskp.map(a => `<option value="${escapeHtml(a)}"></option>`).join('')}</datalist></div>
+            <div class="input-group">${lbl('Dari (kota/kode)')}${inp('tkDari', 'text', v('dari'), 'SUB')}</div>
+            <div class="input-group">${lbl('Ke (kota/kode)')}${inp('tkKe', 'text', v('ke'), 'CGK')}</div>
+            <div class="input-group">${lbl('Tgl berangkat')}${inp('tkTglBerangkat', 'date', v('tglBerangkat'))}</div>
+            <div class="input-group">${lbl('Jam berangkat')}${inp('tkJamBerangkat', 'time', v('jamBerangkat'))}</div>
+            <div class="input-group">${lbl('Tgl pulang (jika PP)')}${inp('tkTglPulang', 'date', v('tglPulang'))}</div>
+            <div class="input-group">${lbl('No. penerbangan')}${inp('tkNoPenerbangan', 'text', v('noPenerbangan'), 'GA 123')}</div>
+        </div>
+        <div class="input-group">${lbl('Kode booking (PNR)')}${inp('tkPnr', 'text', v('pnr'), 'ABC123', 'style="text-transform:uppercase;"')}</div>
+        <div class="input-group">${lbl('Penumpang * (satu baris satu orang; boleh "NAMA | No. Tiket")')}<textarea id="tkPenumpang" rows="3" oninput="tkMarginForm()" style="width:100%;padding:9px;border-radius:8px;border:1px solid #ddd;background:var(--input-bg);color:var(--text);font-size:13px;">${escapeHtml(pnp)}</textarea></div>
+        <div class="input-group">${lbl('Pemasok / agen tempat beli')}${inp('tkPemasok', 'text', v('pemasok'), 'Nama agen/maskapai', 'list="tkDaftarPemasok"')}<datalist id="tkDaftarPemasok">${pem.map(a => `<option value="${escapeHtml(a)}"></option>`).join('')}</datalist></div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+            <div class="input-group">${lbl('Harga beli total (Rp)')}${inp('tkBeli', 'text', num('hargaBeli'), '0', 'inputmode="numeric" oninput="tkFmtInput(this)"')}</div>
+            <div class="input-group">${lbl('Harga jual total (Rp)')}${inp('tkJual', 'text', num('hargaJual'), '0', 'inputmode="numeric" oninput="tkFmtInput(this)"')}</div>
+        </div>
+        <div id="tkMargin" style="font-size:12px;margin:-2px 0 10px;"></div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+            <div class="input-group">${lbl('Status')}<select id="tkStatus" onchange="tkMarginForm()" style="width:100%;padding:9px;border-radius:8px;border:1px solid #ddd;background:var(--input-bg);color:var(--text);font-size:13px;">${Object.keys(TIKET_STATUS).map(k => `<option value="${k}" ${(x ? x.status : 'booking') === k ? 'selected' : ''}>${TIKET_STATUS[k].t}</option>`).join('')}</select></div>
+            <div class="input-group">${lbl('Tgl pesan')}${inp('tkTglPesan', 'date', v('tglPesan', tglHariIniIso()))}</div>
+        </div>
+        <div class="input-group">${lbl('Time limit booking (jika belum terbit)')}${inp('tkTimeLimit', 'datetime-local', v('timeLimit'))}</div>
+        <div id="tkBlokRefund" style="display:none;background:#f5f3ff;border-radius:8px;padding:8px;margin-bottom:10px;">
+            <div style="font-size:11px;color:#6d28d9;margin-bottom:6px;">Untuk Refund/Batal: isi uang yang dikembalikan, supaya margin benar.</div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+                <div class="input-group">${lbl('Dikembalikan ke pelanggan')}${inp('tkRefP', 'text', num('refundPelanggan'), '0', 'inputmode="numeric" oninput="tkFmtInput(this)"')}</div>
+                <div class="input-group">${lbl('Dikembalikan pemasok ke kita')}${inp('tkRefS', 'text', num('refundPemasok'), '0', 'inputmode="numeric" oninput="tkFmtInput(this)"')}</div>
+            </div></div>
+        <div class="input-group">${lbl('Catatan')}${inp('tkCatatan', 'text', v('catatan'), 'Opsional')}</div>
+        <div style="display:flex;gap:8px;margin-top:6px;"><button class="btn btn-primary" onclick="simpanFormTiket()" style="flex:1;">Simpan</button><button class="btn" onclick="tkTutup('tiketFormModal')" style="flex:1;background:#e2e8f0;color:#333;">Batal</button></div></div>`;
+    m.style.display = 'flex';
+    tkMarginForm();
+}
+function tkIsiDariJamaah() {
+    const n = tkVal('tkPelanggan').toLowerCase();
+    const j = (jamaahList || []).find(x => (x.nama_lengkap || '').toLowerCase() === n);
+    if (j && !tkVal('tkWa') && j.additional_fields && j.additional_fields.whatsapp) document.getElementById('tkWa').value = j.additional_fields.whatsapp;
+}
+async function simpanFormTiket() {
+    const id = tkVal('tkId'), old = id ? tiketData.pesanan.find(t => t.id === id) : null;
+    const pelanggan = tkVal('tkPelanggan');
+    const penumpang = tkVal('tkPenumpang').split('\n').map(l => l.trim()).filter(Boolean).map(l => { const a = l.split('|'); return { nama: a[0].trim(), noTiket: (a[1] || '').trim() }; }).filter(p => p.nama);
+    if (!pelanggan) return showToast('Isi nama pelanggan dulu!');
+    if (!penumpang.length) return showToast('Isi minimal satu penumpang!');
+    if (!tkVal('tkDari') || !tkVal('tkKe')) return showToast('Isi kota asal dan tujuan!');
+    const status = tkVal('tkStatus'), beli = tkUang('tkBeli'), jual = tkUang('tkJual');
+    if (status === 'issued' && (!jual || !beli)) { if (!(await konfirmasi('Harga beli atau harga jual masih kosong. Tetap simpan sebagai Terbit?'))) return; }
+    if (jual > 0 && beli > jual) { if (!(await konfirmasi('Harga jual lebih kecil dari harga beli, berarti rugi ' + fRp(beli - jual) + '. Tetap simpan?'))) return; }
+    const dat = {
+        pelanggan, wa: tkVal('tkWa'), jenis: tkVal('tkJenis'), maskapai: tkVal('tkMaskapai'), dari: tkVal('tkDari').toUpperCase(), ke: tkVal('tkKe').toUpperCase(),
+        tglBerangkat: tkVal('tkTglBerangkat'), jamBerangkat: tkVal('tkJamBerangkat'), tglPulang: tkVal('tkTglPulang'), noPenerbangan: tkVal('tkNoPenerbangan'),
+        pnr: tkVal('tkPnr').toUpperCase(), penumpang, pemasok: tkVal('tkPemasok'), hargaBeli: beli, hargaJual: jual, status,
+        tglPesan: tkVal('tkTglPesan') || tglHariIniIso(), timeLimit: status === 'booking' ? tkVal('tkTimeLimit') : '', catatan: tkVal('tkCatatan'),
+        refundPelanggan: (status === 'refund' || status === 'batal') ? tkUang('tkRefP') : 0, refundPemasok: (status === 'refund' || status === 'batal') ? tkUang('tkRefS') : 0
+    };
+    if (old) Object.assign(old, dat);
+    else tiketData.pesanan.unshift(Object.assign({ id: 'tk_' + Date.now(), kode: tkNomorBaru(), bayarPelanggan: [], bayarPemasok: [], dibuat: new Date().toISOString() }, dat));
+    await simpanTiket();
+    try { catatAktivitas('🎫', (old ? 'Ubah' : 'Catat') + ' pesanan tiket ' + pelanggan + ' (' + dat.dari + '-' + dat.ke + ')'); } catch (e) {}
+    tkTutup('tiketFormModal');
+    renderRingkasanTiket(); renderDaftarTiket();
+    if (old && document.getElementById('tiketDetailModal')?.style.display === 'flex') bukaDetailTiket(old.id);
+    showToast('✅ Pesanan tiket disimpan');
+}
+
+function bukaDetailTiket(id) {
+    const x = (tiketData.pesanan || []).find(t => t.id === id); if (!x) return;
+    const k = tiketKeuangan(x), st = TIKET_STATUS[x.status] || TIKET_STATUS.booking, rp = n => fRp(n);
+    const baris = (a, b, w) => `<div style="display:flex;justify-content:space-between;gap:8px;padding:3px 0;font-size:12px;"><span>${a}</span><b style="${w ? 'color:' + w : ''}">${b}</b></div>`;
+    const byr = (arr, jenis) => (arr || []).map(b => `<div style="display:flex;align-items:center;gap:6px;font-size:11.5px;padding:3px 0;border-bottom:1px dashed #eee;"><span style="flex:1;">${tkTgl(b.tgl)}${b.ket ? ' · ' + escapeHtml(b.ket) : ''}</span><b>${rp(b.nominal)}</b><span onclick="hapusBayarTiket('${x.id}','${jenis}','${b.id}')" style="color:#b91c1c;cursor:pointer;padding:0 4px;">🗑</span></div>`).join('');
+    const sw = x.status === 'booking' && x.timeLimit ? tkSisaWaktu(x.timeLimit) : null;
+    const tb = (t, f, bg, fg) => `<button onclick="${f}" style="padding:9px 4px;background:${bg};color:${fg || '#fff'};border:none;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;">${t}</button>`;
+    const m = tkModal('tiketDetailModal');
+    m.innerHTML = `<div class="modal-content" style="max-width:460px;max-height:92vh;overflow-y:auto;">
+        <div style="display:flex;justify-content:space-between;align-items:center;"><h3 style="color:var(--primary);margin:0;">🎫 ${escapeHtml(x.kode)}</h3><span style="font-size:11px;font-weight:700;color:#fff;background:${st.w};padding:3px 10px;border-radius:10px;">${st.t}</span></div>
+        <div style="font-size:14px;font-weight:800;margin-top:8px;">${escapeHtml(x.pelanggan)}</div>
+        <div style="font-size:12px;color:#555;">${x.wa ? '📱 ' + escapeHtml(x.wa) : 'Nomor WA belum diisi'}</div>
+        ${sw ? `<div style="margin-top:6px;font-size:12px;font-weight:700;color:${sw.w};">⏳ Time limit: ${sw.t}</div>` : ''}
+        <div style="background:var(--bg);border-radius:10px;padding:10px;margin:10px 0;font-size:12px;line-height:1.7;">
+            ✈ <b>${escapeHtml(tkRute(x))}</b> · ${escapeHtml(x.jenis === 'internasional' ? 'Internasional' : 'Domestik')}<br>
+            ${escapeHtml(x.maskapai || '-')} ${escapeHtml(x.noPenerbangan || '')} · ${tkTgl(x.tglBerangkat, x.jamBerangkat)}${x.tglPulang ? '<br>Pulang: ' + tkTgl(x.tglPulang) : ''}<br>
+            PNR: <b>${escapeHtml(x.pnr || '-')}</b> · Pemasok: ${escapeHtml(x.pemasok || '-')}<br>
+            Penumpang: ${(x.penumpang || []).map(p => escapeHtml(p.nama) + (p.noTiket ? ' (' + escapeHtml(p.noTiket) + ')' : '')).join(', ')}${x.catatan ? '<br>📝 ' + escapeHtml(x.catatan) : ''}</div>
+        <div style="border:1px solid #e2e8f0;border-radius:10px;padding:10px;margin-bottom:10px;">
+            <div style="font-weight:700;font-size:12px;color:var(--primary);">Pelanggan</div>
+            ${baris('Harga jual', rp(k.jual))}${k.jual !== k.pendapatan ? baris('Dikembalikan ke pelanggan', '− ' + rp(k.jual - k.pendapatan)) : ''}${baris('Sudah dibayar', rp(k.bayarP), '#059669')}${baris(k.lebihPelanggan ? 'Kelebihan bayar' : 'Sisa tagihan', rp(k.lebihPelanggan || k.sisaPelanggan), k.sisaPelanggan || k.lebihPelanggan ? '#d97706' : '#059669')}
+            ${byr(x.bayarPelanggan, 'p')}
+            <div style="font-weight:700;font-size:12px;color:var(--primary);margin-top:8px;">Pemasok</div>
+            ${baris('Harga beli', rp(k.beli))}${k.beli !== k.biaya ? baris('Dikembalikan pemasok', '− ' + rp(k.beli - k.biaya)) : ''}${baris('Sudah dibayar ke pemasok', rp(k.bayarS))}${baris('Sisa utang ke pemasok', rp(k.sisaPemasok), k.sisaPemasok ? '#dc2626' : '#059669')}
+            ${byr(x.bayarPemasok, 's')}
+            <div style="border-top:1px solid #e2e8f0;margin-top:8px;padding-top:6px;">${baris(x.status === 'booking' ? 'Perkiraan margin (belum terbit)' : 'Margin', rp(k.margin), k.margin >= 0 ? '#059669' : '#dc2626')}</div></div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;">
+            ${tb('💰 Terima Bayar', `bukaBayarTiket('${x.id}','p')`, '#059669')}${tb('🏦 Bayar Pemasok', `bukaBayarTiket('${x.id}','s')`, '#b45309')}
+            ${tb('🧳 Itinerary', `cetakItineraryTiket('${x.id}')`, 'var(--primary)')}${tb('🧾 Invoice / Kuitansi', `cetakInvoiceTiket('${x.id}')`, 'var(--primary)')}
+            ${tb('💬 WA: Tagih', `waTiket('${x.id}','tagih')`, '#25D366')}${tb('💬 WA: Kirim Jadwal', `waTiket('${x.id}','jadwal')`, '#25D366')}
+            ${tb('✏️ Ubah', `tkTutup('tiketDetailModal');bukaFormTiket('${x.id}')`, '#e2e8f0', '#333')}${tb('🗑 Hapus', `hapusTiket('${x.id}')`, '#fee2e2', '#b91c1c')}
+        </div>
+        <button onclick="tkTutup('tiketDetailModal')" style="width:100%;padding:10px;background:#e2e8f0;color:#333;border:none;border-radius:10px;font-size:13px;cursor:pointer;margin-top:8px;">Tutup</button></div>`;
+    m.style.display = 'flex';
+}
+function bukaBayarTiket(id, jenis) {
+    const x = tiketData.pesanan.find(t => t.id === id); if (!x) return;
+    const k = tiketKeuangan(x), sisa = jenis === 'p' ? k.sisaPelanggan : k.sisaPemasok;
+    const m = tkModal('tiketBayarModal');
+    m.innerHTML = `<div class="modal-content" style="max-width:380px;"><h3 style="color:var(--primary);margin-bottom:8px;">${jenis === 'p' ? '💰 Terima Bayar dari Pelanggan' : '🏦 Bayar ke Pemasok'}</h3>
+        <div style="font-size:12px;color:#666;margin-bottom:8px;">${escapeHtml(x.kode)} · ${escapeHtml(x.pelanggan)} · sisa ${fRp(sisa)}</div>
+        <div class="input-group"><label style="font-size:12px;">Nominal (Rp)</label><input type="text" inputmode="numeric" id="tkByrNominal" value="${sisa ? formatAngka(sisa) : ''}" oninput="this.value=this.value.replace(/\\D/g,'')?formatAngka(parseInt(this.value.replace(/\\D/g,''),10)):''"></div>
+        <div class="input-group"><label style="font-size:12px;">Tanggal</label><input type="date" id="tkByrTgl" value="${tglHariIniIso()}"></div>
+        <div class="input-group"><label style="font-size:12px;">Lewat rekening / keterangan</label><input type="text" id="tkByrKet" placeholder="mis. BCA kantor, tunai, transfer"></div>
+        <div style="display:flex;gap:8px;"><button class="btn btn-primary" onclick="simpanBayarTiket('${id}','${jenis}')" style="flex:1;">Simpan</button><button class="btn" onclick="tkTutup('tiketBayarModal')" style="flex:1;background:#e2e8f0;color:#333;">Batal</button></div>
+        <div style="font-size:10.5px;color:#888;margin-top:8px;">Ini hanya catatan di Penjualan Tiket. Saldo di menu Saldo Kantor tidak berubah otomatis.</div></div>`;
+    m.style.display = 'flex';
+}
+async function simpanBayarTiket(id, jenis) {
+    const x = tiketData.pesanan.find(t => t.id === id); if (!x) return;
+    const nominal = tkUang('tkByrNominal'); if (nominal <= 0) return showToast('Isi nominal yang valid!');
+    const k = tiketKeuangan(x), sisa = jenis === 'p' ? k.sisaPelanggan : k.sisaPemasok;
+    if (nominal > sisa && sisa >= 0) { if (!(await konfirmasi('Nominal ' + fRp(nominal) + ' lebih besar dari sisa ' + fRp(sisa) + '. Tetap catat?'))) return; }
+    const arr = jenis === 'p' ? (x.bayarPelanggan = x.bayarPelanggan || []) : (x.bayarPemasok = x.bayarPemasok || []);
+    arr.push({ id: 'b_' + Date.now(), nominal, tgl: tkVal('tkByrTgl') || tglHariIniIso(), ket: tkVal('tkByrKet') });
+    await simpanTiket();
+    try { catatAktivitas('🎫', (jenis === 'p' ? 'Terima bayar tiket ' : 'Bayar pemasok tiket ') + x.kode + ' ' + fRp(nominal)); } catch (e) {}
+    tkTutup('tiketBayarModal'); bukaDetailTiket(id); renderRingkasanTiket(); renderDaftarTiket();
+    showToast('✅ Pembayaran dicatat');
+}
+async function hapusBayarTiket(id, jenis, bid) {
+    if (!(await konfirmasi('Hapus catatan pembayaran ini?'))) return;
+    const x = tiketData.pesanan.find(t => t.id === id); if (!x) return;
+    if (jenis === 'p') x.bayarPelanggan = (x.bayarPelanggan || []).filter(b => b.id !== bid); else x.bayarPemasok = (x.bayarPemasok || []).filter(b => b.id !== bid);
+    await simpanTiket(); bukaDetailTiket(id); renderRingkasanTiket(); renderDaftarTiket();
+}
+async function hapusTiket(id) {
+    const x = tiketData.pesanan.find(t => t.id === id); if (!x) return;
+    if (!(await konfirmasi('Hapus pesanan ' + x.kode + ' a.n. ' + x.pelanggan + '? Semua catatan pembayarannya ikut terhapus.'))) return;
+    tiketData.pesanan = tiketData.pesanan.filter(t => t.id !== id);
+    await simpanTiket(); tkTutup('tiketDetailModal'); renderRingkasanTiket(); renderDaftarTiket(); showToast('Pesanan dihapus');
+}
+function waTiket(id, jenis) {
+    const x = tiketData.pesanan.find(t => t.id === id); if (!x) return;
+    if (!x.wa || bersihkanNomorWA(x.wa).length < 10) return showToast('Nomor WA pelanggan belum diisi/valid. Isi lewat Ubah.');
+    const k = tiketKeuangan(x); let t;
+    const tgl = tkTgl(x.tglBerangkat, x.jamBerangkat);
+    if (jenis === 'tagih') {
+        if (k.sisaPelanggan <= 0) return showToast('Pelanggan ini tidak punya sisa tagihan.');
+        t = `Assalamu'alaikum ${x.pelanggan},\n\nmengingatkan pembayaran tiket ${x.maskapai || ''} ${tkRute(x)} tanggal ${tgl}.\n\nTotal: ${fRp(k.pendapatan)}\nSudah dibayar: ${fRp(k.bayarP)}\n*Sisa: ${fRp(k.sisaPelanggan)}*`;
+        try { const rk = teksRekeningWA(rekeningTerpilih(kunciInstansiProgram())); if (rk) t += '\n\n' + rk.replace(/\s+$/, ''); } catch (e) {}
+        t += `\n\nTerima kasih.\n${getNamaInstansiUtama()}`;
+    } else {
+        if (x.status === 'booking') { if (!x.pnr) return showToast('Booking belum punya PNR. Isi dulu lewat Ubah.'); }
+        t = `Assalamu'alaikum ${x.pelanggan},\n\nberikut jadwal tiket Anda${x.status === 'booking' ? ' (*BOOKING, belum terbit*)' : ''}:\n\n✈ ${x.maskapai || ''} ${x.noPenerbangan || ''}\n${tkRute(x)}\n${tgl}${x.tglPulang ? '\nPulang: ' + tkTgl(x.tglPulang) : ''}\nKode booking (PNR): ${x.pnr || '-'}\nPenumpang: ${(x.penumpang || []).map(p => p.nama).join(', ')}\n\nMohon tiba di bandara minimal 2 jam sebelum keberangkatan (internasional 3 jam).\n\n${getNamaInstansiUtama()}`;
+    }
+    window.open('https://wa.me/' + bersihkanNomorWA(x.wa) + '?text=' + encodeURIComponent(t), '_blank');
+}
+
+// ---- Cetak: SEMUA memakai kop kantor sendiri. Tidak meniru tampilan, logo, atau barcode maskapai.
+function tkDokumen(judul, isi) {
+    const tgl = new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
+    let header = ''; try { header = buildPrintHeader(getKonfigurasiProData(), tgl); } catch (e) {}
+    return `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>${escapeHtml(judul)}</title><style>body{font-family:Arial,sans-serif;font-size:13px;padding:24px;max-width:720px;margin:0 auto;color:#111;}table{width:100%;border-collapse:collapse;margin:8px 0 14px;}td,th{padding:6px 8px;border:1px solid #ccc;text-align:left;vertical-align:top;}th{background:#f1f5f9;}h2{text-align:center;margin:12px 0 2px;}.sub{text-align:center;color:#555;margin-bottom:12px;font-size:12px;}.kecil{font-size:11px;color:#555;line-height:1.5;}.r{text-align:right;}@media print{.no-print{display:none!important;}}</style></head><body>${header}<h2>${escapeHtml(judul)}</h2>${isi}`;
+}
+function cetakItineraryTiket(id) {
+    const x = tiketData.pesanan.find(t => t.id === id); if (!x) return;
+    const booking = x.status === 'booking', batal = x.status === 'batal';
+    const stTeks = booking ? 'BOOKING — BELUM DITERBITKAN' : batal ? 'DIBATALKAN' : x.status === 'refund' ? 'REFUND' : 'TERBIT';
+    const wr = booking ? '#b45309' : batal ? '#b91c1c' : '#047857';
+    const isi = `<div class="sub">${escapeHtml(x.kode)} · dicetak ${new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}</div>
+    <div style="text-align:center;font-weight:bold;color:${wr};border:2px solid ${wr};padding:6px;margin-bottom:12px;">${stTeks}</div>
+    <table><tr><th style="width:32%;">Kode booking (PNR)</th><td><b style="font-size:16px;letter-spacing:2px;">${escapeHtml(x.pnr || '-')}</b></td></tr>
+    <tr><th>Maskapai / Penerbangan</th><td>${escapeHtml(x.maskapai || '-')} ${escapeHtml(x.noPenerbangan || '')}</td></tr>
+    <tr><th>Rute</th><td>${escapeHtml(tkRute(x))} (${x.jenis === 'internasional' ? 'Internasional' : 'Domestik'})</td></tr>
+    <tr><th>Berangkat</th><td>${tkTgl(x.tglBerangkat, x.jamBerangkat)}</td></tr>
+    ${x.tglPulang ? `<tr><th>Pulang</th><td>${tkTgl(x.tglPulang)}</td></tr>` : ''}</table>
+    <b>Penumpang</b><table><tr><th style="width:36px;">No</th><th>Nama (sesuai identitas)</th><th>No. Tiket</th></tr>${(x.penumpang || []).map((p, i) => `<tr><td>${i + 1}</td><td>${escapeHtml(p.nama)}</td><td>${escapeHtml(p.noTiket || '-')}</td></tr>`).join('')}</table>
+    ${x.catatan ? `<div class="kecil">Catatan: ${escapeHtml(x.catatan)}</div>` : ''}
+    <div class="kecil" style="border-top:1px solid #ccc;padding-top:8px;margin-top:14px;">Dokumen ini adalah <b>itinerary / bukti pemesanan</b> dari ${escapeHtml(getNamaInstansiUtama())}, <b>bukan e-ticket resmi maskapai</b>. ${booking ? 'Pemesanan belum diterbitkan; jadwal dan harga dapat berubah sampai tiket terbit. ' : ''}Tiket yang sah adalah e-ticket yang diterbitkan maskapai; tunjukkan e-ticket tersebut dan identitas saat check-in. Datang ke bandara minimal 2 jam sebelum keberangkatan (internasional 3 jam).</div>`;
+    tampilkanJendelaCetak(tkDokumen('ITINERARY & BUKTI PEMESANAN', isi));
+}
+function cetakInvoiceTiket(id) {
+    const x = tiketData.pesanan.find(t => t.id === id); if (!x) return;
+    const k = tiketKeuangan(x), lunas = k.pendapatan > 0 && k.sisaPelanggan === 0, rp = n => fRp(n);
+    const judul = lunas ? 'KUITANSI — LUNAS' : 'INVOICE';
+    const r = (a, b, t) => `<tr><td${t ? ' style="font-weight:bold;"' : ''}>${a}</td><td class="r"${t ? ' style="font-weight:bold;"' : ''}>${b}</td></tr>`;
+    const isi = `<div class="sub">${escapeHtml(x.kode)} · ${tkTgl(x.tglPesan)}</div>
+    <table><tr><th style="width:28%;">Kepada</th><td>${escapeHtml(x.pelanggan)}${x.wa ? '<br>' + escapeHtml(x.wa) : ''}</td></tr></table>
+    <table><tr><th>Keterangan</th><th class="r" style="width:30%;">Jumlah</th></tr>
+    ${r(`Tiket ${escapeHtml(x.maskapai || '')} ${escapeHtml(tkRute(x))}<br><span class="kecil">${tkTgl(x.tglBerangkat, x.jamBerangkat)} · ${(x.penumpang || []).length} penumpang${x.pnr ? ' · PNR ' + escapeHtml(x.pnr) : ''}<br>${(x.penumpang || []).map(p => escapeHtml(p.nama)).join(', ')}</span>`, rp(k.jual))}
+    ${k.jual !== k.pendapatan ? r('Pengembalian dana (refund)', '− ' + rp(k.jual - k.pendapatan)) : ''}
+    ${r('TOTAL', rp(k.pendapatan), 1)}</table>
+    ${(x.bayarPelanggan || []).length ? `<b>Pembayaran diterima</b><table>${(x.bayarPelanggan || []).map(b => r(tkTgl(b.tgl) + (b.ket ? ' · ' + escapeHtml(b.ket) : ''), rp(b.nominal))).join('')}${r('Total diterima', rp(k.bayarP), 1)}</table>` : ''}
+    <table>${r(k.lebihPelanggan ? 'KELEBIHAN BAYAR' : 'SISA TAGIHAN', rp(k.lebihPelanggan || k.sisaPelanggan), 1)}</table>
+    <div class="kecil">${lunas ? 'Pembayaran telah diterima lunas. Terima kasih.' : 'Mohon pelunasan sebelum tanggal keberangkatan.'}</div>`;
+    tampilkanJendelaCetak(tkDokumen(judul, isi));
+}
+
+// ---- Laporan (satu sumber angka untuk layar dan cetak)
+let _tiketPeriode = 'bulan';
+function hitungLaporanTiket(periode) {
+    const now = new Date(), th = String(now.getFullYear()), bln = tglHariIniIso().slice(0, 7);
+    const lalu = new Date(now.getFullYear(), now.getMonth() - 1, 1), blnLalu = lalu.getFullYear() + '-' + String(lalu.getMonth() + 1).padStart(2, '0');
+    const ok = x => { const t = x.tglPesan || ''; return periode === 'semua' || (periode === 'bulan' && t.slice(0, 7) === bln) || (periode === 'lalu' && t.slice(0, 7) === blnLalu) || (periode === 'tahun' && t.slice(0, 4) === th); };
+    const L = { n: 0, pax: 0, jual: 0, beli: 0, margin: 0, booking: 0, maskapai: {}, pemasok: {}, pelanggan: {} };
+    const tambah = (o, key, k) => { const a = o[key] || (o[key] = { n: 0, jual: 0, beli: 0, margin: 0 }); a.n++; a.jual += k.pendapatan; a.beli += k.biaya; a.margin += k.margin; };
+    (tiketData.pesanan || []).filter(ok).forEach(x => {
+        if (x.status === 'booking') { L.booking++; return; }
+        const k = tiketKeuangan(x);
+        if (x.status === 'batal' && !k.bayarP && !k.bayarS && !k.pendapatan && !k.biaya) return;
+        L.n++; L.pax += (x.penumpang || []).length; L.jual += k.pendapatan; L.beli += k.biaya; L.margin += k.margin;
+        tambah(L.maskapai, x.maskapai || '(tanpa maskapai)', k); tambah(L.pemasok, x.pemasok || '(tanpa pemasok)', k); tambah(L.pelanggan, x.pelanggan || '-', k);
+    });
+    // Piutang & utang: semua pesanan aktif, tidak dibatasi periode
+    L.piutang = []; L.utang = [];
+    (tiketData.pesanan || []).forEach(x => {
+        if (x.status === 'booking') return; const k = tiketKeuangan(x);
+        if (k.sisaPelanggan > 0) L.piutang.push({ nama: x.pelanggan, kode: x.kode, sisa: k.sisaPelanggan });
+        if (k.sisaPemasok > 0) L.utang.push({ nama: x.pemasok || '(tanpa pemasok)', kode: x.kode, sisa: k.sisaPemasok });
+    });
+    L.piutang.sort((a, b) => b.sisa - a.sisa); L.utang.sort((a, b) => b.sisa - a.sisa);
+    L.totPiutang = L.piutang.reduce((a, b) => a + b.sisa, 0); L.totUtang = L.utang.reduce((a, b) => a + b.sisa, 0);
+    return L;
+}
+const TIKET_PERIODE = { bulan: 'Bulan ini', lalu: 'Bulan lalu', tahun: 'Tahun ini', semua: 'Semua' };
+function bukaLaporanTiket() { _tiketPeriode = 'bulan'; renderLaporanTiket(); tkModal('tiketLaporanModal').style.display = 'flex'; }
+function ubahPeriodeTiket(p) { _tiketPeriode = p; renderLaporanTiket(); }
+function tkTabel(o, judul, kolomBeli) {
+    const e = Object.entries(o).sort((a, b) => b[1].margin - a[1].margin).slice(0, 8);
+    if (!e.length) return '';
+    return `<details style="margin-top:8px;"><summary style="font-size:12px;font-weight:700;color:var(--primary);cursor:pointer;">${judul} (${Object.keys(o).length})</summary>${e.map(([n, a]) => `<div style="display:flex;justify-content:space-between;gap:8px;font-size:11.5px;padding:4px 0;border-bottom:1px dashed #eee;"><span style="flex:1;">${escapeHtml(n)} <span style="color:#888;">(${a.n})</span></span><span>${fRp(kolomBeli ? a.beli : a.jual)}</span><b style="color:${a.margin >= 0 ? '#059669' : '#dc2626'};min-width:84px;text-align:right;">${fRp(a.margin)}</b></div>`).join('')}</details>`;
+}
+function renderLaporanTiket() {
+    const m = tkModal('tiketLaporanModal'), L = hitungLaporanTiket(_tiketPeriode), rp = n => fRp(n);
+    const pr = Object.keys(TIKET_PERIODE).map(k => `<button onclick="ubahPeriodeTiket('${k}')" style="flex:1;padding:7px 2px;border:1.5px solid var(--primary);border-radius:8px;font-size:11px;font-weight:700;cursor:pointer;background:${_tiketPeriode === k ? 'var(--primary)' : 'transparent'};color:${_tiketPeriode === k ? '#fff' : 'var(--primary)'};">${TIKET_PERIODE[k]}</button>`).join('');
+    const baris = (a, b, w) => `<div style="display:flex;justify-content:space-between;font-size:12.5px;padding:3px 0;"><span>${a}</span><b style="${w ? 'color:' + w : ''}">${b}</b></div>`;
+    const dft = (arr, w) => arr.slice(0, 8).map(x => `<div style="display:flex;justify-content:space-between;font-size:11.5px;padding:3px 0;border-bottom:1px dashed #eee;"><span>${escapeHtml(x.nama)} <span style="color:#888;">${escapeHtml(x.kode)}</span></span><b style="color:${w};">${rp(x.sisa)}</b></div>`).join('');
+    m.innerHTML = `<div class="modal-content" style="max-width:460px;max-height:92vh;overflow-y:auto;">
+        <h3 style="color:var(--primary);margin-bottom:8px;">📊 Laporan Penjualan Tiket</h3>
+        <div style="display:flex;gap:5px;margin-bottom:10px;">${pr}</div>
+        <div style="background:${L.margin >= 0 ? '#065f46' : '#991b1b'};color:#fff;border-radius:12px;padding:12px;text-align:center;margin-bottom:10px;"><div style="font-size:11px;opacity:.85;">MARGIN — ${TIKET_PERIODE[_tiketPeriode].toUpperCase()}</div><div style="font-size:22px;font-weight:800;">${rp(L.margin)}</div><div style="font-size:11px;opacity:.85;">${L.n} pesanan · ${L.pax} penumpang${L.booking ? ' · ' + L.booking + ' booking belum terbit (tidak dihitung)' : ''}</div></div>
+        ${baris('Penjualan', rp(L.jual))}${baris('Harga beli (modal)', rp(L.beli))}${baris('Margin', rp(L.margin), L.margin >= 0 ? '#059669' : '#dc2626')}${L.jual > 0 ? baris('Persentase margin', (L.margin / L.jual * 100).toFixed(1).replace('.', ',') + '%') : ''}
+        ${tkTabel(L.maskapai, 'Per maskapai')}${tkTabel(L.pemasok, 'Per pemasok', true)}${tkTabel(L.pelanggan, 'Per pelanggan')}
+        <div style="font-weight:700;color:#d97706;margin-top:12px;font-size:13px;">Piutang pelanggan: ${rp(L.totPiutang)} <span style="font-size:10px;color:#888;font-weight:400;">(semua periode)</span></div>${dft(L.piutang, '#d97706') || '<div style="font-size:11.5px;color:#166534;">Tidak ada.</div>'}
+        <div style="font-weight:700;color:#dc2626;margin-top:12px;font-size:13px;">Utang ke pemasok: ${rp(L.totUtang)} <span style="font-size:10px;color:#888;font-weight:400;">(semua periode)</span></div>${dft(L.utang, '#dc2626') || '<div style="font-size:11.5px;color:#166534;">Tidak ada.</div>'}
+        <div style="font-size:10.5px;color:#888;margin-top:10px;line-height:1.5;">Dihitung dari tanggal pesan. Booking belum terbit tidak masuk penjualan. Margin = harga jual − harga beli, sudah dikurangi refund yang Anda catat.</div>
+        <div style="display:flex;gap:8px;margin-top:12px;"><button onclick="cetakLaporanTiket()" style="flex:1;padding:11px;background:var(--primary);color:#fff;border:none;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;">🖨️ Cetak</button><button onclick="tkTutup('tiketLaporanModal')" style="flex:1;padding:11px;background:#e2e8f0;color:#333;border:none;border-radius:10px;font-size:13px;cursor:pointer;">Tutup</button></div></div>`;
+}
+function cetakLaporanTiket() {
+    const L = hitungLaporanTiket(_tiketPeriode), rp = n => fRp(n);
+    const r = (a, b, t) => `<tr><td${t ? ' style="font-weight:bold;"' : ''}>${a}</td><td class="r"${t ? ' style="font-weight:bold;"' : ''}>${b}</td></tr>`;
+    const grup = (o, jd) => { const e = Object.entries(o).sort((a, b) => b[1].margin - a[1].margin); return e.length ? `<b>${jd}</b><table><tr><th>Nama</th><th class="r">Pesanan</th><th class="r">Penjualan</th><th class="r">Margin</th></tr>${e.map(([n, a]) => `<tr><td>${escapeHtml(n)}</td><td class="r">${a.n}</td><td class="r">${rp(a.jual)}</td><td class="r">${rp(a.margin)}</td></tr>`).join('')}</table>` : ''; };
+    const dft = (arr, jd) => arr.length ? `<b>${jd}</b><table><tr><th>Nama</th><th>Kode</th><th class="r">Sisa</th></tr>${arr.map(x => `<tr><td>${escapeHtml(x.nama)}</td><td>${escapeHtml(x.kode)}</td><td class="r">${rp(x.sisa)}</td></tr>`).join('')}</table>` : '';
+    const isi = `<div class="sub">Periode: ${TIKET_PERIODE[_tiketPeriode]} · dicetak ${new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}</div>
+    <table>${r('Jumlah pesanan / penumpang', L.n + ' / ' + L.pax)}${r('Penjualan', rp(L.jual))}${r('Harga beli (modal)', rp(L.beli))}${r('Margin', rp(L.margin), 1)}</table>
+    ${grup(L.maskapai, 'Per Maskapai')}${grup(L.pemasok, 'Per Pemasok')}${grup(L.pelanggan, 'Per Pelanggan')}
+    ${dft(L.piutang, 'Piutang Pelanggan — ' + rp(L.totPiutang))}${dft(L.utang, 'Utang ke Pemasok — ' + rp(L.totUtang))}
+    <div class="kecil">Booking belum terbit tidak dihitung. Piutang dan utang mencakup semua periode.</div>`;
+    tampilkanJendelaCetak(tkDokumen('LAPORAN PENJUALAN TIKET', isi));
 }
 
 // ==================== PENCARIAN JAMAAH LINTAS PROGRAM ====================
@@ -21388,14 +22163,26 @@ function daftarCaraPakai() {
               isi: 'Di <b>Catatan</b>, isi tanggal pengingat dan (kalau perlu) nama jamaahnya. Catatan yang waktunya tiba muncul di kotak <b>Perlu ditindaklanjuti</b> pada Dashboard.',
               tombol: [bukaMod('Catatan', 'catatan')] },
             { judul: 'Menghitung zakat',
-              isi: 'Buka <b>Zakat</b>. Tiap <b>Sumber Harta</b> punya jenis sendiri (Mal, Perdagangan, atau Pertanian), jadi satu hitungan boleh memuat beberapa jenis sekaligus. Mal dan Perdagangan: nisab 85 gram emas, tarif 2,5%, jawab pertanyaan <b>haul</b> (harus genap 1 tahun). Pertanian: nisab 653 kg gabah, pilih <b>pengairan</b> (5% berbiaya, 10% tanpa biaya), tanpa haul. Isi harga emas atau harga gabah di atas. Kalau belum mencapai nisab atau belum haul, zakat tertulis Rp 0 beserta alasannya. Layar, Cetak, WhatsApp, dan Salin memakai hasil yang sama.',
+              isi: 'Buka <b>Zakat</b>. Tiap <b>Sumber Harta</b> punya jenis sendiri (Mal, Perdagangan, atau Pertanian), jadi satu hitungan boleh memuat beberapa jenis sekaligus. Mal dan Perdagangan: nisab 85 gram emas, tarif 2,5%, jawab pertanyaan <b>haul</b> (harus genap 1 tahun). Pertanian: nisab 653 kg gabah, pilih <b>pengairan</b> (5% berbiaya, 10% tanpa biaya), tanpa haul. Isi harga emas atau harga gabah di atas. Kalau belum mencapai nisab atau belum haul, zakat tertulis Rp 0 beserta alasannya. Nisab Pertanian dihitung per panen, jadi gabungkan beberapa lahan hanya bila panennya satu musim. Aktifkan <b>Kunci Data Zakat</b> supaya isian tidak terubah atau terhapus tanpa sengaja; setiap kali dikunci, salinannya tersimpan di <b>Riwayat</b>. Data zakat ikut Backup ZIP. Layar, Cetak, WhatsApp, dan Salin memakai hasil yang sama.',
               tombol: [bukaMod('Zakat', 'zakat')] },
             { judul: 'Mengatur animasi pindah halaman',
               isi: 'Di <b>Setting</b> ada kartu <b>Animasi Halaman</b> dengan tiga pilihan: <b>Pudar</b> (halus), <b>Geser</b> (seperti aplikasi bank), dan <b>Mati</b> (paling cepat, cocok untuk HP lama).',
               tombol: [bukaMod('Setting', 'setting')] },
+            { judul: 'Mengirim pengingat WA',
+              isi: 'Buka <b>Pengingat WA</b>. Pilih <b>pesan siap pakai</b> (atau tulis sendiri), lalu pilih penerima: ketuk <b>Belum lunas</b>, <b>Cicilan telat</b>, atau <b>Dokumen kurang</b> untuk memilih sekaligus. Tulisan <b>[nama]</b>, <b>[sisa]</b>, <b>[program]</b>, dan <b>[instansi]</b> otomatis diganti untuk tiap jamaah; lihat hasilnya di Pratinjau. WhatsApp tidak bisa dikirim otomatis, jadi ketuk <b>Kirim</b> satu per satu. Untuk mengingatkan diri sendiri, isi <b>jadwal</b> lalu ketuk Jadwalkan: saat waktunya tiba, pengingat muncul di Dashboard.',
+              tombol: [{ t: 'Buka Pengingat WA', a: () => showPage('pengingatwa'), h: 'pengingatwa', f: 'pengingatwa' }] },
             { judul: 'Backup data',
-              isi: 'Data aplikasi tersimpan <b>hanya di HP ini</b>. Kalau HP hilang, rusak, atau aplikasi terhapus, data ikut hilang, dan tanpa backup tidak bisa dipulihkan. Buka <b>Backup &amp; Restore</b> → <b>Kirim ZIP ke Drive</b>: tunggu sampai muncul <b>ZIP siap</b>, ketuk <b>Kirim ke Drive</b>, lalu pilih Drive di lembar Bagikan. File tidak perlu disimpan ke HP dulu dan tidak perlu diekstrak. Kalau HP tidak mendukung, pakai <b>Simpan ke HP</b> (sama dengan Download ZIP) lalu unggah dari aplikasi Drive. Backup otomatis ke Drive belum tersedia. Lakukan setiap selesai input banyak data, dan <b>wajib sebelum mengganti versi aplikasi</b>. Fitur ini hanya untuk Admin Utama.',
+              isi: 'Data aplikasi tersimpan <b>hanya di HP ini</b>. Kalau HP hilang, rusak, atau aplikasi terhapus, data ikut hilang, dan tanpa backup tidak bisa dipulihkan. Buka <b>Backup &amp; Restore</b> → <b>Download ZIP</b>, tunggu sampai file tersimpan di HP (berisi semua data, foto, dan dokumen, tidak perlu diekstrak), lalu unggah file itu ke Drive atau kirim ke WhatsApp dari folder Download. Kalau HP diganti atau aplikasi terhapus, pakai <b>Restore dari File</b> dengan ZIP itu. Backup otomatis ke Drive belum tersedia. Lakukan setiap selesai input banyak data, dan <b>wajib sebelum mengganti versi aplikasi</b>. Fitur ini hanya untuk Admin Utama.',
               tombol: [bukaMod('Backup & Restore', 'cloudstorage')] }
+        ] },
+        { id: 'tiketjual', judul: '🎫 PENJUALAN TIKET', items: [
+            { judul: 'Mencatat penjualan tiket pelanggan',
+              isi: 'Buka <b>Penjualan Tiket</b> → <b>Pesanan Baru</b>. Isi pelanggan, maskapai, rute, tanggal, PNR, penumpang, <b>harga beli</b> (dari pemasok/agen) dan <b>harga jual</b>. Margin muncul otomatis. Aplikasi ini hanya <b>mencatat</b>; tiketnya tetap diterbitkan maskapai atau agen Anda.',
+              tombol: [{ t: 'Buka Penjualan Tiket', a: () => showPage('tiket'), h: 'tiket' }] },
+            { judul: 'Pembayaran, utang pemasok, dan time limit',
+              isi: 'Buka sebuah pesanan lalu ketuk <b>Terima Bayar</b> untuk uang dari pelanggan, dan <b>Bayar Pemasok</b> untuk uang yang Anda setor ke agen/maskapai. Sisa piutang dan utang dihitung sendiri. Pesanan <b>Booking</b> yang time limit-nya kurang dari 24 jam muncul di Dashboard.' },
+            { judul: 'Itinerary, invoice, dan laporan',
+              isi: 'Dari pesanan: <b>Itinerary</b> dan <b>Invoice/Kuitansi</b> tercetak dengan kop kantor Anda. Itinerary bukan e-ticket resmi maskapai; e-ticket asli tetap dikirim dari maskapai/agen. Tombol <b>Laporan</b> di halaman utama menampilkan penjualan, margin, piutang, dan utang pemasok per periode.' }
         ] },
         { id: 'khusus', judul: '🧭 KASUS KHUSUS', items: [
             { judul: 'Anak, bayi, FOC, TL, dan pembimbing',
@@ -22520,7 +23307,7 @@ const defaultJamaahKitaFields = [
     { name: 'whatsapp',      label: 'WhatsApp',        type: 'tel',      icon: '📞', isRequired: true  },
     { name: 'rombongan',     label: 'Rombongan',       type: 'text',     icon: '👥', isRequired: false },
     { name: 'regu',          label: 'Regu',            type: 'text',     icon: '👥', isRequired: false },
-    { name: 'visa',          label: 'Visa',            type: 'text',     icon: '📘', isRequired: false },
+    { name: 'visa',          label: 'No. Visa',        type: 'text',     icon: '📘', isRequired: false },
     { name: 'kamar',         label: 'Kamar',           type: 'text',     icon: '🛏️', isRequired: false },
     { name: 'bus',           label: 'Bus',             type: 'text',     icon: '🚌', isRequired: false },
     { name: 'hotel_makkah',  label: 'Hotel Makkah',   type: 'text',     icon: '🏨', isRequired: false },
@@ -22547,6 +23334,8 @@ async function loadJamaahKitaData() {
 
     { const kKK = dynamicFieldsJamaahKita.find(f => f.name === 'kk');
       if (kKK && kKK.label === 'KK') { kKK.label = 'No KK'; await idbSet(STORE_JAMAAH_KITA, 'kita_fields', dynamicFieldsJamaahKita); } }
+    { const kVisa = dynamicFieldsJamaahKita.find(f => f.name === 'visa');
+      if (kVisa && kVisa.label === 'Visa') { kVisa.label = 'No. Visa'; await idbSet(STORE_JAMAAH_KITA, 'kita_fields', dynamicFieldsJamaahKita); } }
     // Migrasi: tambahkan field Keluarga untuk pengguna lama yang belum punya
     if (!dynamicFieldsJamaahKita.some(f => f.name === 'keluarga')) {
         dynamicFieldsJamaahKita.push({ name: 'keluarga', label: 'Keluarga', type: 'text', icon: '👨‍👩‍👧', isRequired: false });
@@ -23706,22 +24495,78 @@ function tarifSumberZakat(s){
 }
 function labelSumberZakat(b){ const j=ZAKAT_JENIS_LABEL[b.jenis]; return (b.nama && b.nama.toLowerCase()!==j.toLowerCase()) ? `${b.nama} (${j})` : j; }
 function sumberZakatBaru(){ return { id: Date.now()+Math.floor(Math.random()*1000), nama:'', jumlah:0, jenis:'mal', haul:'', air:'', persen:2.5 }; }
+// Penyimpanan data Zakat (ikut Backup/Restore lewat bacaPengaturanLokal)
+let zakatKunci = false, zakatRiwayat = [], _zkRincianBuka = false;
+function fPersenZk(n){ return String(n == null ? '' : n).replace('.', ','); }
+function simpanDataZakat(){ try { localStorage.setItem('navara_zakat_data', JSON.stringify({ sumber: sumberHartaList, kunci: zakatKunci, riwayat: zakatRiwayat })); } catch(e) {} }
+function muatDataZakat(){
+    try {
+        const d = JSON.parse(localStorage.getItem('navara_zakat_data') || 'null');
+        zakatKunci = !!(d && d.kunci); zakatRiwayat = (d && Array.isArray(d.riwayat)) ? d.riwayat : [];
+        if(d && Array.isArray(d.sumber) && d.sumber.length) { sumberHartaList = d.sumber; return true; }
+    } catch(e) {}
+    return false;
+}
+function zakatTerkunci(){ if(zakatKunci) { showToast('🔒 Data zakat terkunci — buka kunci dulu'); return true; } return false; }
 function tambahSumberHarta(){
+    if(zakatTerkunci()) return;
     sumberHartaList.push(sumberZakatBaru());
+    simpanDataZakat();
     renderSumberHartaList();
 }
-function hapusSumberHarta(id){
-    sumberHartaList=sumberHartaList.filter(s=>s.id!==id);
+async function hapusSumberHarta(id){
+    if(zakatTerkunci()) return;
+    const sm = sumberHartaList.find(s => s.id === id);
+    if(sm && (sm.jumlah > 0 || (sm.nama || '').trim())) { if(!(await konfirmasi('Hapus sumber harta' + (sm.nama ? ' "' + sm.nama + '"' : '') + ' ini?'))) return; }
+    sumberHartaList = sumberHartaList.filter(s => s.id !== id);
+    if(sumberHartaList.length === 0) sumberHartaList = [sumberZakatBaru()];
+    simpanDataZakat();
     renderSumberHartaList();
 }
 function updateSumberHarta(id,field,value){
+    if(zakatKunci) return;
     const sumber=sumberHartaList.find(s=>s.id===id);
     if(!sumber) return;
     if(field==='nama') sumber.nama=value;
     if(field==='jumlah') sumber.jumlah=parseRupiah(value);
-    if(field==='jenis'){ sumber.jenis=value; sumber.haul=''; sumber.air=''; sumber.persen=tarifSumberZakat(sumber); renderSumberHartaList(); return; }
+    if(field==='jenis'){ sumber.jenis=value; sumber.haul=''; sumber.air=''; sumber.persen=tarifSumberZakat(sumber); simpanDataZakat(); renderSumberHartaList(); return; }
     if(field==='haul') sumber.haul=value;
-    if(field==='air'){ sumber.air=value; sumber.persen=tarifSumberZakat(sumber); const e=document.getElementById('zkPersen'+id); if(e) e.value=sumber.persen||''; }
+    if(field==='air'){ sumber.air=value; sumber.persen=tarifSumberZakat(sumber); const e=document.getElementById('zkPersen'+id); if(e) e.value=fPersenZk(sumber.persen||''); }
+    simpanDataZakat();
+}
+// ---- Kunci & riwayat
+function renderZakatKunciBar(){
+    const el = document.getElementById('zakatKunciBar'); if(!el) return;
+    el.innerHTML = `<div style="display:flex;align-items:center;justify-content:space-between;background:#F8FAFC;border-radius:12px;padding:10px 12px;margin:4px 0 12px;"><label style="display:flex;align-items:center;gap:8px;font-size:13px;font-weight:600;color:#333;cursor:pointer;margin:0;"><input type="checkbox" id="zakatKunciToggle" ${zakatKunci ? 'checked' : ''} onchange="toggleKunciZakat()" style="width:18px;height:18px;">🔒 Kunci Data Zakat Ini</label><a href="#" onclick="event.preventDefault();openRiwayatZakat();" style="font-size:12px;color:var(--primary);font-weight:600;text-decoration:none;white-space:nowrap;${zakatRiwayat.length ? '' : 'display:none;'}">🕐 Riwayat (${zakatRiwayat.length})</a></div>`;
+}
+function toggleKunciZakat(){
+    const cb = document.getElementById('zakatKunciToggle');
+    if(cb.checked) {
+        let total = null; try { const d = hitungDataZakat(); if(!d.galat) total = d.totalZakat; } catch(e) {}
+        zakatRiwayat.unshift({ ts: Date.now(), tanggal: new Date().toLocaleString('id-ID', { day:'2-digit', month:'long', year:'numeric', hour:'2-digit', minute:'2-digit' }), sumber: JSON.parse(JSON.stringify(sumberHartaList)), harga: (function(){ try { return JSON.parse(localStorage.getItem('navara_zakat_harga') || '{}'); } catch(e) { return {}; } })(), total });
+        zakatRiwayat = zakatRiwayat.slice(0, 10);
+        zakatKunci = true;
+        showToast('🔒 Data zakat dikunci dan salinannya disimpan di Riwayat');
+    } else { zakatKunci = false; showToast('🔓 Kunci dibuka'); }
+    simpanDataZakat(); renderZakatKunciBar(); toggleZakatInput(); renderSumberHartaList();
+}
+function openRiwayatZakat(){
+    let modal = document.getElementById('riwayatZakatModal');
+    if(!modal) { modal = document.createElement('div'); modal.id = 'riwayatZakatModal'; modal.className = 'modal'; document.body.appendChild(modal); }
+    const f = n => 'Rp ' + formatAngka(n);
+    const rows = zakatRiwayat.map((r, i) => `<div style="padding:10px 0;border-bottom:1px solid #eef2f1;"><div style="font-size:13px;font-weight:700;">${escapeHtml(r.tanggal)}</div><div style="font-size:12px;color:#64748B;margin:2px 0 6px;">${r.sumber.filter(x => x.jumlah > 0).length} sumber harta${r.total != null ? ' · zakat ' + f(r.total) : ''}</div><button type="button" onclick="pulihkanRiwayatZakat(${i})" style="padding:7px 12px;border:1.5px solid var(--primary);background:#fff;color:var(--primary);border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;">Pulihkan salinan ini</button></div>`).join('');
+    modal.innerHTML = `<div class="modal-content" style="max-width:440px;"><h3 style="color:var(--primary);margin-bottom:4px;">🕐 Riwayat Data Zakat</h3><div style="font-size:12px;color:#64748B;margin-bottom:10px;">Salinan dibuat otomatis setiap kali data dikunci (10 terakhir). Memulihkan akan mengganti isian sekarang dan butuh kunci terbuka.</div><div style="max-height:340px;overflow-y:auto;">${rows || '<p style="color:#888;">Belum ada riwayat.</p>'}</div><button type="button" onclick="document.getElementById('riwayatZakatModal').style.display='none'" style="width:100%;margin-top:12px;padding:12px;border:none;border-radius:10px;background:#E2E8F0;color:#333;font-weight:700;cursor:pointer;">Tutup</button></div>`;
+    modal.style.display = 'flex';
+}
+async function pulihkanRiwayatZakat(i){
+    if(zakatKunci) return showToast('🔒 Buka kunci dulu untuk memulihkan');
+    const r = zakatRiwayat[i]; if(!r) return;
+    if(!(await konfirmasi('Ganti isian zakat sekarang dengan salinan ' + r.tanggal + '?'))) return;
+    sumberHartaList = JSON.parse(JSON.stringify(r.sumber));
+    try { localStorage.setItem('navara_zakat_harga', JSON.stringify(r.harga || {})); } catch(e) {}
+    simpanDataZakat(); renderSumberHartaList();
+    const mz = document.getElementById('riwayatZakatModal'); if(mz) mz.style.display = 'none';
+    showToast('✅ Salinan dipulihkan');
 }
 function simpanHargaZakat(){
     try{
@@ -23739,18 +24584,15 @@ function toggleZakatInput(){
     const nilaiEmas=emasAda?emasAda.value:zakatHargaTersimpan('emas'), nilaiGabah=gabahAda?gabahAda.value:zakatHargaTersimpan('gabah');
     const perluEmas=sumberHartaList.some(s=>s.jenis!=='pertanian'), perluGabah=sumberHartaList.some(s=>s.jenis==='pertanian');
     let h='';
-    if(perluEmas) h+=`<div class="input-group"><label>Harga Emas per Gram (Rp)</label><input type="text" id="hargaEmas" class="money-input" inputmode="numeric" value="${nilaiEmas}" oninput="formatMoneyInput(this);simpanHargaZakat()"></div>`;
-    if(perluGabah) h+=`<div class="input-group"><label>Harga Gabah Kering Giling per Kg (Rp)</label><input type="text" id="hargaGabah" class="money-input" inputmode="numeric" value="${nilaiGabah}" oninput="formatMoneyInput(this);simpanHargaZakat()"></div>`;
+    if(perluEmas) h+=`<div class="input-group"><label>Harga Emas per Gram (Rp)</label><input type="text" id="hargaEmas" class="money-input" inputmode="numeric" value="${nilaiEmas}" oninput="formatMoneyInput(this);simpanHargaZakat()" ${zakatKunci ? 'readonly' : ''}></div>`;
+    if(perluGabah) h+=`<div class="input-group"><label>Harga Gabah Kering Giling per Kg (Rp)</label><input type="text" id="hargaGabah" class="money-input" inputmode="numeric" value="${nilaiGabah}" oninput="formatMoneyInput(this);simpanHargaZakat()" ${zakatKunci ? 'readonly' : ''}></div>`;
     g.innerHTML=h;
 }
 function renderSumberHartaList(){
     const container=document.getElementById('sumberHartaContainer');
     if(!container) return;
-    if(sumberHartaList.length===0){
-        container.innerHTML='<p style="text-align:center; padding:20px;">Belum ada sumber harta</p>';
-        toggleZakatInput();
-        return;
-    }
+    const kk = zakatKunci ? ' disabled' : '';
+    const tb = document.getElementById('btnTambahSumber'); if(tb) tb.style.display = zakatKunci ? 'none' : '';
     let html='';
     sumberHartaList.forEach(s=>{
         if(!s.jenis) s.jenis='mal';
@@ -23758,11 +24600,12 @@ function renderSumberHartaList(){
         const jumlahTampil=s.jumlah>0?formatAngka(s.jumlah):'';
         const opt=(v,t,cur)=>`<option value="${v}"${cur===v?' selected':''}>${t}</option>`;
         const tambahan = s.jenis==='pertanian'
-            ? `<div class="dynamic-field"><label>Pengairan</label><select onchange="updateSumberHarta(${s.id},'air',this.value)">${opt('','Pilih',s.air)}${opt('5','Berbiaya (irigasi, pompa) — 5%',s.air)}${opt('10','Tanpa biaya (hujan, sungai) — 10%',s.air)}</select></div>`
-            : `<div class="dynamic-field"><label>Sudah dimiliki genap 1 tahun (haul)?</label><select onchange="updateSumberHarta(${s.id},'haul',this.value)">${opt('','Pilih',s.haul)}${opt('ya','Ya, sudah genap 1 tahun',s.haul)}${opt('belum','Belum genap 1 tahun',s.haul)}</select></div>`;
-        html+=`<div class="zakat-sumber-item"><div class="sumber-header"><strong>Sumber Harta</strong><button class="btn-remove-sumber" onclick="hapusSumberHarta(${s.id})">Hapus</button></div><div class="dynamic-field"><label>Nama Sumber</label><input type="text" value="${escapeHtml(s.nama)}" oninput="updateSumberHarta(${s.id}, 'nama', this.value)"></div><div class="dynamic-field"><label>Jenis Zakat</label><select onchange="updateSumberHarta(${s.id},'jenis',this.value)">${opt('mal','Zakat Mal (Harta/Uang)',s.jenis)}${opt('perdagangan','Zakat Perdagangan',s.jenis)}${opt('pertanian','Zakat Pertanian',s.jenis)}</select></div>${tambahan}<div class="row"><div class="dynamic-field"><label>Jumlah (Rp)</label><input type="text" class="money-input" inputmode="numeric" value="${jumlahTampil}" oninput="formatMoneyInput(this);updateSumberHarta(${s.id}, 'jumlah', this.value)"></div><div class="dynamic-field"><label>Tarif (%)</label><input type="text" id="zkPersen${s.id}" value="${s.persen||''}" readonly style="background:#f1f5f9;"></div></div></div>`;
+            ? `<div class="dynamic-field"><label>Pengairan</label><select${kk} onchange="updateSumberHarta(${s.id},'air',this.value)">${opt('','Pilih',s.air)}${opt('5','Berbiaya (irigasi, pompa) — 5%',s.air)}${opt('10','Tanpa biaya (hujan, sungai) — 10%',s.air)}</select><div style="font-size:11.5px;color:#64748B;margin-top:4px;line-height:1.45;">Nisab pertanian dihitung per panen. Gabungkan beberapa lahan hanya bila panennya dalam satu musim.</div></div>`
+            : `<div class="dynamic-field"><label>Sudah dimiliki genap 1 tahun (haul)?</label><select${kk} onchange="updateSumberHarta(${s.id},'haul',this.value)">${opt('','Pilih',s.haul)}${opt('ya','Ya, sudah genap 1 tahun',s.haul)}${opt('belum','Belum genap 1 tahun',s.haul)}</select></div>`;
+        html+=`<div class="zakat-sumber-item"><div class="sumber-header"><strong>Sumber Harta</strong><button class="btn-remove-sumber"${kk} onclick="hapusSumberHarta(${s.id})" style="${zakatKunci ? 'display:none;' : ''}">Hapus</button></div><div class="dynamic-field"><label>Nama Sumber</label><input type="text" value="${escapeHtml(s.nama)}"${kk} oninput="updateSumberHarta(${s.id}, 'nama', this.value)"></div><div class="dynamic-field"><label>Jenis Zakat</label><select${kk} onchange="updateSumberHarta(${s.id},'jenis',this.value)">${opt('mal','Zakat Mal (Harta/Uang)',s.jenis)}${opt('perdagangan','Zakat Perdagangan',s.jenis)}${opt('pertanian','Zakat Pertanian',s.jenis)}</select></div>${tambahan}<div class="row"><div class="dynamic-field"><label>Jumlah (Rp)</label><input type="text" class="money-input" inputmode="numeric" value="${jumlahTampil}"${kk} oninput="formatMoneyInput(this);updateSumberHarta(${s.id}, 'jumlah', this.value)"></div><div class="dynamic-field"><label>Tarif (%)</label><input type="text" id="zkPersen${s.id}" value="${fPersenZk(s.persen||'')}" readonly style="background:#f1f5f9;"></div></div></div>`;
     });
     container.innerHTML=html;
+    renderZakatKunciBar();
     toggleZakatInput();
 }
 
@@ -23805,16 +24648,15 @@ function hitungZakat(){
     const d=hitungDataZakat();
     if(d.galat) return showToast(d.galat);
     const f=n=>"Rp "+formatAngka(n);
-    let h='';
-    d.kelompok.forEach(k=>{
-        const warna=k.wajib?'#2ecc71':(k.capaiNisab?'#f39c12':'#e74c3c');
-        const det=k.rows.map(b=>`<div class="res-item"><span>📌</span><span>${escapeHtml(labelSumberZakat(b))}: ${f(b.jumlah)} x ${b.persen}%${b.kenaZakat?' = '+f(b.zakat):' — belum wajib'}</span></div>`).join('');
-        h+=`<div class="res-item" style="flex-direction:column;align-items:stretch;border-top:1px solid rgba(255,255,255,0.2);padding-top:10px;margin-top:6px;"><b style="margin-bottom:6px;">${k.label}</b><div class="res-item"><span>Total Harta</span><b>${f(k.totalHarta)}</b></div><div class="res-item"><span>${k.nisabLabel}</span><b>${f(k.nisab)}</b></div><div class="res-item"><span>Status</span><b style="color:${warna}">${k.statusLabel}</b></div>${k.catatan?`<div style="font-size:12px;opacity:.9;padding:4px 0 6px;">${k.catatan}</div>`:''}<div class="res-item"><span>Zakat</span><b>${f(k.zakat)}</b></div>${det}</div>`;
-    });
-    h+=`<div class="res-item" style="border-top:1px solid rgba(255,255,255,0.2); margin-top:10px; padding-top:10px;"><span>TOTAL ZAKAT DIKELUARKAN</span><span class="highlight">${f(d.totalZakat)}</span></div><div class="res-item"><span>Total Harta</span><b>${f(d.totalHarta)}</b></div><div class="res-item"><span>Harta setelah zakat</span><b>${f(d.totalHarta-d.totalZakat)}</b></div><button class="btn" onclick="salinRingkasanZakat()" style="background:#34495e; margin-top:15px;">SALIN RINGKASAN ZAKAT</button>`;
+    const pill=k=>k.wajib?'✅ Wajib':(k.capaiNisab?'⏳ Belum haul':'❌ Belum nisab');
+    let ring=d.kelompok.map(k=>`<div style="display:flex;justify-content:space-between;align-items:center;gap:8px;padding:9px 0;border-top:1px solid rgba(255,255,255,.22);font-size:14px;"><span>${k.label}<small style="display:block;font-size:12px;opacity:.9;">${pill(k)}</small></span><b style="white-space:nowrap;">${f(k.zakat)}</b></div>`).join('');
+    let rinci=d.kelompok.map(k=>{
+        const det=k.rows.map(b=>`<div style="padding:6px 0;font-size:13px;line-height:1.5;border-top:1px dashed rgba(255,255,255,.2);">📌 ${escapeHtml(labelSumberZakat(b))}: ${f(b.jumlah)} × ${fPersenZk(b.persen)}%${b.kenaZakat?' = '+f(b.zakat):' — belum wajib'}</div>`).join('');
+        return `<div style="margin-top:12px;"><b>${k.label}</b><div style="display:flex;justify-content:space-between;font-size:13px;padding:5px 0;"><span>Total harta</span><b>${f(k.totalHarta)}</b></div><div style="display:flex;justify-content:space-between;font-size:13px;padding:5px 0;"><span>${k.nisabLabel}</span><b>${f(k.nisab)}</b></div><div style="display:flex;justify-content:space-between;font-size:13px;padding:5px 0;"><span>Status</span><b>${k.statusLabel}</b></div>${k.catatan?`<div style="font-size:12px;opacity:.92;padding:2px 0 6px;line-height:1.5;">${k.catatan}</div>`:''}${det}</div>`;
+    }).join('');
     lastZakatText=teksLaporanZakat();
     const hasil=document.getElementById('hasilZakat');
-    hasil.innerHTML=h;
+    hasil.innerHTML=`<div style="text-align:center;padding:4px 0 10px;"><div style="font-size:12px;letter-spacing:.06em;opacity:.92;">TOTAL ZAKAT DIKELUARKAN</div><div style="font-size:30px;font-weight:800;color:#FDE68A;margin:2px 0;">${f(d.totalZakat)}</div><div style="font-size:12px;opacity:.9;">dari total harta ${f(d.totalHarta)}</div></div>${ring}<details ${_zkRincianBuka?'open':''} ontoggle="_zkRincianBuka=this.open" style="margin-top:10px;border-top:1px solid rgba(255,255,255,.22);padding-top:8px;"><summary style="cursor:pointer;font-weight:700;font-size:14px;padding:6px 0;">Lihat rincian</summary>${rinci}<div style="display:flex;justify-content:space-between;font-size:13px;padding:10px 0 2px;border-top:1px solid rgba(255,255,255,.22);margin-top:10px;"><span>Harta setelah zakat</span><b>${f(d.totalHarta-d.totalZakat)}</b></div></details><button class="btn" onclick="salinRingkasanZakat()" style="background:#fff;color:var(--primary);font-weight:800;margin-top:14px;">SALIN RINGKASAN ZAKAT</button>`;
     hasil.style.display='block';
     hasil.scrollIntoView({behavior:"smooth"});
     localStorage.setItem('navara_last_zakat_total', d.totalZakat);
@@ -24606,7 +25448,7 @@ function teksLaporanZakat() {
     let t = `*LAPORAN ZAKAT*\n${getNamaInstansiUtama()}\nTanggal: ${formatTanggalLengkap()}\n`;
     d.kelompok.forEach(k => {
         t += `\n*${k.label}*\nHarga: ${k.hargaLabel}\n${k.nisabLabel}: ${rp(k.nisab)}\n`;
-        k.rows.forEach((b, i) => { t += `${i + 1}. ${labelSumberZakat(b)}: ${rp(b.jumlah)} x ${b.persen}%${b.kenaZakat ? ' = ' + rp(b.zakat) : ' — belum wajib'}\n`; });
+        k.rows.forEach((b, i) => { t += `${i + 1}. ${labelSumberZakat(b)}: ${rp(b.jumlah)} x ${fPersenZk(b.persen)}%${b.kenaZakat ? ' = ' + rp(b.zakat) : ' — belum wajib'}\n`; });
         t += `Total Harta: ${rp(k.totalHarta)}\nZakat: ${rp(k.zakat)}\n*${k.statusLabel}*\n`;
         if (k.catatan) t += `${k.catatan}\n`;
     });
@@ -24644,7 +25486,7 @@ async function cetakLaporanZakat() {
     kelompok.forEach(k => {
         rowsHtml += `<tr><td colspan="5" style="padding:8px;background:#e8f3f0;font-weight:bold;color:#0D5C4A;">${k.label} <span style="font-weight:normal;color:#555;">— ${k.nisabLabel}: ${fRp(k.nisab, false)}</span></td></tr>`;
         k.rows.forEach(b => {
-            rowsHtml += `<tr><td style="${td}text-align:center;">${b.no}</td><td style="${td}">${escapeHtml(labelSumberZakat(b))}</td><td style="${td}text-align:right;">${fRp(b.jumlah, false)}</td><td style="${td}text-align:center;">${b.persen}%</td><td style="${td}text-align:right;font-weight:bold;color:#0D5C4A;">${b.kenaZakat ? fRp(b.zakat, false) : '-'}</td></tr>`;
+            rowsHtml += `<tr><td style="${td}text-align:center;">${b.no}</td><td style="${td}">${escapeHtml(labelSumberZakat(b))}</td><td style="${td}text-align:right;">${fRp(b.jumlah, false)}</td><td style="${td}text-align:center;">${fPersenZk(b.persen)}%</td><td style="${td}text-align:right;font-weight:bold;color:#0D5C4A;">${b.kenaZakat ? fRp(b.zakat, false) : '-'}</td></tr>`;
         });
         rowsHtml += `<tr><td colspan="5" style="padding:6px 8px;font-size:12px;">${k.statusLabel}${k.catatan ? ' — ' + k.catatan : ''} &nbsp; <b>Zakat: ${fRp(k.zakat, false)}</b></td></tr>`;
     });
@@ -28404,7 +29246,7 @@ function openIndexedDB() {
 // dengan build baru, data MENTAH (langsung dari IndexedDB, bukan dari memori) disalin dulu sebelum
 // proses migrasi apapun berjalan — supaya kalau ada kesalahan di update, data lama masih bisa dipulihkan.
 // Dokumen & foto tidak ikut disalin (ukurannya besar, dan tidak pernah disentuh proses migrasi).
-const NAVARA_BUILD = '2026.10.30-260';
+const NAVARA_BUILD = '2026.10.31-265';
 const MAKS_SNAPSHOT = 3;
 
 // ==================== DAFTAR DATA PUSAT ====================
@@ -28434,6 +29276,7 @@ const DAFTAR_DATA = [
     { id: 'buku_pinjaman', label: 'Buku Pinjaman', store: STORE_CATATAN, key: 'pinjaman_data', jsonField: 'buku_pinjaman', zipFile: 'buku_pinjaman.json' },
     { id: 'saldo_kantor', label: 'Saldo Kantor', store: STORE_CATATAN, key: 'saldo_kantor', jsonField: 'saldo_kantor', zipFile: 'saldo_kantor.json' },
     // Data generik: otomatis ikut SEMUA jalur cadangan lewat bidang "extra" (tidak perlu menyentuh kode ekspor/restore)
+    { id: 'tiket_data', label: 'Penjualan Tiket', store: STORE_CATATAN, key: 'tiket_data', generik: true },
     { id: 'cek_kesehatan', label: 'Cek Kesehatan Data (batas & temuan diabaikan)', store: STORE_CATATAN, key: KUNCI_CEK, generik: true },
     { id: 'pembayaran_yatim', label: 'Salinan pembayaran yang dibersihkan otomatis', store: STORE_PEMBAYARAN, key: 'pembayaran_yatim_cadangan', generik: true },
 ];
@@ -28454,6 +29297,7 @@ function bacaPengaturanLokal() {
         menu_tampilan: localStorage.getItem('navara_menu_tampilan') || null, pengingat_cicilan_hari: localStorage.getItem('navara_pengingat_cicilan_hari') || null,
         master_modes: j('navara_master_modes'), kita_ignored_fields: j('navara_kita_ignored_fields'),
         last_zakat_total: localStorage.getItem('navara_last_zakat_total') || null,
+        zakat_data: j('navara_zakat_data'), zakat_harga: j('navara_zakat_harga'), surat_data: j('navara_surat_data'), proyeksi_kas: j('navara_proyeksi_kas'),
         hapus_wajib_pin: localStorage.getItem('navara_hapus_wajib_pin') || null,
         dark_mode: localStorage.getItem('navara_dark_mode') || null, tema_warna: localStorage.getItem('premium_theme_primary') || null,
     };
@@ -28477,6 +29321,10 @@ function terapkanPengaturanLokal(pl) {
     json('navara_master_modes', pl.master_modes);
     json('navara_kita_ignored_fields', pl.kita_ignored_fields);
     teks('navara_last_zakat_total', pl.last_zakat_total);
+    json('navara_zakat_data', pl.zakat_data);
+    json('navara_zakat_harga', pl.zakat_harga);
+    json('navara_surat_data', pl.surat_data);
+    json('navara_proyeksi_kas', pl.proyeksi_kas);
     teks('navara_hapus_wajib_pin', pl.hapus_wajib_pin);
     teks('navara_dark_mode', pl.dark_mode);
     teks('premium_theme_primary', pl.tema_warna);
@@ -30039,70 +30887,6 @@ async function downloadFullZip() {
     } catch(e) { showToast('❌ Gagal membuat ZIP: ' + e.message); }
 }
 
-// ==================== KIRIM ZIP KE DRIVE (lewat lembar Bagikan HP) ====================
-// ZIP disusun di memori lalu diserahkan ke lembar Bagikan bawaan HP; Bapak memilih Drive dan tidak perlu menyimpan file ke HP dulu.
-// Dibuat dua langkah (siap, lalu ketuk Kirim) karena browser hanya mau membuka lembar Bagikan tepat setelah ketukan jari.
-// Bila HP atau cara membuka aplikasi tidak mendukung, tersedia Simpan ke HP seperti Download ZIP biasa.
-let _zipSiap = null;
-async function siapkanZipUntukDikirim() {
-    if(_zipSiap && _zipSiap.menyiapkan) return showToast('ZIP sedang disiapkan, mohon tunggu...');
-    _zipSiap = { menyiapkan: true };
-    showToast('⏳ Menyiapkan ZIP, mohon tunggu...');
-    try {
-        const blob = await buildFullBackupZip();
-        const nama = `Navara_Full_Backup_${new Date().toISOString().slice(0, 10)}.zip`;
-        const file = new File([blob], nama, { type: 'application/zip' });
-        let bisaBagikan = false;
-        try { bisaBagikan = !!(navigator.share && navigator.canShare && navigator.canShare({ files: [file] })); } catch(e) {}
-        _zipSiap = { blob, nama, file, bisaBagikan };
-        tampilkanZipSiap();
-    } catch(e) { _zipSiap = null; showToast('❌ Gagal membuat ZIP: ' + e.message); }
-}
-function catatZipTersimpan() {
-    try { localStorage.setItem('navara_zip_backup_ts', String(Date.now())); } catch(e) {}
-}
-function tampilkanZipSiap() {
-    const z = _zipSiap; if(!z || !z.blob) return;
-    let m = document.getElementById('zipSiapModal');
-    if(!m) { m = document.createElement('div'); m.id = 'zipSiapModal'; m.className = 'modal'; }
-    document.body.appendChild(m);
-    const gayaTombol = 'width:100%;padding:13px;border:none;border-radius:12px;font-size:14px;font-weight:700;cursor:pointer;margin-top:8px;';
-    m.innerHTML = `<div class="modal-content" style="max-width:400px;">
-        <h3 style="color:var(--primary);margin-bottom:4px;">✅ ZIP siap</h3>
-        <div style="font-size:12px;color:#64748B;line-height:1.55;">${escapeHtml(z.nama)} · ${formatUkuranMB(z.blob.size / 1048576)}<br>Berisi semua data, foto, dan dokumen. Tidak perlu diekstrak.</div>
-        ${z.bisaBagikan
-            ? `<button onclick="kirimZipSiap()" style="${gayaTombol}background:#0F9D58;color:#fff;">📤 Kirim ke Drive</button>
-               <div style="font-size:11px;color:#888;margin-top:4px;line-height:1.5;">Lembar Bagikan HP akan terbuka. Pilih <b>Drive</b>. File tidak perlu disimpan ke HP dulu.</div>`
-            : `<div style="background:#FEF3C7;color:#92400E;border-radius:10px;padding:9px 11px;font-size:12px;line-height:1.5;margin-top:10px;">HP atau cara membuka aplikasi ini belum mendukung kirim langsung. Pilih <b>Simpan ke HP</b>, lalu unggah file ZIP dari aplikasi Drive.</div>`}
-        <button onclick="simpanZipSiap()" style="${gayaTombol}background:${z.bisaBagikan ? '#E2E8F0;color:#334155' : 'var(--primary);color:#fff'};">⬇️ Simpan ke HP</button>
-        <button onclick="tutupZipSiap()" style="${gayaTombol}background:#fff;color:#64748B;border:1.5px solid #e2e8f0;">Tutup</button>
-    </div>`;
-    m.style.display = 'flex';
-}
-function tutupZipSiap() {
-    const m = document.getElementById('zipSiapModal'); if(m) m.style.display = 'none';
-    _zipSiap = null; // lepaskan memori
-}
-async function kirimZipSiap() {
-    const z = _zipSiap; if(!z || !z.file) return;
-    try {
-        await navigator.share({ files: [z.file], title: 'Backup Navara', text: 'Backup lengkap Navara - ' + z.nama });
-        catatZipTersimpan();
-        tutupZipSiap();
-        showToast('✅ ZIP dikirim. Cek di Drive bahwa unggahannya sudah selesai.');
-    } catch(e) {
-        if(e && e.name === 'AbortError') return; // dibatalkan, dialog tetap terbuka
-        showToast('❌ Gagal mengirim (' + ((e && e.name) || 'error') + '). Pakai Simpan ke HP.');
-    }
-}
-function simpanZipSiap() {
-    const z = _zipSiap; if(!z || !z.blob) return;
-    window.saveAs(z.blob, z.nama);
-    catatZipTersimpan();
-    tutupZipSiap();
-    showToast('✅ ZIP tersimpan di HP. Unggah ke Drive dari aplikasi Drive.');
-}
-
 function showRestoreJsonPasteModal() {
     if(!cekIzinAdmin('bolehReset') || !adalahAdminPenuh()) return showToast('🔒 Hanya Admin Utama yang bisa memulihkan data');
     let modal = document.getElementById('restoreJsonPasteModal');
@@ -30748,6 +31532,7 @@ function renderMultiPengingatJamaah() {
     });
     container.innerHTML = '';
     container.appendChild(fragment);
+    try { updateJumlahDipilihPengingat(); } catch(e) {}
 }
 
 function filterPengingatJamaah() {
@@ -30762,6 +31547,7 @@ function updateJumlahDipilihPengingat() {
     const el = document.getElementById('jumlahDipilihPengingat');
     if(el) el.textContent = n > 0 ? `${n} jamaah dipilih` : '';
     segarkanTombolPilihSemua();
+    perbaruiPratinjauPengingat();
 }
 
 function filterTiketJamaah() {
@@ -31199,6 +31985,7 @@ function loadPengingatData() {
     scheduledReminders = saved ? JSON.parse(saved) : [];
     renderScheduledReminders();
     renderMultiPengingatJamaah();
+    siapkanHalamanPengingat();
 }
 
 function saveScheduledReminders() {
@@ -31206,14 +31993,104 @@ function saveScheduledReminders() {
     renderScheduledReminders();
 }
 
-function kirimPengingatWA() {
+// ===== Pengingat WA =====
+const TEMPLATE_PENGINGAT = [
+    { id: 'cicilan', label: 'Cicilan jatuh tempo', teks: "Assalamu'alaikum Bapak/Ibu [nama].\n\nKami dari [instansi] mengingatkan bahwa pembayaran program [program] masih ada sisa tagihan sebesar [sisa]. Mohon dapat diselesaikan sesuai jadwal cicilan.\n\nJika sudah membayar, mohon abaikan pesan ini. Terima kasih." },
+    { id: 'pelunasan', label: 'Pelunasan program', teks: "Assalamu'alaikum Bapak/Ibu [nama].\n\nKami dari [instansi] mengingatkan bahwa batas pelunasan program [program] semakin dekat. Sisa tagihan Bapak/Ibu saat ini sebesar [sisa]. Mohon segera diselesaikan agar proses keberangkatan berjalan lancar.\n\nTerima kasih." },
+    { id: 'dokumen', label: 'Dokumen belum lengkap', teks: "Assalamu'alaikum Bapak/Ibu [nama].\n\nKami dari [instansi] mengingatkan bahwa dokumen persyaratan program [program] masih ada yang belum lengkap. Mohon segera dilengkapi dan diserahkan ke kantor kami.\n\nTerima kasih." },
+    { id: 'paspor', label: 'Paspor hampir habis', teks: "Assalamu'alaikum Bapak/Ibu [nama].\n\nKami dari [instansi] mengingatkan bahwa masa berlaku paspor Bapak/Ibu kurang dari 6 bulan. Mohon segera diperpanjang agar dapat dipakai untuk program [program].\n\nTerima kasih." },
+    { id: 'manasik', label: 'Undangan manasik', teks: "Assalamu'alaikum Bapak/Ibu [nama].\n\nKami dari [instansi] mengundang Bapak/Ibu mengikuti manasik program [program] pada hari/tanggal ___ pukul ___ bertempat di ___.\n\nMohon hadir tepat waktu. Terima kasih." },
+    { id: 'berangkat', label: 'Persiapan keberangkatan', teks: "Assalamu'alaikum Bapak/Ibu [nama].\n\nKeberangkatan program [program] sudah dekat. Mohon mempersiapkan perlengkapan dan dokumen perjalanan. Kumpul di ___ pada ___ pukul ___.\n\nTerima kasih. [instansi]" },
+];
+const VAR_PENGINGAT = ['[nama]', '[sisa]', '[program]', '[instansi]'];
+let _pengingatAktifId = null;
+function namaProgramAktifTeks() { try { const p = getCurrentProgram(); return (p && (p.nama || p.name)) || 'program'; } catch(e) { return 'program'; } }
+function siapkanHalamanPengingat() {
+    const sel = document.getElementById('reminderTemplate');
+    if(sel && !sel.options.length) sel.innerHTML = '<option value="">Pilih pesan siap pakai (opsional)</option>' + TEMPLATE_PENGINGAT.map(t => `<option value="${t.id}">${t.label}</option>`).join('');
+    const ch = document.getElementById('reminderVarChips');
+    if(ch && !ch.innerHTML) ch.innerHTML = '<span style="font-size:11.5px;color:#64748B;align-self:center;">Sisipkan:</span>' + VAR_PENGINGAT.map(v => `<button type="button" onclick="sisipVarPengingat('${v}')" style="padding:5px 9px;border:1.5px solid var(--primary);background:#fff;color:var(--primary);border-radius:14px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;">${v}</button>`).join('');
+    renderQuickPengingat();
+    perbaruiPratinjauPengingat();
+}
+async function terapkanTemplatePengingat(id) {
+    const sel = document.getElementById('reminderTemplate'); if(!id) return;
+    const t = TEMPLATE_PENGINGAT.find(x => x.id === id); const ta = document.getElementById('reminderMessage');
+    if(!t || !ta) return;
+    if(ta.value.trim() && ta.value.trim() !== t.teks.trim()) { if(!(await konfirmasi('Ganti isi pesan sekarang dengan pesan "' + t.label + '"?'))) { sel.value = ''; return; } }
+    ta.value = t.teks; sel.value = '';
+    perbaruiPratinjauPengingat();
+}
+function sisipVarPengingat(v) {
+    const ta = document.getElementById('reminderMessage'); if(!ta) return;
+    const a = ta.selectionStart == null ? ta.value.length : ta.selectionStart, b = ta.selectionEnd == null ? a : ta.selectionEnd;
+    ta.value = ta.value.slice(0, a) + v + ta.value.slice(b);
+    ta.focus(); ta.selectionStart = ta.selectionEnd = a + v.length;
+    perbaruiPratinjauPengingat();
+}
+function idJamaahCicilanTelat() {
+    const hariIni = new Date(); hariIni.setHours(0,0,0,0); const ids = new Set();
+    jamaahBerangkat().forEach(j => {
+        if(!j.cicilan_termin || !j.cicilan_termin.length) return;
+        try { hitungStatusTerminJamaah(j.id).forEach(t => { if(t.statusLabel === 'Lunas' || !t.tanggal) return; const d = new Date(t.tanggal); d.setHours(0,0,0,0); if(d <= hariIni) ids.add(String(j.id)); }); } catch(e) {}
+    });
+    return ids;
+}
+function kumpulkanGrupPengingat() {
+    const semua = jamaahBerangkat(), g = { belum: new Set(), telat: idJamaahCicilanTelat(), dokumen: new Set() };
+    semua.forEach(j => {
+        try { const sp = getStatusPembayaran(j); if(!sp.needInput && sp.sisa > 0) g.belum.add(String(j.id)); } catch(e) {}
+        try { if(!getStatusKelengkapanDokumen(j.id, j).lengkap) g.dokumen.add(String(j.id)); } catch(e) {}
+    });
+    return g;
+}
+function renderQuickPengingat() {
+    const el = document.getElementById('reminderQuick'); if(!el) return;
+    const g = kumpulkanGrupPengingat();
+    const chip = (kode, t, n) => `<button type="button" onclick="pilihPenerimaCepat('${kode}')" ${n === 0 ? 'disabled' : ''} style="padding:6px 10px;border:1.5px solid var(--primary);background:#fff;color:var(--primary);border-radius:14px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;${n === 0 ? 'opacity:.45;' : ''}">${t}${n == null ? '' : ' (' + n + ')'}</button>`;
+    el.innerHTML = chip('belum', 'Belum lunas', g.belum.size) + chip('telat', 'Cicilan telat', g.telat.size) + chip('dokumen', 'Dokumen kurang', g.dokumen.size) + chip('kosong', 'Kosongkan', null);
+}
+function pilihPenerimaCepat(kode) {
+    const g = kumpulkanGrupPengingat(), set = kode === 'kosong' ? new Set() : g[kode];
+    document.querySelectorAll('#multiPengingatJamaahSelect input[type=checkbox]').forEach(cb => { cb.checked = set.has(String(cb.value)); });
+    updateJumlahDipilihPengingat();
+}
+function susunPesanPengingat(j, message) {
+    let msg = String(message || '').replace(/\[nama\]/gi, j.nama_lengkap).replace(/\[program\]/gi, namaProgramAktifTeks()).replace(/\[instansi\]/gi, getNamaInstansiUtama());
+    let sisaOk = false;
+    const sp = getStatusPembayaran(j);
+    if(!sp.needInput) {
+        sisaOk = true; msg = msg.replace(/\[sisa\]/gi, formatRupiah(sp.sisa));
+        if(sp.sisa > 0) { const rekP = teksRekeningWA(rekeningTerpilih(kunciInstansiProgram(), _rekPilihPeng)); if(rekP) msg = msg.replace(/\s+$/, '') + '\n\n' + rekP.replace(/\s+$/, ''); }
+    }
+    return { msg, sisaOk };
+}
+function perbaruiPratinjauPengingat() {
+    const box = document.getElementById('reminderPreview'); if(!box) return;
+    const message = document.getElementById('reminderMessage')?.value || '';
+    const ids = Array.from(document.querySelectorAll('#multiPengingatJamaahSelect input:checked')).map(cb => cb.value);
+    if(!message.trim() || !ids.length) { box.style.display = 'none'; box.innerHTML = ''; return; }
+    const terpilih = ids.map(id => jamaahList.find(j => j.id == id)).filter(Boolean);
+    const tanpaWA = terpilih.filter(j => !(j.additional_fields && bersihkanNomorWA(j.additional_fields.whatsapp || '').length >= 10)).length;
+    const j0 = terpilih[0]; if(!j0) { box.style.display = 'none'; return; }
+    const { msg, sisaOk } = susunPesanPengingat(j0, message);
+    const peringatan = [];
+    if(/_{3,}/.test(msg)) peringatan.push('Pesan masih berisi isian kosong (___). Lengkapi dulu sebelum mengirim.');
+    if(/\[sisa\]/i.test(msg)) peringatan.push('Sisa tagihan ' + escapeHtml(j0.nama_lengkap) + ' belum bisa dihitung (harga paket belum diisi), jadi [sisa] tidak tergantikan.');
+    if(tanpaWA) peringatan.push(tanpaWA + ' dari ' + terpilih.length + ' jamaah belum punya nomor WA; Anda akan memilih kontaknya sendiri.');
+    box.style.display = 'block';
+    box.innerHTML = `<div style="background:#F0FBF6;border:1.5px solid #BBF7D0;border-radius:12px;padding:10px 12px;margin-bottom:12px;"><div style="font-size:12px;font-weight:800;color:#166534;margin-bottom:4px;">Pratinjau untuk ${escapeHtml(j0.nama_lengkap)} · ${terpilih.length} penerima</div><div style="font-size:13px;color:#334155;white-space:pre-line;line-height:1.5;max-height:180px;overflow-y:auto;">${escapeHtml(msg)}</div>${peringatan.map(t => `<div style="font-size:12px;color:#92400E;background:#FEF3C7;border-radius:8px;padding:6px 8px;margin-top:6px;line-height:1.45;">⚠️ ${t}</div>`).join('')}</div>`;
+}
+async function kirimPengingatWA() {
     const message = document.getElementById('reminderMessage').value;
-    if(!message) return showToast('Isi pesan pengingat!');
+    if(!message.trim()) return showToast('Isi pesan pengingat!');
     const checked = document.querySelectorAll('#multiPengingatJamaahSelect input:checked');
     if(checked.length === 0) return showToast('Pilih jamaah terlebih dahulu!');
     const jamaahToSend = Array.from(checked).map(cb => jamaahList.find(j => j.id == cb.value)).filter(j => j);
     if(jamaahToSend.length === 0) return showToast('Jamaah tidak ditemukan!');
+    if(/_{3,}/.test(message)) { if(!(await konfirmasi('Pesan masih berisi isian kosong (___). Tetap lanjut?'))) return; }
     tampilkanModalKirimSatuPerSatu(jamaahToSend, message);
+    if(_pengingatAktifId != null) { const r = scheduledReminders.find(x => x.id === _pengingatAktifId); if(r) { r.selesai = true; saveScheduledReminders(); } _pengingatAktifId = null; }
 }
 
 function tampilkanModalKirimSatuPerSatu(jamaahToSend, message) {
@@ -31228,14 +32105,16 @@ function tampilkanModalKirimSatuPerSatu(jamaahToSend, message) {
         <h3 style="color:var(--primary);margin-bottom:4px;">📲 Kirim Pengingat WA</h3>
         <div style="font-size:11px;color:#888;margin-bottom:14px;">WhatsApp tidak mengizinkan kirim otomatis banyak sekaligus — tap "Kirim" satu-satu di bawah ini.</div>
         <div style="max-height:340px;overflow-y:auto;margin-bottom:12px;">
-        ${jamaahToSend.map(j => `
+        ${jamaahToSend.map(j => { const sp = susunPesanPengingat(j, message);
+            return `
             <div style="padding:10px;border:1px solid #e2e8f0;border-radius:10px;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center;gap:8px;">
                 <div style="overflow:hidden;">
                     <div style="font-weight:bold;font-size:13px;">${escapeHtml(j.nama_lengkap)}</div>
                     <div style="font-size:11px;color:#888;">${j.additional_fields?.whatsapp ? '📱 '+escapeHtml(j.additional_fields.whatsapp) : '⚠️ No WA tidak ada'}</div>
+                    ${/\[sisa\]/i.test(sp.msg) ? '<div style="font-size:11px;color:#B45309;">⚠️ Sisa tagihan belum bisa dihitung</div>' : ''}
                 </div>
-                <button onclick="kirimPengingatWAPerorangan(${j.id})" style="background:#25d366;color:white;border:none;border-radius:20px;padding:7px 12px;font-size:11px;font-weight:bold;cursor:pointer;white-space:nowrap;flex-shrink:0;">📲 Kirim</button>
-            </div>`).join('')}
+                <button id="kpBtn${j.id}" onclick="kirimPengingatWAPerorangan(${j.id})" style="background:#25d366;color:white;border:none;border-radius:20px;padding:7px 12px;font-size:11px;font-weight:bold;cursor:pointer;white-space:nowrap;flex-shrink:0;">📲 Kirim</button>
+            </div>`; }).join('')}
         </div>
         <button onclick="document.getElementById('kirimSatuPerSatuModal').style.display='none'" style="width:100%;padding:11px;background:#e2e8f0;color:#333;border:none;border-radius:10px;font-size:13px;cursor:pointer;">Tutup</button>
     </div>`;
@@ -31252,40 +32131,54 @@ function kirimPengingatWAPerorangan(jamaahId) {
     if(!j) return;
     const modal = document.getElementById('kirimSatuPerSatuModal');
     const message = modal ? modal.dataset.pesan : '';
-    let msg = message.replace(/\[nama\]/gi, j.nama_lengkap);
-    const statusPembayaran = getStatusPembayaran(j);
-    if(!statusPembayaran.needInput) msg = msg.replace(/\[sisa\]/gi, formatRupiah(statusPembayaran.sisa));
-    if(!statusPembayaran.needInput && statusPembayaran.sisa > 0) {
-        const rekP = teksRekeningWA(rekeningTerpilih(kunciInstansiProgram(), _rekPilihPeng));
-        if(rekP) msg = msg.replace(/\s+$/, '') + '\n\n' + rekP.replace(/\s+$/, '');
-    }
+    const msg = susunPesanPengingat(j, message).msg;
     let waNumber = ''; // tanpa nomor: buka WhatsApp tanpa tujuan (pilih kontak sendiri), JANGAN kirim ke nomor contoh
     if(j.additional_fields && j.additional_fields.whatsapp) {
         let num = bersihkanNomorWA(j.additional_fields.whatsapp);
         if(num.length >= 10) waNumber = num;
     }
     window.open(`https://wa.me/${waNumber}?text=${encodeURIComponent(msg)}`, '_blank');
+    const btn = document.getElementById('kpBtn' + j.id);
+    if(btn) { btn.textContent = '✓ Terkirim · kirim lagi'; btn.style.background = '#94A3B8'; }
 }
 
-function aturPengingatOtomatis() {
+async function aturPengingatOtomatis() {
     const schedule = document.getElementById('reminderSchedule').value;
     const message = document.getElementById('reminderMessage').value;
-    if(!schedule || !message) return showToast('Isi jadwal dan pesan!');
+    if(!schedule || !message.trim()) return showToast('Isi jadwal dan pesan!');
     const checked = document.querySelectorAll('#multiPengingatJamaahSelect input:checked');
     if(checked.length === 0) return showToast('Pilih jamaah!');
+    const waktu = new Date(schedule).getTime();
+    if(waktu <= Date.now()) { if(!(await konfirmasi('Waktu itu sudah lewat, jadi pengingat langsung tampil sebagai "sudah waktunya". Lanjutkan?'))) return; }
     const jamaahIds = Array.from(checked).map(cb => parseInt(cb.value));
-    scheduledReminders.push({ id: Date.now(), schedule: new Date(schedule).getTime(), message, jamaahIds, created_at: new Date().toLocaleDateString('id-ID') });
+    scheduledReminders.push({ id: Date.now(), schedule: waktu, message, jamaahIds, created_at: new Date().toLocaleDateString('id-ID'), selesai: false });
     saveScheduledReminders();
-    showToast('⏰ Pengingat otomatis diatur');
+    showToast('⏰ Dijadwalkan. Akan muncul di Dashboard saat waktunya tiba.');
 }
+
+function pengingatJatuhTempo() { const n = Date.now(); return scheduledReminders.filter(r => !r.selesai && r.schedule <= n); }
+function bukaPengingatTerjadwal(id) {
+    const r = scheduledReminders.find(x => x.id === id); if(!r) return;
+    const ta = document.getElementById('reminderMessage'); if(ta) ta.value = r.message;
+    const set = new Set((r.jamaahIds || []).map(String));
+    document.querySelectorAll('#multiPengingatJamaahSelect input[type=checkbox]').forEach(cb => { cb.checked = set.has(String(cb.value)); });
+    updateJumlahDipilihPengingat();
+    _pengingatAktifId = id;
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    showToast('Pesan dan penerima sudah diisi. Ketuk KIRIM SEKARANG.');
+}
+function tandaiSelesaiPengingat(id) { const r = scheduledReminders.find(x => x.id === id); if(!r) return; r.selesai = !r.selesai; saveScheduledReminders(); }
 
 function renderScheduledReminders() {
     const container = document.getElementById('reminderScheduledList');
     if(!container) return;
     if(scheduledReminders.length === 0) { container.innerHTML = '<h4>📅 Pengingat Terjadwal</h4><p class="text-center">Belum ada pengingat terjadwal</p>'; return; }
     let html = '<h4>📅 Pengingat Terjadwal</h4>';
-    scheduledReminders.forEach(r => {
-        html += `<div class="reminder-card"><div class="reminder-jamaah">⏰ ${new Date(r.schedule).toLocaleString('id-ID')}</div><div class="reminder-jamaah">👥 ${r.jamaahIds.length === 1 && r.jamaahIds[0] === 'all' ? 'Semua Jamaah' : r.jamaahIds.length + ' jamaah'}</div><div style="font-size:12px;">${r.message.substring(0, 50)}${r.message.length > 50 ? '...' : ''}</div><div><button class="btn-danger-small" onclick="hapusPengingat(${r.id})">Hapus</button></div></div>`;
+    const n = Date.now();
+    scheduledReminders.slice().sort((a, b) => a.schedule - b.schedule).forEach(r => {
+        const waktuTiba = !r.selesai && r.schedule <= n;
+        const status = r.selesai ? '<span style="color:#166534;font-weight:700;">✓ Selesai</span>' : (waktuTiba ? '<span style="color:#B45309;font-weight:700;">⏰ Sudah waktunya</span>' : '<span style="color:#64748B;">Menunggu</span>');
+        html += `<div class="reminder-card" style="${waktuTiba ? 'border:1.5px solid #F59E0B;' : ''}"><div class="reminder-jamaah">⏰ ${new Date(r.schedule).toLocaleString('id-ID')} · ${status}</div><div class="reminder-jamaah">👥 ${r.jamaahIds.length === 1 && r.jamaahIds[0] === 'all' ? 'Semua Jamaah' : r.jamaahIds.length + ' jamaah'}</div><div style="font-size:12px;">${escapeHtml(r.message.substring(0, 60))}${r.message.length > 60 ? '...' : ''}</div><div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:6px;"><button class="btn-small" onclick="bukaPengingatTerjadwal(${r.id})" style="padding:6px 10px;border:none;border-radius:8px;background:#25d366;color:#fff;font-size:12px;font-weight:700;cursor:pointer;">Buka &amp; kirim</button><button class="btn-small" onclick="tandaiSelesaiPengingat(${r.id})" style="padding:6px 10px;border:1.5px solid #cbd5e1;border-radius:8px;background:#fff;color:#475569;font-size:12px;font-weight:700;cursor:pointer;">${r.selesai ? 'Buka lagi' : 'Tandai selesai'}</button><button class="btn-danger-small" onclick="hapusPengingat(${r.id})">Hapus</button></div></div>`;
     });
     container.innerHTML = html;
 }
@@ -32922,11 +33815,7 @@ async function generateQRPreview() {
 
 // ==================== LOAD SUMBER HARTA ====================
 function loadSumberHartaList() {
-    const saved = localStorage.getItem('navara_sumber_harta_list');
-    if(saved) sumberHartaList = JSON.parse(saved);
-    else {
-        sumberHartaList = [sumberZakatBaru()];
-    }
+    if(!muatDataZakat()) sumberHartaList = [sumberZakatBaru()];
     renderSumberHartaList();
 }
 
