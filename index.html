@@ -2098,16 +2098,21 @@ https://github.com/nodeca/pako/blob/main/LICENSE
         <div style="background:#F8FAFC;border-radius:12px;padding:12px 14px;margin:12px 0;font-size:13px;line-height:1.9;">
             <div style="display:flex;justify-content:space-between;"><span style="color:#666;">Versi aplikasi</span><strong id="tentangVersi"></strong></div>
             <div style="display:flex;justify-content:space-between;"><span style="color:#666;">Status</span><strong id="tentangLisensi"></strong></div>
+            <div style="border-top:1px solid #e2e8f0;margin-top:6px;padding-top:6px;font-size:12px;color:#475569;line-height:1.6;white-space:pre-line;" id="tentangPerangkat"></div>
         </div>
-        <div style="font-size:13px;color:#555;line-height:1.6;margin-bottom:10px;">Ada kendala, usulan, atau pertanyaan? Isi di bawah, lalu kirim lewat WhatsApp atau Email. Versi aplikasi dan info teknis ikut terisi otomatis. <b>Data jamaah (nama, NIK, paspor) tidak ikut terkirim.</b></div>
+        <div style="font-size:11px;color:#888;line-height:1.5;margin:-6px 0 10px;">Info perangkat di atas ikut terkirim otomatis dalam laporan. Bila pengembang memintanya, cukup screenshot halaman ini.</div>
+        <div style="font-size:13px;color:#555;line-height:1.6;margin-bottom:10px;">Ada kendala, usulan, atau pertanyaan? Isi di bawah, lalu kirim lewat WhatsApp atau Email. Versi aplikasi dan info teknis ikut terisi otomatis. <b>Data jamaah (nama, NIK, paspor) tidak ikut terkirim.</b> Mohon jangan menghapus bagian &quot;Info teknis&quot; di pesan, karena itu membantu perbaikan.</div>
         <div class="form-group" style="margin-bottom:10px;"><label style="display:block;font-size:12px;font-weight:700;color:#475569;margin-bottom:4px;">Nama Anda (boleh dikosongkan)</label><input type="text" id="laporNama" placeholder="Nama Anda" autocomplete="off"></div>
         <div class="form-group" style="margin-bottom:10px;"><label style="display:block;font-size:12px;font-weight:700;color:#475569;margin-bottom:4px;">Jenis laporan</label>
             <select id="laporKategori"><option value="Laporan Bug">🐞 Laporan Bug</option><option value="Permintaan Fitur">💡 Permintaan Fitur</option><option value="Lainnya">💬 Lainnya</option></select></div>
-        <div class="form-group" style="margin-bottom:10px;"><label style="display:block;font-size:12px;font-weight:700;color:#475569;margin-bottom:4px;">Judul</label><input type="text" id="laporJudul" placeholder="Ringkas, mis. Harga Family tidak muncul" autocomplete="off"></div>
-        <div class="form-group" style="margin-bottom:10px;"><label style="display:block;font-size:12px;font-weight:700;color:#475569;margin-bottom:4px;">Penjelasan</label><textarea id="laporIsi" rows="5" placeholder="Jelaskan masalah Anda secara rinci di sini: apa yang dilakukan, apa yang terjadi, dan apa yang diharapkan."></textarea></div>
+        <div class="form-group" style="margin-bottom:10px;"><label style="display:block;font-size:12px;font-weight:700;color:#475569;margin-bottom:4px;">Modul yang bermasalah</label>
+            <select id="laporModul"></select></div>
+        <div class="form-group" style="margin-bottom:10px;"><label style="display:block;font-size:12px;font-weight:700;color:#475569;margin-bottom:4px;">Judul (boleh dikosongkan)</label><input type="text" id="laporJudul" placeholder="Ringkas, mis. Harga Family tidak muncul" autocomplete="off"></div>
+        <div class="form-group" style="margin-bottom:10px;"><label style="display:block;font-size:12px;font-weight:700;color:#475569;margin-bottom:4px;">Penjelasan (wajib)</label><textarea id="laporIsi" rows="5" placeholder="Jelaskan masalah Anda secara rinci di sini: apa yang dilakukan, apa yang terjadi, dan apa yang diharapkan."></textarea></div>
         <button class="btn btn-primary" onclick="kirimLaporanPengembang('wa')" style="width:100%;"><i class="fab fa-whatsapp"></i> Kirim lewat WhatsApp</button>
         <button class="btn btn-secondary mt-2" onclick="kirimLaporanPengembang('email')" style="width:100%;"><i class="fas fa-envelope"></i> Kirim lewat Email</button>
-        <div style="font-size:11px;color:#888;line-height:1.5;margin:8px 0 4px;">Email dan WhatsApp akan terbuka dengan isi yang sudah tersusun; tekan kirim di sana. Untuk email, lampirkan sendiri screenshot bila ada. Email butuh aplikasi email yang sudah aktif di perangkat ini; bila tidak ada, pakai WhatsApp.</div>
+        <button class="btn btn-secondary mt-2" onclick="kirimLaporanPengembang('salin')" style="width:100%;"><i class="fas fa-copy"></i> Salin Teks Laporan</button>
+        <div style="font-size:11px;color:#888;line-height:1.5;margin:8px 0 4px;">WhatsApp dan Email akan terbuka dengan isi yang sudah tersusun; tekan kirim di sana. <b>Untuk laporan bug, screenshot sangat membantu: lampirkan sendiri setelah WhatsApp atau Email terbuka.</b> Email butuh aplikasi email yang aktif di perangkat ini. Bila WhatsApp atau Email tidak bisa, ketuk "Salin Teks Laporan" lalu tempel ke aplikasi apa saja.</div>
         <button class="btn btn-secondary mt-2" onclick="showPage('carapakai')" style="width:100%;">📖 Buka Cara Pakai</button>
     </div>
 </div>
@@ -2240,14 +2245,15 @@ https://github.com/nodeca/pako/blob/main/LICENSE
                 <div style="margin-bottom:12px;">
                     <label style="font-size:11px;color:var(--gray);display:flex;align-items:center;gap:6px;cursor:pointer;" onclick="event.stopPropagation()">
                         <input type="checkbox" id="fxModeLA" onchange="toggleFXHelper('LA')" style="width:15px;height:15px;" onclick="event.stopPropagation()">
-                        Hitung dari SAR (opsional, berlaku utk Quad/Triple/Double)
+                        Hitung dari SAR (opsional, berlaku utk Quad/Triple/Double/Family)
                     </label>
                     <div id="fxBoxLA" style="display:none;background:#f8fafc;border-radius:10px;padding:10px;margin-top:6px;" onclick="event.stopPropagation()">
-                        <div class="input-group" style="margin-bottom:8px;"><label style="font-size:11px;color:#555;">Kurs SAR</label><input type="text" id="fxKursLA" inputmode="numeric" placeholder="4.300" oninput="hitungFXHelper('LAquad','cLAquad');hitungFXHelper('LAtriple','cLAtriple');hitungFXHelper('LAdouble','cLAdouble')"></div>
-                        <div class="row">
-                            <div class="input-group" style="margin-bottom:0;"><label style="font-size:11px;color:#555;">SAR Quad</label><input type="text" id="fxNominalLAquad" inputmode="numeric" placeholder="3.400" oninput="hitungFXHelper('LAquad','cLAquad')"></div>
-                            <div class="input-group" style="margin-bottom:0;"><label style="font-size:11px;color:#555;">SAR Triple</label><input type="text" id="fxNominalLAtriple" inputmode="numeric" placeholder="0" oninput="hitungFXHelper('LAtriple','cLAtriple')"></div>
-                            <div class="input-group" style="margin-bottom:0;"><label style="font-size:11px;color:#555;">SAR Double</label><input type="text" id="fxNominalLAdouble" inputmode="numeric" placeholder="0" oninput="hitungFXHelper('LAdouble','cLAdouble')"></div>
+                        <div class="input-group" style="margin-bottom:8px;"><label style="font-size:11px;color:#555;">Kurs SAR</label><input type="text" id="fxKursLA" inputmode="numeric" placeholder="4.300" oninput="hitungFXHelper('LAquad','cLAquad');hitungFXHelper('LAtriple','cLAtriple');hitungFXHelper('LAdouble','cLAdouble');hitungFXHelper('LAfamily','cLAfamily')"></div>
+                        <div class="row" style="flex-wrap:wrap;gap:8px;">
+                            <div class="input-group" style="margin-bottom:0;flex:1 1 40%;min-width:110px;"><label style="font-size:11px;color:#555;">SAR Quad</label><input type="text" id="fxNominalLAquad" inputmode="numeric" placeholder="3.400" oninput="hitungFXHelper('LAquad','cLAquad')"></div>
+                            <div class="input-group" style="margin-bottom:0;flex:1 1 40%;min-width:110px;"><label style="font-size:11px;color:#555;">SAR Triple</label><input type="text" id="fxNominalLAtriple" inputmode="numeric" placeholder="0" oninput="hitungFXHelper('LAtriple','cLAtriple')"></div>
+                            <div class="input-group" style="margin-bottom:0;flex:1 1 40%;min-width:110px;"><label style="font-size:11px;color:#555;">SAR Double</label><input type="text" id="fxNominalLAdouble" inputmode="numeric" placeholder="0" oninput="hitungFXHelper('LAdouble','cLAdouble')"></div>
+                            <div class="input-group" id="wrapFxLAFamily" style="margin-bottom:0;display:none;flex:1 1 40%;min-width:110px;"><label style="font-size:11px;color:#555;">SAR Family</label><input type="text" id="fxNominalLAfamily" inputmode="numeric" placeholder="0" oninput="hitungFXHelper('LAfamily','cLAfamily')"></div>
                         </div>
                     </div>
                 </div>
@@ -2288,6 +2294,7 @@ https://github.com/nodeca/pako/blob/main/LICENSE
                     <label id="labelFamily" style="font-size:12px;color:#555;">Family (kamar keluarga)</label>
                     <input type="text" id="cLAfamily" class="money-input" inputmode="numeric" value="0" oninput="updateLAPreview(); saveEstimasiData();">
                     <small id="hintFamily" style="display:none;font-size:11px;color:#888;margin-top:3px;">↑ selisih dari Quad</small>
+                    <small style="display:block;font-size:11px;color:#92400E;margin-top:3px;line-height:1.4;">Isi <b>per orang</b>: harga kamar dibagi perkiraan jumlah orang dalam kamar.</small>
                 </div>
                 <div id="laPreview" style="font-size:11px;color:#888;margin-top:8px;text-align:center;"></div>
             </div>
@@ -2528,6 +2535,7 @@ https://github.com/nodeca/pako/blob/main/LICENSE
                         <label id="konLabelFamily" style="font-size:12px;color:#555;">Family (kamar keluarga)</label>
                         <input type="text" id="konCLAfamily" class="money-input" inputmode="numeric" value="0" oninput="updateKonLAPreview(); saveKonsorsiumEstimasiData();">
                         <small id="konHintFamily" style="display:none;font-size:11px;color:#888;margin-top:3px;">↑ selisih dari Quad</small>
+                        <small style="display:block;font-size:11px;color:#92400E;margin-top:3px;line-height:1.4;">Isi <b>per orang</b>: harga kamar dibagi perkiraan jumlah orang dalam kamar.</small>
                     </div>
                     <div id="konLaPreview" style="font-size:11px;color:var(--primary);margin-top:6px;"></div>
                 </div>
@@ -3347,7 +3355,7 @@ https://github.com/nodeca/pako/blob/main/LICENSE
             <div id="rekPenContainer"></div>
         </div>
         <div class="config-section" id="komponenHajiConfigSection" style="display:none;"><h3><i class="fas fa-money-bill-wave"></i> Harga per Komponen (Haji Reguler)</h3>
-            <div style="font-size:12px;color:#888;margin-bottom:10px;">Khusus Haji Reguler — pecah Harga Seragam jadi beberapa komponen (Bimbingan, Tour/Ziarah, dll). Umroh tidak terpengaruh sama sekali.</div>
+            <div style="font-size:12px;color:#888;margin-bottom:10px;">Khusus Haji Reguler — pecah Harga Dasar Jamaah jadi beberapa komponen (Bimbingan, Tour/Ziarah, dll). Umroh tidak terpengaruh sama sekali.</div>
             <div id="komponenHajiListContainer"></div>
             <button class="btn btn-small mt-2" onclick="tambahJenisKomponenHaji()" style="background:#0369A1;color:white;">+ Tambah Jenis Komponen</button>
             <button class="btn btn-small mt-2" onclick="periksaNamaKomponenHaji()" style="background:#fff;color:#0369A1;border:1.5px solid #0369A1;">🔍 Periksa Nama Komponen</button>
@@ -3414,9 +3422,10 @@ https://github.com/nodeca/pako/blob/main/LICENSE
             <div class="preview-btn" onclick="previewWatermark('haji')" style="margin-top:6px;"><i class="fas fa-eye"></i> Preview (KBIH / Haji)</div>
         </div>
         <div class="config-section"><h3><i class="fas fa-qrcode"></i> QR Code</h3>
+            <div style="font-size:11.5px;color:#92400E;background:#FEF3C7;border-radius:10px;padding:8px 10px;margin-bottom:10px;line-height:1.5;">Di dokumen cetak (Invoice, Kas, Estimasi, dan lainnya), QR berisi <b>ringkasan dokumen itu sendiri</b> secara otomatis, misalnya nomor invoice dan status, supaya isinya bisa dicocokkan. Yang berpengaruh ke cetakan hanya saklar di bawah. "Teks QR" dan "Ukuran" di bawah hanya untuk <b>pratinjau</b>.</div>
             <div class="config-row" style="display:flex; justify-content:space-between; align-items:center;"><label>Aktifkan QR Code</label><label class="switch"><input type="checkbox" id="cfg_qr_enabled" checked><span class="slider"></span></label></div>
-            <div class="config-row"><label>Teks QR</label><textarea id="cfg_qr_text" rows="2" placeholder="Dokumen Resmi - Divalidasi oleh Sistem Navara"></textarea></div>
-            <div class="config-row"><label>Ukuran QR</label><select id="cfg_qr_size"><option value="30">Sangat Kecil (30px)</option><option value="40">Kecil (40px)</option><option value="60" selected>Sedang (60px)</option><option value="80">Besar (80px)</option></select></div>
+            <div class="config-row"><label>Teks QR (hanya pratinjau)</label><textarea id="cfg_qr_text" rows="2" placeholder="Dokumen Resmi - Divalidasi oleh Sistem Navara"></textarea></div>
+            <div class="config-row"><label>Ukuran QR (hanya pratinjau)</label><select id="cfg_qr_size"><option value="30">Sangat Kecil (30px)</option><option value="40">Kecil (40px)</option><option value="60" selected>Sedang (60px)</option><option value="80">Besar (80px)</option></select></div>
             <div id="qrPreviewContainer" class="qr-preview hidden"><canvas id="qrPreviewCanvas" width="100" height="100"></canvas></div>
             <div class="preview-btn" onclick="generateQRPreview()"><i class="fas fa-qrcode"></i> Generate QR Preview</div>
         </div>
@@ -4173,7 +4182,7 @@ https://github.com/nodeca/pako/blob/main/LICENSE
         
         <div class="card-premium">
             <div class="section-title"><span> BACKUP</span></div>
-            <div style="font-size:11px;color:#888;margin-bottom:8px;">⬇️ ZIP = lengkap termasuk foto &amp; dokumen · 📤 JSON = data teks saja, bisa dibagikan. Setelah ZIP tersimpan di HP, buka aplikasi Drive atau WhatsApp lalu unggah file itu dari folder Download.</div>
+            <div style="font-size:11px;color:#888;margin-bottom:8px;">⬇️ ZIP = lengkap termasuk foto &amp; dokumen · 📤 JSON = data teks saja (ringan, cocok dikirim ke WhatsApp atau email Anda sendiri tiap hari). File yang hanya ada di HP ikut hilang kalau HP hilang, jadi setelah ZIP tersimpan, kirim ke Drive atau WhatsApp dari folder Download.</div>
             <div class="row" style="margin-bottom:8px;">
                 <button class="btn btn-primary btn-small" onclick="downloadFullZip()" style="flex:1;font-size:12px;"><i class="fas fa-download"></i> Download ZIP</button>
                 <button class="btn btn-small" onclick="bagikanFullZip()" style="flex:1;background:#3B82F6;color:white;font-size:12px;"><i class="fas fa-share-alt"></i> Bagikan JSON</button>
@@ -4369,7 +4378,7 @@ https://github.com/nodeca/pako/blob/main/LICENSE
         <select id="newProgramSalinDari" style="width:100%;padding:11px 13px;border:1.5px solid #e2e6e4;border-radius:12px;font-size:14px;">
             <option value="">— Mulai kosong —</option>
         </select>
-        <div style="font-size:11px;color:#888;margin-top:6px;">Menyalin: komponen biaya Estimasi, Tipe Paket, Harga Seragam. Tanggal Keberangkatan & Riwayat tidak ikut disalin.</div>
+        <div style="font-size:11px;color:#888;margin-top:6px;">Menyalin: komponen biaya Estimasi, Tipe Paket, Harga Dasar Jamaah. Tanggal Keberangkatan & Riwayat tidak ikut disalin.</div>
     </div>
     <div style="display:flex;gap:8px;">
         <button id="btnSaveNewProgram" class="btn btn-primary" style="flex:1;" onclick="saveNewProgram()">💾 Simpan & Aktifkan</button>
@@ -5027,7 +5036,12 @@ function updateHomeDashboardExtra(totalJamaah, lunasCount, totalPiutang, komposi
         if(backupCard) {
             const lastBackupStr = localStorage.getItem('navara_last_backup');
             let tampilkanPeringatan = false, teks = '';
-            if(!lastBackupStr) {
+            const dibuatStr = localStorage.getItem('navara_backup_dibuat');
+            if(dibuatStr && new Date(dibuatStr) > new Date(lastBackupStr || 0) && (!lastBackupStr || (new Date() - new Date(lastBackupStr)) / 86400000 >= 7)) {
+                tampilkanPeringatan = true;
+                const hariDibuat = Math.floor((new Date() - new Date(dibuatStr)) / 86400000);
+                teks = 'Cadangan terakhir (' + (hariDibuat >= 1 ? hariDibuat + ' hari lalu' : 'hari ini') + ') hanya ada di HP ini, belum dikirim keluar';
+            } else if(!lastBackupStr) {
                 tampilkanPeringatan = true;
                 teks = 'Belum pernah backup sama sekali!';
             } else {
@@ -5267,7 +5281,7 @@ function adaTipeBedaHarga(t) { return TIPE_BEDA_HARGA.includes(normTipe(t)); }
 function tipeFamilyAda() { try { return getTipePaket().some(x => String(x).trim().toLowerCase() === 'family'); } catch (e) { return false; } }
 function perbaruiTampilFamily() {
     const ada = tipeFamilyAda();
-    ['wrapLAFamily', 'wrapCfgFamily', 'konWrapLAFamily'].forEach(id => { const e = document.getElementById(id); if (e) e.style.display = ada ? 'block' : 'none'; });
+    ['wrapLAFamily', 'wrapCfgFamily', 'konWrapLAFamily', 'wrapFxLAFamily'].forEach(id => { const e = document.getElementById(id); if (e) e.style.display = ada ? 'block' : 'none'; });
 }
 function seragamPerTipeAktif(hp) {
     return !!(hp && hp.seragam && hp.nominal > 0 && hp.perTipe && (hp.perTipe.Triple > 0 || hp.perTipe.Double > 0 || hp.perTipe.Family > 0));
@@ -7264,7 +7278,7 @@ function toggleFXHelper(key) {
 }
 
 function hitungFXHelper(fxKey, targetFieldId) {
-    // Kurs Tiket pakai fxKursTiket sendiri; grup LA (quad/triple/double) berbagi satu fxKursLA
+    // Kurs Tiket pakai fxKursTiket sendiri; grup LA (quad/triple/double/family) berbagi satu fxKursLA
     const kursId = fxKey === 'Tiket' ? 'fxKursTiket' : 'fxKursLA';
     const kursEl = document.getElementById(kursId);
     const nominalEl = document.getElementById('fxNominal' + fxKey);
@@ -7321,7 +7335,8 @@ function saveEstimasiData() {
         fxKursLA: document.getElementById('fxKursLA')?.value || '',
         fxNominalLAquad: document.getElementById('fxNominalLAquad')?.value || '',
         fxNominalLAtriple: document.getElementById('fxNominalLAtriple')?.value || '',
-        fxNominalLAdouble: document.getElementById('fxNominalLAdouble')?.value || ''
+        fxNominalLAdouble: document.getElementById('fxNominalLAdouble')?.value || '',
+        fxNominalLAfamily: document.getElementById('fxNominalLAfamily')?.value || ''
     };
     // Per-Program: simpan ke slot Program aktif, bukan lagi 1 tempat global
     const slot = ensureProgramConfigSlot();
@@ -8223,6 +8238,7 @@ function loadEstimasiData() {
         if(document.getElementById('fxNominalLAquad')) document.getElementById('fxNominalLAquad').value = data.fxNominalLAquad || '';
         if(document.getElementById('fxNominalLAtriple')) document.getElementById('fxNominalLAtriple').value = data.fxNominalLAtriple || '';
         if(document.getElementById('fxNominalLAdouble')) document.getElementById('fxNominalLAdouble').value = data.fxNominalLAdouble || '';
+        if(document.getElementById('fxNominalLAfamily')) document.getElementById('fxNominalLAfamily').value = data.fxNominalLAfamily || '';
     } else {
         // Program ini belum punya Estimasi tersendiri — kosongkan field supaya tidak ketukar sisa Program lain
         const fieldKosong = ['lokasiPaket','namaHotelMakkah','namaHotelMadinah','namaMaskapai','cTiket','cAsuransi','cHandling','cAlat','cAplikasi','cPIC','cLain','cLAquad','cLAtriple','cLAdouble','cLAfamily'];
@@ -8241,7 +8257,7 @@ function loadEstimasiData() {
         // Kosongkan juga helper kurs FX supaya tidak ketukar sisa Program lain
         ['fxModeTiket','fxModeLA'].forEach(id => { const el = document.getElementById(id); if(el) el.checked = false; });
         ['fxBoxTiket','fxBoxLA'].forEach(id => { const el = document.getElementById(id); if(el) el.style.display = 'none'; });
-        ['fxNominalTiket','fxKursTiket','fxKursLA','fxNominalLAquad','fxNominalLAtriple','fxNominalLAdouble'].forEach(id => { const el = document.getElementById(id); if(el) el.value = ''; });
+        ['fxNominalTiket','fxKursTiket','fxKursLA','fxNominalLAquad','fxNominalLAtriple','fxNominalLAdouble','fxNominalLAfamily'].forEach(id => { const el = document.getElementById(id); if(el) el.value = ''; });
         const fxHasilEl = document.getElementById('fxHasilTiket'); if(fxHasilEl) fxHasilEl.textContent = '';
     }
     perbaruiHintKursi(); perbaruiPetunjukHargaJual();
@@ -8556,14 +8572,14 @@ function cpSumberHarga(utamakanSeragam) {
     const slot = ensureProgramConfigSlot();
     const out = [];
     const hpS = (getKonfigurasiProData() || {}).harga_paket;
-    if(hpS && hpS.seragam && hpS.nominal > 0 && utamakanSeragam) out.push({ label: 'Harga Seragam (dipakai jamaah)', harga: Math.round(hpS.nominal) });
+    if(hpS && hpS.seragam && hpS.nominal > 0 && utamakanSeragam) out.push({ label: 'Harga Dasar Jamaah (dipakai jamaah)', harga: Math.round(hpS.nominal) });
     const manual = parseRupiah(document.getElementById('cHargaJual')?.value || '0');
     if(manual > 0) out.push({ label: 'Harga Jual Brosur di kolom', harga: manual });
     const r = (slot.estimasi_history || []).find(x => x.harga > 0);
     if(r) out.push({ label: 'Riwayat terbaru (' + rhTglPendek(r.tanggal) + ')', harga: Math.round(r.harga) });
     const now = hitungModalHargaDariEst(cpBacaForm());
     if(now && now.hargaHitung > 0) out.push({ label: 'Hasil hitungan sekarang', harga: Math.round(now.hargaHitung) });
-    if(hpS && hpS.seragam && hpS.nominal > 0 && !utamakanSeragam) out.push({ label: 'Harga Seragam (dipakai jamaah)', harga: Math.round(hpS.nominal) });
+    if(hpS && hpS.seragam && hpS.nominal > 0 && !utamakanSeragam) out.push({ label: 'Harga Dasar Jamaah (dipakai jamaah)', harga: Math.round(hpS.nominal) });
     return out;
 }
 function cpBuka(utamakanSeragam) {
@@ -8677,32 +8693,32 @@ function perbaruiKartuHargaBeda() {
         const warna = lebihTinggi ? { bg: '#FFFBEB', bd: '#F59E0B', fg: '#92400E' } : { bg: '#EFF6FF', bd: '#93C5FD', fg: '#1E3A8A' };
         const selisihPax = Math.abs(brosur - seragam), selisihLaba = Math.abs(labaBrosur - labaSeragam);
         const kata = lebihTinggi ? 'lebih tinggi' : 'lebih rendah';
-        const inti = `Harga Brosur ${kata} ${rhRp(selisihPax)} per orang dari Harga Jamaah. Karena jamaah ditagih Harga Jamaah, bila ${bay} pembayar bayar penuh profit sekitar ${rhRp(selisihLaba)} ${lebihTinggi ? 'lebih rendah' : 'lebih tinggi'} dari hitungan Cuan Plan.`;
+        const inti = `Harga Brosur ${kata} ${rhRp(selisihPax)} per orang dari Harga Dasar Jamaah. Karena jamaah ditagih Harga Dasar Jamaah, bila ${bay} pembayar bayar penuh profit sekitar ${rhRp(selisihLaba)} ${lebihTinggi ? 'lebih rendah' : 'lebih tinggi'} dari hitungan Cuan Plan.`;
         const buf = lebihTinggi ? 'Selisih ini ikut terbaca sebagai diskon ' + rhRp(selisihPax) + ' per jamaah di Analisis Buffer, padahal bukan diskon.' : 'Selisih ini ikut terbaca sebagai harga di atas brosur di Analisis Buffer.';
         const baris3 = (l, v, tebal) => `<div style="display:flex;justify-content:space-between;gap:10px;padding:7px 0;border-bottom:1px solid rgba(100,116,139,.18);font-size:13.5px;"><span style="color:#475569;">${l}</span><b style="${tebal ? 'color:' + warna.fg + ';' : ''}white-space:nowrap;">${v}</b></div>`;
         const tombolSub = (t) => `<span style="display:block;font-size:11px;font-weight:500;opacity:.9;margin-top:2px;line-height:1.35;">${t}</span>`;
         el.innerHTML = `<div id="kartuHargaBedaIsi" style="background:${warna.bg};border:1.5px solid ${warna.bd};border-radius:16px;padding:14px;margin-top:14px;">
-            <div style="font-size:14px;font-weight:800;color:${warna.fg};line-height:1.4;">${lebihTinggi ? '⚠️' : 'ℹ️'} Harga Brosur ${kata} dari Harga Jamaah</div>
+            <div style="font-size:14px;font-weight:800;color:${warna.fg};line-height:1.4;">${lebihTinggi ? '⚠️' : 'ℹ️'} Harga Brosur ${kata} dari Harga Dasar Jamaah</div>
             <div style="font-size:13px;color:#334155;line-height:1.55;margin-top:6px;">${inti}</div>
             <div style="margin-top:8px;">
                 ${baris3('Harga Brosur (hasil Cuan Plan' + (h.dibulatkan ? ', yang diketik' : '') + ')', rhRp(brosur))}
-                ${baris3('Harga Jamaah (Harga Seragam di Konfigurasi)', rhRp(seragam))}
+                ${baris3('Harga Dasar Jamaah (di Konfigurasi)', rhRp(seragam))}
                 ${baris3('Selisih per orang', rhRp(selisihPax), true)}
             </div>
-            <div style="font-size:13px;color:#334155;line-height:1.55;margin-top:8px;"><b>${lunas}</b> dari <b>${daftar.length}</b> jamaah sudah lunas. Tagihan jamaah <b>tidak berubah</b>, karena mengikuti Harga Jamaah.${khusus ? ' ' + khusus + ' jamaah memakai harga khusus.' : ''}</div>
+            <div style="font-size:13px;color:#334155;line-height:1.55;margin-top:8px;"><b>${lunas}</b> dari <b>${daftar.length}</b> jamaah sudah lunas. Tagihan jamaah <b>tidak berubah</b>, karena mengikuti Harga Dasar Jamaah.${khusus ? ' ' + khusus + ' jamaah memakai harga khusus.' : ''}</div>
             <details ${_kbRincianBuka ? 'open' : ''} ontoggle="_kbRincianBuka=this.open" style="margin-top:10px;">
                 <summary style="cursor:pointer;font-size:13px;font-weight:700;color:${warna.fg};padding:6px 0;">Lihat rincian</summary>
                 <div style="margin-top:4px;">${barisModal}${barisLaba}</div>
                 <div style="background:rgba(255,255,255,.65);border:1px solid rgba(100,116,139,.25);border-radius:10px;padding:9px 11px;margin-top:8px;font-size:13px;line-height:1.6;color:#334155;">
                     <div style="font-weight:800;margin-bottom:2px;">Perkiraan profit setelah buffer (bila ${bay} pembayar bayar penuh)</div>
-                    <div>Memakai Harga Jamaah ${rhRp(seragam)}: <b>${rhRp(labaSeragam)}</b></div>
+                    <div>Memakai Harga Dasar Jamaah ${rhRp(seragam)}: <b>${rhRp(labaSeragam)}</b></div>
                     <div>Memakai Harga Brosur ${rhRp(brosur)}: <b>${rhRp(labaBrosur)}</b></div>
                     <div style="font-size:12px;color:#64748B;">Selisih ${rhRp(selisihLaba)} (sekitar ${rhRp(selisihPax)} × ${bay} pembayar)</div>
                 </div>
                 <div style="font-size:12px;color:#64748B;line-height:1.5;margin-top:8px;">${rhE(buf)}</div>
             </details>
             <div style="display:flex;flex-direction:column;gap:8px;margin-top:12px;">
-                <button type="button" onclick="cpBuka(true)" style="width:100%;padding:12px;border:none;border-radius:12px;background:${RH_WARNA};color:#fff;font-size:13.5px;font-weight:800;cursor:pointer;font-family:inherit;line-height:1.3;">🎯 Cari persen profit untuk ${rhRp(seragam)}${tombolSub('Profit diturunkan agar Harga Brosur sama dengan Harga Jamaah. Terisi setelah Anda menekan tombolnya.')}</button>
+                <button type="button" onclick="cpBuka(true)" style="width:100%;padding:12px;border:none;border-radius:12px;background:${RH_WARNA};color:#fff;font-size:13.5px;font-weight:800;cursor:pointer;font-family:inherit;line-height:1.3;">🎯 Cari persen profit untuk ${rhRp(seragam)}${tombolSub('Profit diturunkan agar Harga Brosur sama dengan Harga Dasar Jamaah. Terisi setelah Anda menekan tombolnya.')}</button>
                 <button type="button" onclick="kbSamakanBrosur()" ${terkunci ? 'disabled' : ''} style="width:100%;padding:11px;border:1.5px solid ${RH_WARNA};border-radius:12px;background:#fff;color:${RH_WARNA};font-size:13.5px;font-weight:700;cursor:pointer;font-family:inherit;line-height:1.3;${terkunci ? 'opacity:.5;' : ''}">Samakan Harga Brosur = ${rhRp(seragam)}${tombolSub(terkunci ? '🔒 Harga program terkunci, buka kunci dulu.' : 'Persen profit tidak berubah. Bisa dibatalkan lewat tombol Hapus di kolom Harga Jual Brosur.')}</button>
             </div></div>`;
         const r1 = document.getElementById('ringkasHargaBeda');
@@ -8720,7 +8736,7 @@ function kbSamakanBrosur() {
     const el = document.getElementById('cHargaJual'); if(!el) return;
     el.value = Math.round(hp.nominal).toLocaleString('id-ID');
     saveEstimasiData();
-    try { catatAktivitas('🎯', 'Harga Jual Brosur disamakan dengan Harga Seragam ' + rhRp(hp.nominal)); } catch(e) {}
+    try { catatAktivitas('🎯', 'Harga Jual Brosur disamakan dengan Harga Dasar Jamaah ' + rhRp(hp.nominal)); } catch(e) {}
     showToast('Harga Jual Brosur diisi ' + rhRp(hp.nominal) + '. Ketuk HITUNG ESTIMASI untuk memperbarui hasil.');
 }
 
@@ -15509,8 +15525,8 @@ const PEMERIKSA_KESEHATAN = [
                     const laF = estF ? (parseInt(String(estF.cLAfamily || '0').replace(/[^0-9]/g, '')) || 0) : 0;
                     const kurang = [];
                     if (!(laF > 0)) kurang.push('LA / Hotel Family di Cuan Plan (modal dihitung seperti Quad)');
-                    if (cfgP.seragam && cfgP.nominal > 0 && !(cfgP.perTipe && cfgP.perTipe.Family > 0)) kurang.push('Harga Seragam Family di Konfigurasi (ditagih seperti Quad)');
-                    if (kurang.length) tambah('jamaah.family_belum_harga', 'serius', 'Jamaah tipe Family, harganya belum diisi', 'Belum terisi: ' + kurang.join('; ') + '. Selama kosong, laporan menghitung Family seperti Quad sehingga laba bisa meleset.', 'Isi harga Family di Cuan Plan dan/atau Konfigurasi Harga Seragam.', famJ.map(label));
+                    if (cfgP.seragam && cfgP.nominal > 0 && !(cfgP.perTipe && cfgP.perTipe.Family > 0)) kurang.push('Harga Dasar Jamaah Family di Konfigurasi (ditagih seperti Quad)');
+                    if (kurang.length) tambah('jamaah.family_belum_harga', 'serius', 'Jamaah tipe Family, harganya belum diisi', 'Belum terisi: ' + kurang.join('; ') + '. Selama kosong, laporan menghitung Family seperti Quad sehingga laba bisa meleset.', 'Isi harga Family di Cuan Plan dan/atau Konfigurasi Harga Dasar Jamaah.', famJ.map(label));
                 }
             }
             // paspor & meningitis (aturan sama dengan kartu peringatan di Home)
@@ -15524,6 +15540,18 @@ const PEMERIKSA_KESEHATAN = [
             };
             cekKadaluarsa('tgl_expired_paspor', A.pasporBulan, 'jamaah.paspor', 'Paspor', 'Paspor yang masa berlakunya kurang dari batas bisa membuat visa ditolak.');
             cekKadaluarsa('tgl_expired_meningitis', A.meningitisBulan, 'jamaah.meningitis', 'Vaksin meningitis', 'Vaksin yang kadaluarsa sebelum keberangkatan tidak diterima.');
+            // Build 279: kolom penting yang MASIH KOSONG, hanya diperingatkan menjelang keberangkatan (<= 30 hari; <= 14 hari jadi serius). Jamaah Cadangan tidak diperiksa.
+            if (d !== null && d <= 30) {
+                const tkKosong = d <= 14 ? 'serius' : 'perhatian';
+                const kolomPenting = p.jenis === 'haji_reguler'
+                    ? [['no_porsi', 'Nomor porsi'], ['no_paspor', 'Nomor paspor'], ['tgl_expired_paspor', 'Habis berlaku paspor'], ['visa', 'No. Visa']]
+                    : [['no_paspor', 'Nomor paspor'], ['tgl_expired_paspor', 'Habis berlaku paspor'], ['visa', 'No. Visa'], ['tgl_expired_meningitis', 'Vaksin meningitis']];
+                const berangkatList = list.filter(j => { try { return !isCadangan(j); } catch (e) { return true; } });
+                kolomPenting.forEach(([nm, nama]) => {
+                    if (!adaField(nm)) return;
+                    tambah('jamaah.kosong_dekat_' + nm, tkKosong, `${nama} belum diisi, keberangkatan ${d} hari lagi`, 'Data ini biasanya dibutuhkan sebelum berangkat. Hanya pengingat; tidak ada data yang diubah.', 'Lengkapi di Database Jamaah.', berangkatList.filter(j => !String(af(j)[nm] ?? '').trim()).map(label));
+                });
+            }
             // kelengkapan
             if (adaField('whatsapp')) tambah('jamaah.wa_salah', tk === 'serius' ? 'perhatian' : tk, 'Nomor WhatsApp kosong atau formatnya salah', 'Pengingat dan pesan massal tidak akan sampai.', 'Lengkapi nomornya (contoh 0812xxxxxxx).', list.filter(j => { const v = String(af(j).whatsapp || '').replace(/\D/g, ''); return !v || v.length < 9 || v.length > 15 || !/^(0|62)/.test(v); }).map(label));
             if (p.jenis !== 'haji_reguler') tambah('jamaah.tanpa_tipe_kamar', 'perhatian', 'Jamaah belum punya tipe kamar', 'Tanpa tipe kamar, modal jamaah dihitung dengan tarif Quad di laporan.', 'Isi tipe paket di Database Jamaah.', list.filter(j => !tanpaTagihan(j) && !String(af(j).tipe_paket || '').trim()).map(label));
@@ -15578,16 +15606,16 @@ const PEMERIKSA_KESEHATAN = [
             if (hpK && hpK.seragam && hpK.nominal > 0) {
                 if (est) {
                     const hb = hitungModalHargaDariEst(est);
-                    if (hb && Math.round(hb.harga) !== hpK.nominal) out.push(T('jamaah.seragam_beda_brosur:' + p.id, 'Jamaah', 'perhatian', 'Harga Seragam berbeda dari Harga Brosur' + tag, `Harga Seragam ${rp(hpK.nominal)}, Harga Brosur Cuan Plan ${rp(hb.harga)}. Selisihnya ikut dihitung sebagai ${hpK.nominal < hb.harga ? 'diskon' : 'harga di atas brosur'} pada Analisis Buffer.`, 'Samakan keduanya di Konfigurasi atau Cuan Plan, atau abaikan bila memang disengaja.', [], { label: 'Buka Konfigurasi', halaman: 'konfigurasi' }));
+                    if (hb && Math.round(hb.harga) !== hpK.nominal) out.push(T('jamaah.seragam_beda_brosur:' + p.id, 'Jamaah', 'perhatian', 'Harga Dasar Jamaah berbeda dari Harga Brosur' + tag, `Harga Dasar Jamaah ${rp(hpK.nominal)}, Harga Brosur Cuan Plan ${rp(hb.harga)}. Selisihnya ikut dihitung sebagai ${hpK.nominal < hb.harga ? 'diskon' : 'harga di atas brosur'} pada Analisis Buffer.`, 'Samakan keduanya di Konfigurasi atau Cuan Plan, atau abaikan bila memang disengaja.', [], { label: 'Buka Konfigurasi', halaman: 'konfigurasi' }));
                     if (hb && seragamPerTipeAktif(hpK)) ['Triple', 'Double', 'Family'].forEach(tp => {
                         const ht = hpK.perTipe[tp]; if (!(ht > 0)) return;
                         const bt = Math.round(hargaBrosurTipeDariEst(est, tp));
-                        if (bt > 0 && bt !== ht) out.push(T('jamaah.seragam_tipe_beda_brosur:' + tp + ':' + p.id, 'Jamaah', 'perhatian', `Harga Seragam ${tp} berbeda dari Harga Brosur ${tp}` + tag, `Harga Seragam ${tp} ${rp(ht)}, Harga Brosur ${tp} di Cuan Plan ${rp(bt)}. Selisihnya ikut dihitung sebagai ${ht < bt ? 'diskon' : 'harga di atas brosur'} pada Analisis Buffer.`, 'Samakan di Konfigurasi (tombol "Isi dari harga brosur di Estimasi") atau abaikan bila disengaja.', [], { label: 'Buka Konfigurasi', halaman: 'konfigurasi' }));
+                        if (bt > 0 && bt !== ht) out.push(T('jamaah.seragam_tipe_beda_brosur:' + tp + ':' + p.id, 'Jamaah', 'perhatian', `Harga Dasar Jamaah ${tp} berbeda dari Harga Brosur ${tp}` + tag, `Harga Dasar Jamaah ${tp} ${rp(ht)}, Harga Brosur ${tp} di Cuan Plan ${rp(bt)}. Selisihnya ikut dihitung sebagai ${ht < bt ? 'diskon' : 'harga di atas brosur'} pada Analisis Buffer.`, 'Samakan di Konfigurasi (tombol "Isi dari harga brosur di Estimasi") atau abaikan bila disengaja.', [], { label: 'Buka Konfigurasi', halaman: 'konfigurasi' }));
                     });
                 }
                 const rinciK = list.filter(j => !tanpaTagihan(j)).map(j => ({ j, r: hargaPaketRinci(j, hpK) }));
                 const khususK = rinciK.filter(x => x.r.sumber === 'khusus');
-                if (khususK.length) out.push(T('jamaah.harga_khusus:' + p.id, 'Jamaah', 'info', `${khususK.length} jamaah memakai Harga khusus` + tag, 'Harga ketikan per jamaah mengalahkan Harga Seragam dan diskon di database. Pastikan memang disengaja (bukan sisa harga lama).', '', khususK.map(x => `${x.j.nama_lengkap || '(tanpa nama)'} · ${rp(x.r.total)} (seragam ${rp(x.r.dasar)})`)));
+                if (khususK.length) out.push(T('jamaah.harga_khusus:' + p.id, 'Jamaah', 'info', `${khususK.length} jamaah memakai Harga khusus` + tag, 'Harga ketikan per jamaah mengalahkan Harga Dasar Jamaah dan diskon di database. Pastikan memang disengaja (bukan sisa harga lama).', '', khususK.map(x => `${x.j.nama_lengkap || '(tanpa nama)'} · ${rp(x.r.total)} (seragam ${rp(x.r.dasar)})`)));
                 const anakK = rinciK.filter(x => isTarifAnak(x.j.additional_fields) && x.r.sumber !== 'anak');
                 if (anakK.length) out.push(T('jamaah.tarif_anak_tanpa_harga:' + p.id, 'Jamaah', 'perhatian', 'Tarif anak/bayi belum ada harganya' + tag, 'Ditandai tarif anak, tetapi Harga khusus belum diisi sehingga tagihannya masih harga seragam.', 'Isi Harga khusus lewat tombol Harga di Pembayaran.', anakK.map(x => x.j.nama_lengkap || '(tanpa nama)')));
                 const abaiK = rinciK.filter(x => x.r.diskonDiabaikan > 0);
@@ -15600,7 +15628,7 @@ const PEMERIKSA_KESEHATAN = [
                   const tanpaPot = seragamOnP ? perlK.filter(j => !(potonganPerlengkapanDiisi(j.additional_fields) > 0) && !(bacaHargaManualJamaah(j) > 0) && !isTarifAnak(j.additional_fields)) : [];
                   if (tanpaPot.length) out.push(T('jamaah.perlengkapan_tanpa_potongan:' + p.id, 'Jamaah', 'perhatian', `${tanpaPot.length} jamaah tidak ambil perlengkapan, potongan belum diisi` + tag, 'Modalnya sudah dikurangi biaya perlengkapan, tetapi harganya belum dipotong, sehingga laba terlihat lebih besar dari kenyataan.', 'Isi potongan lewat tombol Harga di Pembayaran (pilih Perlengkapan: Tidak ambil).', tanpaPot.map(j => nama({ j }))));
                   const abaiP = perlK.filter(j => potonganPerlengkapanDiisi(j.additional_fields) > 0 && (!seragamOnP || bacaHargaManualJamaah(j) > 0));
-                  if (abaiP.length) out.push(T('jamaah.perlengkapan_potongan_diabaikan:' + p.id, 'Jamaah', 'info', `${abaiP.length} potongan perlengkapan tidak dipakai` + tag, 'Potongan hanya dipakai di harga otomatis (Harga Seragam). Bila Harga khusus diketik atau Harga Seragam mati, harga yang diketik yang berlaku, jadi pastikan angkanya sudah memuat potongan.', '', abaiP.map(j => nama({ j }))));
+                  if (abaiP.length) out.push(T('jamaah.perlengkapan_potongan_diabaikan:' + p.id, 'Jamaah', 'info', `${abaiP.length} potongan perlengkapan tidak dipakai` + tag, 'Potongan hanya dipakai di harga otomatis (Harga Dasar Jamaah). Bila Harga khusus diketik atau Harga Dasar Jamaah mati, harga yang diketik yang berlaku, jadi pastikan angkanya sudah memuat potongan.', '', abaiP.map(j => nama({ j }))));
               } }
             // 2b. Diskon/komisi melebihi Buffer (hitungan yang sama dengan Analisis Buffer di Rekap)
             if (est) {
@@ -18779,6 +18807,7 @@ async function bersihkanDataTerkaitJamaah(jamaahId) {
     try {
         const database = await openIndexedDB();
         const tx = database.transaction([STORE_FOTO, STORE_NAME], 'readwrite');
+        tx.objectStore(STORE_FOTO).delete('foto_' + jamaahId); // kunci foto memakai awalan foto_ (dulu salah kunci, sehingga foto tidak ikut terhapus)
         tx.objectStore(STORE_FOTO).delete(jamaahId);
         tx.objectStore(STORE_NAME).delete(jamaahId);
     } catch(e) {}
@@ -20337,7 +20366,7 @@ function htmlTabUpdateSeat() {
             <summary style="cursor:pointer;font-weight:700;color:var(--primary);">ℹ️ Cara membaca daftar ini</summary>
             <div style="margin-top:6px;">Daftar untuk dibagikan ke agen atau calon jamaah. Tidak memuat modal, profit, atau nama jamaah.<br>
             <b>Sisa seat</b> = kursi di Cuan Plan − jamaah terdaftar − seat ditahan (diisi di Konfigurasi). Lencana merah bila sisa 10% atau kurang, kuning 30% atau kurang.<br>
-            <b>Harga</b> = Harga Seragam program. Bila belum diatur, dipakai harga hitungan Cuan Plan (diberi keterangan di layar ini saja). Harga yang tidak bisa ditulis ringkas dengan tepat ditampilkan lengkap.${(programList || []).some(p => p.jenis === 'haji_reguler') ? '<br><b>Program Haji Reguler tidak ditampilkan</b> di daftar ini (jadwalnya ditetapkan pemerintah).' : ''}</div>
+            <b>Harga</b> = Harga Dasar Jamaah program. Bila belum diatur, dipakai harga hitungan Cuan Plan (diberi keterangan di layar ini saja). Harga yang tidak bisa ditulis ringkas dengan tepat ditampilkan lengkap.${(programList || []).some(p => p.jenis === 'haji_reguler') ? '<br><b>Program Haji Reguler tidak ditampilkan</b> di daftar ini (jadwalnya ditetapkan pemerintah).' : ''}</div>
         </details>
         ${catatanBelumSeat(d)}
         <button onclick="bukaAturKelompokSeat()" style="width:100%;padding:10px;background:#fff;color:var(--primary);border:1.5px solid var(--primary);border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;margin-bottom:10px;">⚙️ Atur Kelompok &amp; Data Seat</button>
@@ -22281,7 +22310,7 @@ function daftarCaraPakai() {
               isi: 'Di layar <b>Manasik</b>, <b>Itinerary</b>, <b>Layanan Tambahan</b>, dan <b>Kalender Program</b> ada kotak <b>Program Aktif</b> berisi nama program yang sedang dibuka. Warnanya menandai jenis: <b>hijau 🕋 = Haji</b>, <b>biru kehijauan 🌙 = Umroh</b>, <b>ungu 🧭 = jenis lain</b>. Jadwal dan data hanya milik program itu, jadi tidak tercampur. Untuk pindah program, ketuk bar <b>Program Aktif</b> di Home.',
               tombol: [] },
             { judul: 'Update Seat: daftar jadwal untuk dibagikan',
-              isi: 'Buka <b>Kalender Program</b> → tab <b>Update Seat</b>. Isinya jadwal semua program Umroh dan Haji Khusus yang akan datang: tanggal, maskapai, harga, DP, dan <b>sisa seat</b> dengan lencana warna. Tidak memuat modal, profit, atau nama jamaah. Isi dulu di <b>Konfigurasi</b> (Info Keberangkatan): Tanggal, Jumlah Hari, dan lipatan <b>Info untuk Update Seat</b> (Kelompok Paket, Kota, DP, Seat Ditahan). Jumlah kursi diambil dari <b>Cuan Plan</b>, harga dari <b>Harga Seragam</b>. Program yang datanya belum lengkap tidak hilang, namanya tampil di kotak kuning beserta alasannya. Banyak jadwal? Ketuk <b>⚙️ Atur Kelompok &amp; Data Seat</b> untuk mengganti nama kelompok sekaligus dan mengisi Kelompok, Kota, DP, serta Seat Ditahan semua program di satu tempat. Pilih <b>Per Paket</b> atau <b>Per Bulan</b> untuk mengelompokkan daftar (cocok bila berangkat tiap bulan). Di dialog yang sama ada kolom <b>Catatan di bawah daftar</b> yang ikut tercetak dan terkirim. Ketuk <b>Export</b> untuk Cetak, Bagikan PDF, Bagikan Gambar, WhatsApp, atau Salin Teks. <b>Poster Harga</b>: setelah menghitung di Cuan Plan, ketuk Export → Bagikan Gambar → pilih poster Putih atau Hijau. Baris keunggulan (maks. 3) diisi di Konfigurasi, lipatan <b>Info untuk Update Seat</b>.',
+              isi: 'Buka <b>Kalender Program</b> → tab <b>Update Seat</b>. Isinya jadwal semua program Umroh dan Haji Khusus yang akan datang: tanggal, maskapai, harga, DP, dan <b>sisa seat</b> dengan lencana warna. Tidak memuat modal, profit, atau nama jamaah. Isi dulu di <b>Konfigurasi</b> (Info Keberangkatan): Tanggal, Jumlah Hari, dan lipatan <b>Info untuk Update Seat</b> (Kelompok Paket, Kota, DP, Seat Ditahan). Jumlah kursi diambil dari <b>Cuan Plan</b>, harga dari <b>Harga Dasar Jamaah</b>. Program yang datanya belum lengkap tidak hilang, namanya tampil di kotak kuning beserta alasannya. Banyak jadwal? Ketuk <b>⚙️ Atur Kelompok &amp; Data Seat</b> untuk mengganti nama kelompok sekaligus dan mengisi Kelompok, Kota, DP, serta Seat Ditahan semua program di satu tempat. Pilih <b>Per Paket</b> atau <b>Per Bulan</b> untuk mengelompokkan daftar (cocok bila berangkat tiap bulan). Di dialog yang sama ada kolom <b>Catatan di bawah daftar</b> yang ikut tercetak dan terkirim. Ketuk <b>Export</b> untuk Cetak, Bagikan PDF, Bagikan Gambar, WhatsApp, atau Salin Teks. <b>Poster Harga</b>: setelah menghitung di Cuan Plan, ketuk Export → Bagikan Gambar → pilih poster Putih atau Hijau. Baris keunggulan (maks. 3) diisi di Konfigurasi, lipatan <b>Info untuk Update Seat</b>.',
               tombol: [{ t: 'Buka Kalender Program', a: () => openKalenderProgramModal(), f: 'openKalenderProgramModal' }] },
             { judul: 'Memilih bentuk laporan: PDF, Bagikan, atau Excel',
               isi: '<b>Laporan Penutupan Musim</b> dan <b>Rekap Tahunan</b>: ketuk menunya, lalu pilih <b>Cetak / Simpan PDF</b> (lihat laporannya dulu), <b>Bagikan PDF</b> (kirim file PDF langsung), atau <b>Excel</b> (langsung mengunduh file Excel tanpa pratinjau, untuk diolah sendiri). <b>Bandingkan Program</b>: angkanya tampil di layar, dan tombol <b>Download Excel</b> ada di bagian atas. Di menu lain seperti Uang Kas, tombol <b>Export</b> berisi Cetak, Bagikan, Excel, dan WhatsApp. <b>Bagikan PDF</b> mengirim file PDF langsung lewat WhatsApp atau aplikasi lain. Laporan Penutupan hanya untuk satu program yang aktif, sedangkan Rekap Tahunan mencakup semua keberangkatan. <b>Bagikan Gambar</b> mengirim laporan sebagai gambar JPG, lebih cepat dibuka di WhatsApp; laporan yang panjang dipecah per halaman dan dikirim sekaligus. Pilihan bertanda <b>Internal</b> berisi data keuangan atau data pengurus, jadi pilih penerimanya dengan hati-hati. Untuk dokumen resmi atau tabel padat, PDF tetap lebih tajam.',
@@ -22353,7 +22382,7 @@ function daftarCaraPakai() {
             { judul: 'Proyeksi Laba dan Laba Bersih', jenis: ['umroh', 'haji'],
               isi: '<b>Proyeksi Laba</b> = Total Kontrak − Modal Estimasi. Ini angka rencana, dihitung dari jamaah yang sudah punya harga paket. <b>Laba Bersih (Realisasi)</b> = uang yang benar-benar masuk − pengeluaran yang tercatat. Kalau pengeluaran belum lengkap, Laba Bersih diberi tanda <b>sementara</b>. <b>Selisih Laba</b> = Realisasi − Proyeksi; tanda minus berarti lebih rendah dari rencana.' },
             { judul: 'Biaya naik setelah brosur beredar', jenis: ['umroh', 'haji'],
-              isi: 'Jamaah tetap ditagih <b>Harga Seragam</b> (harga lama), jadi kalau modal naik, yang turun adalah <b>profit</b>, bukan tagihan jamaah. Masukkan biaya baru di <b>Cuan Plan</b> (Estimasi) secepatnya, lalu ketuk <b>HITUNG ESTIMASI</b>. Aplikasi menampilkan kartu kuning berisi kenaikan modal dan dampaknya. Di <b>Rekap</b> dan <b>Laporan Penutupan Musim</b> muncul satu baris keterangan: modal naik berapa, harga jamaah tetap berapa, profit turun berapa, dan berapa jamaah yang sudah lunas di harga lama. Kalau <b>pengeluaran tercatat sudah melebihi modal Estimasi</b>, muncul peringatan merah: artinya Estimasi kemungkinan belum diperbarui, dan Proyeksi Laba bisa lebih besar dari laba sebenarnya. Aplikasi hanya memberi petunjuk dan tidak mengubah angka sendiri.',
+              isi: 'Jamaah tetap ditagih <b>Harga Dasar Jamaah</b> (harga lama), jadi kalau modal naik, yang turun adalah <b>profit</b>, bukan tagihan jamaah. Masukkan biaya baru di <b>Cuan Plan</b> (Estimasi) secepatnya, lalu ketuk <b>HITUNG ESTIMASI</b>. Aplikasi menampilkan kartu kuning berisi kenaikan modal dan dampaknya. Di <b>Rekap</b> dan <b>Laporan Penutupan Musim</b> muncul satu baris keterangan: modal naik berapa, harga jamaah tetap berapa, profit turun berapa, dan berapa jamaah yang sudah lunas di harga lama. Kalau <b>pengeluaran tercatat sudah melebihi modal Estimasi</b>, muncul peringatan merah: artinya Estimasi kemungkinan belum diperbarui, dan Proyeksi Laba bisa lebih besar dari laba sebenarnya. Aplikasi hanya memberi petunjuk dan tidak mengubah angka sendiri.',
               tombol: [bukaMod('Cuan Plan', 'estimasi', { noHaji: true })] },
             { judul: 'Buffer dan diskon', jenis: ['umroh', 'haji'],
               isi: '<b>Buffer</b> adalah ruang diskon yang disiapkan di Estimasi. Harga jamaah di bawah harga seragam dihitung sebagai diskon dan memakai Buffer. Diskon yang <b>melebihi buffer</b> ditandai merah karena mengurangi laba. Buffer yang tidak terpakai ikut menjadi laba.' },
@@ -22381,6 +22410,55 @@ function renderTentang() {
     set('tentangVersi', typeof NAVARA_BUILD !== 'undefined' ? NAVARA_BUILD : '-');
     let lisensi = 'Gratis'; try { if(isLicensed()) lisensi = 'Berlisensi'; } catch(e) {}
     set('tentangLisensi', lisensi);
+    isiPilihanModulLaporan();
+    tampilPerangkatTentang();
+    siapkanInfoPerangkatLaporan();
+}
+function tampilPerangkatTentang() { const e = document.getElementById('tentangPerangkat'); if (e) { try { e.textContent = infoPerangkatLaporan(); } catch(x) {} } }
+// Catatan error teknis terakhir (hanya teks pendek, di memori; hilang saat aplikasi ditutup). Dipakai untuk laporan bug.
+window._errTerakhir = window._errTerakhir || [];
+function catatErrorLaporan(t) {
+    try { t = String(t || '').replace(/\s+/g, ' ').slice(0, 160); if (!t) return; window._errTerakhir.push(t); if (window._errTerakhir.length > 3) window._errTerakhir.shift(); } catch(e) {}
+}
+window.addEventListener('error', e => catatErrorLaporan((e.message || 'error') + (e.lineno ? ' (baris ' + e.lineno + ')' : '')));
+window.addEventListener('unhandledrejection', e => catatErrorLaporan('Promise: ' + ((e.reason && e.reason.message) || e.reason || '')));
+const NAMA_MODUL_LAPOR = { home:'Beranda', dashboard:'Dashboard / Rekap', estimasi:'Cuan Plan', kas:'Kas', prospek:'Prospek', layanantambahan:'Layanan Tambahan', alumni:'Alumni', arsipprogram:'Arsip Program', itinerary:'Itinerary', pinjaman:'Pinjaman / Cicilan', cekkesehatan:'Cek Kesehatan Data', saldokantor:'Saldo Kantor', jamaah:'Database Jamaah', jamaahkita:'Jamaah Kita', catatan:'Catatan', zakat:'Zakat', pembayaran:'Pembayaran', datamaster:'Data Master / Konsorsium', konfigurasi:'Konfigurasi / Pengaturan Program', setting:'Pengaturan', lisensi:'Lisensi', evaluasihotelmaskapai:'Evaluasi Hotel & Maskapai', kalkulatorriyal:'Kalkulator Riyal', uploaddokumen:'Upload Dokumen', foldervirtual:'Folder Virtual', pengingatwa:'Pengingat WA', suratresmi:'Surat Resmi', tiket:'Tiket', cloudstorage:'Cloud Storage', googledrive:'Google Drive', carapakai:'Cara Pakai', riwayataktivitas:'Riwayat Aktivitas' };
+function isiPilihanModulLaporan() {
+    const sel = document.getElementById('laporModul'); if (!sel) return;
+    const asal = window._halamanAsalLapor;
+    const dipilih = sel.value;
+    let h = '<option value="">' + (asal && NAMA_MODUL_LAPOR[asal] ? 'Halaman yang tadi saya buka: ' + NAMA_MODUL_LAPOR[asal] : 'Tidak tahu / bukan soal halaman tertentu') + '</option>';
+    Object.keys(NAMA_MODUL_LAPOR).forEach(k => { h += '<option value="' + k + '">' + NAMA_MODUL_LAPOR[k] + '</option>'; });
+    sel.innerHTML = h;
+    if (dipilih) sel.value = dipilih;
+}
+// Info perangkat diambil saat halaman Tentang dibuka (model butuh proses async), lalu dipakai saat tombol kirim ditekan.
+function siapkanInfoPerangkatLaporan() {
+    try {
+        const ud = navigator.userAgentData;
+        if (ud && ud.getHighEntropyValues) {
+            ud.getHighEntropyValues(['model', 'platformVersion']).then(v => { window._infoPerangkatLapor = v; tampilPerangkatTentang(); }).catch(() => {});
+        }
+    } catch(e) {}
+}
+function infoPerangkatLaporan() {
+    const ud = navigator.userAgentData || {};
+    const hi = window._infoPerangkatLapor || {};
+    let model = hi.model ? hi.model : '';
+    const ua = navigator.userAgent || '';
+    if (!model) { const m = ua.match(/Android[^;)]*;\s*([^;)]+)/); if (m && m[1] && m[1].trim() !== 'K') model = m[1].trim(); }
+    let os = ud.platform || ((ua.match(/\(([^)]+)\)/) || [,''])[1].split(';')[0]) || '-';
+    if (hi.platformVersion) os += ' ' + hi.platformVersion;
+    let browser = '-';
+    try {
+        const br = (ud.brands || []).filter(b => !/not.?a.?brand/i.test(b.brand)).map(b => b.brand + ' ' + b.version);
+        browser = br.length ? br[br.length - 1] : ((ua.match(/(Chrome|Firefox|Safari|Edg)\/([\d.]+)/) || [,'-',''])[1] + ' ' + ((ua.match(/(Chrome|Firefox|Safari|Edg)\/([\d.]+)/) || [,'',''])[2] || '')).trim();
+    } catch(e) {}
+    let mode = 'browser'; try { if (window.matchMedia('(display-mode: standalone)').matches || navigator.standalone) mode = 'aplikasi terpasang (PWA)'; } catch(e) {}
+    let desk = ''; try { if (/X11|Windows NT|Macintosh/.test(ua) && Math.min(screen.width, screen.height) < 1300 && navigator.maxTouchPoints > 0) desk = ' (browser mungkin memakai "Situs desktop")'; } catch(e) {}
+    return 'Perangkat: ' + (model ? model + ' · ' : '') + os + desk + '\n'
+         + 'Browser: ' + browser + ' · dibuka sebagai ' + mode + '\n'
+         + 'Layar: ' + screen.width + 'x' + screen.height + ' · ' + (navigator.onLine ? 'online' : 'OFFLINE');
 }
 // Info teknis laporan: hanya angka dan versi. Sengaja TIDAK memuat nama, NIK, paspor, atau data uang jamaah.
 function infoTeknisLaporan() {
@@ -22388,27 +22466,42 @@ function infoTeknisLaporan() {
     let prog = '-', nJam = '-';
     try { const pr = getCurrentProgram(); prog = (pr && pr.jenis) ? pr.jenis : '-'; } catch(e) {}
     try { nJam = jamaahList.length + ' jamaah'; } catch(e) {}
-    let hal = window._halamanAsalLapor || '-';
-    let perangkat = '-'; try { perangkat = (navigator.userAgent.match(/\(([^)]+)\)/) || [,'-'])[1].slice(0, 70) + ' · layar ' + screen.width + 'x' + screen.height; } catch(e) {}
+    const hal = window._halamanAsalLapor ? (NAMA_MODUL_LAPOR[window._halamanAsalLapor] || window._halamanAsalLapor) : '-';
+    const err = (window._errTerakhir || []).length ? '\nError teknis terakhir:\n- ' + window._errTerakhir.join('\n- ') : '\nError teknis terakhir: tidak ada';
     return [
         'Versi aplikasi: ' + (typeof NAVARA_BUILD !== 'undefined' ? NAVARA_BUILD : '-'),
         'Status: ' + lisensi,
         'Program: ' + prog + ' (' + nJam + ')',
         'Halaman sebelum melapor: ' + hal,
-        'Perangkat: ' + perangkat
-    ].join('\n');
+        infoPerangkatLaporan()
+    ].join('\n') + err;
+}
+function nomorLaporan() {
+    const d = new Date(), z = n => String(n).padStart(2, '0');
+    return 'NVR-' + z(d.getMonth() + 1) + z(d.getDate()) + '-' + z(d.getHours()) + z(d.getMinutes());
 }
 function susunLaporanPengembang() {
     const v = id => (document.getElementById(id)?.value || '').trim();
-    return { nama: v('laporNama'), kategori: v('laporKategori') || 'Lainnya', judul: v('laporJudul'), isi: v('laporIsi') };
+    const sel = document.getElementById('laporModul');
+    let modul = '';
+    if (sel && sel.value) modul = NAMA_MODUL_LAPOR[sel.value] || sel.value;
+    return { nama: v('laporNama'), kategori: v('laporKategori') || 'Lainnya', judul: v('laporJudul'), isi: v('laporIsi'), modul };
 }
 function kirimLaporanPengembang(cara) {
     const L = susunLaporanPengembang();
-    if (!L.judul && !L.isi) { showToast('✏️ Isi judul atau penjelasan dulu'); return; }
-    const judul = '[Navara] ' + L.kategori + (L.judul ? ': ' + L.judul : '');
-    const badan = 'Halo ' + KONTAK_PENGEMBANG.nama + ',\n\n' + (L.isi || '(belum dijelaskan)') + '\n\n— ' + (L.nama || 'Pengguna Navara') + '\n\n--- Info teknis (otomatis) ---\n' + infoTeknisLaporan();
+    if (L.isi.length < 10) { showToast(L.isi ? '✏️ Jelaskan sedikit lebih rinci (minimal 10 huruf)' : '✏️ Isi penjelasan dulu'); return; }
+    const no = nomorLaporan();
+    const judul = '[Navara ' + no + '] ' + L.kategori + (L.judul ? ': ' + L.judul : '');
+    const badan = 'Halo ' + KONTAK_PENGEMBANG.nama + ',\n\n' + L.isi + '\n\n— ' + (L.nama || 'Pengguna Navara')
+        + '\n\nNo. laporan: ' + no + (L.modul ? '\nModul yang bermasalah: ' + L.modul : '')
+        + '\n\n--- Info teknis (otomatis) ---\n' + infoTeknisLaporan();
     if (cara === 'email') {
         window.location.href = 'mailto:' + KONTAK_PENGEMBANG.email + '?subject=' + encodeURIComponent(judul) + '&body=' + encodeURIComponent(badan);
+    } else if (cara === 'salin') {
+        const teks = judul + '\n\n' + badan;
+        const cadangan = () => { try { const t = document.createElement('textarea'); t.value = teks; t.style.cssText = 'position:fixed;opacity:0;'; document.body.appendChild(t); t.select(); const ok = document.execCommand('copy'); t.remove(); showToast(ok ? '📋 Teks laporan tersalin' : '❌ Gagal menyalin'); } catch(e) { showToast('❌ Gagal menyalin'); } };
+        if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(teks).then(() => showToast('📋 Teks laporan tersalin. Tempel di WhatsApp, email, atau aplikasi lain')).catch(cadangan);
+        else cadangan();
     } else {
         window.open('https://wa.me/' + KONTAK_PENGEMBANG.wa + '?text=' + encodeURIComponent('*' + judul + '*\n\n' + badan), '_blank');
     }
@@ -22930,6 +23023,8 @@ function cetakTrenTahunan() {
 
 // ==================== KECOCOKAN KAMAR ====================
 const KAPASITAS_KAMAR = { 'Quad': 4, 'Triple': 3, 'Double': 2 };
+// Family bebas campur L/P dan jumlahnya beda tiap hotel; 8 dipakai hanya untuk perkiraan kasar jumlah kamar (ubah angka ini kalau hotel berbeda).
+const KAPASITAS_FAMILY_PERKIRAAN = 8;
 
 function openKecocokanKamarModal() {
     let modal = document.getElementById('kecocokanKamarModal');
@@ -22970,7 +23065,7 @@ function openKecocokanKamarModal() {
         html += `
         <div style="background:#F8FAFC;border-radius:10px;padding:12px;margin-bottom:10px;">
             <div style="font-weight:700;font-size:13px;color:var(--primary);margin-bottom:4px;">🛏️ Family (kamar keluarga)</div>
-            <div style="font-size:12px;color:#555;">${namaFamily.length} jamaah. Satu keluarga satu kamar, jumlah orang per kamar tergantung hotel, jadi sisa tidak dihitung otomatis.</div>
+            <div style="font-size:12px;color:#555;">${namaFamily.length} jamaah. Perkiraan kasar: butuh minimal <b>${Math.ceil(namaFamily.length / KAPASITAS_FAMILY_PERKIRAAN)} kamar Family</b> (anggap ${KAPASITAS_FAMILY_PERKIRAAN} orang per kamar; hotel bisa beda, jadi sisa tidak dihitung otomatis).</div>
             <div style="font-size:11.5px;color:#92400E;margin-top:6px;">Cocokkan sendiri per keluarga: ${namaFamily.map(n => escapeHtml(n)).join(', ')}</div>
         </div>`;
     }
@@ -23281,9 +23376,66 @@ async function confirmDeleteAllJamaah(){
     konfirmasiBertema('Hapus Semua Jamaah?', pesan, async () => { await eksekusiHapusSemuaJamaah(); });
 }
 
+// ---- Batalkan "Hapus Semua Jamaah" (15 detik) ----
+// Teks data dipulihkan dari cadangan otomatis yang dibuat sesaat sebelum hapus; foto & dokumen baru benar-benar dihapus setelah 15 detik.
+const KUNCI_MEDIA_TERTUNDA = 'navara_media_tertunda';
+let _timerMediaTertunda = null, _waktuCadanganHapus = null;
+async function hapusMediaJamaahSekarang(ids) {
+    try {
+        const database = await openIndexedDB();
+        const tx = database.transaction([STORE_FOTO, STORE_NAME], 'readwrite');
+        (ids || []).forEach(id => {
+            tx.objectStore(STORE_FOTO).delete('foto_' + id);
+            tx.objectStore(STORE_FOTO).delete(id);
+            tx.objectStore(STORE_NAME).delete(id);
+        });
+    } catch (e) { console.warn('Hapus foto/dokumen gagal:', e); }
+}
+function jadwalkanHapusMediaTertunda(ids) {
+    try { localStorage.setItem(KUNCI_MEDIA_TERTUNDA, JSON.stringify(ids || [])); } catch (e) {}
+    clearTimeout(_timerMediaTertunda);
+    _timerMediaTertunda = setTimeout(() => prosesMediaTertunda(), 15000);
+    idbGet(STORE_MASTER, 'snapshot_pra_update').then(d => { _waktuCadanganHapus = (d && d[0] && d[0].alasan === 'Otomatis sebelum Hapus Semua Jamaah') ? d[0].waktu : null; }).catch(() => {});
+}
+async function prosesMediaTertunda() {
+    clearTimeout(_timerMediaTertunda);
+    let ids = null;
+    try { ids = JSON.parse(localStorage.getItem(KUNCI_MEDIA_TERTUNDA) || 'null'); } catch (e) {}
+    if (Array.isArray(ids) && ids.length) await hapusMediaJamaahSekarang(ids);
+    try { localStorage.removeItem(KUNCI_MEDIA_TERTUNDA); } catch (e) {}
+    const bar = document.getElementById('barBatalHapus'); if (bar) bar.remove();
+}
+function tampilkanBarBatalHapus() {
+    const lama = document.getElementById('barBatalHapus'); if (lama) lama.remove();
+    const bar = document.createElement('div');
+    bar.id = 'barBatalHapus';
+    bar.style.cssText = 'position:fixed;left:12px;right:12px;bottom:80px;z-index:100000;background:#1e293b;color:#fff;border-radius:14px;padding:12px 14px;display:flex;align-items:center;justify-content:space-between;gap:10px;font-size:13px;box-shadow:0 6px 24px rgba(0,0,0,.3);';
+    bar.innerHTML = '<span>Semua jamaah Program ini dihapus. Salah tekan?</span><button id="btnBatalHapus" style="background:#f59e0b;color:#1e293b;border:none;border-radius:10px;padding:8px 14px;font-weight:800;font-size:13px;cursor:pointer;white-space:nowrap;">Batalkan</button>';
+    document.body.appendChild(bar);
+    document.getElementById('btnBatalHapus').onclick = batalkanHapusSemua;
+    setTimeout(() => { const b = document.getElementById('barBatalHapus'); if (b) b.remove(); }, 15000);
+}
+async function batalkanHapusSemua() {
+    clearTimeout(_timerMediaTertunda);
+    try { localStorage.removeItem(KUNCI_MEDIA_TERTUNDA); } catch (e) {}
+    const bar = document.getElementById('barBatalHapus'); if (bar) bar.remove();
+    try {
+        const daftar = (await idbGet(STORE_MASTER, 'snapshot_pra_update')) || [];
+        const s = daftar.find(x => x.alasan === 'Otomatis sebelum Hapus Semua Jamaah' && (!_waktuCadanganHapus || x.waktu === _waktuCadanganHapus));
+        if (!s) { showToast('⚠️ Cadangan tidak ditemukan, gunakan Pulihkan di menu Cadangan'); return; }
+        for (const k of Object.keys(s.isi)) {
+            const [store, key] = k.split('|');
+            if (s.isi[k] !== null && s.isi[k] !== undefined) await idbSet(store, key, s.isi[k]);
+        }
+        if (s.lsKonfigurasi) localStorage.setItem('navara_konfigurasi_pro', s.lsKonfigurasi);
+        showToast('✅ Dibatalkan, data jamaah dikembalikan. Memuat ulang...');
+        setTimeout(() => location.reload(), 1200);
+    } catch (e) { showToast('❌ Gagal membatalkan: ' + e.message); }
+}
 async function eksekusiHapusSemuaJamaah(){
     {
-        try { await buatSnapshotData('Otomatis sebelum Hapus Semua Jamaah'); } catch(e) { console.warn('Cadangan sebelum hapus gagal:', e); }
+        let adaCadanganHapus = false;
+        try { adaCadanganHapus = !!(await buatSnapshotData('Otomatis sebelum Hapus Semua Jamaah')); } catch(e) { console.warn('Cadangan sebelum hapus gagal:', e); }
         const progNama = getCurrentProgram()?.nama || '-';
         // Simpan dulu ID jamaah Program aktif, untuk hapus foto/dokumen yang terkait saja
         const idJamaahDihapus = jamaahList.map(j => j.id);
@@ -23301,13 +23453,10 @@ async function eksekusiHapusSemuaJamaah(){
         await idbSet(STORE_FOLDER, 'folder_list', _allFolderData);
         await idbSet(STORE_JAMAAH_KITA, 'kita_list', _allJamaahKitaData);
 
-        // Hapus foto profil & dokumen HANYA milik jamaah yang dihapus (bukan semua Program)
-        const database = await openIndexedDB();
-        const tx = database.transaction([STORE_FOTO, STORE_NAME], 'readwrite');
-        idJamaahDihapus.forEach(id => {
-            tx.objectStore(STORE_FOTO).delete(id);
-            tx.objectStore(STORE_NAME).delete(id);
-        });
+        // Foto profil & dokumen HANYA milik jamaah yang dihapus (bukan semua Program).
+        // Kalau cadangan berhasil dibuat, penghapusan foto/dokumen DITUNDA 15 detik supaya tombol Batalkan bisa memulihkan semuanya.
+        if (adaCadanganHapus) jadwalkanHapusMediaTertunda(idJamaahDihapus);
+        else await hapusMediaJamaahSekarang(idJamaahDihapus);
 
         // Konsisten dengan Hapus 1-per-1: bersihkan juga Pembayaran, kaitan Layanan Tambahan, dan Absensi untuk semua jamaah yang dihapus
         const idSetDihapus = new Set(idJamaahDihapus.map(String));
@@ -23333,6 +23482,7 @@ async function eksekusiHapusSemuaJamaah(){
 
         showToast('✅ Data jamaah Program "' + progNama + '" telah dihapus');
         catatAktivitas('🗑️', `Semua data jamaah (${idJamaahDihapus.length}) dihapus dari Program ini`);
+        if (adaCadanganHapus) tampilkanBarBatalHapus();
         renderJamaahListWithPagination();
         renderJamaahKitaList();
         renderFolderList();
@@ -26653,7 +26803,7 @@ function perbaruiEditHargaPerleng(ikutiHarga) {
     let t = '';
     if (oto && !_ehHargaManual) t += `Harga: ${fR(oto.dasar)}${oto.diskon > 0 ? ' − diskon ' + fR(oto.diskon) : ''} − potongan ${fR(oto.pot)} = <b>${fR(oto.total)}</b><br>`;
     else if (oto) t += `<span style="color:#B45309;">Harga yang diketik di atas yang berlaku; potongan tidak ikut dihitung otomatis.</span><br>`;
-    else t += `<span style="color:#B45309;">Harga Seragam tidak aktif: ketik sendiri harga jamaah ini di kolom Total.</span><br>`;
+    else t += `<span style="color:#B45309;">Harga Dasar Jamaah tidak aktif: ketik sendiri harga jamaah ini di kolom Total.</span><br>`;
     t += modalAnakDiisi ? 'Modal anak sudah diisi sendiri, jadi modal tidak dikurangi lagi.' : `Modal turun ${fR(hemat)}${uangDariField(document.getElementById('editHargaModalHemat')?.value) ? '' : ' (dari Perlengkapan di Estimasi)'}`;
     if (oto && !_ehHargaManual && !modalAnakDiisi) {
         if (potIn <= 0) t += `<br><span style="color:#B45309;">⚠️ Potongan belum diisi: modal turun tapi harga belum.</span>`;
@@ -26743,7 +26893,7 @@ function saveEditHarga() {
     renderPaymentJamaahList();
     renderPaymentDashboard();
     let pesanE = jadiKhusus ? `✅ Harga ${anakDicentang ? (jenisAnakDipilih === 'bayi' ? 'tarif bayi' : 'tarif anak') : 'khusus'} ${formatRupiah(newHarga)}` : `✅ Memakai harga seragam ${formatRupiah(newHarga)}`;
-    if (anakDicentang && !seragamAktif) pesanE += '\n(Harga Seragam tidak aktif: penanda tarif anak tetap tersimpan)';
+    if (anakDicentang && !seragamAktif) pesanE += '\n(Harga Dasar Jamaah tidak aktif: penanda tarif anak tetap tersimpan)';
     if (tidakAmbilP) pesanE += `\n🧳 Tanpa perlengkapan${potonganP > 0 ? ': potongan ' + formatRupiah(potonganP) : ' (potongan belum diisi)'}`;
     showToast(pesanE);
     closeEditHargaModal();
@@ -27635,7 +27785,7 @@ function renderKomponenHajiList() {
     container.innerHTML = list.map((k, i) => `
         <div style="display:flex;gap:8px;align-items:center;margin-bottom:8px;">
             <input type="text" value="${escapeHtml(k.jenis)}" onchange="gantiNamaKomponenHaji(${i}, this)" placeholder="Nama Komponen" style="flex:1;padding:9px;border-radius:8px;border:1.5px solid #ddd;font-size:13px;">
-            <input type="text" class="money-input" inputmode="numeric" value="${k.harga?k.harga.toLocaleString('id-ID'):''}" oninput="updateKomponenHaji(${i}, 'harga', this.value)" placeholder="Harga Seragam" style="flex:1;padding:9px;border-radius:8px;border:1.5px solid #ddd;font-size:13px;">
+            <input type="text" class="money-input" inputmode="numeric" value="${k.harga?k.harga.toLocaleString('id-ID'):''}" oninput="updateKomponenHaji(${i}, 'harga', this.value)" placeholder="Harga Dasar Jamaah" style="flex:1;padding:9px;border-radius:8px;border:1.5px solid #ddd;font-size:13px;">
             <button onclick="hapusKomponenHaji(${i})" style="border:none;background:none;color:#DC2626;font-size:14px;cursor:pointer;"><i class="fas fa-trash-alt"></i></button>
         </div>`).join('');
 }
@@ -29451,7 +29601,7 @@ function openIndexedDB() {
 // dengan build baru, data MENTAH (langsung dari IndexedDB, bukan dari memori) disalin dulu sebelum
 // proses migrasi apapun berjalan — supaya kalau ada kesalahan di update, data lama masih bisa dipulihkan.
 // Dokumen & foto tidak ikut disalin (ukurannya besar, dan tidak pernah disentuh proses migrasi).
-const NAVARA_BUILD = '2026.11.01-275';
+const NAVARA_BUILD = '2026.11.01-282';
 const MAKS_SNAPSHOT = 3;
 
 // ==================== DAFTAR DATA PUSAT ====================
@@ -30897,6 +31047,22 @@ function catatBackupTerakhir() {
     localStorage.setItem('navara_last_backup', new Date().toISOString());
     if(typeof updateHomeStats === 'function') updateHomeStats();
 }
+// Cadangan sudah dibuat tetapi BELUM dikirim keluar HP: kartu merah di Home tetap tampil dengan keterangan yang jujur.
+function catatBackupHanyaDiHP() {
+    try { localStorage.setItem('navara_backup_dibuat', new Date().toISOString()); } catch (e) {}
+    if(typeof updateHomeStats === 'function') updateHomeStats();
+}
+// Setelah file cadangan dibuat/diunduh: tanya apakah sudah dikirim keluar HP. Hanya jawaban "Sudah dikirim" yang menghilangkan kartu merah.
+async function tanyaBackupSudahDikirim() {
+    let sudah = false;
+    try {
+        sudah = await tanyaKonfirmasi({ judul: 'Cadangan sudah dikirim keluar HP?', ikon: '💾',
+            pesan: 'File cadangan sekarang ada di HP ini. Kalau HP hilang atau rusak, file itu ikut hilang. Sudah Anda kirim ke Google Drive, WhatsApp, atau email?',
+            tombolYa: 'Sudah dikirim', tombolTidak: 'Belum' });
+    } catch (e) {}
+    if (sudah) catatBackupTerakhir(); else catatBackupHanyaDiHP();
+    return sudah;
+}
 
 // Ringkasan isi backup: jumlah data tiap menu + kapan backup terakhir (supaya bisa dicek sendiri sebelum/ sesudah backup)
 async function tampilkanCekBackup() {
@@ -30923,7 +31089,6 @@ async function bagikanFullZip() {
         // Muat data segar Jadwal Manasik langsung dari penyimpanan — supaya tetap lengkap
         // walau halaman Manasik & Absensi belum sempat dibuka di sesi ini
         const backupData = await susunBackupJson();
-        catatBackupTerakhir();
         const json = JSON.stringify(backupData);
         const date = new Date().toISOString().slice(0, 10);
         const fileName = `Navara_Backup_${date}.json`;
@@ -30933,6 +31098,7 @@ async function bagikanFullZip() {
         if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
             try {
                 await navigator.share({ files: [file], title: 'Backup Navara', text: 'Backup data Navara - ' + date });
+                catatBackupTerakhir(); // pengguna memilih tujuan pengiriman (WhatsApp/Drive/email dll)
                 return;
             } catch(shareErr) {
                 if (shareErr.name === 'AbortError') return; // user batal, jangan lanjut fallback
@@ -30949,6 +31115,7 @@ async function bagikanFullZip() {
             a.click();
             document.body.removeChild(a);
             showToast('⬇️ File JSON didownload');
+            await tanyaBackupSudahDikirim();
             return;
         } catch(downloadErr) {
             console.warn('Download gagal, pakai fallback modal:', downloadErr);
@@ -30961,7 +31128,6 @@ async function bagikanFullZip() {
         // Kalau semua cara di atas error sebelum sempat dicoba, tetap tampilkan fallback modal
         try {
             const backupData = await susunBackupJson();
-            catatBackupTerakhir();
             const json = JSON.stringify(backupData);
             const date = new Date().toISOString().slice(0, 10);
             showJsonBackupModal(json, `Navara_Backup_${date}.json`);
@@ -30986,6 +31152,7 @@ function showJsonBackupModal(json, fileName) {
         </div>
         <textarea id="jsonBackupText" readonly style="width:100%;height:150px;padding:10px;border:1.5px solid #ddd;border-radius:8px;font-size:11px;font-family:monospace;margin-bottom:12px;" onclick="this.select()">${json.replace(/</g,'&lt;')}</textarea>
         <button onclick="copyJsonBackup()" style="width:100%;padding:12px;background:#3B82F6;color:white;border:none;border-radius:10px;font-size:14px;font-weight:bold;cursor:pointer;margin-bottom:8px;">📋 Copy ke Clipboard</button>
+        <button onclick="catatBackupTerakhir(); document.getElementById('jsonBackupModal').style.display='none'; showToast('✅ Dicatat: cadangan sudah dikirim keluar HP');" style="width:100%;padding:12px;background:#16a34a;color:white;border:none;border-radius:10px;font-size:13px;font-weight:bold;cursor:pointer;margin-bottom:8px;">✅ Sudah saya kirim / simpan di luar HP</button>
         <button onclick="document.getElementById('jsonBackupModal').style.display='none'" style="width:100%;padding:11px;background:#e2e8f0;color:#333;border:none;border-radius:10px;font-size:13px;cursor:pointer;">Tutup</button>
     </div>`;
     modal.style.display = 'flex';
@@ -31051,7 +31218,6 @@ async function buildFullBackupZip() {
     const pengaturanLokal = bacaPengaturanLokal();
     zip.file('pengaturan_lokal.json', JSON.stringify(pengaturanLokal, null, 2));
     zip.file('extra.json', JSON.stringify(await bacaDataGenerik(), null, 2)); // data generik terdaftar
-    catatBackupTerakhir();
     // Dokumen — SEMUA Program, bukan cuma yang sedang aktif
     const dokumenFolder = zip.folder('dokumen');
     for (const j of _allJamaahData) {
@@ -31089,6 +31255,7 @@ async function downloadFullZip() {
         saveAs(content, `Navara_Full_Backup_${date}.zip`);
         try { localStorage.setItem('navara_zip_backup_ts', String(Date.now())); } catch(e) {}
         showToast('✅ Backup ZIP berhasil! Termasuk semua data.');
+        await tanyaBackupSudahDikirim();
     } catch(e) { showToast('❌ Gagal membuat ZIP: ' + e.message); }
 }
 
@@ -33811,7 +33978,7 @@ async function saveKonfigurasiPro() {
         seragam: document.getElementById('cfg_harga_seragam_aktif')?.checked || false,
         nominal: parseInt(nominalRaw) || 0
     };
-    { // harga per tipe kamar: hanya disimpan bila Harga Seragam aktif dan ada isinya
+    { // harga per tipe kamar: hanya disimpan bila Harga Dasar Jamaah aktif dan ada isinya
         const baca = id => parseInt((document.getElementById(id)?.value || '0').replace(/\./g, '').replace(/[^0-9]/g, '')) || 0;
         const pt = {}; const tr = baca('cfg_harga_triple'), db = baca('cfg_harga_double'), fa = baca('cfg_harga_family');
         if(tr > 0) pt.Triple = tr; if(db > 0) pt.Double = db; if(fa > 0) pt.Family = fa;
@@ -33825,8 +33992,8 @@ async function saveKonfigurasiPro() {
         const sudahBayar = terkena.filter(j => paymentTransaksiList.some(t => String(t.id_jamaah) === String(j.id))).length;
         const fRc = n => fRp(n);
         const teksTipeCfg = h => (h && h.perTipe ? ' (Triple ' + (h.perTipe.Triple > 0 ? fRc(h.perTipe.Triple) : 'sama') + ', Double ' + (h.perTipe.Double > 0 ? fRc(h.perTipe.Double) : 'sama') + (h.perTipe.Family > 0 ? ', Family ' + fRc(h.perTipe.Family) : '') + ')' : '');
-        const ok = await konfirmasi(`Ubah Harga Seragam program ini?\n\n${hargaLamaCfg.seragam ? 'Sekarang: ' + fRc(hargaLamaCfg.nominal) + teksTipeCfg(hargaLamaCfg) : 'Sekarang: tidak aktif'}\nMenjadi: ${hargaBaruCfg.seragam ? fRc(hargaBaruCfg.nominal) + teksTipeCfg(hargaBaruCfg) : 'tidak aktif'}\n\nTagihan ${terkena.length - (hargaBaruCfg.seragam ? adaKhusus : 0)} jamaah ikut berubah (${sudahBayar} di antaranya sudah ada pembayaran).${hargaBaruCfg.seragam && adaKhusus ? `\n${adaKhusus} jamaah punya Harga khusus dan tidak berubah.` : ''}\nProgram yang sudah diarsipkan tidak terpengaruh.`);
-        if (!ok) { showToast('Perubahan Harga Seragam dibatalkan'); return; }
+        const ok = await konfirmasi(`Ubah Harga Dasar Jamaah program ini?\n\n${hargaLamaCfg.seragam ? 'Sekarang: ' + fRc(hargaLamaCfg.nominal) + teksTipeCfg(hargaLamaCfg) : 'Sekarang: tidak aktif'}\nMenjadi: ${hargaBaruCfg.seragam ? fRc(hargaBaruCfg.nominal) + teksTipeCfg(hargaBaruCfg) : 'tidak aktif'}\n\nTagihan ${terkena.length - (hargaBaruCfg.seragam ? adaKhusus : 0)} jamaah ikut berubah (${sudahBayar} di antaranya sudah ada pembayaran).${hargaBaruCfg.seragam && adaKhusus ? `\n${adaKhusus} jamaah punya Harga khusus dan tidak berubah.` : ''}\nProgram yang sudah diarsipkan tidak terpengaruh.`);
+        if (!ok) { showToast('Perubahan Harga Dasar Jamaah dibatalkan'); return; }
     }
     slot.harga_paket = hargaBaruCfg;
     slot.modal_bayi = parseInt((document.getElementById('cfg_modal_bayi')?.value || '0').replace(/\./g, '').replace(/[^0-9]/g, '')) || 0;
@@ -33847,7 +34014,7 @@ async function saveKonfigurasiPro() {
     // tipe_paket disimpan lewat tambahTipePaket/hapusTipePaket langsung
     localStorage.setItem('navara_konfigurasi_pro', JSON.stringify(konfigurasiPro)); // keep for compat
     await idbSet(STORE_KONFIGURASI, 'konfigurasi_pro', konfigurasiPro);
-    catatAktivitas('✏️', 'Konfigurasi Program diperbarui (Harga Seragam/Tipe Paket/dll)');
+    catatAktivitas('✏️', 'Konfigurasi Program diperbarui (Harga Dasar Jamaah/Tipe Paket/dll)');
     showToast('✅ Konfigurasi berhasil disimpan!');
     updateHeaderFromConfig();
 }
@@ -34122,6 +34289,7 @@ async function initPremium() {
     await openIndexedDB(); // Pastikan DB terbuka dulu
     // PENGAMAN: cadangkan data mentah SEBELUM migrasi/pembersihan apapun berjalan (hanya sekali per update)
     await cekSnapshotSebelumUpdate();
+    try { if (localStorage.getItem(KUNCI_MEDIA_TERTUNDA)) await prosesMediaTertunda(); } catch (e) {} // foto/dokumen yang tertunda dihapus saat aplikasi ditutup sebelum 15 detik
     mintaPenyimpananPermanen(false); // minta perlindungan data dari browser (tanpa menunggu)
     await loadProgramData();
     await loadKonfigurasiPro();
