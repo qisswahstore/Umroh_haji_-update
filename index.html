@@ -2099,8 +2099,15 @@ https://github.com/nodeca/pako/blob/main/LICENSE
             <div style="display:flex;justify-content:space-between;"><span style="color:#666;">Versi aplikasi</span><strong id="tentangVersi"></strong></div>
             <div style="display:flex;justify-content:space-between;"><span style="color:#666;">Status</span><strong id="tentangLisensi"></strong></div>
         </div>
-        <div style="font-size:13px;color:#555;line-height:1.6;margin-bottom:10px;">Ada pertanyaan, kendala, atau usulan? Ketuk tombol di bawah. WhatsApp akan terbuka dengan pesan yang sudah berisi versi aplikasi Anda, jadi tinggal menuliskan kebutuhannya.</div>
-        <button class="btn btn-primary" onclick="hubungiPengembang()" style="width:100%;"><i class="fab fa-whatsapp"></i> Hubungi Pengembang via WhatsApp</button>
+        <div style="font-size:13px;color:#555;line-height:1.6;margin-bottom:10px;">Ada kendala, usulan, atau pertanyaan? Isi di bawah, lalu kirim lewat WhatsApp atau Email. Versi aplikasi dan info teknis ikut terisi otomatis. <b>Data jamaah (nama, NIK, paspor) tidak ikut terkirim.</b></div>
+        <div class="form-group" style="margin-bottom:10px;"><label style="display:block;font-size:12px;font-weight:700;color:#475569;margin-bottom:4px;">Nama Anda (boleh dikosongkan)</label><input type="text" id="laporNama" placeholder="Nama Anda" autocomplete="off"></div>
+        <div class="form-group" style="margin-bottom:10px;"><label style="display:block;font-size:12px;font-weight:700;color:#475569;margin-bottom:4px;">Jenis laporan</label>
+            <select id="laporKategori"><option value="Laporan Bug">🐞 Laporan Bug</option><option value="Permintaan Fitur">💡 Permintaan Fitur</option><option value="Lainnya">💬 Lainnya</option></select></div>
+        <div class="form-group" style="margin-bottom:10px;"><label style="display:block;font-size:12px;font-weight:700;color:#475569;margin-bottom:4px;">Judul</label><input type="text" id="laporJudul" placeholder="Ringkas, mis. Harga Family tidak muncul" autocomplete="off"></div>
+        <div class="form-group" style="margin-bottom:10px;"><label style="display:block;font-size:12px;font-weight:700;color:#475569;margin-bottom:4px;">Penjelasan</label><textarea id="laporIsi" rows="5" placeholder="Jelaskan masalah Anda secara rinci di sini: apa yang dilakukan, apa yang terjadi, dan apa yang diharapkan."></textarea></div>
+        <button class="btn btn-primary" onclick="kirimLaporanPengembang('wa')" style="width:100%;"><i class="fab fa-whatsapp"></i> Kirim lewat WhatsApp</button>
+        <button class="btn btn-secondary mt-2" onclick="kirimLaporanPengembang('email')" style="width:100%;"><i class="fas fa-envelope"></i> Kirim lewat Email</button>
+        <div style="font-size:11px;color:#888;line-height:1.5;margin:8px 0 4px;">Email dan WhatsApp akan terbuka dengan isi yang sudah tersusun; tekan kirim di sana. Untuk email, lampirkan sendiri screenshot bila ada. Email butuh aplikasi email yang sudah aktif di perangkat ini; bila tidak ada, pakai WhatsApp.</div>
         <button class="btn btn-secondary mt-2" onclick="showPage('carapakai')" style="width:100%;">📖 Buka Cara Pakai</button>
     </div>
 </div>
@@ -2277,6 +2284,11 @@ https://github.com/nodeca/pako/blob/main/LICENSE
                     <input type="text" id="cLAdouble" class="money-input" inputmode="numeric" value="0" oninput="updateLAPreview(); saveEstimasiData();">
                     <small id="hintDouble" style="display:none;font-size:11px;color:#888;margin-top:3px;">↑ selisih dari Quad</small>
                 </div>
+                <div class="input-group" id="wrapLAFamily" style="display:none;margin:8px 0 0;">
+                    <label id="labelFamily" style="font-size:12px;color:#555;">Family (kamar keluarga)</label>
+                    <input type="text" id="cLAfamily" class="money-input" inputmode="numeric" value="0" oninput="updateLAPreview(); saveEstimasiData();">
+                    <small id="hintFamily" style="display:none;font-size:11px;color:#888;margin-top:3px;">↑ selisih dari Quad</small>
+                </div>
                 <div id="laPreview" style="font-size:11px;color:#888;margin-top:8px;text-align:center;"></div>
             </div>
         </div>
@@ -2322,13 +2334,15 @@ https://github.com/nodeca/pako/blob/main/LICENSE
             <small id="hargaJualInfo" style="color:#888;font-size:11px;margin-top:6px;display:block;"></small>
         </div>
         <details id="hargaJualTipeWrap" style="display:none;margin:10px 0 14px;background:#F8FAFC;border:1.5px solid #e2e8f0;border-radius:10px;padding:9px 12px;">
-            <summary style="cursor:pointer;list-style:none;font-size:13px;font-weight:700;color:var(--primary);">Harga bulat Triple / Double <small style="font-weight:normal;color:#888;">(opsional, ketuk untuk buka)</small>
+            <summary style="cursor:pointer;list-style:none;font-size:13px;font-weight:700;color:var(--primary);">Harga bulat Triple / Double / Family <small style="font-weight:normal;color:#888;">(opsional, ketuk untuk buka)</small>
                 <div id="ringkasHJTipe" style="font-size:12px;font-weight:600;color:#475569;margin-top:3px;"></div></summary>
             <div style="margin-top:10px;">
                 <div class="input-group" id="wrapHJTriple" style="display:none;"><label style="font-size:13px;">Harga Jual Triple bulat</label>
                     <input type="text" id="cHargaJualTriple" class="money-input" inputmode="numeric" value="" placeholder="Kosong = pakai hasil hitungan" oninput="saveEstimasiData(); perbaruiKolomHargaTipe()"></div>
                 <div class="input-group" id="wrapHJDouble" style="display:none;"><label style="font-size:13px;">Harga Jual Double bulat</label>
                     <input type="text" id="cHargaJualDouble" class="money-input" inputmode="numeric" value="" placeholder="Kosong = pakai hasil hitungan" oninput="saveEstimasiData(); perbaruiKolomHargaTipe()"></div>
+                <div class="input-group" id="wrapHJFamily" style="display:none;"><label style="font-size:13px;">Harga Jual Family bulat</label>
+                    <input type="text" id="cHargaJualFamily" class="money-input" inputmode="numeric" value="" placeholder="Kosong = pakai hasil hitungan" oninput="saveEstimasiData(); perbaruiKolomHargaTipe()"></div>
                 <small style="color:#888;font-size:11px;display:block;line-height:1.5;">Harga brosur tipe ini. Penagihan jamaah diatur di Konfigurasi → Harga Paket Seragam. Laba di kartu hasil memakai harga Quad.</small>
             </div>
         </details>
@@ -2510,6 +2524,11 @@ https://github.com/nodeca/pako/blob/main/LICENSE
                         <input type="text" id="konCLAdouble" class="money-input" inputmode="numeric" value="0" oninput="updateKonLAPreview(); saveKonsorsiumEstimasiData();">
                         <small id="konHintDouble" style="display:none;font-size:11px;color:#888;margin-top:3px;">↑ selisih dari Quad</small>
                     </div>
+                    <div class="input-group" id="konWrapLAFamily" style="display:none;margin:8px 0 0;">
+                        <label id="konLabelFamily" style="font-size:12px;color:#555;">Family (kamar keluarga)</label>
+                        <input type="text" id="konCLAfamily" class="money-input" inputmode="numeric" value="0" oninput="updateKonLAPreview(); saveKonsorsiumEstimasiData();">
+                        <small id="konHintFamily" style="display:none;font-size:11px;color:#888;margin-top:3px;">↑ selisih dari Quad</small>
+                    </div>
                     <div id="konLaPreview" style="font-size:11px;color:var(--primary);margin-top:6px;"></div>
                 </div>
             </div>
@@ -2559,13 +2578,15 @@ https://github.com/nodeca/pako/blob/main/LICENSE
                 <small id="konHargaJualInfo" style="color:#888;font-size:11px;margin-top:6px;display:block;"></small>
             </div>
             <details id="konHargaJualTipeWrap" style="display:none;margin:10px 0 4px;background:#F8FAFC;border:1.5px solid #e2e8f0;border-radius:10px;padding:9px 12px;">
-                <summary style="cursor:pointer;list-style:none;font-size:13px;font-weight:700;color:var(--primary);">Harga bulat Triple / Double <small style="font-weight:normal;color:#888;">(opsional, ketuk untuk buka)</small>
+                <summary style="cursor:pointer;list-style:none;font-size:13px;font-weight:700;color:var(--primary);">Harga bulat Triple / Double / Family <small style="font-weight:normal;color:#888;">(opsional, ketuk untuk buka)</small>
                     <div id="konRingkasHJTipe" style="font-size:12px;font-weight:600;color:#475569;margin-top:3px;"></div></summary>
                 <div style="margin-top:10px;">
                     <div class="input-group" id="konWrapHJTriple" style="display:none;"><label style="font-size:13px;">Harga Jual Triple bulat</label>
                         <input type="text" id="konCHargaJualTriple" class="money-input" inputmode="numeric" value="" placeholder="Kosong = pakai hasil hitungan" oninput="saveKonsorsiumEstimasiData(); konPerbaruiKolomHargaTipe()"></div>
                     <div class="input-group" id="konWrapHJDouble" style="display:none;"><label style="font-size:13px;">Harga Jual Double bulat</label>
                         <input type="text" id="konCHargaJualDouble" class="money-input" inputmode="numeric" value="" placeholder="Kosong = pakai hasil hitungan" oninput="saveKonsorsiumEstimasiData(); konPerbaruiKolomHargaTipe()"></div>
+                    <div class="input-group" id="konWrapHJFamily" style="display:none;"><label style="font-size:13px;">Harga Jual Family bulat</label>
+                        <input type="text" id="konCHargaJualFamily" class="money-input" inputmode="numeric" value="" placeholder="Kosong = pakai hasil hitungan" oninput="saveKonsorsiumEstimasiData(); konPerbaruiKolomHargaTipe()"></div>
                     <small style="color:#888;font-size:11px;display:block;line-height:1.5;">Harga brosur tipe ini, dipakai sebagai acuan harga Travel Partner dan Posisi Rombongan. Laba di kartu hasil memakai harga Quad.</small>
                 </div>
             </details>
@@ -3422,12 +3443,14 @@ https://github.com/nodeca/pako/blob/main/LICENSE
                         style="width:100%;padding:10px;border-radius:8px;border:1px solid #ddd;font-size:14px;font-weight:bold;color:var(--primary);background:var(--input-bg);margin-top:4px;">
                     <div id="previewHargaSeragam" style="font-size:12px;color:var(--primary);margin-top:4px;"></div>
                     <div style="margin-top:8px;font-size:11px;color:#888;">Harga di atas dipakai untuk Quad dan jamaah tanpa tipe kamar.</div>
-                    <details id="hargaSeragamTipeBox" style="margin-top:10px;"><summary style="cursor:pointer;font-size:12px;font-weight:700;color:var(--primary);">Harga berbeda untuk Triple / Double <span id="ringkasHargaTipe" style="font-weight:normal;color:#888;"></span></summary>
+                    <details id="hargaSeragamTipeBox" style="margin-top:10px;"><summary style="cursor:pointer;font-size:12px;font-weight:700;color:var(--primary);">Harga berbeda untuk Triple / Double / Family <span id="ringkasHargaTipe" style="font-weight:normal;color:#888;"></span></summary>
                         <div style="font-size:11px;color:#888;margin:6px 0;line-height:1.5;">Opsional. Kosong = tipe itu memakai harga di atas. Harga khusus yang diketik per jamaah tetap menang.</div>
                         <label style="font-size:12px;color:#888;">Triple (Rp)</label>
                         <input type="text" id="cfg_harga_triple" class="money-input" inputmode="numeric" placeholder="Kosong = sama dengan harga di atas" oninput="formatMoneyInput(this)" style="width:100%;padding:10px;border-radius:8px;border:1px solid #ddd;font-size:14px;background:var(--input-bg);margin:4px 0 8px;">
                         <label style="font-size:12px;color:#888;">Double (Rp)</label>
                         <input type="text" id="cfg_harga_double" class="money-input" inputmode="numeric" placeholder="Kosong = sama dengan harga di atas" oninput="formatMoneyInput(this)" style="width:100%;padding:10px;border-radius:8px;border:1px solid #ddd;font-size:14px;background:var(--input-bg);margin:4px 0 8px;">
+                        <div id="wrapCfgFamily" style="display:none;"><label style="font-size:12px;color:#888;">Family (Rp)</label>
+                        <input type="text" id="cfg_harga_family" class="money-input" inputmode="numeric" placeholder="Kosong = sama dengan harga di atas (Quad)" oninput="formatMoneyInput(this)" style="width:100%;padding:10px;border-radius:8px;border:1px solid #ddd;font-size:14px;background:var(--input-bg);margin:4px 0 8px;"></div>
                         <button type="button" onclick="isiHargaTipeDariEstimasi()" style="width:100%;padding:9px;border:1.5px solid var(--primary);background:white;color:var(--primary);border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;">Isi dari harga brosur di Estimasi</button>
                     </details>
                 </div>
@@ -4654,6 +4677,7 @@ function showPage(pageId) {
     }
     const currentActive = document.querySelector('.page.active');
     const currentId = currentActive ? currentActive.id.replace('page-', '') : 'home';
+    if (pageId === 'tentang' && currentId !== 'tentang') window._halamanAsalLapor = currentId;
     internalShowPage(pageId);
     if (pageId !== currentId) {
         const state = { page: pageId };
@@ -5235,20 +5259,32 @@ function perlengkapanJamaah(j, est, hp) {
 function teksSumberModalAnak(sumber) { return sumber === 'diisi' ? 'modal diisi' : (sumber === 'perkiraan' ? 'modal perkiraan' : 'modal seperti dewasa'); }
 // Harga Seragam per tipe kamar: hp.nominal = harga Quad (juga harga umum), hp.perTipe = { Triple, Double } (opsional).
 // Tipe yang tidak diisi (atau jamaah tanpa tipe) memakai hp.nominal, sama seperti sebelum fitur ini ada.
+// Tipe yang boleh punya harga/modal sendiri selain Quad. Family hanya dipakai bila Program menambahkannya di Tipe Paket.
+const TIPE_BEDA_HARGA = ['Triple', 'Double', 'Family'];
+const KUNCI_LA_TIPE = { Triple: 'cLAtriple', Double: 'cLAdouble', Family: 'cLAfamily' };
+function normTipe(t) { t = String(t == null ? '' : t).trim(); return t.toLowerCase() === 'family' ? 'Family' : t; }
+function adaTipeBedaHarga(t) { return TIPE_BEDA_HARGA.includes(normTipe(t)); }
+function tipeFamilyAda() { try { return getTipePaket().some(x => String(x).trim().toLowerCase() === 'family'); } catch (e) { return false; } }
+function perbaruiTampilFamily() {
+    const ada = tipeFamilyAda();
+    ['wrapLAFamily', 'wrapCfgFamily', 'konWrapLAFamily'].forEach(id => { const e = document.getElementById(id); if (e) e.style.display = ada ? 'block' : 'none'; });
+}
 function seragamPerTipeAktif(hp) {
-    return !!(hp && hp.seragam && hp.nominal > 0 && hp.perTipe && (hp.perTipe.Triple > 0 || hp.perTipe.Double > 0));
+    return !!(hp && hp.seragam && hp.nominal > 0 && hp.perTipe && (hp.perTipe.Triple > 0 || hp.perTipe.Double > 0 || hp.perTipe.Family > 0));
 }
 function hargaDasarTipe(hp, tipe) {
     if(!hp) return 0;
-    const t = hp.perTipe && (tipe === 'Triple' || tipe === 'Double') ? hp.perTipe[tipe] : 0;
+    const k = normTipe(tipe);
+    const t = hp.perTipe && TIPE_BEDA_HARGA.includes(k) ? hp.perTipe[k] : 0;
     return t > 0 ? t : hp.nominal;
 }
 // Harga brosur satu tipe kamar dari data Estimasi (rumus sama dengan tombol HITUNG ESTIMASI). Hanya dipakai sebagai acuan diskon/buffer.
 function hargaBrosurTipeDariEst(estRaw, tipe) {
     const h = hitungModalHargaDariEst(estRaw);
-    if(!h || (tipe !== 'Triple' && tipe !== 'Double')) return h ? h.harga : 0;
+    tipe = normTipe(tipe);
+    if(!h || !TIPE_BEDA_HARGA.includes(tipe)) return h ? h.harga : 0;
     const pr = v => parseInt((v||'0').toString().replace(/\./g,'').replace(/[^0-9]/g,'')) || 0;
-    const la = pr(tipe === 'Triple' ? estRaw.cLAtriple : estRaw.cLAdouble);
+    const la = pr(estRaw[KUNCI_LA_TIPE[tipe]]);
     if(!(la > 0)) return h.harga;
     if(estRaw.modeLA === 'upgrade') return h.harga + la;
     const manual = pr(estRaw['cHargaJual' + tipe]);
@@ -5261,8 +5297,8 @@ function hargaBrosurTipeDariEst(estRaw, tipe) {
 function brosurAcuanJamaah(af, estRaw, estHitung, hp) {
     if(!estHitung) return 0;
     if(!estRaw || !seragamPerTipeAktif(hp)) return estHitung.harga;
-    const tipe = (af && af.tipe_paket) || '';
-    return (tipe === 'Triple' || tipe === 'Double') ? hargaBrosurTipeDariEst(estRaw, tipe) : estHitung.harga;
+    const tipe = normTipe((af && af.tipe_paket) || '');
+    return TIPE_BEDA_HARGA.includes(tipe) ? hargaBrosurTipeDariEst(estRaw, tipe) : estHitung.harga;
 }
 // hp = pengaturan Harga Seragam program ({seragam, nominal}). sumber: 'seragam' | 'diskon' | 'khusus' | 'anak' | 'manual' | 'kosong'
 function hargaPaketRinci(jamaah, hp) {
@@ -5324,7 +5360,7 @@ function ringkasKomposisiHarga(list) {
         if (r.sumber === 'anak') k.nAnak++;
         else if (r.sumber === 'khusus') k.nKhusus++;
         else if (r.sumber === 'diskon') { k.nDiskon++; k.totalDiskon += r.diskon; }
-        else { k.nSeragam++; const tg = (j.additional_fields && j.additional_fields.tipe_paket) || ''; const kg = (tg === 'Triple' || tg === 'Double') ? tg : 'Quad'; (k.grup[kg] = k.grup[kg] || { dasar: r.dasar, n: 0 }).n++; }
+        else { k.nSeragam++; const tg = (j.additional_fields && j.additional_fields.tipe_paket) || ''; const kg = adaTipeBedaHarga(tg) ? normTipe(tg) : 'Quad'; (k.grup[kg] = k.grup[kg] || { dasar: r.dasar, n: 0 }).n++; }
     });
     return k.n ? k : null;
 }
@@ -5355,7 +5391,7 @@ function teksKomposisiHarga(k) {
     const fR = n => fRp(n);
     const tipeGrup = Object.keys(k.grup || {});
     const beda = tipeGrup.length > 1 && new Set(tipeGrup.map(t => k.grup[t].dasar)).size > 1;
-    const b = [beda ? 'Harga seragam per tipe: ' + ['Quad', 'Triple', 'Double'].filter(t => k.grup[t]).map(t => t + ' ' + fR(k.grup[t].dasar) + ' (' + k.grup[t].n + ')').join(' · ') : 'Harga seragam ' + fR(k.dasar) + ': ' + k.nSeragam + ' jamaah'];
+    const b = [beda ? 'Harga seragam per tipe: ' + ['Quad', 'Triple', 'Double', 'Family'].filter(t => k.grup[t]).map(t => t + ' ' + fR(k.grup[t].dasar) + ' (' + k.grup[t].n + ')').join(' · ') : 'Harga seragam ' + fR(k.dasar) + ': ' + k.nSeragam + ' jamaah'];
     if (k.nDiskon) b.push('Diskon: ' + k.nDiskon + ' jamaah (total ' + fR(k.totalDiskon) + ')');
     if (k.nAnak) b.push('Tarif anak: ' + k.nAnak);
     if (k.nKhusus) b.push('Harga khusus: ' + k.nKhusus);
@@ -7263,6 +7299,7 @@ function saveEstimasiData() {
         cLAquad: document.getElementById('cLAquad')?.value || '0',
         cLAtriple: document.getElementById('cLAtriple')?.value || '0',
         cLAdouble: document.getElementById('cLAdouble')?.value || '0',
+        cLAfamily: document.getElementById('cLAfamily')?.value || '0',
         modeLA: getModeLA(),
         cAsuransi:document.getElementById('cAsuransi').value,
         cHandling:document.getElementById('cHandling').value,
@@ -7275,6 +7312,7 @@ function saveEstimasiData() {
         cHargaJual:document.getElementById('cHargaJual')?.value || '',
         cHargaJualTriple:document.getElementById('cHargaJualTriple')?.value || '',
         cHargaJualDouble:document.getElementById('cHargaJualDouble')?.value || '',
+        cHargaJualFamily:document.getElementById('cHargaJualFamily')?.value || '',
         ...ambilSudahPastiUntukSimpan(''),
         fxModeTiket: document.getElementById('fxModeTiket')?.checked || false,
         fxNominalTiket: document.getElementById('fxNominalTiket')?.value || '',
@@ -7374,7 +7412,7 @@ function renderProgramSetupChecklist() {
 }
 
 // ==================== KUNCI HARGA & RIWAYAT ESTIMASI ====================
-const ESTIMASI_FIELD_IDS = ['lokasiPaket','namaHotelMakkah','namaHotelMadinah','namaMaskapai','totJam','jamGratis','numTL','cTiket','cLAquad','cLAtriple','cLAdouble','cAsuransi','cHandling','cAlat','cAplikasi','cPIC','cLain','profitPct','cBuffer','cHargaJual','cHargaJualTriple','cHargaJualDouble','sbTiketPct','sbTiket','sbHotelPct','sbHotel','sbLain'];
+const ESTIMASI_FIELD_IDS = ['lokasiPaket','namaHotelMakkah','namaHotelMadinah','namaMaskapai','totJam','jamGratis','numTL','cTiket','cLAquad','cLAtriple','cLAdouble','cLAfamily','cAsuransi','cHandling','cAlat','cAplikasi','cPIC','cLain','profitPct','cBuffer','cHargaJual','cHargaJualTriple','cHargaJualDouble','cHargaJualFamily','sbTiketPct','sbTiket','sbHotelPct','sbHotel','sbLain'];
 
 function renderKunciEstimasiUI() {
     const slot = ensureProgramConfigSlot();
@@ -7443,7 +7481,7 @@ function openRiwayatEstimasiModal() {
 // Tiap kali harga dikunci (dan sebelum kunci dibuka), salinan semua isian Estimasi ikut tersimpan di riwayat.
 // Rincian, perbandingan, cetak, dan WA semuanya dihitung ULANG dengan rumus Estimasi yang sama (hitungModalHargaDariEst).
 const RH_WARNA = '#0D5C4A';
-const RH_KUNCI = ['lokasiPaket','namaHotelMakkah','namaHotelMadinah','namaMaskapai','totJam','jamGratis','numTL','cTiket','cLAquad','cLAtriple','cLAdouble','modeLA','cAsuransi','cHandling','cAlat','cAplikasi','cPIC','cLain','profitPct','cBuffer','cHargaJual'];
+const RH_KUNCI = ['lokasiPaket','namaHotelMakkah','namaHotelMadinah','namaMaskapai','totJam','jamGratis','numTL','cTiket','cLAquad','cLAtriple','cLAdouble','cLAfamily','modeLA','cAsuransi','cHandling','cAlat','cAplikasi','cPIC','cLain','profitPct','cBuffer','cHargaJual'];
 const RH_KOMPONEN = [['cTiket','Tiket'],['cLAquad','LA / Hotel (Quad)'],['cAsuransi','Asuransi'],['cHandling','Handling'],['cPIC','PIC'],['cAlat','Perlengkapan'],['cAplikasi','Aplikasi'],['cLain','Lain-lain']];
 const RH_SUMBER = { kunci: 'Tercatat saat harga dikunci', 'sebelum-buka': 'Tercatat sebelum kunci dibuka', 'pulih-estimasi': 'Dipulihkan dari Estimasi (harga dicocokkan)', 'pulih-buka': 'Dipulihkan saat kunci dibuka (harga dicocokkan)', manual: 'Diisi dari catatan/cetakan lama' };
 let _rhView = { mode: 'list' };
@@ -7479,7 +7517,7 @@ function rhRincian(est) {
     const jualBase = nJam > nFoc ? (h.modal * nJam + profitKotor) / (nJam - nFoc) : 0;
     const mode = est.modeLA === 'upgrade' ? 'upgrade' : 'penuh';
     const tipe = [{ nama: 'Quad', harga: h.harga, la: laQuad }];
-    [['Triple','cLAtriple'],['Double','cLAdouble']].forEach(([nama, k]) => {
+    [['Triple','cLAtriple'],['Double','cLAdouble'],['Family','cLAfamily']].forEach(([nama, k]) => {
         const la = rhPr(est[k]); if(!(la > 0)) return;
         let jt;
         if(mode === 'upgrade') jt = h.harga + la;
@@ -7512,7 +7550,7 @@ function rhHtmlRincian(est, opt) {
     x += rhJudul('ROMBONGAN') + rhBaris('Total Pax', r.nJam + (r.h.nJamDefault ? ' (belum diisi, dipakai 45)' : '')) + rhBaris('FOC', r.nFoc) + rhBaris('TL', r.nTL);
     x += rhJudul('KOMPONEN BIAYA PER PAX');
     RH_KOMPONEN.forEach(([k, l]) => { const v = rhPr(k === 'cLAquad' ? (est.cLAquad || est.cLA) : est[k]); x += rhBaris(l, v ? rhRp(v) : '-'); });
-    [['cLAtriple','Triple'],['cLAdouble','Double']].forEach(([k, n]) => { const v = rhPr(est[k]); if(v) x += rhBaris('LA / Hotel (' + n + (r.mode === 'upgrade' ? ', selisih dari Quad' : '') + ')', rhRp(v)); });
+    [['cLAtriple','Triple'],['cLAdouble','Double'],['cLAfamily','Family']].forEach(([k, n]) => { const v = rhPr(est[k]); if(v) x += rhBaris('LA / Hotel (' + n + (r.mode === 'upgrade' ? ', selisih dari Quad' : '') + ')', rhRp(v)); });
     x += rhBaris('Modal per pax (Quad)', rhRp(r.h.modal), { tebal: true });
     x += rhJudul('PERHITUNGAN HARGA');
     x += rhBaris('Total biaya (modal × ' + r.nJam + ' pax)', rhRp(r.totalBiaya));
@@ -7606,7 +7644,7 @@ function rhBangunBanding(a, b, ketA, ketB, opt) {
     if(rhPr(a.numTL) !== rhPr(b.numTL)) ket.push(`TL: ${rhPr(a.numTL)} → ${rhPr(b.numTL)} (tidak mengubah harga per pax)`);
     const ra = rhRincian(a), rb = rhRincian(b);
     const tipe = [];
-    ['Triple','Double'].forEach(n => { const x = ra.tipe.find(t => t.nama === n), y = rb.tipe.find(t => t.nama === n); if(x || y) tipe.push({ nama: n, lama: x ? rhRp(x.harga) : '-', baru: y ? rhRp(y.harga) : '-' }); });
+    ['Triple','Double','Family'].forEach(n => { const x = ra.tipe.find(t => t.nama === n), y = rb.tipe.find(t => t.nama === n); if(x || y) tipe.push({ nama: n, lama: x ? rhRp(x.harga) : '-', baru: y ? rhRp(y.harga) : '-' }); });
     // Harga yang dipakai di judul = harga TERCATAT tiap versi (angka yang benar-benar dicetak/dikunci); kalau tidak ada, hasil hitungan rincian
     const hargaA = opt.hargaA > 0 ? opt.hargaA : r.ha.harga;
     const hargaB = opt.hargaB > 0 ? opt.hargaB : r.hb.harga;
@@ -8019,7 +8057,7 @@ function rhRenderIsi(modal, idx) {
         <div id="rhCekBox" style="position:sticky;top:0;z-index:2;border-radius:10px;padding:9px 11px;font-size:13px;font-weight:700;margin-bottom:10px;"></div>
         ${teks('lokasiPaket', 'Nama paket')}${teks('namaMaskapai', 'Maskapai')}${teks('namaHotelMakkah', 'Hotel Makkah')}${teks('namaHotelMadinah', 'Hotel Madinah')}
         ${angka('totJam', 'Total Pax')}${angka('jamGratis', 'FOC')}${angka('numTL', 'TL')}
-        ${uang('cTiket', 'Tiket')}${uang('cLAquad', 'LA / Hotel (Quad)')}${uang('cLAtriple', 'LA / Hotel (Triple), kosongkan kalau tidak ada')}${uang('cLAdouble', 'LA / Hotel (Double), kosongkan kalau tidak ada')}
+        ${uang('cTiket', 'Tiket')}${uang('cLAquad', 'LA / Hotel (Quad)')}${uang('cLAtriple', 'LA / Hotel (Triple), kosongkan kalau tidak ada')}${uang('cLAdouble', 'LA / Hotel (Double), kosongkan kalau tidak ada')}${uang('cLAfamily', 'LA / Hotel (Family), kosongkan kalau tidak ada')}
         ${uang('cAsuransi', 'Asuransi')}${uang('cHandling', 'Handling')}${uang('cAlat', 'Perlengkapan')}${uang('cAplikasi', 'Aplikasi')}${uang('cPIC', 'PIC')}${uang('cLain', 'Lain-lain')}
         ${angka('profitPct', 'Profit / Margin (%)')}${uang('cBuffer', 'Buffer diskon')}${uang('cHargaJual', 'Harga Jual Brosur bulat (kosongkan kalau tidak ada)')}
         <div style="margin-bottom:8px;"><label style="font-size:12px;color:#475569;font-weight:600;">Mode tipe kamar<span id="rhS_modeLA" style="font-size:11px;font-weight:600;margin-left:6px;"></span></label><select id="rhF_modeLA" onchange="rhCekForm()" style="width:100%;padding:9px 10px;border:1.5px solid #e2e8f0;border-radius:10px;font-size:14px;font-family:inherit;background:#fff;"><option value="penuh" ${awal.modeLA !== 'upgrade' ? 'selected' : ''}>Harga penuh per tipe</option><option value="upgrade" ${awal.modeLA === 'upgrade' ? 'selected' : ''}>Upgrade (Triple/Double = selisih dari Quad)</option></select></div>
@@ -8035,7 +8073,7 @@ function rhBacaForm() {
     if(!o.modeLA) o.modeLA = 'penuh';
     return o;
 }
-const RH_NAMA_ISIAN = { lokasiPaket: 'Nama paket', namaMaskapai: 'Maskapai', namaHotelMakkah: 'Hotel Makkah', namaHotelMadinah: 'Hotel Madinah', totJam: 'Total Pax', jamGratis: 'FOC', numTL: 'TL', cTiket: 'Tiket', cLAquad: 'LA / Hotel (Quad)', cLAtriple: 'LA / Hotel (Triple)', cLAdouble: 'LA / Hotel (Double)', cAsuransi: 'Asuransi', cHandling: 'Handling', cAlat: 'Perlengkapan', cAplikasi: 'Aplikasi', cPIC: 'PIC', cLain: 'Lain-lain', profitPct: 'Margin', cBuffer: 'Buffer diskon', cHargaJual: 'Harga Jual Brosur', modeLA: 'Mode tipe kamar' };
+const RH_NAMA_ISIAN = { lokasiPaket: 'Nama paket', namaMaskapai: 'Maskapai', namaHotelMakkah: 'Hotel Makkah', namaHotelMadinah: 'Hotel Madinah', totJam: 'Total Pax', jamGratis: 'FOC', numTL: 'TL', cTiket: 'Tiket', cLAquad: 'LA / Hotel (Quad)', cLAtriple: 'LA / Hotel (Triple)', cLAdouble: 'LA / Hotel (Double)', cLAfamily: 'LA / Hotel (Family)', cAsuransi: 'Asuransi', cHandling: 'Handling', cAlat: 'Perlengkapan', cAplikasi: 'Aplikasi', cPIC: 'PIC', cLain: 'Lain-lain', profitPct: 'Margin', cBuffer: 'Buffer diskon', cHargaJual: 'Harga Jual Brosur', modeLA: 'Mode tipe kamar' };
 function rhNormIsian(k, v) {
     if(['lokasiPaket','namaMaskapai','namaHotelMakkah','namaHotelMadinah'].includes(k)) return String(v == null ? '' : v).trim();
     if(k === 'modeLA') return v === 'upgrade' ? 'upgrade' : 'penuh';
@@ -8152,6 +8190,7 @@ function loadEstimasiData() {
         else if(data.cLA) document.getElementById('cLAquad').value = data.cLA;
         if(data.cLAtriple !== undefined) document.getElementById('cLAtriple').value = data.cLAtriple;
         if(data.cLAdouble !== undefined) document.getElementById('cLAdouble').value = data.cLAdouble;
+        { const elF = document.getElementById('cLAfamily'); if(elF) elF.value = data.cLAfamily !== undefined ? data.cLAfamily : '0'; }
         if(data.modeLA === 'upgrade') {
             const el = document.getElementById('modeUpgrade');
             if(el) { el.checked = true; updateModeLA(); }
@@ -8169,7 +8208,7 @@ function loadEstimasiData() {
         if(data.profitPct !== undefined) document.getElementById('profitPct').value=data.profitPct;
         if(data.cBuffer !== undefined) document.getElementById('cBuffer').value=data.cBuffer;
         { const elHJ = document.getElementById('cHargaJual'); if(elHJ) elHJ.value = data.cHargaJual || ''; }
-        ['cHargaJualTriple','cHargaJualDouble'].forEach(id => { const el = document.getElementById(id); if(el) el.value = data[id] || ''; });
+        ['cHargaJualTriple','cHargaJualDouble','cHargaJualFamily'].forEach(id => { const el = document.getElementById(id); if(el) el.value = data[id] || ''; });
         perbaruiKolomHargaTipe();
         isiFormSudahPasti('', data);
         // Pulihkan helper kurs FX (opsional, tidak wajib ada di data lama)
@@ -8186,7 +8225,7 @@ function loadEstimasiData() {
         if(document.getElementById('fxNominalLAdouble')) document.getElementById('fxNominalLAdouble').value = data.fxNominalLAdouble || '';
     } else {
         // Program ini belum punya Estimasi tersendiri — kosongkan field supaya tidak ketukar sisa Program lain
-        const fieldKosong = ['lokasiPaket','namaHotelMakkah','namaHotelMadinah','namaMaskapai','cTiket','cAsuransi','cHandling','cAlat','cAplikasi','cPIC','cLain','cLAquad','cLAtriple','cLAdouble'];
+        const fieldKosong = ['lokasiPaket','namaHotelMakkah','namaHotelMadinah','namaMaskapai','cTiket','cAsuransi','cHandling','cAlat','cAplikasi','cPIC','cLain','cLAquad','cLAtriple','cLAdouble','cLAfamily'];
         fieldKosong.forEach(id => { const el = document.getElementById(id); if(el) el.value = ''; });
         const totJamEl = document.getElementById('totJam'); if(totJamEl) totJamEl.value = '';
         const jamGratisEl = document.getElementById('jamGratis'); if(jamGratisEl) jamGratisEl.value = '';
@@ -8194,7 +8233,7 @@ function loadEstimasiData() {
         const profitPctEl = document.getElementById('profitPct'); if(profitPctEl) profitPctEl.value = '';
         const cBufferEl = document.getElementById('cBuffer'); if(cBufferEl) cBufferEl.value = '';
         const cHargaJualEl = document.getElementById('cHargaJual'); if(cHargaJualEl) cHargaJualEl.value = '';
-        ['cHargaJualTriple','cHargaJualDouble'].forEach(id => { const el = document.getElementById(id); if(el) el.value = ''; });
+        ['cHargaJualTriple','cHargaJualDouble','cHargaJualFamily'].forEach(id => { const el = document.getElementById(id); if(el) el.value = ''; });
         isiFormSudahPasti('', {});
         const elPenuh = document.getElementById('modeHargaPenuh');
         if(elPenuh) { elPenuh.checked = true; updateModeLA(); }
@@ -8706,6 +8745,7 @@ function hitungUmroh() {
     const laQuad   = parseRupiah(document.getElementById('cLAquad')?.value||'0');
     const laTriple = parseRupiah(document.getElementById('cLAtriple')?.value||'0');
     const laDouble = parseRupiah(document.getElementById('cLAdouble')?.value||'0');
+    const laFamily = parseRupiah(document.getElementById('cLAfamily')?.value||'0');
     const modeLA   = getModeLA();
     // Gunakan Quad sebagai default untuk kalkulasi utama
     const sub = subBase + laQuad;
@@ -8732,6 +8772,7 @@ function hitungUmroh() {
         { nama:'Quad',   la: laQuad,   aktif: laQuad > 0 },
         { nama:'Triple', la: laTriple, aktif: laTriple > 0 },
         { nama:'Double', la: laDouble, aktif: laDouble > 0 },
+        { nama:'Family', la: laFamily, aktif: laFamily > 0 },
     ].filter(t => t.aktif);
 
     const hargaPerTipe = laTypes.map(t => {
@@ -8834,7 +8875,7 @@ function htmlPosterBrosur(gaya) {
     const harga = n => (lastCalculatedHargaTipe.find(t => t.nama === n) || {}).jual || 0;
     const banyakTipe = lastCalculatedHargaTipe.length > 1;
     const quad = banyakTipe ? (harga('Quad') || lastCalculatedPrice) : lastCalculatedPrice;
-    const lain = banyakTipe ? ['Triple', 'Double'].map(n => ({ n, h: harga(n) })).filter(t => t.h > 0) : [];
+    const lain = banyakTipe ? ['Triple', 'Double', 'Family'].map(n => ({ n, h: harga(n) })).filter(t => t.h > 0) : [];
     const paket = lastCalculatedPaket || prog.nama || 'Paket';
     const jenis = { haji: 'PAKET HAJI KHUSUS', umroh: 'PAKET UMROH' }[prog.jenis] || 'PAKET PERJALANAN';
     const tgl = kb.tanggal ? new Date(kb.tanggal + 'T00:00:00').toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }) : '';
@@ -8939,6 +8980,7 @@ async function cetakEstimasiPDFInternal() {
         ['LA/Hotel Quad', pr(est.cLAquad||est.cLA||'0')],
         ['LA/Hotel Triple', pr(est.cLAtriple||'0')],
         ['LA/Hotel Double', pr(est.cLAdouble||'0')],
+        ['LA/Hotel Family', pr(est.cLAfamily||'0')],
     ].filter(([,v]) => v > 0);
     const items = [['Tiket',pr(est.cTiket)],...laItems,['Asuransi',pr(est.cAsuransi)],['Handling',pr(est.cHandling)],['PIC',pr(est.cPIC)],['Perlengkapan',pr(est.cAlat)],['Biaya Aplikasi',pr(est.cAplikasi)],['Lain-lain',pr(est.cLain)]];
     let komponenHtml = '';
@@ -9033,6 +9075,7 @@ function saveTipePaket(list) {
 }
 
 function renderTipePaketList() {
+    perbaruiTampilFamily();
     const el = document.getElementById('tipePaketList');
     if(!el) return;
     const list = getTipePaket();
@@ -9052,10 +9095,11 @@ function renderTipePaketList() {
 
 function tambahTipePaket() {
     const input = document.getElementById('tipePaketBaru');
-    const nama = input?.value.trim();
+    let nama = input?.value.trim();
     if(!nama) return showToast('Isi nama tipe paket dulu!');
+    if(nama.toLowerCase() === 'family') nama = 'Family'; // satu ejaan baku supaya harga dan modalnya terbaca
     const list = getTipePaket();
-    if(list.includes(nama)) return showToast('Tipe paket sudah ada!');
+    if(list.some(x => String(x).trim().toLowerCase() === nama.toLowerCase())) return showToast('Tipe paket sudah ada!');
     list.push(nama);
     saveTipePaket(list);
     renderTipePaketList();
@@ -9093,9 +9137,10 @@ function reloadHargaSeragamUI() {
     if(preview) preview.textContent = hp.nominal ? fRp(hp.nominal, false) : '';
     if(el && hp.nominal && typeof formatHargaInput === 'function') formatHargaInput(el);
     const pt = hp.perTipe || {};
-    [['cfg_harga_triple', pt.Triple], ['cfg_harga_double', pt.Double]].forEach(([id, v]) => { const e = document.getElementById(id); if(e) e.value = v > 0 ? v.toLocaleString('id-ID') : ''; });
-    const rk = document.getElementById('ringkasHargaTipe'); if(rk) rk.textContent = (pt.Triple > 0 || pt.Double > 0) ? '· aktif' : '';
-    const bx = document.getElementById('hargaSeragamTipeBox'); if(bx) bx.open = !!(pt.Triple > 0 || pt.Double > 0);
+    [['cfg_harga_triple', pt.Triple], ['cfg_harga_double', pt.Double], ['cfg_harga_family', pt.Family]].forEach(([id, v]) => { const e = document.getElementById(id); if(e) e.value = v > 0 ? v.toLocaleString('id-ID') : ''; });
+    const rk = document.getElementById('ringkasHargaTipe'); if(rk) rk.textContent = (pt.Triple > 0 || pt.Double > 0 || pt.Family > 0) ? '· aktif' : '';
+    const bx = document.getElementById('hargaSeragamTipeBox'); if(bx) bx.open = !!(pt.Triple > 0 || pt.Double > 0 || pt.Family > 0);
+    perbaruiTampilFamily();
 }
 function isiHargaTipeDariEstimasi() {
     let est = null; try { est = getEstimasiData(); } catch(e) {}
@@ -9103,7 +9148,8 @@ function isiHargaTipeDariEstimasi() {
     if(!h || !(h.harga > 0)) return showToast('Isi dan hitung Estimasi dulu');
     const set = (id, tipe) => { const e = document.getElementById(id); const v = Math.round(hargaBrosurTipeDariEst(est, tipe)); if(e) e.value = v > 0 ? v.toLocaleString('id-ID') : ''; return v; };
     const t = set('cfg_harga_triple', 'Triple'), d = set('cfg_harga_double', 'Double');
-    showToast('Terisi dari Estimasi: Triple ' + rhRp(t) + ', Double ' + rhRp(d) + '. Ketuk Simpan Konfigurasi untuk menerapkan.');
+    const fam = tipeFamilyAda() ? set('cfg_harga_family', 'Family') : 0;
+    showToast('Terisi dari Estimasi: Triple ' + rhRp(t) + ', Double ' + rhRp(d) + (tipeFamilyAda() ? ', Family ' + rhRp(fam) : '') + '. Ketuk Simpan Konfigurasi untuk menerapkan.');
 }
 
 let editingSplashQuoteIndex = null;
@@ -9251,6 +9297,9 @@ function updateKonModeLA() {
     if(hintDouble) hintDouble.style.display = isUpgrade ? 'block' : 'none';
     if(labelTriple) labelTriple.textContent = isUpgrade ? 'Triple — selisih dari Quad (Rp)' : 'Triple (3 orang/kamar)';
     if(labelDouble) labelDouble.textContent = isUpgrade ? 'Double — selisih dari Quad (Rp)' : 'Double (2 orang/kamar)';
+    { const hf = document.getElementById('konHintFamily'), lf = document.getElementById('konLabelFamily');
+      if(hf) hf.style.display = isUpgrade ? 'block' : 'none';
+      if(lf) lf.textContent = isUpgrade ? 'Family — selisih dari Quad (Rp)' : 'Family (kamar keluarga, per orang)'; }
     updateKonLAPreview();
 }
 
@@ -9271,7 +9320,7 @@ function toggleKonLAAccordion() {
 function hargaBrosurTipeKon(d, label, brosur, sub) {
     if(label === 'Quad') return brosur || 0;
     const pr = v => parseInt((v||'0').toString().replace(/\./g,'').replace(/[^0-9]/g,'')) || 0;
-    const la = pr(label === 'Triple' ? d.cLAtriple : d.cLAdouble);
+    const la = pr(d[KUNCI_LA_TIPE[label]]);
     if(!(la > 0)) return brosur || 0; // tipe ini belum diisi di Estimasi: pakai harga Quad
     if(d.modeLA === 'upgrade') return (brosur || 0) + la;
     const manual = pr(d['cHargaJual' + label]);
@@ -9285,21 +9334,22 @@ function konPerbaruiKolomHargaTipe() {
     const wrap = document.getElementById('konHargaJualTipeWrap'); if(!wrap) return;
     const pr = v => parseInt((v||'0').toString().replace(/\./g,'').replace(/[^0-9]/g,'')) || 0;
     const pakai = !document.getElementById('konModeUpgrade')?.checked;
-    const t = pakai && pr(document.getElementById('konCLAtriple')?.value) > 0, d = pakai && pr(document.getElementById('konCLAdouble')?.value) > 0;
+    const t = pakai && pr(document.getElementById('konCLAtriple')?.value) > 0, d = pakai && pr(document.getElementById('konCLAdouble')?.value) > 0, fm = pakai && pr(document.getElementById('konCLAfamily')?.value) > 0;
     document.getElementById('konWrapHJTriple').style.display = t ? 'block' : 'none';
     document.getElementById('konWrapHJDouble').style.display = d ? 'block' : 'none';
-    wrap.style.display = (t || d) ? 'block' : 'none';
+    { const wf = document.getElementById('konWrapHJFamily'); if(wf) wf.style.display = fm ? 'block' : 'none'; }
+    wrap.style.display = (t || d || fm) ? 'block' : 'none';
     const rg = document.getElementById('konRingkasHJTipe');
     if(rg) {
         const f = id => { const v = pr(document.getElementById(id)?.value); return v > 0 ? fRp(v, false) : 'pakai hitungan'; };
-        rg.textContent = [t ? 'Triple ' + f('konCHargaJualTriple') : '', d ? 'Double ' + f('konCHargaJualDouble') : ''].filter(Boolean).join(' · ');
+        rg.textContent = [t ? 'Triple ' + f('konCHargaJualTriple') : '', d ? 'Double ' + f('konCHargaJualDouble') : '', fm ? 'Family ' + f('konCHargaJualFamily') : ''].filter(Boolean).join(' · ');
     }
 }
 // Daftar harga brosur per tipe di kartu hasil (hanya bila Triple atau Double aktif)
 function konTampilBrosurTipe(d, brosur, sub) {
     const el = document.getElementById('konHasilBrosurTipe'); if(!el) return;
     const pr = v => parseInt((v||'0').toString().replace(/\./g,'').replace(/[^0-9]/g,'')) || 0;
-    const aktif = ['Triple', 'Double'].filter(l => pr(l === 'Triple' ? d.cLAtriple : d.cLAdouble) > 0);
+    const aktif = ['Triple', 'Double', 'Family'].filter(l => pr(d[KUNCI_LA_TIPE[l]]) > 0);
     if(!aktif.length) { el.style.display = 'none'; el.innerHTML = ''; return; }
     const f = n => fRp(n);
     el.innerHTML = ['Quad'].concat(aktif).map(l => {
@@ -9310,6 +9360,7 @@ function konTampilBrosurTipe(d, brosur, sub) {
     el.style.display = 'block';
 }
 function updateKonLAPreview() {
+    perbaruiTampilFamily();
     konPerbaruiKolomHargaTipe();
     const pr = v => parseInt((v||'0').toString().replace(/\./g,'').replace(/[^0-9]/g,''))||0;
     const preview = document.getElementById('konLaPreview');
@@ -9318,6 +9369,7 @@ function updateKonLAPreview() {
         {n:'Quad',   v: pr(document.getElementById('konCLAquad')?.value)},
         {n:'Triple', v: pr(document.getElementById('konCLAtriple')?.value)},
         {n:'Double', v: pr(document.getElementById('konCLAdouble')?.value)},
+        {n:'Family', v: pr(document.getElementById('konCLAfamily')?.value)},
     ].filter(t => t.v > 0);
     if(types.length === 0) { preview.textContent = ''; return; }
     preview.textContent = '✅ Aktif: ' + types.map(t => t.n).join(', ');
@@ -9337,6 +9389,7 @@ function salinDariEstimasiKeKonsorsium() {
     document.getElementById('konCLAquad').value = pr(est.cLAquad || est.cLA);
     document.getElementById('konCLAtriple').value = pr(est.cLAtriple);
     document.getElementById('konCLAdouble').value = pr(est.cLAdouble);
+    { const eF = document.getElementById('konCLAfamily'); if(eF) eF.value = pr(est.cLAfamily); }
     if(est.modeLA === 'upgrade') { document.getElementById('konModeUpgrade').checked = true; } else { document.getElementById('konModeHargaPenuh').checked = true; }
     updateKonModeLA();
     document.getElementById('konCAsuransi').value = pr(est.cAsuransi);
@@ -9348,7 +9401,7 @@ function salinDariEstimasiKeKonsorsium() {
     document.getElementById('konProfitPct').value = est.profitPct !== undefined ? est.profitPct : 8;
     document.getElementById('konCBuffer').value = pr(est.cBuffer);
     { const elHJ = document.getElementById('konCHargaJual'); if(elHJ) elHJ.value = est.cHargaJual ? pr(est.cHargaJual) : ''; }
-    { const t = document.getElementById('konCHargaJualTriple'); if(t) t.value = est.cHargaJualTriple || ''; const d2 = document.getElementById('konCHargaJualDouble'); if(d2) d2.value = est.cHargaJualDouble || ''; }
+    { const t = document.getElementById('konCHargaJualTriple'); if(t) t.value = est.cHargaJualTriple || ''; const d2 = document.getElementById('konCHargaJualDouble'); if(d2) d2.value = est.cHargaJualDouble || ''; const f2 = document.getElementById('konCHargaJualFamily'); if(f2) f2.value = est.cHargaJualFamily || ''; }
     isiFormSudahPasti('kon', est);
     konPerbaruiPetunjukHargaJual();
     showToast('✅ Komponen biaya disalin dari Estimasi Program');
@@ -9372,6 +9425,7 @@ function saveKonsorsiumEstimasiData() {
         cLAquad: document.getElementById('konCLAquad').value,
         cLAtriple: document.getElementById('konCLAtriple').value,
         cLAdouble: document.getElementById('konCLAdouble').value,
+        cLAfamily: document.getElementById('konCLAfamily')?.value || '0',
         modeLA: getKonModeLA(),
         cAsuransi: document.getElementById('konCAsuransi').value,
         cHandling: document.getElementById('konCHandling').value,
@@ -9384,6 +9438,7 @@ function saveKonsorsiumEstimasiData() {
         cHargaJual: document.getElementById('konCHargaJual')?.value || '',
         cHargaJualTriple: document.getElementById('konCHargaJualTriple')?.value || '',
         cHargaJualDouble: document.getElementById('konCHargaJualDouble')?.value || '',
+        cHargaJualFamily: document.getElementById('konCHargaJualFamily')?.value || '',
         ...ambilSudahPastiUntukSimpan('kon'),
     };
     simpanKonsorsium();
@@ -9514,7 +9569,7 @@ function loadKonsorsiumEstimasiUI() {
         document.getElementById('konsorsiumHasilCard').style.display = 'none';
         konsorsiumLastModal = 0; konsorsiumLastBrosur = 0;
         { const elHJ = document.getElementById('konCHargaJual'); if(elHJ) elHJ.value = ''; }
-        ['konCHargaJualTriple', 'konCHargaJualDouble'].forEach(id => { const el = document.getElementById(id); if(el) el.value = ''; });
+        ['konCHargaJualTriple', 'konCHargaJualDouble', 'konCHargaJualFamily'].forEach(id => { const el = document.getElementById(id); if(el) el.value = ''; });
         konPerbaruiKolomHargaTipe();
         const kt0 = document.getElementById('konHasilBrosurTipe'); if(kt0) kt0.style.display = 'none';
         isiFormSudahPasti('kon', {});
@@ -9531,6 +9586,7 @@ function loadKonsorsiumEstimasiUI() {
     document.getElementById('konCLAquad').value = d.cLAquad || d.cLA || '0';
     document.getElementById('konCLAtriple').value = d.cLAtriple || '0';
     document.getElementById('konCLAdouble').value = d.cLAdouble || '0';
+    { const eF = document.getElementById('konCLAfamily'); if(eF) eF.value = d.cLAfamily || '0'; }
     if(d.modeLA === 'upgrade') { document.getElementById('konModeUpgrade').checked = true; } else { document.getElementById('konModeHargaPenuh').checked = true; }
     updateKonModeLA();
     document.getElementById('konCAsuransi').value = d.cAsuransi;
@@ -9542,7 +9598,7 @@ function loadKonsorsiumEstimasiUI() {
     document.getElementById('konProfitPct').value = d.profitPct;
     document.getElementById('konCBuffer').value = d.cBuffer;
     { const elHJ = document.getElementById('konCHargaJual'); if(elHJ) elHJ.value = d.cHargaJual || ''; }
-    ['konCHargaJualTriple', 'konCHargaJualDouble'].forEach(id => { const el = document.getElementById(id); if(el) el.value = d[id.replace('kon', '').replace(/^C/, 'c')] || ''; });
+    ['konCHargaJualTriple', 'konCHargaJualDouble', 'konCHargaJualFamily'].forEach(id => { const el = document.getElementById(id); if(el) el.value = d[id.replace('kon', '').replace(/^C/, 'c')] || ''; });
     konPerbaruiKolomHargaTipe();
     isiFormSudahPasti('kon', d);
 
@@ -9588,12 +9644,13 @@ function bangunKomponenKonsorsium(d, modal) {
     const laQuad = pr(d.cLAquad || d.cLA);
     const laTripleRaw = pr(d.cLAtriple);
     const laDoubleRaw = pr(d.cLAdouble);
+    const laFamilyRaw = pr(d.cLAfamily);
     const modeUpgrade = d.modeLA === 'upgrade';
     return {
         sub: modal,
         nFocGabungan: parseInt(d.jamGratis)||0,
         totPax: parseInt(d.totJam)||0, // Total Pax rombongan (dasar harga brosur) — modal FOC dibagi ke jumlah ini, bukan ke jumlah orang yang kebetulan sudah diisi di travel
-        laQuad, laTriple: laTripleRaw, laDouble: laDoubleRaw, modeUpgrade,
+        laQuad, laTriple: laTripleRaw, laDouble: laDoubleRaw, laFamily: laFamilyRaw, modeUpgrade,
         rincian: {
             tiket: pr(d.cTiket), asuransi: pr(d.cAsuransi), handling: pr(d.cHandling),
             alat: pr(d.cAlat), aplikasi: pr(d.cAplikasi), pic: pr(d.cPIC), lain: pr(d.cLain)
@@ -9614,10 +9671,12 @@ function hitungModalPerTipeKamar(komponen, komponenDicentang, totalGabungan, nFo
     // Tarif Triple/Double yang belum diisi memakai tarif Quad (sama dengan Rekap) — bukan Rp 0, supaya modal hotel tidak hilang
     const laTripleEff = komponen.modeUpgrade ? (komponen.laQuad + komponen.laTriple) : (komponen.laTriple > 0 ? komponen.laTriple : komponen.laQuad);
     const laDoubleEff = komponen.modeUpgrade ? (komponen.laQuad + komponen.laDouble) : (komponen.laDouble > 0 ? komponen.laDouble : komponen.laQuad);
+    const laFamilyEff = komponen.modeUpgrade ? (komponen.laQuad + (komponen.laFamily || 0)) : ((komponen.laFamily || 0) > 0 ? komponen.laFamily : komponen.laQuad);
     return {
         quad: (nonLA + (laAktif ? komponen.laQuad : 0)) * multiplier,
         triple: (nonLA + (laAktif ? laTripleEff : 0)) * multiplier,
-        double: (nonLA + (laAktif ? laDoubleEff : 0)) * multiplier
+        double: (nonLA + (laAktif ? laDoubleEff : 0)) * multiplier,
+        family: (nonLA + (laAktif ? laFamilyEff : 0)) * multiplier
     };
 }
 
@@ -9625,10 +9684,10 @@ function hitungModalPerTipeKamar(komponen, komponenDicentang, totalGabungan, nFo
 function hitungModalRataRataTertimbang(komponen, t, totalGabungan) {
     const modalTipe = hitungModalPerTipeKamar(komponen, t.komponen || {}, totalGabungan, komponen.nFocGabungan);
     if(!modalTipe) return null;
-    const jq = t.jumlahQuad||0, jt = t.jumlahTriple||0, jd = t.jumlahDouble||0;
-    const total = jq + jt + jd;
+    const jq = t.jumlahQuad||0, jt = t.jumlahTriple||0, jd = t.jumlahDouble||0, jf = t.jumlahFamily||0;
+    const total = jq + jt + jd + jf;
     if(total === 0) return null;
-    return ((modalTipe.quad*jq) + (modalTipe.triple*jt) + (modalTipe.double*jd)) / total;
+    return ((modalTipe.quad*jq) + (modalTipe.triple*jt) + (modalTipe.double*jd) + (modalTipe.family*jf)) / total;
 }
 
 // Hitung Harga per tipe dari 1 kebijakan (persen atau profit tetap), diterapkan SAMA RATA ke semua tipe kamar
@@ -9670,7 +9729,7 @@ function tambahKonsorsiumTravel() {
     const list = ensureKonsorsiumList();
     const komponenDefault = {};
     DAFTAR_KOMPONEN_KONSORSIUM.forEach(k => komponenDefault[k.key] = true);
-    list.push({ id: Date.now(), nama: '', jumlah: 0, jumlahQuad: 0, jumlahTriple: 0, jumlahDouble: 0, harga: 0, persen: '', profitRp: 0, bufferB2B: 0, gratisTravel: 0, komponen: komponenDefault, pembayaran: [] });
+    list.push({ id: Date.now(), nama: '', jumlah: 0, jumlahQuad: 0, jumlahTriple: 0, jumlahDouble: 0, jumlahFamily: 0, harga: 0, persen: '', profitRp: 0, bufferB2B: 0, gratisTravel: 0, komponen: komponenDefault, pembayaran: [] });
     simpanKonsorsium();
     renderKonsorsiumList();
 }
@@ -9726,9 +9785,9 @@ function updateKonsorsiumTravel(id, field, value) {
     const t = list.find(x => x.id === id);
     if(!t) return;
     if(field === 'nama') t.nama = value;
-    if(field === 'jumlahQuad' || field === 'jumlahTriple' || field === 'jumlahDouble') {
+    if(field === 'jumlahQuad' || field === 'jumlahTriple' || field === 'jumlahDouble' || field === 'jumlahFamily') {
         t[field] = parseInt(value.replace(/\D/g,'')) || 0;
-        t.jumlah = (t.jumlahQuad||0) + (t.jumlahTriple||0) + (t.jumlahDouble||0);
+        t.jumlah = (t.jumlahQuad||0) + (t.jumlahTriple||0) + (t.jumlahDouble||0) + (t.jumlahFamily||0);
         const totalEl = document.getElementById('konsorsiumTotalOrang_' + id);
         if(totalEl) totalEl.textContent = 'Total: ' + t.jumlah + ' orang';
         field = 'jumlah'; // biar semua kartu ikut refresh (Modal Gabungan berubah)
@@ -9878,6 +9937,7 @@ function renderKonsorsiumList() {
                     <div class="dynamic-field" style="margin-bottom:0;"><label style="font-size:11px;">Quad</label><input type="text" inputmode="numeric" value="${t.jumlahQuad || ''}" placeholder="0" oninput="updateKonsorsiumTravel(${t.id}, 'jumlahQuad', this.value)"></div>
                     <div class="dynamic-field" style="margin-bottom:0;"><label style="font-size:11px;">Triple</label><input type="text" inputmode="numeric" value="${t.jumlahTriple || ''}" placeholder="0" oninput="updateKonsorsiumTravel(${t.id}, 'jumlahTriple', this.value)"></div>
                     <div class="dynamic-field" style="margin-bottom:0;"><label style="font-size:11px;">Double</label><input type="text" inputmode="numeric" value="${t.jumlahDouble || ''}" placeholder="0" oninput="updateKonsorsiumTravel(${t.id}, 'jumlahDouble', this.value)"></div>
+                    ${(tipeFamilyAda() || (t.jumlahFamily || 0) > 0) ? `<div class="dynamic-field" style="margin-bottom:0;"><label style="font-size:11px;">Family</label><input type="text" inputmode="numeric" value="${t.jumlahFamily || ''}" placeholder="0" oninput="updateKonsorsiumTravel(${t.id}, 'jumlahFamily', this.value)"></div>` : ''}
                 </div>
                 <div id="konsorsiumTotalOrang_${t.id}" style="font-size:11px;color:var(--primary);font-weight:600;margin-top:4px;">Total: ${(t.jumlah||0)} orang</div>
             </div>
@@ -9921,11 +9981,12 @@ function hitungRingkasanTravel(t, komponen, totalGabungan) {
     const tipeData = [
         { key: 'quad', label: 'Quad', jumlah: t.jumlahQuad||0, modal: modalTipe.quad },
         { key: 'triple', label: 'Triple', jumlah: t.jumlahTriple||0, modal: modalTipe.triple },
-        { key: 'double', label: 'Double', jumlah: t.jumlahDouble||0, modal: modalTipe.double }
+        { key: 'double', label: 'Double', jumlah: t.jumlahDouble||0, modal: modalTipe.double },
+        { key: 'family', label: 'Family', jumlah: t.jumlahFamily||0, modal: modalTipe.family }
     ].filter(x => x.jumlah > 0);
     const punyaKebijakan = (t.persen !== '' && t.persen !== undefined && t.persen !== null) || t.profitRp;
 
-    // Distribusikan "Gratis dari Travel Ini" — mulai dari Quad, lalu Triple, lalu Double
+    // Distribusikan "Gratis dari Travel Ini" — mulai dari Quad, lalu Triple, Double, dan terakhir Family
     let gratisSisa = t.gratisTravel || 0;
 
     let totalModal = 0, totalTagihan = 0, totalTagihanTanpaBuffer = 0, totalGratisTerpakai = 0;
@@ -10386,7 +10447,7 @@ function hitungPosisiDariData(d, modal, brosur, daftarTravel, sendiri) {
         const ring = komponen ? hitungRingkasanTravel(t, komponen, totalGabungan) : null;
         const biayaAsli = komponen ? hitungModalPerTipeKamar(komponen, t.komponen || {}, totalGabungan, 0) : null; // nFoc=0: biaya sungguhan per orang, tanpa pengali FOC
         const lebihKamar = k => biayaAsli ? Math.max(0, biayaAsli[k] - biayaAsli.quad) : 0;
-        biayaKamar += (t.jumlahTriple || 0) * lebihKamar('triple') + (t.jumlahDouble || 0) * lebihKamar('double');
+        biayaKamar += (t.jumlahTriple || 0) * lebihKamar('triple') + (t.jumlahDouble || 0) * lebihKamar('double') + (t.jumlahFamily || 0) * lebihKamar('family');
         biayaHemat += (t.jumlah || 0) * hematKomponen(t);
         if(!ring || !ring.punyaKebijakan) { belumHarga.push(t.nama || 'Travel tanpa nama'); return; }
         tagihan += ring.totalTagihan;
@@ -10448,7 +10509,7 @@ function renderPosisiRombongan() {
 }
 
 // ==================== KUNCI & RIWAYAT KONSORSIUM ====================
-const KONSORSIUM_FIELD_IDS = ['konTotJam','konJamGratis','konNumTL','konCTiket','konCLAquad','konCLAtriple','konCLAdouble','konCAsuransi','konCHandling','konCAlat','konCAplikasi','konCPIC','konCLain','konProfitPct','konCBuffer','konCHargaJual','konCHargaJualTriple','konCHargaJualDouble','konSbTiketPct','konSbTiket','konSbHotelPct','konSbHotel','konSbLain'];
+const KONSORSIUM_FIELD_IDS = ['konTotJam','konJamGratis','konNumTL','konCTiket','konCLAquad','konCLAtriple','konCLAdouble','konCLAfamily','konCAsuransi','konCHandling','konCAlat','konCAplikasi','konCPIC','konCLain','konProfitPct','konCBuffer','konCHargaJual','konCHargaJualTriple','konCHargaJualDouble','konCHargaJualFamily','konSbTiketPct','konSbTiket','konSbHotelPct','konSbHotel','konSbLain'];
 
 function renderKunciKonsorsiumUI() {
     const slot = ensureProgramConfigSlot();
@@ -10776,14 +10837,14 @@ function hitungRujukanEstimasiPengeluaran(kategori) {
     // Perlengkapan hanya dibeli untuk yang mengambil: kursi dikurangi jamaah yang tidak ambil
     const nTanpaPerleng = def.grup === 'alat' ? jamaahList.filter(j => !tanpaTagihan(j) && tidakAmbilPerlengkapan(j.additional_fields) && !isBayi(j.additional_fields)).length : 0;
     const nBeli = Math.max(0, kursi - nTanpaPerleng);
-    const jml = { Quad: 0, Triple: 0, Double: 0 };
-    jamaahList.forEach(j => { const t = j.additional_fields && j.additional_fields.tipe_paket; if (t === 'Triple' || t === 'Double') jml[t]++; });
-    jml.Quad = Math.max(0, kursi - jml.Triple - jml.Double);
+    const jml = { Quad: 0, Triple: 0, Double: 0, Family: 0 };
+    jamaahList.forEach(j => { const t = normTipe(j.additional_fields && j.additional_fields.tipe_paket); if (adaTipeBedaHarga(t)) jml[t]++; });
+    jml.Quad = Math.max(0, kursi - jml.Triple - jml.Double - jml.Family);
     const laQuad = pr(est.cLAquad || est.cLA);
     const laTipe = t => modalPerJamaahMenurutTipe(est, t) - modalPerJamaahMenurutTipe(est, 'Quad') + laQuad;
     let chips = [], anggaran = 0, namaAnggaran = '';
     if (def.hotel) {
-        ['Quad', 'Triple', 'Double'].forEach(t => { const h = laTipe(t); if (h > 0 && jml[t] > 0) { chips.push({ label: t, harga: h, n: jml[t] }); anggaran += h * jml[t]; } });
+        ['Quad', 'Triple', 'Double', 'Family'].forEach(t => { const h = laTipe(t); if (h > 0 && jml[t] > 0) { chips.push({ label: t, harga: h, n: jml[t] }); anggaran += h * jml[t]; } });
         namaAnggaran = 'Hotel';
     } else if (def.lain) {
         const h = pr(est.cLain);
@@ -11623,14 +11684,15 @@ function perbaruiKolomHargaTipe() {
     const wrap = document.getElementById('hargaJualTipeWrap'); if(!wrap) return;
     const pakai = !(document.getElementById('modeUpgrade')?.checked);
     const ada = id => parseRupiah(document.getElementById(id)?.value || '0') > 0;
-    const t = pakai && ada('cLAtriple'), d = pakai && ada('cLAdouble');
+    const t = pakai && ada('cLAtriple'), d = pakai && ada('cLAdouble'), fm = pakai && ada('cLAfamily');
     document.getElementById('wrapHJTriple').style.display = t ? 'block' : 'none';
     document.getElementById('wrapHJDouble').style.display = d ? 'block' : 'none';
-    wrap.style.display = (t || d) ? 'block' : 'none';
+    { const wf = document.getElementById('wrapHJFamily'); if(wf) wf.style.display = fm ? 'block' : 'none'; }
+    wrap.style.display = (t || d || fm) ? 'block' : 'none';
     const rg = document.getElementById('ringkasHJTipe');
     if(rg) {
         const f = id => { const v = parseRupiah(document.getElementById(id)?.value || '0'); return v > 0 ? fRp(v, false) : 'pakai hitungan'; };
-        rg.textContent = [t ? 'Triple ' + f('cHargaJualTriple') : '', d ? 'Double ' + f('cHargaJualDouble') : ''].filter(Boolean).join(' · ');
+        rg.textContent = [t ? 'Triple ' + f('cHargaJualTriple') : '', d ? 'Double ' + f('cHargaJualDouble') : '', fm ? 'Family ' + f('cHargaJualFamily') : ''].filter(Boolean).join(' · ');
     }
 }
 function updateModeLA() {
@@ -11658,6 +11720,9 @@ function updateModeLA() {
     if(labelDouble) labelDouble.textContent = isUpgrade
         ? 'Double — selisih dari Quad (Rp)'
         : 'Double (2 orang/kamar)';
+    { const hf = document.getElementById('hintFamily'), lf = document.getElementById('labelFamily');
+      if(hf) hf.style.display = isUpgrade ? 'block' : 'none';
+      if(lf) lf.textContent = isUpgrade ? 'Family — selisih dari Quad (Rp)' : 'Family (kamar keluarga, per orang)'; }
     updateLAPreview();
 }
 
@@ -11675,6 +11740,7 @@ function toggleLAAccordion() {
 }
 
 function updateLAPreview() {
+    perbaruiTampilFamily();
     perbaruiKolomHargaTipe();
     const pr = v => parseInt((v||'0').toString().replace(/\./g,'').replace(/[^0-9]/g,''))||0;
     const preview = document.getElementById('laPreview');
@@ -11683,6 +11749,7 @@ function updateLAPreview() {
         {n:'Quad',   v: pr(document.getElementById('cLAquad')?.value)},
         {n:'Triple', v: pr(document.getElementById('cLAtriple')?.value)},
         {n:'Double', v: pr(document.getElementById('cLAdouble')?.value)},
+        {n:'Family', v: pr(document.getElementById('cLAfamily')?.value)},
     ].filter(t => t.v > 0);
     if(types.length === 0) { preview.textContent = ''; return; }
     preview.textContent = '✅ Aktif: ' + types.map(t => t.n).join(', ');
@@ -11698,6 +11765,7 @@ async function resetEstimasiToDefault() {
         document.getElementById('cLAquad').value = "14.450.000";
         document.getElementById('cLAtriple').value = "0";
         document.getElementById('cLAdouble').value = "0";
+        { const elF = document.getElementById('cLAfamily'); if(elF) elF.value = "0"; }
         updateLAPreview();
         document.getElementById('cAsuransi').value="60.000";
         document.getElementById('cHandling').value="100.000";
@@ -15433,6 +15501,18 @@ const PEMERIKSA_KESEHATAN = [
             ctx.fieldJamaah.filter(f => f.type === 'dropdown' && ['tarif_anak', 'perlengkapan', 'status_proses'].includes(f.name) && (f.options || []).length).forEach(f => {
                 tambah('jamaah.pilihan_asing_' + f.name, 'perhatian', `${f.label || f.name}: isian di luar pilihan`, 'Isian ini tidak dikenali oleh pilihan yang ada, sehingga bisa tidak ikut terhitung di harga atau laporan.', 'Pilih ulang dari daftar pilihan.', list.filter(j => { const v = String(af(j)[f.name] ?? '').trim(); return v && !f.options.includes(v); }).map(j => label(j) + ' · "' + String(af(j)[f.name]).trim() + '"'));
             });
+            if (p.jenis !== 'haji_reguler') { const tpResmi = (ctx.konfig.per_program?.[p.id]?.tipe_paket) || (konfigurasiPro.per_program?.[p.id]?.tipe_paket) || ['Quad', 'Triple', 'Double']; tambah('jamaah.tipe_paket_asing', 'perhatian', 'Tipe Paket di luar pilihan Program', 'Tipe yang tidak ada di pilihan (' + tpResmi.join(', ') + ') tidak dikenali harga dan laporan, sehingga jamaah ini dihitung seperti Quad.', 'Pilih ulang Tipe Paket di Database Jamaah.', list.filter(j => { const v = String(af(j).tipe_paket || '').trim(); return v && !tpResmi.some(x => String(x).trim().toLowerCase() === v.toLowerCase()); }).map(j => label(j) + ' · "' + String(af(j).tipe_paket).trim() + '"')); }
+            if (p.jenis !== 'haji_reguler') {
+                const famJ = list.filter(j => normTipe(af(j).tipe_paket) === 'Family' && !tanpaTagihan(j));
+                if (famJ.length) {
+                    const estF = (konfigurasiPro.per_program && konfigurasiPro.per_program[p.id] && konfigurasiPro.per_program[p.id].estimasi_data) || (ctx.konfig.per_program && ctx.konfig.per_program[p.id] && ctx.konfig.per_program[p.id].estimasi_data) || null;
+                    const laF = estF ? (parseInt(String(estF.cLAfamily || '0').replace(/[^0-9]/g, '')) || 0) : 0;
+                    const kurang = [];
+                    if (!(laF > 0)) kurang.push('LA / Hotel Family di Cuan Plan (modal dihitung seperti Quad)');
+                    if (cfgP.seragam && cfgP.nominal > 0 && !(cfgP.perTipe && cfgP.perTipe.Family > 0)) kurang.push('Harga Seragam Family di Konfigurasi (ditagih seperti Quad)');
+                    if (kurang.length) tambah('jamaah.family_belum_harga', 'serius', 'Jamaah tipe Family, harganya belum diisi', 'Belum terisi: ' + kurang.join('; ') + '. Selama kosong, laporan menghitung Family seperti Quad sehingga laba bisa meleset.', 'Isi harga Family di Cuan Plan dan/atau Konfigurasi Harga Seragam.', famJ.map(label));
+                }
+            }
             // paspor & meningitis (aturan sama dengan kartu peringatan di Home)
             const cekKadaluarsa = (nm, bulan, kunci, judul, ket) => {
                 if (!adaField(nm)) return; const acuan = berangkat || hari, batas = new Date(acuan); batas.setMonth(batas.getMonth() + bulan);
@@ -15499,7 +15579,7 @@ const PEMERIKSA_KESEHATAN = [
                 if (est) {
                     const hb = hitungModalHargaDariEst(est);
                     if (hb && Math.round(hb.harga) !== hpK.nominal) out.push(T('jamaah.seragam_beda_brosur:' + p.id, 'Jamaah', 'perhatian', 'Harga Seragam berbeda dari Harga Brosur' + tag, `Harga Seragam ${rp(hpK.nominal)}, Harga Brosur Cuan Plan ${rp(hb.harga)}. Selisihnya ikut dihitung sebagai ${hpK.nominal < hb.harga ? 'diskon' : 'harga di atas brosur'} pada Analisis Buffer.`, 'Samakan keduanya di Konfigurasi atau Cuan Plan, atau abaikan bila memang disengaja.', [], { label: 'Buka Konfigurasi', halaman: 'konfigurasi' }));
-                    if (hb && seragamPerTipeAktif(hpK)) ['Triple', 'Double'].forEach(tp => {
+                    if (hb && seragamPerTipeAktif(hpK)) ['Triple', 'Double', 'Family'].forEach(tp => {
                         const ht = hpK.perTipe[tp]; if (!(ht > 0)) return;
                         const bt = Math.round(hargaBrosurTipeDariEst(est, tp));
                         if (bt > 0 && bt !== ht) out.push(T('jamaah.seragam_tipe_beda_brosur:' + tp + ':' + p.id, 'Jamaah', 'perhatian', `Harga Seragam ${tp} berbeda dari Harga Brosur ${tp}` + tag, `Harga Seragam ${tp} ${rp(ht)}, Harga Brosur ${tp} di Cuan Plan ${rp(bt)}. Selisihnya ikut dihitung sebagai ${ht < bt ? 'diskon' : 'harga di atas brosur'} pada Analisis Buffer.`, 'Samakan di Konfigurasi (tombol "Isi dari harga brosur di Estimasi") atau abaikan bila disengaja.', [], { label: 'Buka Konfigurasi', halaman: 'konfigurasi' }));
@@ -15591,6 +15671,7 @@ const PEMERIKSA_KESEHATAN = [
             else if (pos.impasSendiri !== null && !pos.belumHarga.length && pos.laba < 0) out.push(T('konsorsium.belum_impas:' + p.id, K, 'info', 'Rombongan belum mencapai titik impas' + tag, `Dengan jumlah terisi sekarang laba ${rp(pos.laba)}. Jamaah sendiri minimal ${pos.impasSendiri} orang agar impas (terdaftar ${pos.sendiri}).`, 'Pantau sampai jamaah sendiri dan Travel Partner cukup.', []));
             const rugi = [], tanpaDP = [];
             const komponen = bangunKomponenKonsorsium(d, d.modal), total = daftar.reduce((a, t) => a + (t.jumlah || 0), 0);
+            { const famTravel = daftar.filter(t => (t.jumlahFamily || 0) > 0); if (famTravel.length && !(komponen && komponen.laFamily > 0)) out.push(T('konsorsium.family_belum_harga:' + p.id, K, 'serius', 'Travel dengan kamar Family, tetapi LA/Hotel Family belum diisi' + tag, 'Selama LA/Hotel Family kosong, modal dan harga Family dihitung seperti Quad sehingga tagihan dan laba travel bisa meleset.', 'Isi LA/Hotel Family di Estimasi Konsorsium, lalu tekan HITUNG ESTIMASI KONSORSIUM.', famTravel.map(t => `${t.nama || 'Travel tanpa nama'} · ${t.jumlahFamily} orang Family`))); }
             daftar.forEach(t => {
                 const ring = komponen ? hitungRingkasanTravel(t, komponen, total) : null;
                 if (ring && ring.punyaKebijakan && ring.totalProfit < 0) rugi.push(`${t.nama || 'Travel tanpa nama'} · rugi ${rp(-ring.totalProfit)}`);
@@ -19210,6 +19291,13 @@ function normalisasiUangImpor(val) {
     return isNaN(angka) ? null : angka.toLocaleString('id-ID');
 }
 
+// Tipe Paket (Quad/Triple/Double) adalah kolom permanen di form jamaah, bukan field dinamis. Tidak dipakai Haji Reguler.
+function adaKolomTipePaket() { return !isHajiReguler() && getTipePaket().length > 0; }
+// Cocokkan isian Excel dengan pilihan Program (tanpa peduli huruf besar/kecil); kembalikan ejaan resmi, atau null bila tidak dikenal.
+function cocokkanTipePaket(v) {
+    const t = String(v == null ? '' : v).trim().toLowerCase();
+    return getTipePaket().find(x => String(x).trim().toLowerCase() === t) || null;
+}
 function downloadTemplateExcel() {
     const fieldsTampil = getDynamicFieldsJamaahTampil();
     // Header = Nama Lengkap + semua field dinamis (sesuai Jenis Program aktif — Umroh tidak ikut field khusus Haji)
@@ -19219,6 +19307,8 @@ function downloadTemplateExcel() {
         headers.push(f.label);
         fieldKeys.push(f.name);
     });
+    const kolomTipe = adaKolomTipePaket();
+    if (kolomTipe) { headers.push('Tipe Paket'); fieldKeys.push('tipe_paket'); }
 
     // Baris contoh agar user tahu format isian
     const contohRow = ['CONTOH - Nama Jamaah'];
@@ -19229,6 +19319,7 @@ function downloadTemplateExcel() {
         else if (f.name === 'no_porsi') contohRow.push('0000000000');
         else contohRow.push('');
     });
+    if (kolomTipe) contohRow.push(getTipePaket()[0]);
 
     // Baris kosong untuk diisi user
     const emptyRows = Array(9).fill(null).map(() => Array(headers.length).fill(''));
@@ -19254,6 +19345,7 @@ function downloadTemplateExcel() {
         ['4. Jenis Kelamin: isi L atau P'],
         ['5. WhatsApp: awali dengan 08 atau 628'],
         ['6. Jangan ubah nama kolom di baris pertama'],
+        ...(kolomTipe ? [['   Tipe Paket: isi salah satu dari ' + getTipePaket().join(' / ') + ' (boleh dikosongkan; isi di luar pilihan akan ditandai di Cek Kesehatan)']] : []),
         ['7. Simpan dalam format .xlsx sebelum diupload'],
         [''],
         ['Kolom yang tersedia:'],
@@ -19275,10 +19367,13 @@ function exportJamaahToExcel(){
     // Kolom informasi tambahan (Tanggal Input, Keluarga) ditaruh di paling belakang — Import mengabaikannya.
     const headers=['Nama Lengkap'];
     for(const f of fieldsTampil) headers.push(f.label);
+    const kolomTipeEks = adaKolomTipePaket();
+    if (kolomTipeEks) headers.push('Tipe Paket');
     headers.push('Tanggal Input', 'Keluarga');
     const rows=jamaahList.map((j,i)=>{
         const row=[j.nama_lengkap];
         for(const f of fieldsTampil) row.push(j.additional_fields?.[f.name]||'');
+        if (kolomTipeEks) row.push(j.additional_fields?.tipe_paket||'');
         row.push(j.created_at||'-');
         const keluargaText = (j.hubungan_keluarga || []).map(r => {
             const target = jamaahList.find(x => x.id === r.jamaahId);
@@ -20137,7 +20232,7 @@ function hargaUmumProgram(cfg) {
     const hp = cfg.harga_paket;
     if(hp && hp.seragam && hp.nominal > 0) {
         const pt = hp.perTipe || {};
-        return { quad: Math.round(hp.nominal), triple: pt.Triple > 0 ? Math.round(pt.Triple) : 0, double: pt.Double > 0 ? Math.round(pt.Double) : 0, hitungan: false };
+        return { quad: Math.round(hp.nominal), triple: pt.Triple > 0 ? Math.round(pt.Triple) : 0, double: pt.Double > 0 ? Math.round(pt.Double) : 0, family: pt.Family > 0 ? Math.round(pt.Family) : 0, hitungan: false };
     }
     try {
         const est = cfg.estimasi_data;
@@ -20145,7 +20240,7 @@ function hargaUmumProgram(cfg) {
         if(h && h.harga > 0) {
             const quad = Math.round(h.harga);
             const tp = t => { const v = Math.round(hargaBrosurTipeDariEst(est, t)); return v > 0 && v !== quad ? v : 0; };
-            return { quad, triple: tp('Triple'), double: tp('Double'), hitungan: true };
+            return { quad, triple: tp('Triple'), double: tp('Double'), family: tp('Family'), hitungan: true };
         }
     } catch(e) {}
     return null;
@@ -20201,7 +20296,7 @@ function htmlKelompokSeat(g, dalam) {
     const wr = dalam ? 'var(--primary)' : '#0D5C4A';
     const baris = g.item.map(x => {
         const h = x.harga;
-        const tipe = h ? [['Triple', h.triple], ['Double', h.double]].filter(t => t[1] > 0).map(t => `<div style="font-size:11px;color:#64748B;white-space:nowrap;">${t[0]} ${fRpRingkas(t[1])}</div>`).join('') : '';
+        const tipe = h ? [['Triple', h.triple], ['Double', h.double], ['Family', h.family]].filter(t => t[1] > 0).map(t => `<div style="font-size:11px;color:#64748B;white-space:nowrap;">${t[0]} ${fRpRingkas(t[1])}</div>`).join('') : '';
         const info = [g.bulan ? escapeHtml(x.kelompok) : '', x.maskapai ? '✈ ' + escapeHtml(x.maskapai) : '', x.kota ? 'Berangkat dari ' + escapeHtml(x.kota) : ''].filter(Boolean).join(' · ');
         return `<tr style="page-break-inside:avoid;break-inside:avoid;">
             <td style="padding:10px 12px;border-bottom:1px solid #E5E7EB;vertical-align:top;background:#fff;">
@@ -20410,8 +20505,8 @@ function teksUpdateSeat() {
             t += `\n• *${x.p.nama}*\n  ${teksTanggalSeat(x)}\n`;
             const info = [g.bulan ? x.kelompok : '', x.maskapai ? '✈ ' + x.maskapai : '', x.kota ? 'dari ' + x.kota : ''].filter(Boolean).join(' · ');
             if(info) t += `  ${info}\n`;
-            t += `  ${h ? fRpRingkas(h.quad) + (h.triple || h.double ? ' (Quad)' : '') : 'Harga belum diisi'}${x.dp > 0 ? ' · DP ' + fRpRingkas(x.dp) : ''}\n`;
-            if(h && (h.triple || h.double)) t += `  ${h.triple ? 'Triple ' + fRpRingkas(h.triple) : ''}${h.triple && h.double ? ' · ' : ''}${h.double ? 'Double ' + fRpRingkas(h.double) : ''}\n`;
+            t += `  ${h ? fRpRingkas(h.quad) + (h.triple || h.double || h.family ? ' (Quad)' : '') : 'Harga belum diisi'}${x.dp > 0 ? ' · DP ' + fRpRingkas(x.dp) : ''}\n`;
+            if(h && (h.triple || h.double || h.family)) t += `  ${[h.triple ? 'Triple ' + fRpRingkas(h.triple) : '', h.double ? 'Double ' + fRpRingkas(h.double) : '', h.family ? 'Family ' + fRpRingkas(h.family) : ''].filter(Boolean).join(' · ')}\n`;
             t += `  *${x.level.teks}*\n`;
         });
     });
@@ -21224,17 +21319,18 @@ function hitungModalHargaDariEst(est) {
 // Modal per jamaah menurut tipe kamar (Quad/Triple/Double) — SATU rumus yang dipakai tab Rekap DAN Laporan Penutupan Musim
 function modalPerJamaahMenurutTipe(est, tipe) {
     if(!est) return 0;
+    tipe = normTipe(tipe);
     const pr = v => parseInt((v||'0').toString().replace(/\./g,'').replace(/[^0-9]/g,''))||0;
     const subBase = pr(est.cTiket)+pr(est.cAsuransi)+pr(est.cHandling)+pr(est.cPIC)+pr(est.cAlat)+pr(est.cAplikasi)+pr(est.cLain);
     const laQuadVal = pr(est.cLAquad||est.cLA||'0');
     let laVal;
     if(est.modeLA === 'upgrade' && tipe !== 'Quad') {
         // Mode Upgrade: nilai Triple/Double adalah SELISIH dari Quad, bukan harga penuh
-        const selisihMap = { 'Triple': pr(est.cLAtriple||'0'), 'Double': pr(est.cLAdouble||'0') };
+        const selisihMap = { 'Triple': pr(est.cLAtriple||'0'), 'Double': pr(est.cLAdouble||'0'), 'Family': pr(est.cLAfamily||'0') };
         const selisih = selisihMap[tipe];
         laVal = selisih !== undefined ? laQuadVal + selisih : laQuadVal;
     } else {
-        const laMap = { 'Quad': laQuadVal, 'Triple': pr(est.cLAtriple||'0'), 'Double': pr(est.cLAdouble||'0') };
+        const laMap = { 'Quad': laQuadVal, 'Triple': pr(est.cLAtriple||'0'), 'Double': pr(est.cLAdouble||'0'), 'Family': pr(est.cLAfamily||'0') };
         laVal = laMap[tipe] !== undefined ? laMap[tipe] : laQuadVal;
         if(laVal === 0 && tipe !== 'Quad') laVal = laQuadVal;
     }
@@ -22278,7 +22374,7 @@ function bukaCaraPakai() {
     window.scrollTo(0, 0);
 }
 // Kontak pengembang: satu-satunya tempat nomor dan nama ini disimpan. Untuk mengganti, ubah dua baris ini.
-const KONTAK_PENGEMBANG = { nama: 'Ali Mashar', wa: '6281391485440' };
+const KONTAK_PENGEMBANG = { nama: 'Ali Mashar', wa: '6281391485440', email: 'qisswahstore@gmail.com' };
 function renderTentang() {
     const set = (id, v) => { const e = document.getElementById(id); if(e) e.textContent = v; };
     set('tentangPengembang', KONTAK_PENGEMBANG.nama);
@@ -22286,11 +22382,38 @@ function renderTentang() {
     let lisensi = 'Gratis'; try { if(isLicensed()) lisensi = 'Berlisensi'; } catch(e) {}
     set('tentangLisensi', lisensi);
 }
-function hubungiPengembang() {
+// Info teknis laporan: hanya angka dan versi. Sengaja TIDAK memuat nama, NIK, paspor, atau data uang jamaah.
+function infoTeknisLaporan() {
     let lisensi = 'Gratis'; try { if(isLicensed()) lisensi = 'Berlisensi'; } catch(e) {}
-    const teks = `Halo ${KONTAK_PENGEMBANG.nama}, saya pengguna Navara.\nVersi: ${typeof NAVARA_BUILD !== 'undefined' ? NAVARA_BUILD : '-'}\nStatus: ${lisensi}\nKebutuhan: `;
-    window.open('https://wa.me/' + KONTAK_PENGEMBANG.wa + '?text=' + encodeURIComponent(teks), '_blank');
+    let prog = '-', nJam = '-';
+    try { const pr = getCurrentProgram(); prog = (pr && pr.jenis) ? pr.jenis : '-'; } catch(e) {}
+    try { nJam = jamaahList.length + ' jamaah'; } catch(e) {}
+    let hal = window._halamanAsalLapor || '-';
+    let perangkat = '-'; try { perangkat = (navigator.userAgent.match(/\(([^)]+)\)/) || [,'-'])[1].slice(0, 70) + ' · layar ' + screen.width + 'x' + screen.height; } catch(e) {}
+    return [
+        'Versi aplikasi: ' + (typeof NAVARA_BUILD !== 'undefined' ? NAVARA_BUILD : '-'),
+        'Status: ' + lisensi,
+        'Program: ' + prog + ' (' + nJam + ')',
+        'Halaman sebelum melapor: ' + hal,
+        'Perangkat: ' + perangkat
+    ].join('\n');
 }
+function susunLaporanPengembang() {
+    const v = id => (document.getElementById(id)?.value || '').trim();
+    return { nama: v('laporNama'), kategori: v('laporKategori') || 'Lainnya', judul: v('laporJudul'), isi: v('laporIsi') };
+}
+function kirimLaporanPengembang(cara) {
+    const L = susunLaporanPengembang();
+    if (!L.judul && !L.isi) { showToast('✏️ Isi judul atau penjelasan dulu'); return; }
+    const judul = '[Navara] ' + L.kategori + (L.judul ? ': ' + L.judul : '');
+    const badan = 'Halo ' + KONTAK_PENGEMBANG.nama + ',\n\n' + (L.isi || '(belum dijelaskan)') + '\n\n— ' + (L.nama || 'Pengguna Navara') + '\n\n--- Info teknis (otomatis) ---\n' + infoTeknisLaporan();
+    if (cara === 'email') {
+        window.location.href = 'mailto:' + KONTAK_PENGEMBANG.email + '?subject=' + encodeURIComponent(judul) + '&body=' + encodeURIComponent(badan);
+    } else {
+        window.open('https://wa.me/' + KONTAK_PENGEMBANG.wa + '?text=' + encodeURIComponent('*' + judul + '*\n\n' + badan), '_blank');
+    }
+}
+function hubungiPengembang() { showPage('tentang'); }
 function renderCaraPakai() {
     const box = document.getElementById('caraPakaiList'); if (!box) return;
     const q = (document.getElementById('caraPakaiCari')?.value || '').trim().toLowerCase();
@@ -22827,8 +22950,9 @@ function openKecocokanKamarModal() {
         }
     });
 
+    const namaFamily = jamaahList.filter(j => normTipe(j.additional_fields?.tipe_paket) === 'Family').map(j => j.nama_lengkap);
     const tipeAda = Object.keys(grup);
-    if(tipeAda.length === 0) {
+    if(tipeAda.length === 0 && namaFamily.length === 0) {
         modal.innerHTML = `<div class="modal-content" style="max-width:400px;">
             <h3 style="color:var(--primary);margin-bottom:10px;">🛏️ Cek Kecocokan Kamar</h3>
             <div style="background:#fef3c7;border:1.5px solid #f59e0b;border-radius:10px;padding:14px;margin-bottom:16px;font-size:13px;color:#92400e;">
@@ -22842,6 +22966,14 @@ function openKecocokanKamarModal() {
 
     let html = '';
     let adaYangBelumPas = false;
+    if(namaFamily.length) {
+        html += `
+        <div style="background:#F8FAFC;border-radius:10px;padding:12px;margin-bottom:10px;">
+            <div style="font-weight:700;font-size:13px;color:var(--primary);margin-bottom:4px;">🛏️ Family (kamar keluarga)</div>
+            <div style="font-size:12px;color:#555;">${namaFamily.length} jamaah. Satu keluarga satu kamar, jumlah orang per kamar tergantung hotel, jadi sisa tidak dihitung otomatis.</div>
+            <div style="font-size:11.5px;color:#92400E;margin-top:6px;">Cocokkan sendiri per keluarga: ${namaFamily.map(n => escapeHtml(n)).join(', ')}</div>
+        </div>`;
+    }
     tipeAda.forEach(tipe => {
         const nama = grup[tipe];
         const kapasitas = KAPASITAS_KAMAR[tipe];
@@ -22861,7 +22993,7 @@ function openKecocokanKamarModal() {
         <h3 style="color:var(--primary);margin-bottom:6px;">🛏️ Cek Kecocokan Kamar</h3>
         <div style="font-size:11px;color:#888;margin-bottom:14px;">Perkiraan otomatis berdasarkan jumlah jamaah per tipe kamar — bukan pencocokan pasti siapa dengan siapa. Tetap cek manual sebelum keberangkatan.</div>
         <div style="max-height:340px;overflow-y:auto;margin-bottom:10px;">${html}</div>
-        ${!adaYangBelumPas ? '<div style="text-align:center;color:#166534;font-size:13px;font-weight:600;margin-bottom:10px;">🎉 Semua kamar sudah pas, tidak ada yang kurang pasangan!</div>' : ''}
+        ${(!adaYangBelumPas && tipeAda.length) ? '<div style="text-align:center;color:#166534;font-size:13px;font-weight:600;margin-bottom:10px;">🎉 Semua kamar sudah pas, tidak ada yang kurang pasangan!</div>' : ''}
         <button onclick="document.getElementById('kecocokanKamarModal').style.display='none'" style="width:100%;padding:11px;background:#e2e8f0;color:#333;border:none;border-radius:10px;font-size:13px;cursor:pointer;">Tutup</button>
     </div>`;
     modal.style.display = 'flex';
@@ -23287,6 +23419,7 @@ function importJamaahFromExcel(input){
                 }
                 return str;
             }
+            const kolomTipeImpor = adaKolomTipePaket() ? headers.findIndex(h => h && ['tipe paket', 'tipe_paket'].includes(h.toLowerCase())) : -1;
             let added=0;
             const now=new Date().toLocaleDateString('id-ID')+' '+new Date().toLocaleTimeString('id-ID');
             const namaNomorMencurigakan = []; // dikumpulkan dulu, diperingatkan setelah semua baris diproses
@@ -23322,6 +23455,10 @@ function importJamaahFromExcel(input){
                         }
                         additional[field.name]=val;
                     }
+                }
+                if (kolomTipeImpor !== -1 && row[kolomTipeImpor] !== '' && row[kolomTipeImpor] !== undefined && row[kolomTipeImpor] !== null) {
+                    const mentah = row[kolomTipeImpor].toString().trim();
+                    if (mentah) additional.tipe_paket = cocokkanTipePaket(mentah) || mentah; // tidak dikenal: disimpan apa adanya, ditandai di Cek Kesehatan
                 }
                 jamaahList.push({id:Date.now()+i, nama_lengkap:nama, additional_fields:additional, created_at:now, program_id:currentProgramId});
                 added++;
@@ -29314,7 +29451,7 @@ function openIndexedDB() {
 // dengan build baru, data MENTAH (langsung dari IndexedDB, bukan dari memori) disalin dulu sebelum
 // proses migrasi apapun berjalan — supaya kalau ada kesalahan di update, data lama masih bisa dipulihkan.
 // Dokumen & foto tidak ikut disalin (ukurannya besar, dan tidak pernah disentuh proses migrasi).
-const NAVARA_BUILD = '2026.10.31-271';
+const NAVARA_BUILD = '2026.11.01-275';
 const MAKS_SNAPSHOT = 3;
 
 // ==================== DAFTAR DATA PUSAT ====================
@@ -33676,8 +33813,8 @@ async function saveKonfigurasiPro() {
     };
     { // harga per tipe kamar: hanya disimpan bila Harga Seragam aktif dan ada isinya
         const baca = id => parseInt((document.getElementById(id)?.value || '0').replace(/\./g, '').replace(/[^0-9]/g, '')) || 0;
-        const pt = {}; const tr = baca('cfg_harga_triple'), db = baca('cfg_harga_double');
-        if(tr > 0) pt.Triple = tr; if(db > 0) pt.Double = db;
+        const pt = {}; const tr = baca('cfg_harga_triple'), db = baca('cfg_harga_double'), fa = baca('cfg_harga_family');
+        if(tr > 0) pt.Triple = tr; if(db > 0) pt.Double = db; if(fa > 0) pt.Family = fa;
         if(hargaBaruCfg.seragam && Object.keys(pt).length) hargaBaruCfg.perTipe = pt;
     }
     const hargaLamaCfg = slot.harga_paket || { seragam: false, nominal: 0 };
@@ -33687,7 +33824,7 @@ async function saveKonfigurasiPro() {
         const adaKhusus = terkena.filter(j => bacaHargaManualJamaah(j) > 0).length;
         const sudahBayar = terkena.filter(j => paymentTransaksiList.some(t => String(t.id_jamaah) === String(j.id))).length;
         const fRc = n => fRp(n);
-        const teksTipeCfg = h => (h && h.perTipe ? ' (Triple ' + (h.perTipe.Triple > 0 ? fRc(h.perTipe.Triple) : 'sama') + ', Double ' + (h.perTipe.Double > 0 ? fRc(h.perTipe.Double) : 'sama') + ')' : '');
+        const teksTipeCfg = h => (h && h.perTipe ? ' (Triple ' + (h.perTipe.Triple > 0 ? fRc(h.perTipe.Triple) : 'sama') + ', Double ' + (h.perTipe.Double > 0 ? fRc(h.perTipe.Double) : 'sama') + (h.perTipe.Family > 0 ? ', Family ' + fRc(h.perTipe.Family) : '') + ')' : '');
         const ok = await konfirmasi(`Ubah Harga Seragam program ini?\n\n${hargaLamaCfg.seragam ? 'Sekarang: ' + fRc(hargaLamaCfg.nominal) + teksTipeCfg(hargaLamaCfg) : 'Sekarang: tidak aktif'}\nMenjadi: ${hargaBaruCfg.seragam ? fRc(hargaBaruCfg.nominal) + teksTipeCfg(hargaBaruCfg) : 'tidak aktif'}\n\nTagihan ${terkena.length - (hargaBaruCfg.seragam ? adaKhusus : 0)} jamaah ikut berubah (${sudahBayar} di antaranya sudah ada pembayaran).${hargaBaruCfg.seragam && adaKhusus ? `\n${adaKhusus} jamaah punya Harga khusus dan tidak berubah.` : ''}\nProgram yang sudah diarsipkan tidak terpengaruh.`);
         if (!ok) { showToast('Perubahan Harga Seragam dibatalkan'); return; }
     }
