@@ -4344,7 +4344,7 @@ https://github.com/nodeca/pako/blob/main/LICENSE
 
 <div id="paymentModal" class="modal"><div class="modal-content"><h3> Input Pembayaran</h3><div class="input-group"><label> Tanggal</label><input type="date" id="paymentTanggal"></div><div class="input-group"><label> Nama Jamaah *</label><select id="paymentJamaahSelect"><option value="">-- Pilih Jamaah --</option></select></div><div class="input-group" id="paymentKomponenWrap" style="display:none;"><label> Untuk Komponen</label><select id="paymentKomponen"></select></div><div class="input-group"><label> Nominal (Rp)</label><input type="text" class="money-input" inputmode="numeric" id="paymentNominal"></div><div class="input-group"><label> Metode</label><select id="paymentMetode" onchange="perbaruiInfoSaldoPembayaran()"><option value="Transfer">Transfer</option><option value="Cash">Cash</option><option value="QRIS">QRIS</option></select></div><div id="paymentSaldoWrap" style="display:none;font-size:12px;background:#FFFBEB;border:1px solid #FDE68A;border-radius:10px;padding:8px 10px;margin:-4px 0 10px;"></div><div class="input-group"><label> Keterangan</label><input type="text" id="paymentKeterangan" placeholder="DP / Cicilan / Pelunasan"></div><div class="row"><button class="btn btn-secondary" onclick="closePaymentModal()" style="flex:1">Batal</button><button class="btn btn-primary" onclick="simpanPembayaran()" style="flex:1">Simpan</button></div></div></div>
 <div id="invoiceConfirmModal" class="modal"><div class="modal-content"><h3> Konfirmasi Kirim Invoice</h3><p>Akan dikirim ke nomor WhatsApp:</p><p id="invoiceWANumber" style="font-weight:bold; font-size:18px; background:#f0f0f0; padding:10px; border-radius:10px;"></p><p id="invoiceWAName" style="color:#666;"></p><div id="invoiceRekPilih"></div><div class="row" style="margin-top:20px;"><button class="btn btn-secondary" onclick="closeInvoiceConfirmModal()" style="flex:1">Batal</button><button class="btn btn-wa" onclick="sendInvoiceWA()" style="flex:1">Kirim via WA</button><button class="btn btn-orange" onclick="copyInvoiceText()" style="flex:1">Salin Teks</button></div></div></div>
-<div id="editHargaModal" class="modal"><div class="modal-content"><h3> Edit Harga Paket</h3><p id="editHargaNama" style="font-weight:bold;"></p><div class="input-group" id="editHargaTotalWrap"><label> Total Harga Paket (Rp)</label><input type="text" class="money-input" inputmode="numeric" id="editHargaValue"><div id="editHargaInfo" style="font-size:12px;color:#64748B;margin-top:6px;line-height:1.5;"></div><label style="display:block;margin-top:10px;font-size:12px;color:#666;">👶 Tarif anak/bayi (harga hasil nego, bukan diskon)</label><select id="editHargaJenisAnak" onchange="perbaruiEditHargaAnak()" style="width:100%;padding:10px;border-radius:10px;border:1.5px solid #e2e8f0;font-size:14px;"><option value="">Bukan anak/bayi</option><option value="anak">Anak (pakai kursi)</option><option value="bayi">Bayi (tanpa kursi)</option></select><div id="editHargaModalAnakWrap" style="display:none;margin-top:8px;"><label style="font-size:12px;color:#666;">Modal anak/bayi (Rp, opsional)</label><input type="text" class="money-input" inputmode="numeric" id="editHargaModalAnak" placeholder="Kosong = otomatis" oninput="perbaruiEditHargaPerleng(false)"><div id="editHargaModalAnakInfo" style="font-size:11px;color:#64748b;margin-top:4px;"></div></div><div id="editHargaPerlengBlok"><label style="display:block;margin-top:10px;font-size:12px;color:#666;">🧳 Perlengkapan</label><select id="editHargaPerleng" onchange="perbaruiEditHargaPerleng(true)" style="width:100%;padding:10px;border-radius:10px;border:1.5px solid #e2e8f0;font-size:14px;"><option value="">Ambil perlengkapan</option><option value="tidak">Tidak ambil (pakai milik sebelumnya)</option></select><div id="editHargaPerlengWrap" style="display:none;margin-top:8px;"><label style="font-size:12px;color:#666;">Potongan harga (Rp), sesuai kesepakatan</label><div style="display:flex;gap:6px;margin:4px 0 6px;flex-wrap:wrap;"><button type="button" onclick="pilihPotonganPerleng(1000000)" style="padding:6px 12px;border:1.5px solid #0F766E;background:white;color:#0F766E;border-radius:14px;font-size:12px;font-weight:700;cursor:pointer;">1.000.000</button><button type="button" onclick="pilihPotonganPerleng(1500000)" style="padding:6px 12px;border:1.5px solid #0F766E;background:white;color:#0F766E;border-radius:14px;font-size:12px;font-weight:700;cursor:pointer;">1.500.000</button></div><input type="text" class="money-input" inputmode="numeric" id="editHargaPotongan" placeholder="Ketik angka lain" oninput="perbaruiEditHargaPerleng(true)"><label style="display:block;margin-top:8px;font-size:12px;color:#666;">Modal yang dihemat (Rp, opsional)</label><input type="text" class="money-input" inputmode="numeric" id="editHargaModalHemat" placeholder="Kosong = otomatis dari Estimasi" oninput="perbaruiEditHargaPerleng(false)"><div id="editHargaPerlengInfo" style="font-size:11.5px;color:#475569;margin-top:6px;line-height:1.5;"></div></div></div><button type="button" id="editHargaResetBtn" class="btn btn-secondary" style="display:none;width:100%;margin-top:10px;" onclick="kembaliKeHargaSeragam()">↩️ Kembali ke harga seragam</button></div><div id="editHargaKomponenWrap" style="display:none;"></div><div class="row"><button class="btn btn-secondary" onclick="closeEditHargaModal()" style="flex:1">Batal</button><button class="btn btn-primary" onclick="saveEditHarga()" style="flex:1">Simpan</button></div></div></div>
+<div id="editHargaModal" class="modal"><div class="modal-content"><h3> Edit Harga Paket</h3><p id="editHargaNama" style="font-weight:bold;"></p><div class="input-group" id="editHargaTotalWrap"><label> Total Harga Paket (Rp)</label><input type="text" class="money-input" inputmode="numeric" id="editHargaValue"><div id="editHargaInfo" style="font-size:12px;color:#64748B;margin-top:6px;line-height:1.5;"></div><label style="display:block;margin-top:10px;font-size:12px;color:#666;">👶 Tarif anak/bayi (harga hasil nego, bukan diskon)</label><select id="editHargaJenisAnak" onchange="perbaruiEditHargaAnak()" style="width:100%;padding:10px;border-radius:10px;border:1.5px solid #e2e8f0;font-size:14px;"><option value="">Bukan anak/bayi</option><option value="anak">Anak (pakai kursi)</option><option value="bayi">Bayi (tanpa kursi)</option></select><div id="editHargaModalAnakWrap" style="display:none;margin-top:8px;"><label style="font-size:12px;color:#666;">Modal anak/bayi (Rp, opsional)</label><input type="text" class="money-input" inputmode="numeric" id="editHargaModalAnak" placeholder="Kosong = otomatis" oninput="perbaruiEditHargaPerleng(false)"><div id="editHargaModalAnakInfo" style="font-size:11px;color:#64748b;margin-top:4px;"></div></div><div id="editHargaPerlengBlok"><label style="display:block;margin-top:10px;font-size:12px;color:#666;">🧳 Perlengkapan</label><select id="editHargaPerleng" onchange="perbaruiEditHargaPerleng(true)" style="width:100%;padding:10px;border-radius:10px;border:1.5px solid #e2e8f0;font-size:14px;"><option value="">Ambil perlengkapan</option><option value="tidak">Tidak ambil (pakai milik sebelumnya)</option></select><div id="editHargaPerlengWrap" style="display:none;margin-top:8px;"><label style="font-size:12px;color:#666;">Potongan harga (Rp), sesuai kesepakatan</label><div style="display:flex;gap:6px;margin:4px 0 6px;flex-wrap:wrap;"><button type="button" onclick="pilihPotonganPerleng(1000000)" style="padding:6px 12px;border:1.5px solid #0F766E;background:white;color:#0F766E;border-radius:14px;font-size:12px;font-weight:700;cursor:pointer;">1.000.000</button><button type="button" onclick="pilihPotonganPerleng(1500000)" style="padding:6px 12px;border:1.5px solid #0F766E;background:white;color:#0F766E;border-radius:14px;font-size:12px;font-weight:700;cursor:pointer;">1.500.000</button></div><input type="text" class="money-input" inputmode="numeric" id="editHargaPotongan" placeholder="Ketik angka lain" oninput="perbaruiEditHargaPerleng(true)"><label style="display:block;margin-top:8px;font-size:12px;color:#666;">Modal yang dihemat (Rp, opsional)</label><input type="text" class="money-input" inputmode="numeric" id="editHargaModalHemat" placeholder="Kosong = otomatis dari Estimasi" oninput="perbaruiEditHargaPerleng(false)"><div id="editHargaPerlengInfo" style="font-size:11.5px;color:#475569;margin-top:6px;line-height:1.5;"></div></div></div><button type="button" id="editHargaResetBtn" class="btn btn-secondary" style="display:none;width:100%;margin-top:10px;" onclick="kembaliKeHargaSeragam()">↩️ Kembali ke Harga Dasar Jamaah</button></div><div id="editHargaKomponenWrap" style="display:none;"></div><div class="row"><button class="btn btn-secondary" onclick="closeEditHargaModal()" style="flex:1">Batal</button><button class="btn btn-primary" onclick="saveEditHarga()" style="flex:1">Simpan</button></div></div></div>
 <div id="riwayatModal" class="modal"><div class="modal-content"><h3> Riwayat Pembayaran</h3><p id="riwayatNama" style="font-weight:bold;"></p><div id="riwayatListContainer" style="max-height:400px; overflow-y:auto;"></div><div class="row" style="margin-top:15px;"><button class="btn btn-secondary" onclick="closeRiwayatModal()" style="flex:1">Tutup</button></div></div></div>
 <div id="masterFieldModal" class="modal"><div class="modal-content"><h3>Kelola Field Dinamis</h3><div class="dynamic-field"><label>Nama Field</label><input type="text" id="masterNewFieldName" placeholder="contoh: alamat, no_hp"></div><div class="dynamic-field"><label>Label Field</label><input type="text" id="masterNewFieldLabel"></div><div class="dynamic-field"><label>Tipe</label><select id="masterNewFieldType"><option value="text">Text</option><option value="date">Tanggal</option><option value="tel">Telepon</option><option value="textarea">Text Area</option></select></div><button class="btn btn-primary" onclick="addMasterDynamicField()"> TAMBAH FIELD</button><div id="masterFieldsList" style="margin-top:15px;"></div><button class="btn btn-secondary mt-2" onclick="closeMasterFieldModal()">Tutup</button></div></div>
 <div id="masterItemModal" class="modal"><div class="modal-content"><h3>Kelola Daftar Item</h3><div class="row"><div class="input-group"><label>Nama Item</label><input type="text" id="masterNewItem"></div><button class="btn-small" onclick="addMasterItem()" style="background:var(--primary); color:white; padding:0 15px;">+ Tambah</button></div><div id="masterItemList" style="margin-top:15px;"></div><button class="btn btn-secondary mt-2" onclick="closeMasterItemModal()">Tutup</button></div></div>
@@ -5124,7 +5124,7 @@ function updateHomeDashboardExtra(totalJamaah, lunasCount, totalPiutang, komposi
             const fR = n => fRp(Math.abs(n));
             const dampak = b => Math.round(b) === 0 ? 'secara total impas dengan rencana' : (b > 0 ? `secara total masih untung ekstra ${fR(b)}` : `laba di bawah rencana ${fR(b)}`);
             const a = analisisBufferB2C();
-            if(a && a.nLebih > 0) pesanBuffer.push(`B2C: ${a.nLebih} jamaah melebihi buffer (kelebihan ${fR(a.kelebihan)}); ${dampak(a.bersih)}`);
+            if(a && a.nLebihHD > 0) pesanBuffer.push(`B2C: ${a.nLebihHD} jamaah melebihi buffer (kelebihan ${fR(a.kelebihanHD)}); ${dampak(a.bersihHD)}`);
             const b2b = analisisBufferB2BRingan();
             if(b2b && b2b.nLebih > 0) pesanBuffer.push(`B2B: ${b2b.nLebih} travel melebihi buffer (kelebihan ${fR(b2b.kelebihan)}); ${dampak(b2b.bersih)}`);
             if(pesanBuffer.length > 0) {
@@ -5413,15 +5413,19 @@ function teksKomposisiHarga(k) {
     return b.join(' · ');
 }
 
+// Harga Dasar Jamaah yang dipakai untuk memisahkan "selisih dengan brosur baru" dari diskon (0 bila harga khusus / Harga Dasar mati)
+function dasarUntukSelisih(j, hp) {
+    try { const r = hargaPaketRinci(j, hp); return (r.sumber === 'seragam' || r.sumber === 'diskon') ? r.dasar : 0; } catch(e) { return 0; }
+}
 function analisisBufferB2C() {
     const estRaw = getEstimasiData(), estH = hitungModalHargaDariEst(estRaw), hpA = getKonfigurasiProData().harga_paket;
-    return analisisBufferB2CDari(estH, jamaahList.map(j => ({ nama: j.nama_lengkap, harga: jenisPeserta(j) === 'travel' ? 0 : getTotalHargaPaket(j), af: j.additional_fields, perl: perlengkapanJamaah(j), brosur: brosurAcuanJamaah(j.additional_fields, estRaw, estH, hpA) })));
+    return analisisBufferB2CDari(estH, jamaahList.map(j => ({ nama: j.nama_lengkap, harga: jenisPeserta(j) === 'travel' ? 0 : getTotalHargaPaket(j), af: j.additional_fields, perl: perlengkapanJamaah(j), brosur: brosurAcuanJamaah(j.additional_fields, estRaw, estH, hpA), dasar: jenisPeserta(j) === 'travel' ? 0 : dasarUntukSelisih(j, hpA) })));
 }
 // Inti hitungan (murni): est = hasil hitungModalHargaDariEst, items = [{nama, harga, af}]
 function analisisBufferB2CDari(est, items) {
     if(!est) return null;
     const buf = est.buffer || 0; // Buffer 0 tetap dianalisis: seluruh diskon/komisi dihitung sebagai kelebihan
-    const r = { est, buffer: buf, n: 0, disiapkan: 0, diskon: 0, komisi: 0, dipakai: 0, kelebihan: 0, kelebihanDiskon: 0, kelebihanKomisi: 0, nLebih: 0, nLebihDiskon: 0, nAnak: 0, untungPerleng: 0, rinci: [] };
+    const r = { est, buffer: buf, n: 0, disiapkan: 0, diskon: 0, komisi: 0, dipakai: 0, kelebihan: 0, kelebihanDiskon: 0, kelebihanKomisi: 0, nLebih: 0, nLebihDiskon: 0, nAnak: 0, selisihDasar: 0, nSelisih: 0, diskonSendiri: 0, kelebihanDiskonSendiri: 0, nLebihDiskonSendiri: 0, kelebihanHD: 0, nLebihHD: 0, dipakaiHD: 0, untungPerleng: 0, rinci: [] };
     items.filter(j => j.harga > 0 && !isBayi(j.af)).forEach(j => { // bayi tanpa kursi: tidak punya jatah buffer
         const anak = isTarifAnak(j.af);
         // Perlengkapan: potongan harga diimbangi modal yang turun. Yang dihitung sebagai diskon hanya potongan yang LEBIH BESAR dari modal yang dihemat; kelebihan hemat masuk ke untung (bukan ke buffer).
@@ -5431,6 +5435,10 @@ function analisisBufferB2CDari(est, items) {
         const diskon = Math.max(0, diskonKotor - pl.pot) + rugiPerl;
         r.untungPerleng += untungPerl;
         const komisi = komisiMitraDari(j.af);
+        // Tampilan saja: pisahkan "selisih Harga Dasar dengan brosur baru" dari diskon yang benar-benar diberikan. Total tidak berubah.
+        const selisihK = (!anak && j.dasar > 0) ? Math.max(0, Math.round(j.brosur > 0 ? j.brosur : est.harga) - Math.round(j.dasar)) : 0;
+        const selisih = Math.min(selisihK, Math.max(0, diskonKotor - pl.pot));
+        const diskonSendiri = diskon - selisih;
         const total = diskon + komisi;
         const kelebihan = Math.max(0, total - buf);
         const kelDiskon = Math.max(0, diskon - buf);
@@ -5439,11 +5447,17 @@ function analisisBufferB2CDari(est, items) {
         r.kelebihan += kelebihan; r.kelebihanDiskon += kelDiskon; r.kelebihanKomisi += kelebihan - kelDiskon;
         if(kelebihan > 0) r.nLebih++;
         if(kelDiskon > 0) r.nLebihDiskon++;
+        r.selisihDasar += selisih; if(selisih > 0) r.nSelisih++; r.diskonSendiri += diskonSendiri;
+        const totalHD = diskonSendiri + komisi, kelHD = Math.max(0, totalHD - buf); // dasar: Harga Dasar Jamaah (selisih brosur baru tidak ikut)
+        r.kelebihanHD += kelHD; r.dipakaiHD += Math.min(totalHD, buf); if(kelHD > 0) r.nLebihHD++;
+        const kelSendiri = Math.max(0, diskonSendiri - buf); r.kelebihanDiskonSendiri += kelSendiri; if(kelSendiri > 0) r.nLebihDiskonSendiri++;
         if(anak) r.nAnak++;
-        r.rinci.push({ nama: j.nama, diskon, komisi, total, kelebihan, anak, perlRugi: rugiPerl });
+        r.rinci.push({ nama: j.nama, diskon, komisi, total, kelebihan, anak, perlRugi: rugiPerl, selisih, diskonSendiri, totalHD, kelebihanHD: kelHD });
     });
     if(r.n === 0) return null;
     r.sisa = r.disiapkan - r.dipakai;                       // buffer yang benar-benar tidak terpakai
+    r.sisaHD = r.disiapkan - r.dipakaiHD;                      // sisa buffer bila rencana = Harga Dasar Jamaah
+    r.bersihHD = r.disiapkan - r.diskonSendiri - r.komisi + r.untungPerleng; // dampak bersih terhadap rencana Harga Dasar
     r.bersih = r.disiapkan - r.diskon - r.komisi + r.untungPerleng;           // >0 untung ekstra, <0 di bawah laba rencana
     return r;
 }
@@ -5470,11 +5484,16 @@ function analisisBufferB2BRingan() {
 // Ringkasan satu baris untuk Rekap / WA / Laporan: hanya diskon lewat HARGA yang melebihi buffer (sudah terhitung di laba)
 function ringkasDiskonMelebihiBuffer() {
     const a = analisisBufferB2C();
-    if(!a || a.nLebihDiskon === 0) return null;
-    return { n: a.nLebihDiskon, jumlah: a.kelebihanDiskon };
+    if(!a || (a.nLebihDiskon === 0 && a.nSelisih === 0)) return null;
+    return { n: a.nLebihDiskon, jumlah: a.kelebihanDiskon, nSelisih: a.nSelisih, selisih: a.selisihDasar, nSendiri: a.nLebihDiskonSendiri, jumlahSendiri: a.kelebihanDiskonSendiri };
 }
 function teksDiskonMelebihiBuffer(r) {
-    return 'Diskon melebihi buffer: ' + r.n + ' jamaah, Rp ' + Math.round(r.jumlah).toLocaleString('id-ID') + ' (sudah terhitung di laba).';
+    const rp = n => 'Rp ' + Math.round(n).toLocaleString('id-ID');
+    if(r.nSelisih === undefined) return 'Diskon melebihi buffer: ' + r.n + ' jamaah, ' + rp(r.jumlah) + ' (sudah terhitung di laba).'; // data lama
+    const bagian = [];
+    if(r.nSelisih > 0) bagian.push('Selisih Harga Dasar dengan brosur baru: ' + r.nSelisih + ' jamaah, ' + rp(r.selisih) + ' (bukan diskon)');
+    if(r.nSendiri > 0) bagian.push('Diskon melebihi buffer: ' + r.nSendiri + ' jamaah, ' + rp(r.jumlahSendiri));
+    return bagian.join('. ') + ' (sudah terhitung di laba).';
 }
 
 function openQuickTambahJamaah() {
@@ -8687,14 +8706,14 @@ function perbaruiKartuHargaBeda() {
             const hb = hitungModalHargaDariEst(base.data), dm = h.modal - hb.modal;
             barisModal = kbBaris('Modal per pax (dibanding versi ' + rhE(rhTglPendek(base.tanggal)) + ')', rhRp(hb.modal) + ' → <b>' + rhRp(h.modal) + '</b><br><span style="font-size:12px;color:' + (dm > 0 ? '#B45309' : '#166534') + ';">' + (dm > 0 ? 'naik ' : 'turun ') + rhRp(Math.abs(dm)) + ' per pax</span>');
             const sebanding = hb.nJam === h.nJam && hb.foc === h.foc && hb.tl === h.tl && hb.buffer === h.buffer && Math.round(hb.harga) === seragam;
-            if(sebanding) { const labaLama = (seragam - hb.buffer) * (hb.nJam - hb.foc) - hb.modal * (hb.nJam + hb.tl); const dl = labaSeragam - labaLama; barisLaba = kbBaris('Perkiraan profit bila harga seragam tetap dipakai', rhRp(labaLama) + ' → <b>' + rhRp(labaSeragam) + '</b><br><span style="font-size:12px;color:' + (dl < 0 ? '#B45309' : '#166534') + ';">' + (Math.round(dl) === 0 ? 'tidak berubah' : (dl < 0 ? 'turun ' : 'naik ') + rhRp(Math.abs(dl))) + '</span>'); }
+            if(sebanding) { const labaLama = (seragam - hb.buffer) * (hb.nJam - hb.foc) - hb.modal * (hb.nJam + hb.tl); const dl = labaSeragam - labaLama; barisLaba = kbBaris('Perkiraan profit bila Harga Dasar tetap dipakai (buffer dianggap terpakai penuh)', rhRp(labaLama) + ' → <b>' + rhRp(labaSeragam) + '</b><br><span style="font-size:12px;color:' + (dl < 0 ? '#B45309' : '#166534') + ';">' + (Math.round(dl) === 0 ? 'tidak berubah' : (dl < 0 ? 'turun ' : 'naik ') + rhRp(Math.abs(dl))) + '</span>'); }
         }
-        if(!barisLaba) barisLaba = kbBaris('Perkiraan profit bila harga seragam dipakai', '<b>' + rhRp(labaSeragam) + '</b>');
+        if(!barisLaba) barisLaba = kbBaris('Perkiraan profit bila Harga Dasar dipakai (buffer dianggap terpakai penuh)', '<b>' + rhRp(labaSeragam) + '</b>');
         const warna = lebihTinggi ? { bg: '#FFFBEB', bd: '#F59E0B', fg: '#92400E' } : { bg: '#EFF6FF', bd: '#93C5FD', fg: '#1E3A8A' };
         const selisihPax = Math.abs(brosur - seragam), selisihLaba = Math.abs(labaBrosur - labaSeragam);
         const kata = lebihTinggi ? 'lebih tinggi' : 'lebih rendah';
         const inti = `Harga Brosur ${kata} ${rhRp(selisihPax)} per orang dari Harga Dasar Jamaah. Karena jamaah ditagih Harga Dasar Jamaah, bila ${bay} pembayar bayar penuh profit sekitar ${rhRp(selisihLaba)} ${lebihTinggi ? 'lebih rendah' : 'lebih tinggi'} dari hitungan Cuan Plan.`;
-        const buf = lebihTinggi ? 'Selisih ini ikut terbaca sebagai diskon ' + rhRp(selisihPax) + ' per jamaah di Analisis Buffer, padahal bukan diskon.' : 'Selisih ini ikut terbaca sebagai harga di atas brosur di Analisis Buffer.';
+        const buf = lebihTinggi ? 'Selisih ini ditampilkan terpisah (' + rhRp(selisihPax) + ' per jamaah, bukan diskon) di Pembayaran dan Analisis Buffer, tetapi tetap memakan buffer di hitungan laba.' : 'Selisih ini ikut terbaca sebagai harga di atas brosur di Analisis Buffer.';
         const baris3 = (l, v, tebal) => `<div style="display:flex;justify-content:space-between;gap:10px;padding:7px 0;border-bottom:1px solid rgba(100,116,139,.18);font-size:13.5px;"><span style="color:#475569;">${l}</span><b style="${tebal ? 'color:' + warna.fg + ';' : ''}white-space:nowrap;">${v}</b></div>`;
         const tombolSub = (t) => `<span style="display:block;font-size:11px;font-weight:500;opacity:.9;margin-top:2px;line-height:1.35;">${t}</span>`;
         el.innerHTML = `<div id="kartuHargaBedaIsi" style="background:${warna.bg};border:1.5px solid ${warna.bd};border-radius:16px;padding:14px;margin-top:14px;">
@@ -11607,28 +11626,34 @@ function renderAnalisisBufferB2CModal(modalEl) {
     const bufferPerOrang = est.buffer || 0;
     const totalBufferDisiapkan = a.disiapkan;
     const rincianJamaah = a.rinci;
-    const adaJamaahBermasalah = rincianJamaah.filter(x => x.kelebihan > 0);
+    const adaJamaahBermasalah = rincianJamaah.filter(x => x.kelebihanHD > 0);
 
     // Lapis 3: Peringatan
     let htmlPeringatan = '';
     if(adaJamaahBermasalah.length > 0) {
         htmlPeringatan = `<div style="background:#FEE2E2;border:1.5px solid #DC2626;border-radius:10px;padding:10px 12px;margin-bottom:12px;font-size:12px;color:#991B1B;">
-            ⚠️ ${adaJamaahBermasalah.length} jamaah diskon/komisinya MELEBIHI Buffer (kelebihan ${f(a.kelebihan)} memakan Profit rencana)
+            ⚠️ ${adaJamaahBermasalah.length} jamaah diskon/komisinya melebihi Buffer (kelebihan ${f(a.kelebihanHD)} memakan Profit rencana)
+        </div>`;
+    }
+    if(a.selisihDasar > 0) {
+        htmlPeringatan += `<div style="background:#F1F5F9;border:1px solid #CBD5E1;border-radius:10px;padding:10px 12px;margin-bottom:12px;font-size:12px;color:#475569;line-height:1.5;">
+            ℹ️ Harga Dasar Jamaah lebih rendah dari Harga Brosur baru: selisih total ${f(a.selisihDasar)} (${a.nSelisih} jamaah). Ini <b>bukan diskon</b>; jamaah memang ditagih Harga Dasar, jadi tidak dihitung sebagai kelebihan buffer di bawah.
         </div>`;
     }
     const barisM = (label, nilai, warna) => `<div style="display:flex;justify-content:space-between;padding:4px 0;font-size:13px;"><span style="opacity:0.8;">${label}</span><span style="font-weight:700;${warna ? 'color:' + warna + ';' : ''}">${nilai}</span></div>`;
-    const dampakWarna = a.bersih >= 0 ? '#4ADE80' : '#FCA5A5';
-    const dampakLabel = Math.round(a.bersih) === 0 ? 'Dampak bersih: impas dengan rencana' : (a.bersih > 0 ? 'Dampak bersih: untung ekstra' : 'Dampak bersih: di bawah laba rencana');
+    const dampakWarna = a.bersihHD >= 0 ? '#4ADE80' : '#FCA5A5';
+    const rencanaKata = a.selisihDasar > 0 ? 'rencana Harga Dasar' : 'rencana';
+    const dampakLabel = Math.round(a.bersihHD) === 0 ? 'Dampak bersih: impas dengan ' + rencanaKata : (a.bersihHD > 0 ? 'Dampak bersih: untung ekstra' : 'Dampak bersih: di bawah ' + rencanaKata);
 
     // Lapis 2: Per Jamaah (yang ada diskon saja, biar tidak penuh dengan yang 0)
-    const jamaahDenganDiskon = rincianJamaah.filter(x => x.total > 0).sort((p,q) => q.total - p.total);
+    const jamaahDenganDiskon = rincianJamaah.filter(x => x.totalHD > 0).sort((p,q) => q.totalHD - p.totalHD);
     const htmlPerJamaah = jamaahDenganDiskon.map(x => {
-        const warnaBaris = x.kelebihan > 0 ? '#DC2626' : '#166534';
+        const warnaBaris = x.kelebihanHD > 0 ? '#DC2626' : '#166534';
         return `<div style="display:flex;justify-content:space-between;font-size:12px;padding:5px 0;border-bottom:1px dashed #e2e8f0;">
             <span>${escapeHtml(x.nama)}</span>
-            <span style="color:${warnaBaris};font-weight:700;">${f(x.total)}${x.komisi > 0 ? ' (komisi mitra)' : ''}${x.kelebihan > 0 ? ' ⚠️' : ''}</span>
+            <span style="color:${warnaBaris};font-weight:700;">${f(x.totalHD)}${x.komisi > 0 ? ' (komisi mitra)' : ''}${x.kelebihanHD > 0 ? ' ⚠️' : ''}</span>
         </div>`;
-    }).join('') || '<p style="color:#6B7280;text-align:center;padding:10px;font-size:12px;">Belum ada jamaah yang dapat diskon (semua bayar Harga Brosur penuh)</p>';
+    }).join('') || `<p style="color:#6B7280;text-align:center;padding:10px;font-size:12px;">Belum ada jamaah yang dapat diskon (semua bayar ${a.selisihDasar > 0 ? 'Harga Dasar Jamaah' : 'Harga Brosur'} penuh)</p>`;
 
     modalEl.innerHTML = `<div class="modal-content" style="max-width:460px;">
         <h3 style="color:var(--primary);margin-bottom:4px;">📊 Analisis Buffer (B2C)</h3>
@@ -11636,13 +11661,13 @@ function renderAnalisisBufferB2CModal(modalEl) {
         ${htmlPeringatan}
         <div style="background:linear-gradient(135deg,var(--primary),#0a3d31);border-radius:14px;padding:14px;color:white;margin-bottom:12px;">
             ${barisM('Total Buffer Disiapkan', f(totalBufferDisiapkan))}
-            ${barisM('Diskon ke jamaah (lewat harga)', f(a.diskon))}
+            ${barisM('Diskon ke jamaah (lewat harga)', f(a.diskonSendiri))}
             ${barisM('Komisi ke mitra', f(a.komisi))}
-            ${barisM('Diskon/komisi melebihi buffer', f(a.kelebihan), a.kelebihan > 0 ? '#FCA5A5' : '')}
-            <div style="display:flex;justify-content:space-between;padding:6px 0 0;border-top:1px solid rgba(255,255,255,0.2);margin-top:4px;"><span style="font-weight:700;">Sisa Buffer (jadi untung ekstra)</span><span style="font-weight:900;color:#4ADE80;">${f(a.sisa)}</span></div>
-            <div style="display:flex;justify-content:space-between;padding:4px 0;font-size:13px;"><span style="font-weight:700;">${dampakLabel}</span><span style="font-weight:900;color:${dampakWarna};">${f(Math.abs(a.bersih))}</span></div>
+            ${barisM('Diskon/komisi melebihi buffer', f(a.kelebihanHD), a.kelebihanHD > 0 ? '#FCA5A5' : '')}
+            <div style="display:flex;justify-content:space-between;padding:6px 0 0;border-top:1px solid rgba(255,255,255,0.2);margin-top:4px;"><span style="font-weight:700;">Sisa Buffer (jadi untung ekstra)</span><span style="font-weight:900;color:#4ADE80;">${f(a.sisaHD)}</span></div>
+            <div style="display:flex;justify-content:space-between;padding:4px 0;font-size:13px;"><span style="font-weight:700;">${dampakLabel}</span><span style="font-weight:900;color:${dampakWarna};">${f(Math.abs(a.bersihHD))}</span></div>
         </div>
-        <details style="margin-bottom:10px;"><summary style="cursor:pointer;font-size:11px;color:#6B7280;">Cara membaca Dampak bersih · ketuk untuk detail</summary><div style="font-size:11px;color:#6B7280;line-height:1.5;margin-top:4px;">Kelebihan di satu jamaah tidak ditutup otomatis oleh sisa buffer jamaah lain; "Dampak bersih" adalah gabungannya. Diskon lewat harga sudah terhitung di laba. Komisi mitra baru mengurangi laba setelah dicatat sebagai pengeluaran (tombol Catat di Rekap Komisi Mitra).</div></details>
+        <details style="margin-bottom:10px;"><summary style="cursor:pointer;font-size:11px;color:#6B7280;">Cara membaca Dampak bersih · ketuk untuk detail</summary><div style="font-size:11px;color:#6B7280;line-height:1.5;margin-top:4px;">Kelebihan di satu jamaah tidak ditutup otomatis oleh sisa buffer jamaah lain; "Dampak bersih" adalah gabungannya. Diskon lewat harga sudah terhitung di laba.${a.selisihDasar > 0 ? " Dampak bersih dihitung terhadap rencana Harga Dasar Jamaah; selisih dengan brosur baru ditampilkan terpisah (kotak abu-abu di atas) dan pengaruhnya pada profit dijelaskan di kartu kuning Cuan Plan." : ""} Komisi mitra baru mengurangi laba setelah dicatat sebagai pengeluaran (tombol Catat di Rekap Komisi Mitra).</div></details>
         <div style="font-size:11px;color:#888;font-weight:700;text-transform:uppercase;margin-bottom:6px;">Rincian per Jamaah (yang dapat diskon)</div>
         <div style="max-height:280px;overflow-y:auto;margin-bottom:12px;">${htmlPerJamaah}</div>
         <button onclick="document.getElementById('analisisBufferB2CModal').style.display='none'" style="width:100%;padding:11px;background:#e2e8f0;color:#333;border:none;border-radius:10px;font-size:13px;cursor:pointer;">Tutup</button>
@@ -12080,15 +12105,15 @@ async function confirmResetKas() {
         tampilkanBatalKosongkanKas(salinan);
     }
 }
-// Banner "Batalkan" 30 detik setelah penghapusan massal (dipakai Uang Kas dan Jamaah On Proses)
-function tampilkanBannerBatal(teks, fnBatal) {
+// Banner "Batalkan" 15 detik setelah penghapusan massal (dipakai Uang Kas dan Jamaah On Proses)
+function tampilkanBannerBatal(teks, fnBatal, durasiMs) {
     const lama = document.getElementById('bannerBatalHapus'); if(lama) lama.remove();
     const b = document.createElement('div');
     b.id = 'bannerBatalHapus';
     b.style.cssText = 'position:fixed;left:12px;right:12px;bottom:84px;z-index:99998;background:#1F2937;color:#fff;border-radius:14px;padding:12px 14px;display:flex;align-items:center;gap:10px;font-size:13px;box-shadow:0 6px 20px rgba(0,0,0,.3);max-width:520px;margin:0 auto;';
     b.innerHTML = '<div style="flex:1;">' + escapeHtml(teks) + '</div><button id="batalHapusYa" style="background:#fff;color:#1F2937;border:none;border-radius:10px;padding:8px 12px;font-weight:700;font-size:12px;cursor:pointer;">Batalkan</button>';
     document.body.appendChild(b);
-    const timer = setTimeout(() => b.remove(), 30000);
+    const timer = setTimeout(() => b.remove(), durasiMs || 15000);
     document.getElementById('batalHapusYa').onclick = async () => { clearTimeout(timer); b.remove(); await fnBatal(); };
 }
 function tampilkanBatalKosongkanKas(salinan) {
@@ -15617,9 +15642,9 @@ const PEMERIKSA_KESEHATAN = [
                 const khususK = rinciK.filter(x => x.r.sumber === 'khusus');
                 if (khususK.length) out.push(T('jamaah.harga_khusus:' + p.id, 'Jamaah', 'info', `${khususK.length} jamaah memakai Harga khusus` + tag, 'Harga ketikan per jamaah mengalahkan Harga Dasar Jamaah dan diskon di database. Pastikan memang disengaja (bukan sisa harga lama).', '', khususK.map(x => `${x.j.nama_lengkap || '(tanpa nama)'} · ${rp(x.r.total)} (seragam ${rp(x.r.dasar)})`)));
                 const anakK = rinciK.filter(x => isTarifAnak(x.j.additional_fields) && x.r.sumber !== 'anak');
-                if (anakK.length) out.push(T('jamaah.tarif_anak_tanpa_harga:' + p.id, 'Jamaah', 'perhatian', 'Tarif anak/bayi belum ada harganya' + tag, 'Ditandai tarif anak, tetapi Harga khusus belum diisi sehingga tagihannya masih harga seragam.', 'Isi Harga khusus lewat tombol Harga di Pembayaran.', anakK.map(x => x.j.nama_lengkap || '(tanpa nama)')));
+                if (anakK.length) out.push(T('jamaah.tarif_anak_tanpa_harga:' + p.id, 'Jamaah', 'perhatian', 'Tarif anak/bayi belum ada harganya' + tag, 'Ditandai tarif anak, tetapi Harga khusus belum diisi sehingga tagihannya masih Harga Dasar Jamaah.', 'Isi Harga khusus lewat tombol Harga di Pembayaran.', anakK.map(x => x.j.nama_lengkap || '(tanpa nama)')));
                 const abaiK = rinciK.filter(x => x.r.diskonDiabaikan > 0);
-                if (abaiK.length) out.push(T('jamaah.diskon_diabaikan:' + p.id, 'Jamaah', 'perhatian', 'Diskon tidak dipakai karena ada Harga khusus' + tag, 'Kolom Diskon untuk Jamaah terisi, tetapi harga khusus yang diketik yang dipakai.', 'Pilih salah satu: hapus Harga khusus (tombol "Kembali ke harga seragam") atau kosongkan kolom Diskon.', abaiK.map(x => `${x.j.nama_lengkap || '(tanpa nama)'} · diskon ${rp(x.r.diskonDiabaikan)}, harga ${rp(x.r.total)}`)));
+                if (abaiK.length) out.push(T('jamaah.diskon_diabaikan:' + p.id, 'Jamaah', 'perhatian', 'Diskon tidak dipakai karena ada Harga khusus' + tag, 'Kolom Diskon untuk Jamaah terisi, tetapi harga khusus yang diketik yang dipakai.', 'Pilih salah satu: hapus Harga khusus (tombol "Kembali ke Harga Dasar Jamaah") atau kosongkan kolom Diskon.', abaiK.map(x => `${x.j.nama_lengkap || '(tanpa nama)'} · diskon ${rp(x.r.diskonDiabaikan)}, harga ${rp(x.r.total)}`)));
             }
             // 2a'. Perlengkapan: tidak ambil tetapi potongan belum diisi (modal turun, harga belum) / potongan tidak terpakai
             { const perlK = list.filter(j => !tanpaTagihan(j) && tidakAmbilPerlengkapan(j.additional_fields) && !isBayi(j.additional_fields));
@@ -15632,9 +15657,9 @@ const PEMERIKSA_KESEHATAN = [
               } }
             // 2b. Diskon/komisi melebihi Buffer (hitungan yang sama dengan Analisis Buffer di Rekap)
             if (est) {
-                const ab = analisisBufferB2CDari(hitungModalHargaDariEst(est), berharga.map(x => ({ nama: nama(x), harga: x.harga, af: x.j.additional_fields, perl: perlengkapanJamaah(x.j, est, hpK), brosur: brosurAcuanJamaah(x.j.additional_fields, est, hitungModalHargaDariEst(est), hpK) })));
-                const lebihBuf = ab ? ab.rinci.filter(r => r.kelebihan > 0) : [];
-                if (lebihBuf.length) out.push(T('jamaah.diskon_melebihi_buffer:' + p.id, 'Jamaah', 'perhatian', 'Diskon melebihi buffer' + tag, `Buffer ${rp(ab.buffer)} per orang. Kelebihan diskon/komisi di bawah ini memakan laba rencana (total ${rp(ab.kelebihan)}; dampak bersih gabungan ${ab.bersih >= 0 ? 'untung ekstra ' : 'di bawah rencana '}${rp(Math.abs(ab.bersih))}).`, 'Periksa apakah diskon ini memang disengaja. Abaikan bila sudah diperhitungkan.', lebihBuf.map(r => `${r.nama} · diskon/komisi ${rp(r.total)}, melebihi ${rp(r.kelebihan)}`), { label: 'Buka Pembayaran', halaman: 'pembayaran' }));
+                const ab = analisisBufferB2CDari(hitungModalHargaDariEst(est), berharga.map(x => ({ nama: nama(x), harga: x.harga, af: x.j.additional_fields, perl: perlengkapanJamaah(x.j, est, hpK), brosur: brosurAcuanJamaah(x.j.additional_fields, est, hitungModalHargaDariEst(est), hpK), dasar: dasarUntukSelisih(x.j, hpK) })));
+                const lebihBuf = ab ? ab.rinci.filter(r => r.kelebihanHD > 0) : [];
+                if (lebihBuf.length) out.push(T('jamaah.diskon_melebihi_buffer:' + p.id, 'Jamaah', 'perhatian', 'Diskon melebihi buffer' + tag, `Buffer ${rp(ab.buffer)} per orang. Kelebihan di bawah ini memakan laba rencana (total ${rp(ab.kelebihanHD)}; dampak bersih gabungan ${ab.bersihHD >= 0 ? 'untung ekstra ' : 'di bawah rencana '}${rp(Math.abs(ab.bersihHD))}).` + (ab.selisihDasar > 0 ? ` Selisih Harga Dasar dengan brosur baru (${rp(ab.selisihDasar)}) bukan diskon dan tidak dihitung di sini.` : ''), 'Periksa apakah diskon ini memang disengaja. Abaikan bila sudah diperhitungkan.', lebihBuf.map(r => `${r.nama} · diskon ${rp(r.diskonSendiri)}` + (r.komisi > 0 ? ` + komisi ${rp(r.komisi)}` : '') + `, melebihi ${rp(r.kelebihanHD)}`), { label: 'Buka Pembayaran', halaman: 'pembayaran' }));
             }
             // 3. Harga jauh berbeda dari jamaah lain (hanya bila cukup banyak data pembanding)
             const pembanding = berharga.filter(x => !idMurah.has(x.j.id));
@@ -19782,10 +19807,11 @@ function bukaMenuExport(judul, ket, opsi, izin) {
     const tutup = "document.getElementById('pilihanExportLaporanModal').style.display='none';";
     // Nilai opsi boleh string (satu aksi) atau daftar {aksi, sub, ket} bila satu jenis punya beberapa versi (mis. Cetak Internal / Cetak untuk Jamaah)
     const item = EXPORT_PILIHAN.filter(x => opsi[x.k]).map(x => (Array.isArray(opsi[x.k]) ? opsi[x.k] : [{ aksi: opsi[x.k] }]).map(v => `<div class="export-menu-item" onclick="${tutup}${v.aksi}"><div class="export-icon ${x.kls}">${x.ikon}</div><div><div class="export-label">${v.sub ? (x.k === 'cetak' ? 'Cetak' : x.nama) + ' · ' + v.sub : x.nama}</div><div class="export-desc">${v.ket || x.ket}</div></div></div>`).join('')).join('');
-    m.innerHTML = `<div class="modal-content" style="max-width:400px;padding:0;overflow:hidden;">
-        <div style="padding:16px 18px 10px;"><div style="font-weight:800;font-size:16px;color:var(--primary);">Export: ${judul}</div>${ket ? `<div style="font-size:12px;color:#888;margin-top:2px;">${ket}</div>` : ''}</div>
-        ${item}
-        <div style="padding:10px 14px;"><button onclick="${tutup}" style="width:100%;padding:11px;background:#e2e8f0;color:#333;border:none;border-radius:10px;font-size:13px;cursor:pointer;">Batal</button></div>
+    // Judul dan tombol Batal tetap terlihat; hanya daftar pilihan yang bisa digulir (layar pendek seperti tablet tidak lagi memotong tombol Batal)
+    m.innerHTML = `<div class="modal-content" style="max-width:400px;padding:0;overflow:hidden;display:flex;flex-direction:column;">
+        <div style="padding:16px 18px 10px;flex:none;"><div style="font-weight:800;font-size:16px;color:var(--primary);">Export: ${judul}</div>${ket ? `<div style="font-size:12px;color:#888;margin-top:2px;">${ket}</div>` : ''}</div>
+        <div style="flex:1 1 auto;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch;">${item}</div>
+        <div style="padding:10px 14px;flex:none;border-top:1px solid #f0f0f0;"><button onclick="${tutup}" style="width:100%;padding:11px;background:#e2e8f0;color:#333;border:none;border-radius:10px;font-size:13px;cursor:pointer;">Batal</button></div>
     </div>`;
     document.body.appendChild(m); // selalu paling atas, juga saat dibuka dari dalam jendela lain (Simulasi, Laporan Saldo)
     m.style.display = 'flex';
@@ -21884,13 +21910,14 @@ async function cetakLaporanPenutupanMusim(mode) {
     // Modal estimasi: jamaah bayar (menurut tipe kamar) + FOC + TL — satu hitungan untuk halaman depan DAN rincian
     const modalEst = est ? hitungTotalModalEstimasi(jamaahRelevan) : null;
 
-    let sectionRekap = '';
+    let sectionRekap = '', proyeksiLapAngka = null;
     if(est && jamaahRelevan.length === 0) {
         sectionRekap = `<div class="lap-section"><h2>📋 Proyeksi Laba</h2>
             <p class="lap-note">Belum ada jamaah dengan harga paket, jadi Proyeksi Laba belum bisa dihitung.</p></div>`;
     } else if(est) {
         const totalModalAktual = modalEst ? modalEst.total : est.modal * jamaahRelevan.length;
         const profitAktual = totalKontrak + (tpLap ? tpLap.tagihan : 0) - totalModalAktual;
+        proyeksiLapAngka = profitAktual;
         sectionRekap = `<div class="lap-section"><h2>📋 Proyeksi Laba</h2>
             <table class="lap-table"><tr><td>Total Jamaah</td><td>${jamaahRelevan.length}</td></tr>
             <tr><td>Total Kontrak</td><td>${f(totalKontrak)}</td></tr>
@@ -21958,13 +21985,18 @@ async function cetakLaporanPenutupanMusim(mode) {
     const catBelumFinal = (stBelumFinal && totalPengeluaran > 0) ? `<p class="lap-note" style="background:#FEF3C7;color:#92400E;padding:6px 8px;border-radius:6px;">⚠️ Laba Bersih belum final: pengeluaran tercatat baru ${f(stBelumFinal.pengeluaran)} dari modal estimasi ${f(stBelumFinal.modal)} (${stBelumFinal.persen}%). Catat semua biaya (terutama tiket maskapai, hotel, dan handling) sebelum angka ini dipakai sebagai acuan.</p>` : '';
     const lebihLap = est ? ringkasPengeluaranLebih(jamaahList, totalPengeluaran) : null;
     const catLebihLap = lebihLap ? `<p class="lap-note" style="background:#FEE2E2;color:#991B1B;padding:6px 8px;border-radius:6px;">⚠️ ${escapeHtml(teksPengeluaranLebih(lebihLap))}</p>` : '';
+    // Penjelas saja (tidak mengubah angka): Proyeksi Laba = rencana, Laba Bersih = kenyataan; keduanya wajar berbeda
+    const bedaRencana = proyeksiLapAngka === null ? 0 : Math.round(profitRiil - proyeksiLapAngka);
+    const catBedaRencana = (est && jamaahRelevan.length > 0 && bedaRencana !== 0)
+        ? `<p class="lap-note">Laba Bersih ${f(profitRiil)} berbeda ${f(Math.abs(bedaRencana))} (${bedaRencana > 0 ? 'lebih tinggi' : 'lebih rendah'}) dari Proyeksi Laba ${f(proyeksiLapAngka)}. Proyeksi Laba adalah rencana (Total Kontrak − Modal Estimasi), sedangkan Laba Bersih adalah uang yang benar-benar masuk dikurangi pengeluaran yang tercatat. Selisih muncul bila ada pembayaran yang belum masuk atau pengeluaran yang berbeda dari modal estimasi. Rinciannya ada di Laporan Penutupan, bagian "Selisih dari Rencana".</p>`
+        : '';
     let sectionPengeluaran = `<div class="lap-section"><h2>💸 Realisasi Pengeluaran${isHajiReguler() ? ' (dari Kas)' : ''}</h2>
         <table class="lap-table">${rowsPengeluaran || '<tr><td colspan="2" style="color:#888;">Belum ada Pengeluaran tercatat</td></tr>'}
         <tr class="lap-total"><td>TOTAL PENGELUARAN</td><td>${fKurang(totalPengeluaran)}</td></tr></table>
         <table class="lap-table" style="margin-top:10px;">
         <tr><td>Total Pemasukan Jamaah (Sudah Dibayar)</td><td>${f(totalUangMasuk)}</td></tr>${barisUangTanpaHarga}
         <tr><td>Total Pengeluaran</td><td>${fKurang(totalPengeluaran)}</td></tr>
-        <tr class="lap-total" style="color:${profitRiil<0?'#DC2626':'#166534'};"><td>${labelLabaBersih}</td><td>${f(profitRiil)}</td></tr></table>${catLebihLap}</div>`;
+        <tr class="lap-total" style="color:${profitRiil<0?'#DC2626':'#166534'};"><td>${labelLabaBersih}</td><td>${f(profitRiil)}</td></tr></table>${catLebihLap}${catBedaRencana}</div>`;
 
     // 2. Analisis Buffer B2C
     let sectionBufferB2C = '';
@@ -21978,7 +22010,7 @@ async function cetakLaporanPenutupanMusim(mode) {
         const sisaB2C = totalBufferB2C - totalDiskonB2C;
         sectionBufferB2C = `<div class="lap-section"><h2>📊 Analisis Buffer (B2C)</h2>
             <table class="lap-table"><tr><td>Total Buffer Disiapkan</td><td>${f(totalBufferB2C)}</td></tr>
-            <tr><td>Total Diskon Terpakai</td><td>${f(totalDiskonB2C)}</td></tr>
+            <tr><td>Buffer Terpakai (diskon + selisih dengan brosur baru)</td><td>${f(totalDiskonB2C)}</td></tr>
             <tr class="lap-total" style="color:${sisaB2C<0?'#DC2626':'#166534'};"><td>Sisa Buffer</td><td>${f(sisaB2C)}</td></tr></table></div>`;
     }
 
@@ -22360,7 +22392,7 @@ function daftarCaraPakai() {
               isi: 'Buka <b>Pembayaran</b> → <b>Harga</b> pada kartu jamaah → <b>Perlengkapan</b> → pilih <b>Tidak ambil</b>, lalu isi potongan harga (pilih cepat 1.000.000 atau 1.500.000, atau ketik sendiri). Harga paket otomatis berkurang sebesar potongan, dan modal ikut turun sesuai biaya perlengkapan di Estimasi. Kalau harga jamaah itu sudah diketik sendiri (Harga khusus), potongan tidak ikut mengurangi harga. Pilihan ini tidak muncul untuk bayi.',
               tombol: [bukaMod('Pembayaran', 'pembayaran')] },
             { judul: 'Diskon, harga khusus, dan komisi mitra',
-              isi: 'Untuk harga khusus: <b>Pembayaran</b> → <b>Harga</b> → ketik <b>Total Harga Paket</b> jamaah itu. Selisih di bawah harga seragam dibaca sebagai diskon dan dibandingkan dengan Buffer. Ketuk <b>Kembali ke harga seragam</b> untuk membatalkan. Mitra dan komisinya diisi di data jamaah; rekapnya ada di <b>Jamaah</b> → <b>🤝 Rekap Komisi Mitra</b>.',
+              isi: 'Untuk harga khusus: <b>Pembayaran</b> → <b>Harga</b> → ketik <b>Total Harga Paket</b> jamaah itu. Selisih di bawah Harga Brosur dibaca sebagai diskon dan dibandingkan dengan Buffer. Ketuk <b>Kembali ke Harga Dasar Jamaah</b> untuk membatalkan. Mitra dan komisinya diisi di data jamaah; rekapnya ada di <b>Jamaah</b> → <b>🤝 Rekap Komisi Mitra</b>.',
               tombol: [bukaMod('Pembayaran', 'pembayaran'), bukaMod('Database Jamaah', 'jamaah')] },
             { judul: 'Tukar riyal',
               isi: 'Buka <b>Tukar Riyal</b> (Menu Lengkap) untuk menghitung kembalian tukar SAR. Hasilnya bisa disimpan, dilihat lagi di <b>Riwayat Transaksi</b>, dicetak, atau dibagikan.',
@@ -22385,7 +22417,7 @@ function daftarCaraPakai() {
               isi: 'Jamaah tetap ditagih <b>Harga Dasar Jamaah</b> (harga lama), jadi kalau modal naik, yang turun adalah <b>profit</b>, bukan tagihan jamaah. Masukkan biaya baru di <b>Cuan Plan</b> (Estimasi) secepatnya, lalu ketuk <b>HITUNG ESTIMASI</b>. Aplikasi menampilkan kartu kuning berisi kenaikan modal dan dampaknya. Di <b>Rekap</b> dan <b>Laporan Penutupan Musim</b> muncul satu baris keterangan: modal naik berapa, harga jamaah tetap berapa, profit turun berapa, dan berapa jamaah yang sudah lunas di harga lama. Kalau <b>pengeluaran tercatat sudah melebihi modal Estimasi</b>, muncul peringatan merah: artinya Estimasi kemungkinan belum diperbarui, dan Proyeksi Laba bisa lebih besar dari laba sebenarnya. Aplikasi hanya memberi petunjuk dan tidak mengubah angka sendiri.',
               tombol: [bukaMod('Cuan Plan', 'estimasi', { noHaji: true })] },
             { judul: 'Buffer dan diskon', jenis: ['umroh', 'haji'],
-              isi: '<b>Buffer</b> adalah ruang diskon yang disiapkan di Estimasi. Harga jamaah di bawah harga seragam dihitung sebagai diskon dan memakai Buffer. Diskon yang <b>melebihi buffer</b> ditandai merah karena mengurangi laba. Buffer yang tidak terpakai ikut menjadi laba.' },
+              isi: '<b>Buffer</b> adalah ruang diskon yang disiapkan di Estimasi. Harga jamaah di bawah Harga Brosur dihitung sebagai diskon (selisih antara Harga Dasar Jamaah dan brosur baru ditampilkan terpisah) dan memakai Buffer. Diskon yang <b>melebihi buffer</b> ditandai merah karena mengurangi laba. Buffer yang tidak terpakai ikut menjadi laba.' },
             { judul: 'Tarif anak/bayi dan tanpa perlengkapan', jenis: ['umroh', 'haji'],
               isi: 'Tarif anak/bayi adalah harga hasil nego, <b>bukan diskon</b>, jadi tidak memakai Buffer. Selisihnya dengan modal anak/bayi menjadi laba. Untuk jamaah yang tidak ambil perlengkapan, efek ke laba = modal yang dihemat − potongan harga. Kalau sama besar, untung tidak berubah; kalau potongan lebih besar, kelebihannya dihitung sebagai diskon dan mengurangi laba.' },
             { judul: 'Kelebihan bayar dan piutang',
@@ -23985,6 +24017,7 @@ function renderJamaahKitaList() {
         container.innerHTML = '<div style="text-align:center;padding:40px;color:#64748B;">Belum ada data</div>';
         const paginationEl = document.getElementById('paginationContainerKita');
         if (paginationEl) paginationEl.innerHTML = '';
+        perbaruiTombolPilihSemuaOnProses(); // daftar kosong: tombol tidak boleh tetap menampilkan jumlah lama (mis. "Batal Pilih (90)")
         return;
     }
     const sorted = getSortedKitaList(filtered);
@@ -24200,7 +24233,7 @@ async function hapusPilihanOnProses() {
         jamaahKitaList = jamaahKitaList.concat(kembali);
         await saveJamaahKitaData(); renderJamaahKitaList(); filterPilihJamaahKita();
         showToast('✅ ' + kembali.length + ' jamaah dikembalikan');
-    });
+    }, 15000);
 }
 
 function resetJamaahKitaFilter() {
@@ -24813,7 +24846,7 @@ async function confirmDeleteAllJamaahKita() {
             if (jamaahKitaList.length) return showToast('Sudah ada data baru, pembatalan tidak dilakukan. Pakai Cadangan Otomatis.');
             jamaahKitaList = salinan.slice(); await saveJamaahKitaData(); renderJamaahKitaList();
             showToast('✅ Jamaah On Proses dikembalikan (' + salinan.length + ' orang)');
-        });
+        }, 15000);
     }
 }
 
@@ -26093,7 +26126,7 @@ function hitungTotalBayarJamaah(idJamaah) {
     return paymentTransaksiList.filter(t => t.id_jamaah == idJamaah).reduce((sum, t) => sum + t.nominal, 0);
 }
 
-// Harga paket nol BUKAN karena lupa diisi, melainkan diskon sama dengan / lebih besar dari harga seragam (jamaah jadi gratis).
+// Harga paket nol BUKAN karena lupa diisi, melainkan diskon sama dengan / lebih besar dari Harga Dasar Jamaah (jamaah jadi gratis).
 function diskonPenuhJamaah(jamaah, hp) {
     try {
         if (tanpaTagihan(jamaah) || jenisPeserta(jamaah) === 'travel') return false;
@@ -26216,6 +26249,9 @@ function labelDiskonJamaah(j, est) {
     const diskon = anakL ? 0 : Math.max(0, Math.round(brosurAcuanJamaah(j.additional_fields, getEstimasiData(), est, getKonfigurasiProData().harga_paket)) - Math.round(h) - plL.pot); // potongan perlengkapan bukan diskon: diimbangi modal yang turun
     const rugiL = plL.tidak ? Math.max(0, plL.pot - plL.hemat) : 0;
     const komisi = komisiMitraDari(j.additional_fields);
+    const dasarL = (!anakL && (rinciL.sumber === 'seragam' || rinciL.sumber === 'diskon')) ? rinciL.dasar : 0;
+    const selisihL = dasarL > 0 ? Math.min(diskon, Math.max(0, Math.round(brosurAcuanJamaah(j.additional_fields, getEstimasiData(), est, getKonfigurasiProData().harga_paket)) - Math.round(dasarL))) : 0;
+    const diskonSendiriL = diskon - selisihL;
     let out = '';
     if(plL.tidak) {
         const efekL = plL.hemat - plL.pot;
@@ -26228,7 +26264,14 @@ function labelDiskonJamaah(j, est) {
     }
     if(anakL) out += `<div style="font-size:12px;font-weight:700;color:#7C3AED;">👶 Tarif anak/bayi ${fR(h)} (bukan diskon)</div>`;
     if(rinciL.diskonDiabaikan > 0) out += `<div style="font-size:12px;font-weight:700;color:#B45309;">⚠️ Diskon ${fR(rinciL.diskonDiabaikan)} tidak dipakai: ada Harga khusus</div>`;
-    if(diskon > 0) {
+    if(selisihL > 0) {
+        // Harga Dasar lebih rendah dari brosur baru: tampilkan terpisah dari diskon yang benar-benar diberikan
+        const lebihS = diskonSendiriL + rugiL - buf;
+        if(diskonSendiriL > 0) out += lebihS > 0
+            ? `<div style="font-size:12px;font-weight:700;color:#DC2626;">⚠️ Diskon dari Harga Dasar ${fR(diskonSendiriL)} · melebihi buffer ${fR(lebihS)}</div>`
+            : `<div style="font-size:12px;font-weight:700;color:#166534;">🏷️ Diskon dari Harga Dasar ${fR(diskonSendiriL)} · dalam buffer</div>`;
+        out += `<div style="font-size:12px;font-weight:700;color:#64748B;">ℹ️ Selisih dengan brosur baru ${fR(selisihL)} (bukan diskon)</div>`;
+    } else if(diskon > 0) {
         const lebih = diskon + rugiL - buf;
         // Kata "Diskon" hanya bila kolom Diskon untuk Jamaah di database memang terisi; selain itu hanya selisih harga dari brosur (mis. harga lama)
         const adaDiskonTercatat = diskonUntukJamaah(j.additional_fields) > 0 && rinciL.sumber !== 'khusus';
@@ -26240,8 +26283,8 @@ function labelDiskonJamaah(j, est) {
             : `<div style="font-size:12px;font-weight:700;color:${adaDiskonTercatat ? '#166534' : '#64748B'};">${adaDiskonTercatat ? '🏷️' : 'ℹ️'} ${kata} ${nilaiL} · dalam buffer</div>`;
     }
     if(komisi > 0) {
-        const lebihK = diskon + rugiL + komisi - buf;
-        out += `<div style="font-size:12px;font-weight:700;color:${lebihK > 0 ? '#DC2626' : '#92400E'};">🤝 Komisi mitra ${fR(komisi)}${lebihK > 0 && diskon === 0 ? ' · melebihi buffer ' + fR(lebihK) : ''}</div>`;
+        const lebihK = diskonSendiriL + rugiL + komisi - buf;
+        out += `<div style="font-size:12px;font-weight:700;color:${lebihK > 0 ? '#DC2626' : '#92400E'};">🤝 Komisi mitra ${fR(komisi)}${lebihK > 0 && diskonSendiriL === 0 ? ' · melebihi buffer ' + fR(lebihK) : ''}</div>`;
     }
     return out;
 }
@@ -26751,7 +26794,7 @@ function openEditHargaModal(jamaahId) {
         if (rinciE.dasar > 0) {
             infoE = rinciE.khusus > 0
                 ? `Saat ini memakai <b>Harga khusus</b>. Harga seragam program: ${fRE(rinciE.dasar)}.` + (rinciE.diskonDiabaikan > 0 ? ` Diskon ${fRE(rinciE.diskonDiabaikan)} di database <b>tidak dipakai</b> selama ada Harga khusus.` : '')
-                : `Memakai harga seragam ${fRE(rinciE.dasar)}` + (rinciE.diskon > 0 ? ` − diskon ${fRE(rinciE.diskon)}` : '') + `. Mengubah angka di sini membuatnya menjadi <b>Harga khusus</b>.`;
+                : `Memakai Harga Dasar Jamaah ${fRE(rinciE.dasar)}` + (rinciE.diskon > 0 ? ` − diskon ${fRE(rinciE.diskon)}` : '') + `. Mengubah angka di sini membuatnya menjadi <b>Harga khusus</b>.`;
         }
         document.getElementById('editHargaInfo').innerHTML = infoE;
         document.getElementById('editHargaJenisAnak').value = jenisTarifAnak(jamaah.additional_fields);
@@ -26892,7 +26935,7 @@ function saveEditHarga() {
     saveJamaahData();
     renderPaymentJamaahList();
     renderPaymentDashboard();
-    let pesanE = jadiKhusus ? `✅ Harga ${anakDicentang ? (jenisAnakDipilih === 'bayi' ? 'tarif bayi' : 'tarif anak') : 'khusus'} ${formatRupiah(newHarga)}` : `✅ Memakai harga seragam ${formatRupiah(newHarga)}`;
+    let pesanE = jadiKhusus ? `✅ Harga ${anakDicentang ? (jenisAnakDipilih === 'bayi' ? 'tarif bayi' : 'tarif anak') : 'khusus'} ${formatRupiah(newHarga)}` : `✅ Memakai Harga Dasar Jamaah ${formatRupiah(newHarga)}`;
     if (anakDicentang && !seragamAktif) pesanE += '\n(Harga Dasar Jamaah tidak aktif: penanda tarif anak tetap tersimpan)';
     if (tidakAmbilP) pesanE += `\n🧳 Tanpa perlengkapan${potonganP > 0 ? ': potongan ' + formatRupiah(potonganP) : ' (potongan belum diisi)'}`;
     showToast(pesanE);
@@ -26906,7 +26949,7 @@ function kembaliKeHargaSeragam() {
     saveJamaahData();
     renderPaymentJamaahList();
     renderPaymentDashboard();
-    showToast('✅ Kembali ke harga seragam' + (diskonUntukJamaah(jamaah.additional_fields) > 0 ? ' (diskon di database dipakai lagi)' : ''));
+    showToast('✅ Kembali ke Harga Dasar Jamaah' + (diskonUntukJamaah(jamaah.additional_fields) > 0 ? ' (diskon di database dipakai lagi)' : ''));
     closeEditHargaModal();
 }
 
@@ -29601,7 +29644,7 @@ function openIndexedDB() {
 // dengan build baru, data MENTAH (langsung dari IndexedDB, bukan dari memori) disalin dulu sebelum
 // proses migrasi apapun berjalan — supaya kalau ada kesalahan di update, data lama masih bisa dipulihkan.
 // Dokumen & foto tidak ikut disalin (ukurannya besar, dan tidak pernah disentuh proses migrasi).
-const NAVARA_BUILD = '2026.11.01-282';
+const NAVARA_BUILD = '2026.11.01-289';
 const MAKS_SNAPSHOT = 3;
 
 // ==================== DAFTAR DATA PUSAT ====================
@@ -33889,7 +33932,7 @@ async function loadKonfigurasiPro() {
     document.getElementById('cfg_show_izin').checked = s.show_izin === true;
     document.getElementById('cfg_show_pimpinan').checked = s.show_pimpinan === true;
     document.getElementById('cfg_batas_lansia').value = s.batas_lansia || 60;
-    // Load harga seragam (per-Program)
+    // Load Harga Dasar Jamaah (per-Program)
     reloadHargaSeragamUI();
     document.getElementById('cfg_wa_laporan').value = konfigurasiPro.wa_template.laporan || '';
     renderSplashQuoteList();
