@@ -7721,21 +7721,93 @@ function rhKetPembulatan(bd) {
     const arah = x => x > 0 ? 'dibulatkan naik ' + f(x) : (x < 0 ? 'diatur lebih rendah ' + f(x) + ' dari hitungan' : 'tidak dibulatkan');
     return 'Per pax: harga lama ' + arah(A) + ', harga baru ' + arah(B) + '. Ini cara menetapkan harga, bukan biaya.';
 }
+// ---------- Build 291: perkiraan profit per versi Estimasi, menurut komposisi TIPE KAMAR jamaah (untuk memilih hotel) ----------
+// Hanya perkiraan: harga jamaah dianggap tetap (Harga Dasar bila aktif), buffer dianggap terpakai penuh, jumlah peserta mengikuti Estimasi.
+// Komposisi tipe kamar diambil dari jamaah yang sudah diinput; tanpa data tipe dipakai Quad (dan diberi keterangan).
+const RH_TIPE_SIM = ['Quad', 'Triple', 'Double', 'Family'];
+function rhKomposisiPilihan() { try { const k = ensureProgramConfigSlot().komposisi_simulasi; return k && k.mode ? k : { mode: 'jamaah' }; } catch(e) { return { mode: 'jamaah' }; } }
+function rhKomposisiTipe(abaikanPilihan) {
+    const pil = abaikanPilihan ? { mode: 'jamaah' } : rhKomposisiPilihan();
+    if(pil.mode === 'quad') return { bagi: { Quad: 1 }, ada: true, tanpa: 0, n: 0, mode: 'quad' };
+    if(pil.mode === 'manual' && pil.pct) {
+        const tot = RH_TIPE_SIM.reduce((a, t) => a + (Math.max(0, parseFloat(pil.pct[t]) || 0)), 0);
+        if(tot > 0) { const bagi = {}; RH_TIPE_SIM.forEach(t => { const v = Math.max(0, parseFloat(pil.pct[t]) || 0); if(v > 0) bagi[t] = v / tot; }); return { bagi, ada: true, tanpa: 0, n: 0, mode: 'manual', total: tot }; }
+    }
+    const tipeSah = RH_TIPE_SIM;
+    const hit = {}; let n = 0, tanpa = 0;
+    (jamaahList || []).forEach(j => {
+        try { if(tanpaTagihan(j) || jenisPeserta(j) === 'travel') return; } catch(e) {}
+        const t = normTipe((j.additional_fields || {}).tipe_paket || '');
+        if(!t) tanpa++;
+        const k = tipeSah.includes(t) ? t : 'Quad';
+        hit[k] = (hit[k] || 0) + 1; n++;
+    });
+    if(n === 0) return { bagi: { Quad: 1 }, ada: false, tanpa: 0, n: 0, mode: 'jamaah' };
+    const bagi = {}; Object.keys(hit).forEach(k => { bagi[k] = hit[k] / n; });
+    return { bagi, ada: true, tanpa, n, mode: 'jamaah' };
+}
+function rhProfitVersi(est, komp) {
+    try {
+        const h = hitungModalHargaDariEst(est); if(!h) return null;
+        const bay = Math.max(0, (h.nJam || 0) - (h.foc || 0)); if(bay <= 0) return null;
+        const hp = (getKonfigurasiProData() || {}).harga_paket;
+        const pakaiDasar = !!(hp && hp.seragam && hp.nominal > 0);
+        const modalQuad = modalPerJamaahMenurutTipe(est, 'Quad');
+        let pendapatan = 0, modalBayar = 0;
+        Object.keys(komp.bagi).forEach(t => {
+            const n = bay * komp.bagi[t];
+            const harga = pakaiDasar ? hargaDasarTipe(hp, t) : (t === 'Quad' ? h.harga : hargaBrosurTipeDariEst(est, t));
+            pendapatan += n * (harga - (h.buffer || 0));
+            modalBayar += n * modalPerJamaahMenurutTipe(est, t);
+        });
+        const modalTotal = modalBayar + ((h.foc || 0) + (h.tl || 0)) * modalQuad; // FOC dan TL tetap keluar biaya, tarif Quad
+        return { profit: pendapatan - modalTotal, modalTotal, modalRata: modalBayar / bay, hargaRata: pendapatan / bay + (h.buffer || 0), bay, pakaiDasar };
+    } catch(e) { return null; }
+}
+function rhKetKomposisi(komp) {
+    if(komp.mode === 'quad') return 'Komposisi kamar: semua dihitung Quad (pilihan Anda).';
+    if(komp.mode === 'manual') return 'Komposisi kamar diatur sendiri (simulasi): ' + Object.keys(komp.bagi).map(k => k + ' ' + Math.round(komp.bagi[k] * 100) + '%').join(', ') + (Math.abs((komp.total || 100) - 100) > 0.5 ? ' (angka yang diisi berjumlah ' + Math.round(komp.total) + '%, dibagi rata ke 100%)' : '') + '.';
+    if(!komp.ada) return 'Belum ada data tipe kamar jamaah, dihitung semua Quad.';
+    const urut = Object.keys(komp.bagi).map(k => k + ' ' + Math.round(komp.bagi[k] * 100) + '%').join(', ');
+    return 'Komposisi tipe kamar jamaah: ' + urut + (komp.tanpa > 0 ? ' (' + komp.tanpa + ' jamaah belum punya tipe, dihitung Quad)' : '') + '.';
+}
+// Tabel perbandingan profit tiap versi di rantai Lini Masa; null bila tidak bisa dihitung
+function rhProfitRantai(L) {
+    const komp = rhKomposisiTipe();
+    const baris = L.rantai.map(v => ({ v, r: rhProfitVersi(v.data, komp) }));
+    if(baris.some(b => !b.r)) return null;
+    const terbaik = Math.max.apply(null, baris.map(b => Math.round(b.r.profit)));
+    return { komp, baris, terbaik };
+}
 // Build -136: satu kalimat dampak profit di Bandingkan Versi (hanya teks; angka sama dengan keterangan "modal naik" di Rekap)
 function rhCatatanProfit(A, B) {
     try {
         if(isHajiReguler() || !A || !B || !A.data || !B.data) return '';
         const ha = hitungModalHargaDariEst(A.data), hb = hitungModalHargaDariEst(B.data);
         if(!ha || !hb) return '';
-        const dm = Math.round(hb.modal) - Math.round(ha.modal);
-        if(dm < 1) return '';
-        const kursi = (hb.nJam || 0) + (hb.tl || 0);
+        const komp = rhKomposisiTipe();
+        const pa = rhProfitVersi(A.data, komp), pb = rhProfitVersi(B.data, komp);
+        if(!pa || !pb) return '';
+        const dTotal = Math.round(pb.modalTotal) - Math.round(pa.modalTotal); // perubahan total modal (harga jamaah dianggap tetap)
+        if(Math.abs(dTotal) < 1) return '';
+        const turun = dTotal < 0; // modal turun: profit naik bila harga jamaah tetap
+        // Rekap membandingkan versi PALING AWAL dengan yang terbaru: angkanya sama hanya bila dua versi ini memang ujung-ujung riwayat
+        const riw = (ensureProgramConfigSlot().estimasi_history || []).filter(r => r && r.data && !rhBelumCocok(r));
+        const samaRekap = riw.length >= 2 && A.tanggal === riw[riw.length - 1].tanggal && B.tanggal === riw[0].tanggal;
+        const semuaQuad = Object.keys(komp.bagi).every(k => k === 'Quad');
+        const ketAngka = samaRekap && semuaQuad ? ' Angka yang sama ada di Rekap.' : ' Angka ini untuk perubahan antar dua versi ini saja; Rekap menghitung dari versi paling awal sampai sekarang.';
         const f = x => fRp(x);
         const hp = (getKonfigurasiProData() || {}).harga_paket;
         const seragam = hp && hp.seragam && hp.nominal > 0 ? Math.round(hp.nominal) : 0;
         const bulat = seragam > 0 && ha.dibulatkan && Math.round(ha.harga) !== Math.round(ha.hargaHitung) && seragam === Math.round(ha.harga);
         const awal = seragam > 0 ? 'Kalau harga jamaah tetap ' + f(seragam) + (bulat ? ' (sudah termasuk pembulatan)' : '') : 'Kalau harga jamaah tidak berubah';
-        return awal + ', hanya biaya yang naik: profit turun [[' + f(dm * kursi) + ']] (' + f(dm) + ' × ' + kursi + ' kursi). Angka yang sama ada di Rekap.';
+        const kursi = (hb.nJam || 0) + (hb.tl || 0);
+        const rinci = semuaQuad && ha.nJam === hb.nJam && ha.tl === hb.tl && ha.foc === hb.foc
+            ? ' (' + f(Math.abs(Math.round(hb.modal) - Math.round(ha.modal))) + ' × ' + kursi + ' kursi)'
+            : ' (dihitung per tipe kamar sesuai ' + (komp.mode === 'jamaah' ? 'komposisi jamaah' : 'komposisi yang dipilih') + ')';
+        const kom = semuaQuad && !komp.ada && komp.mode !== 'quad' ? '' : ' ' + rhKetKomposisi(komp);
+        if(turun) return awal + ', hanya biaya yang turun: profit naik [[' + f(-dTotal) + ']]' + rinci + '.' + ketAngka + kom;
+        return awal + ', hanya biaya yang naik: profit turun [[' + f(dTotal) + ']]' + rinci + '.' + ketAngka + kom;
     } catch(e) { return ''; }
 }
 function rhHtmlBanding(bd) {
@@ -7951,7 +8023,7 @@ function rhRenderBanding(modal) {
     let bd = null;
     if(A && B && A.data && B.data) {
         if(A.id === B.id) isi += `<div style="font-size:13px;color:#B45309;margin-top:12px;">Pilih dua versi yang berbeda.</div>`;
-        else { bd = rhBangunBanding(A.data, B.data, A.tanggal, B.tanggal, rhOptBanding(A, B)); bd.catProfit = rhCatatanProfit(A, B); isi += rhHtmlBanding(bd); }
+        else { bd = rhBangunBanding(A.data, B.data, A.tanggal, B.tanggal, rhOptBanding(A, B)); bd.catProfit = rhCatatanProfit(A, B); isi += rhHtmlPilihKomposisi() + rhHtmlBanding(bd); }
     } else {
         isi += `<div style="font-size:13px;color:#64748B;margin-top:12px;line-height:1.55;">${opsi.filter(o => o.data).length < 2 ? 'Perbandingan butuh minimal dua versi yang rinciannya sudah tersimpan (termasuk Estimasi saat ini). Lengkapi rincian versi lama dulu dari daftar riwayat.' : 'Pilih versi lama dan versi baru di atas.'}</div>`;
     }
@@ -8005,23 +8077,35 @@ function rhHtmlLini(L) {
     const warnaTotal = L.total > 0 ? '#B91C1C' : (L.total < 0 ? '#166534' : '#334155');
     const kataTotal = L.total > 0 ? 'NAIK' : (L.total < 0 ? 'TURUN' : 'TIDAK BERUBAH');
     const f = rhTanda;
-    let x = `<table style="margin:12px 0;text-align:center;border:1px solid #e2e8f0;"><tr>
-        <td style="width:33%;padding:10px 6px;background:#F8FAFC;vertical-align:top;"><div style="font-size:11px;color:#64748B;font-weight:700;">HARGA AWAL</div><div style="font-size:11px;color:#64748B;">${rhE(rhTglPendek(L.rantai[0].tanggal))}</div><div style="font-size:15px;white-space:nowrap;font-weight:800;color:#334155;margin-top:3px;">${rhRp(L.awal)}</div></td>
-        <td style="width:33%;padding:10px 6px;background:#F8FAFC;vertical-align:top;"><div style="font-size:11px;color:#64748B;font-weight:700;">HARGA TERAKHIR</div><div style="font-size:11px;color:#64748B;">${rhE(rhTglPendek(L.rantai[L.rantai.length - 1].tanggal))}</div><div style="font-size:15px;white-space:nowrap;font-weight:800;color:#334155;margin-top:3px;">${rhRp(L.akhir)}</div></td>
-        <td style="width:34%;padding:10px 6px;background:${L.total > 0 ? '#FEE2E2' : (L.total < 0 ? '#DCFCE7' : '#F1F5F9')};vertical-align:top;"><div style="font-size:11px;color:${warnaTotal};font-weight:800;">TOTAL ${kataTotal}</div><div style="font-size:11px;color:#64748B;">${L.langkah.length} tahap</div><div style="font-size:15px;white-space:nowrap;font-weight:800;color:${warnaTotal};margin-top:3px;">${rhRp(Math.abs(L.total))}</div></td></tr></table>`;
+    // Tata letak menyesuaikan lebar tempatnya (HP, tablet, komputer, cetak): kotak/baris dibungkus otomatis, tanggal tidak terpotong di tengah
+    const tgl = t => `<span style="white-space:nowrap;">${rhE(rhTglPendek(t))}</span>`;
+    const kotak = (bg, judul, warnaJ, sub, nilai, warnaN) => `<div style="flex:1 1 105px;padding:10px 6px;background:${bg};box-sizing:border-box;"><div style="font-size:11px;color:${warnaJ};font-weight:800;">${judul}</div><div style="font-size:11px;color:#64748B;">${sub}</div><div style="font-size:15px;white-space:nowrap;font-weight:800;color:${warnaN};margin-top:3px;">${nilai}</div></div>`;
+    let x = `<div style="display:flex;flex-wrap:wrap;text-align:center;border:1px solid #e2e8f0;border-radius:10px;overflow:hidden;margin:12px 0;">
+        ${kotak('#F8FAFC', 'HARGA AWAL', '#64748B', tgl(L.rantai[0].tanggal), rhRp(L.awal), '#334155')}
+        ${kotak('#F8FAFC', 'HARGA TERAKHIR', '#64748B', tgl(L.rantai[L.rantai.length - 1].tanggal), rhRp(L.akhir), '#334155')}
+        ${kotak(L.total > 0 ? '#FEE2E2' : (L.total < 0 ? '#DCFCE7' : '#F1F5F9'), 'TOTAL ' + kataTotal, warnaTotal, L.langkah.length + ' tahap', rhRp(Math.abs(L.total)), warnaTotal)}</div>`;
     x += rhJudul('RINGKASAN TIAP TAHAP');
-    x += `<table style="font-size:12px;"><tr style="background:#F1F5F9;color:#475569;font-weight:800;"><td style="padding:6px 4px;">Tahap</td><td style="padding:6px 4px;text-align:right;">Harga</td><td style="padding:6px 4px;text-align:right;">Selisih</td></tr>`;
+    const barisRingkas = (kiri, tengah, kanan, warnaK, gaya) => `<div style="display:flex;flex-wrap:wrap;align-items:baseline;gap:2px 10px;padding:7px 4px;font-size:12px;${gaya || 'border-bottom:1px solid #eef2f6;'}"><div style="flex:1 1 300px;">${kiri}</div><div style="white-space:nowrap;">${tengah}</div><div style="white-space:nowrap;font-weight:800;min-width:90px;margin-left:auto;text-align:right;color:${warnaK};">${kanan}</div></div>`;
     L.langkah.forEach((k, i) => {
         const sel = k.bd.sel, w = sel > 0 ? '#B91C1C' : (sel < 0 ? '#166534' : '#334155');
-        x += `<tr style="border-bottom:1px solid #eef2f6;"><td style="padding:6px 4px;"><b>${i + 1}.</b> ${rhE(rhTglPendek(k.A.tanggal))} → ${rhE(rhTglPendek(k.B.tanggal))}</td><td style="padding:6px 4px;text-align:right;white-space:nowrap;">${rhRp(k.bd.hargaA)} → ${rhRp(k.bd.hargaB)}</td><td style="padding:6px 4px;text-align:right;white-space:nowrap;font-weight:800;color:${w};">${f(sel)}</td></tr>`;
+        x += barisRingkas(`<b>${i + 1}.</b> ${tgl(k.A.tanggal)} → ${tgl(k.B.tanggal)}`, `${rhRp(k.bd.hargaA)} → ${rhRp(k.bd.hargaB)}`, f(sel), w);
     });
-    x += `<tr style="border-top:2px solid #334155;font-weight:800;"><td style="padding:7px 4px;">Total</td><td style="padding:7px 4px;text-align:right;white-space:nowrap;">${rhRp(L.awal)} → ${rhRp(L.akhir)}</td><td style="padding:7px 4px;text-align:right;white-space:nowrap;color:${warnaTotal};">${f(L.total)}</td></tr></table>`;
+    x += barisRingkas('<b>Total</b>', `<b>${rhRp(L.awal)} → ${rhRp(L.akhir)}</b>`, f(L.total), warnaTotal, 'border-top:2px solid #334155;font-weight:800;');
+    const pr = rhProfitRantai(L);
+    if(pr) {
+        x += rhJudul('PERKIRAAN PROFIT TIAP VERSI');
+        pr.baris.forEach(b => {
+            const pf = Math.round(b.r.profit), terbaik = pf === pr.terbaik, sel = pf - pr.terbaik;
+            x += `<div style="display:flex;flex-wrap:wrap;align-items:baseline;gap:2px 10px;padding:7px 4px;font-size:12px;border-bottom:1px solid #eef2f6;${terbaik ? 'background:#F0FDF4;' : ''}"><div style="flex:1 1 200px;">${tgl(b.v.tanggal)}${terbaik ? ' ✅' : ''}<br><span style="color:#64748B;white-space:nowrap;">Modal/orang ${rhRp(Math.round(b.r.modalRata))}</span></div><div style="min-width:130px;margin-left:auto;text-align:right;white-space:nowrap;"><b>${rhRp(pf)}</b>${terbaik ? '' : '<br><span style="font-size:11px;color:#B91C1C;">' + rhRp(Math.abs(sel)) + ' di bawah terbaik</span>'}</div></div>`;
+        });
+        x += `<div style="font-size:11px;color:#64748B;margin-top:6px;line-height:1.5;">Perkiraan, bukan laba final: harga jamaah dianggap tetap (${pr.baris[0].r.pakaiDasar ? 'Harga Dasar Jamaah' : 'harga dari Estimasi'}), buffer dianggap terpakai penuh, jumlah peserta mengikuti Estimasi. Diskon dan komisi tidak ikut dihitung. ${rhE(rhKetKomposisi(pr.komp))} ✅ = versi dengan profit tertinggi.</div>`;
+    }
     x += rhJudul('PENYEBAB DI TIAP TAHAP');
     L.langkah.forEach((k, i) => {
         const bd = k.bd, sel = bd.sel, w = sel > 0 ? '#B91C1C' : (sel < 0 ? '#166534' : '#334155');
         x += `<div style="border:1px solid #e2e8f0;border-radius:12px;padding:10px 12px;margin:8px 0;">
             <div style="display:flex;justify-content:space-between;gap:8px;font-size:14px;font-weight:800;"><span>Tahap ${i + 1}</span><span style="color:${w};white-space:nowrap;">${sel === 0 ? 'tidak berubah' : f(sel)}</span></div>
-            <div style="font-size:12px;color:#64748B;">${rhE(rhTglPendek(k.A.tanggal))} → ${rhE(rhTglPendek(k.B.tanggal))} · ${rhRp(bd.hargaA)} → ${rhRp(bd.hargaB)}</div>`;
+            <div style="font-size:12px;color:#64748B;">${tgl(k.A.tanggal)} → ${tgl(k.B.tanggal)} · <span style="white-space:nowrap;">${rhRp(bd.hargaA)} → ${rhRp(bd.hargaB)}</span></div>`;
         rhPeringatanBanding(bd).slice(0, bd.identik ? 1 : 2).forEach(p => { x += `<div style="background:${p.merah ? '#FEE2E2' : '#FEF3C7'};color:${p.merah ? '#991B1B' : '#92400E'};border-radius:8px;padding:6px 8px;margin-top:6px;font-size:12px;line-height:1.5;">⚠️ ${rhE(p.t.length > 150 ? p.t.slice(0, 147) + '...' : p.t)}</div>`; });
         bd.urutDampak.forEach(c => { x += `<div style="display:flex;justify-content:space-between;gap:8px;font-size:13px;margin-top:6px;"><span><b>${rhE(c.label)}</b><br><span style="font-size:12px;color:#64748B;">${rhE(c.lama)} → ${rhE(c.baru)}${c.beda ? ' (' + rhE(c.beda) + ')' : ''}</span></span><b style="color:${c.dampak > 0 ? '#B91C1C' : '#166534'};white-space:nowrap;">${f(c.dampak)}</b></div>`; });
         if(bd.pem !== 0) x += `<div style="display:flex;justify-content:space-between;gap:8px;font-size:13px;margin-top:6px;"><b>Pembulatan harga jual</b><b style="color:#475569;">${f(bd.pem)}</b></div>`;
@@ -8040,6 +8124,12 @@ function rhTeksLini(L) {
     const g = '━━━━━━━━━━━━━━━━━━━';
     const f = rhTanda;
     let t = `🕒 *Lini Masa Harga Paket*\n${getCurrentProgram()?.nama || ''}\n${g}\n• Awal (${rhTglPendek(L.rantai[0].tanggal)}): ${rhRp(L.awal)}\n• Terakhir (${rhTglPendek(L.rantai[L.rantai.length - 1].tanggal)}): ${rhRp(L.akhir)}\n*Total ${L.total > 0 ? 'NAIK ' : (L.total < 0 ? 'TURUN ' : 'tidak berubah ')}${L.total ? rhRp(Math.abs(L.total)) + '/pax' : ''}*\n`;
+    const prT = rhProfitRantai(L);
+    if(prT) {
+        t += `${g}\n*Perkiraan profit tiap versi*\n`;
+        prT.baris.forEach(b => { const pf = Math.round(b.r.profit); t += `• ${rhTglPendek(b.v.tanggal)}: ${rhRp(pf)}${pf === prT.terbaik ? ' ✅ tertinggi' : ' (' + rhRp(Math.abs(pf - prT.terbaik)) + ' di bawah terbaik)'}\n`; });
+        t += `_Perkiraan, harga jamaah dianggap tetap. ${rhKetKomposisi(prT.komp)}_\n`;
+    }
     L.langkah.forEach((k, i) => {
         const bd = k.bd;
         t += `${g}\n*Tahap ${i + 1}: ${rhTglPendek(k.A.tanggal)} → ${rhTglPendek(k.B.tanggal)}*\n${rhRp(bd.hargaA)} → ${rhRp(bd.hargaB)} (${bd.sel === 0 ? 'tidak berubah' : f(bd.sel)})\n`;
@@ -8053,11 +8143,53 @@ function rhTeksLini(L) {
     return t;
 }
 function rhBukaLini() { _rhView = { mode: 'lini' }; renderRiwayatEstimasiModal(); const c = document.querySelector('#riwayatEstimasiModal .modal-content'); if(c) c.scrollTop = 0; }
+// Pilihan komposisi tipe kamar untuk perkiraan profit (simulasi; disimpan per Program, tidak mengubah data jamaah)
+function rhSimpanKomposisi(k) {
+    const slot = ensureProgramConfigSlot(); slot.komposisi_simulasi = k;
+    localStorage.setItem('navara_konfigurasi_pro', JSON.stringify(konfigurasiPro));
+    const c = document.querySelector('#riwayatEstimasiModal .modal-content'); const y = c ? c.scrollTop : 0;
+    renderRiwayatEstimasiModal(); const c2 = document.querySelector('#riwayatEstimasiModal .modal-content'); if(c2) c2.scrollTop = y;
+}
+function rhPilihKomposisi(mode) {
+    if(mode === 'manual') {
+        const awal = rhKomposisiPilihan().pct;
+        let pct = awal;
+        if(!pct) { // isi awal dari komposisi jamaah yang ada (atau Quad 100%)
+            const asli = rhKomposisiTipe(true);
+            pct = {}; Object.keys(asli.bagi).forEach(t => { pct[t] = Math.round(asli.bagi[t] * 100); });
+        }
+        return rhSimpanKomposisi({ mode: 'manual', pct });
+    }
+    rhSimpanKomposisi({ mode: mode === 'quad' ? 'quad' : 'jamaah', pct: rhKomposisiPilihan().pct });
+}
+function rhIsiKomposisi(tipe, nilai) {
+    const pil = rhKomposisiPilihan(), pct = Object.assign({}, pil.pct || {});
+    pct[tipe] = Math.max(0, Math.min(100, parseFloat(nilai) || 0));
+    rhSimpanKomposisi({ mode: 'manual', pct });
+}
+function rhHtmlPilihKomposisi() {
+    const pil = rhKomposisiPilihan(), mode = pil.mode;
+    const kasli = rhKomposisiTipe(true);
+    const opt = (v, t) => `<option value="${v}"${mode === v || (v === 'jamaah' && mode !== 'quad' && mode !== 'manual') ? ' selected' : ''}>${t}</option>`;
+    let x = `<div style="background:#F8FAFC;border:1px solid #E2E8F0;border-radius:12px;padding:10px 12px;margin:10px 0;">
+        <div style="font-size:12px;font-weight:800;color:#334155;margin-bottom:4px;">Komposisi kamar untuk perkiraan profit</div>
+        <select onchange="rhPilihKomposisi(this.value)" style="width:100%;padding:8px;border:1px solid #CBD5E1;border-radius:8px;font-size:13px;">
+            ${opt('jamaah', 'Sesuai jamaah yang sudah diinput (' + rhE(rhKetKomposisi(kasli).replace(/^Komposisi tipe kamar jamaah: /, '').replace(/\.$/, '')) + ')')}
+            ${opt('quad', 'Semua Quad')}
+            ${opt('manual', 'Atur sendiri (simulasi)')}
+        </select>`;
+    if(mode === 'manual') {
+        const pct = pil.pct || {};
+        x += `<div style="display:flex;gap:6px;margin-top:8px;">` + RH_TIPE_SIM.map(t => `<label style="flex:1;font-size:11px;color:#475569;">${t} %<input type="number" min="0" max="100" inputmode="numeric" value="${pct[t] != null ? rhE(pct[t]) : ''}" onchange="rhIsiKomposisi('${t}', this.value)" style="width:100%;padding:6px;border:1px solid #CBD5E1;border-radius:8px;font-size:13px;box-sizing:border-box;"></label>`).join('') + `</div>`;
+    }
+    x += `<div style="font-size:11px;color:#64748B;margin-top:6px;line-height:1.5;">${rhE(rhKetKomposisi(rhKomposisiTipe()))} Pilihan ini hanya untuk simulasi dan tidak mengubah data jamaah.</div></div>`;
+    return x;
+}
 function rhRenderLini(modal) {
     const L = rhBangunLini();
     let isi = `<h3 style="color:var(--primary);margin-bottom:4px;">🕒 Lini Masa Harga</h3><div style="font-size:11px;color:#888;margin-bottom:6px;">${rhE(getCurrentProgram()?.nama || '-')} — semua tahap perubahan harga berurutan dari yang paling lama.</div>`;
     if(!L) isi += `<div style="font-size:13px;color:#64748B;line-height:1.55;margin-top:12px;">Lini masa butuh minimal dua versi yang rinciannya sudah tersimpan.</div>`;
-    else isi += rhHtmlLini(L);
+    else isi += rhHtmlPilihKomposisi() + rhHtmlLini(L);
     isi += `<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:14px;">${L ? rhTombol('⬇️ Export', "bukaMenuExport('Lini Masa Harga','',{cetak:'rhCetakLini()',wa:'rhBagikanLini()'})", 'background:' + RH_WARNA + ';color:#fff;') : ''}${rhTombol('Kembali', 'rhKembali()')}</div>`;
     rhBungkus(modal, isi);
 }
@@ -29644,7 +29776,7 @@ function openIndexedDB() {
 // dengan build baru, data MENTAH (langsung dari IndexedDB, bukan dari memori) disalin dulu sebelum
 // proses migrasi apapun berjalan — supaya kalau ada kesalahan di update, data lama masih bisa dipulihkan.
 // Dokumen & foto tidak ikut disalin (ukurannya besar, dan tidak pernah disentuh proses migrasi).
-const NAVARA_BUILD = '2026.11.01-289';
+const NAVARA_BUILD = '2026.11.01-293';
 const MAKS_SNAPSHOT = 3;
 
 // ==================== DAFTAR DATA PUSAT ====================
