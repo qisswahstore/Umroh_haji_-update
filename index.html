@@ -30077,7 +30077,7 @@ function openIndexedDB() {
 // dengan build baru, data MENTAH (langsung dari IndexedDB, bukan dari memori) disalin dulu sebelum
 // proses migrasi apapun berjalan — supaya kalau ada kesalahan di update, data lama masih bisa dipulihkan.
 // Dokumen & foto tidak ikut disalin (ukurannya besar, dan tidak pernah disentuh proses migrasi).
-const NAVARA_BUILD = '2026.11.03-300';
+const NAVARA_BUILD = '2026.11.03-302';
 const MAKS_SNAPSHOT = 3;
 
 // ==================== DAFTAR DATA PUSAT ====================
@@ -30435,8 +30435,8 @@ async function loadDokumenJenisFromIndexedDB() {
         const request = store.get('jenisList');
         return new Promise((resolve, reject) => {
             request.onsuccess = () => {
-                if (request.result && request.result.data && request.result.data.length > 0) { const awal = request.result.data; dokumenJenisList = tambahEndorsementSekali(migrasiJenisDokumen(awal)); if(dokumenJenisList !== awal) saveDokumenJenisToIndexedDB(); }
-                else { dokumenJenisList = migrasiJenisDokumen([]); try { localStorage.setItem('navara_dok_endorsement_v300', '1'); } catch(e) {} }
+                if (request.result && request.result.data && request.result.data.length > 0) { const awal = request.result.data; dokumenJenisList = pindahkanKesehatanKeUmrohSekali(tambahEndorsementSekali(migrasiJenisDokumen(awal))); if(dokumenJenisList !== awal) saveDokumenJenisToIndexedDB(); }
+                else { dokumenJenisList = migrasiJenisDokumen([]); try { localStorage.setItem('navara_dok_endorsement_v300', '1'); localStorage.setItem('navara_dok_kesehatan_v302', '1'); } catch(e) {} }
                 resolve();
             };
             request.onerror = () => reject(request.error);
@@ -30678,9 +30678,9 @@ const DOKUMEN_STANDAR = [
     { id: 'paspor',    nama: 'Paspor',                 icon: '📘', untuk: ['umroh', 'haji'] },
     { id: 'endorsement', nama: 'Endorsement',         icon: '📑', untuk: ['haji'] },
     { id: 'biometrik', nama: 'Biometrik',              icon: '🔏', untuk: ['haji'] },
-    { id: 'vaksin',    nama: 'Vaksin Meningitis',      icon: '💉', untuk: ['umroh', 'haji'] },
+    { id: 'vaksin',    nama: 'Vaksin Meningitis',      icon: '💉', untuk: ['umroh'] },
     { id: 'buku_nikah', nama: 'Buku Nikah / Akta Lahir', icon: '📑', untuk: ['umroh'] },
-    { id: 'sehat',     nama: 'Surat Sehat Haji',       icon: '🩺', untuk: ['haji'] }
+    { id: 'sehat',     nama: 'Surat Sehat Haji',       icon: '🩺', untuk: ['umroh'] }
 ];
 // Daftar lama (tanpa "untuk") dimigrasikan sekali: jenis bawaan diberi "untuk", jenis baru ditambahkan, jenis buatan sendiri dibiarkan (berlaku untuk semua).
 function migrasiJenisDokumen(list) {
@@ -30691,6 +30691,19 @@ function migrasiJenisDokumen(list) {
     return hasil;
 }
 // Build 300: jenis "Endorsement" (halaman belakang paspor) ditambahkan SEKALI ke daftar yang sudah ada. Bila kemudian dihapus admin, tidak muncul lagi.
+// Build 302: Vaksin Meningitis & Surat Sehat khusus Umroh (urusan Puskesmas untuk Haji). Satu kali, hanya jenis bawaan. Foto tersimpan tidak dihapus.
+function pindahkanKesehatanKeUmrohSekali(list) {
+    let sudah = false;
+    try { sudah = localStorage.getItem('navara_dok_kesehatan_v302') === '1'; } catch(e) {}
+    if(sudah) return list;
+    try { localStorage.setItem('navara_dok_kesehatan_v302', '1'); } catch(e) {}
+    let berubah = false;
+    const baru = list.map(x => {
+        if((x.id === 'vaksin' || x.id === 'sehat') && Array.isArray(x.untuk) && x.untuk.includes('haji')) { berubah = true; return { ...x, untuk: ['umroh'] }; }
+        return x;
+    });
+    return berubah ? baru : list;
+}
 function tambahEndorsementSekali(list) {
     let sudah = false;
     try { sudah = localStorage.getItem('navara_dok_endorsement_v300') === '1'; } catch(e) {}
@@ -30845,12 +30858,32 @@ async function kompresKeTarget(dataUrl, targetKB) {
     return terbaik || { blob: null, w: w0, h: h0, tercapai: false };
 }
 
-function namaBerkasKirim(jamaah, jenisNama, jamaahNama, suffix, ext) {
-    const bersih = t => String(t || '').trim().replace(/\s+/g, '_').replace(/[^A-Za-z0-9_\-]/g, '');
+function namaSumberJenis(jenisId) {
+    try { const o = JSON.parse(localStorage.getItem('navara_nama_sumber') || '{}') || {}; if(o[jenisId] === 'ktp' || o[jenisId] === 'paspor') return o[jenisId]; } catch(e) {}
+    return (jenisId === 'paspor' || jenisId === 'endorsement') ? 'paspor' : 'ktp';
+}
+function setNamaSumber(jenisId, v) {
+    try { const o = JSON.parse(localStorage.getItem('navara_nama_sumber') || '{}') || {}; o[jenisId] = v; localStorage.setItem('navara_nama_sumber', JSON.stringify(o)); } catch(e) {}
+    segarkanPreviewKirim();
+}
+function bersihNamaBerkas(t) { return String(t || '').trim().replace(/\s+/g, '_').replace(/[^A-Za-z0-9_\-]/g, ''); }
+// Nama jamaah sesuai pilihan sumber (KTP = Nama Lengkap, Paspor = Nama Paspor). Jatuh ke nama KTP bila nama paspor kosong.
+function namaPilihanJamaah(jamaah, sumber) {
+    const np = String(jamaah?.nama_paspor || '').trim();
+    if(sumber === 'paspor') return np ? { nama: np, jatuh: false } : { nama: jamaah?.nama_lengkap || '', jatuh: true };
+    return { nama: jamaah?.nama_lengkap || '', jatuh: false };
+}
+function namaKemenhajPolos(jamaah, sumber) {
+    const porsi = String(jamaah?.additional_fields?.no_porsi || jamaah?.no_porsi || '').replace(/[^0-9A-Za-z]/g, '');
+    if(!porsi) return null;
+    const n = namaPilihanJamaah(jamaah, sumber);
+    return { polos: `${porsi}_${bersihNamaBerkas(n.nama)}`, jatuh: n.jatuh };
+}
+function namaBerkasKirim(jamaah, jenisId, jenisNama, jamaahNama, suffix, ext) {
     let dasar = null, peringatan = '';
     if (namaKemenagAktif()) {
-        const porsi = String(jamaah?.additional_fields?.no_porsi || jamaah?.no_porsi || '').replace(/[^0-9A-Za-z]/g, '');
-        if (porsi) dasar = `${porsi}_${bersih(jamaahNama)}`;
+        const k = namaKemenhajPolos(jamaah, namaSumberJenis(jenisId));
+        if (k) { dasar = k.polos; if (k.jatuh) peringatan = 'Nama paspor kosong, nama file memakai nama KTP.'; }
         else peringatan = 'Nomor porsi kosong, nama file memakai format biasa.';
     }
     if (!dasar) dasar = `${String(jenisNama).replace(/ /g, '_')}_${String(jamaahNama).replace(/ /g, '_')}`;
@@ -30890,7 +30923,7 @@ async function siapkanFileKirim(jamaahId, jenisId, jenisNama, jamaahNama, idx = 
         }
     }
     info.hasilBytes = blob.size;
-    const nm = namaBerkasKirim(jamaah, jenisNama, jamaahNama, suffix, ext);
+    const nm = namaBerkasKirim(jamaah, jenisId, jenisNama, jamaahNama, suffix, ext);
     info.peringatanNama = nm.peringatan;
     return { blob, namaFile: nm.nama, info };
 }
@@ -30948,6 +30981,7 @@ function htmlUkuranKirim(jenisId) {
     const cur = ukuranKirimJenis(jenisId);
     const lain = cur !== 'asli' && !UKURAN_KIRIM_PRESET.includes(cur);
     const chip = (aktif, label, v) => `<button onclick="setUkuranKirim('${jenisId}',${v})" style="padding:5px 10px;border-radius:14px;font-size:11px;cursor:pointer;border:1.5px solid ${aktif?'var(--primary)':'#cbd5e1'};background:${aktif?'var(--primary)':'#fff'};color:${aktif?'#fff':'#334155'};">${label}</button>`;
+    const chipNama = (aktif, label, v) => `<button onclick="setNamaSumber('${jenisId}',${v})" style="padding:4px 10px;border-radius:14px;font-size:11px;cursor:pointer;border:1.5px solid ${aktif?'var(--primary)':'#cbd5e1'};background:${aktif?'var(--primary)':'#fff'};color:${aktif?'#fff':'#334155'};">${label}</button>`;
     let h = `<div style="margin-top:10px;padding:10px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:12px;">
         <div style="font-size:12px;font-weight:bold;color:var(--primary);margin-bottom:6px;">📏 Ukuran kirim <span style="font-weight:normal;color:#64748b;">(untuk Download &amp; Share)</span></div>
         <div style="display:flex;gap:6px;flex-wrap:wrap;">`;
@@ -30957,6 +30991,7 @@ function htmlUkuranKirim(jenisId) {
     h += `</div>`;
     if (lain) h += `<div style="margin-top:6px;font-size:12px;color:#334155;">Maksimal <input type="number" inputmode="numeric" min="10" max="5000" value="${cur}" onchange="setUkuranKirimLain('${jenisId}',this.value)" style="width:80px;display:inline-block;padding:4px 6px;border:1px solid #cbd5e1;border-radius:8px;font-size:12px;"> KB</div>`;
     h += `<div style="font-size:10px;color:#64748b;margin-top:6px;">Acuan surat Kemenhaj: Paspor 500 · Endorsement 50 · Foto 200 · Biovisa 100 KB. Foto tersimpan tidak diubah.</div>
+        <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-top:8px;font-size:12px;color:#334155;"><span>Nama di file:</span>${chipNama(namaSumberJenis(jenisId) === 'ktp', 'Nama KTP', "'ktp'")}${chipNama(namaSumberJenis(jenisId) === 'paspor', 'Nama paspor', "'paspor'")}</div>
         <label style="display:flex;align-items:center;gap:6px;margin-top:8px;font-size:12px;color:#334155;cursor:pointer;">
             <input type="checkbox" ${namaKemenagAktif()?'checked':''} onchange="setNamaKemenag(this.checked)" style="width:18px;height:18px;flex:none;margin:0;padding:0;"> <span>Nama file ala Kemenhaj (NomorPorsi_Nama)</span>
         </label>
@@ -30979,7 +31014,25 @@ async function tampilkanHasilKirim() {
         if (!el2 || !r) return;
         let t = ringkasInfoKirim(r.info);
         if (r.info.peringatanNama) t += `<br>⚠️ ${escapeHtml(r.info.peringatanNama)}`;
-        t += `<br><span style="color:#64748b;">Nama file: ${escapeHtml(r.namaFile)}</span>`;
+        const enc = v => encodeURIComponent(v).replace(/'/g, '%27');
+        const tb = 'padding:4px 10px;border:1px solid #cbd5e1;border-radius:12px;background:#fff;color:#334155;font-size:11px;cursor:pointer;';
+        const ext = (r.namaFile.match(/\.([^.]+)$/) || [, 'jpg'])[1];
+        const arrN = dokumenData[_previewJamaahId]?.[_previewJenisId];
+        const suf = arrN && arrN.length > 1 ? `_${_previewIdx + 1}` : '';
+        const kh = namaKemenhajPolos(jamaah, namaSumberJenis(_previewJenisId));
+        t += `<br><span style="color:#64748b;word-break:break-all;">Nama file kirim: ${escapeHtml(r.namaFile)}</span>`;
+        if (kh) {
+            t += `<div style="margin-top:6px;padding:6px 8px;background:#fff;border:1px dashed #cbd5e1;border-radius:10px;">
+                <div style="font-size:11px;color:#64748b;">Nama untuk disalin (NomorPorsi_Nama):</div>
+                <div style="font-size:12px;font-weight:600;word-break:break-all;">${escapeHtml(kh.polos + suf)}</div>
+                ${kh.jatuh ? '<div style="font-size:11px;color:#b45309;">⚠️ Nama paspor jamaah ini kosong, dipakai nama KTP.</div>' : ''}
+                <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:6px;">
+                    <button onclick="copyTeks('${enc(kh.polos + suf)}','Nama file disalin (tanpa ekstensi)')" style="${tb}">📋 Salin nama</button>
+                    <button onclick="copyTeks('${enc(kh.polos + suf + '.' + ext)}','Nama file disalin')" style="${tb}">📋 Salin + ekstensi</button>
+                </div></div>`;
+        } else {
+            t += `<div style="font-size:11px;color:#b45309;margin-top:6px;">⚠️ Nomor porsi jamaah ini kosong, nama format Kemenhaj tidak bisa dibuat.</div>`;
+        }
         el2.innerHTML = t;
     } catch(e) {
         if (tok === _kirimHitungToken && document.getElementById('ukuranKirimHasil'))
@@ -31015,6 +31068,21 @@ function renderPreviewModal(jamaah, jenis, arr, idx) {
 
     const pdfViewer = document.getElementById('previewDokumenPDFViewer');
     if(pdfViewer) pdfViewer.style.display = 'none';
+
+    // Pemilih jenis dokumen untuk jamaah yang sama (Build 302)
+    let jenisHtml = '';
+    if(jamaah) {
+        const docsJ = dokumenData[_previewJamaahId] || {};
+        const daftarJ = dokumenJenisUntuk(jamaah).slice();
+        dokumenJenisList.forEach(d => { if(!daftarJ.includes(d) && Array.isArray(docsJ[d.id]) && docsJ[d.id].length) daftarJ.push(d); });
+        if(daftarJ.length > 1) {
+            jenisHtml = `<div style="display:flex;gap:6px;flex-wrap:wrap;margin:6px 0 4px;">` + daftarJ.map(d => {
+                const n = Array.isArray(docsJ[d.id]) ? docsJ[d.id].length : 0, aktif = d.id === _previewJenisId;
+                if(!n) return `<span style="padding:4px 9px;border-radius:14px;font-size:11px;border:1.5px dashed #cbd5e1;color:#94a3b8;">${escapeHtml(d.nama)} · belum ada</span>`;
+                return `<button onclick="previewDokumen(${_previewJamaahId},'${jsArg(d.id)}',0)" style="padding:4px 9px;border-radius:14px;font-size:11px;cursor:pointer;border:1.5px solid ${aktif?'var(--primary)':'#cbd5e1'};background:${aktif?'var(--primary)':'#fff'};color:${aktif?'#fff':'#334155'};">${escapeHtml(d.nama)} · ${n}</button>`;
+            }).join('') + `</div>`;
+        }
+    }
 
     // Navigasi prev/next
     let navHtml = '';
@@ -31087,10 +31155,10 @@ function renderPreviewModal(jamaah, jenis, arr, idx) {
 
         const allFields = [...mainFields, ...dynFields];
         const kirimHtml = htmlUkuranKirim(_previewJenisId);
-        if(allFields.length === 0) { containerEl.innerHTML = navHtml + thumbHtml + actionsHtml + kirimHtml; tampilkanHasilKirim(); return; }
+        if(allFields.length === 0) { containerEl.innerHTML = jenisHtml + navHtml + thumbHtml + actionsHtml + kirimHtml; tampilkanHasilKirim(); return; }
 
         const allText = allFields.map(f=>`${f.label}: ${f.value}`).join('\n');
-        let dataHtml = navHtml + thumbHtml + actionsHtml + kirimHtml;
+        let dataHtml = jenisHtml + navHtml + thumbHtml + actionsHtml + kirimHtml;
         dataHtml += `<div style="margin-top:12px;border-top:1.5px solid #e2e8f0;padding-top:12px;">
             <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
                 <div style="font-weight:bold;font-size:13px;color:var(--primary);">📋 Data Jamaah</div>
@@ -31547,19 +31615,19 @@ async function downloadAllDokumenZip() {
 
 // ===== Build 299: Berkas Kemenhaj (paket kirim: folder per jenis, nama NomorPorsi_Nama, Excel, ZIP dipecah) =====
 const BK_FOLDER = [
-    { folder: 'Paspor',      kb: 500, cari: /^paspor$/i,    idDefault: 'paspor' },
-    { folder: 'Endorsement', kb: 50,  cari: /endors/i,      idDefault: 'endorsement' },
-    { folder: 'Biovisa',     kb: 100, cari: /biovisa|biometrik/i, idDefault: 'biometrik' },
-    { folder: 'Foto',        kb: 200, cari: /^foto/i,       idDefault: 'foto_pas' }
+    { folder: 'Paspor',      kb: 500, cari: /^paspor$/i,    idDefault: 'paspor', nama: 'paspor' },
+    { folder: 'Endorsement', kb: 50,  cari: /endors/i,      idDefault: 'endorsement', nama: 'paspor' },
+    { folder: 'Biovisa',     kb: 100, cari: /biovisa|biometrik/i, idDefault: 'biometrik', nama: 'ktp' },
+    { folder: 'Foto',        kb: 200, cari: /^foto/i,       idDefault: 'foto_pas', nama: 'ktp' }
 ];
 let _bk = { berjalan: false, batal: false, cfg: null, hasil: '' };
 
 function bkCfgDefault() {
     return {
-        nama: 'lengkap', per: 100,
+        per: 100,
         rows: BK_FOLDER.map(f => {
             const ada = dokumenJenisList.find(d => d.id === f.idDefault) || (f.idDefault ? null : dokumenJenisList.find(d => f.cari.test(d.nama)));
-            return { folder: f.folder, jenisId: ada ? ada.id : '', kb: f.kb };
+            return { folder: f.folder, jenisId: ada ? ada.id : '', kb: f.kb, nama: f.nama };
         })
     };
 }
@@ -31568,17 +31636,16 @@ function bkMuatCfg() {
     try { c = JSON.parse(localStorage.getItem('navara_berkas_kemenhaj') || 'null'); } catch(e) {}
     const d = bkCfgDefault();
     if(!c || !Array.isArray(c.rows) || c.rows.length !== d.rows.length) return d;
-    c.rows = c.rows.map((r, i) => ({ folder: d.rows[i].folder, jenisId: dokumenJenisList.some(x => x.id === r.jenisId) ? r.jenisId : '', kb: Number(r.kb) >= 10 ? Math.min(5000, Math.round(Number(r.kb))) : d.rows[i].kb }));
-    c.nama = c.nama === 'paspor' ? 'paspor' : 'lengkap';
+    c.rows = c.rows.map((r, i) => ({ folder: d.rows[i].folder, jenisId: dokumenJenisList.some(x => x.id === r.jenisId) ? r.jenisId : '', kb: Number(r.kb) >= 10 ? Math.min(5000, Math.round(Number(r.kb))) : d.rows[i].kb, nama: (r.nama === 'ktp' || r.nama === 'paspor') ? r.nama : d.rows[i].nama }));
     c.per = [25, 50, 100, 150, 200].includes(Number(c.per)) ? Number(c.per) : 100;
     return c;
 }
 function bkSimpanCfg() { try { localStorage.setItem('navara_berkas_kemenhaj', JSON.stringify(_bk.cfg)); } catch(e) {} }
 function bkPorsi(j) { return String(j?.additional_fields?.no_porsi || j?.no_porsi || '').replace(/[^0-9A-Za-z]/g, ''); }
 function bkNoPaspor(j) { return String(j?.additional_fields?.no_paspor || j?.no_paspor || ''); }
-function bkNamaJamaah(j) {
-    const t = _bk.cfg.nama === 'paspor' ? (j.nama_paspor || j.nama_lengkap) : j.nama_lengkap;
-    return String(t || '').trim().replace(/\s+/g, '_').replace(/[^A-Za-z0-9_\-]/g, '') || 'Tanpa_Nama';
+function bkNamaJamaah(j, row) {
+    const n = namaPilihanJamaah(j, row.nama);
+    return { nama: bersihNamaBerkas(n.nama) || 'Tanpa_Nama', jatuh: n.jatuh };
 }
 function bkDaftar() {
     const dengan = [], tanpa = [];
@@ -31620,18 +31687,17 @@ function renderBerkasKemenhaj() {
                     <option value="">— tidak ada —</option>
                     ${dokumenJenisList.map(d => `<option value="${escapeHtml(d.id)}" ${d.id === r.jenisId ? 'selected' : ''}>${escapeHtml(d.nama)}</option>`).join('')}
                 </select>
+                <span style="font-size:12px;">nama <select onchange="bkUbahBaris(${i},'nama',this.value)" style="${inp}"><option value="ktp" ${r.nama === 'ktp' ? 'selected' : ''}>KTP</option><option value="paspor" ${r.nama === 'paspor' ? 'selected' : ''}>Paspor</option></select></span>
                 <span style="font-size:12px;">maks <input type="number" inputmode="numeric" min="10" max="5000" value="${r.kb}" onchange="bkUbahBaris(${i},'kb',this.value)" style="${inp}width:64px;"> KB</span>
             </div>
             <div style="font-size:11px;margin-top:4px;color:${r.jenisId ? '#475569' : '#b45309'};">${r.jenisId ? `Tersedia: ${ada} dari ${dengan.length} jamaah` : (r.folder === 'Endorsement' ? 'Belum ada jenis dokumen untuk ini. Tambahkan "Endorsement" lewat Kelola Jenis Dokumen, lalu pilih di sini.' : 'Pilih jenis dokumen yang dipakai untuk folder ini.')}</div>
         </div>`;
     });
     h += `<div style="display:flex;gap:8px;flex-wrap:wrap;font-size:12px;margin:8px 0;align-items:center;">
-            <span>Nama di file:</span>
-            <select onchange="bkUbahUmum('nama',this.value)" style="${inp}"><option value="lengkap" ${cfg.nama === 'lengkap' ? 'selected' : ''}>Nama lengkap</option><option value="paspor" ${cfg.nama === 'paspor' ? 'selected' : ''}>Nama paspor</option></select>
             <span>Jamaah per ZIP:</span>
             <select onchange="bkUbahUmum('per',this.value)" style="${inp}">${[25, 50, 100, 150, 200].map(n => `<option value="${n}" ${n === per ? 'selected' : ''}>${n}</option>`).join('')}</select>
         </div>
-        <div style="font-size:11px;color:#64748b;margin-bottom:8px;line-height:1.5;">Urutan: nomor porsi terkecil lebih dulu. Bila satu jenis punya beberapa foto, hanya <b>foto ke-1</b> yang dikirim. Semua gambar dikirim sebagai JPG.</div>
+        <div style="font-size:11px;color:#64748b;margin-bottom:8px;line-height:1.5;">Nama di file tiap folder bisa KTP atau Paspor (Paspor dan Endorsement awalnya memakai nama paspor; bila nama paspor kosong dipakai nama KTP dan dicatat). Urutan: nomor porsi terkecil lebih dulu. Bila satu jenis punya beberapa foto, hanya <b>foto ke-1</b> yang dikirim. Semua gambar dikirim sebagai JPG.</div>
         <button class="btn btn-secondary" onclick="bkExcelKelengkapan()" style="width:100%;margin-bottom:8px;">📊 Excel kelengkapan (semua jamaah)</button>`;
     if(!dengan.length) h += `<div style="font-size:12px;color:#b45309;">Belum ada jamaah dengan nomor porsi.</div>`;
     for(let n = 0; n < bagian; n++) {
@@ -31649,7 +31715,7 @@ function renderBerkasKemenhaj() {
 function bkUbahBaris(i, k, v) {
     if(_bk.berjalan) return;
     const r = _bk.cfg.rows[i]; if(!r) return;
-    if(k === 'kb') { let n = Math.round(Number(v)); if(!(n >= 10)) n = 10; if(n > 5000) n = 5000; r.kb = n; } else r.jenisId = v;
+    if(k === 'kb') { let n = Math.round(Number(v)); if(!(n >= 10)) n = 10; if(n > 5000) n = 5000; r.kb = n; } else if(k === 'nama') r.nama = v === 'paspor' ? 'paspor' : 'ktp'; else r.jenisId = v;
     bkSimpanCfg(); renderBerkasKemenhaj();
 }
 function bkUbahUmum(k, v) { if(_bk.berjalan) return; _bk.cfg[k] = k === 'per' ? Number(v) : v; bkSimpanCfg(); renderBerkasKemenhaj(); }
@@ -31660,11 +31726,11 @@ function bkNamaUnik(pakai, nama) {
     pakai.add(n.toLowerCase()); return n;
 }
 function bkTabelData(baris) {
-    const kepala = ['No', 'Nomor Porsi', 'Nama', 'Nomor Paspor'];
+    const kepala = ['No', 'Nomor Porsi', 'Nama KTP', 'Nama Paspor', 'Nomor Paspor'];
     _bk.cfg.rows.forEach(r => { if(r.jenisId) kepala.push(`${r.folder} (KB)`, `${r.folder} status`); });
     const data = [kepala];
     baris.forEach((b, i) => {
-        const row = [i + 1, b.porsi, b.nama, b.paspor];
+        const row = [i + 1, b.porsi, b.nama, b.namaPaspor, b.paspor];
         _bk.cfg.rows.forEach(r => { if(r.jenisId) { const x = b.f[r.folder]; row.push(x ? x.kb : '', x ? x.status : ''); } });
         data.push(row);
     });
@@ -31695,8 +31761,8 @@ async function bkBuatBagian(n) {
     try {
         for(let i = 0; i < potong.length; i++) {
             if(_bk.batal) { bkTulisProgres('⏹️ Dibatalkan. Tidak ada ZIP yang dibuat.'); return; }
-            const j = potong[i], porsi = bkPorsi(j), nm = bkNamaJamaah(j);
-            const b = { porsi, nama: j.nama_lengkap || '', paspor: bkNoPaspor(j), f: {} };
+            const j = potong[i], porsi = bkPorsi(j);
+            const b = { porsi, nama: j.nama_lengkap || '', namaPaspor: j.nama_paspor || '', paspor: bkNoPaspor(j), f: {} };
             bkTulisProgres(`⏳ Memproses ${i + 1} dari ${potong.length}: ${escapeHtml(j.nama_lengkap || '')}`);
             await new Promise(r => setTimeout(r, 0));
             for(const r of aktif) {
@@ -31715,7 +31781,9 @@ async function bkBuatBagian(n) {
                     else status = 'GAGAL DIKECILKAN';
                 }
                 if(status.startsWith('MELEBIHI') || status.startsWith('GAGAL') || status.includes('resolusi')) masalah.push(`${j.nama_lengkap} / ${r.folder}: ${status}`);
-                const namaBerkas = bkNamaUnik(pakaiNama[r.folder] || (pakaiNama[r.folder] = new Set()), `${porsi}_${nm}.${ext}`);
+                const nmk = bkNamaJamaah(j, r);
+                if(nmk.jatuh) { status += ' · nama paspor kosong, dipakai nama KTP'; masalah.push(`${j.nama_lengkap} / ${r.folder}: nama paspor kosong, dipakai nama KTP`); }
+                const namaBerkas = bkNamaUnik(pakaiNama[r.folder] || (pakaiNama[r.folder] = new Set()), `${porsi}_${nmk.nama}.${ext}`);
                 zip.folder(r.folder).file(namaBerkas, blob);
                 jumlahFile++;
                 b.f[r.folder] = { kb: Math.round(blob.size / 1000), status };
