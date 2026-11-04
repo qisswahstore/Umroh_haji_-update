@@ -6729,7 +6729,8 @@ function renderMenuPremium() {
     perbaruiBannerAksesSementara();
     perbaruiPenandaAdmin();
     // Kunci juga item bottom nav yang sesuai (Estimasi/Kas/Jamaah) sesuai izin Peran staf yang login
-    ['estimasi','kas','jamaah'].forEach(pid => {
+    perbaruiSlotNavKedua(); // slot ke-2 (Estimasi atau Dokumen) dikunci sesuai halaman tujuannya
+    ['kas','jamaah'].forEach(pid => {
         const navEl = document.querySelector(`.nav-item-premium[data-page="${pid}"]`);
         if(navEl) navEl.style.display = cekIzinModul(pid) ? '' : 'none';
     });
@@ -27776,7 +27777,7 @@ function getCurrentProgram() {
 }
 
 function handleBottomNavEstimasiSlot() {
-    if(isHajiReguler()) showPage('layanantambahan');
+    if(isHajiReguler()) showPage('uploaddokumen'); // Build 308: slot ke-2 Haji Reguler = Dokumen (Layanan Tambahan tetap di Menu Lengkap / menu utama)
     else showPage('estimasi');
 }
 
@@ -28213,19 +28214,23 @@ function applyModeHajiReguler() {
     const hargaSeragamBlock = document.getElementById('hargaSeragamConfigBlock');
     if(hargaSeragamBlock) hargaSeragamBlock.style.display = hajiReg ? 'none' : 'block';
 
-    // 9. Ikon bottom nav slot ke-2 — "Estimasi" untuk Umroh/Haji Khusus, "Layanan+" (Layanan Tambahan) untuk Haji Reguler
-    const navEstimasi = document.getElementById('navItemEstimasi');
-    if(navEstimasi) {
-        const icon = navEstimasi.querySelector('i');
-        const label = navEstimasi.querySelector('span');
-        if(hajiReg) {
-            if(icon) icon.className = 'fas fa-kaaba';
-            if(label) label.textContent = 'Layanan+';
-        } else {
-            if(icon) icon.className = 'fas fa-chart-line';
-            if(label) label.textContent = 'Estimasi';
-        }
-    }
+    // 9. Ikon bottom nav slot ke-2 — "Estimasi" untuk Umroh/Haji Khusus/Ziarah, "Dokumen" untuk Haji Reguler (Build 308)
+    perbaruiSlotNavKedua();
+}
+
+// Slot ke-2 menu bawah: label, ikon, halaman tujuan, penanda aktif, dan kunci izin staf mengikuti jenis program aktif.
+function perbaruiSlotNavKedua() {
+    const el = document.getElementById('navItemEstimasi');
+    if(!el) return;
+    const reg = isHajiReguler();
+    const tujuan = reg ? 'uploaddokumen' : 'estimasi';
+    const icon = el.querySelector('i'), label = el.querySelector('span');
+    el.setAttribute('data-page', tujuan);
+    if(icon) icon.className = reg ? 'fas fa-file-arrow-up' : 'fas fa-chart-line';
+    if(label) label.textContent = reg ? 'Dokumen' : 'Estimasi';
+    try { el.style.display = cekIzinModul(tujuan) ? '' : 'none'; } catch(e) {}
+    const halamanAktif = document.querySelector('.page.active');
+    el.classList.toggle('active', !!halamanAktif && halamanAktif.id === 'page-' + tujuan);
 }
 
 // ==================== KOMPONEN BIAYA HAJI REGULER (terpisah TOTAL dari Harga Seragam Umroh) ====================
@@ -30157,7 +30162,7 @@ function openIndexedDB() {
 // dengan build baru, data MENTAH (langsung dari IndexedDB, bukan dari memori) disalin dulu sebelum
 // proses migrasi apapun berjalan — supaya kalau ada kesalahan di update, data lama masih bisa dipulihkan.
 // Dokumen & foto tidak ikut disalin (ukurannya besar, dan tidak pernah disentuh proses migrasi).
-const NAVARA_BUILD = '2026.11.04-306';
+const NAVARA_BUILD = '2026.11.04-308';
 const MAKS_SNAPSHOT = 3;
 
 // ==================== DAFTAR DATA PUSAT ====================
@@ -30515,8 +30520,8 @@ async function loadDokumenJenisFromIndexedDB() {
         const request = store.get('jenisList');
         return new Promise((resolve, reject) => {
             request.onsuccess = () => {
-                if (request.result && request.result.data && request.result.data.length > 0) { const awal = request.result.data; dokumenJenisList = pindahkanKesehatanKeUmrohSekali(tambahEndorsementSekali(migrasiJenisDokumen(awal))); if(dokumenJenisList !== awal) saveDokumenJenisToIndexedDB(); }
-                else { dokumenJenisList = migrasiJenisDokumen([]); try { localStorage.setItem('navara_dok_endorsement_v300', '1'); localStorage.setItem('navara_dok_kesehatan_v302', '1'); } catch(e) {} }
+                if (request.result && request.result.data && request.result.data.length > 0) { const awal = request.result.data; dokumenJenisList = jadikanEndorsementOpsionalSekali(pindahkanKesehatanKeUmrohSekali(tambahEndorsementSekali(migrasiJenisDokumen(awal)))); if(dokumenJenisList !== awal) saveDokumenJenisToIndexedDB(); }
+                else { dokumenJenisList = migrasiJenisDokumen([]); try { localStorage.setItem('navara_dok_endorsement_v300', '1'); localStorage.setItem('navara_dok_kesehatan_v302', '1'); localStorage.setItem('navara_dok_endorsement_v307', '1'); } catch(e) {} }
                 resolve();
             };
             request.onerror = () => reject(request.error);
@@ -30711,7 +30716,7 @@ function renderDokumenList() {
                 html += `<div onclick="uploadDokumen(${j.id},'${jenis.id}','${jsArg(jenis.nama)}')"
                     style="width:36px;height:36px;border-radius:6px;border:2px dashed #ccc;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:18px;color:#6B7280;">+</div>`;
                 html += `</div>
-                <div class="dokumen-status-ada">✅ ${count} foto</div>`;
+                <div class="dokumen-status-ada">${arr.some(fotoDokumenWajar) ? '✅' : '⚠️'} ${count} foto${arr.some(fotoDokumenWajar) ? '' : ' (file rusak, unggah ulang)'}</div>`;
             } else {
                 html += `<div class="dokumen-status-belum">⏳ Belum</div>
                 <button class="btn-upload-doc" onclick="uploadDokumen(${j.id},'${jenis.id}','${jsArg(jenis.nama)}')">
@@ -30756,7 +30761,7 @@ const DOKUMEN_STANDAR = [
     { id: 'bpih',      nama: 'BPIH',                   icon: '📄', untuk: ['haji'] },
     { id: 'foto_pas',  nama: 'Foto Pas',               icon: '📷', untuk: ['umroh', 'haji'] },
     { id: 'paspor',    nama: 'Paspor',                 icon: '📘', untuk: ['umroh', 'haji'] },
-    { id: 'endorsement', nama: 'Endorsement',         icon: '📑', untuk: ['haji'] },
+    { id: 'endorsement', nama: 'Endorsement',         icon: '📑', untuk: [] }, // Build 307: tidak semua jamaah butuh; dipilih per jamaah lewat Dokumen tambahan
     { id: 'biometrik', nama: 'Biometrik',              icon: '🔏', untuk: ['haji'] },
     { id: 'vaksin',    nama: 'Vaksin Meningitis',      icon: '💉', untuk: ['umroh'] },
     { id: 'buku_nikah', nama: 'Buku Nikah / Akta Lahir', icon: '📑', untuk: ['umroh'] },
@@ -30772,7 +30777,7 @@ function migrasiJenisDokumen(list) {
 }
 // Build 300: jenis "Endorsement" (halaman belakang paspor) ditambahkan SEKALI ke daftar yang sudah ada. Bila kemudian dihapus admin, tidak muncul lagi.
 // Build 300/302: penyesuaian daftar jenis dokumen. Inti tanpa "sekali" supaya bisa dipakai juga saat restore cadangan lama.
-const DOK_VERSI_BACKUP = 302;
+const DOK_VERSI_BACKUP = 307;
 function terapkanKesehatanUmroh(list) {
     let berubah = false;
     const baru = list.map(x => {
@@ -30783,7 +30788,7 @@ function terapkanKesehatanUmroh(list) {
 }
 function terapkanEndorsement(list) {
     if(list.some(x => x.id === 'endorsement' || /endors/i.test(x.nama || ''))) return list;
-    return [...list, { id: 'endorsement', nama: 'Endorsement', icon: '📑', untuk: ['haji'] }];
+    return [...list, { id: 'endorsement', nama: 'Endorsement', icon: '📑', untuk: [] }];
 }
 function pindahkanKesehatanKeUmrohSekali(list) {
     let sudah = false;
@@ -30801,9 +30806,28 @@ function tambahEndorsementSekali(list) {
 }
 // Restore: cadangan dari build lama (tanpa penanda versi) disesuaikan; cadangan baru dipulihkan apa adanya.
 function migrasiJenisRestore(list, dokV) {
-    const m = migrasiJenisDokumen(list);
-    if(Number(dokV) >= DOK_VERSI_BACKUP) return m;
-    return terapkanKesehatanUmroh(terapkanEndorsement(m));
+    let m = migrasiJenisDokumen(list);
+    const v = Number(dokV);
+    if(!(v >= 302)) m = terapkanKesehatanUmroh(terapkanEndorsement(m));
+    if(!(v >= 307)) m = terapkanEndorsementOpsional(m);
+    return m;
+}
+// Build 307: Endorsement hanya dibutuhkan sebagian jamaah (mis. nama paspor pendek), jadi bukan syarat standar lagi:
+// jenisnya tetap ada, tetapi "untuk" kosong dan diaktifkan per jamaah lewat "Dokumen tambahan". Foto yang sudah terunggah tetap tampil.
+function terapkanEndorsementOpsional(list) {
+    let berubah = false;
+    const baru = list.map(x => {
+        if(x.id === 'endorsement' && Array.isArray(x.untuk) && x.untuk.length) { berubah = true; return { ...x, untuk: [] }; }
+        return x;
+    });
+    return berubah ? baru : list;
+}
+function jadikanEndorsementOpsionalSekali(list) {
+    let sudah = false;
+    try { sudah = localStorage.getItem('navara_dok_endorsement_v307') === '1'; } catch(e) {}
+    if(sudah) return list;
+    try { localStorage.setItem('navara_dok_endorsement_v307', '1'); } catch(e) {}
+    return terapkanEndorsementOpsional(list);
 }
 function kelompokDokumenJamaah(j) {
     const pr = j && programList.find(x => x.id === j.program_id);
@@ -30819,8 +30843,21 @@ function dokumenJenisUntuk(j) {
     if(!j) return dokumenJenisList;
     const k = kelompokDokumenJamaah(j), tambahan = j.dokumen_tambahan || [];
     // Ziarah/Wisata: dokumen yang sudah pernah diunggah tidak boleh "hilang" dari tampilan hanya karena bukan syarat standar
-    const sudahAda = d => k === 'lainnya' && Array.isArray((dokumenData[j.id] || {})[d.id]) && dokumenData[j.id][d.id].length > 0;
+    const sudahAda = d => (k === 'lainnya' || d.id === 'endorsement') && Array.isArray((dokumenData[j.id] || {})[d.id]) && dokumenData[j.id][d.id].length > 0;
     return dokumenJenisList.filter(d => jenisStandarUntuk(d, k) || tambahan.includes(d.id) || sudahAda(d));
+}
+// Build 307: pemeriksaan cepat (tanpa membuka gambar) untuk foto kosong/rusak. Hanya menolak yang jelas rusak:
+// isi base64 terlalu pendek, atau jenis JPEG/PNG yang awalannya bukan JPEG/PNG.
+function fotoDokumenWajar(v) {
+    if(typeof v !== 'string' || !v) return false;
+    if(v.indexOf('data:') !== 0) return true;
+    const i = v.indexOf('base64,');
+    if(i < 0) return v.length > 100;
+    const isi = v.slice(i + 7);
+    if(isi.length < 100) return false;
+    if(v.indexOf('data:image/jpeg') === 0) return isi.indexOf('/9j/') === 0;
+    if(v.indexOf('data:image/png') === 0) return isi.indexOf('iVBOR') === 0;
+    return true;
 }
 function getStatusKelengkapanDokumen(jamaahId, j) {
     if(!j) j = _allJamaahData.find(x => x.id === jamaahId);
@@ -30829,9 +30866,17 @@ function getStatusKelengkapanDokumen(jamaahId, j) {
     let ada = 0;
     for(const jenis of daftar) {
         const arr = docs[jenis.id];
-        if(Array.isArray(arr) && arr.length > 0) ada++;
+        if(Array.isArray(arr) && arr.some(fotoDokumenWajar)) ada++;
     }
     return { ada, total: daftar.length, lengkap: ada === daftar.length };
+}
+// Petunjuk saja (tidak menandai atau mewajibkan apa pun): nama paspor pendek kemungkinan perlu Endorsement.
+function petunjukEndorsementJamaah(j) {
+    const np = namaPasporJamaah(j);
+    if(!np) return '';
+    const kata = np.split(/\s+/).filter(Boolean).length;
+    if(kata > 2) return '';
+    return `<div style="font-size:11px;color:#92400E;background:#FEF3C7;border-radius:8px;padding:6px 8px;margin:-2px 0 8px;line-height:1.45;">Nama paspor "${escapeHtml(np)}" hanya ${kata} kata. Endorsement biasanya dibutuhkan bila nama paspor pendek, jadi cek dulu. Ini hanya petunjuk.</div>`;
 }
 function bukaDokumenTambahan(id) {
     const j = _allJamaahData.find(x => x.id === id); if(!j) return;
@@ -30842,7 +30887,7 @@ function bukaDokumenTambahan(id) {
     m.innerHTML = `<div class="modal-content" style="max-width:380px;">
         <h3 style="color:var(--primary);margin-bottom:4px;">➕ Dokumen tambahan</h3>
         <div style="font-size:12px;color:#666;margin-bottom:12px;"><b>${escapeHtml(j.nama_lengkap)}</b> — pilih dokumen khusus yang diminta untuk jamaah ini saja (mis. pelimpahan). Dokumen yang dipilih ikut dihitung sebagai syarat kelengkapan.</div>
-        ${kandidat.length ? kandidat.map(d => `<label style="display:flex;align-items:center;gap:10px;padding:10px;border:1px solid #e2e8f0;border-radius:10px;margin-bottom:6px;font-size:14px;"><input type="checkbox" class="dokTambahCb" value="${escapeHtml(d.id)}" ${pilih.includes(d.id) ? 'checked' : ''} style="width:18px;height:18px;flex:none;margin:0;"> ${d.icon} ${escapeHtml(d.nama)}</label>`).join('') : '<p style="color:#6B7280;font-size:13px;">Semua jenis dokumen sudah termasuk daftar standar program ini. Tambah jenis baru lewat ikon gerigi.</p>'}
+        ${kandidat.length ? kandidat.map(d => `<label style="display:flex;align-items:center;gap:10px;padding:10px;border:1px solid #e2e8f0;border-radius:10px;margin-bottom:6px;font-size:14px;"><input type="checkbox" class="dokTambahCb" value="${escapeHtml(d.id)}" ${(pilih.includes(d.id) || ((dokumenData[j.id] || {})[d.id] || []).length > 0) ? 'checked' : ''} style="width:18px;height:18px;flex:none;margin:0;"> ${d.icon} ${escapeHtml(d.nama)}</label>${d.id === 'endorsement' ? petunjukEndorsementJamaah(j) : ''}`).join('') : '<p style="color:#6B7280;font-size:13px;">Semua jenis dokumen sudah termasuk daftar standar program ini. Tambah jenis baru lewat ikon gerigi.</p>'}
         <div style="display:flex;gap:8px;margin-top:12px;"><button onclick="simpanDokumenTambahan(${id})" style="flex:1;padding:12px;background:var(--primary);color:#fff;border:none;border-radius:10px;font-weight:700;cursor:pointer;">Simpan</button><button onclick="document.getElementById('dokTambahanModal').style.display='none'" style="flex:1;padding:12px;background:#e2e8f0;color:#333;border:none;border-radius:10px;cursor:pointer;">Batal</button></div>
     </div>`;
     m.style.display = 'flex';
@@ -31091,7 +31136,8 @@ function htmlUkuranKirim(jenisId) {
     h += chip(lain, 'Lainnya', "'lain'");
     h += `</div>`;
     if (lain) h += `<div style="margin-top:6px;font-size:12px;color:#334155;">Maksimal <input type="number" inputmode="numeric" min="10" max="5000" value="${cur}" onchange="setUkuranKirimLain('${jenisId}',this.value)" style="width:80px;display:inline-block;padding:4px 6px;border:1px solid #cbd5e1;border-radius:8px;font-size:12px;"> KB</div>`;
-    h += `<div style="font-size:10px;color:#64748b;margin-top:6px;">Acuan surat Kemenhaj: Paspor 500 · Endorsement 50 · Foto 200 · Biovisa 100 KB. Foto tersimpan tidak diubah.</div>
+    h += `<div style="font-size:10px;color:#64748b;margin-top:6px;">Acuan surat Kemenhaj: Paspor 500 · Endorsement 50 · Foto 200 · Biovisa 100 KB. Foto tersimpan tidak diubah. Ukuran dihitung 1 KB = 1000 byte, jadi di galeri HP bisa tampak sedikit lebih kecil.</div>
+        <div style="font-size:10px;color:#64748b;margin-top:4px;">Download: tersimpan di folder Download dengan nama di bawah (bila nama sama sudah ada, Android menambah "(1)"). Share ke WhatsApp sebagai foto bisa membuang nama file: pakai tombol salin di bawah, atau Download lalu kirim sebagai Dokumen.</div>
         <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-top:8px;font-size:12px;color:#334155;"><span>Nama di file:</span>${chipNama(namaSumberJenis(jenisId) === 'ktp', 'Nama KTP', "'ktp'")}${chipNama(namaSumberJenis(jenisId) === 'paspor', 'Nama paspor', "'paspor'")}</div>
         <label style="display:flex;align-items:center;gap:6px;margin-top:8px;font-size:12px;color:#334155;cursor:pointer;">
             <input type="checkbox" ${namaKemenagAktif()?'checked':''} onchange="setNamaKemenag(this.checked)" style="width:18px;height:18px;flex:none;margin:0;padding:0;"> <span>Nama file ala Kemenhaj (NomorPorsi_Nama)</span>
@@ -31620,7 +31666,7 @@ function renderDokumenFieldsList() {
     if(dokumenJenisList.length === 0) { container.innerHTML = '<p>Belum ada jenis dokumen</p>'; return; }
     let html = '<h4>📋 Jenis Dokumen Aktif:</h4>';
     dokumenJenisList.forEach((jenis, idx) => {
-        html += `<div class="field-item"><div><span style="font-size:20px;">${jenis.icon}</span> <strong>${escapeHtml(jenis.nama)}</strong><br><small>${(jenis.untuk && jenis.untuk.length === 1) ? (jenis.untuk[0] === 'haji' ? '🕋 Haji saja' : '🕌 Umroh saja') : 'Umroh dan Haji'}</small></div>
+        html += `<div class="field-item"><div><span style="font-size:20px;">${jenis.icon}</span> <strong>${escapeHtml(jenis.nama)}</strong><br><small>${(jenis.untuk && jenis.untuk.length === 0) ? '➕ Dokumen tambahan (dipilih per jamaah)' : ((jenis.untuk && jenis.untuk.length === 1) ? (jenis.untuk[0] === 'haji' ? '🕋 Haji saja' : '🕌 Umroh saja') : 'Umroh dan Haji')}</small></div>
         <div style="display:flex;gap:6px;">
             <button class="btn-edit-jamaah" onclick="editDokumenJenis(${idx})" style="padding:4px 10px;font-size:11px;">Edit</button>
             <button class="btn-danger-small" onclick="confirmDeleteDokumenField(${idx})">Hapus</button>
@@ -31643,7 +31689,7 @@ function editDokumenJenis(idx) {
             </div>
             <div style="margin-bottom:10px;"><label style="font-size:13px;">Untuk program</label>
                 <select id="editJenisUntuk" style="width:100%;padding:10px;border-radius:8px;border:1px solid #ddd;margin-top:4px;background:var(--input-bg);color:var(--text);">
-                    <option value="semua" ${!jenis.untuk || jenis.untuk.length !== 1 ? 'selected' : ''}>Umroh dan Haji</option><option value="umroh" ${jenis.untuk && jenis.untuk.length === 1 && jenis.untuk[0] === 'umroh' ? 'selected' : ''}>Umroh saja</option><option value="haji" ${jenis.untuk && jenis.untuk.length === 1 && jenis.untuk[0] === 'haji' ? 'selected' : ''}>Haji saja</option>
+                    <option value="semua" ${(!jenis.untuk || jenis.untuk.length > 1) ? 'selected' : ''}>Umroh dan Haji</option><option value="tambahan" ${(jenis.untuk && jenis.untuk.length === 0) ? 'selected' : ''}>Dokumen tambahan (dipilih per jamaah)</option><option value="umroh" ${jenis.untuk && jenis.untuk.length === 1 && jenis.untuk[0] === 'umroh' ? 'selected' : ''}>Umroh saja</option><option value="haji" ${jenis.untuk && jenis.untuk.length === 1 && jenis.untuk[0] === 'haji' ? 'selected' : ''}>Haji saja</option>
                 </select>
             </div>
             <div style="margin-bottom:16px;"><label style="font-size:13px;">Icon</label>
@@ -31665,7 +31711,7 @@ async function simpanEditJenisModal(idx) {
     if (!nama) return showToast('Nama harus diisi!');
     dokumenJenisList[idx].nama = nama;
     dokumenJenisList[idx].icon = icon;
-    { const ut = document.getElementById('editJenisUntuk')?.value || 'semua'; dokumenJenisList[idx].untuk = ut === 'semua' ? ['umroh', 'haji'] : [ut]; }
+    { const ut = document.getElementById('editJenisUntuk')?.value || 'semua'; dokumenJenisList[idx].untuk = ut === 'semua' ? ['umroh', 'haji'] : (ut === 'tambahan' ? [] : [ut]); }
     document.getElementById('editJenisModal')?.remove();
     await saveDokumenJenisToIndexedDB();
     renderDokumenList();
@@ -31690,28 +31736,32 @@ async function downloadAllDokumenZip() {
     if(jamaahList.length === 0) { showToast('Tidak ada data jamaah!'); return; }
     showToast('Membuat ZIP...');
     const zip = new JSZip();
-    let totalFiles = 0;
+    let totalFiles = 0, dilewati = 0;
+    const namaTerpakai = new Set();
     for(const j of jamaahList) {
-        const folderName = j.nama_lengkap.replace(/[^a-z0-9]/gi, '_');
+        let folderName = String(j.nama_lengkap || 'jamaah').replace(/[^a-z0-9]/gi, '_');
+        if(namaTerpakai.has(folderName)) folderName += '_' + j.id; // dua jamaah bernama sama tidak boleh saling menimpa
+        namaTerpakai.add(folderName);
         const folder = zip.folder(folderName);
         const docs = dokumenData[j.id] || {};
         let hasFile = false;
         for(const jenis of dokumenJenisList) {
-            const data = docs[jenis.id];
-            if(data && data !== '') {
-                const ext = data.startsWith('data:image/png') ? 'png' : (data.startsWith('data:image/jpeg') ? 'jpg' : 'png');
-                const base64Data = data.split(',')[1];
-                folder.file(`${jenis.nama}.${ext}`, base64Data, { base64: true });
+            const arr = Array.isArray(docs[jenis.id]) ? docs[jenis.id] : (docs[jenis.id] ? [docs[jenis.id]] : []);
+            const valid = arr.filter(x => { const ok = fotoDokumenWajar(x); if(!ok) dilewati++; return ok && typeof x === 'string' && x.indexOf('base64,') > 0; });
+            valid.forEach((data, n) => {
+                const ext = data.indexOf('data:image/png') === 0 ? 'png' : (data.indexOf('data:image/jpeg') === 0 ? 'jpg' : (data.indexOf('data:application/pdf') === 0 ? 'pdf' : 'png'));
+                const sufiks = valid.length > 1 ? '_' + (n + 1) : '';
+                folder.file(`${String(jenis.nama).replace(/[\\/:*?"<>|]/g, '_')}${sufiks}.${ext}`, data.split(',')[1], { base64: true });
                 hasFile = true;
                 totalFiles++;
-            }
+            });
         }
         if(!hasFile && folder) folder.file('info.txt', `Belum ada dokumen untuk ${j.nama_lengkap}`);
     }
     if(totalFiles === 0) { showToast('Belum ada dokumen yang diupload!'); return; }
     const content = await zip.generateAsync({ type: 'blob' });
     saveAs(content, `dokumen_jamaah_${new Date().toLocaleDateString('id-ID').replace(/\//g,'-')}.zip`);
-    showToast(`✅ ZIP berhasil dibuat! ${totalFiles} file tersimpan.`);
+    showToast(`✅ ZIP berhasil dibuat! ${totalFiles} file tersimpan.` + (dilewati ? ` ⚠️ ${dilewati} foto rusak tidak dimasukkan.` : ''));
 }
 
 // ===== Build 299: Berkas Kemenhaj (paket kirim: folder per jenis, nama NomorPorsi_Nama, Excel, ZIP dipecah) =====
@@ -32384,6 +32434,33 @@ async function processRestoreJsonText() {
     }
 }
 
+// Build 307: ZIP lama tidak membawa info program, jadi datanya masuk ke program aktif. Bila itu program bawaan "Data Sebelumnya"
+// (jenis Lainnya), kolom Haji/Umroh tersembunyi; maka jenisnya ditanyakan supaya tampilan sesuai isi data.
+async function tanyaJenisProgramBawaanSetelahRestore() {
+    const p = getCurrentProgram();
+    if(!p || p.jenis !== 'lainnya' || String(p.id || '').indexOf('default_') !== 0) return;
+    const ja = _allJamaahData.filter(j => j.program_id === p.id);
+    if(!ja.length) return;
+    const adaPorsi = ja.filter(j => String((j.additional_fields && j.additional_fields.no_porsi) || '').trim()).length;
+    const pilih = await pilihJenisProgramRestore(ja.length, adaPorsi);
+    if(pilih && pilih !== 'lainnya') { p.jenis = pilih; await saveProgramData(); }
+}
+function pilihJenisProgramRestore(jumlah, adaPorsi) {
+    return new Promise(resolve => {
+        const sarankanHaji = jumlah > 0 && adaPorsi / jumlah >= 0.5;
+        const ov = document.createElement('div');
+        ov.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:2147483000;display:flex;align-items:center;justify-content:center;padding:20px;';
+        const tombol = (k, l, saran) => `<button type="button" data-jenis-restore="${k}" style="display:block;width:100%;text-align:left;padding:12px;margin-top:8px;border:1.5px solid ${saran ? 'var(--primary)' : '#cbd5e1'};border-radius:12px;background:${saran ? '#ECFDF5' : '#fff'};color:#1f2937;font-size:14px;cursor:pointer;">${l}${saran ? ' <span style="font-size:11px;color:#047857;">(disarankan)</span>' : ''}</button>`;
+        ov.innerHTML = `<div style="background:#fff;border-radius:18px;padding:20px;width:100%;max-width:360px;max-height:90vh;overflow-y:auto;">
+            <div style="font-weight:800;font-size:16px;color:var(--primary);margin-bottom:6px;">Data ini untuk jenis program apa?</div>
+            <div style="font-size:12.5px;color:#555;line-height:1.5;">File cadangan lama tidak mencatat jenis program. ${jumlah} jamaah dipulihkan, ${adaPorsi} di antaranya punya No Porsi. Pilih supaya kolom yang tampil sesuai. Bisa diubah nanti lewat Edit Program.</div>
+            ${tombol('umroh', '🕌 Umroh', !sarankanHaji)}${tombol('haji', '🕋 Haji Khusus/Plus', sarankanHaji)}${tombol('haji_reguler', '🕋 Haji Reguler', sarankanHaji)}${tombol('lainnya', '📌 Ziarah / Wisata / Study Tour', false)}
+        </div>`;
+        ov.querySelectorAll('[data-jenis-restore]').forEach(b => { b.onclick = () => { const k = b.getAttribute('data-jenis-restore'); ov.remove(); resolve(k); }; });
+        document.body.appendChild(ov);
+    });
+}
+
 async function mergeRestoreIntoProgram(store, key, restoredArray) {
     // Gabungkan data yang di-restore ke Program yang sedang aktif,
     // tanpa menghapus data milik Program lain yang sudah ada.
@@ -32892,6 +32969,7 @@ async function restoreFromZip(input) {
                 }
             }
 
+            if (!isMultiProgramZip) { try { await tanyaJenisProgramBawaanSetelahRestore(); } catch(e) {} } // Build 307
             tampilkanProgresRestore('✅ Berhasil! Memuat ulang...');
             showToast(_restoreDilewati.length ? '⚠️ Restore selesai, tetapi BAGIAN INI dilewati (berkas rusak): ' + _restoreDilewati.join(', ') : '✅ Restore berhasil! Memuat ulang...');
             setTimeout(() => location.reload(), _restoreDilewati.length ? 6000 : 2000);
