@@ -4371,12 +4371,13 @@ https://github.com/nodeca/pako/blob/main/LICENSE
     </div>
     <div class="input-group" style="margin-bottom:12px;">
         <label>Jenis</label>
-        <select id="newProgramJenis" style="width:100%;padding:11px 13px;border:1.5px solid #e2e6e4;border-radius:12px;font-size:14px;">
+        <select id="newProgramJenis" onchange="tampilKetJenisProgram()" style="width:100%;padding:11px 13px;border:1.5px solid #e2e6e4;border-radius:12px;font-size:14px;">
             <option value="haji">🕋 Haji Khusus/Plus</option>
             <option value="haji_reguler">🕋 Haji Reguler</option>
             <option value="umroh" selected>🕌 Umroh</option>
-            <option value="lainnya">📁 Lainnya</option>
+            <option value="lainnya">📌 Ziarah / Wisata / Study Tour</option>
         </select>
+        <div id="newProgramJenisKet" style="font-size:11.5px;color:#64748b;margin-top:6px;line-height:1.45;"></div>
     </div>
     <div class="input-group" style="margin-bottom:12px;">
         <label>Salin Pengaturan dari Program Lain <span style="color:#6B7280;font-size:11px;">(opsional)</span></label>
@@ -4402,7 +4403,7 @@ https://github.com/nodeca/pako/blob/main/LICENSE
             <option value="haji">🕋 Haji Khusus/Plus</option>
             <option value="haji_reguler">🕋 Haji Reguler</option>
             <option value="umroh">🕌 Umroh</option>
-            <option value="lainnya">📁 Lainnya</option>
+            <option value="lainnya">📌 Ziarah / Wisata / Study Tour</option>
         </select>
     </div>
     <input type="hidden" id="editProgramId">
@@ -12512,6 +12513,21 @@ async function loadDynamicFieldsJamaah() {
             dynamicFieldsJamaah = dynamicFieldsJamaah.filter(f => f.name !== 'status_proses_haji' && f.name !== 'catatan_proses_haji');
             await idbSet(STORE_JAMAAH, 'jamaah_fields', dynamicFieldsJamaah);
         }
+        // Build 306: tambahkan Nama Wali & Sekolah/Instansi (untuk study tour). Sekali saja; tidak ditambahkan kalau label sama sudah ada.
+        try {
+            if (dynamicFieldsJamaah.length > 0 && localStorage.getItem('navara_field_wali_v306') !== '1') {
+                localStorage.setItem('navara_field_wali_v306', '1');
+                const calon = [
+                    { name: 'nama_wali', label: 'Nama Wali / Penanggung Jawab', type: 'text', icon: '👪', isRequired: false },
+                    { name: 'sekolah',   label: 'Sekolah / Instansi',           type: 'text', icon: '🏫', isRequired: false }
+                ].filter(d => !dynamicFieldsJamaah.some(f => f.name === d.name || String(f.label || '').trim().toLowerCase() === d.label.toLowerCase()));
+                if (calon.length) {
+                    const idxKet = dynamicFieldsJamaah.findIndex(f => f.name === 'keterangan');
+                    if (idxKet !== -1) dynamicFieldsJamaah.splice(idxKet, 0, ...calon); else dynamicFieldsJamaah.push(...calon);
+                    await idbSet(STORE_JAMAAH, 'jamaah_fields', dynamicFieldsJamaah);
+                }
+            }
+        } catch(e) {}
         // Migrasi: tambahkan field Rombongan/Kloter/Regu/Karu/Karom kalau belum ada
         if (dynamicFieldsJamaah.length > 0 && !dynamicFieldsJamaah.some(f => f.name === 'no_rombongan')) {
             const idxPorsi = dynamicFieldsJamaah.findIndex(f => f.name === 'no_porsi');
@@ -12599,6 +12615,8 @@ async function loadDynamicFieldsJamaah() {
             { name: 'warna',         label: 'Warna',           type: 'text',     icon: '🏷️', isRequired: false },
             { name: 'status_proses', label: 'Status Proses',   type: 'dropdown', options: ['Normal', '🔄 Mutasi', '🤝 Penggabungan', '🧑‍🤝‍🧑 Pendampingan'], icon: '📌', isRequired: false },
             { name: 'catatan_status_proses', label: 'Catatan Status Proses', type: 'textarea', icon: '🗒️', isRequired: false },
+            { name: 'nama_wali',     label: 'Nama Wali / Penanggung Jawab', type: 'text', icon: '👪', isRequired: false },
+            { name: 'sekolah',       label: 'Sekolah / Instansi', type: 'text', icon: '🏫', isRequired: false },
             { name: 'keterangan',    label: 'Keterangan',      type: 'textarea', icon: '📝', isRequired: false }
         ];
         await idbSet(STORE_JAMAAH, 'jamaah_fields', dynamicFieldsJamaah);
@@ -19672,6 +19690,9 @@ function downloadTemplateExcel() {
     });
     const kolomTipe = adaKolomTipePaket();
     if (kolomTipe) { headers.push('Tipe Paket'); fieldKeys.push('tipe_paket'); }
+    const kunciTpl = kunciJenisProgramAktif();
+    const namaTpl = { umroh: 'Umroh', haji: 'Haji Khusus', haji_reguler: 'Haji Reguler', lainnya: 'Ziarah / Wisata / Study Tour' }[kunciTpl];
+    const berkasTpl = { umroh: 'Template_Umroh', haji: 'Template_Haji_Khusus', haji_reguler: 'Template_Haji_Reguler', lainnya: 'Template_Ziarah_Wisata' }[kunciTpl] + '.xlsx';
 
     // Baris contoh agar user tahu format isian
     const contohRow = ['CONTOH - Nama Jamaah'];
@@ -19700,7 +19721,8 @@ function downloadTemplateExcel() {
 
     // Sheet petunjuk
     const petunjuk = [
-        ['PETUNJUK PENGISIAN TEMPLATE IMPORT JAMAAH'],
+        ['PETUNJUK PENGISIAN TEMPLATE IMPORT JAMAAH — ' + namaTpl.toUpperCase()],
+        ['Template ini sesuai jenis program yang sedang aktif. File template lama tetap bisa diimpor: kolom dikenali dari judulnya.'],
         [''],
         ['1. Isi data jamaah mulai dari baris ke-3. Baris 2 hanya contoh (namanya diawali "CONTOH -"); baris itu otomatis diabaikan saat import, boleh dihapus.'],
         ['2. Kolom "Nama Lengkap" wajib diisi'],
@@ -19718,13 +19740,17 @@ function downloadTemplateExcel() {
     wsPetunjuk['!cols'] = [{wch: 60}];
     XLSX.utils.book_append_sheet(wb, wsPetunjuk, 'Petunjuk');
 
-    XLSX.writeFile(wb, 'Template_Import_Jamaah_Navara.xlsx');
+    XLSX.writeFile(wb, berkasTpl);
     showToast('⬇️ Template Excel berhasil didownload!');
 }
 
 function exportJamaahToExcel(){
     if(jamaahList.length===0) return showToast('Tidak ada data!');
-    const fieldsTampil = getDynamicFieldsJamaahTampil();
+    // Build 306: kolom yang disembunyikan untuk jenis ini TETAP ikut diekspor bila ada jamaah yang datanya terisi, supaya tidak ada data yang diam-diam hilang dari file.
+    const fieldsTampilAwal = getDynamicFieldsJamaahTampil();
+    const namaTampilEks = new Set(fieldsTampilAwal.map(f => f.name));
+    const fieldsTersembunyiBerisi = dynamicFieldsJamaah.filter(f => !namaTampilEks.has(f.name) && jamaahList.some(j => { const v = j.additional_fields && j.additional_fields[f.name]; return v !== undefined && v !== null && String(v).trim() !== ''; }));
+    const fieldsTampil = [...fieldsTampilAwal, ...fieldsTersembunyiBerisi];
     // Urutan kolom SAMA PERSIS dengan Download Template (Nama Lengkap lalu field dinamis), supaya file
     // Template dan Export bisa dibandingkan berdampingan / disalin-tempel tanpa kolom bergeser.
     // Kolom informasi tambahan (Tanggal Input, Keluarga) ditaruh di paling belakang — Import mengabaikannya.
@@ -23619,7 +23645,7 @@ function renderFieldsList(){
     dynamicFieldsJamaah.forEach((f,idx)=>{
         const rahasiaLabel = f.rahasia === true ? '<span style="color:#e74c3c;font-size:11px;"> 🔒 Rahasia</span>' : '';
         const typeLabel = f.type === 'dropdown' ? `dropdown: ${(f.options||[]).join(', ')}` : f.type;
-        html+=`<div class="field-item"><div><strong>${escapeHtml(f.label)}</strong>${rahasiaLabel}<br><small style="font-size:11px;">${f.name} (${escapeHtml(typeLabel)})</small></div><div style="display:flex;gap:6px;"><button class="btn-edit-jamaah" onclick="editDynamicFieldJamaah(${idx})" style="padding:4px 10px;font-size:11px;">Edit</button><button class="btn-danger-small" onclick="confirmDeleteDynamicField(${idx})">Hapus</button></div></div>`;
+        html+=`<div class="field-item"><div><strong>${escapeHtml(f.label)}</strong>${rahasiaLabel}<br><small style="font-size:11px;">${f.name} (${escapeHtml(typeLabel)})</small><br><small style="font-size:11px;color:#64748b;">${ringkasTampilDi(f)}</small></div><div style="display:flex;gap:6px;"><button class="btn-edit-jamaah" onclick="editDynamicFieldJamaah(${idx})" style="padding:4px 10px;font-size:11px;">Edit</button><button class="btn-danger-small" onclick="confirmDeleteDynamicField(${idx})">Hapus</button></div></div>`;
     });
     container.innerHTML=html;
 }
@@ -23632,7 +23658,7 @@ function editDynamicFieldJamaah(idx){
     modal.id = 'editFieldModalInline';
     modal.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:9999;display:flex;align-items:center;justify-content:center;';
     modal.innerHTML = `
-        <div style="background:white;border-radius:16px;padding:24px;width:90%;max-width:400px;">
+        <div style="background:white;border-radius:16px;padding:24px;width:90%;max-width:400px;max-height:90vh;overflow-y:auto;">
             <h3 style="margin-bottom:16px;">Edit Field Dinamis</h3>
             <div style="margin-bottom:10px;"><label>Label Field</label><input type="text" id="editFieldLabel" value="${escapeHtml(f.label)}" style="width:100%;padding:8px;border-radius:8px;border:1px solid #ddd;margin-top:4px;"></div>
             <div style="margin-bottom:10px;"><label>Tipe Field</label>
@@ -23646,6 +23672,11 @@ function editDynamicFieldJamaah(idx){
             <div id="editDropdownOptionsWrap" style="margin-bottom:10px;display:${f.type==='dropdown'?'block':'none'};">
                 <label>Daftar Pilihan (pisahkan dengan koma)</label>
                 <input type="text" id="editFieldOptions" value="${escapeHtml((f.options||[]).join(', '))}" style="width:100%;padding:8px;border-radius:8px;border:1px solid #ddd;margin-top:4px;">
+            </div>
+            <div style="margin-bottom:12px;padding:10px;background:#F1F5F9;border-radius:10px;">
+                <div style="font-weight:700;font-size:13px;margin-bottom:6px;">Tampil di jenis program:</div>
+                ${JENIS_TAMPIL.map(([k, l]) => `<label style="display:flex;align-items:center;gap:8px;font-size:13px;padding:3px 0;"><input type="checkbox" class="editTampilCb" value="${k}" ${tampilDiEfektif(f).includes(k)?'checked':''} style="width:18px;height:18px;flex:none;margin:0;"><span>${l}</span></label>`).join('')}
+                <div style="font-size:11px;color:#666;margin-top:6px;">Kolom yang disembunyikan tidak dihapus: isinya tetap tersimpan dan muncul lagi bila dicentang.</div>
             </div>
             <div style="display:flex;align-items:center;gap:8px;margin-bottom:16px;">
                 <input type="checkbox" id="editFieldRahasia" ${f.rahasia===true?'checked':''} style="width:18px;height:18px;">
@@ -23673,6 +23704,14 @@ function saveEditDynamicField(idx){
     dynamicFieldsJamaah[idx].label = label;
     dynamicFieldsJamaah[idx].type = type;
     dynamicFieldsJamaah[idx].rahasia = rahasia;
+    { // Build 306: simpan aturan "Tampil di" hanya bila berbeda dari bawaan
+        const cbs = Array.from(document.querySelectorAll('.editTampilCb'));
+        if(cbs.length) {
+            const pilih = cbs.filter(c => c.checked).map(c => c.value), baw = tampilDiBawaan(dynamicFieldsJamaah[idx].name);
+            const sama = pilih.length === baw.length && pilih.every(x => baw.includes(x));
+            if(sama) delete dynamicFieldsJamaah[idx].tampil_di; else dynamicFieldsJamaah[idx].tampil_di = pilih;
+        }
+    }
     if(type === 'dropdown') {
         const optionsRaw = document.getElementById('editFieldOptions')?.value.trim() || '';
         const options = optionsRaw.split(',').map(o => o.trim()).filter(o => o);
@@ -27746,14 +27785,41 @@ function isHajiReguler() {
     return p && p.jenis === 'haji_reguler';
 }
 
-// Field yang cuma relevan untuk Haji (struktur resmi Kemenhaj: Kloter-Rombongan-Regu-Karu-Karom + No Porsi)
-const FIELD_KHUSUS_HAJI = ['no_porsi', 'no_kloter', 'no_rombongan', 'no_regu', 'nama_karu', 'nama_karom'];
+// ===== Build 306: kolom "Tampil di" per jenis program =====
+// Tiap kolom punya aturan: tampil di Umroh / Haji Khusus / Haji Reguler / Ziarah-Wisata (kunci 'lainnya').
+// Aturan bawaan ada di TAMPIL_BAWAAN; admin bisa mengubahnya per kolom (disimpan di kolom itu sendiri sebagai tampil_di).
+// Kolom buatan sendiri yang belum diatur tampil di semua jenis. Menyembunyikan kolom TIDAK menghapus datanya.
+const JENIS_TAMPIL = [['umroh', 'Umroh'], ['haji', 'Haji Khusus'], ['haji_reguler', 'Haji Reguler'], ['lainnya', 'Ziarah/Wisata']];
+const TAMPIL_BAWAAN = (function () {
+    const SEMUA = ['umroh', 'haji', 'haji_reguler', 'lainnya'], TRAVEL = ['umroh', 'haji', 'haji_reguler'], HAJI = ['haji', 'haji_reguler'];
+    const m = {};
+    ['jenis_kelamin', 'tempat_lahir', 'tgl_lahir', 'nik', 'alamat', 'kec', 'kab_kota', 'whatsapp', 'keterangan'].forEach(n => { m[n] = SEMUA; });
+    ['nama_paspor', 'kk', 'no_paspor', 'tgl_expired_paspor', 'mitra_referensi', 'komisi_mitra', 'rombongan', 'regu', 'visa', 'kamar', 'bus', 'hotel_makkah', 'hotel_madinah', 'warna'].forEach(n => { m[n] = TRAVEL; });
+    ['diskon_jamaah', 'tarif_anak', 'perlengkapan', 'potongan_perlengkapan'].forEach(n => { m[n] = ['umroh', 'haji']; });
+    ['no_porsi', 'kota_porsi', 'no_kloter', 'no_rombongan', 'no_regu', 'nama_karu', 'nama_karom', 'status_proses', 'catatan_status_proses'].forEach(n => { m[n] = HAJI; });
+    m.tgl_expired_meningitis = ['umroh'];
+    m.nama_wali = []; m.sekolah = []; // untuk study tour: tersedia, tapi tersembunyi sampai dinyalakan
+    return m;
+})();
+function kunciJenisProgramAktif() {
+    const p = getCurrentProgram();
+    if(!p) return 'umroh';
+    return (p.jenis === 'haji' || p.jenis === 'haji_reguler' || p.jenis === 'umroh') ? p.jenis : 'lainnya';
+}
+function tampilDiBawaan(nama) { return TAMPIL_BAWAAN[nama] || JENIS_TAMPIL.map(x => x[0]); }
+function tampilDiEfektif(f) { return Array.isArray(f.tampil_di) ? f.tampil_di : tampilDiBawaan(f.name); }
+function ringkasTampilDi(f) {
+    const t = tampilDiEfektif(f);
+    if(t.length === JENIS_TAMPIL.length) return 'Tampil di: semua jenis';
+    if(!t.length) return 'Tampil di: (disembunyikan)';
+    return 'Tampil di: ' + JENIS_TAMPIL.filter(x => t.includes(x[0])).map(x => x[1]).join(', ');
+}
 
-// Dipakai di form input, kolom tabel, dan template/export Excel — supaya Umroh tidak ditampilkan field Haji.
+// Dipakai di form input, kolom tabel, dan template/export Excel — sesuai jenis Program yang aktif.
 // TIDAK dipakai di halaman Setting (kelola daftar field) — di situ admin tetap perlu lihat/kelola semua field apa adanya.
 function getDynamicFieldsJamaahTampil() {
-    if (isJenisHaji()) return dynamicFieldsJamaah;
-    return dynamicFieldsJamaah.filter(f => !FIELD_KHUSUS_HAJI.includes(f.name));
+    const k = kunciJenisProgramAktif();
+    return dynamicFieldsJamaah.filter(f => tampilDiEfektif(f).includes(k));
 }
 
 // Label jenis perjalanan untuk countdown dsb — otomatis dari Jenis Program (bukan input manual terpisah lagi)
@@ -27802,17 +27868,27 @@ function isJenisHaji() {
 // ==================== JENIS USAHA (build -141) ====================
 // Jenis program yang dijalankan kantor ini. Bawaan: semua tercentang (tampilan lama tidak berubah). Hanya menyaring TAMPILAN; tidak ada data yang dihapus.
 // Disimpan di konfigurasiPro.jenis_usaha, ikut Backup ZIP.
-const JENIS_PROGRAM_OPSI = [['haji', '🕋 Haji Khusus/Plus'], ['haji_reguler', '🕋 Haji Reguler'], ['umroh', '🕌 Umroh'], ['lainnya', '📁 Lainnya']];
+const JENIS_PROGRAM_OPSI = [['haji', '🕋 Haji Khusus/Plus'], ['haji_reguler', '🕋 Haji Reguler'], ['umroh', '🕌 Umroh'], ['lainnya', '📌 Ziarah / Wisata / Study Tour']];
 function getJenisUsaha() {
-    const o = { umroh: true, haji: true, haji_reguler: true };
+    const o = { umroh: true, haji: true, haji_reguler: true, lainnya: false };
     const j = (typeof konfigurasiPro !== 'undefined' && konfigurasiPro && konfigurasiPro.jenis_usaha) || null;
     if(j && typeof j === 'object') {
-        const t = { umroh: 'umroh' in j ? !!j.umroh : true, haji: 'haji' in j ? !!j.haji : true, haji_reguler: 'haji_reguler' in j ? !!j.haji_reguler : true };
-        if(t.umroh || t.haji || t.haji_reguler) return t;
+        const t = { umroh: 'umroh' in j ? !!j.umroh : true, haji: 'haji' in j ? !!j.haji : true, haji_reguler: 'haji_reguler' in j ? !!j.haji_reguler : true, lainnya: 'lainnya' in j ? !!j.lainnya : false };
+        if(t.umroh || t.haji || t.haji_reguler || t.lainnya) return t;
     }
     return o;
 }
 // Pilihan Jenis di form Program: hanya jenis yang dijalankan (+ jenis program yang sedang diedit, supaya tidak hilang)
+const KET_JENIS_PROGRAM = {
+    haji: 'Haji Khusus/Plus: lengkap dengan No Porsi, Kloter, Rombongan, Regu, dan Berkas Kemenhaj.',
+    haji_reguler: 'Haji Reguler: No Porsi, Kloter, Rombongan, Regu, dan Berkas Kemenhaj. Tanpa paket dan komisi.',
+    umroh: 'Umroh: paspor, vaksin meningitis, kamar, bus, hotel, dan tipe paket.',
+    lainnya: 'Untuk rombongan ziarah, wisata, atau study tour. Kolomnya dasar saja (nama, kontak, alamat). Kolom lain, seperti paspor atau nama wali, bisa dinyalakan di Kelola Field Dinamis.'
+};
+function tampilKetJenisProgram() {
+    const sel = document.getElementById('newProgramJenis'), el = document.getElementById('newProgramJenisKet');
+    if(el && sel) el.textContent = KET_JENIS_PROGRAM[sel.value] || '';
+}
 function filterJenisProgram(selectId, jenisSaatIni) {
     const sel = document.getElementById(selectId); if(!sel) return;
     const u = getJenisUsaha();
@@ -27832,10 +27908,10 @@ function perluKartuInstansiKedua() {
 function renderKartuJenisUsaha() {
     const wadah = document.getElementById('isiJenisUsaha'); if(!wadah) return;
     const u = getJenisUsaha();
-    const baris = [['umroh', '🕌 Umroh'], ['haji', '🕋 Haji Khusus/Plus'], ['haji_reguler', '🕋 Haji Reguler']].map(([k, l]) => {
-        const n = (programList || []).filter(p => p.jenis === k).length;
+    const baris = [['umroh', '🕌 Umroh'], ['haji', '🕋 Haji Khusus/Plus'], ['haji_reguler', '🕋 Haji Reguler'], ['lainnya', '📌 Ziarah / Wisata / Study Tour']].map(([k, l]) => {
+        const n = (programList || []).filter(p => p.jenis === k && !(k === 'lainnya' && String(p.id || '').indexOf('default_') === 0)).length;
         return `<label style="display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid #eef2f6;font-size:14px;cursor:pointer;">
-            <input type="checkbox" ${u[k] ? 'checked' : ''} onchange="simpanJenisUsaha('${k}', this.checked)" style="width:18px;height:18px;">
+            <input type="checkbox" ${(u[k] || n > 0) ? 'checked' : ''} onchange="simpanJenisUsaha('${k}', this.checked)" style="width:18px;height:18px;">
             <span style="flex:1;">${l}</span><span style="font-size:11px;color:#888;">${n ? n + ' program' : ''}</span></label>`;
     }).join('');
     wadah.innerHTML = baris;
@@ -27844,8 +27920,8 @@ function simpanJenisUsaha(kunci, cek) {
     if(typeof adalahAdminPenuh === 'function' && !adalahAdminPenuh()) { showToast('🔒 Hanya Admin Utama yang boleh mengubah Jenis Usaha'); renderKartuJenisUsaha(); return; }
     const u = getJenisUsaha();
     if(!cek) {
-        const nama = { umroh: 'Umroh', haji: 'Haji Khusus/Plus', haji_reguler: 'Haji Reguler' }[kunci] || kunci;
-        const n = (programList || []).filter(p => p.jenis === kunci).length;
+        const nama = { umroh: 'Umroh', haji: 'Haji Khusus/Plus', haji_reguler: 'Haji Reguler', lainnya: 'Ziarah/Wisata/Study Tour' }[kunci] || kunci;
+        const n = (programList || []).filter(p => p.jenis === kunci && !(kunci === 'lainnya' && String(p.id || '').indexOf('default_') === 0)).length;
         if(n > 0) { showToast('Masih ada ' + n + ' program ' + nama + ', jadi jenis ini tetap dipakai'); renderKartuJenisUsaha(); return; }
         if(!Object.keys(u).some(k => k !== kunci && u[k])) { showToast('Minimal satu jenis usaha harus dicentang'); renderKartuJenisUsaha(); return; }
     }
@@ -29062,6 +29138,7 @@ function openCreateProgramForm() {
     document.getElementById('newProgramNama').value = '';
     document.getElementById('newProgramJenis').value = 'umroh';
     filterJenisProgram('newProgramJenis', null);
+    tampilKetJenisProgram();
     const salinSelect = document.getElementById('newProgramSalinDari');
     if(salinSelect) {
         salinSelect.innerHTML = '<option value="">— Mulai kosong —</option>' +
@@ -30080,7 +30157,7 @@ function openIndexedDB() {
 // dengan build baru, data MENTAH (langsung dari IndexedDB, bukan dari memori) disalin dulu sebelum
 // proses migrasi apapun berjalan — supaya kalau ada kesalahan di update, data lama masih bisa dipulihkan.
 // Dokumen & foto tidak ikut disalin (ukurannya besar, dan tidak pernah disentuh proses migrasi).
-const NAVARA_BUILD = '2026.11.03-305';
+const NAVARA_BUILD = '2026.11.04-306';
 const MAKS_SNAPSHOT = 3;
 
 // ==================== DAFTAR DATA PUSAT ====================
@@ -30730,13 +30807,20 @@ function migrasiJenisRestore(list, dokV) {
 }
 function kelompokDokumenJamaah(j) {
     const pr = j && programList.find(x => x.id === j.program_id);
-    return pr && (pr.jenis === 'haji' || pr.jenis === 'haji_reguler') ? 'haji' : 'umroh';
+    if(pr && (pr.jenis === 'haji' || pr.jenis === 'haji_reguler')) return 'haji';
+    return pr && pr.jenis === 'lainnya' ? 'lainnya' : 'umroh';
 }
-function jenisStandarUntuk(d, k) { return !d.untuk || d.untuk.includes(k); }
+// Ziarah/Wisata/Study Tour: dokumen standarnya hanya KTP, KK, Foto Pas (yang lain lewat "Dokumen tambahan").
+function jenisStandarUntuk(d, k) {
+    if(k === 'lainnya') return !d.untuk || ['ktp', 'kk', 'foto_pas'].includes(d.id);
+    return !d.untuk || d.untuk.includes(k);
+}
 function dokumenJenisUntuk(j) {
     if(!j) return dokumenJenisList;
     const k = kelompokDokumenJamaah(j), tambahan = j.dokumen_tambahan || [];
-    return dokumenJenisList.filter(d => jenisStandarUntuk(d, k) || tambahan.includes(d.id));
+    // Ziarah/Wisata: dokumen yang sudah pernah diunggah tidak boleh "hilang" dari tampilan hanya karena bukan syarat standar
+    const sudahAda = d => k === 'lainnya' && Array.isArray((dokumenData[j.id] || {})[d.id]) && dokumenData[j.id][d.id].length > 0;
+    return dokumenJenisList.filter(d => jenisStandarUntuk(d, k) || tambahan.includes(d.id) || sudahAda(d));
 }
 function getStatusKelengkapanDokumen(jamaahId, j) {
     if(!j) j = _allJamaahData.find(x => x.id === jamaahId);
@@ -35417,18 +35501,18 @@ function cekTanyaJenisUsahaAwal() {
             <div style="text-align:center;font-size:34px;line-height:1;margin-bottom:8px;">🕋</div>
             <div style="text-align:center;font-weight:800;font-size:16px;color:var(--primary);margin-bottom:6px;">Usaha Anda menjalankan apa?</div>
             <div style="text-align:center;font-size:12.5px;color:#555;line-height:1.5;margin-bottom:10px;">Centang yang dijalankan. Menu dan pilihan yang tidak dipakai akan disembunyikan. Bisa diubah kapan saja di Setting → Jenis Usaha.</div>
-            ${[['umroh', '🕌 Umroh'], ['haji', '🕋 Haji Khusus/Plus'], ['haji_reguler', '🕋 Haji Reguler']].map(([k, l]) => `<label style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid #eef2f6;font-size:14px;cursor:pointer;"><input type="checkbox" data-jenis="${k}" style="width:18px;height:18px;"><span>${l}</span></label>`).join('')}
+            ${[['umroh', '🕌 Umroh'], ['haji', '🕋 Haji Khusus/Plus'], ['haji_reguler', '🕋 Haji Reguler'], ['lainnya', '📌 Ziarah / Wisata / Study Tour']].map(([k, l]) => `<label style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid #eef2f6;font-size:14px;cursor:pointer;"><input type="checkbox" data-jenis="${k}" style="width:18px;height:18px;"><span>${l}</span></label>`).join('')}
             <div style="display:flex;gap:10px;margin-top:16px;">
                 <button type="button" id="jenisUsahaAwalLewati" data-pilih-semua="#jenisUsahaAwalOverlay input[data-jenis]" onclick="togglePilihSemua(this)" style="flex:1;padding:12px;border:none;border-radius:12px;background:#E2E8F0;color:#333;font-weight:700;font-size:14px;cursor:pointer;">✅ Pilih Semua</button>
                 <button type="button" id="jenisUsahaAwalSimpan" style="flex:1;padding:12px;border:none;border-radius:12px;background:var(--primary);color:#fff;font-weight:700;font-size:14px;cursor:pointer;">Simpan</button>
             </div></div>`;
         const simpan = (semua) => {
-            const u = { umroh: true, haji: true, haji_reguler: true };
+            const u = { umroh: true, haji: true, haji_reguler: true, lainnya: true };
             if(!semua) {
-                ['umroh', 'haji', 'haji_reguler'].forEach(k => { u[k] = !!ov.querySelector('input[data-jenis="' + k + '"]').checked; });
-                if(!u.umroh && !u.haji && !u.haji_reguler) { showToast('Centang minimal satu jenis, atau ketuk Pilih Semua'); return; }
+                ['umroh', 'haji', 'haji_reguler', 'lainnya'].forEach(k => { u[k] = !!ov.querySelector('input[data-jenis="' + k + '"]').checked; });
+                if(!u.umroh && !u.haji && !u.haji_reguler && !u.lainnya) { showToast('Centang minimal satu jenis, atau ketuk Pilih Semua'); return; }
             }
-            (programList || []).forEach(p => { if(p.jenis in u) u[p.jenis] = true; }); // jenis yang sudah punya program tidak boleh hilang
+            (programList || []).forEach(p => { if(p.jenis in u && !(p.jenis === 'lainnya' && String(p.id || '').indexOf('default_') === 0)) u[p.jenis] = true; }); // jenis yang sudah punya program tidak boleh hilang
             konfigurasiPro.jenis_usaha = u;
             localStorage.setItem('navara_konfigurasi_pro', JSON.stringify(konfigurasiPro));
             try { idbSet(STORE_KONFIGURASI, 'konfigurasi_pro', konfigurasiPro); } catch(e) {}
