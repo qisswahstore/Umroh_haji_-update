@@ -29490,8 +29490,11 @@ function shareDetailToWA() {
     if(!item) return;
     const text = `📝 *${item.judul || 'Catatan'}*\n\n${item.isi}\n\n#${getNamaInstansiUtama()}`;
     if(navigator.share) {
-        navigator.share({ title: item.judul || 'Catatan', text }).catch(() => {
-            window.open(`https://wa.me/?text=${encodeURIComponent(text)}`);
+        // Dibatalkan/ditutup pengguna (termasuk memilih "Salin" di lembar Share) = selesai, jangan buka apa pun.
+        // window.open setelah proses asinkron diblokir peramban sebagai popup, jadi cadangannya menyalin teks.
+        navigator.share({ title: item.judul || 'Catatan', text }).catch((err) => {
+            if(err && err.name === 'AbortError') return;
+            copyTeks(encodeURIComponent(text), 'Catatan disalin (Share tidak bisa dibuka)');
         });
     } else {
         window.open(`https://wa.me/?text=${encodeURIComponent(text)}`);
@@ -30077,7 +30080,7 @@ function openIndexedDB() {
 // dengan build baru, data MENTAH (langsung dari IndexedDB, bukan dari memori) disalin dulu sebelum
 // proses migrasi apapun berjalan — supaya kalau ada kesalahan di update, data lama masih bisa dipulihkan.
 // Dokumen & foto tidak ikut disalin (ukurannya besar, dan tidak pernah disentuh proses migrasi).
-const NAVARA_BUILD = '2026.11.03-302';
+const NAVARA_BUILD = '2026.11.03-305';
 const MAKS_SNAPSHOT = 3;
 
 // ==================== DAFTAR DATA PUSAT ====================
@@ -30170,7 +30173,7 @@ async function susunBackupJson() {
         prospek: _allProspekData,
         jamaah_kita: { data: _allJamaahKitaData, fields: dynamicFieldsJamaahKita },
         folder: _allFolderData, absensi: _allAbsensiData, kas: _allKasData, pembayaran: _allPaymentData,
-        multi_event: _allMasterData, dokumen_jenis: dokumenJenisList,
+        multi_event: _allMasterData, dokumen_jenis: dokumenJenisList, dok_v: DOK_VERSI_BACKUP,
         konfigurasi: konfigurasiPro, catatan: catatanList, pengeluaran: _allPengeluaranData,
         jadwal_manasik: await segar(STORE_ABSENSI, 'jadwal_manasik', []),
         agenda_kantor: await segar(STORE_CATATAN, 'agenda_kantor_list', []),
@@ -30691,12 +30694,9 @@ function migrasiJenisDokumen(list) {
     return hasil;
 }
 // Build 300: jenis "Endorsement" (halaman belakang paspor) ditambahkan SEKALI ke daftar yang sudah ada. Bila kemudian dihapus admin, tidak muncul lagi.
-// Build 302: Vaksin Meningitis & Surat Sehat khusus Umroh (urusan Puskesmas untuk Haji). Satu kali, hanya jenis bawaan. Foto tersimpan tidak dihapus.
-function pindahkanKesehatanKeUmrohSekali(list) {
-    let sudah = false;
-    try { sudah = localStorage.getItem('navara_dok_kesehatan_v302') === '1'; } catch(e) {}
-    if(sudah) return list;
-    try { localStorage.setItem('navara_dok_kesehatan_v302', '1'); } catch(e) {}
+// Build 300/302: penyesuaian daftar jenis dokumen. Inti tanpa "sekali" supaya bisa dipakai juga saat restore cadangan lama.
+const DOK_VERSI_BACKUP = 302;
+function terapkanKesehatanUmroh(list) {
     let berubah = false;
     const baru = list.map(x => {
         if((x.id === 'vaksin' || x.id === 'sehat') && Array.isArray(x.untuk) && x.untuk.includes('haji')) { berubah = true; return { ...x, untuk: ['umroh'] }; }
@@ -30704,13 +30704,29 @@ function pindahkanKesehatanKeUmrohSekali(list) {
     });
     return berubah ? baru : list;
 }
+function terapkanEndorsement(list) {
+    if(list.some(x => x.id === 'endorsement' || /endors/i.test(x.nama || ''))) return list;
+    return [...list, { id: 'endorsement', nama: 'Endorsement', icon: '📑', untuk: ['haji'] }];
+}
+function pindahkanKesehatanKeUmrohSekali(list) {
+    let sudah = false;
+    try { sudah = localStorage.getItem('navara_dok_kesehatan_v302') === '1'; } catch(e) {}
+    if(sudah) return list;
+    try { localStorage.setItem('navara_dok_kesehatan_v302', '1'); } catch(e) {}
+    return terapkanKesehatanUmroh(list);
+}
 function tambahEndorsementSekali(list) {
     let sudah = false;
     try { sudah = localStorage.getItem('navara_dok_endorsement_v300') === '1'; } catch(e) {}
     if(sudah) return list;
     try { localStorage.setItem('navara_dok_endorsement_v300', '1'); } catch(e) {}
-    if(list.some(x => x.id === 'endorsement' || /endors/i.test(x.nama || ''))) return list;
-    return [...list, { id: 'endorsement', nama: 'Endorsement', icon: '📑', untuk: ['haji'] }];
+    return terapkanEndorsement(list);
+}
+// Restore: cadangan dari build lama (tanpa penanda versi) disesuaikan; cadangan baru dipulihkan apa adanya.
+function migrasiJenisRestore(list, dokV) {
+    const m = migrasiJenisDokumen(list);
+    if(Number(dokV) >= DOK_VERSI_BACKUP) return m;
+    return terapkanKesehatanUmroh(terapkanEndorsement(m));
 }
 function kelompokDokumenJamaah(j) {
     const pr = j && programList.find(x => x.id === j.program_id);
@@ -30868,8 +30884,9 @@ function setNamaSumber(jenisId, v) {
 }
 function bersihNamaBerkas(t) { return String(t || '').trim().replace(/\s+/g, '_').replace(/[^A-Za-z0-9_\-]/g, ''); }
 // Nama jamaah sesuai pilihan sumber (KTP = Nama Lengkap, Paspor = Nama Paspor). Jatuh ke nama KTP bila nama paspor kosong.
+function namaPasporJamaah(jamaah) { return String(jamaah?.additional_fields?.nama_paspor || jamaah?.nama_paspor || '').trim(); }
 function namaPilihanJamaah(jamaah, sumber) {
-    const np = String(jamaah?.nama_paspor || '').trim();
+    const np = namaPasporJamaah(jamaah);
     if(sumber === 'paspor') return np ? { nama: np, jatuh: false } : { nama: jamaah?.nama_lengkap || '', jatuh: true };
     return { nama: jamaah?.nama_lengkap || '', jatuh: false };
 }
@@ -31762,13 +31779,18 @@ async function bkBuatBagian(n) {
         for(let i = 0; i < potong.length; i++) {
             if(_bk.batal) { bkTulisProgres('⏹️ Dibatalkan. Tidak ada ZIP yang dibuat.'); return; }
             const j = potong[i], porsi = bkPorsi(j);
-            const b = { porsi, nama: j.nama_lengkap || '', namaPaspor: j.nama_paspor || '', paspor: bkNoPaspor(j), f: {} };
+            const b = { porsi, nama: j.nama_lengkap || '', namaPaspor: namaPasporJamaah(j), paspor: bkNoPaspor(j), f: {} };
             bkTulisProgres(`⏳ Memproses ${i + 1} dari ${potong.length}: ${escapeHtml(j.nama_lengkap || '')}`);
             await new Promise(r => setTimeout(r, 0));
             for(const r of aktif) {
                 const arr = dokumenData[j.id]?.[r.jenisId];
                 if(!Array.isArray(arr) || !arr.length) { b.f[r.folder] = { kb: '', status: 'BELUM ADA' }; continue; }
                 const data = arr[0], asli = await (await fetch(data)).blob(), batas = r.kb * 1000;
+                // Berkas kosong/rusak tidak dimasukkan ke ZIP, supaya tidak terkirim tanpa disadari.
+                let rusak = '';
+                if(!asli.size) rusak = 'FILE KOSONG, tidak dimasukkan';
+                else if(asli.type.startsWith('image/')) { try { const im = await muatGambarDariData(data); if(!(im.naturalWidth > 0)) rusak = 'FILE RUSAK (tidak bisa dibuka), tidak dimasukkan'; } catch(e) { rusak = 'FILE RUSAK (tidak bisa dibuka), tidak dimasukkan'; } }
+                if(rusak) { masalah.push(`${j.nama_lengkap} / ${r.folder}: ${rusak}`); b.f[r.folder] = { kb: '', status: rusak }; continue; }
                 let blob = asli, ext = 'jpg', status = 'OK';
                 if(!asli.type.startsWith('image/')) {
                     ext = asli.type.includes('pdf') ? 'pdf' : 'jpg';
@@ -32167,6 +32189,7 @@ async function buildFullBackupZip() {
     zip.file('folder.json', JSON.stringify(_allFolderData, null, 2));
     zip.file('absensi.json', JSON.stringify(_allAbsensiData, null, 2));
     zip.file('dokumen_jenis.json', JSON.stringify(dokumenJenisList, null, 2));
+    zip.file('versi_backup.json', JSON.stringify({ dok_v: DOK_VERSI_BACKUP, build: NAVARA_BUILD }, null, 2));
     zip.file('konfigurasi.json', JSON.stringify(konfigurasiPro, null, 2));
     zip.file('pengeluaran.json', JSON.stringify(_allPengeluaranData, null, 2));
     zip.file('prospek.json', JSON.stringify(_allProspekData, null, 2));
@@ -32396,7 +32419,7 @@ async function applyRestoreBackupData(backup) {
         }
         masterDataList = _allMasterData.filter(m => m.program_id === currentProgramId);
     }
-    if (backup.dokumen_jenis) { dokumenJenisList = migrasiJenisDokumen(backup.dokumen_jenis); await saveDokumenJenisToIndexedDB(); }
+    if (backup.dokumen_jenis) { dokumenJenisList = migrasiJenisRestore(backup.dokumen_jenis, backup.dok_v); await saveDokumenJenisToIndexedDB(); }
     if (backup.konfigurasi) { konfigurasiPro = { ...konfigurasiPro, ...backup.konfigurasi }; await idbSet(STORE_KONFIGURASI, 'konfigurasi_pro', konfigurasiPro); try { localStorage.setItem('navara_konfigurasi_pro', JSON.stringify(konfigurasiPro)); } catch(e) {} }
     if (backup.prospek) { _allProspekData = backup.prospek; await idbSet(STORE_PROSPEK, 'prospek_list', _allProspekData); }
     if (backup.catatan) { catatanList = backup.catatan; await saveCatatanData(); }
@@ -32681,7 +32704,11 @@ async function restoreFromZip(input) {
 
             // Restore jenis dokumen
             const jenisFile = zip.file('dokumen_jenis.json');
-            if (jenisFile) { dokumenJenisList = migrasiJenisDokumen(JSON.parse(await jenisFile.async('string'))); await saveDokumenJenisToIndexedDB(); }
+            if (jenisFile) {
+                let dokV = 0;
+                try { const vf = zip.file('versi_backup.json'); if (vf) dokV = (JSON.parse(await vf.async('string')) || {}).dok_v || 0; } catch (e) {}
+                dokumenJenisList = migrasiJenisRestore(JSON.parse(await jenisFile.async('string')), dokV); await saveDokumenJenisToIndexedDB();
+            }
 
             // Restore konfigurasi
             const cfgFile = zip.file('konfigurasi.json');
@@ -32706,6 +32733,8 @@ async function restoreFromZip(input) {
             }
 
             // Restore dokumen per jamaah ke IndexedDB
+            // Build 305: ZIP multi-program membawa dokumen SEMUA program, jadi semua jamaah yang dipulihkan diproses (bukan hanya program aktif).
+            const jamaahRestore = isMultiProgramZip ? _allJamaahData : jamaahList;
             dokumenData = {};
             const dokumenFolder = zip.folder('dokumen');
             if (dokumenFolder) {
@@ -32724,12 +32753,12 @@ async function restoreFromZip(input) {
                     if (!petaFolderDokumen.has(folderPath)) petaFolderDokumen.set(folderPath, []);
                     petaFolderDokumen.get(folderPath).push({ path, namaBase: namaFile.replace(/\.(jpg|png)$/i, '') });
                 });
-                for (const j of jamaahList) {
+                for (const j of jamaahRestore) {
                     // Coba format baru (id_nama) atau format lama (nama saja)
                     const folderBaru = `dokumen/${j.id}_${j.nama_lengkap.replace(/[^a-z0-9]/gi, '_')}/`;
                     const folderLama = `dokumen/${j.nama_lengkap.replace(/[^a-z0-9]/gi, '_')}/`;
                     const fileJamaahIni = petaFolderDokumen.get(folderBaru) || petaFolderDokumen.get(folderLama) || [];
-                    tampilkanProgresRestore(`Memulihkan dokumen...\n${jamaahList.indexOf(j) + 1} dari ${jamaahList.length} jamaah (${Math.round((jamaahList.indexOf(j) + 1) / jamaahList.length * 100)}%)`);
+                    tampilkanProgresRestore(`Memulihkan dokumen...\n${jamaahRestore.indexOf(j) + 1} dari ${jamaahRestore.length} jamaah (${Math.round((jamaahRestore.indexOf(j) + 1) / jamaahRestore.length * 100)}%)`);
                     for (const jenis of dokumenJenisList) {
                         // Cari SEMUA file yang cocok untuk jenis dokumen ini — format baru bisa lebih dari 1 foto
                         // (jenisId.jpg / jenisId_1.jpg / jenisId_2.jpg dst), format lama pakai nama jenis dokumen.
@@ -32764,8 +32793,8 @@ async function restoreFromZip(input) {
                 // Restore foto profil
                 const fotoFolder = zip.folder('foto_profil');
                 if (fotoFolder) {
-                    for (const j of jamaahList) {
-                        tampilkanProgresRestore(`Memulihkan foto profil...\n${jamaahList.indexOf(j) + 1} dari ${jamaahList.length} jamaah (${Math.round((jamaahList.indexOf(j) + 1) / jamaahList.length * 100)}%)`);
+                    for (const j of jamaahRestore) {
+                        tampilkanProgresRestore(`Memulihkan foto profil...\n${jamaahRestore.indexOf(j) + 1} dari ${jamaahRestore.length} jamaah (${Math.round((jamaahRestore.indexOf(j) + 1) / jamaahRestore.length * 100)}%)`);
                         const fotoJpg = zip.file(`foto_profil/${j.id}.jpg`);
                         const fotoPng = zip.file(`foto_profil/${j.id}.png`);
                         const fotoFile = fotoJpg || fotoPng;
