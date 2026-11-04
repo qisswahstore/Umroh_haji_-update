@@ -45,6 +45,12 @@
             --gray-light: #F1F5F9;
             --card-bg: #FFFFFF;
             --primary-muda: rgba(13, 92, 74, 0.11);
+            /* Build 311: KAMUS WARNA PERAN — satu tempat untuk terang & gelap. Pakai ini (bukan warna #hex tetap) di kode baru.
+               --teks = judul/teks utama · --teks-redup = keterangan · --garis = pemisah · --teks-merek = teks berwarna hijau merek */
+            --teks: #1E293B;
+            --teks-redup: #64748B;
+            --garis: #E2E8F0;
+            --teks-merek: #0D5C4A;
         }
         /* Halaman Cara Pakai */
         .cp-intro { font-size: 13px; color: var(--gray); line-height: 1.5; margin: 0 0 10px; }
@@ -150,11 +156,804 @@
         body.dark-mode {
             --bg: #121212;
             --white: #1E1E2E;
-            --dark: #E2E2E2;
-            --gray: #A0A0A0;
+            --dark: #E2E8F0;          /* putih lembut (kontras ±11:1 di atas kartu): terbaca lama, tidak menyilaukan */
+            --gray: #A3B1C6;          /* teks redup (kontras ±6,5:1) */
             --gray-light: #2D2D3D;
             --card-bg: #2A2A3A;
+            --teks: #E2E8F0;
+            --teks-redup: #A3B1C6;
+            --garis: #3A3A4C;
+            --teks-merek: #34D3B0;    /* hijau merek versi terang untuk latar gelap (hijau tua #0D5C4A tidak terbaca di sini) */
         }
+/* ===== Build 311: SALINAN GELAP UNTUK WARNA TETAP — BEGIN (dihasilkan otomatis; jangan diedit tangan) ===== */
+/* Mode malam: warna teks/latar/garis yang ditulis tetap (untuk latar terang) diberi pasangan gelap sehue. Hanya aktif di body.dark-mode.
+   Dicocokkan: tulisan asli (#hex) dan bentuk rgb(...) yang ditulis ulang browser setelah JavaScript mengubah style. Jumlah warna dibatasi (yang paling sering dipakai) demi kecepatan. */
+/* teks #4c1d95 (dipakai 1000x) → #c0a7e7 */
+body.dark-mode [style^="color:#4c1d95" i],
+body.dark-mode [style*=";color:#4c1d95" i],
+body.dark-mode [style^="color: rgb(76, 29, 149)"],
+body.dark-mode [style*="; color: rgb(76, 29, 149)"] { color: #c0a7e7 !important; }
+/* teks #14532d (dipakai 999x) → #4dc77d */
+body.dark-mode [style^="color:#14532d" i],
+body.dark-mode [style*=";color:#14532d" i],
+body.dark-mode [style^="color: rgb(20, 83, 45)"],
+body.dark-mode [style*="; color: rgb(20, 83, 45)"] { color: #4dc77d !important; }
+/* teks #164e63 (dipakai 999x) → #72bad5 */
+body.dark-mode [style^="color:#164e63" i],
+body.dark-mode [style*=";color:#164e63" i],
+body.dark-mode [style^="color: rgb(22, 78, 99)"],
+body.dark-mode [style*="; color: rgb(22, 78, 99)"] { color: #72bad5 !important; }
+/* teks #888888 (dipakai 380x) → var(--teks-redup) */
+body.dark-mode [style^="color:#888;" i],
+body.dark-mode [style*=";color:#888;" i],
+body.dark-mode [style$=";color:#888" i],
+body.dark-mode [style^="color: rgb(136, 136, 136)"],
+body.dark-mode [style*="; color: rgb(136, 136, 136)"] { color: var(--teks-redup) !important; }
+/* teks #333333 (dipakai 137x) → var(--teks) */
+body.dark-mode [style^="color:#333;" i],
+body.dark-mode [style*=";color:#333;" i],
+body.dark-mode [style$=";color:#333" i],
+body.dark-mode [style^="color: rgb(51, 51, 51)"],
+body.dark-mode [style*="; color: rgb(51, 51, 51)"] { color: var(--teks) !important; }
+/* teks #64748b (dipakai 128x) → #aab3bf */
+body.dark-mode [style^="color:#64748b" i],
+body.dark-mode [style*=";color:#64748b" i],
+body.dark-mode [style^="color: rgb(100, 116, 139)"],
+body.dark-mode [style*="; color: rgb(100, 116, 139)"] { color: #aab3bf !important; }
+/* teks #6b7280 (dipakai 120x) → var(--teks-redup) */
+body.dark-mode [style^="color:#6b7280" i],
+body.dark-mode [style*=";color:#6b7280" i],
+body.dark-mode [style^="color: rgb(107, 114, 128)"],
+body.dark-mode [style*="; color: rgb(107, 114, 128)"] { color: var(--teks-redup) !important; }
+/* teks #666666 (dipakai 97x) → var(--teks-redup) */
+body.dark-mode [style^="color:#666;" i],
+body.dark-mode [style*=";color:#666;" i],
+body.dark-mode [style$=";color:#666" i],
+body.dark-mode [style^="color: rgb(102, 102, 102)"],
+body.dark-mode [style*="; color: rgb(102, 102, 102)"] { color: var(--teks-redup) !important; }
+/* teks #555555 (dipakai 94x) → var(--teks) */
+body.dark-mode [style^="color:#555;" i],
+body.dark-mode [style*=";color:#555;" i],
+body.dark-mode [style$=";color:#555" i],
+body.dark-mode [style^="color: rgb(85, 85, 85)"],
+body.dark-mode [style*="; color: rgb(85, 85, 85)"] { color: var(--teks) !important; }
+/* teks #92400e (dipakai 90x) → #e8a57d */
+body.dark-mode [style^="color:#92400e" i],
+body.dark-mode [style*=";color:#92400e" i],
+body.dark-mode [style^="color: rgb(146, 64, 14)"],
+body.dark-mode [style*="; color: rgb(146, 64, 14)"] { color: #e8a57d !important; }
+/* teks #0d5c4a (dipakai 68x) → #2cc9a5 */
+body.dark-mode [style^="color:#0d5c4a" i],
+body.dark-mode [style*=";color:#0d5c4a" i],
+body.dark-mode [style^="color: rgb(13, 92, 74)"],
+body.dark-mode [style*="; color: rgb(13, 92, 74)"] { color: #2cc9a5 !important; }
+/* teks #b45309 (dipakai 51x) → #eca56f */
+body.dark-mode [style^="color:#b45309" i],
+body.dark-mode [style*=";color:#b45309" i],
+body.dark-mode [style^="color: rgb(180, 83, 9)"],
+body.dark-mode [style*="; color: rgb(180, 83, 9)"] { color: #eca56f !important; }
+/* teks #475569 (dipakai 49x) → #acb6c3 */
+body.dark-mode [style^="color:#475569" i],
+body.dark-mode [style*=";color:#475569" i],
+body.dark-mode [style^="color: rgb(71, 85, 105)"],
+body.dark-mode [style*="; color: rgb(71, 85, 105)"] { color: #acb6c3 !important; }
+/* teks #dc2626 (dipakai 47x) → #e89f9f */
+body.dark-mode [style^="color:#dc2626" i],
+body.dark-mode [style*=";color:#dc2626" i],
+body.dark-mode [style^="color: rgb(220, 38, 38)"],
+body.dark-mode [style*="; color: rgb(220, 38, 38)"] { color: #e89f9f !important; }
+/* teks #166534 (dipakai 32x) → #4aca7a */
+body.dark-mode [style^="color:#166534" i],
+body.dark-mode [style*=";color:#166534" i],
+body.dark-mode [style^="color: rgb(22, 101, 52)"],
+body.dark-mode [style*="; color: rgb(22, 101, 52)"] { color: #4aca7a !important; }
+/* teks #334155 (dipakai 29x) → #a8b5c7 */
+body.dark-mode [style^="color:#334155" i],
+body.dark-mode [style*=";color:#334155" i],
+body.dark-mode [style^="color: rgb(51, 65, 85)"],
+body.dark-mode [style*="; color: rgb(51, 65, 85)"] { color: #a8b5c7 !important; }
+/* teks #0369a1 (dipakai 29x) → #61bdef */
+body.dark-mode [style^="color:#0369a1" i],
+body.dark-mode [style*=";color:#0369a1" i],
+body.dark-mode [style^="color: rgb(3, 105, 161)"],
+body.dark-mode [style*="; color: rgb(3, 105, 161)"] { color: #61bdef !important; }
+/* teks #991b1b (dipakai 22x) → #e8a6a6 */
+body.dark-mode [style^="color:#991b1b" i],
+body.dark-mode [style*=";color:#991b1b" i],
+body.dark-mode [style^="color: rgb(153, 27, 27)"],
+body.dark-mode [style*="; color: rgb(153, 27, 27)"] { color: #e8a6a6 !important; }
+/* teks #222222 (dipakai 21x) → var(--teks) */
+body.dark-mode [style^="color:#222;" i],
+body.dark-mode [style*=";color:#222;" i],
+body.dark-mode [style$=";color:#222" i],
+body.dark-mode [style^="color: rgb(34, 34, 34)"],
+body.dark-mode [style*="; color: rgb(34, 34, 34)"] { color: var(--teks) !important; }
+/* teks #ef4444 (dipakai 17x) → #efa0a0 */
+body.dark-mode [style^="color:#ef4444" i],
+body.dark-mode [style*=";color:#ef4444" i],
+body.dark-mode [style^="color: rgb(239, 68, 68)"],
+body.dark-mode [style*="; color: rgb(239, 68, 68)"] { color: #efa0a0 !important; }
+/* teks #1a1a1a (dipakai 11x) → var(--teks) */
+body.dark-mode [style^="color:#1a1a1a" i],
+body.dark-mode [style*=";color:#1a1a1a" i],
+body.dark-mode [style^="color: rgb(26, 26, 26)"],
+body.dark-mode [style*="; color: rgb(26, 26, 26)"] { color: var(--teks) !important; }
+/* teks #444444 (dipakai 11x) → var(--teks) */
+body.dark-mode [style^="color:#444;" i],
+body.dark-mode [style*=";color:#444;" i],
+body.dark-mode [style$=";color:#444" i],
+body.dark-mode [style^="color: rgb(68, 68, 68)"],
+body.dark-mode [style*="; color: rgb(68, 68, 68)"] { color: var(--teks) !important; }
+/* teks #15803d (dipakai 10x) → #32cd6c */
+body.dark-mode [style^="color:#15803d" i],
+body.dark-mode [style*=";color:#15803d" i],
+body.dark-mode [style^="color: rgb(21, 128, 61)"],
+body.dark-mode [style*="; color: rgb(21, 128, 61)"] { color: #32cd6c !important; }
+/* teks #b91c1c (dipakai 9x) → #eaa3a3 */
+body.dark-mode [style^="color:#b91c1c" i],
+body.dark-mode [style*=";color:#b91c1c" i],
+body.dark-mode [style^="color: rgb(185, 28, 28)"],
+body.dark-mode [style*="; color: rgb(185, 28, 28)"] { color: #eaa3a3 !important; }
+/* teks #b42318 (dipakai 8x) → #eaa09a */
+body.dark-mode [style^="color:#b42318" i],
+body.dark-mode [style*=";color:#b42318" i],
+body.dark-mode [style^="color: rgb(180, 35, 24)"],
+body.dark-mode [style*="; color: rgb(180, 35, 24)"] { color: #eaa09a !important; }
+/* teks #1f2937 (dipakai 8x) → #a7b5c9 */
+body.dark-mode [style^="color:#1f2937" i],
+body.dark-mode [style*=";color:#1f2937" i],
+body.dark-mode [style^="color: rgb(31, 41, 55)"],
+body.dark-mode [style*="; color: rgb(31, 41, 55)"] { color: #a7b5c9 !important; }
+/* teks #374151 (dipakai 7x) → #acb5c3 */
+body.dark-mode [style^="color:#374151" i],
+body.dark-mode [style*=";color:#374151" i],
+body.dark-mode [style^="color: rgb(55, 65, 81)"],
+body.dark-mode [style*="; color: rgb(55, 65, 81)"] { color: #acb5c3 !important; }
+/* teks #6d28d9 (dipakai 7x) → #c1a7e9 */
+body.dark-mode [style^="color:#6d28d9" i],
+body.dark-mode [style*=";color:#6d28d9" i],
+body.dark-mode [style^="color: rgb(109, 40, 217)"],
+body.dark-mode [style*="; color: rgb(109, 40, 217)"] { color: #c1a7e9 !important; }
+/* teks #78350f (dipakai 6x) → #e5a580 */
+body.dark-mode [style^="color:#78350f" i],
+body.dark-mode [style*=";color:#78350f" i],
+body.dark-mode [style^="color: rgb(120, 53, 15)"],
+body.dark-mode [style*="; color: rgb(120, 53, 15)"] { color: #e5a580 !important; }
+/* teks #5b21b6 (dipakai 6x) → #c0a6e8 */
+body.dark-mode [style^="color:#5b21b6" i],
+body.dark-mode [style*=";color:#5b21b6" i],
+body.dark-mode [style^="color: rgb(91, 33, 182)"],
+body.dark-mode [style*="; color: rgb(91, 33, 182)"] { color: #c0a6e8 !important; }
+/* teks #0f766e (dipakai 6x) → #2acbbe */
+body.dark-mode [style^="color:#0f766e" i],
+body.dark-mode [style*=";color:#0f766e" i],
+body.dark-mode [style^="color: rgb(15, 118, 110)"],
+body.dark-mode [style*="; color: rgb(15, 118, 110)"] { color: #2acbbe !important; }
+/* teks #1e40af (dipakai 5x) → #9eafe7 */
+body.dark-mode [style^="color:#1e40af" i],
+body.dark-mode [style*=";color:#1e40af" i],
+body.dark-mode [style^="color: rgb(30, 64, 175)"],
+body.dark-mode [style*="; color: rgb(30, 64, 175)"] { color: #9eafe7 !important; }
+/* teks #e74c3c (dipakai 5x) → #ea9d95 */
+body.dark-mode [style^="color:#e74c3c" i],
+body.dark-mode [style*=";color:#e74c3c" i],
+body.dark-mode [style^="color: rgb(231, 76, 60)"],
+body.dark-mode [style*="; color: rgb(231, 76, 60)"] { color: #ea9d95 !important; }
+/* teks #047857 (dipakai 5x) → #17c997 */
+body.dark-mode [style^="color:#047857" i],
+body.dark-mode [style*=";color:#047857" i],
+body.dark-mode [style^="color: rgb(4, 120, 87)"],
+body.dark-mode [style*="; color: rgb(4, 120, 87)"] { color: #17c997 !important; }
+/* teks #7c3aed (dipakai 5x) → #c2a7f0 */
+body.dark-mode [style^="color:#7c3aed" i],
+body.dark-mode [style*=";color:#7c3aed" i],
+body.dark-mode [style^="color: rgb(124, 58, 237)"],
+body.dark-mode [style*="; color: rgb(124, 58, 237)"] { color: #c2a7f0 !important; }
+/* teks #5b6470 (dipakai 4x) → var(--teks) */
+body.dark-mode [style^="color:#5b6470" i],
+body.dark-mode [style*=";color:#5b6470" i],
+body.dark-mode [style^="color: rgb(91, 100, 112)"],
+body.dark-mode [style*="; color: rgb(91, 100, 112)"] { color: var(--teks) !important; }
+/* teks #1f2933 (dipakai 3x) → #a3b3c2 */
+body.dark-mode [style^="color:#1f2933" i],
+body.dark-mode [style*=";color:#1f2933" i],
+body.dark-mode [style^="color: rgb(31, 41, 51)"],
+body.dark-mode [style*="; color: rgb(31, 41, 51)"] { color: #a3b3c2 !important; }
+/* teks #4b5563 (dipakai 3x) → #aab1bb */
+body.dark-mode [style^="color:#4b5563" i],
+body.dark-mode [style*=";color:#4b5563" i],
+body.dark-mode [style^="color: rgb(75, 85, 99)"],
+body.dark-mode [style*="; color: rgb(75, 85, 99)"] { color: #aab1bb !important; }
+/* teks #1e3a8a (dipakai 3x) → #a0b2e3 */
+body.dark-mode [style^="color:#1e3a8a" i],
+body.dark-mode [style*=";color:#1e3a8a" i],
+body.dark-mode [style^="color: rgb(30, 58, 138)"],
+body.dark-mode [style*="; color: rgb(30, 58, 138)"] { color: #a0b2e3 !important; }
+/* teks #1d4ed8 (dipakai 3x) → #9aafea */
+body.dark-mode [style^="color:#1d4ed8" i],
+body.dark-mode [style*=";color:#1d4ed8" i],
+body.dark-mode [style^="color: rgb(29, 78, 216)"],
+body.dark-mode [style*="; color: rgb(29, 78, 216)"] { color: #9aafea !important; }
+/* teks #2563eb (dipakai 3x) → #9cb6ee */
+body.dark-mode [style^="color:#2563eb" i],
+body.dark-mode [style*=";color:#2563eb" i],
+body.dark-mode [style^="color: rgb(37, 99, 235)"],
+body.dark-mode [style*="; color: rgb(37, 99, 235)"] { color: #9cb6ee !important; }
+/* teks #16a34a (dipakai 3x) → #2bca66 */
+body.dark-mode [style^="color:#16a34a" i],
+body.dark-mode [style*=";color:#16a34a" i],
+body.dark-mode [style^="color: rgb(22, 163, 74)"],
+body.dark-mode [style*="; color: rgb(22, 163, 74)"] { color: #2bca66 !important; }
+/* teks #1e293b (dipakai 2x) → #a4b3cb */
+body.dark-mode [style^="color:#1e293b" i],
+body.dark-mode [style*=";color:#1e293b" i],
+body.dark-mode [style^="color: rgb(30, 41, 59)"],
+body.dark-mode [style*="; color: rgb(30, 41, 59)"] { color: #a4b3cb !important; }
+/* teks #9a3412 (dipakai 2x) → #e8a088 */
+body.dark-mode [style^="color:#9a3412" i],
+body.dark-mode [style*=";color:#9a3412" i],
+body.dark-mode [style^="color: rgb(154, 52, 18)"],
+body.dark-mode [style*="; color: rgb(154, 52, 18)"] { color: #e8a088 !important; }
+/* teks #059669 (dipakai 2x) → #17c992 */
+body.dark-mode [style^="color:#059669" i],
+body.dark-mode [style*=";color:#059669" i],
+body.dark-mode [style^="color: rgb(5, 150, 105)"],
+body.dark-mode [style*="; color: rgb(5, 150, 105)"] { color: #17c992 !important; }
+/* teks #0d9488 (dipakai 2x) → #22c9ba */
+body.dark-mode [style^="color:#0d9488" i],
+body.dark-mode [style*=";color:#0d9488" i],
+body.dark-mode [style^="color: rgb(13, 148, 136)"],
+body.dark-mode [style*="; color: rgb(13, 148, 136)"] { color: #22c9ba !important; }
+/* teks #d97706 (dipakai 2x) → #eca34f */
+body.dark-mode [style^="color:#d97706" i],
+body.dark-mode [style*=";color:#d97706" i],
+body.dark-mode [style^="color: rgb(217, 119, 6)"],
+body.dark-mode [style*="; color: rgb(217, 119, 6)"] { color: #eca34f !important; }
+/* teks #3730a3 (dipakai 1x) → #aeabe0 */
+body.dark-mode [style^="color:#3730a3" i],
+body.dark-mode [style*=";color:#3730a3" i],
+body.dark-mode [style^="color: rgb(55, 48, 163)"],
+body.dark-mode [style*="; color: rgb(55, 48, 163)"] { color: #aeabe0 !important; }
+/* teks #7f1d1d (dipakai 1x) → #e2a1a1 */
+body.dark-mode [style^="color:#7f1d1d" i],
+body.dark-mode [style*=";color:#7f1d1d" i],
+body.dark-mode [style^="color: rgb(127, 29, 29)"],
+body.dark-mode [style*="; color: rgb(127, 29, 29)"] { color: #e2a1a1 !important; }
+/* teks #155e75 (dipakai 1x) → #65bcd7 */
+body.dark-mode [style^="color:#155e75" i],
+body.dark-mode [style*=";color:#155e75" i],
+body.dark-mode [style^="color: rgb(21, 94, 117)"],
+body.dark-mode [style*="; color: rgb(21, 94, 117)"] { color: #65bcd7 !important; }
+/* teks #8b5cf6 (dipakai 1x) → #bea6f3 */
+body.dark-mode [style^="color:#8b5cf6" i],
+body.dark-mode [style*=";color:#8b5cf6" i],
+body.dark-mode [style^="color: rgb(139, 92, 246)"],
+body.dark-mode [style*="; color: rgb(139, 92, 246)"] { color: #bea6f3 !important; }
+/* teks #0f9d58 (dipakai 1x) → #25d07d */
+body.dark-mode [style^="color:#0f9d58" i],
+body.dark-mode [style*=";color:#0f9d58" i],
+body.dark-mode [style^="color: rgb(15, 157, 88)"],
+body.dark-mode [style*="; color: rgb(15, 157, 88)"] { color: #25d07d !important; }
+/* teks #8a6d1f (dipakai 1x) → #ceae5a */
+body.dark-mode [style^="color:#8a6d1f" i],
+body.dark-mode [style*=";color:#8a6d1f" i],
+body.dark-mode [style^="color: rgb(138, 109, 31)"],
+body.dark-mode [style*="; color: rgb(138, 109, 31)"] { color: #ceae5a !important; }
+/* teks #075985 (dipakai 1x) → #66bceb */
+body.dark-mode [style^="color:#075985" i],
+body.dark-mode [style*=";color:#075985" i],
+body.dark-mode [style^="color: rgb(7, 89, 133)"],
+body.dark-mode [style*="; color: rgb(7, 89, 133)"] { color: #66bceb !important; }
+/* teks #065f46 (dipakai 1x) → #1dcd9c */
+body.dark-mode [style^="color:#065f46" i],
+body.dark-mode [style*=";color:#065f46" i],
+body.dark-mode [style^="color: rgb(6, 95, 70)"],
+body.dark-mode [style*="; color: rgb(6, 95, 70)"] { color: #1dcd9c !important; }
+/* teks #064e3b (dipakai 1x) → #20cb9e */
+body.dark-mode [style^="color:#064e3b" i],
+body.dark-mode [style*=";color:#064e3b" i],
+body.dark-mode [style^="color: rgb(6, 78, 59)"],
+body.dark-mode [style*="; color: rgb(6, 78, 59)"] { color: #20cb9e !important; }
+/* teks #3b82f6 (dipakai 1x) → #91b6f1 */
+body.dark-mode [style^="color:#3b82f6" i],
+body.dark-mode [style*=";color:#3b82f6" i],
+body.dark-mode [style^="color: rgb(59, 130, 246)"],
+body.dark-mode [style*="; color: rgb(59, 130, 246)"] { color: #91b6f1 !important; }
+/* teks #0d3d31 (dipakai 1x) → #39c6a3 */
+body.dark-mode [style^="color:#0d3d31" i],
+body.dark-mode [style*=";color:#0d3d31" i],
+body.dark-mode [style^="color: rgb(13, 61, 49)"],
+body.dark-mode [style*="; color: rgb(13, 61, 49)"] { color: #39c6a3 !important; }
+/* teks #0e7490 (dipakai 1x) → #49bfdf */
+body.dark-mode [style^="color:#0e7490" i],
+body.dark-mode [style*=";color:#0e7490" i],
+body.dark-mode [style^="color: rgb(14, 116, 144)"],
+body.dark-mode [style*="; color: rgb(14, 116, 144)"] { color: #49bfdf !important; }
+/* teks #0f172a (dipakai 1x) → #a2b2d7 */
+body.dark-mode [style^="color:#0f172a" i],
+body.dark-mode [style*=";color:#0f172a" i],
+body.dark-mode [style^="color: rgb(15, 23, 42)"],
+body.dark-mode [style*="; color: rgb(15, 23, 42)"] { color: #a2b2d7 !important; }
+/* teks #7c4a03 (dipakai 1x) → #eba33d */
+body.dark-mode [style^="color:#7c4a03" i],
+body.dark-mode [style*=";color:#7c4a03" i],
+body.dark-mode [style^="color: rgb(124, 74, 3)"],
+body.dark-mode [style*="; color: rgb(124, 74, 3)"] { color: #eba33d !important; }
+/* teks #111827 (dipakai 1x) → #a7b5d3 */
+body.dark-mode [style^="color:#111827" i],
+body.dark-mode [style*=";color:#111827" i],
+body.dark-mode [style^="color: rgb(17, 24, 39)"],
+body.dark-mode [style*="; color: rgb(17, 24, 39)"] { color: #a7b5d3 !important; }
+/* teks #111111 (dipakai 1x) → var(--teks) */
+body.dark-mode [style^="color:#111;" i],
+body.dark-mode [style*=";color:#111;" i],
+body.dark-mode [style$=";color:#111" i],
+body.dark-mode [style^="color: rgb(17, 17, 17)"],
+body.dark-mode [style*="; color: rgb(17, 17, 17)"] { color: var(--teks) !important; }
+/* latar #dcfce7 (dipakai 1011x) → #1e482c */
+body.dark-mode [style^="background:#dcfce7;" i],
+body.dark-mode [style*=";background:#dcfce7;" i],
+body.dark-mode [style$=";background:#dcfce7" i],
+body.dark-mode [style^="background: rgb(220, 252, 231)"],
+body.dark-mode [style*="; background: rgb(220, 252, 231)"] { background-color: #1e482c !important; }
+/* latar #ede9fe (dipakai 1004x) → #261e48 */
+body.dark-mode [style^="background:#ede9fe;" i],
+body.dark-mode [style*=";background:#ede9fe;" i],
+body.dark-mode [style$=";background:#ede9fe" i],
+body.dark-mode [style^="background: rgb(237, 233, 254)"],
+body.dark-mode [style*="; background: rgb(237, 233, 254)"] { background-color: #261e48 !important; }
+/* latar #cffafe (dipakai 999x) → #1e4548 */
+body.dark-mode [style^="background:#cffafe;" i],
+body.dark-mode [style*=";background:#cffafe;" i],
+body.dark-mode [style$=";background:#cffafe" i],
+body.dark-mode [style^="background: rgb(207, 250, 254)"],
+body.dark-mode [style*="; background: rgb(207, 250, 254)"] { background-color: #1e4548 !important; }
+/* latar #e2e8f0 (dipakai 127x) → #28313e */
+body.dark-mode [style^="background:#e2e8f0;" i],
+body.dark-mode [style*=";background:#e2e8f0;" i],
+body.dark-mode [style$=";background:#e2e8f0" i],
+body.dark-mode [style^="background: rgb(226, 232, 240)"],
+body.dark-mode [style*="; background: rgb(226, 232, 240)"] { background-color: #28313e !important; }
+/* latar #f8fafc (dipakai 82x) → #253341 */
+body.dark-mode [style^="background:#f8fafc;" i],
+body.dark-mode [style*=";background:#f8fafc;" i],
+body.dark-mode [style$=";background:#f8fafc" i],
+body.dark-mode [style^="background: rgb(248, 250, 252)"],
+body.dark-mode [style*="; background: rgb(248, 250, 252)"] { background-color: #253341 !important; }
+/* latar #fef3c7 (dipakai 59x) → #48401e */
+body.dark-mode [style^="background:#fef3c7;" i],
+body.dark-mode [style*=";background:#fef3c7;" i],
+body.dark-mode [style$=";background:#fef3c7" i],
+body.dark-mode [style^="background: rgb(254, 243, 199)"],
+body.dark-mode [style*="; background: rgb(254, 243, 199)"] { background-color: #48401e !important; }
+/* latar #ffffff (dipakai 53x) → #32324A */
+body.dark-mode [style^="background:#fff;" i],
+body.dark-mode [style*=";background:#fff;" i],
+body.dark-mode [style$=";background:#fff" i],
+body.dark-mode [style^="background: rgb(255, 255, 255)"],
+body.dark-mode [style*="; background: rgb(255, 255, 255)"],
+body.dark-mode [style^="background:white" i],
+body.dark-mode [style*=";background:white" i],
+body.dark-mode [style^="background: white" i],
+body.dark-mode [style*="; background: white" i] { background-color: #32324A !important; }
+/* latar #fee2e2 (dipakai 29x) → #481e1e */
+body.dark-mode [style^="background:#fee2e2;" i],
+body.dark-mode [style*=";background:#fee2e2;" i],
+body.dark-mode [style$=";background:#fee2e2" i],
+body.dark-mode [style^="background: rgb(254, 226, 226)"],
+body.dark-mode [style*="; background: rgb(254, 226, 226)"] { background-color: #481e1e !important; }
+/* latar #f0f0f0 (dipakai 28x) → #3A3A4C */
+body.dark-mode [style^="background:#f0f0f0;" i],
+body.dark-mode [style*=";background:#f0f0f0;" i],
+body.dark-mode [style$=";background:#f0f0f0" i],
+body.dark-mode [style^="background: rgb(240, 240, 240)"],
+body.dark-mode [style*="; background: rgb(240, 240, 240)"] { background-color: #3A3A4C !important; }
+/* latar #f1f5f9 (dipakai 23x) → #253341 */
+body.dark-mode [style^="background:#f1f5f9;" i],
+body.dark-mode [style*=";background:#f1f5f9;" i],
+body.dark-mode [style$=";background:#f1f5f9" i],
+body.dark-mode [style^="background: rgb(241, 245, 249)"],
+body.dark-mode [style*="; background: rgb(241, 245, 249)"] { background-color: #253341 !important; }
+/* latar #f0fdf4 (dipakai 19x) → #1e482b */
+body.dark-mode [style^="background:#f0fdf4;" i],
+body.dark-mode [style*=";background:#f0fdf4;" i],
+body.dark-mode [style$=";background:#f0fdf4" i],
+body.dark-mode [style^="background: rgb(240, 253, 244)"],
+body.dark-mode [style*="; background: rgb(240, 253, 244)"] { background-color: #1e482b !important; }
+/* latar #fffbeb (dipakai 18x) → #48401e */
+body.dark-mode [style^="background:#fffbeb;" i],
+body.dark-mode [style*=";background:#fffbeb;" i],
+body.dark-mode [style$=";background:#fffbeb" i],
+body.dark-mode [style^="background: rgb(255, 251, 235)"],
+body.dark-mode [style*="; background: rgb(255, 251, 235)"] { background-color: #48401e !important; }
+/* latar #f9f9f9 (dipakai 11x) → #32324A */
+body.dark-mode [style^="background:#f9f9f9;" i],
+body.dark-mode [style*=";background:#f9f9f9;" i],
+body.dark-mode [style$=";background:#f9f9f9" i],
+body.dark-mode [style^="background: rgb(249, 249, 249)"],
+body.dark-mode [style*="; background: rgb(249, 249, 249)"] { background-color: #32324A !important; }
+/* latar #f0f7f4 (dipakai 9x) → #283e35 */
+body.dark-mode [style^="background:#f0f7f4;" i],
+body.dark-mode [style*=";background:#f0f7f4;" i],
+body.dark-mode [style$=";background:#f0f7f4" i],
+body.dark-mode [style^="background: rgb(240, 247, 244)"],
+body.dark-mode [style*="; background: rgb(240, 247, 244)"] { background-color: #283e35 !important; }
+/* latar #e0f2fe (dipakai 9x) → #1e3748 */
+body.dark-mode [style^="background:#e0f2fe;" i],
+body.dark-mode [style*=";background:#e0f2fe;" i],
+body.dark-mode [style$=";background:#e0f2fe" i],
+body.dark-mode [style^="background: rgb(224, 242, 254)"],
+body.dark-mode [style*="; background: rgb(224, 242, 254)"] { background-color: #1e3748 !important; }
+/* latar #eff6ff (dipakai 8x) → #1e3048 */
+body.dark-mode [style^="background:#eff6ff;" i],
+body.dark-mode [style*=";background:#eff6ff;" i],
+body.dark-mode [style$=";background:#eff6ff" i],
+body.dark-mode [style^="background: rgb(239, 246, 255)"],
+body.dark-mode [style*="; background: rgb(239, 246, 255)"] { background-color: #1e3048 !important; }
+/* latar #f8f8f8 (dipakai 8x) → #32324A */
+body.dark-mode [style^="background:#f8f8f8;" i],
+body.dark-mode [style*=";background:#f8f8f8;" i],
+body.dark-mode [style$=";background:#f8f8f8" i],
+body.dark-mode [style^="background: rgb(248, 248, 248)"],
+body.dark-mode [style*="; background: rgb(248, 248, 248)"] { background-color: #32324A !important; }
+/* latar #f0fbf6 (dipakai 5x) → #1e4835 */
+body.dark-mode [style^="background:#f0fbf6;" i],
+body.dark-mode [style*=";background:#f0fbf6;" i],
+body.dark-mode [style$=";background:#f0fbf6" i],
+body.dark-mode [style^="background: rgb(240, 251, 246)"],
+body.dark-mode [style*="; background: rgb(240, 251, 246)"] { background-color: #1e4835 !important; }
+/* latar #f0f9ff (dipakai 5x) → #1e3748 */
+body.dark-mode [style^="background:#f0f9ff;" i],
+body.dark-mode [style*=";background:#f0f9ff;" i],
+body.dark-mode [style$=";background:#f0f9ff" i],
+body.dark-mode [style^="background: rgb(240, 249, 255)"],
+body.dark-mode [style*="; background: rgb(240, 249, 255)"] { background-color: #1e3748 !important; }
+/* latar #eef6f3 (dipakai 5x) → #283e36 */
+body.dark-mode [style^="background:#eef6f3;" i],
+body.dark-mode [style*=";background:#eef6f3;" i],
+body.dark-mode [style$=";background:#eef6f3" i],
+body.dark-mode [style^="background: rgb(238, 246, 243)"],
+body.dark-mode [style*="; background: rgb(238, 246, 243)"] { background-color: #283e36 !important; }
+/* latar #f3f4f6 (dipakai 3x) → #2e3138 */
+body.dark-mode [style^="background:#f3f4f6;" i],
+body.dark-mode [style*=";background:#f3f4f6;" i],
+body.dark-mode [style$=";background:#f3f4f6" i],
+body.dark-mode [style^="background: rgb(243, 244, 246)"],
+body.dark-mode [style*="; background: rgb(243, 244, 246)"] { background-color: #2e3138 !important; }
+/* latar #4ade80 (dipakai 3x) → #1e482d */
+body.dark-mode [style^="background:#4ade80;" i],
+body.dark-mode [style*=";background:#4ade80;" i],
+body.dark-mode [style$=";background:#4ade80" i],
+body.dark-mode [style^="background: rgb(74, 222, 128)"],
+body.dark-mode [style*="; background: rgb(74, 222, 128)"] { background-color: #1e482d !important; }
+/* latar #f0f9f6 (dipakai 3x) → #244238 */
+body.dark-mode [style^="background:#f0f9f6;" i],
+body.dark-mode [style*=";background:#f0f9f6;" i],
+body.dark-mode [style$=";background:#f0f9f6" i],
+body.dark-mode [style^="background: rgb(240, 249, 246)"],
+body.dark-mode [style*="; background: rgb(240, 249, 246)"] { background-color: #244238 !important; }
+/* latar #f5f3ff (dipakai 3x) → #251e48 */
+body.dark-mode [style^="background:#f5f3ff;" i],
+body.dark-mode [style*=";background:#f5f3ff;" i],
+body.dark-mode [style$=";background:#f5f3ff" i],
+body.dark-mode [style^="background: rgb(245, 243, 255)"],
+body.dark-mode [style*="; background: rgb(245, 243, 255)"] { background-color: #251e48 !important; }
+/* latar #cccccc (dipakai 3x) → #3A3A4C */
+body.dark-mode [style^="background:#ccc;" i],
+body.dark-mode [style*=";background:#ccc;" i],
+body.dark-mode [style$=";background:#ccc" i],
+body.dark-mode [style^="background: rgb(204, 204, 204)"],
+body.dark-mode [style*="; background: rgb(204, 204, 204)"] { background-color: #3A3A4C !important; }
+/* latar #eaf3f0 (dipakai 2x) → #293d36 */
+body.dark-mode [style^="background:#eaf3f0;" i],
+body.dark-mode [style*=";background:#eaf3f0;" i],
+body.dark-mode [style$=";background:#eaf3f0" i],
+body.dark-mode [style^="background: rgb(234, 243, 240)"],
+body.dark-mode [style*="; background: rgb(234, 243, 240)"] { background-color: #293d36 !important; }
+/* latar #d1fae5 (dipakai 2x) → #1e4832 */
+body.dark-mode [style^="background:#d1fae5;" i],
+body.dark-mode [style*=";background:#d1fae5;" i],
+body.dark-mode [style$=";background:#d1fae5" i],
+body.dark-mode [style^="background: rgb(209, 250, 229)"],
+body.dark-mode [style*="; background: rgb(209, 250, 229)"] { background-color: #1e4832 !important; }
+/* latar #dbeafe (dipakai 2x) → #1e3048 */
+body.dark-mode [style^="background:#dbeafe;" i],
+body.dark-mode [style*=";background:#dbeafe;" i],
+body.dark-mode [style$=";background:#dbeafe" i],
+body.dark-mode [style^="background: rgb(219, 234, 254)"],
+body.dark-mode [style*="; background: rgb(219, 234, 254)"] { background-color: #1e3048 !important; }
+/* latar #e8f5f0 (dipakai 2x) → #254136 */
+body.dark-mode [style^="background:#e8f5f0;" i],
+body.dark-mode [style*=";background:#e8f5f0;" i],
+body.dark-mode [style$=";background:#e8f5f0" i],
+body.dark-mode [style^="background: rgb(232, 245, 240)"],
+body.dark-mode [style*="; background: rgb(232, 245, 240)"] { background-color: #254136 !important; }
+/* latar #fff7ed (dipakai 2x) → #48351e */
+body.dark-mode [style^="background:#fff7ed;" i],
+body.dark-mode [style*=";background:#fff7ed;" i],
+body.dark-mode [style$=";background:#fff7ed" i],
+body.dark-mode [style^="background: rgb(255, 247, 237)"],
+body.dark-mode [style*="; background: rgb(255, 247, 237)"] { background-color: #48351e !important; }
+/* latar #e5e7eb (dipakai 2x) → #2e3138 */
+body.dark-mode [style^="background:#e5e7eb;" i],
+body.dark-mode [style*=";background:#e5e7eb;" i],
+body.dark-mode [style$=";background:#e5e7eb" i],
+body.dark-mode [style^="background: rgb(229, 231, 235)"],
+body.dark-mode [style*="; background: rgb(229, 231, 235)"] { background-color: #2e3138 !important; }
+/* latar #fef2f2 (dipakai 2x) → #481e1e */
+body.dark-mode [style^="background:#fef2f2;" i],
+body.dark-mode [style*=";background:#fef2f2;" i],
+body.dark-mode [style$=";background:#fef2f2" i],
+body.dark-mode [style^="background: rgb(254, 242, 242)"],
+body.dark-mode [style*="; background: rgb(254, 242, 242)"] { background-color: #481e1e !important; }
+/* latar #eef2ff (dipakai 1x) → #1e2848 */
+body.dark-mode [style^="background:#eef2ff;" i],
+body.dark-mode [style*=";background:#eef2ff;" i],
+body.dark-mode [style$=";background:#eef2ff" i],
+body.dark-mode [style^="background: rgb(238, 242, 255)"],
+body.dark-mode [style*="; background: rgb(238, 242, 255)"] { background-color: #1e2848 !important; }
+/* latar #fde68a (dipakai 1x) → #48401e */
+body.dark-mode [style^="background:#fde68a;" i],
+body.dark-mode [style*=";background:#fde68a;" i],
+body.dark-mode [style$=";background:#fde68a" i],
+body.dark-mode [style^="background: rgb(253, 230, 138)"],
+body.dark-mode [style*="; background: rgb(253, 230, 138)"] { background-color: #48401e !important; }
+/* latar #fcd34d (dipakai 1x) → #483e1e */
+body.dark-mode [style^="background:#fcd34d;" i],
+body.dark-mode [style*=";background:#fcd34d;" i],
+body.dark-mode [style$=";background:#fcd34d" i],
+body.dark-mode [style^="background: rgb(252, 211, 77)"],
+body.dark-mode [style*="; background: rgb(252, 211, 77)"] { background-color: #483e1e !important; }
+/* latar #cbd5e1 (dipakai 1x) → #29323d */
+body.dark-mode [style^="background:#cbd5e1;" i],
+body.dark-mode [style*=";background:#cbd5e1;" i],
+body.dark-mode [style$=";background:#cbd5e1" i],
+body.dark-mode [style^="background: rgb(203, 213, 225)"],
+body.dark-mode [style*="; background: rgb(203, 213, 225)"] { background-color: #29323d !important; }
+/* latar #eef2f1 (dipakai 1x) → #2e3835 */
+body.dark-mode [style^="background:#eef2f1;" i],
+body.dark-mode [style*=";background:#eef2f1;" i],
+body.dark-mode [style$=";background:#eef2f1" i],
+body.dark-mode [style^="background: rgb(238, 242, 241)"],
+body.dark-mode [style*="; background: rgb(238, 242, 241)"] { background-color: #2e3835 !important; }
+/* latar #f8f9fa (dipakai 1x) → #2d3339 */
+body.dark-mode [style^="background:#f8f9fa;" i],
+body.dark-mode [style*=";background:#f8f9fa;" i],
+body.dark-mode [style$=";background:#f8f9fa" i],
+body.dark-mode [style^="background: rgb(248, 249, 250)"],
+body.dark-mode [style*="; background: rgb(248, 249, 250)"] { background-color: #2d3339 !important; }
+/* latar #fef9e7 (dipakai 1x) → #483f1e */
+body.dark-mode [style^="background:#fef9e7;" i],
+body.dark-mode [style*=";background:#fef9e7;" i],
+body.dark-mode [style$=";background:#fef9e7" i],
+body.dark-mode [style^="background: rgb(254, 249, 231)"],
+body.dark-mode [style*="; background: rgb(254, 249, 231)"] { background-color: #483f1e !important; }
+/* latar #f1f7f5 (dipakai 1x) → #293d36 */
+body.dark-mode [style^="background:#f1f7f5;" i],
+body.dark-mode [style*=";background:#f1f7f5;" i],
+body.dark-mode [style$=";background:#f1f7f5" i],
+body.dark-mode [style^="background: rgb(241, 247, 245)"],
+body.dark-mode [style*="; background: rgb(241, 247, 245)"] { background-color: #293d36 !important; }
+/* latar #eef1f4 (dipakai 1x) → #2b333b */
+body.dark-mode [style^="background:#eef1f4;" i],
+body.dark-mode [style*=";background:#eef1f4;" i],
+body.dark-mode [style$=";background:#eef1f4" i],
+body.dark-mode [style^="background: rgb(238, 241, 244)"],
+body.dark-mode [style*="; background: rgb(238, 241, 244)"] { background-color: #2b333b !important; }
+/* latar #fbfdfc (dipakai 1x) → #273f33 */
+body.dark-mode [style^="background:#fbfdfc;" i],
+body.dark-mode [style*=";background:#fbfdfc;" i],
+body.dark-mode [style$=";background:#fbfdfc" i],
+body.dark-mode [style^="background: rgb(251, 253, 252)"],
+body.dark-mode [style*="; background: rgb(251, 253, 252)"] { background-color: #273f33 !important; }
+/* latar #f0f7ff (dipakai 1x) → #1e3248 */
+body.dark-mode [style^="background:#f0f7ff;" i],
+body.dark-mode [style*=";background:#f0f7ff;" i],
+body.dark-mode [style$=";background:#f0f7ff" i],
+body.dark-mode [style^="background: rgb(240, 247, 255)"],
+body.dark-mode [style*="; background: rgb(240, 247, 255)"] { background-color: #1e3248 !important; }
+/* latar #fde9c4 (dipakai 1x) → #48391e */
+body.dark-mode [style^="background:#fde9c4;" i],
+body.dark-mode [style*=";background:#fde9c4;" i],
+body.dark-mode [style$=";background:#fde9c4" i],
+body.dark-mode [style^="background: rgb(253, 233, 196)"],
+body.dark-mode [style*="; background: rgb(253, 233, 196)"] { background-color: #48391e !important; }
+/* latar #e8f3f0 (dipakai 1x) → #283e38 */
+body.dark-mode [style^="background:#e8f3f0;" i],
+body.dark-mode [style*=";background:#e8f3f0;" i],
+body.dark-mode [style$=";background:#e8f3f0" i],
+body.dark-mode [style^="background: rgb(232, 243, 240)"],
+body.dark-mode [style*="; background: rgb(232, 243, 240)"] { background-color: #283e38 !important; }
+/* latar #fff8e7 (dipakai 1x) → #483c1e */
+body.dark-mode [style^="background:#fff8e7;" i],
+body.dark-mode [style*=";background:#fff8e7;" i],
+body.dark-mode [style$=";background:#fff8e7" i],
+body.dark-mode [style^="background: rgb(255, 248, 231)"],
+body.dark-mode [style*="; background: rgb(255, 248, 231)"] { background-color: #483c1e !important; }
+/* latar #eeeeee (dipakai 1x) → #3A3A4C */
+body.dark-mode [style^="background:#eee;" i],
+body.dark-mode [style*=";background:#eee;" i],
+body.dark-mode [style$=";background:#eee" i],
+body.dark-mode [style^="background: rgb(238, 238, 238)"],
+body.dark-mode [style*="; background: rgb(238, 238, 238)"] { background-color: #3A3A4C !important; }
+/* latar #f7f7f7 (dipakai 1x) → #32324A */
+body.dark-mode [style^="background:#f7f7f7;" i],
+body.dark-mode [style*=";background:#f7f7f7;" i],
+body.dark-mode [style$=";background:#f7f7f7" i],
+body.dark-mode [style^="background: rgb(247, 247, 247)"],
+body.dark-mode [style*="; background: rgb(247, 247, 247)"] { background-color: #32324A !important; }
+/* garis #eeeeee (dipakai 133x) → var(--garis) */
+body.dark-mode [style*="solid #eee;" i],
+body.dark-mode [style*="solid rgb(238, 238, 238)"] { border-color: var(--garis) !important; }
+/* garis #dddddd (dipakai 98x) → var(--garis) */
+body.dark-mode [style*="solid #ddd;" i],
+body.dark-mode [style*="solid rgb(221, 221, 221)"] { border-color: var(--garis) !important; }
+/* garis #e2e8f0 (dipakai 94x) → var(--garis) */
+body.dark-mode [style*="solid #e2e8f0;" i],
+body.dark-mode [style*="solid rgb(226, 232, 240)"] { border-color: var(--garis) !important; }
+/* garis #cbd5e1 (dipakai 22x) → var(--garis) */
+body.dark-mode [style*="solid #cbd5e1;" i],
+body.dark-mode [style*="solid rgb(203, 213, 225)"] { border-color: var(--garis) !important; }
+/* garis #eef2f1 (dipakai 17x) → var(--garis) */
+body.dark-mode [style*="solid #eef2f1;" i],
+body.dark-mode [style*="solid rgb(238, 242, 241)"] { border-color: var(--garis) !important; }
+/* garis #e5e7eb (dipakai 11x) → var(--garis) */
+body.dark-mode [style*="solid #e5e7eb;" i],
+body.dark-mode [style*="solid rgb(229, 231, 235)"] { border-color: var(--garis) !important; }
+/* garis #eef2f6 (dipakai 11x) → var(--garis) */
+body.dark-mode [style*="solid #eef2f6;" i],
+body.dark-mode [style*="solid rgb(238, 242, 246)"] { border-color: var(--garis) !important; }
+/* garis #f0f0f0 (dipakai 9x) → var(--garis) */
+body.dark-mode [style*="solid #f0f0f0;" i],
+body.dark-mode [style*="solid rgb(240, 240, 240)"] { border-color: var(--garis) !important; }
+/* garis #fde68a (dipakai 8x) → var(--garis) */
+body.dark-mode [style*="solid #fde68a;" i],
+body.dark-mode [style*="solid rgb(253, 230, 138)"] { border-color: var(--garis) !important; }
+/* garis #ffd700 (dipakai 8x) → var(--garis) */
+body.dark-mode [style*="solid #ffd700;" i],
+body.dark-mode [style*="solid rgb(255, 215, 0)"] { border-color: var(--garis) !important; }
+/* garis #f1f5f9 (dipakai 7x) → var(--garis) */
+body.dark-mode [style*="solid #f1f5f9;" i],
+body.dark-mode [style*="solid rgb(241, 245, 249)"] { border-color: var(--garis) !important; }
+/* garis #e2e6e4 (dipakai 5x) → var(--garis) */
+body.dark-mode [style*="solid #e2e6e4;" i],
+body.dark-mode [style*="solid rgb(226, 230, 228)"] { border-color: var(--garis) !important; }
+/* garis #cccccc (dipakai 4x) → var(--garis) */
+body.dark-mode [style*="solid #ccc;" i],
+body.dark-mode [style*="solid rgb(204, 204, 204)"] { border-color: var(--garis) !important; }
+/* garis #ffffff (dipakai 3x) → var(--garis) */
+body.dark-mode [style*="solid #fff;" i],
+body.dark-mode [style*="solid rgb(255, 255, 255)"] { border-color: var(--garis) !important; }
+/* garis #bfdbfe (dipakai 2x) → var(--garis) */
+body.dark-mode [style*="solid #bfdbfe;" i],
+body.dark-mode [style*="solid rgb(191, 219, 254)"] { border-color: var(--garis) !important; }
+/* garis #fbbf24 (dipakai 2x) → var(--garis) */
+body.dark-mode [style*="solid #fbbf24;" i],
+body.dark-mode [style*="solid rgb(251, 191, 36)"] { border-color: var(--garis) !important; }
+/* garis #86efac (dipakai 2x) → var(--garis) */
+body.dark-mode [style*="solid #86efac;" i],
+body.dark-mode [style*="solid rgb(134, 239, 172)"] { border-color: var(--garis) !important; }
+/* garis #bae6fd (dipakai 2x) → var(--garis) */
+body.dark-mode [style*="solid #bae6fd;" i],
+body.dark-mode [style*="solid rgb(186, 230, 253)"] { border-color: var(--garis) !important; }
+/* garis #fcd34d (dipakai 1x) → var(--garis) */
+body.dark-mode [style*="solid #fcd34d;" i],
+body.dark-mode [style*="solid rgb(252, 211, 77)"] { border-color: var(--garis) !important; }
+/* garis #6ee7b7 (dipakai 1x) → var(--garis) */
+body.dark-mode [style*="solid #6ee7b7;" i],
+body.dark-mode [style*="solid rgb(110, 231, 183)"] { border-color: var(--garis) !important; }
+/* teks var(--primary) inline → teks merek */
+body.dark-mode [style^="color:var(--primary)"],
+body.dark-mode [style*=";color:var(--primary)"] { color: var(--teks-merek) !important; }
+/* tombol tanpa gaya sendiri: default browser (abu terang + teks hitam) → ikut mode malam. Spesifisitas minimum agar tidak menimpa tombol berwarna. */
+:where(body.dark-mode) button { color: var(--teks); background-color: #3A3A4C; }
+/* --- dari aturan kelas CSS --- */
+body.dark-mode .cp-cari { border-color: var(--garis); }
+body.dark-mode .cp-bagian { color: var(--teks-merek); }
+body.dark-mode .cp-label { color: #e8a57d; background-color: #48401e; }
+body.dark-mode .menu-tile-ikon { color: var(--teks-merek); }
+body.dark-mode .menu-tile-label { color: #a3b3c2; }
+body.dark-mode .atur-menu-grid.lainnya .menu-tile-ikon { color: var(--teks-redup); background-color: #2e3138; }
+body.dark-mode .pilih-tampilan { color: #acb5c3; background-color: #32324A; border-color: var(--garis); }
+body.dark-mode .pilih-tampilan small { color: var(--teks-redup); }
+body.dark-mode .pilih-tampilan.aktif { color: var(--teks-merek); }
+body.dark-mode .daftar-menu-cari i { color: var(--teks-redup); }
+body.dark-mode .daftar-menu-judul { color: #aab1bb; }
+body.dark-mode .pinjaman-ringkas-kotak span { color: #aab1bb; }
+body.dark-mode .pinjaman-ringkas-kotak b { color: #a3b3c2; }
+body.dark-mode .pinjaman-subjudul { color: #aab1bb; }
+body.dark-mode .pinjaman-bukti { color: #aeabe0; background-color: #1e2848; }
+body.dark-mode .pinjaman-bukti.kosong { color: #e8a57d; background-color: #48401e; }
+body.dark-mode .lencana-menu { border-color: var(--garis); }
+body.dark-mode .admin-toggle-link.aktif,
+body.dark-mode .admin-toggle-link.aktif:hover { color: #e5a580; background-color: #483e1e; }
+body.dark-mode .titik-admin { color: #eca56f; }
+body.dark-mode .stat-mini-card { background-color: #32324A; }
+body.dark-mode .stat-mini-card i { color: var(--teks-merek); }
+body.dark-mode .stat-mini-card .stat-number { color: var(--teks-merek); }
+body.dark-mode .section-title span,
+body.dark-mode .section-title > span { color: var(--teks-merek); }
+body.dark-mode .nav-item-premium i { color: #aab3bf; }
+body.dark-mode .nav-item-premium span { color: #aab3bf; }
+body.dark-mode .nav-item-premium.active i,
+body.dark-mode .nav-item-premium.active span { color: var(--teks-merek); }
+body.dark-mode .card-premium { background-color: #32324A; }
+body.dark-mode input,
+body.dark-mode select,
+body.dark-mode textarea { background-color: #32324A; border-color: var(--garis); }
+body.dark-mode [id^="multi"][id$="Select"]:empty::before { color: #aab3bf; }
+body.dark-mode #kasTable tr { background-color: #32324A; border-color: var(--garis); }
+body.dark-mode #kasTable td.kc-ket { color: #a4b3cb; }
+body.dark-mode #kasTable td.kc-tgl { color: #aab3bf; }
+body.dark-mode .btn-pilih-semua.batal { color: var(--teks); background-color: #28313e; }
+body.dark-mode .btn-secondary { border-color: var(--garis); }
+body.dark-mode .btn-utility { color: var(--teks-merek); background-color: #293d36; }
+body.dark-mode textarea.hotel-nama { border-color: var(--garis); }
+body.dark-mode .btn-reset-lembut { color: #e8a57d; border-color: var(--garis); }
+body.dark-mode .setting-card { background-color: #32324A; }
+body.dark-mode .bagian-pengaturan { color: var(--teks-merek); }
+body.dark-mode details.lipat-pengaturan > summary::after { color: #aab3bf; }
+body.dark-mode details.lipat-pengaturan > summary .ket-lipat { color: var(--teks-redup); }
+body.dark-mode .setting-card h4 { color: var(--teks-merek); }
+body.dark-mode .slider { background-color: #29323d; }
+body.dark-mode .slider:before { background-color: #32324A; }
+body.dark-mode .modal-content { background-color: #32324A; }
+body.dark-mode .jamaah-card { background-color: #32324A; }
+body.dark-mode .jamaah-nama { color: var(--teks-merek); }
+body.dark-mode .btn-edit-jamaah { color: #60A5FA; }
+body.dark-mode .btn-delete-jamaah { color: #F87171; }
+body.dark-mode .table-container { background-color: #32324A; }
+body.dark-mode td { border-color: var(--garis); }
+body.dark-mode .txt-out { color: #F87171; }
+body.dark-mode .btn-del { color: #F87171; }
+body.dark-mode .error-message { color: #F87171; }
+body.dark-mode .rekap-card { background-color: #32324A; border-color: var(--garis); }
+body.dark-mode .rekap-title { color: var(--teks-merek); }
+body.dark-mode .rekap-lunas,
+body.dark-mode .rekap-belum-lunas { background-color: #253341; }
+body.dark-mode .total-rekap { background-color: #253341; }
+body.dark-mode .persen-bar { background-color: #28313e; }
+body.dark-mode .filter-dropdown { background-color: #32324A; border-color: var(--garis); }
+body.dark-mode .payment-jamaah-card { background-color: #32324A; }
+body.dark-mode .payment-btn-bayar { color: var(--teks-merek); }
+body.dark-mode .mode-btn { color: var(--teks-merek); background-color: #32324A; }
+body.dark-mode .master-grid-container { background-color: #32324A; }
+body.dark-mode .master-grid-table td { border-color: var(--garis); }
+body.dark-mode .master-grid-table tr { background-color: #32324A; border-color: var(--garis); }
+body.dark-mode .master-grid-table td.mc-lain { color: #a8b5c7; }
+body.dark-mode .master-grid-table td.mc-lain::before { color: #aab3bf; }
+body.dark-mode .checkmark { background-color: #32324A; }
+body.dark-mode .config-section { background-color: #32324A; }
+body.dark-mode .config-section.lipat .cfg-panah { color: #aab3bf; }
+body.dark-mode .config-section h3 { color: var(--teks-merek); }
+body.dark-mode .logo-preview { border-color: var(--garis); }
+body.dark-mode .qr-preview canvas { background-color: #32324A; border-color: var(--garis); }
+body.dark-mode .preview-btn { color: var(--teks-merek); border-color: var(--garis); }
+body.dark-mode .dokumen-card { background-color: #32324A; }
+body.dark-mode .dokumen-jamaah { color: var(--teks-merek); }
+body.dark-mode .btn-upload-doc { color: var(--teks-merek); }
+body.dark-mode .folder-card { background-color: #32324A; }
+body.dark-mode .folder-name { color: var(--teks-merek); }
+body.dark-mode .reminder-card { background-color: #32324A; }
+body.dark-mode .dashboard-card { background-color: #32324A; }
+body.dark-mode .jamaah-card.selected-card { background-color: #283e35; }
+body.dark-mode .jamaah-kita-item { background-color: #32324A; }
+body.dark-mode .jamaah-kita-nama { color: var(--teks-merek); }
+body.dark-mode .batch-floating-bar { background-color: #32324A; }
+body.dark-mode .grup-admin { background-color: #32324A; border-color: var(--garis); }
+body.dark-mode .grup-admin > summary { color: var(--teks-merek); }
+body.dark-mode .grup-admin[open] > summary { border-color: var(--garis); }
+body.dark-mode .gerigi-admin.aktif::after { background-color: #1e482d; border-color: var(--garis); }
+body.dark-mode .export-menu-item { border-color: var(--garis); }
+body.dark-mode .export-menu-item:hover { background-color: #283e35; }
+body.dark-mode .export-icon-pdf { background-color: #481e1e; }
+body.dark-mode .export-icon-excel { background-color: #1e482c; }
+body.dark-mode .export-icon-wa { background-color: #1e4832; }
+body.dark-mode .export-icon-cetak { background-color: #1e3048; }
+body.dark-mode .preview-modal-box { background-color: #32324A; }
+body.dark-mode .preview-modal-header { border-color: var(--garis); }
+body.dark-mode .preview-modal-footer { border-color: var(--garis); }
+/* ===== Build 311: SALINAN GELAP — END ===== */
         body.dark-mode .card-premium,
         body.dark-mode .setting-card,
         body.dark-mode .stat-mini-card,
@@ -1741,8 +2540,13 @@ body.dark-mode .grup-admin { background:transparent; border-color:#334155; }
 .export-icon-excel { background: #dcfce7; }
 .export-icon-wa { background: #d1fae5; }
 .export-icon-cetak { background: #dbeafe; }
-.export-menu-item .export-label { color: #1e293b; }
-.export-menu-item .export-desc { font-size: 11px; color: #64748B; margin-top: 1px; }
+.export-menu-item .export-label { color: var(--teks); }
+.export-menu-item .export-desc { font-size: 11px; color: var(--teks-redup); margin-top: 1px; }
+/* Build 311: ikon pastel diredam di mode malam supaya tidak jadi yang paling terang di layar */
+body.dark-mode .export-icon-pdf { background: rgba(248,113,113,.22); }
+body.dark-mode .export-icon-excel { background: rgba(74,222,128,.20); }
+body.dark-mode .export-icon-wa { background: rgba(52,211,153,.20); }
+body.dark-mode .export-icon-cetak { background: rgba(96,165,250,.22); }
 
 /* ===== PREVIEW PDF MODAL ===== */
 .preview-modal-overlay {
@@ -1923,7 +2727,7 @@ https://github.com/nodeca/pako/blob/main/LICENSE
             <div><h2>Selamat datang, Admin</h2><p id="homeDate">Memuat...</p></div>
             <div class="greeting-actions">
                 <button type="button" class="dark-mode-toggle" id="btnCaraPakaiHeader" onclick="showPage('carapakai')" aria-label="Cara Pakai" title="Cara Pakai" style="font-size:19px;"><i class="fas fa-circle-question"></i></button>
-                <button id="darkModeToggle" class="dark-mode-toggle">🌙</button>
+                <button id="darkModeToggle" class="dark-mode-toggle" type="button" aria-label="Tema tampilan" title="Tema tampilan">📱</button>
                 <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px;">
                     <a href="#" id="adminModeToggleBtn" class="admin-toggle-link" onclick="event.preventDefault(); toggleAdminMode();"><i class="fas fa-shield-alt"></i> Mode Admin</a>
                     <a href="#" id="mintaAksesBtn" class="admin-toggle-link khusus-staf" onclick="event.preventDefault(); bukaFormMintaAkses();">🔓 Minta Akses</a>
@@ -2100,8 +2904,8 @@ https://github.com/nodeca/pako/blob/main/LICENSE
             <div style="display:flex;justify-content:space-between;"><span style="color:#666;">Status</span><strong id="tentangLisensi"></strong></div>
             <div style="border-top:1px solid #e2e8f0;margin-top:6px;padding-top:6px;font-size:12px;color:#475569;line-height:1.6;white-space:pre-line;" id="tentangPerangkat"></div>
         </div>
-        <div style="font-size:11px;color:#888;line-height:1.5;margin:-6px 0 10px;">Info perangkat di atas ikut terkirim otomatis dalam laporan. Bila pengembang memintanya, cukup screenshot halaman ini.</div>
-        <div style="font-size:13px;color:#555;line-height:1.6;margin-bottom:10px;">Ada kendala, usulan, atau pertanyaan? Isi di bawah, lalu kirim lewat WhatsApp atau Email. Versi aplikasi dan info teknis ikut terisi otomatis. <b>Data jamaah (nama, NIK, paspor) tidak ikut terkirim.</b> Mohon jangan menghapus bagian &quot;Info teknis&quot; di pesan, karena itu membantu perbaikan.</div>
+        <div style="font-size:11px;color:#888;line-height:1.5;margin:-6px 0 10px;">Bila pengembang memintanya, cukup screenshot halaman ini.</div>
+        <div style="font-size:13px;color:#555;line-height:1.6;margin-bottom:10px;">Ada kendala, usulan, atau pertanyaan? Isi di bawah, lalu kirim lewat WhatsApp, Email, atau salin. Info teknis terisi otomatis dan membantu perbaikan, jadi mohon jangan dihapus. Isinya hanya versi, perangkat, dan jumlah jamaah, <b>tanpa nama, NIK, atau paspor</b>. Jangan menulis data pribadi jamaah di penjelasan.</div>
         <div class="form-group" style="margin-bottom:10px;"><label style="display:block;font-size:12px;font-weight:700;color:#475569;margin-bottom:4px;">Nama Anda (boleh dikosongkan)</label><input type="text" id="laporNama" placeholder="Nama Anda" autocomplete="off"></div>
         <div class="form-group" style="margin-bottom:10px;"><label style="display:block;font-size:12px;font-weight:700;color:#475569;margin-bottom:4px;">Jenis laporan</label>
             <select id="laporKategori"><option value="Laporan Bug">🐞 Laporan Bug</option><option value="Permintaan Fitur">💡 Permintaan Fitur</option><option value="Lainnya">💬 Lainnya</option></select></div>
@@ -5620,21 +6424,38 @@ function parseRupiah(str) {
     return isNaN(num)?0:num;
 }
 
-// Dark Mode
-function initDarkMode() {
-    const darkMode = localStorage.getItem('navara_dark_mode') === 'true';
-    if (darkMode) {
-        document.body.classList.add('dark-mode');
-        const toggleBtn = document.getElementById('darkModeToggle');
-        if (toggleBtn) toggleBtn.innerHTML = '☀️';
+// Tema tampilan (Build 311): 3 pilihan — Gelap 🌙, Terang ☀️, Ikut HP 📱.
+// Penyimpanan tetap di 'navara_dark_mode': 'true' = gelap, 'false' = terang, selain itu (kosong / 'auto') = ikut pengaturan HP.
+// Pilihan lama tetap dihormati; yang belum pernah memilih mengikuti HP.
+function modeTema() {
+    try { const v = localStorage.getItem('navara_dark_mode'); return v === 'true' ? 'gelap' : (v === 'false' ? 'terang' : 'auto'); } catch(e) { return 'auto'; }
+}
+function hpMintaGelap() { try { return !!(window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches); } catch(e) { return false; } }
+function terapkanTema() {
+    const m = modeTema();
+    const gelap = m === 'gelap' || (m === 'auto' && hpMintaGelap());
+    document.body.classList.toggle('dark-mode', gelap);
+    const tombol = document.getElementById('darkModeToggle');
+    if (tombol) {
+        tombol.innerHTML = m === 'gelap' ? '🌙' : (m === 'terang' ? '☀️' : '📱');
+        const nama = m === 'gelap' ? 'Gelap' : (m === 'terang' ? 'Terang' : 'Ikut HP');
+        tombol.title = 'Tema: ' + nama + ' (ketuk untuk ganti)'; tombol.setAttribute('aria-label', tombol.title);
     }
-    const toggleBtn = document.getElementById('darkModeToggle');
-    if (toggleBtn) toggleBtn.addEventListener('click', function() {
-        document.body.classList.toggle('dark-mode');
-        const isDark = document.body.classList.contains('dark-mode');
-        localStorage.setItem('navara_dark_mode', isDark);
-        this.innerHTML = isDark ? '☀️' : '🌙';
-    });
+}
+function gantiTema() {
+    const berikut = { gelap: 'terang', terang: 'auto', auto: 'gelap' }[modeTema()];
+    try { localStorage.setItem('navara_dark_mode', berikut === 'gelap' ? 'true' : (berikut === 'terang' ? 'false' : 'auto')); } catch(e) {}
+    terapkanTema();
+    try { showToast('Tema: ' + (berikut === 'gelap' ? 'Gelap' : (berikut === 'terang' ? 'Terang' : 'Ikut HP'))); } catch(e) {}
+}
+function initDarkMode() {
+    terapkanTema();
+    const tombol = document.getElementById('darkModeToggle');
+    if (tombol && !tombol.dataset.temaSiap) { tombol.dataset.temaSiap = '1'; tombol.addEventListener('click', gantiTema); }
+    try {
+        const mq = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)');
+        if (mq && !window._temaPantau) { window._temaPantau = true; const f = () => { if (modeTema() === 'auto') terapkanTema(); }; if (mq.addEventListener) mq.addEventListener('change', f); else if (mq.addListener) mq.addListener(f); }
+    } catch(e) {}
 }
 
 // Menu Grid
@@ -9437,10 +10258,13 @@ function ubahPilihanTahunPorsi() {
 function ringkasEstimasiPorsi() {
     if(!konfigurasiPro || !(konfigurasiPro.rentang_porsi_haji || []).length) return null;
     const pilihan = pilihanTahunPorsi();
-    const r = { total: jamaahList.length, lunasSendiri: 0, lunasIkut: 0, cadanganSendiri: 0, cadanganIkut: 0, tahunLain: 0, tanpaPorsi: 0, belumPasti: 0, catatan: [], pilihan };
+    const r = { total: jamaahList.length, lunasSendiri: 0, lunasIkut: 0, cadanganSendiri: 0, cadanganIkut: 0, tahunLain: 0, tanpaPorsi: 0, belumPasti: 0, catatan: [], porsiAneh: [], pilihan };
     jamaahList.forEach(j => {
         const e = estimasiPorsiJamaah(j);
         if(e.catatan) r.catatan.push({ j, teks: e.catatan });
+        // Build 313: nomor porsi berisi huruf/spasi atau bukan 10 angka tetap dihitung apa adanya, tetapi diberi tanda (aturan sama dengan Cek Kesehatan Data)
+        const np = String((j.additional_fields || {}).no_porsi || '').trim();
+        if(np && !/^\d{10}$/.test(np)) r.porsiAneh.push(j);
         if(!e.tahun) { if(e.ikut) r.belumPasti++; else r.tanpaPorsi++; return; }
         const th = String(e.tahun);
         if(th === pilihan.lunas) { if(e.ikut) r.lunasIkut++; else r.lunasSendiri++; }
@@ -9472,7 +10296,8 @@ function renderKartuEstimasiPorsi() {
     el.innerHTML = `<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;"><div style="font-weight:700;color:var(--primary);font-size:14px;">📊 Estimasi Porsi Haji</div><div style="font-size:12px;color:var(--primary);font-weight:600;">Rincian ›</div></div>`
         + htmlRingkasPorsi(r)
         + `<div style="font-size:11px;color:#6B7280;margin-top:8px;line-height:1.4;">Total ${r.total.toLocaleString('id-ID')} jamaah. Perkiraan dari Rentang Nomor Porsi di Konfigurasi, bukan daftar resmi.${nStatusCad ? ' ' + nStatusCad + ' jamaah sudah Bapak tandai berstatus Cadangan di datanya (tetap ikut dihitung di sini).' : ''}</div>`
-        + (r.catatan.length ? `<div style="font-size:12px;color:#B45309;font-weight:600;margin-top:6px;">⚠️ ${r.catatan.length} jamaah perlu dicek (ketuk untuk melihat)</div>` : '');
+        + (r.catatan.length ? `<div style="font-size:12px;color:#B45309;font-weight:600;margin-top:6px;">⚠️ ${r.catatan.length} jamaah perlu dicek (ketuk untuk melihat)</div>` : '')
+        + (r.porsiAneh.length ? `<div style="font-size:12px;color:#B45309;font-weight:600;margin-top:6px;">⚠️ ${r.porsiAneh.length} nomor porsi tidak lazim (bukan 10 angka), tetap dihitung apa adanya. Periksa di Cek Kesehatan Data</div>` : '');
 }
 
 // --- Isian "Berangkat Mengikuti" di form jamaah ---
@@ -15850,6 +16675,18 @@ const PEMERIKSA_KESEHATAN = [
                 tambah('jamaah.porsi_salah', 'perhatian', 'Nomor porsi bukan 10 digit angka', 'Nomor porsi haji terdiri dari 10 digit angka.', 'Periksa dengan bukti setoran awal.', list.filter(j => { const v = String(af(j).no_porsi || '').trim(); return v && !/^\d{10}$/.test(v); }).map(label));
                 tambah('jamaah.porsi_ganda', 'serius', 'Nomor porsi yang sama dipakai lebih dari satu jamaah', 'Satu nomor porsi tidak mungkin milik dua orang.', 'Gabungkan atau perbaiki salah satunya.', kelompokNilai('no_porsi'));
             }
+            // Build 313: "Berangkat mengikuti" yang menggantung, berputar/berantai, atau mengikuti diri sendiri. Hanya penanda; hitungan estimasi TIDAK berubah (jamaah itu memakai nomor porsinya sendiri).
+            tambah('jamaah.ikut_porsi_bermasalah', 'perhatian', '"Berangkat mengikuti" yang tidak bisa dipakai', 'Estimasi jamaah ini memakai nomor porsinya sendiri, bukan nomor porsi orang yang diikuti.', 'Buka data jamaah, lalu perbaiki atau kosongkan isian "Berangkat mengikuti".', (() => {
+                const hasil = [];
+                list.forEach(j => {
+                    const ik = j.ikut_porsi; if (!ik || !ik.jamaahId) return;
+                    const t = list.find(x => String(x.id) === String(ik.jamaahId));
+                    if (String(ik.jamaahId) === String(j.id)) hasil.push(label(j) + ' · mengikuti dirinya sendiri');
+                    else if (!t) hasil.push(label(j) + ' · yang diikuti sudah tidak ada di Program ini');
+                    else if (t.ikut_porsi && t.ikut_porsi.jamaahId) hasil.push(label(j) + ' · yang diikuti (' + label(t) + ') sendiri mengikuti jamaah lain');
+                });
+                return hasil;
+            })());
             tambah('jamaah.nama_aneh', 'perhatian', 'Nama berupa angka atau hanya satu huruf', 'Biasanya salah isi kolom.', 'Periksa nama jamaah.', list.filter(j => { const n = (j.nama_lengkap || '').trim(); return n && (/^[\d\s.,-]+$/.test(n) || n.length < 2); }).map(label));
             tambah('jamaah.nama_sama', 'perhatian', 'Nama persis sama dipakai lebih dari satu jamaah', 'Bisa jamaah yang terdaftar dua kali, atau memang dua orang bernama sama.', 'Periksa; abaikan bila memang dua orang berbeda.', (() => { const m = {}; list.forEach(j => { const k = (j.nama_lengkap || '').trim().toLowerCase().replace(/\s+/g, ' '); if (k) (m[k] = m[k] || []).push(label(j)); }); return Object.values(m).filter(a => a.length > 1).map(a => a[0] + ' (' + a.length + ' kali)'); })());
             ctx.fieldJamaah.filter(f => f.type === 'dropdown' && ['tarif_anak', 'perlengkapan', 'status_proses'].includes(f.name) && (f.options || []).length).forEach(f => {
@@ -21602,6 +22439,10 @@ function renderKelompokPorsiModal(modal) {
         html += `<div style="background:#FFFBEB;border:1.5px solid #F59E0B;border-radius:10px;padding:10px 12px;margin-top:6px;font-size:12px;color:#92400E;line-height:1.5;"><b>⚠️ Perlu dicek (${r.catatan.length})</b><br>${r.catatan.map(c => escapeHtml(c.j.nama_lengkap) + ': ' + escapeHtml(c.teks)).join('<br>')}</div>`;
     }
 
+    if(r.porsiAneh.length) {
+        html += `<div style="background:#FFFBEB;border:1.5px solid #F59E0B;border-radius:10px;padding:10px 12px;margin-top:6px;font-size:12px;color:#92400E;line-height:1.5;"><b>⚠️ Nomor porsi tidak lazim (${r.porsiAneh.length})</b><br>Bukan 10 angka. Tetap dihitung apa adanya, jadi tahunnya bisa keliru. Periksa dengan bukti setoran awal.<br>${r.porsiAneh.slice(0, 8).map(j => escapeHtml(j.nama_lengkap) + ': ' + escapeHtml(String((j.additional_fields || {}).no_porsi || '').trim())).join('<br>')}${r.porsiAneh.length > 8 ? '<br>… dan ' + (r.porsiAneh.length - 8) + ' lainnya' : ''}</div>`;
+    }
+
     const opsiTahun = (pilih, denganKosong) => (denganKosong ? `<option value=""${pilih === '' ? ' selected' : ''}>— tidak dipakai —</option>` : '')
         + p.daftarTahun.map(t => `<option value="${escapeHtml(t)}"${t === pilih ? ' selected' : ''}>${escapeHtml(t)}</option>`).join('');
     const selStyle = 'width:100%;padding:8px;border:1px solid #e2e6e4;border-radius:8px;font-size:14px;margin-top:2px;background:var(--input-bg);color:var(--text);';
@@ -22780,6 +23621,9 @@ function daftarCaraPakai() {
             { judul: 'Rentang Nomor Porsi Haji',
               isi: 'Di <b>Konfigurasi</b> → <b>Rentang Nomor Porsi Haji</b>, isi batas nomor porsi (angka saja, tanpa titik) dan estimasi tahun berangkatnya. Aplikasi memakainya untuk mengelompokkan jamaah Haji otomatis. Berlaku untuk semua Program.',
               tombol: [bukaMod('Konfigurasi', 'konfigurasi')] },
+            { judul: 'Estimasi Porsi: berhak lunas, cadangan, dan mengikuti', jenis: ['haji_reguler', 'haji'],
+              isi: 'Setelah <b>Rentang Nomor Porsi</b> diisi, tiap jamaah Haji otomatis dikelompokkan menurut nomor porsinya: <b>berhak lunas</b> (tahun berangkat) atau <b>cadangan</b>. Yang perlu diketahui: (1) Ini <b>perkiraan</b> dari angka yang Bapak/Ibu isi sendiri, bukan data resmi, jadi cocokkan dengan sumber resmi. (2) Jamaah yang berangkat <b>mengikuti</b> jamaah lain, misalnya suami-istri atau pelimpahan, memakai tahun milik yang diikuti. Atur lewat pilihan <b>Berangkat mengikuti</b> di formulir jamaah. (3) <b>Cadangan</b> di sini artinya perkiraan tahun, berbeda dengan <b>Status Berangkat: Cadangan</b> yang Bapak/Ibu pilih sendiri. (4) Nomor porsi harus 10 angka. Yang tidak lazim diberi tanda peringatan di kartu Estimasi Porsi. (5) <b>Cek Kesehatan Data</b> juga memberi tahu kalau ada jamaah yang mengikuti dirinya sendiri, atau yang diikuti sudah tidak ada. Pengaturan ini tidak dibawa lewat Excel, jadi atur setelah impor.',
+              tombol: [bukaMod('Database Jamaah', 'jamaah'), bukaMod('Konfigurasi', 'konfigurasi')] },
             { judul: 'Menutup musim',
               isi: 'Setelah semua pembayaran dan pengeluaran tercatat: (1) jalankan <b>Cek Kesehatan Data</b>, (2) cetak <b>Laporan Penutupan Musim</b> atau unduh <b>Laporan Penutupan (Excel)</b>, (3) <b>Download ZIP</b> di Backup &amp; Restore. Program yang sudah diarsipkan dapat dilihat di <b>Program Arsip</b> (hanya baca).',
               tombol: [{ t: 'Buka Cek Kesehatan Data', a: () => showPage('cekkesehatan'), h: 'cekkesehatan' }, { t: 'Buka Laporan Penutupan Musim', a: () => cetakLaporanPenutupanMusim(), f: 'cetakLaporanPenutupanMusim' }, { t: 'Download Laporan Penutupan (Excel)', a: () => cetakLaporanPenutupanMusim('excel'), f: 'cetakLaporanPenutupanMusim' }] }
@@ -30166,7 +31010,7 @@ function openIndexedDB() {
 // dengan build baru, data MENTAH (langsung dari IndexedDB, bukan dari memori) disalin dulu sebelum
 // proses migrasi apapun berjalan — supaya kalau ada kesalahan di update, data lama masih bisa dipulihkan.
 // Dokumen & foto tidak ikut disalin (ukurannya besar, dan tidak pernah disentuh proses migrasi).
-const NAVARA_BUILD = '2026.11.04-310';
+const NAVARA_BUILD = '2026.11.04-314';
 const MAKS_SNAPSHOT = 3;
 
 // ==================== DAFTAR DATA PUSAT ====================
