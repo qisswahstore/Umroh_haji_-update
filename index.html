@@ -4487,7 +4487,7 @@ https://github.com/nodeca/pako/blob/main/LICENSE
     </div>
     <button onclick="closeDetailModal()" style="width:100%;margin-top:8px;min-height:44px;padding:10px;background:#e2e8f0;color:#333;border:none;border-radius:22px;font-size:14px;cursor:pointer;">Tutup</button>
 </div></div>
-<div id="dokumenFieldModal" class="modal"><div class="modal-content"><h3>Tambah Jenis Dokumen</h3><div class="dynamic-field"><label>Nama Dokumen</label><input type="text" id="newDokumenName"></div><div class="dynamic-field"><label>Untuk program</label><select id="newDokumenUntuk"><option value="semua">Umroh dan Haji</option><option value="umroh">Umroh saja</option><option value="haji">Haji saja</option></select></div><div class="dynamic-field"><label>Icon</label><select id="newDokumenIcon"><option value="🪪"> KTP</option><option value="📘"> Paspor</option><option value="📷"> Foto</option><option value="💉"> Vaksin</option><option value="🛂"> Visa</option><option value="🎫"> Tiket</option><option value="📄"> Dokumen</option></select></div><button class="btn btn-primary" onclick="addDokumenField()"> TAMBAH</button><button class="btn btn-secondary mt-2" onclick="closeDokumenFieldModal()">Batal</button></div></div>
+<div id="dokumenFieldModal" class="modal"><div class="modal-content"><h3>Tambah Jenis Dokumen</h3><div class="dynamic-field"><label>Nama Dokumen</label><input type="text" id="newDokumenName"></div><div class="dynamic-field"><label>Untuk program</label><select id="newDokumenUntuk"><option value="semua">Umroh dan Haji</option><option value="umroh">Umroh saja</option><option value="haji">Haji saja</option><option value="tambahan">Dokumen tambahan (dipilih per jamaah)</option></select><div style="font-size:12px;color:#64748b;margin-top:6px;line-height:1.4;">ℹ️ Pilihan "Dokumen tambahan": jenis ini tidak wajib untuk semua jamaah. Untuk memilih jamaahnya, buka <b>Upload Dokumen</b> lalu ketuk <b>➕ Dokumen tambahan</b> di kartu jamaah.</div></div><div class="dynamic-field"><label>Icon</label><select id="newDokumenIcon"><option value="🪪"> KTP</option><option value="📘"> Paspor</option><option value="📷"> Foto</option><option value="💉"> Vaksin</option><option value="🛂"> Visa</option><option value="🎫"> Tiket</option><option value="📄"> Dokumen</option></select></div><button class="btn btn-primary" onclick="addDokumenField()"> TAMBAH</button><button class="btn btn-secondary mt-2" onclick="closeDokumenFieldModal()">Batal</button></div></div>
 <div id="previewDokumenModal" class="modal"><div class="modal-content" style="max-height:90vh;overflow-y:auto;">
     <h3 id="previewDokumenTitle">Preview Dokumen</h3>
     <img id="previewDokumenImage" class="preview-img" style="max-width:100%;border-radius:12px;margin:12px 0;display:block;">
@@ -4597,17 +4597,19 @@ async function cetakSemuaDokumenJamaah(jamaahId, jamaahNama) {
         <style>
             *{margin:0;padding:0;box-sizing:border-box;}
             body{font-family:Arial,sans-serif;background:white;}
+            /* Build 310: tinggi dibuat < area cetak A4 (297mm - margin 2x10mm = 277mm) supaya 1 foto = 1 lembar */
+            @page{size:A4 portrait;margin:10mm;}
             .dokumen-item{
-                width:210mm;height:297mm;
+                width:100%;height:270mm;
                 display:flex;flex-direction:column;
                 align-items:center;justify-content:center;
                 page-break-after:always;break-after:page;
-                overflow:hidden;padding:10mm;
+                overflow:hidden;padding:0;
             }
             .dokumen-item:last-child{page-break-after:avoid;break-after:avoid;}
             .dokumen-label{font-size:13px;font-weight:bold;color:#0D5C4A;margin-bottom:8px;text-align:center;}
-            .dokumen-gambar{flex:1;display:flex;align-items:center;justify-content:center;width:100%;}
-            .dokumen-gambar img{max-width:190mm;max-height:270mm;width:auto;height:auto;object-fit:contain;display:block;margin:0 auto;}
+            .dokumen-gambar{flex:1;min-height:0;display:flex;align-items:center;justify-content:center;width:100%;}
+            .dokumen-gambar img{max-width:190mm;max-height:245mm;width:auto;height:auto;object-fit:contain;display:block;margin:0 auto;}
             .no-print{text-align:center;padding:20px;background:#f0f0f0;}
             .no-print button{padding:10px 28px;margin:0 6px;border:none;border-radius:10px;font-size:14px;font-weight:bold;cursor:pointer;}
             @media print{
@@ -4645,11 +4647,13 @@ async function cetakDokumenPerJenis(jamaahId, jenisId, jenisNama, jamaahNama, id
         <meta charset="UTF-8">
         <style>
             *{margin:0;padding:0;box-sizing:border-box;}
-            html,body{width:210mm;height:297mm;background:white;overflow:hidden;}
-            body{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:10mm;}
+            /* Build 310: tinggi dibuat < area cetak A4 (297mm - margin 2x10mm = 277mm) supaya tidak tumpah ke lembar ke-2 */
+            @page{size:A4 portrait;margin:10mm;}
+            html,body{width:100%;background:white;}
+            body{height:270mm;overflow:hidden;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:0;}
             .doc-label{font-size:13px;font-weight:bold;color:#0D5C4A;margin-bottom:8px;text-align:center;}
-            .gambar{flex:1;display:flex;align-items:center;justify-content:center;width:100%;}
-            .gambar img{max-width:190mm;max-height:270mm;width:auto;height:auto;object-fit:contain;display:block;margin:0 auto;}
+            .gambar{flex:1;min-height:0;display:flex;align-items:center;justify-content:center;width:100%;}
+            .gambar img{max-width:190mm;max-height:245mm;width:auto;height:auto;object-fit:contain;display:block;margin:0 auto;}
             .no-print{position:fixed;bottom:16px;left:50%;transform:translateX(-50%);display:flex;gap:8px;}
             .no-print button{padding:10px 28px;border:none;border-radius:10px;font-size:14px;font-weight:bold;cursor:pointer;}
             @media print{
@@ -30162,7 +30166,7 @@ function openIndexedDB() {
 // dengan build baru, data MENTAH (langsung dari IndexedDB, bukan dari memori) disalin dulu sebelum
 // proses migrasi apapun berjalan — supaya kalau ada kesalahan di update, data lama masih bisa dipulihkan.
 // Dokumen & foto tidak ikut disalin (ukurannya besar, dan tidak pernah disentuh proses migrasi).
-const NAVARA_BUILD = '2026.11.04-308';
+const NAVARA_BUILD = '2026.11.04-310';
 const MAKS_SNAPSHOT = 3;
 
 // ==================== DAFTAR DATA PUSAT ====================
@@ -30641,7 +30645,7 @@ function renderDokumenList() {
     let filtered = [...jamaahList];
     if(keyword) filtered = filtered.filter(j => j.nama_lengkap.toLowerCase().includes(keyword));
     if(filterStatus !== 'semua') filtered = filtered.filter(j => {
-        if(filterStatus.startsWith('belum:')) { const id = filterStatus.slice(6); return dokumenJenisUntuk(j).some(d => d.id === id) && !(dokumenData[j.id]?.[id]?.length > 0); }
+        if(filterStatus.startsWith('belum:')) { const id = filterStatus.slice(6); return dokumenJenisUntuk(j).some(d => d.id === id) && !(Array.isArray(dokumenData[j.id]?.[id]) && dokumenData[j.id][id].some(fotoDokumenWajar)); }
         const status = getStatusKelengkapanDokumen(j.id, j);
         if(filterStatus === 'lengkap') return status.lengkap;
         if(filterStatus === 'kurang') return !status.lengkap;
@@ -30671,12 +30675,12 @@ function renderDokumenList() {
             html += `<tr><td style="position:sticky;left:0;background:var(--card-bg);padding:8px;border-bottom:1px solid #eee;font-weight:600;">${escapeHtml(j.nama_lengkap)}${isCadangan(j) ? ' <span style="background:#FEF3C7;color:#B45309;border-radius:8px;padding:1px 6px;font-size:11px;">CAD</span>' : ''} <span onclick="bukaDokumenTambahan(${j.id})" style="color:var(--primary);cursor:pointer;" title="Dokumen tambahan">＋</span></td>`;
             kolom.forEach(d => {
                 if(!sd.includes(d.id)) { html += `<td style="padding:6px;border-bottom:1px solid #eee;text-align:center;color:#ccc;">—</td>`; return; }
-                const arr = dokumenData[j.id]?.[d.id], ada = Array.isArray(arr) && arr.length > 0;
-                html += ada ? `<td onclick="previewDokumen(${j.id},'${d.id}',0)" style="padding:6px;border-bottom:1px solid #eee;text-align:center;cursor:pointer;font-size:16px;">✅</td>` : `<td onclick="uploadDokumen(${j.id},'${d.id}','${jsArg(d.nama)}')" style="padding:6px;border-bottom:1px solid #eee;text-align:center;cursor:pointer;font-size:16px;">⬜</td>`;
+                const arr = dokumenData[j.id]?.[d.id], ada = Array.isArray(arr) && arr.some(fotoDokumenWajar), rusak = !ada && Array.isArray(arr) && arr.length > 0;
+                html += ada ? `<td onclick="previewDokumen(${j.id},'${d.id}',0)" style="padding:6px;border-bottom:1px solid #eee;text-align:center;cursor:pointer;font-size:16px;">✅</td>` : rusak ? `<td onclick="uploadDokumen(${j.id},'${d.id}','${jsArg(d.nama)}')" title="File rusak, unggah ulang" style="padding:6px;border-bottom:1px solid #eee;text-align:center;cursor:pointer;font-size:16px;">⚠️</td>` : `<td onclick="uploadDokumen(${j.id},'${d.id}','${jsArg(d.nama)}')" style="padding:6px;border-bottom:1px solid #eee;text-align:center;cursor:pointer;font-size:16px;">⬜</td>`;
             });
             html += `<td style="padding:6px;border-bottom:1px solid #eee;text-align:center;font-weight:700;color:${st.lengkap ? '#166534' : '#B45309'};">${st.ada}/${st.total}</td></tr>`;
         });
-        html += `</tbody></table></div><div style="font-size:11px;color:#6B7280;margin-top:6px;">⬜ ketuk untuk upload · ✅ ketuk untuk lihat · — bukan syarat untuk program ini · ＋ dokumen tambahan khusus jamaah</div>`;
+        html += `</tbody></table></div><div style="font-size:11px;color:#6B7280;margin-top:6px;">⬜ ketuk untuk upload · ✅ ketuk untuk lihat · — bukan syarat untuk program ini · ＋ dokumen tambahan khusus jamaah · ⚠️ file rusak</div>`;
         container.innerHTML = html;
         const pgEl = document.getElementById('paginationContainerDokumen');
         if (pgEl) pgEl.innerHTML = buildPaginationHtml(currentDokumenPage, totalPages, 'goToDokumenPage');
@@ -30725,7 +30729,7 @@ function renderDokumenList() {
             }
             html += `</div>`;
         }
-        html += `</div><div onclick="bukaDokumenTambahan(${j.id})" style="text-align:center;font-size:12px;font-weight:600;color:var(--primary);cursor:pointer;padding:8px 0 2px;">➕ Dokumen tambahan${(j.dokumen_tambahan && j.dokumen_tambahan.length) ? ' (' + j.dokumen_tambahan.length + ')' : ''}</div></div>`;
+        html += `</div><div onclick="bukaDokumenTambahan(${j.id})" style="text-align:center;font-size:13px;font-weight:600;color:var(--primary);cursor:pointer;padding:9px 0;margin-top:8px;border:1.5px dashed var(--primary);border-radius:10px;">➕ Dokumen tambahan${(j.dokumen_tambahan && j.dokumen_tambahan.length) ? ' (' + j.dokumen_tambahan.length + ')' : ''}</div></div>`;
     });
     container.innerHTML = html;
 
@@ -30859,6 +30863,7 @@ function fotoDokumenWajar(v) {
     if(v.indexOf('data:image/png') === 0) return isi.indexOf('iVBOR') === 0;
     return true;
 }
+function adaFotoDokumen(jamaahId, jenisId) { const a = (dokumenData[jamaahId] || {})[jenisId]; return Array.isArray(a) && a.some(fotoDokumenWajar); }
 function getStatusKelengkapanDokumen(jamaahId, j) {
     if(!j) j = _allJamaahData.find(x => x.id === jamaahId);
     const docs = dokumenData[jamaahId] || {};
@@ -30878,16 +30883,25 @@ function petunjukEndorsementJamaah(j) {
     if(kata > 2) return '';
     return `<div style="font-size:11px;color:#92400E;background:#FEF3C7;border-radius:8px;padding:6px 8px;margin:-2px 0 8px;line-height:1.45;">Nama paspor "${escapeHtml(np)}" hanya ${kata} kata. Endorsement biasanya dibutuhkan bila nama paspor pendek, jadi cek dulu. Ini hanya petunjuk.</div>`;
 }
+function barisDokTambahan(daftar, j, pilih) {
+    return daftar.map(d => `<label style="display:flex;align-items:center;gap:10px;padding:10px;border:1px solid #e2e8f0;border-radius:10px;margin-bottom:6px;font-size:14px;"><input type="checkbox" class="dokTambahCb" value="${escapeHtml(d.id)}" ${(pilih.includes(d.id) || ((dokumenData[j.id] || {})[d.id] || []).length > 0) ? 'checked' : ''} style="width:18px;height:18px;flex:none;margin:0;"> ${d.icon} ${escapeHtml(d.nama)}</label>${d.id === 'endorsement' ? petunjukEndorsementJamaah(j) : ''}`).join('');
+}
 function bukaDokumenTambahan(id) {
     const j = _allJamaahData.find(x => x.id === id); if(!j) return;
     const k = kelompokDokumenJamaah(j), pilih = j.dokumen_tambahan || [];
     const kandidat = dokumenJenisList.filter(d => !jenisStandarUntuk(d, k));
+    // Build 309: jenis yang jelas khusus program lain (mis. SPPH/BPIH di Umroh, Vaksin di Haji) dilipat supaya tidak membingungkan. Tidak ada yang dihapus.
+    const khususLain = d => (k === 'umroh' || k === 'haji') && Array.isArray(d.untuk) && d.untuk.length > 0 && !d.untuk.includes(k);
+    const sudahDipakai = d => pilih.includes(d.id) || ((dokumenData[j.id] || {})[d.id] || []).length > 0;
+    const atas = kandidat.filter(d => !khususLain(d) || sudahDipakai(d));
+    const lipat = kandidat.filter(d => khususLain(d) && !sudahDipakai(d));
+    const lipatTerbuka = !atas.length; // bila tidak ada pilihan lain, langsung terbuka
     let m = document.getElementById('dokTambahanModal');
     if(!m) { m = document.createElement('div'); m.id = 'dokTambahanModal'; m.className = 'modal'; document.body.appendChild(m); }
     m.innerHTML = `<div class="modal-content" style="max-width:380px;">
         <h3 style="color:var(--primary);margin-bottom:4px;">➕ Dokumen tambahan</h3>
         <div style="font-size:12px;color:#666;margin-bottom:12px;"><b>${escapeHtml(j.nama_lengkap)}</b> — pilih dokumen khusus yang diminta untuk jamaah ini saja (mis. pelimpahan). Dokumen yang dipilih ikut dihitung sebagai syarat kelengkapan.</div>
-        ${kandidat.length ? kandidat.map(d => `<label style="display:flex;align-items:center;gap:10px;padding:10px;border:1px solid #e2e8f0;border-radius:10px;margin-bottom:6px;font-size:14px;"><input type="checkbox" class="dokTambahCb" value="${escapeHtml(d.id)}" ${(pilih.includes(d.id) || ((dokumenData[j.id] || {})[d.id] || []).length > 0) ? 'checked' : ''} style="width:18px;height:18px;flex:none;margin:0;"> ${d.icon} ${escapeHtml(d.nama)}</label>${d.id === 'endorsement' ? petunjukEndorsementJamaah(j) : ''}`).join('') : '<p style="color:#6B7280;font-size:13px;">Semua jenis dokumen sudah termasuk daftar standar program ini. Tambah jenis baru lewat ikon gerigi.</p>'}
+        ${kandidat.length ? (barisDokTambahan(atas, j, pilih) + (lipat.length ? `<details style="margin-top:6px;"${lipatTerbuka ? ' open' : ''}><summary style="font-size:12px;color:#64748b;cursor:pointer;padding:6px 2px;">Jenis khusus program lain (${lipat.map(d => escapeHtml(d.nama)).join(', ')})</summary>${barisDokTambahan(lipat, j, pilih)}</details>` : '')) : '<p style="color:#6B7280;font-size:13px;">Semua jenis dokumen sudah termasuk daftar standar program ini. Tambah jenis baru lewat ikon gerigi.</p>'}
         <div style="display:flex;gap:8px;margin-top:12px;"><button onclick="simpanDokumenTambahan(${id})" style="flex:1;padding:12px;background:var(--primary);color:#fff;border:none;border-radius:10px;font-weight:700;cursor:pointer;">Simpan</button><button onclick="document.getElementById('dokTambahanModal').style.display='none'" style="flex:1;padding:12px;background:#e2e8f0;color:#333;border:none;border-radius:10px;cursor:pointer;">Batal</button></div>
     </div>`;
     m.style.display = 'flex';
@@ -31582,7 +31596,7 @@ function remindAllKurangDokumen() {
         <div style="max-height:320px;overflow-y:auto;margin-bottom:14px;">
         ${kurang.map((j, i) => {
             const st = getStatusKelengkapanDokumen(j.id, j);
-            const kurangList = dokumenJenisUntuk(j).filter(d => !dokumenData[j.id]?.[d.id]);
+            const kurangList = dokumenJenisUntuk(j).filter(d => !adaFotoDokumen(j.id, d.id));
             const wa = j.additional_fields?.whatsapp || j.additional_fields?.no_hp || '';
             return `<div style="padding:10px;border:1px solid #e2e8f0;border-radius:10px;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center;">
                 <div>
@@ -31610,8 +31624,8 @@ function remindAllKurangDokumen() {
     window.kirimReminderDokumenWA = function(jamaahId, namaJamaah) {
         const j = jamaahList.find(x => x.id == jamaahId);
         if(!j) return;
-        const kurangList = dokumenJenisUntuk(j).filter(d => !dokumenData[j.id]?.[d.id]);
-        const sudahList = dokumenJenisUntuk(j).filter(d => dokumenData[j.id]?.[d.id]);
+        const kurangList = dokumenJenisUntuk(j).filter(d => !adaFotoDokumen(j.id, d.id));
+        const sudahList = dokumenJenisUntuk(j).filter(d => adaFotoDokumen(j.id, d.id));
         let wa = j.additional_fields?.whatsapp || j.additional_fields?.no_hp || '';
         if(!wa) { showToast(`⚠️ ${namaJamaah} tidak punya nomor WA`); return; }
         wa = bersihkanNomorWA(wa);
@@ -31652,7 +31666,7 @@ async function addDokumenField() {
     const id = nama.toLowerCase().replace(/\s+/g, '_');
     if(dokumenJenisList.some(j => j.id === id)) return showToast('Jenis dokumen sudah ada!');
     const ut = document.getElementById('newDokumenUntuk')?.value || 'semua';
-    dokumenJenisList.push({ id, nama, icon, untuk: ut === 'semua' ? ['umroh', 'haji'] : [ut] });
+    dokumenJenisList.push({ id, nama, icon, untuk: ut === 'semua' ? ['umroh', 'haji'] : (ut === 'tambahan' ? [] : [ut]) });
     await saveDokumenJenisToIndexedDB();
     closeDokumenFieldModal();
     renderDokumenList();
@@ -31666,7 +31680,7 @@ function renderDokumenFieldsList() {
     if(dokumenJenisList.length === 0) { container.innerHTML = '<p>Belum ada jenis dokumen</p>'; return; }
     let html = '<h4>📋 Jenis Dokumen Aktif:</h4>';
     dokumenJenisList.forEach((jenis, idx) => {
-        html += `<div class="field-item"><div><span style="font-size:20px;">${jenis.icon}</span> <strong>${escapeHtml(jenis.nama)}</strong><br><small>${(jenis.untuk && jenis.untuk.length === 0) ? '➕ Dokumen tambahan (dipilih per jamaah)' : ((jenis.untuk && jenis.untuk.length === 1) ? (jenis.untuk[0] === 'haji' ? '🕋 Haji saja' : '🕌 Umroh saja') : 'Umroh dan Haji')}</small></div>
+        html += `<div class="field-item"><div><span style="font-size:20px;">${jenis.icon}</span> <strong>${escapeHtml(jenis.nama)}</strong><br><small>${(jenis.untuk && jenis.untuk.length === 0) ? '➕ Dokumen tambahan (dipilih per jamaah)<br><span style="font-size:11px;color:#64748b;">Pilih jamaahnya di Upload Dokumen → ➕ Dokumen tambahan</span>' : ((jenis.untuk && jenis.untuk.length === 1) ? (jenis.untuk[0] === 'haji' ? '🕋 Haji saja' : '🕌 Umroh saja') : 'Umroh dan Haji')}</small></div>
         <div style="display:flex;gap:6px;">
             <button class="btn-edit-jamaah" onclick="editDokumenJenis(${idx})" style="padding:4px 10px;font-size:11px;">Edit</button>
             <button class="btn-danger-small" onclick="confirmDeleteDokumenField(${idx})">Hapus</button>
@@ -31690,7 +31704,7 @@ function editDokumenJenis(idx) {
             <div style="margin-bottom:10px;"><label style="font-size:13px;">Untuk program</label>
                 <select id="editJenisUntuk" style="width:100%;padding:10px;border-radius:8px;border:1px solid #ddd;margin-top:4px;background:var(--input-bg);color:var(--text);">
                     <option value="semua" ${(!jenis.untuk || jenis.untuk.length > 1) ? 'selected' : ''}>Umroh dan Haji</option><option value="tambahan" ${(jenis.untuk && jenis.untuk.length === 0) ? 'selected' : ''}>Dokumen tambahan (dipilih per jamaah)</option><option value="umroh" ${jenis.untuk && jenis.untuk.length === 1 && jenis.untuk[0] === 'umroh' ? 'selected' : ''}>Umroh saja</option><option value="haji" ${jenis.untuk && jenis.untuk.length === 1 && jenis.untuk[0] === 'haji' ? 'selected' : ''}>Haji saja</option>
-                </select>
+                </select><div style="font-size:12px;color:#64748b;margin-top:6px;line-height:1.4;">ℹ️ Pilihan "Dokumen tambahan": jenis ini tidak wajib untuk semua jamaah. Untuk memilih jamaahnya, buka <b>Upload Dokumen</b> lalu ketuk <b>➕ Dokumen tambahan</b> di kartu jamaah.</div>
             </div>
             <div style="margin-bottom:16px;"><label style="font-size:13px;">Icon</label>
                 <select id="editJenisIcon" style="width:100%;padding:10px;border-radius:8px;border:1px solid #ddd;margin-top:4px;font-size:16px;background:var(--input-bg);color:var(--text);">
