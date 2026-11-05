@@ -16959,6 +16959,7 @@ const PEMERIKSA_KESEHATAN = [
 ];
 
 // ---------- Menjalankan semua pemeriksa ----------
+let _cacheCakupanCek = null;
 async function jalankanCekKesehatan(manual) {
     if (cekSedangJalan) return null; cekSedangJalan = true;
     try {
@@ -16969,7 +16970,15 @@ async function jalankanCekKesehatan(manual) {
         for (const p of PEMERIKSA_KESEHATAN) {
             try {
                 if (!ctx) throw gagalKonteks || new Error('data tidak terbaca');
-                (await p.jalankan(ctx)).forEach(t => temuan.push(t));
+                // Pemeriksaan otomatis memberi jeda antar pemeriksa agar sentuhan layar tidak tertahan
+                if (!manual) await new Promise(r => setTimeout(r, 0));
+                // Cakupan cadangan menyusun ulang seluruh berkas JSON (berat). Pemeriksaan otomatis memakai hasil terakhir selama versi aplikasi sama dan belum 20 jam; tombol "Periksa sekarang" selalu memeriksa penuh.
+                if (p.id === 'cadangan.cakupan' && !manual && _cacheCakupanCek && _cacheCakupanCek.build === NAVARA_BUILD && Date.now() - _cacheCakupanCek.waktu < 20 * 3600000) {
+                    _cacheCakupanCek.temuan.forEach(t => temuan.push(t)); continue;
+                }
+                const hasil = await p.jalankan(ctx);
+                if (p.id === 'cadangan.cakupan') _cacheCakupanCek = { build: NAVARA_BUILD, waktu: Date.now(), temuan: hasil.slice() };
+                hasil.forEach(t => temuan.push(t));
             } catch (e) {
                 gagal.push(p.judul);
                 temuan.push(Object.assign(T('gagal.' + p.id, p.kelompok, 'perhatian', `Tidak dapat diperiksa: ${p.judul}`, `Pemeriksaan ini gagal dijalankan (${(e && e.message) || e}). Hasilnya tidak diketahui, jadi jangan dianggap aman.`, 'Coba periksa lagi; bila berulang, kirim laporan ini ke pengembang.', []), { gagal: true }));
@@ -17006,13 +17015,23 @@ function perbaruiTandaKesehatan() {
     } catch (e) { /* tanda hanya tambahan; jangan mengganggu aplikasi */ }
 }
 // Otomatis: maksimal sekali sehari saat aplikasi dibuka atau kembali dibuka (hanya Admin Utama; tidak ada notifikasi ke HP)
+// Pemeriksaan otomatis jangan memotong sentuhan: tunggu layar tidak disentuh sebentar, maksimal 6 kali menunggu lalu tetap jalan.
+let _sentuhTerakhirCek = 0;
+['pointerdown', 'touchstart', 'keydown', 'scroll'].forEach(ev => window.addEventListener(ev, () => { _sentuhTerakhirCek = Date.now(); }, { passive: true, capture: true }));
+async function tungguHPDiam() {
+    for (let i = 0; i < 6; i++) {
+        await new Promise(r => (typeof window.requestIdleCallback === 'function') ? window.requestIdleCallback(() => r(), { timeout: 3000 }) : setTimeout(r, 1500));
+        if (Date.now() - _sentuhTerakhirCek > 1500) return;
+        await new Promise(r => setTimeout(r, 800));
+    }
+}
 async function jadwalkanCekKesehatan() {
     try {
         if (!adalahAdminPenuh()) return;
         await muatCekKesehatan(); perbaruiTandaKesehatan();
         const umur = Date.now() - cekKesehatanData.terakhir;
         // diperiksa ulang bila sudah lama (>20 jam), atau bila data berubah sejak pemeriksaan terakhir (diberi jeda 2 menit agar tidak terlalu sering)
-        if (umur > 20 * 3600000 || (dataBerubahSejakCek() && umur > 120000)) { await jalankanCekKesehatan(false); if (document.getElementById('page-cekkesehatan')?.classList.contains('active')) renderCekKesehatan(); }
+        if (umur > 20 * 3600000 || (dataBerubahSejakCek() && umur > 120000)) { await tungguHPDiam(); await jalankanCekKesehatan(false); if (document.getElementById('page-cekkesehatan')?.classList.contains('active')) renderCekKesehatan(); }
     } catch (e) { /* jangan mengganggu startup */ }
 }
 setTimeout(jadwalkanCekKesehatan, 6000);
@@ -31010,7 +31029,7 @@ function openIndexedDB() {
 // dengan build baru, data MENTAH (langsung dari IndexedDB, bukan dari memori) disalin dulu sebelum
 // proses migrasi apapun berjalan — supaya kalau ada kesalahan di update, data lama masih bisa dipulihkan.
 // Dokumen & foto tidak ikut disalin (ukurannya besar, dan tidak pernah disentuh proses migrasi).
-const NAVARA_BUILD = '2026.11.04-314';
+const NAVARA_BUILD = '2026.11.05-316';
 const MAKS_SNAPSHOT = 3;
 
 // ==================== DAFTAR DATA PUSAT ====================
@@ -32301,8 +32320,8 @@ async function bukaDocPenuh() {
                     .pages{padding:12px;display:flex;flex-direction:column;gap:10px;}
                     canvas{width:100%;display:block;border-radius:4px;box-shadow:0 2px 8px rgba(0,0,0,0.3);}
                     #loadMsg{color:white;text-align:center;padding:40px;font-size:14px;}
-                    @media print{.topbar{display:none;}body{background:white;}.pages{padding:0;gap:0;}
-                    canvas{box-shadow:none;border-radius:0;page-break-after:always;}}
+                    @media print{@page{size:A4 portrait;margin:10mm;}.topbar{display:none;}body{background:white;}.pages{padding:0;gap:0;}
+                    canvas{box-shadow:none;border-radius:0;page-break-after:always;max-height:275mm;object-fit:contain;}canvas:last-child{page-break-after:auto;break-after:auto;}}
                 </style>
             </head><body>
                 <div class="topbar">
@@ -32359,7 +32378,7 @@ async function bukaDocPenuh() {
                     .img-wrap { flex:1; display:flex; align-items:center; justify-content:center; padding:16px; }
                     img { max-width:100%; height:auto; border-radius:8px; touch-action:pinch-zoom; display:block; }
                     .hint { color:#888; font-size:12px; text-align:center; padding:8px 0 16px; }
-                    @media print { .topbar,.hint { display:none; } body { background:white; } img { max-width:100%; } }
+                    @media print { @page { size:A4 portrait; margin:10mm; } html,body { width:100%; height:auto; min-height:0; background:white; display:block; } .topbar,.hint { display:none; } .img-wrap { display:block; padding:0; min-height:0; text-align:center; } img { max-width:190mm; max-height:270mm; width:auto; height:auto; margin:0 auto; border-radius:0; opacity:1 !important; } }
                 </style>
             </head><body>
                 <div class="topbar">
