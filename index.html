@@ -17008,7 +17008,7 @@ function perbaruiTandaKesehatan() {
     try {
         const r = ringkasanCek(), kartu = document.getElementById('homeKesehatanCard'), baris = document.getElementById('homeKesehatanRingkas');
         const penuh = adalahAdminPenuh();
-        if (kartu) { kartu.style.display = (penuh && r.serius > 0) ? 'block' : 'none'; const el = document.getElementById('homeKesehatanTeks'); if (el) el.textContent = `${r.serius} masalah serius pada data`; }
+        if (kartu) { kartu.style.display = (penuh && r.serius > 0) ? 'block' : 'none'; const el = document.getElementById('homeKesehatanTeks'); if (el) el.textContent = `${r.serius} masalah serius pada data (semua program)`; }
         if (baris) { const tampil = penuh && r.serius === 0 && (r.perhatian > cekKesehatanData.ambang.tumpuk || r.perhatianLama > 0); baris.style.display = tampil ? 'block' : 'none'; const el = document.getElementById('homeKesehatanRingkasTeks'); if (el) el.textContent = `${r.perhatian} hal perlu dilihat di Cek Kesehatan Data`; }
         const item = FITUR_LENGKAP.find(f => f.id === 'cekkesehatan');
         if (item) { item.ket = r.serius ? `🔴 ${r.serius} serius` : (r.perhatian ? `🟡 ${r.perhatian} perlu dilihat` : 'Periksa data uang, jamaah & cadangan'); }
@@ -17045,6 +17045,7 @@ function dataBerubahSejakCek() { return Number(localStorage.getItem('navara_data
 function umurTeksCek(ms) { const m = Math.floor(ms / 60000); if (m < 1) return 'baru saja'; if (m < 60) return m + ' menit lalu'; const j = Math.floor(m / 60); return j < 24 ? j + ' jam lalu' : Math.floor(j / 24) + ' hari lalu'; }
 async function bukaCekKesehatan() {
     if (!bolehKesehatan()) return;
+    _ckProgram = null;
     await muatCekKesehatan();
     // Selalu diperiksa ulang saat layar dibuka, supaya yang tampil adalah keadaan data SEKARANG, bukan hasil lama
     const ring = document.getElementById('ckRingkas'); if (ring) ring.innerHTML = '<div style="padding:12px;color:#888;font-size:12px;">Memeriksa data...</div>';
@@ -17058,6 +17059,9 @@ async function periksaSekarangCek() {
     await jalankanCekKesehatan(true); renderCekKesehatan(); try { renderSemuaMenu(); } catch (e) {}
     showToast('Pemeriksaan selesai');
 }
+let _ckProgram = null; // null = ikut program yang sedang aktif; 'semua'; atau id program
+function programTemuanCek(t) { let best = null; (programList || []).forEach(p => { if (String(t.kunci).endsWith(':' + p.id) && (!best || String(p.id).length > String(best.id).length)) best = p; }); return best; }
+function pilihProgramCek(id) { _ckProgram = String(id); renderCekKesehatan(); }
 function renderCekKesehatan() {
     const wadah = document.getElementById('ckDaftar'); if (!wadah) return;
     const r = ringkasanCek(), tampilInfo = !!document.getElementById('ckInfo')?.checked, semua = temuanAktifCek();
@@ -17065,21 +17069,45 @@ function renderCekKesehatan() {
     document.getElementById('ckRingkas').innerHTML = `<div style="display:flex;gap:6px;margin-bottom:8px;">
             ${[['serius', r.serius], ['perhatian', r.perhatian], ['info', r.info]].map(([k, n]) => `<div style="flex:1;background:#fff;border-radius:12px;padding:10px 6px;text-align:center;border-top:3px solid ${WARNA_TINGKAT[k]};box-shadow:0 2px 8px rgba(0,0,0,0.05);"><div style="font-size:20px;font-weight:800;">${n}</div><div style="font-size:11px;color:#666;">${k === 'serius' ? 'Serius' : (k === 'perhatian' ? 'Perhatian' : 'Info')}</div></div>`).join('')}
         </div>
-        <div style="font-size:11px;color:#888;margin-bottom:8px;">Hasil pemeriksaan: ${escapeHtml(waktu)}${cekKesehatanData.terakhir ? ' (' + umurTeksCek(Date.now() - cekKesehatanData.terakhir) + ')' : ''}. Diperiksa ulang otomatis; tanda hanya muncul di aplikasi.</div>
+        <div style="font-size:11px;color:#888;margin-bottom:8px;">Jumlah di atas mencakup semua program. Hasil pemeriksaan: ${escapeHtml(waktu)}${cekKesehatanData.terakhir ? ' (' + umurTeksCek(Date.now() - cekKesehatanData.terakhir) + ')' : ''}. Diperiksa ulang otomatis; tanda hanya muncul di aplikasi.</div>
         ${dataBerubahSejakCek() ? '<div style="font-size:11.5px;color:#92400E;background:#FEF3C7;border-radius:8px;padding:6px 10px;margin-bottom:8px;">Data berubah sejak pemeriksaan ini. Tekan "Periksa sekarang" agar hasilnya terbaru.</div>' : ''}
         <div style="display:flex;gap:6px;margin-bottom:10px;">
             <button id="ckTombolPeriksa" onclick="periksaSekarangCek()" style="flex:1;padding:10px;border:none;border-radius:10px;font-size:12px;font-weight:700;background:var(--primary);color:#fff;cursor:pointer;">Periksa sekarang</button>
             <button onclick="salinLaporanCek()" style="flex:1;padding:10px;border:none;border-radius:10px;font-size:12px;font-weight:700;background:#E0F2FE;color:#0369A1;cursor:pointer;">Salin laporan</button>
         </div>`;
     const urut = { serius: 0, perhatian: 1, info: 2 }, kelompok = ['Uang', 'Jamaah', 'Konsorsium', 'Cadangan & perangkat', 'Pengaturan & izin'];
-    const tampil = semua.filter(t => !t.diabaikan && (tampilInfo || t.tingkat !== 'info'));
+    const tampilSemua = semua.filter(t => !t.diabaikan && (tampilInfo || t.tingkat !== 'info'));
+    // Temuan milik satu program (kunci berakhiran ":id-program") dipisah dari temuan umum (uang, cadangan, izin)
+    const progAktif = (programList || []).find(p => String(p.id) === String(currentProgramId));
+    const f = _ckProgram !== null ? _ckProgram : (progAktif ? String(progAktif.id) : 'semua');
+    const milik = new Map(tampilSemua.map(t => [t, programTemuanCek(t)]));
+    const lolos = (t) => { const pr = milik.get(t); return !pr || f === 'semua' || String(pr.id) === String(f); };
+    const tampil = tampilSemua.filter(lolos);
+    const urutProg = (t) => { const pr = milik.get(t); if (!pr) return -1; if (progAktif && String(pr.id) === String(progAktif.id)) return 0; return 1 + (programList || []).findIndex(x => x.id === pr.id); };
     let html = kelompok.map(k => {
-        const items = tampil.filter(t => t.kelompok === k).sort((a, b) => urut[a.tingkat] - urut[b.tingkat]);
+        const items = tampil.filter(t => t.kelompok === k).sort((a, b) => urutProg(a) - urutProg(b) || urut[a.tingkat] - urut[b.tingkat]);
         if (!items.length) return '';
-        return `<div style="font-weight:700;font-size:13px;margin:12px 4px 6px;">${escapeHtml(k)}</div>` + items.map(kartuTemuanCek).join('');
+        return `<div style="font-weight:700;font-size:13px;margin:12px 4px 6px;">${escapeHtml(k)}</div>` + items.map(t => kartuTemuanCek(t, f === 'semua')).join('');
     }).join('');
+    // Deretan pilihan program: hanya program yang punya temuan (ditambah program yang sedang aktif)
+    let chips = '';
+    if ((programList || []).length > 1) {
+        const hitungP = (pid) => tampilSemua.filter(t => { const pr = milik.get(t); return pr && String(pr.id) === String(pid); });
+        const lencana = (arr) => { const a = arr.filter(t => t.tingkat === 'serius').length, b = arr.filter(t => t.tingkat === 'perhatian').length, c = arr.filter(t => t.tingkat === 'info').length; return [a ? `🔴${a}` : '', b ? `🟡${b}` : '', c ? `🔵${c}` : ''].filter(Boolean).join(' ') || '✓'; };
+        const chip = (id, label, aktifChip, ket) => `<button type="button" data-id="${escapeHtml(String(id))}"${aktifChip ? ' data-sel="1"' : ''} onclick="pilihProgramCek(this.dataset.id)" style="flex:0 0 auto;border:none;border-radius:999px;padding:7px 12px;font-size:12px;font-weight:700;cursor:pointer;${aktifChip ? 'background:var(--primary);color:#fff;' : 'background:#F1F5F9;color:#334155;'}">${escapeHtml(label)}${ket ? ` · ${ket}` : ''}</button>`;
+        const progDenganTemuan = (programList || []).filter(pr => hitungP(pr.id).length || (progAktif && pr.id === progAktif.id));
+        const semuaTemuanProg = tampilSemua.filter(t => milik.get(t));
+        chips = `<div style="font-size:11.5px;color:var(--teks-redup);margin:10px 4px 6px;">Lihat temuan jamaah dan konsorsium menurut program:</div>
+            <div style="display:flex;gap:6px;overflow-x:auto;padding:0 2px 4px;">${chip('semua', 'Semua program', f === 'semua', lencana(semuaTemuanProg))}${progDenganTemuan.map(pr => chip(pr.id, (progAktif && pr.id === progAktif.id ? '📍 ' : '') + (pr.nama || 'Program'), String(pr.id) === String(f), lencana(hitungP(pr.id)))).join('')}</div>`;
+        if (f !== 'semua') {
+            const lain = tampilSemua.filter(t => { const pr = milik.get(t); return pr && String(pr.id) !== String(f); });
+            if (lain.length) chips += `<div style="font-size:11.5px;color:#92400E;background:#FEF3C7;border-radius:8px;padding:6px 10px;margin:6px 0 2px;">Program lain punya ${lain.length} temuan (${lencana(lain)}). Ketuk nama programnya di atas, atau "Semua program".</div>`;
+        }
+    }
+    html = chips + html;
     if (!html) html = `<div class="card-premium" style="margin:0 0 12px;text-align:center;color:#15803d;">✅ Tidak ada temuan yang perlu ditindak${tampilInfo ? '' : '.<div style="font-size:11px;color:#888;margin-top:4px;">Centang "Tampilkan Info" untuk melihat catatan lainnya.</div>'}</div>`;
     wadah.innerHTML = html;
+    try { const terpilih = wadah.querySelector('button[data-sel="1"]'); if (terpilih && terpilih.parentElement) terpilih.parentElement.scrollLeft = Math.max(0, terpilih.offsetLeft - 24); } catch (e) { /* hanya kenyamanan */ }
     const ab = semua.filter(t => t.diabaikan);
     document.getElementById('ckDiabaikan').innerHTML = ab.length ? `<details class="card-premium" style="margin:0 0 12px;"><summary style="cursor:pointer;font-weight:700;font-size:13px;">Temuan yang diabaikan (${ab.length})</summary><div style="font-size:12px;margin-top:6px;color:#666;">Muncul lagi otomatis kalau datanya berubah.</div>${ab.map(t => { const x = cekKesehatanData.diabaikan[t.kunci] || {}; return `<div style="padding:8px 0;border-top:0.5px solid #eef2f1;"><div>${IKON_TINGKAT[t.tingkat]} ${escapeHtml(t.judul)}</div><div style="color:#888;font-size:11px;">Diabaikan oleh ${escapeHtml(x.oleh || '-')} · ${escapeHtml(x.waktu ? teksWaktuLaporan(x.waktu) : '')}</div><button onclick="pantauLagiCek('${escapeHtml(t.kunci)}')" style="margin-top:4px;border:none;background:#F1F5F9;border-radius:6px;padding:4px 10px;font-size:11px;cursor:pointer;">Pantau lagi</button></div>`; }).join('')}</details>` : '';
     const A = cekKesehatanData.ambang;
@@ -17087,15 +17115,20 @@ function renderCekKesehatan() {
         ${[['pasporBulan', 'Paspor minimal berlaku sebelum keberangkatan (bulan)'], ['meningitisBulan', 'Vaksin meningitis minimal berlaku (bulan)'], ['cadanganPerhatian', 'Cadangan: Perhatian setelah (hari)'], ['cadanganSerius', 'Cadangan: Serius setelah (hari)'], ['hariBelumDitangani', 'Perhatian naik ke Home jika belum ditangani (hari)'], ['tumpuk', 'Perhatian naik ke Home jika lebih dari (temuan)'], ['hargaMinimum', 'Harga paket dianggap tidak wajar jika di bawah (Rp)'], ['rasioHarga', 'Harga menyimpang jika di luar setengah atau kelipatan ini dari harga tengah (x)'], ['minBandingHarga', 'Minimal jamaah berharga untuk membandingkan harga (orang)']].map(([k, t]) => `<div style="display:flex;justify-content:space-between;align-items:center;gap:8px;margin-top:8px;font-size:12px;"><span style="flex:1;">${t}</span><input type="number" min="1" value="${A[k]}" onchange="aturAmbangCek('${k}',this.value)" style="width:64px;padding:6px;border:1px solid #cbd5e1;border-radius:8px;text-align:right;"></div>`).join('')}
         <div style="font-size:11px;color:#888;margin-top:8px;">Aturan paspor dan meningitis sama dengan kartu peringatan di Home.</div></details>`;
 }
-function kartuTemuanCek(t) {
+function kartuTemuanCek(t, tandaiProgram) {
     const aksi = t.aksi ? `<button onclick="${t.aksi.fungsi ? escapeHtml(t.aksi.fungsi) : `showPage('${t.aksi.halaman}')`}" style="border:none;background:#EDE9FE;color:#6D28D9;border-radius:8px;padding:6px 12px;font-size:11px;font-weight:700;cursor:pointer;">${escapeHtml(t.aksi.label)}</button>` : '';
     const abaikan = (t.gagal || t.tingkat === 'info') ? '' : `<button onclick="abaikanTemuanCek('${escapeHtml(t.kunci)}')" style="border:none;background:#F1F5F9;border-radius:8px;padding:6px 12px;font-size:11px;cursor:pointer;">Abaikan</button>`;
     const umur = Math.floor((Date.now() - (cekKesehatanData.pertamaTerlihat[t.kunci] || Date.now())) / 86400000);
+    const prog = programTemuanCek(t), tag = prog ? ' — ' + (prog.nama || 'Program') : '';
+    const judulTampil = prog && t.judul.endsWith(tag) ? t.judul.slice(0, -tag.length) : t.judul; // nama program sudah tampil sebagai label/pilihan
+    const programLain = prog && t.aksi && t.aksi.halaman === 'jamaah' && String(prog.id) !== String(currentProgramId);
     return `<div style="background:#fff;border-radius:12px;border-left:4px solid ${WARNA_TINGKAT[t.tingkat]};padding:10px 12px;margin-bottom:8px;box-shadow:0 2px 8px rgba(0,0,0,0.05);">
-        <div style="font-weight:700;font-size:13px;">${IKON_TINGKAT[t.tingkat]} ${escapeHtml(t.judul)}${t.jumlah > 1 ? ` <span style="color:#888;font-weight:600;">(${t.jumlah})</span>` : ''}</div>
+        ${prog && tandaiProgram ? `<div style="font-size:10.5px;font-weight:700;color:var(--teks-merek);margin-bottom:2px;">📍 ${escapeHtml(prog.nama || 'Program')}</div>` : ''}
+        <div style="font-weight:700;font-size:13px;">${IKON_TINGKAT[t.tingkat]} ${escapeHtml(judulTampil)}${t.jumlah > 1 ? ` <span style="color:#888;font-weight:600;">(${t.jumlah})</span>` : ''}</div>
         <div style="font-size:12px;color:#555;margin-top:3px;">${escapeHtml(t.uraian)}</div>
         ${t.saran ? `<div style="font-size:12px;color:#166534;margin-top:3px;">Saran: ${escapeHtml(t.saran)}</div>` : ''}
         ${t.daftar.length ? `<details style="margin-top:4px;font-size:11.5px;"><summary style="cursor:pointer;color:#0369A1;">Lihat daftar (${t.daftar.length})</summary><div style="margin-top:4px;color:#444;">${t.daftar.slice(0, 40).map(x => '• ' + escapeHtml(x)).join('<br>')}${t.daftar.length > 40 ? `<br>…dan ${t.daftar.length - 40} lainnya` : ''}</div></details>` : ''}
+        ${programLain ? `<div style="font-size:11px;color:#92400E;background:#FEF3C7;border-radius:8px;padding:5px 9px;margin-top:6px;">Temuan ini ada di program "${escapeHtml(prog.nama || 'Program')}". Tombol di bawah membuka Database Jamaah milik program yang sedang aktif, jadi ganti program dulu.</div>` : ''}
         <div style="display:flex;gap:6px;margin-top:8px;align-items:center;">${aksi}${abaikan}${umur >= 1 && t.tingkat !== 'info' ? `<span style="font-size:10.5px;color:#888;margin-left:auto;">terlihat ${umur} hari</span>` : ''}</div></div>`;
 }
 function abaikanTemuanCek(kunci) {
@@ -31029,7 +31062,7 @@ function openIndexedDB() {
 // dengan build baru, data MENTAH (langsung dari IndexedDB, bukan dari memori) disalin dulu sebelum
 // proses migrasi apapun berjalan — supaya kalau ada kesalahan di update, data lama masih bisa dipulihkan.
 // Dokumen & foto tidak ikut disalin (ukurannya besar, dan tidak pernah disentuh proses migrasi).
-const NAVARA_BUILD = '2026.11.05-316';
+const NAVARA_BUILD = '2026.11.05-317';
 const MAKS_SNAPSHOT = 3;
 
 // ==================== DAFTAR DATA PUSAT ====================
