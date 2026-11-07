@@ -5532,13 +5532,13 @@ let _berandaProgramId = null, _hitungBerandaToken = 0;
 function jalankanHitungBeranda() {
     const el = document.getElementById('page-home');
     if (_berandaProgramId === null || String(_berandaProgramId) !== String(currentProgramId)) {
-        updateHomeStats(); _berandaProgramId = currentProgramId; return;
+        denganKonfigDiam(updateHomeStats); _berandaProgramId = currentProgramId; return;
     }
     const token = ++_hitungBerandaToken;
     if (el) el.classList.add('menghitung-beranda');
     requestAnimationFrame(() => setTimeout(() => {
         if (token !== _hitungBerandaToken) return;
-        try { updateHomeStats(); } finally { if (el) el.classList.remove('menghitung-beranda'); }
+        try { denganKonfigDiam(updateHomeStats); } finally { if (el) el.classList.remove('menghitung-beranda'); }
     }, 0));
 }
 function internalShowPage(pageId) {
@@ -23764,7 +23764,7 @@ async function ukurKecepatanHalaman() {
         const asli = {}, hit = {};
         nm.forEach(n => { if (typeof window[n] === 'function') { asli[n] = window[n]; hit[n] = [0, 0]; window[n] = function () { const t = performance.now(); try { return asli[n].apply(this, arguments); } finally { hit[n][0] += performance.now() - t; hit[n][1]++; } }; } });
         let totalHitung = 0;
-        try { const v = []; for (let i = 0; i < 3; i++) { Object.keys(hit).forEach(k => hit[k] = [0, 0]); const t = performance.now(); updateHomeStats(); v.push(performance.now() - t); } totalHitung = Math.round(median(v)); }
+        try { const v = []; for (let i = 0; i < 3; i++) { Object.keys(hit).forEach(k => hit[k] = [0, 0]); const t = performance.now(); denganKonfigDiam(updateHomeStats); v.push(performance.now() - t); } totalHitung = Math.round(median(v)); }
         finally { Object.keys(asli).forEach(n => { window[n] = asli[n]; }); }
         const label = { analisisBufferB2C: 'Analisis buffer B2C', analisisBufferB2BRingan: 'Analisis buffer B2B', cekPeringatanCicilanSemuaJamaah: 'Pengecekan cicilan', updateHomeDashboardExtra: 'Kartu ringkasan & peringatan', hitungModalHargaDariEst: 'Hitung modal harga', getTotalHargaPaket: 'Hitung harga per jamaah' };
         rinci = Object.keys(hit).filter(k => hit[k][1] > 0).map(k => [label[k] + (hit[k][1] > 1 ? ' (' + hit[k][1] + 'x)' : ''), Math.round(hit[k][0])]);
@@ -23777,7 +23777,9 @@ async function ukurKecepatanHalaman() {
     let teks = 'UKUR KECEPATAN · Navara ' + (typeof NAVARA_BUILD !== 'undefined' ? NAVARA_BUILD : '-') + '\nProgram: ' + prog + ' · ' + nJam + ' jamaah\n' + infoPerangkatLaporan().replace(/\n/g, ' · ') + '\n\nWaktu dari ketukan sampai halaman tampil (tengah dari 3 kali):\n';
     baris.forEach(r => { teks += '• ' + r[0] + ': ' + (r[1] === null ? 'dilewati (tidak diizinkan/terkunci)' : r[1] + ' ms ' + labelKecepatan(r[1])) + '\n'; });
     if (rinci.length) { teks += '\nCatatan: pada Home, angka uang baru diperbarui setelah layar tampil, selama kurang lebih "Seluruh hitungan Beranda" di bawah.\nRincian hitungan Beranda (sebagian saling termasuk, jangan dijumlahkan):\n'; rinci.forEach(r => { teks += '• ' + r[0] + ': ' + r[1] + ' ms\n'; }); }
-    teks += '\nAngka sudah termasuk jeda animasi pindah halaman (sekitar 60 ms; hilang bila Animasi halaman dimatikan). Patokan perkiraan umum, bukan standar resmi: di bawah 150 ms lancar, 150-350 ms mulai terasa, di atas 350 ms tertahan.';
+    let kbCfg = '-'; try { kbCfg = Math.round(((localStorage.getItem('navara_konfigurasi_pro') || '').length) / 1024) + ' KB'; } catch (e) {}
+    teks += '\nUkuran pengaturan aplikasi: ' + kbCfg + '\n';
+    teks += 'Angka sudah termasuk jeda animasi pindah halaman (sekitar 60 ms; hilang bila Animasi halaman dimatikan). Patokan perkiraan umum, bukan standar resmi: di bawah 150 ms lancar, 150-350 ms mulai terasa, di atas 350 ms tertahan.';
     window._hasilUkurKecepatan = teks;
     const aman = (typeof escapeHtml === 'function') ? escapeHtml : (x => x);
     kotak.innerHTML = '<div style="white-space:pre-wrap;background:#F8FAFC;border-radius:10px;padding:10px 12px;color:#334155;">' + aman(teks) + '</div><button class="btn btn-secondary mt-2" style="width:100%;" onclick="salinHasilUkurKecepatan()">📋 Salin hasil</button>';
@@ -31144,7 +31146,7 @@ function openIndexedDB() {
 // dengan build baru, data MENTAH (langsung dari IndexedDB, bukan dari memori) disalin dulu sebelum
 // proses migrasi apapun berjalan — supaya kalau ada kesalahan di update, data lama masih bisa dipulihkan.
 // Dokumen & foto tidak ikut disalin (ukurannya besar, dan tidak pernah disentuh proses migrasi).
-const NAVARA_BUILD = '2026.11.05-318';
+const NAVARA_BUILD = '2026.11.06-319';
 const MAKS_SNAPSHOT = 3;
 
 // ==================== DAFTAR DATA PUSAT ====================
@@ -35034,7 +35036,22 @@ async function buildPrintQR(cfg, qrText) {
     } catch(e) { return ''; }
 }
 
+// Selama sebuah hitungan berat (tanpa mengubah data) berjalan, pengaturan diurai SATU kali saja, bukan di tiap pemanggilan.
+// Pengaturan ikut memuat logo instansi (bisa ratusan KB); mengurainya per jamaah membuat Beranda Umroh lambat.
+// Aman: hasil dibuang begitu ada yang menulis ke pengaturan di tengah hitungan, dan semuanya kembali normal begitu hitungan selesai.
+let _konfigDiam = null;
+function denganKonfigDiam(fn) {
+    if (_konfigDiam) return fn();
+    const asliSet = Storage.prototype.setItem, asliHapus = Storage.prototype.removeItem, asliBersih = Storage.prototype.clear;
+    _konfigDiam = { ada: false, data: null };
+    Storage.prototype.setItem = function (k) { if (k === 'navara_konfigurasi_pro' && _konfigDiam) _konfigDiam.ada = false; return asliSet.apply(this, arguments); };
+    Storage.prototype.removeItem = function (k) { if (k === 'navara_konfigurasi_pro' && _konfigDiam) _konfigDiam.ada = false; return asliHapus.apply(this, arguments); };
+    Storage.prototype.clear = function () { if (_konfigDiam) _konfigDiam.ada = false; return asliBersih.apply(this, arguments); };
+    try { return fn(); }
+    finally { Storage.prototype.setItem = asliSet; Storage.prototype.removeItem = asliHapus; Storage.prototype.clear = asliBersih; _konfigDiam = null; }
+}
 function getKonfigurasiProData() {
+    if (_konfigDiam && _konfigDiam.ada) return _konfigDiam.data;
     const saved = localStorage.getItem('navara_konfigurasi_pro');
     let data = null;
     if(saved) { try { data = JSON.parse(saved); } catch(e) {} }
@@ -35064,6 +35081,7 @@ function getKonfigurasiProData() {
         if(progCfg.keberangkatan) data.keberangkatan = progCfg.keberangkatan;
         if(progCfg.splash_quotes) data.splash_quotes = progCfg.splash_quotes;
     }
+    if (_konfigDiam) { _konfigDiam.data = data; _konfigDiam.ada = true; }
     return data;
 }
 
