@@ -23741,7 +23741,7 @@ async function ukurKecepatanHalaman() {
     const dua = () => new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
     const median = a => { const x = a.slice().sort((p, q) => p - q); return x[Math.floor(x.length / 2)]; };
     const nama = { home: 'Home', estimasi: 'Estimasi', uploaddokumen: 'Dokumen', kas: 'Kas', jamaah: 'Jamaah', setting: 'Setting' };
-    const baris = []; let rinci = [];
+    const baris = []; let rinci = []; let gantiProg = [];
     let awal = 'tentang'; try { const a = document.querySelector('.page.active'); if (a) awal = a.id.replace('page-', ''); } catch (e) {}
     try {
         const daftar = ['home', isHajiReguler() ? 'uploaddokumen' : 'estimasi', 'kas', 'jamaah', 'setting'];
@@ -23759,6 +23759,23 @@ async function ukurKecepatanHalaman() {
             }
             baris.push(dilewati ? [nama[hal], null] : [nama[hal], median(waktu)]);
         }
+        // Ganti program: waktu memuat ulang seluruh isi aplikasi untuk tiap program (data di memori dipulihkan setelahnya)
+        try {
+            const asal = currentProgramId;
+            const kand = (programList || []).filter(q => _allJamaahData.some(j => j.program_id === q.id)).slice(0, 4);
+            if (kand.length > 1) {
+                try {
+                    for (const q of kand) {
+                        const wk = [];
+                        for (let i = 0; i < 2; i++) {
+                            currentProgramId = kand.find(z => z.id !== q.id).id; await refilterAllProgramData(); await dua(); await tunggu(150);
+                            currentProgramId = q.id; const t0 = performance.now(); await refilterAllProgramData(); await dua(); wk.push(Math.round(performance.now() - t0));
+                        }
+                        gantiProg.push([q.nama + ' (' + _allJamaahData.filter(j => j.program_id === q.id).length + ' jamaah)', Math.max.apply(null, wk)]);
+                    }
+                } finally { currentProgramId = asal; await refilterAllProgramData(); }
+            }
+        } catch (e) { gantiProg = []; }
         // Rincian perhitungan Beranda (seluruhnya dikerjakan sinkron di updateHomeStats)
         const nm = ['analisisBufferB2C', 'analisisBufferB2BRingan', 'cekPeringatanCicilanSemuaJamaah', 'updateHomeDashboardExtra', 'hitungModalHargaDariEst', 'getTotalHargaPaket'];
         const asli = {}, hit = {};
@@ -23776,6 +23793,7 @@ async function ukurKecepatanHalaman() {
     let prog = '-', nJam = '-'; try { const pr = getCurrentProgram(); prog = pr && pr.nama ? pr.nama : '-'; nJam = jamaahBerangkat().length; } catch (e) {}
     let teks = 'UKUR KECEPATAN · Navara ' + (typeof NAVARA_BUILD !== 'undefined' ? NAVARA_BUILD : '-') + '\nProgram: ' + prog + ' · ' + nJam + ' jamaah\n' + infoPerangkatLaporan().replace(/\n/g, ' · ') + '\n\nWaktu dari ketukan sampai halaman tampil (tengah dari 3 kali):\n';
     baris.forEach(r => { teks += '• ' + r[0] + ': ' + (r[1] === null ? 'dilewati (tidak diizinkan/terkunci)' : r[1] + ' ms ' + labelKecepatan(r[1])) + '\n'; });
+    if (gantiProg.length) { teks += '\nGanti program (waktu memuat ulang seluruh isi aplikasi, terburuk dari 2 kali):\n'; gantiProg.forEach(r => { teks += '• ' + r[0] + ': ' + r[1] + ' ms ' + labelKecepatan(r[1]) + '\n'; }); }
     if (rinci.length) { teks += '\nCatatan: pada Home, angka uang baru diperbarui setelah layar tampil, selama kurang lebih "Seluruh hitungan Beranda" di bawah.\nRincian hitungan Beranda (sebagian saling termasuk, jangan dijumlahkan):\n'; rinci.forEach(r => { teks += '• ' + r[0] + ': ' + r[1] + ' ms\n'; }); }
     let kbCfg = '-'; try { kbCfg = Math.round(((localStorage.getItem('navara_konfigurasi_pro') || '').length) / 1024) + ' KB'; } catch (e) {}
     teks += '\nUkuran pengaturan aplikasi: ' + kbCfg + '\n';
@@ -30061,12 +30079,15 @@ function selectProgram(id) {
     currentProgramId = id;
     localStorage.setItem('navara_current_program_id', id);
     renderProgramPickerBar();
-    refilterAllProgramData();
     closeProgramModal();
     showToast('📁 Program aktif: ' + (getCurrentProgram()?.nama || ''));
+    // Dialog ditutup dulu, baru isi aplikasi dimuat ulang (satu kali kerja), supaya terasa seketika
+    const idPilih = id;
+    requestAnimationFrame(() => setTimeout(() => { if (currentProgramId === idPilih) refilterAllProgramData(); }, 0));
 }
 
 async function refilterAllProgramData() {
+    denganKonfigDiam(() => {
     jamaahList = _allJamaahData.filter(j => j.program_id === currentProgramId);
     dataKas = _allKasData.filter(k => k.program_id === currentProgramId);
     pengeluaranList = _allPengeluaranData.filter(p => p.program_id === currentProgramId);
@@ -30101,10 +30122,12 @@ async function refilterAllProgramData() {
     if(document.getElementById('cfg_harga_seragam_aktif')) reloadHargaSeragamUI();
     if(document.getElementById('splashQuoteList')) renderSplashQuoteList();
     if(document.getElementById('cTiket')) { loadEstimasiData(); renderKunciEstimasiUI(); }
+    });
     // Absensi: re-filter sesi milik Program aktif
     absensiList = _allAbsensiData.filter(s => s.program_id === currentProgramId);
     sesiAktifId = await idbGet(STORE_ABSENSI, 'sesi_aktif_id_' + currentProgramId) || null;
     if(sesiAktifId && !absensiList.find(s => s.id === sesiAktifId)) sesiAktifId = null;
+    denganKonfigDiam(() => {
     if(typeof renderSesiAktifInfo === 'function') renderSesiAktifInfo();
     if(typeof renderRekapAbsensi === 'function') renderRekapAbsensi();
     // Folder Virtual: re-filter milik Program aktif
@@ -30121,6 +30144,7 @@ async function refilterAllProgramData() {
     masterDataList = _allMasterData.filter(m => m.program_id === currentProgramId);
     if(typeof renderMasterTable === 'function') renderMasterTable();
     if(typeof renderMasterForm === 'function') renderMasterForm();
+    });
 }
 
 function openCreateProgramForm() {
@@ -31146,7 +31170,7 @@ function openIndexedDB() {
 // dengan build baru, data MENTAH (langsung dari IndexedDB, bukan dari memori) disalin dulu sebelum
 // proses migrasi apapun berjalan — supaya kalau ada kesalahan di update, data lama masih bisa dipulihkan.
 // Dokumen & foto tidak ikut disalin (ukurannya besar, dan tidak pernah disentuh proses migrasi).
-const NAVARA_BUILD = '2026.11.06-319';
+const NAVARA_BUILD = '2026.11.07-320';
 const MAKS_SNAPSHOT = 3;
 
 // ==================== DAFTAR DATA PUSAT ====================
